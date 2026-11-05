@@ -1,0 +1,463 @@
+{
+  "assetId": "WS-R031-v3",
+  "sourceIds": [
+    "WS-083"
+  ],
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "responsive-board",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-083",
+      "title": "Rich editor code-block controls and copy fallback",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. "
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-083",
+      "title": "Rich editor code-block controls and copy fallback",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. "
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "只删除左组件顶部大号“A390”整条多余标题栏，以及右组件顶部“B320”整条多余标题栏。它们是设计元数据，产品组件内不应有任何该文字；无需移动到别处。其余两组件的代码语言输入、行号/折行/折叠/复制代码、源码、只读选中fallback textarea、内层滚动以及无外部宿主均完全保持不变。",
+  "sourceContracts": [
+    {
+      "id": "WS-083",
+      "title": "Rich editor code-block controls and copy fallback",
+      "kind": "state",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Focus/render fenced code block",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/editor/code-block-view.ts:74",
+        "apps/web/editor/code-block-view.ts:222"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "代码语言",
+          "type": "text",
+          "required": false,
+          "constraints": "Datalist of supported languages; source attr preserved.",
+          "sensitive": false
+        },
+        {
+          "name": "代码内容",
+          "type": "code-editor",
+          "required": true,
+          "constraints": "Local code block text; editor read-only guards inherited.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "行号 / 折行 / 折叠",
+          "effect": "Toggle code presentation",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "复制代码",
+          "effect": "Copy current code; show readonly fallback textarea on denied clipboard",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Virtual/lazy syntax preview",
+        "Active CodeMirror editor",
+        "Folded code",
+        "Clipboard success/fallback",
+        "Readonly"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/editor-code-block-view.test.ts",
+        "tests/e2e/code-block-editor.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "originalManifestContract": {
+    "id": "WS-R031",
+    "title": "Rich editor code-block controls and copy fallback",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-083"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-083",
+        "title": "Rich editor code-block controls and copy fallback",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. "
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-083",
+        "title": "Rich editor code-block controls and copy fallback",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. "
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "apps/web/editor/code-block-view.ts",
+        "role": "AUTHORITATIVE SOURCE: apps/web/editor/code-block-view.ts:74, apps/web/editor/code-block-view.ts:222"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-083",
+        "label": "行号 / 折行 / 折叠",
+        "effect": "Toggle code presentation",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-083",
+        "label": "复制代码",
+        "effect": "Copy current code; show readonly fallback textarea on denied clipboard",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-R031",
+        "representation": "direct",
+        "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+        },
+        "requiredFieldOrder": [
+          "代码语言",
+          "代码内容"
+        ],
+        "requiredFields": [
+          {
+            "name": "代码语言",
+            "type": "text",
+            "required": false,
+            "constraints": "Datalist of supported languages; source attr preserved.",
+            "sensitive": false
+          },
+          {
+            "name": "代码内容",
+            "type": "code-editor",
+            "required": true,
+            "constraints": "Local code block text; editor read-only guards inherited.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "行号 / 折行 / 折叠",
+            "effect": "Toggle code presentation",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "复制代码",
+            "effect": "Copy current code; show readonly fallback textarea on denied clipboard",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-083"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R031 Rich editor code-block controls and copy fallback\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-083\", \"title\": \"Rich editor code-block controls and copy fallback\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. \", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. \"}, {\"label\": \"B\", \"sourceId\": \"WS-083\", \"title\": \"Rich editor code-block controls and copy fallback\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. \", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. \"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-083\", \"fieldsInOrder\": [{\"name\": \"代码语言\", \"type\": \"text\", \"required\": false, \"constraints\": \"Datalist of supported languages; source attr preserved.\", \"sensitive\": false}, {\"name\": \"代码内容\", \"type\": \"code-editor\", \"required\": true, \"constraints\": \"Local code block text; editor read-only guards inherited.\", \"sensitive\": false}], \"actions\": [{\"label\": \"行号 / 折行 / 折叠\", \"effect\": \"Toggle code presentation\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"复制代码\", \"effect\": \"Copy current code; show readonly fallback textarea on denied clipboard\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Virtual/lazy syntax preview\", \"Active CodeMirror editor\", \"Folded code\", \"Clipboard success/fallback\", \"Readonly\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-083\", \"fieldsInOrder\": [{\"name\": \"代码语言\", \"type\": \"text\", \"required\": false, \"constraints\": \"Datalist of supported languages; source attr preserved.\", \"sensitive\": false}, {\"name\": \"代码内容\", \"type\": \"code-editor\", \"required\": true, \"constraints\": \"Local code block text; editor read-only guards inherited.\", \"sensitive\": false}], \"actions\": [{\"label\": \"行号 / 折行 / 折叠\", \"effect\": \"Toggle code presentation\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"复制代码\", \"effect\": \"Copy current code; show readonly fallback textarea on denied clipboard\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Virtual/lazy syntax preview\", \"Active CodeMirror editor\", \"Folded code\", \"Clipboard success/fallback\", \"Readonly\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R031.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-083",
+        "title": "Rich editor code-block controls and copy fallback",
+        "kind": "state",
+        "module": "editor",
+        "entry": {
+          "route": "/?note=:id",
+          "trigger": "Focus/render fenced code block",
+          "parentId": "WS-024"
+        },
+        "sourceRefs": [
+          "apps/web/editor/code-block-view.ts:74",
+          "apps/web/editor/code-block-view.ts:222"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "fields": [
+          {
+            "name": "代码语言",
+            "type": "text",
+            "required": false,
+            "constraints": "Datalist of supported languages; source attr preserved.",
+            "sensitive": false
+          },
+          {
+            "name": "代码内容",
+            "type": "code-editor",
+            "required": true,
+            "constraints": "Local code block text; editor read-only guards inherited.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "行号 / 折行 / 折叠",
+            "effect": "Toggle code presentation",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "复制代码",
+            "effect": "Copy current code; show readonly fallback textarea on denied clipboard",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Virtual/lazy syntax preview",
+          "Active CodeMirror editor",
+          "Folded code",
+          "Clipboard success/fallback",
+          "Readonly"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+        },
+        "testRefs": [
+          "tests/editor-code-block-view.test.ts",
+          "tests/e2e/code-block-editor.spec.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-083",
+        "parentId": "WS-024",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-083",
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "WS-083",
+        "assetId": "WS-D059",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "manifestReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-047.json",
+  "sourceDerived": true,
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "只删除左组件顶部大号“A390”整条多余标题栏，以及右组件顶部“B320”整条多余标题栏。它们是设计元数据，产品组件内不应有任何该文字；无需移动到别处。其余两组件的代码语言输入、行号/折行/折叠/复制代码、源码、只读选中fallback textarea、内层滚动以及无外部宿主均完全保持不变。",
+  "actualToolArguments": {
+    "prompt": "只删除左组件顶部大号“A390”整条多余标题栏，以及右组件顶部“B320”整条多余标题栏。它们是设计元数据，产品组件内不应有任何该文字；无需移动到别处。其余两组件的代码语言输入、行号/折行/折叠/复制代码、源码、只读选中fallback textarea、内层滚动以及无外部宿主均完全保持不变。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R031-v2.png"
+    ],
+    "transparent_background": false
+  },
+  "inputs": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R031-v2.png",
+      "role": "edit target",
+      "sha256": "28646cbac903670b31e09bed13263fb1e541a4c7daba1950ef2d23f33e6941aa",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "inputReferences": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R031-v2.png",
+      "role": "edit target",
+      "sha256": "28646cbac903670b31e09bed13263fb1e541a4c7daba1950ef2d23f33e6941aa",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-a804fcfd-5263-4df3-82ba-7075526c9e48.png",
+  "toolDefaultOutputSource": "$CODEX_HOME/generated_images (actual path in toolOutputFile)",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R031-v3.png",
+  "sha256": "77c677f73a2b6fc4014d2e194c4d054f832b8bb3931f2bbbcc77e10a83372842",
+  "bytes": 1461979,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T08:59:21.397347+00:00",
+  "revisionOf": "WS-R031-v2",
+  "generationAttempts": [
+    {
+      "actualToolArguments": {
+        "prompt": "只删除左组件顶部大号“A390”整条多余标题栏，以及右组件顶部“B320”整条多余标题栏。它们是设计元数据，产品组件内不应有任何该文字；无需移动到别处。其余两组件的代码语言输入、行号/折行/折叠/复制代码、源码、只读选中fallback textarea、内层滚动以及无外部宿主均完全保持不变。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R031-v2.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-a804fcfd-5263-4df3-82ba-7075526c9e48.png",
+      "status": "saved"
+    }
+  ],
+  "postprocessing": "original PNG copied without pixel modification",
+  "selfInspection": {
+    "method": "Viewed actual inputs and generated native preview; compared selected state to source contracts",
+    "concerns": [
+      "Targeted removal of invented selector/metadata; all actual controls retained."
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "reviewStatus": "pending-independent-review",
+  "pendingReview": true,
+  "revisionHistory": {
+    "previousSidecar": "docs/design/platform-unification-2026-11-05/design/images/WS-R031-v2.json",
+    "previousSidecarSha256": "91d391778c31d3f1a32198ee9cf39697ad0b46f79a85e808294a3dbf72125ac4",
+    "previousSubmittedPrompt": "把两个代码块改为独立局部手机组件，彻底移除外部DooKnow页头、两级侧栏、搜索/新建/目录/设置/回收站。纯白背景并排两个窄组件A390/B320，普通中文可读字号，代码块header将语言text输入和行号/折行/折叠/复制代码四按钮自然分行，使每个控件完全在窄组件宽度内。删除代码块内部多余“A390”“B320”文字（可放板外小caption，不能当产品UI）。语言javascript保持可编辑text+datalist，不改select；行号/折行选中，折叠未选，复制代码可用。保留A源码两行和第三空行；B同源码下方仅一个只读textarea内容被选中，保留fallback，不能新增复制成功或额外确认按钮。代码预览与textarea保持内层滚动。"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "assetId": "MP-S014",
+  "sourceIds": [
+    "ST-028"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T04:42:04.318267+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "PortableJobs independent empty and failed-read excerpts; declared per-job state family not represented.",
+  "functionalFindings": [
+    {
+      "id": "MP-S014-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "r2 maps running/completed/failed/cancelled/interrupted jobs onto an empty read-failure alert. Actual job cards have kind/state text and conditional cancel, export retry/preview-continue, source-resume, result-note/download actions. Those fields/actions are absent, so empty error cannot cover the family.",
+      "sourceEvidence": "PortableJobs.vue article v-forjob and state/kind/needsSource/portablePreviews/result conditionals differ structurally from error AAlert and empty text."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Visible empty and fetch-error states match source; error may coexist with empty text because latter tests jobs.length only."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-023.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S014.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/PortableJobs.vue:70",
+    "apps/web/components/settings/PortableJobs.vue:95"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "MP-S014-F1",
+      "correction": "Draw compact real job-card representatives covering unique conditional action structures: runningcancel; noncompleted export retry or preview-continue/cancel-preview as applicable; completed export download; import needsSource resume/results. Exact remaining status text/data/guards may bind same renderer, but cannot map new actions to the empty/error fragment. Preserve original empty/error rows or canonical refs."
+    }
+  ],
+  "reviewedImageSha256": "5167783c3bc39801e1a5586ab8788fc3b0897603b0b1085ea6abee916d7f0f7a",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S014.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

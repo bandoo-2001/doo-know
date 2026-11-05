@@ -1,0 +1,221 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D091",
+  "assetId": "WS-D091",
+  "sourceIds": [
+    "WS-067"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "restore-warning",
+      "sourceId": "WS-067",
+      "title": "History restore confirmation / uncertain result",
+      "role": "authenticated owner",
+      "state": "Explicit replacement warning and dirty-draft navigation policy with actual confirm/cancel guards.",
+      "selectedState": "Two independent ordinary-note saved-history states: A explicit replacement confirmation with dirty-draft explanation; B savePendingRestore while busy checking receipt, locked source/version/close."
+    },
+    {
+      "label": "pending-receipt",
+      "sourceId": "WS-067",
+      "title": "History restore confirmation / uncertain result",
+      "role": "authenticated owner",
+      "state": "Pending/uncertain receipt verification, navigation/source/close lock while busy. Primary diagram preview preparation uses WS-D044 exact prerequisite pattern.",
+      "selectedState": "Two independent ordinary-note saved-history states: A explicit replacement confirmation with dirty-draft explanation; B savePendingRestore while busy checking receipt, locked source/version/close."
+    }
+  ],
+  "selectedState": "Two independent ordinary-note saved-history states: A explicit replacement confirmation with dirty-draft explanation; B savePendingRestore while busy checking receipt, locked source/version/close.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作两个独立历史版本窗口的对照板，外部仅标“恢复确认”“核对中”。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。两窗都标题历史版本、文件名示例笔记.md、来源tabs保存记录/Git 提交（保存记录选中），左版本记录1条2026/11/4 10:00，右历史版本11/4 10:00 → 当前已保存版本11/5 12:00；内容tabs差异对比/历史原文，历史原文选中；工具完整原文/复制全文，下方pre“# 示例笔记”“历史正文。”。\n恢复确认窗：右上X可用，来源/版本选择可用；正文准确提示“未保存的草稿不参与对比；恢复时会先询问如何处理草稿。”；页脚保护“恢复前会保留当前原文，并检查版本是否变化。”，以及明确警告“将恢复 2026/11/4 10:00:00 的历史原文，替换当前已保存内容。”；按钮取消恢复、蓝色确认恢复均可用。不加保存/放弃草稿选择。\n核对中窗：来源tabs与左版本选择灰色禁用，没有右上X；不画替换确认警告；页脚同一保护说明；普通关闭灰色禁用，“核对恢复结果”带loading且禁用。没有再次确认恢复/新请求ID输入/成功反馈，也不展示原始图形生成。",
+  "prompt": "制作两个独立历史版本窗口的对照板，外部仅标“恢复确认”“核对中”。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。两窗都标题历史版本、文件名示例笔记.md、来源tabs保存记录/Git 提交（保存记录选中），左版本记录1条2026/11/4 10:00，右历史版本11/4 10:00 → 当前已保存版本11/5 12:00；内容tabs差异对比/历史原文，历史原文选中；工具完整原文/复制全文，下方pre“# 示例笔记”“历史正文。”。\n恢复确认窗：右上X可用，来源/版本选择可用；正文准确提示“未保存的草稿不参与对比；恢复时会先询问如何处理草稿。”；页脚保护“恢复前会保留当前原文，并检查版本是否变化。”，以及明确警告“将恢复 2026/11/4 10:00:00 的历史原文，替换当前已保存内容。”；按钮取消恢复、蓝色确认恢复均可用。不加保存/放弃草稿选择。\n核对中窗：来源tabs与左版本选择灰色禁用，没有右上X；不画替换确认警告；页脚同一保护说明；普通关闭灰色禁用，“核对恢复结果”带loading且禁用。没有再次确认恢复/新请求ID输入/成功反馈，也不展示原始图形生成。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; selected history states source-derived",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; selected history states source-derived",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作两个独立历史版本窗口的对照板，外部仅标“恢复确认”“核对中”。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。两窗都标题历史版本、文件名示例笔记.md、来源tabs保存记录/Git 提交（保存记录选中），左版本记录1条2026/11/4 10:00，右历史版本11/4 10:00 → 当前已保存版本11/5 12:00；内容tabs差异对比/历史原文，历史原文选中；工具完整原文/复制全文，下方pre“# 示例笔记”“历史正文。”。\n恢复确认窗：右上X可用，来源/版本选择可用；正文准确提示“未保存的草稿不参与对比；恢复时会先询问如何处理草稿。”；页脚保护“恢复前会保留当前原文，并检查版本是否变化。”，以及明确警告“将恢复 2026/11/4 10:00:00 的历史原文，替换当前已保存内容。”；按钮取消恢复、蓝色确认恢复均可用。不加保存/放弃草稿选择。\n核对中窗：来源tabs与左版本选择灰色禁用，没有右上X；不画替换确认警告；页脚同一保护说明；普通关闭灰色禁用，“核对恢复结果”带loading且禁用。没有再次确认恢复/新请求ID输入/成功反馈，也不展示原始图形生成。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作两个独立历史版本窗口的对照板，外部仅标“恢复确认”“核对中”。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。两窗都标题历史版本、文件名示例笔记.md、来源tabs保存记录/Git 提交（保存记录选中），左版本记录1条2026/11/4 10:00，右历史版本11/4 10:00 → 当前已保存版本11/5 12:00；内容tabs差异对比/历史原文，历史原文选中；工具完整原文/复制全文，下方pre“# 示例笔记”“历史正文。”。\n恢复确认窗：右上X可用，来源/版本选择可用；正文准确提示“未保存的草稿不参与对比；恢复时会先询问如何处理草稿。”；页脚保护“恢复前会保留当前原文，并检查版本是否变化。”，以及明确警告“将恢复 2026/11/4 10:00:00 的历史原文，替换当前已保存内容。”；按钮取消恢复、蓝色确认恢复均可用。不加保存/放弃草稿选择。\n核对中窗：来源tabs与左版本选择灰色禁用，没有右上X；不画替换确认警告；页脚同一保护说明；普通关闭灰色禁用，“核对恢复结果”带loading且禁用。没有再次确认恢复/新请求ID输入/成功反馈，也不展示原始图形生成。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; selected history states source-derived"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-2434cde4-bddb-4e11-ae9f-6e1483f6e69c.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-067",
+      "title": "History restore confirmation / uncertain result",
+      "kind": "state",
+      "module": "history",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "恢复此版本 first click",
+        "parentId": "WS-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/NoteHistoryDialog.vue:914",
+        "apps/web/components/NoteHistoryDialog.vue:940",
+        "apps/web/diagrams/history-restore.ts:1",
+        "apps/server/knowledge/diagram-history-routes.ts:34"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "确认恢复 / 确认恢复笔记",
+          "effect": "Replace current saved content after preserving version; check optimistic baseline",
+          "api": "POST /api/notes/:id/revisions/:revisionId/restore; diagram-restore/prepare/commit for primary diagrams",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "核对恢复结果 / 核对保存结果",
+          "effect": "Check pending request without duplicating restore",
+          "api": "GET /api/operations?requestId=:id; GET /api/diagram-history-restores/:id",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "取消恢复",
+          "effect": "Cancel confirmation",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Explicit replacement warning",
+        "Dirty draft navigation policy",
+        "Busy locks close/source switches",
+        "Restore result uncertain",
+        "Primary diagram preview generation before commit"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/diagram-history-restore.test.ts",
+        "tests/e2e/diagram-history-restore.spec.ts",
+        "tests/note-history-context.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-067",
+      "parentId": "WS-064",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/NoteHistoryDialog.vue:914",
+        "apps/web/components/NoteHistoryDialog.vue:940",
+        "apps/web/diagrams/history-restore.ts:1",
+        "apps/server/knowledge/diagram-history-routes.ts:34"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-017.json#WS-D091",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D091",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-2434cde4-bddb-4e11-ae9f-6e1483f6e69c.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D091.png",
+  "sha256": "725495ad2b18bb08d9baba46a623a11c32ceb6ef65774544723f34e1e6c8a598",
+  "bytes": 1374424,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T03:42:30.984396+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "History restore warning and uncertain receipt states",
+    "sourceIds": [
+      "WS-067"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Two independent ordinary-note saved-history states: A explicit replacement confirmation with dirty-draft explanation; B savePendingRestore while busy checking receipt, locked source/version/close.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "renderedVariants": []
+}

@@ -1,0 +1,16 @@
+{
+  "id": "blog-design",
+  "title": "博客管理 design",
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?view=apps&app=blog&appSection=design",
+  "file": "1440-blog-design.png",
+  "sha256": "d91badae422d3e52b77089047ae5861e863d52f8eaa804ef9066016f5df9c22a",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "reviewer": "platform_review_ws01",
+  "reviewedAtUtc": "2026-11-05T08:29:20.097225+00:00",
+  "scope": "Bounded WS002 inherited-sidebar-error exact-renderer mapping check only; no existing image re-review/global pass/catalog mutation.",
+  "sourceRefs": [
+    "apps/web/components/Workspace.vue:2746",
+    "apps/web/components/Workspace.vue:2895",
+    "apps/web/components/Workspace.vue:2899",
+    "apps/web/components/Workspace.vue:3369"
+  ],
+  "sourceBranch": {
+    "condition": "Sidebar non-search branch, !treeLoaded && !treeRefreshing after preceding query branch",
+    "renderer": "div.tree-load-error > p.muted + AButton size=small",
+    "message": "目录暂时无法读取",
+    "action": "重新加载目录",
+    "effect": "run(refresh), existing owner tree reload",
+    "role": "authenticated owner; same sidebar DOM inside mobile drawer",
+    "notEquivalentTo": "Main empty-panel unavailable landing has folder icon+h1+paragraph+primary 重试连接; different structure and copy."
+  },
+  "existingCandidates": [
+    {
+      "assetId": "WS-D002",
+      "finding": "Planned mobile drawer only; no WS-D002*.png/json exists in design/images at this check, so it is not an existing reviewed visual specimen. Planned metadata inheritance cannot establish depicted error coverage."
+    },
+    {
+      "assetId": "WS-D003-v3",
+      "finding": "One full query-results/hybrid-degradation page, not a row matrix; no tree-load-error sidebar specimen."
+    },
+    {
+      "assetId": "WS-M003-v2",
+      "panel": "A",
+      "row": "row-2",
+      "finding": "Actual reviewed directory-unavailable fragment is main landing, not sidebar paragraph+small reload button. r7 is loading list only."
+    }
+  ],
+  "conclusion": "No exact already-drawn reviewed asset/panel/row established. The actual sidebar-error specimen must be included in a still-pending planned asset or supplemental revision before claiming visual coverage; root owns the plan/queue choice. Preserve existing source state; do not map it to M003r2.",
+  "planModified": false,
+  "existingPassSHAReReviewed": false,
+  "correctionHistory": [
+    {
+      "reason": "Initial candidate filename WS-D002-v2 was inferred incorrectly. Filesystem and current plan show pending WS-D002, without generated PNG. Corrected before mapping recommendation to root; no pass verdict claimed."
+    }
+  ]
+}

@@ -1,0 +1,257 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D012",
+  "assetId": "MP-D012",
+  "sourceIds": [
+    "ST-014"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-014",
+      "title": "批量整理与继续/撤销记录",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Loaded organization card with 2 selected notes/target and two distinct history records: awaiting_preview resumable and succeeded undoable; no local pending/busy/error."
+    }
+  ],
+  "selectedState": "Loaded organization card with 2 selected notes/target and two distinct history records: awaiting_preview resumable and succeeded undoable; no local pending/busy/error.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作一个完整“批量整理”局部设置卡，不画外部设置页或弹窗关闭X。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。标题批量整理，右侧刷新整理记录；说明“移动已保存的笔记，保留身份并更新关联链接。图形预览准备完成后才会提交。”。展开“选择需要移动的笔记（已选 2 篇）”，两项已勾checkbox：00-Inbox/a.md、00-Inbox/b.md。label整理目标目录，combobox30-Knowledge；可用蓝色移动选中笔记。下方是真实记录列表的两条独立记录：第1条“移动笔记 · 等待图形预览”，旁可用“继续此整理”；第2条“移动笔记 · 已完成 · 2 项变更”，旁可用“撤销此整理”。不要把两状态合为同一记录，不加操作编号/时间/hash输入、立即自动移动/永久删除或新确认。",
+  "prompt": "制作一个完整“批量整理”局部设置卡，不画外部设置页或弹窗关闭X。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。标题批量整理，右侧刷新整理记录；说明“移动已保存的笔记，保留身份并更新关联链接。图形预览准备完成后才会提交。”。展开“选择需要移动的笔记（已选 2 篇）”，两项已勾checkbox：00-Inbox/a.md、00-Inbox/b.md。label整理目标目录，combobox30-Knowledge；可用蓝色移动选中笔记。下方是真实记录列表的两条独立记录：第1条“移动笔记 · 等待图形预览”，旁可用“继续此整理”；第2条“移动笔记 · 已完成 · 2 项变更”，旁可用“撤销此整理”。不要把两状态合为同一记录，不加操作编号/时间/hash输入、立即自动移动/永久删除或新确认。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exclude owner workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exclude owner workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作一个完整“批量整理”局部设置卡，不画外部设置页或弹窗关闭X。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。标题批量整理，右侧刷新整理记录；说明“移动已保存的笔记，保留身份并更新关联链接。图形预览准备完成后才会提交。”。展开“选择需要移动的笔记（已选 2 篇）”，两项已勾checkbox：00-Inbox/a.md、00-Inbox/b.md。label整理目标目录，combobox30-Knowledge；可用蓝色移动选中笔记。下方是真实记录列表的两条独立记录：第1条“移动笔记 · 等待图形预览”，旁可用“继续此整理”；第2条“移动笔记 · 已完成 · 2 项变更”，旁可用“撤销此整理”。不要把两状态合为同一记录，不加操作编号/时间/hash输入、立即自动移动/永久删除或新确认。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作一个完整“批量整理”局部设置卡，不画外部设置页或弹窗关闭X。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。标题批量整理，右侧刷新整理记录；说明“移动已保存的笔记，保留身份并更新关联链接。图形预览准备完成后才会提交。”。展开“选择需要移动的笔记（已选 2 篇）”，两项已勾checkbox：00-Inbox/a.md、00-Inbox/b.md。label整理目标目录，combobox30-Knowledge；可用蓝色移动选中笔记。下方是真实记录列表的两条独立记录：第1条“移动笔记 · 等待图形预览”，旁可用“继续此整理”；第2条“移动笔记 · 已完成 · 2 项变更”，旁可用“撤销此整理”。不要把两状态合为同一记录，不加操作编号/时间/hash输入、立即自动移动/永久删除或新确认。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+          "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; exclude owner workspace shell"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-a458b751-deef-4b9a-b98e-f280c1ea87f1.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-014",
+      "title": "批量整理与继续/撤销记录",
+      "kind": "state",
+      "module": "settings/organization",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "展开选择笔记；选择目标目录",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/OrganizationOperations.vue:103",
+        "apps/web/components/settings/OrganizationOperations.vue:205"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "需要移动的笔记",
+          "type": "checkbox[]",
+          "required": true,
+          "constraints": "至少1；最大context.limits.actions，动态返回",
+          "sensitive": false
+        },
+        {
+          "name": "整理目标目录",
+          "type": "tree-select",
+          "required": true,
+          "constraints": "根目录或已有writable且organizable目录",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "移动选中笔记 / 核对上次整理",
+          "effect": "提交稳定requestId与结构版本、文件时间/hash",
+          "api": "POST /api/organization/operations",
+          "guard": "有选择且已读context；不busy；pending锁输入"
+        },
+        {
+          "label": "继续此整理",
+          "effect": "完成含图形预览的原操作",
+          "api": "组织operation preview workflow",
+          "guard": "queued/running/committing/awaiting_preview"
+        },
+        {
+          "label": "撤销此整理",
+          "effect": "提交undo",
+          "api": "POST /api/organization/operations/:id/undo",
+          "guard": "succeeded且undoAvailable"
+        },
+        {
+          "label": "刷新整理记录",
+          "effect": "读取上下文/笔记/目录/最近20操作",
+          "api": "GET /api/organization/context; GET /api/notes; GET /api/organization/directories; GET /api/organization/operations?limit=20",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "加载/空",
+        "目录结构变化需刷新",
+        "超出动态动作/目录上限",
+        "等待图形预览",
+        "需要核对",
+        "成功/失败/取消",
+        "原请求核对"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/organization-service.test.ts:1",
+        "tests/organization-retained-move.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-014",
+      "parentId": "ST-002",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/OrganizationOperations.vue:103",
+        "apps/web/components/settings/OrganizationOperations.vue:205"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-017.json#MP-D012",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D012",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-a458b751-deef-4b9a-b98e-f280c1ea87f1.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D012.png",
+  "sha256": "9be714f0f5755c21e1cd51cf1f32c19216dfc8351905dcdb190b4c172d9d34f7",
+  "bytes": 1122124,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T03:49:28.643856+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "批量整理与继续/撤销记录",
+    "sourceIds": [
+      "ST-014"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Loaded organization card with 2 selected notes/target and two distinct history records: awaiting_preview resumable and succeeded undoable; no local pending/busy/error.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "renderedVariants": []
+}

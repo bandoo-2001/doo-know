@@ -1,0 +1,1503 @@
+{
+  "id": "WS-D002",
+  "title": "Mobile notebook navigation drawer",
+  "kind": "responsive-board",
+  "sourceIds": [
+    "WS-002",
+    "WS-003",
+    "WS-103"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-002",
+      "title": "Mobile notebook navigation drawer",
+      "role": "authenticated owner",
+      "state": "Actual open mobile notebook drawer with query then mode then directory, result/tree rows and reachable close/scrim. No explicit search-submit button. Internal scroll and selected tree/decoration state retained.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.",
+      "containedSourceIds": [
+        "WS-003",
+        "WS-103"
+      ]
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-002",
+      "title": "Mobile notebook navigation drawer",
+      "role": "authenticated owner",
+      "state": "Actual open mobile notebook drawer with query then mode then directory, result/tree rows and reachable close/scrim. No explicit search-submit button. Internal scroll and selected tree/decoration state retained.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.",
+      "containedSourceIds": [
+        "WS-003",
+        "WS-103"
+      ]
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:2707, apps/web/components/Workspace.vue:2995, apps/web/style.css:1083"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-002",
+      "label": "关闭侧栏 / scrim",
+      "effect": "Close drawer",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-002",
+      "label": "选择笔记或目录",
+      "effect": "Open selection and close drawer",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-003",
+      "label": "搜索 / 加载更多",
+      "effect": "Run paginated advanced search; merge with filename results",
+      "api": "POST /api/search/advanced",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-003",
+      "label": "搜索结果",
+      "effect": "Open note at matching line or directory",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-003",
+      "label": "重试搜索",
+      "effect": "Repeat current search",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-003",
+      "label": "检查搜索设置",
+      "effect": "Navigate settings/search",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-103",
+      "label": "展开/折叠目录",
+      "effect": "Toggle existing folder tree branch",
+      "api": "none (local UI)",
+      "guard": "Owner session; relevant editor and busy guards apply."
+    },
+    {
+      "sourceId": "WS-103",
+      "label": "选择笔记或文件夹",
+      "effect": "Navigate actual note/folder",
+      "api": "none (local UI)",
+      "guard": "Owner session; relevant editor and busy guards apply."
+    },
+    {
+      "sourceId": "WS-103",
+      "label": "拖拽/键盘/双击调整宽度",
+      "effect": "Resize and persist notebook sidebar",
+      "api": "none (local UI)",
+      "guard": "Owner session; relevant editor and busy guards apply."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-D002",
+      "representation": "direct",
+      "reason": "Actual mobile notebook drawer. Search query/mode/directory/results and tree selected/decoration rows are contained at both widths; per-source reactive search, resizing and navigation guards stay exact.",
+      "reuseSourceId": "WS-002",
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [
+        "搜索笔记与目录"
+      ],
+      "requiredFields": [
+        {
+          "name": "搜索笔记与目录",
+          "type": "search",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "关闭侧栏 / scrim",
+          "effect": "Close drawer",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "选择笔记或目录",
+          "effect": "Open selection and close drawer",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-002"
+    },
+    {
+      "assetId": "WS-D002",
+      "representation": "shared-geometry",
+      "reason": "Actual mobile notebook drawer. Search query/mode/directory/results and tree selected/decoration rows are contained at both widths; per-source reactive search, resizing and navigation guards stay exact.",
+      "reuseSourceId": "WS-002",
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [
+        "搜索词",
+        "搜索模式",
+        "搜索目录"
+      ],
+      "requiredFields": [
+        {
+          "name": "搜索词",
+          "type": "search",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "搜索模式",
+          "type": "select",
+          "required": true,
+          "constraints": "hybrid | text | semantic; semantic label indicates preparation when vector not ready.",
+          "sensitive": false
+        },
+        {
+          "name": "搜索目录",
+          "type": "directory",
+          "required": false,
+          "constraints": "Existing folder or all directories.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "搜索 / 加载更多",
+          "effect": "Run paginated advanced search; merge with filename results",
+          "api": "POST /api/search/advanced",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "搜索结果",
+          "effect": "Open note at matching line or directory",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "重试搜索",
+          "effect": "Repeat current search",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "检查搜索设置",
+          "effect": "Navigate settings/search",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-003"
+    },
+    {
+      "assetId": "WS-D002",
+      "reuseSourceId": "WS-002",
+      "representation": "shared-geometry",
+      "reason": "Actual mobile notebook drawer. Search query/mode/directory/results and tree selected/decoration rows are contained at both widths; per-source reactive search, resizing and navigation guards stay exact.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Sidebar resize is desktop surface; <=720px sidebar becomes fixed drawermin(290px,85vw). Desktop rail60px and sidebar variable width; exact target captures unverified."
+      },
+      "requiredFieldOrder": [
+        "目录宽度"
+      ],
+      "requiredActions": [
+        {
+          "label": "展开/折叠目录",
+          "effect": "Toggle existing folder tree branch",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        },
+        {
+          "label": "选择笔记或文件夹",
+          "effect": "Navigate actual note/folder",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        },
+        {
+          "label": "拖拽/键盘/双击调整宽度",
+          "effect": "Resize and persist notebook sidebar",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "widths": [
+        320,
+        390
+      ],
+      "requiredFields": [
+        {
+          "name": "目录宽度",
+          "type": "separator",
+          "required": false,
+          "constraints": "240–400px, default260; rounded whole pixels, arrow16px, Home/End, double click reset; localStorage remembers width.",
+          "sensitive": false
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Git marker exists only when plugin contribution is registered/visible through PluginSlot and component mounted; marker is informational, introduces no new write action."
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-103"
+    }
+  ],
+  "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D002 Mobile notebook navigation drawer\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-002\", \"title\": \"Mobile notebook navigation drawer\", \"role\": \"authenticated owner\", \"state\": \"Actual open mobile notebook drawer with query then mode then directory, result/tree rows and reachable close/scrim. No explicit search-submit button. Internal scroll and selected tree/decoration state retained.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\", \"containedSourceIds\": [\"WS-003\", \"WS-103\"]}, {\"label\": \"B\", \"sourceId\": \"WS-002\", \"title\": \"Mobile notebook navigation drawer\", \"role\": \"authenticated owner\", \"state\": \"Actual open mobile notebook drawer with query then mode then directory, result/tree rows and reachable close/scrim. No explicit search-submit button. Internal scroll and selected tree/decoration state retained.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\", \"containedSourceIds\": [\"WS-003\", \"WS-103\"]}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-002\", \"fieldsInOrder\": [{\"name\": \"搜索笔记与目录\", \"type\": \"search\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}], \"actions\": [{\"label\": \"关闭侧栏 / scrim\", \"effect\": \"Close drawer\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"选择笔记或目录\", \"effect\": \"Open selection and close drawer\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Open/closed\", \"Tree/search/loading/error content inherited from notebook navigation\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"A\", \"sourceId\": \"WS-003\", \"fieldsInOrder\": [{\"name\": \"搜索词\", \"type\": \"search\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"搜索模式\", \"type\": \"select\", \"required\": true, \"constraints\": \"hybrid | text | semantic; semantic label indicates preparation when vector not ready.\", \"sensitive\": false}, {\"name\": \"搜索目录\", \"type\": \"directory\", \"required\": false, \"constraints\": \"Existing folder or all directories.\", \"sensitive\": false}], \"actions\": [{\"label\": \"搜索 / 加载更多\", \"effect\": \"Run paginated advanced search; merge with filename results\", \"api\": \"POST /api/search/advanced\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"搜索结果\", \"effect\": \"Open note at matching line or directory\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"重试搜索\", \"effect\": \"Repeat current search\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"检查搜索设置\", \"effect\": \"Navigate settings/search\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Searching\", \"Index updating/waiting\", \"No matches\", \"Degraded hybrid/semantic result with explanation\", \"Error and retry\", \"Paginated results including folder, filename and content matches\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"A\", \"sourceId\": \"WS-103\", \"fieldsInOrder\": [{\"name\": \"目录宽度\", \"type\": \"separator\", \"required\": false, \"constraints\": \"240–400px, default260; rounded whole pixels, arrow16px, Home/End, double click reset; localStorage remembers width.\", \"sensitive\": false}], \"actions\": [{\"label\": \"展开/折叠目录\", \"effect\": \"Toggle existing folder tree branch\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}, {\"label\": \"选择笔记或文件夹\", \"effect\": \"Navigate actual note/folder\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}, {\"label\": \"拖拽/键盘/双击调整宽度\", \"effect\": \"Resize and persist notebook sidebar\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}], \"importantStates\": [\"Selected entry\", \"Collapsed folder\", \"Context-menu active row\", \"Keyboard resize\", \"LocalStorage unavailable retains current-session width\", \"Mounted Git fileDecoration: conflict DD/AU/UD/UA/DU/AA/UU red priority5; removed D red priority4; modified M/T brown priority3; rename/copy R/C purple priority2; untracked?? or stagedA green priority1; generic change gray priority0\", \"Folder Git marker aggregates highest-priority descendant; clean entry has no marker; title/role=img/aria-label describe state\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Git marker exists only when plugin contribution is registered/visible through PluginSlot and component mounted; marker is informational, introduces no new write action.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-002\", \"fieldsInOrder\": [{\"name\": \"搜索笔记与目录\", \"type\": \"search\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}], \"actions\": [{\"label\": \"关闭侧栏 / scrim\", \"effect\": \"Close drawer\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"选择笔记或目录\", \"effect\": \"Open selection and close drawer\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Open/closed\", \"Tree/search/loading/error content inherited from notebook navigation\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-003\", \"fieldsInOrder\": [{\"name\": \"搜索词\", \"type\": \"search\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"搜索模式\", \"type\": \"select\", \"required\": true, \"constraints\": \"hybrid | text | semantic; semantic label indicates preparation when vector not ready.\", \"sensitive\": false}, {\"name\": \"搜索目录\", \"type\": \"directory\", \"required\": false, \"constraints\": \"Existing folder or all directories.\", \"sensitive\": false}], \"actions\": [{\"label\": \"搜索 / 加载更多\", \"effect\": \"Run paginated advanced search; merge with filename results\", \"api\": \"POST /api/search/advanced\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"搜索结果\", \"effect\": \"Open note at matching line or directory\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"重试搜索\", \"effect\": \"Repeat current search\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"检查搜索设置\", \"effect\": \"Navigate settings/search\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Searching\", \"Index updating/waiting\", \"No matches\", \"Degraded hybrid/semantic result with explanation\", \"Error and retry\", \"Paginated results including folder, filename and content matches\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-103\", \"fieldsInOrder\": [{\"name\": \"目录宽度\", \"type\": \"separator\", \"required\": false, \"constraints\": \"240–400px, default260; rounded whole pixels, arrow16px, Home/End, double click reset; localStorage remembers width.\", \"sensitive\": false}], \"actions\": [{\"label\": \"展开/折叠目录\", \"effect\": \"Toggle existing folder tree branch\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}, {\"label\": \"选择笔记或文件夹\", \"effect\": \"Navigate actual note/folder\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}, {\"label\": \"拖拽/键盘/双击调整宽度\", \"effect\": \"Resize and persist notebook sidebar\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}], \"importantStates\": [\"Selected entry\", \"Collapsed folder\", \"Context-menu active row\", \"Keyboard resize\", \"LocalStorage unavailable retains current-session width\", \"Mounted Git fileDecoration: conflict DD/AU/UD/UA/DU/AA/UU red priority5; removed D red priority4; modified M/T brown priority3; rename/copy R/C purple priority2; untracked?? or stagedA green priority1; generic change gray priority0\", \"Folder Git marker aggregates highest-priority descendant; clean entry has no marker; title/role=img/aria-label describe state\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Git marker exists only when plugin contribution is registered/visible through PluginSlot and component mounted; marker is informational, introduces no new write action.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D002.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-002",
+      "title": "Mobile notebook navigation drawer",
+      "kind": "drawer",
+      "module": "knowledge",
+      "entry": {
+        "route": "/ and /?note=:id",
+        "trigger": "打开侧栏",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:2707",
+        "apps/web/components/Workspace.vue:2995",
+        "apps/web/style.css:1083"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "搜索笔记与目录",
+          "type": "search",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "关闭侧栏 / scrim",
+          "effect": "Close drawer",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "选择笔记或目录",
+          "effect": "Open selection and close drawer",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Open/closed",
+        "Tree/search/loading/error content inherited from notebook navigation"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "320/390 use min(290px,85vw); not displayed as a drawer at desktop."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-003",
+      "title": "Sidebar notebook and directory search",
+      "kind": "state",
+      "module": "search",
+      "entry": {
+        "route": "/",
+        "trigger": "Enter sidebar search query",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:2812",
+        "apps/web/components/Workspace.vue:2833",
+        "apps/web/search-results.ts:1",
+        "apps/server/knowledge/web-routes.ts:51"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "搜索词",
+          "type": "search",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "搜索模式",
+          "type": "select",
+          "required": true,
+          "constraints": "hybrid | text | semantic; semantic label indicates preparation when vector not ready.",
+          "sensitive": false
+        },
+        {
+          "name": "搜索目录",
+          "type": "directory",
+          "required": false,
+          "constraints": "Existing folder or all directories.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "搜索 / 加载更多",
+          "effect": "Run paginated advanced search; merge with filename results",
+          "api": "POST /api/search/advanced",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "搜索结果",
+          "effect": "Open note at matching line or directory",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "重试搜索",
+          "effect": "Repeat current search",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "检查搜索设置",
+          "effect": "Navigate settings/search",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Searching",
+        "Index updating/waiting",
+        "No matches",
+        "Degraded hybrid/semantic result with explanation",
+        "Error and retry",
+        "Paginated results including folder, filename and content matches"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/web-search-results.test.ts",
+        "tests/search/web-status.test.ts",
+        "tests/e2e/search-filenames.spec.ts",
+        "tests/e2e/search-result-highlight.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-103",
+      "title": "Notebook tree expansion, selection and desktop resize",
+      "kind": "state",
+      "module": "knowledge",
+      "entry": {
+        "route": "/ and /?note=:id",
+        "trigger": "Browse notebook tree or drag separator",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/TreeBranch.vue:1",
+        "apps/web/components/SidebarResizer.vue:1",
+        "apps/web/components/Workspace.vue:388",
+        "apps/web/components/Workspace.vue:2988",
+        "apps/web/components/TreeBranch.vue:50",
+        "apps/web/components/PluginSlot.vue:10",
+        "plugins/git/web/index.ts:185",
+        "plugins/git/web/decoration.ts:4"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Git marker exists only when plugin contribution is registered/visible through PluginSlot and component mounted; marker is informational, introduces no new write action."
+      ],
+      "fields": [
+        {
+          "name": "目录宽度",
+          "type": "separator",
+          "required": false,
+          "constraints": "240–400px, default260; rounded whole pixels, arrow16px, Home/End, double click reset; localStorage remembers width.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "展开/折叠目录",
+          "effect": "Toggle existing folder tree branch",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        },
+        {
+          "label": "选择笔记或文件夹",
+          "effect": "Navigate actual note/folder",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        },
+        {
+          "label": "拖拽/键盘/双击调整宽度",
+          "effect": "Resize and persist notebook sidebar",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        }
+      ],
+      "importantStates": [
+        "Selected entry",
+        "Collapsed folder",
+        "Context-menu active row",
+        "Keyboard resize",
+        "LocalStorage unavailable retains current-session width",
+        "Mounted Git fileDecoration: conflict DD/AU/UD/UA/DU/AA/UU red priority5; removed D red priority4; modified M/T brown priority3; rename/copy R/C purple priority2; untracked?? or stagedA green priority1; generic change gray priority0",
+        "Folder Git marker aggregates highest-priority descendant; clean entry has no marker; title/role=img/aria-label describe state"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Sidebar resize is desktop surface; <=720px sidebar becomes fixed drawermin(290px,85vw). Desktop rail60px and sidebar variable width; exact target captures unverified."
+      },
+      "testRefs": [
+        "tests/e2e/notes-first.spec.ts",
+        "tests/workspace-main-menu.test.ts",
+        "tests/git-decoration.test.ts",
+        "tests/git-web-regressions.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Canonical tree-host Git decoration coverage is included under WS-103; settings Git management surfaces reference the same widget/state, without a separate new platform feature."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-002",
+      "parentId": "WS-001",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-003",
+      "parentId": "WS-001",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-103",
+      "parentId": "WS-001",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-002,WS-003,WS-103",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-002",
+      "state": "Open/closed",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-002",
+      "state": "Tree/search/loading/error content inherited from notebook navigation",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [
+    {
+      "sourceId": "WS-003",
+      "assetId": "WS-D003",
+      "representation": "visible"
+    },
+    {
+      "sourceId": "WS-003",
+      "assetId": "WS-D003",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-103",
+      "assetId": "WS-D010",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D002",
+  "originalManifest": {
+    "id": "WS-D002",
+    "title": "Mobile notebook navigation drawer",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-002",
+      "WS-003",
+      "WS-103"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-002",
+        "title": "Mobile notebook navigation drawer",
+        "role": "authenticated owner",
+        "state": "Actual open mobile notebook drawer with query then mode then directory, result/tree rows and reachable close/scrim. No explicit search-submit button. Internal scroll and selected tree/decoration state retained.",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.",
+        "containedSourceIds": [
+          "WS-003",
+          "WS-103"
+        ]
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-002",
+        "title": "Mobile notebook navigation drawer",
+        "role": "authenticated owner",
+        "state": "Actual open mobile notebook drawer with query then mode then directory, result/tree rows and reachable close/scrim. No explicit search-submit button. Internal scroll and selected tree/decoration state retained.",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.",
+        "containedSourceIds": [
+          "WS-003",
+          "WS-103"
+        ]
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "apps/web/components/Workspace.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:2707, apps/web/components/Workspace.vue:2995, apps/web/style.css:1083"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-002",
+        "label": "关闭侧栏 / scrim",
+        "effect": "Close drawer",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-002",
+        "label": "选择笔记或目录",
+        "effect": "Open selection and close drawer",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-003",
+        "label": "搜索 / 加载更多",
+        "effect": "Run paginated advanced search; merge with filename results",
+        "api": "POST /api/search/advanced",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-003",
+        "label": "搜索结果",
+        "effect": "Open note at matching line or directory",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-003",
+        "label": "重试搜索",
+        "effect": "Repeat current search",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-003",
+        "label": "检查搜索设置",
+        "effect": "Navigate settings/search",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-103",
+        "label": "展开/折叠目录",
+        "effect": "Toggle existing folder tree branch",
+        "api": "none (local UI)",
+        "guard": "Owner session; relevant editor and busy guards apply."
+      },
+      {
+        "sourceId": "WS-103",
+        "label": "选择笔记或文件夹",
+        "effect": "Navigate actual note/folder",
+        "api": "none (local UI)",
+        "guard": "Owner session; relevant editor and busy guards apply."
+      },
+      {
+        "sourceId": "WS-103",
+        "label": "拖拽/键盘/双击调整宽度",
+        "effect": "Resize and persist notebook sidebar",
+        "api": "none (local UI)",
+        "guard": "Owner session; relevant editor and busy guards apply."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-D002",
+        "representation": "direct",
+        "reason": "Actual mobile notebook drawer. Search query/mode/directory/results and tree selected/decoration rows are contained at both widths; per-source reactive search, resizing and navigation guards stay exact.",
+        "reuseSourceId": "WS-002",
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+        },
+        "requiredFieldOrder": [
+          "搜索笔记与目录"
+        ],
+        "requiredFields": [
+          {
+            "name": "搜索笔记与目录",
+            "type": "search",
+            "required": false,
+            "constraints": "No additional client constraint found; server validation not otherwise verified.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "关闭侧栏 / scrim",
+            "effect": "Close drawer",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "选择笔记或目录",
+            "effect": "Open selection and close drawer",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-002"
+      },
+      {
+        "assetId": "WS-D002",
+        "representation": "shared-geometry",
+        "reason": "Actual mobile notebook drawer. Search query/mode/directory/results and tree selected/decoration rows are contained at both widths; per-source reactive search, resizing and navigation guards stay exact.",
+        "reuseSourceId": "WS-002",
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+        },
+        "requiredFieldOrder": [
+          "搜索词",
+          "搜索模式",
+          "搜索目录"
+        ],
+        "requiredFields": [
+          {
+            "name": "搜索词",
+            "type": "search",
+            "required": false,
+            "constraints": "No additional client constraint found; server validation not otherwise verified.",
+            "sensitive": false
+          },
+          {
+            "name": "搜索模式",
+            "type": "select",
+            "required": true,
+            "constraints": "hybrid | text | semantic; semantic label indicates preparation when vector not ready.",
+            "sensitive": false
+          },
+          {
+            "name": "搜索目录",
+            "type": "directory",
+            "required": false,
+            "constraints": "Existing folder or all directories.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "搜索 / 加载更多",
+            "effect": "Run paginated advanced search; merge with filename results",
+            "api": "POST /api/search/advanced",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "搜索结果",
+            "effect": "Open note at matching line or directory",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "重试搜索",
+            "effect": "Repeat current search",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "检查搜索设置",
+            "effect": "Navigate settings/search",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-003"
+      },
+      {
+        "assetId": "WS-D002",
+        "reuseSourceId": "WS-002",
+        "representation": "shared-geometry",
+        "reason": "Actual mobile notebook drawer. Search query/mode/directory/results and tree selected/decoration rows are contained at both widths; per-source reactive search, resizing and navigation guards stay exact.",
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Sidebar resize is desktop surface; <=720px sidebar becomes fixed drawermin(290px,85vw). Desktop rail60px and sidebar variable width; exact target captures unverified."
+        },
+        "requiredFieldOrder": [
+          "目录宽度"
+        ],
+        "requiredActions": [
+          {
+            "label": "展开/折叠目录",
+            "effect": "Toggle existing folder tree branch",
+            "api": "none (local UI)",
+            "guard": "Owner session; relevant editor and busy guards apply."
+          },
+          {
+            "label": "选择笔记或文件夹",
+            "effect": "Navigate actual note/folder",
+            "api": "none (local UI)",
+            "guard": "Owner session; relevant editor and busy guards apply."
+          },
+          {
+            "label": "拖拽/键盘/双击调整宽度",
+            "effect": "Resize and persist notebook sidebar",
+            "api": "none (local UI)",
+            "guard": "Owner session; relevant editor and busy guards apply."
+          }
+        ],
+        "requiresActualFitReview": true,
+        "widths": [
+          320,
+          390
+        ],
+        "requiredFields": [
+          {
+            "name": "目录宽度",
+            "type": "separator",
+            "required": false,
+            "constraints": "240–400px, default260; rounded whole pixels, arrow16px, Home/End, double click reset; localStorage remembers width.",
+            "sensitive": false
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "Git marker exists only when plugin contribution is registered/visible through PluginSlot and component mounted; marker is informational, introduces no new write action."
+        ],
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-103"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D002 Mobile notebook navigation drawer\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-002\", \"title\": \"Mobile notebook navigation drawer\", \"role\": \"authenticated owner\", \"state\": \"Actual open mobile notebook drawer with query then mode then directory, result/tree rows and reachable close/scrim. No explicit search-submit button. Internal scroll and selected tree/decoration state retained.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\", \"containedSourceIds\": [\"WS-003\", \"WS-103\"]}, {\"label\": \"B\", \"sourceId\": \"WS-002\", \"title\": \"Mobile notebook navigation drawer\", \"role\": \"authenticated owner\", \"state\": \"Actual open mobile notebook drawer with query then mode then directory, result/tree rows and reachable close/scrim. No explicit search-submit button. Internal scroll and selected tree/decoration state retained.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\", \"containedSourceIds\": [\"WS-003\", \"WS-103\"]}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-002\", \"fieldsInOrder\": [{\"name\": \"搜索笔记与目录\", \"type\": \"search\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}], \"actions\": [{\"label\": \"关闭侧栏 / scrim\", \"effect\": \"Close drawer\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"选择笔记或目录\", \"effect\": \"Open selection and close drawer\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Open/closed\", \"Tree/search/loading/error content inherited from notebook navigation\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"A\", \"sourceId\": \"WS-003\", \"fieldsInOrder\": [{\"name\": \"搜索词\", \"type\": \"search\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"搜索模式\", \"type\": \"select\", \"required\": true, \"constraints\": \"hybrid | text | semantic; semantic label indicates preparation when vector not ready.\", \"sensitive\": false}, {\"name\": \"搜索目录\", \"type\": \"directory\", \"required\": false, \"constraints\": \"Existing folder or all directories.\", \"sensitive\": false}], \"actions\": [{\"label\": \"搜索 / 加载更多\", \"effect\": \"Run paginated advanced search; merge with filename results\", \"api\": \"POST /api/search/advanced\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"搜索结果\", \"effect\": \"Open note at matching line or directory\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"重试搜索\", \"effect\": \"Repeat current search\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"检查搜索设置\", \"effect\": \"Navigate settings/search\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Searching\", \"Index updating/waiting\", \"No matches\", \"Degraded hybrid/semantic result with explanation\", \"Error and retry\", \"Paginated results including folder, filename and content matches\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"A\", \"sourceId\": \"WS-103\", \"fieldsInOrder\": [{\"name\": \"目录宽度\", \"type\": \"separator\", \"required\": false, \"constraints\": \"240–400px, default260; rounded whole pixels, arrow16px, Home/End, double click reset; localStorage remembers width.\", \"sensitive\": false}], \"actions\": [{\"label\": \"展开/折叠目录\", \"effect\": \"Toggle existing folder tree branch\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}, {\"label\": \"选择笔记或文件夹\", \"effect\": \"Navigate actual note/folder\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}, {\"label\": \"拖拽/键盘/双击调整宽度\", \"effect\": \"Resize and persist notebook sidebar\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}], \"importantStates\": [\"Selected entry\", \"Collapsed folder\", \"Context-menu active row\", \"Keyboard resize\", \"LocalStorage unavailable retains current-session width\", \"Mounted Git fileDecoration: conflict DD/AU/UD/UA/DU/AA/UU red priority5; removed D red priority4; modified M/T brown priority3; rename/copy R/C purple priority2; untracked?? or stagedA green priority1; generic change gray priority0\", \"Folder Git marker aggregates highest-priority descendant; clean entry has no marker; title/role=img/aria-label describe state\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Git marker exists only when plugin contribution is registered/visible through PluginSlot and component mounted; marker is informational, introduces no new write action.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-002\", \"fieldsInOrder\": [{\"name\": \"搜索笔记与目录\", \"type\": \"search\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}], \"actions\": [{\"label\": \"关闭侧栏 / scrim\", \"effect\": \"Close drawer\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"选择笔记或目录\", \"effect\": \"Open selection and close drawer\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Open/closed\", \"Tree/search/loading/error content inherited from notebook navigation\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-003\", \"fieldsInOrder\": [{\"name\": \"搜索词\", \"type\": \"search\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"搜索模式\", \"type\": \"select\", \"required\": true, \"constraints\": \"hybrid | text | semantic; semantic label indicates preparation when vector not ready.\", \"sensitive\": false}, {\"name\": \"搜索目录\", \"type\": \"directory\", \"required\": false, \"constraints\": \"Existing folder or all directories.\", \"sensitive\": false}], \"actions\": [{\"label\": \"搜索 / 加载更多\", \"effect\": \"Run paginated advanced search; merge with filename results\", \"api\": \"POST /api/search/advanced\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"搜索结果\", \"effect\": \"Open note at matching line or directory\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"重试搜索\", \"effect\": \"Repeat current search\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"检查搜索设置\", \"effect\": \"Navigate settings/search\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Searching\", \"Index updating/waiting\", \"No matches\", \"Degraded hybrid/semantic result with explanation\", \"Error and retry\", \"Paginated results including folder, filename and content matches\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-103\", \"fieldsInOrder\": [{\"name\": \"目录宽度\", \"type\": \"separator\", \"required\": false, \"constraints\": \"240–400px, default260; rounded whole pixels, arrow16px, Home/End, double click reset; localStorage remembers width.\", \"sensitive\": false}], \"actions\": [{\"label\": \"展开/折叠目录\", \"effect\": \"Toggle existing folder tree branch\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}, {\"label\": \"选择笔记或文件夹\", \"effect\": \"Navigate actual note/folder\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}, {\"label\": \"拖拽/键盘/双击调整宽度\", \"effect\": \"Resize and persist notebook sidebar\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}], \"importantStates\": [\"Selected entry\", \"Collapsed folder\", \"Context-menu active row\", \"Keyboard resize\", \"LocalStorage unavailable retains current-session width\", \"Mounted Git fileDecoration: conflict DD/AU/UD/UA/DU/AA/UU red priority5; removed D red priority4; modified M/T brown priority3; rename/copy R/C purple priority2; untracked?? or stagedA green priority1; generic change gray priority0\", \"Folder Git marker aggregates highest-priority descendant; clean entry has no marker; title/role=img/aria-label describe state\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Git marker exists only when plugin contribution is registered/visible through PluginSlot and component mounted; marker is informational, introduces no new write action.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D002.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-002",
+        "title": "Mobile notebook navigation drawer",
+        "kind": "drawer",
+        "module": "knowledge",
+        "entry": {
+          "route": "/ and /?note=:id",
+          "trigger": "打开侧栏",
+          "parentId": "WS-001"
+        },
+        "sourceRefs": [
+          "apps/web/components/Workspace.vue:2707",
+          "apps/web/components/Workspace.vue:2995",
+          "apps/web/style.css:1083"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "fields": [
+          {
+            "name": "搜索笔记与目录",
+            "type": "search",
+            "required": false,
+            "constraints": "No additional client constraint found; server validation not otherwise verified.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "关闭侧栏 / scrim",
+            "effect": "Close drawer",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "选择笔记或目录",
+            "effect": "Open selection and close drawer",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Open/closed",
+          "Tree/search/loading/error content inherited from notebook navigation"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+        },
+        "testRefs": [],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted.",
+          "320/390 use min(290px,85vw); not displayed as a drawer at desktop."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      },
+      {
+        "id": "WS-003",
+        "title": "Sidebar notebook and directory search",
+        "kind": "state",
+        "module": "search",
+        "entry": {
+          "route": "/",
+          "trigger": "Enter sidebar search query",
+          "parentId": "WS-001"
+        },
+        "sourceRefs": [
+          "apps/web/components/Workspace.vue:2812",
+          "apps/web/components/Workspace.vue:2833",
+          "apps/web/search-results.ts:1",
+          "apps/server/knowledge/web-routes.ts:51"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "fields": [
+          {
+            "name": "搜索词",
+            "type": "search",
+            "required": false,
+            "constraints": "No additional client constraint found; server validation not otherwise verified.",
+            "sensitive": false
+          },
+          {
+            "name": "搜索模式",
+            "type": "select",
+            "required": true,
+            "constraints": "hybrid | text | semantic; semantic label indicates preparation when vector not ready.",
+            "sensitive": false
+          },
+          {
+            "name": "搜索目录",
+            "type": "directory",
+            "required": false,
+            "constraints": "Existing folder or all directories.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "搜索 / 加载更多",
+            "effect": "Run paginated advanced search; merge with filename results",
+            "api": "POST /api/search/advanced",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "搜索结果",
+            "effect": "Open note at matching line or directory",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "重试搜索",
+            "effect": "Repeat current search",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "检查搜索设置",
+            "effect": "Navigate settings/search",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Searching",
+          "Index updating/waiting",
+          "No matches",
+          "Degraded hybrid/semantic result with explanation",
+          "Error and retry",
+          "Paginated results including folder, filename and content matches"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+        },
+        "testRefs": [
+          "tests/web-search-results.test.ts",
+          "tests/search/web-status.test.ts",
+          "tests/e2e/search-filenames.spec.ts",
+          "tests/e2e/search-result-highlight.spec.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      },
+      {
+        "id": "WS-103",
+        "title": "Notebook tree expansion, selection and desktop resize",
+        "kind": "state",
+        "module": "knowledge",
+        "entry": {
+          "route": "/ and /?note=:id",
+          "trigger": "Browse notebook tree or drag separator",
+          "parentId": "WS-001"
+        },
+        "sourceRefs": [
+          "apps/web/components/TreeBranch.vue:1",
+          "apps/web/components/SidebarResizer.vue:1",
+          "apps/web/components/Workspace.vue:388",
+          "apps/web/components/Workspace.vue:2988",
+          "apps/web/components/TreeBranch.vue:50",
+          "apps/web/components/PluginSlot.vue:10",
+          "plugins/git/web/index.ts:185",
+          "plugins/git/web/decoration.ts:4"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "Git marker exists only when plugin contribution is registered/visible through PluginSlot and component mounted; marker is informational, introduces no new write action."
+        ],
+        "fields": [
+          {
+            "name": "目录宽度",
+            "type": "separator",
+            "required": false,
+            "constraints": "240–400px, default260; rounded whole pixels, arrow16px, Home/End, double click reset; localStorage remembers width.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "展开/折叠目录",
+            "effect": "Toggle existing folder tree branch",
+            "api": "none (local UI)",
+            "guard": "Owner session; relevant editor and busy guards apply."
+          },
+          {
+            "label": "选择笔记或文件夹",
+            "effect": "Navigate actual note/folder",
+            "api": "none (local UI)",
+            "guard": "Owner session; relevant editor and busy guards apply."
+          },
+          {
+            "label": "拖拽/键盘/双击调整宽度",
+            "effect": "Resize and persist notebook sidebar",
+            "api": "none (local UI)",
+            "guard": "Owner session; relevant editor and busy guards apply."
+          }
+        ],
+        "importantStates": [
+          "Selected entry",
+          "Collapsed folder",
+          "Context-menu active row",
+          "Keyboard resize",
+          "LocalStorage unavailable retains current-session width",
+          "Mounted Git fileDecoration: conflict DD/AU/UD/UA/DU/AA/UU red priority5; removed D red priority4; modified M/T brown priority3; rename/copy R/C purple priority2; untracked?? or stagedA green priority1; generic change gray priority0",
+          "Folder Git marker aggregates highest-priority descendant; clean entry has no marker; title/role=img/aria-label describe state"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Sidebar resize is desktop surface; <=720px sidebar becomes fixed drawermin(290px,85vw). Desktop rail60px and sidebar variable width; exact target captures unverified."
+        },
+        "testRefs": [
+          "tests/e2e/notes-first.spec.ts",
+          "tests/workspace-main-menu.test.ts",
+          "tests/git-decoration.test.ts",
+          "tests/git-web-regressions.test.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted.",
+          "Canonical tree-host Git decoration coverage is included under WS-103; settings Git management surfaces reference the same widget/state, without a separate new platform feature."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-002",
+        "parentId": "WS-001",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      },
+      {
+        "sourceId": "WS-003",
+        "parentId": "WS-001",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      },
+      {
+        "sourceId": "WS-103",
+        "parentId": "WS-001",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-002,WS-003,WS-103",
+    "stateCoverageRefs": [
+      {
+        "sourceId": "WS-002",
+        "state": "Open/closed",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-002",
+        "state": "Tree/search/loading/error content inherited from notebook navigation",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "statePatternRefs": [
+      {
+        "sourceId": "WS-003",
+        "assetId": "WS-D003",
+        "representation": "visible"
+      },
+      {
+        "sourceId": "WS-003",
+        "assetId": "WS-D003",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-103",
+        "assetId": "WS-D010",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作精致清晰的中文DooKnow手机UI设计板，仅两个独立面板A/B并排，A按390px、B按320px的窄屏比例，正常14px文字，不画手机壳和尺寸数字。参考图仅决定平面白/浅灰、蓝色主动作、细边线8px圆角。两个面板都是主人笔记工作区打开左侧笔记导航抽屉：A抽屉约290px宽、B约272px宽，剩余右侧为可点击半透明遮罩；抽屉占全高，顶端书本图标+DooKnow+可达的关闭X。下方搜索输入含搜索图标，值“知识”，右侧清除X；下一行蓝色“＋ 新建”与独立下拉箭头。随后“搜索结果”标题及右侧新建文件夹＋、刷新图标。接着两个真实下拉框顺序为“混合检索”和“所有目录”。正文内部可滚动：一条结果标题“知识与行动”，小字“00-Inbox/知识与行动.md”，再一行“第 3 行”，摘要“用于界面盘点的隔离示例。”；下方状态“已显示 1 篇”，再按钮“加载更多搜索结果”。这两个面板都是非空搜索结果状态，不画笔记树、Git字母、目录展开箭头、无匹配文案或搜索提交按钮；不画新建菜单展开、扩展工具。右侧遮罩后只留原宿主很窄的正文边缘，不造额外导航。文字自然换行，关闭、清除、下拉、加载更多均可达。不加评审说明、ID或权限文字。",
+  "actualToolArguments": {
+    "prompt": "制作精致清晰的中文DooKnow手机UI设计板，仅两个独立面板A/B并排，A按390px、B按320px的窄屏比例，正常14px文字，不画手机壳和尺寸数字。参考图仅决定平面白/浅灰、蓝色主动作、细边线8px圆角。两个面板都是主人笔记工作区打开左侧笔记导航抽屉：A抽屉约290px宽、B约272px宽，剩余右侧为可点击半透明遮罩；抽屉占全高，顶端书本图标+DooKnow+可达的关闭X。下方搜索输入含搜索图标，值“知识”，右侧清除X；下一行蓝色“＋ 新建”与独立下拉箭头。随后“搜索结果”标题及右侧新建文件夹＋、刷新图标。接着两个真实下拉框顺序为“混合检索”和“所有目录”。正文内部可滚动：一条结果标题“知识与行动”，小字“00-Inbox/知识与行动.md”，再一行“第 3 行”，摘要“用于界面盘点的隔离示例。”；下方状态“已显示 1 篇”，再按钮“加载更多搜索结果”。这两个面板都是非空搜索结果状态，不画笔记树、Git字母、目录展开箭头、无匹配文案或搜索提交按钮；不画新建菜单展开、扩展工具。右侧遮罩后只留原宿主很窄的正文边缘，不造额外导航。文字自然换行，关闭、清除、下拉、加载更多均可达。不加评审说明、ID或权限文字。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 1,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/style.css",
+      "sha256": "2bf52bbd05f80ae70819e27e7421453e46dc84e5273ff428c9db695f6c2e7c84",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/search-results.ts",
+      "sha256": "b45132ef038a86cf0dde8c07cc37540186d31274647502701f05dc47ccf4bc63",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/server/knowledge/web-routes.ts",
+      "sha256": "c79f2fe3f0efdafae64d37e69f1e64665cf35896158783771481846d1c2810a9",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/components/TreeBranch.vue",
+      "sha256": "cea253a7c67d08379c7b56dcf5e0495753a8b6c669612fd15728ecf166cdaf6d",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/components/SidebarResizer.vue",
+      "sha256": "3c0188ecb3f50957512f9fd56b69f65d8522291e2940d70233619a5e3f3a9511",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/components/PluginSlot.vue",
+      "sha256": "64f14d59281c6d9918d5ac3f4393ae9a8a909f86f8ef26fa7e0bdfe27f557a4c",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "plugins/git/web/index.ts",
+      "sha256": "d6639cec6106c64c9e648e599930f2349da7a9de52f1eb2843945b92babe65ee",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "plugins/git/web/decoration.ts",
+      "sha256": "8d72d9d18943286bbde4174a3bfcfe5966d0792ba5a9467e0bd36e6159d42669",
+      "role": "actual source template/behavior authority; read before generation"
+    }
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "fallbackUsed": false,
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "url": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "verifiedModel": "gpt-image-2",
+      "scope": "Codex built-in image generation",
+      "date": "2026-11-05",
+      "apiReference": "https://developers.openai.com/api/reference/resources/images/methods/generate",
+      "apiModelSupported": true,
+      "apiReferenceDoesNotProveBuiltinRouteAlone": true
+    }
+  },
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-a6019185-849e-403c-85ae-68b8fdad3871.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-a6019185-849e-403c-85ae-68b8fdad3871.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generatedAtUtc": "2026-11-05T08:49:24.445Z",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D002.png",
+  "generationCalls": [
+    {
+      "status": "completed-with-tool-receipt",
+      "actualToolArguments": {
+        "prompt": "制作精致清晰的中文DooKnow手机UI设计板，仅两个独立面板A/B并排，A按390px、B按320px的窄屏比例，正常14px文字，不画手机壳和尺寸数字。参考图仅决定平面白/浅灰、蓝色主动作、细边线8px圆角。两个面板都是主人笔记工作区打开左侧笔记导航抽屉：A抽屉约290px宽、B约272px宽，剩余右侧为可点击半透明遮罩；抽屉占全高，顶端书本图标+DooKnow+可达的关闭X。下方搜索输入含搜索图标，值“知识”，右侧清除X；下一行蓝色“＋ 新建”与独立下拉箭头。随后“搜索结果”标题及右侧新建文件夹＋、刷新图标。接着两个真实下拉框顺序为“混合检索”和“所有目录”。正文内部可滚动：一条结果标题“知识与行动”，小字“00-Inbox/知识与行动.md”，再一行“第 3 行”，摘要“用于界面盘点的隔离示例。”；下方状态“已显示 1 篇”，再按钮“加载更多搜索结果”。这两个面板都是非空搜索结果状态，不画笔记树、Git字母、目录展开箭头、无匹配文案或搜索提交按钮；不画新建菜单展开、扩展工具。右侧遮罩后只留原宿主很窄的正文边缘，不造额外导航。文字自然换行，关闭、清除、下拉、加载更多均可达。不加评审说明、ID或权限文字。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-a6019185-849e-403c-85ae-68b8fdad3871.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    }
+  ],
+  "generationCallCount": 1,
+  "selfInspection": {
+    "status": "pending-independent-review",
+    "method": "Native generated PNG viewed; actual source template compared",
+    "concerns": [
+      "Raster width/height proportions are approximate; target widths and CSS remain authoritative.",
+      "Real runtime scrolling/focus and actions remain unverified."
+    ]
+  },
+  "sha256": "5c37dd9599e8e01cb70147c3acd33916fad64e15e4ee61cd99c370896b3690dd",
+  "bytes": 1345724,
+  "dimensions": {
+    "width": 1559,
+    "height": 1009
+  },
+  "selectedState": [
+    "query=知识; nonempty content result; !filenameMatch, line=3; cursor present; search idle, no errors; no tree mounted",
+    "same selected state at320 target"
+  ],
+  "runtimeResponsiveVerified": false,
+  "responsiveTargetCssWidths": [
+    390,
+    320
+  ],
+  "unscreenedControlsBinding": {
+    "assetId": "WS-D010",
+    "reason": "TreeBranch only mounts with no query and collection=notes; Git file decorations not simultaneous with the shown search result",
+    "sha256": "5fdf28456dfaa3ef591aba081914d1c025dcad487b57ef5e62b61105aec2e3d4",
+    "sourceIds": [
+      "WS-103"
+    ],
+    "branch": "!query && treeLoaded && collection===notes",
+    "fieldOrder": [
+      "folder toggle",
+      "tree select icon/name",
+      "fileDecoration plugin slot",
+      "tree more"
+    ],
+    "path": "docs/design/platform-unification-2026-11-05/design/images/WS-D010.png"
+  },
+  "currentGenerationReceipt": {
+    "toolResultReceiptObserved": true,
+    "receiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-1.json",
+    "actualToolArguments": {
+      "prompt": "制作精致清晰的中文DooKnow手机UI设计板，仅两个独立面板A/B并排，A按390px、B按320px的窄屏比例，正常14px文字，不画手机壳和尺寸数字。参考图仅决定平面白/浅灰、蓝色主动作、细边线8px圆角。两个面板都是主人笔记工作区打开左侧笔记导航抽屉：A抽屉约290px宽、B约272px宽，剩余右侧为可点击半透明遮罩；抽屉占全高，顶端书本图标+DooKnow+可达的关闭X。下方搜索输入含搜索图标，值“知识”，右侧清除X；下一行蓝色“＋ 新建”与独立下拉箭头。随后“搜索结果”标题及右侧新建文件夹＋、刷新图标。接着两个真实下拉框顺序为“混合检索”和“所有目录”。正文内部可滚动：一条结果标题“知识与行动”，小字“00-Inbox/知识与行动.md”，再一行“第 3 行”，摘要“用于界面盘点的隔离示例。”；下方状态“已显示 1 篇”，再按钮“加载更多搜索结果”。这两个面板都是非空搜索结果状态，不画笔记树、Git字母、目录展开箭头、无匹配文案或搜索提交按钮；不画新建菜单展开、扩展工具。右侧遮罩后只留原宿主很窄的正文边缘，不造额外导航。文字自然换行，关闭、清除、下拉、加载更多均可达。不加评审说明、ID或权限文字。",
+      "referenced_image_paths": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "transparent_background": false
+    },
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-a6019185-849e-403c-85ae-68b8fdad3871.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-a6019185-849e-403c-85ae-68b8fdad3871.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "completionObservedAtUtc": "2026-11-05T08:49:24.445Z",
+    "exactToolServerCompletionTimestampExposed": false
+  },
+  "generatedAtUtcBasis": "Local observation after awaited callback; tool does not expose exact server completion timestamp.",
+  "sourceImageSha256": "5c37dd9599e8e01cb70147c3acd33916fad64e15e4ee61cd99c370896b3690dd",
+  "metadataAmendments": [
+    {
+      "atUtc": "2026-11-05T09:18:09.836367+00:00",
+      "reason": "Attach observed current receipt, source byte verification and full prior revision chain without changing PNG or rewriting historical no-receipt status."
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "assetId": "MP-S043",
+  "sourceIds": [
+    "PB-012"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:43:37.656358+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Six separate optional-feature installation/catalog/config-entry/search/error slices",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed six slices/full actual prompt. Pending installation disables both actions and only active plugin spins. Catalog unavailable wording coexists with enabled add action exactly as source: unavailable span is not the disabled condition.",
+    "MCP and Git expanded entries are separate states because expanded is a single string; installed-but-not-enabled copy and existing functional settings refresh header retained. Internal plugin forms precisely reuse their separate canonical visuals per authorized visualParts; crop adds no fake boundary controls.",
+    "Onboarding content-search actual prepare/check controls and 64MiB synthetic distribution data retained, optional read failure allows later skip; no installation/connection success claimed."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-027.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S043.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/SetupFeatures.vue:26",
+    "apps/web/components/SetupFeatures.vue:101",
+    "apps/web/components/SetupFeatures.vue:148",
+    "apps/web/components/SearchRuntimeSettings.vue",
+    "apps/web/components/PluginManager.vue"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "561d2d1afd33a6f2ff6a0d619726c3db9ac19bb452063ee07880acfcfba1a992",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S043.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

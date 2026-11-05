@@ -1,0 +1,47 @@
+{
+  "assetId": "MP-D051-v2",
+  "sourceIds": [
+    "ST-064"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T04:26:19.568373+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "API client list current revision after full optional-effectivePolicy chain correction.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual new PNG viewed: expired/requires-reauthorization/revoked current-effective lines fully removed; active current-policy line retained.",
+    "All per-status action sets, grantedpolicy/suffix/issued/expiry/last-used metadata unchanged, no complete credentials shown.",
+    "Prior initial-pass correction and needs-revision audit retained separately; v2 pass binds only its newSHA and source optional-field behavior."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-019.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D051-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/MCPApiClients.vue:435",
+    "apps/server/platform/mcp-api-keys.ts:140",
+    "packages/core/auth/mcp-api-credentials.ts:24",
+    "docs/design/platform-unification-2026-11-05/design/reviews/MP-D051-review.json",
+    "docs/design/platform-unification-2026-11-05/design/reviews/MP-D051-initial-pass-audit.json"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "8db126792a4af00baf7de7bf675e3393933736b74d5c31f739a8a4997795061c",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D051-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

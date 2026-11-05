@@ -1,0 +1,111 @@
+{
+  "assetId": "WS-R037",
+  "sourceIds": [
+    "WS-089"
+  ],
+  "reviewer": "independent platform_review_gen048 child agent, exclusively assigned eight GEN048 responsive assets",
+  "reviewedAtUtc": "2026-11-05T09:25:24.930457+00:00",
+  "verdict": "pass",
+  "method": "Actual current PNG viewed using tools.view_image in this independent context; complete actual submittedPrompt and GEN048 source contracts compared with actual input mother/baseline images, matching existing mother SHA reviews, current Vue templates/handlers/CSS and server/API policy sources. Static content review only; no generation or runtime tests.",
+  "actualViewMethod": {
+    "tool": "tools.view_image",
+    "image": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R037.png",
+    "detail": "high",
+    "boardPanelsActuallyViewed": [
+      "A",
+      "B"
+    ]
+  },
+  "reviewedImageSha256": "6faea480f95241b9d8194d12ad9884e66edea0f2cda7db9decf02f10499793f3",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-R037.png",
+  "reviewedSidecarSha256": "e3328c3bc1de6f3648b1ee14a14aee0cda8a240fdb6cea876fc94839005ac7b3",
+  "reviewedManifestSha256": "7f3fc0492e62f25af38e6dc0c0135db54d73fed95d3c1554e71f632cfb9a2474",
+  "submissionReview": {
+    "completeSubmittedPromptRead": true,
+    "submittedPromptSha256": "d90579fb1faf16d65ba42846644d4bcb13c4ce8fa4618dfdf75e9cd1ec029442",
+    "actualToolArgumentsPromptMatchesReceipt": true,
+    "observedReceiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-6.json",
+    "receiptOutputBytesMatchReviewedPng": true
+  },
+  "inputImageChecks": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-M012.png",
+      "order": 1,
+      "role": "approved current model fields only; advanced fields read from actual source",
+      "sha256": "7bd035134b51a6e8450c2279c234830f55bdc5c2e67b74fec4ebf5f161d060bf",
+      "bytes": 1314468,
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      },
+      "actualSha256": "7bd035134b51a6e8450c2279c234830f55bdc5c2e67b74fec4ebf5f161d060bf",
+      "actuallyViewed": true,
+      "roleChecked": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "actualSha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "actuallyViewed": true,
+      "roleChecked": true
+    }
+  ],
+  "selectedState": [
+    "390 configured openai-compatible editable dirty model form upper scroll, existing encrypted key retained by blank field",
+    "320 same form lower scroll; advanced expanded; test disabled while dirty"
+  ],
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "A upper configured OpenAI-compatible form has provider, example.invalid service URL/help, example-model, empty password placeholder retaining saved key, unchecked clear-key checkbox, checked remote-content consent and exact synthetic-test/encryption help.",
+    "B lower same dirty form has automatic enabled, advanced expanded, schema default, timeout60000, maxInputCharacters12000, save and disabled test-saved-connection. All ten declared fields plus primary/secondary actions are accounted for in order across the two scroll positions.",
+    "WS-M012 SHA 7bd035134b51a6e8450c2279c234830f55bdc5c2e67b74fec4ebf5f161d060bf is the already reviewed provider/secret/consent renderer reference, visually inspected. Its collapsed advanced section is not used to certify the newly visible advanced fields; those are checked directly against GraphWorkspace.vue:1096-1122 and model.ts:244-280.",
+    "Current source permits this saved-key dirty state, makes test disabled for dirty or busy, hides provider details for none, and guards unsaved close through GraphOverlay. No test success, network availability, real key or expectedVersion input is asserted."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster shading, slight texture, rounded proportions and intended390/320 geometry are approximate. Implement flat shared CSS colors/borders/8px corners and readable source-sized text; do not reproduce raster gradients or infer exact responsive fit from this board."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-048.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R037.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/app.ts:141",
+    "apps/web/components/GraphWorkspace.vue:1029",
+    "apps/server/graph/semantic-routes.ts:131",
+    "packages/core/graph/model.ts:244",
+    "packages/core/graph/analysis-source.ts:31",
+    "apps/web/components/graph/GraphOverlay.vue:62",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-M012-review.json"
+  ],
+  "currentSourceSha256": {
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    "apps/server/graph/semantic-routes.ts": "0f4d81250bee2aa5d27fdfd65bb5209f52525fdec1275f8ac680e17f7ea8f12a",
+    "apps/web/components/GraphWorkspace.vue": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e",
+    "apps/web/components/graph/GraphOverlay.vue": "0261e8d7dfde8c21c24a5793144b7ce2cb00fbbec49c05ec70d25d8af57439cd",
+    "packages/core/graph/analysis-source.ts": "c87083ae267c60d4d876a82ca93d7f51d87cb6156f7f325c778fe3e77362eca1",
+    "packages/core/graph/model.ts": "b11ebeed7ad8ceb63ac553ef4b035b6ad06ebccd25daa1e711663801a8133b6c"
+  },
+  "requiredCorrections": [],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false,
+    "limitations": "The tool does not expose a per-call physical model identity receipt; none is claimed."
+  },
+  "limitations": [
+    "Only these actual image bytes and their declared compatible selected state received static content review. Source-derived data are examples, not captured API/model outcomes.",
+    "A static PNG cannot prove physical320/390 scrolling or safe viewport, source focus trapping/return, keyboard/Escape, busy/dirty/version guards, action execution, persistence, permissions enforcement, live model/clipboard behavior or exact canvas topology.",
+    "Unshown alternative loading/error/unavailable/conflict/role variants retain their individual source contracts and mother mappings; this verdict does not claim their simultaneous presence.",
+    "Per-image content verdict does not pass platform-wide consistency/coverage/provenance gates or authorize product implementation."
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D019-v2",
+  "sourceIds": [
+    "WS-023"
+  ],
+  "panels": [
+    {
+      "label": "component-crop",
+      "sourceId": "WS-023",
+      "title": "Canonical shared directory tree selector popup",
+      "role": "authenticated owner",
+      "state": "Enabled searchable combobox, expanded selected ancestors, selected 方法",
+      "presentationInstruction": "Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints."
+    }
+  ],
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D019.png",
+    "sha256": "afd46c771bb45d10be0db9bcf443962b117f50f0355669147beeddf0b1e67b3c",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D019-review.json"
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "Use case: ui-mockup. Render ONLY a close crop of the existing DirectoryTreeSelect combobox and its open tree popup, centered on a plain white canvas. Image 1 supplies only the component tree structure; discard all surrounding host. Image 2 supplies only flat compact styling.\nSingle searchable combobox shows selected path 30-Knowledge / 个人知识管理 / 方法 with dropdown chevron. Immediately below, one bounded popup tree: 所有目录 root expanded; 00-Inbox collapsed; 30-Knowledge expanded; 个人知识管理 expanded; 方法 selected in light blue. Show folder icons, hierarchy indents, chevrons and thin tree guide lines, with narrow scrollbar if needed. Search is within this same editable combobox, not a separate added search box. Only browse/expand/select actions; no 确认/取消/create/delete/rename/footer buttons, no tabs or app navigation, no skeleton motifs. Flat white #ffffff main/header, #f7f8fa context sidebar, #272b3a text, #657084 muted, #e6e9f1 thin borders, #4566c6 blue and #edf1ff selection. Crisp Chinese sans-serif, 8px corners, no texture/gradient. Component source WS-023 and owner host linkage are metadata, not product text.",
+  "prompt": "Use case: ui-mockup. Render ONLY a close crop of the existing DirectoryTreeSelect combobox and its open tree popup, centered on a plain white canvas. Image 1 supplies only the component tree structure; discard all surrounding host. Image 2 supplies only flat compact styling.\nSingle searchable combobox shows selected path 30-Knowledge / 个人知识管理 / 方法 with dropdown chevron. Immediately below, one bounded popup tree: 所有目录 root expanded; 00-Inbox collapsed; 30-Knowledge expanded; 个人知识管理 expanded; 方法 selected in light blue. Show folder icons, hierarchy indents, chevrons and thin tree guide lines, with narrow scrollbar if needed. Search is within this same editable combobox, not a separate added search box. Only browse/expand/select actions; no 确认/取消/create/delete/rename/footer buttons, no tabs or app navigation, no skeleton motifs. Flat white #ffffff main/header, #f7f8fa context sidebar, #272b3a text, #657084 muted, #e6e9f1 thin borders, #4566c6 blue and #edf1ff selection. Crisp Chinese sans-serif, 8px corners, no texture/gradient. Component source WS-023 and owner host linkage are metadata, not product text.",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D019.png",
+      "role": "Only existing DirectoryTreeSelect geometry, open tree, selection; ignore entire surrounding invented host"
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat compact palette/border/density only; no full host"
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D019.png",
+      "role": "Only existing DirectoryTreeSelect geometry, open tree, selection; ignore entire surrounding invented host"
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat compact palette/border/density only; no full host"
+    }
+  ],
+  "generationAttempts": [
+    {
+      "submittedPrompt": "Use case: ui-mockup. Render ONLY a close crop of the existing DirectoryTreeSelect combobox and its open tree popup, centered on a plain white canvas. Image 1 supplies only the component tree structure; discard all surrounding host. Image 2 supplies only flat compact styling.\nSingle searchable combobox shows selected path 30-Knowledge / 个人知识管理 / 方法 with dropdown chevron. Immediately below, one bounded popup tree: 所有目录 root expanded; 00-Inbox collapsed; 30-Knowledge expanded; 个人知识管理 expanded; 方法 selected in light blue. Show folder icons, hierarchy indents, chevrons and thin tree guide lines, with narrow scrollbar if needed. Search is within this same editable combobox, not a separate added search box. Only browse/expand/select actions; no 确认/取消/create/delete/rename/footer buttons, no tabs or app navigation, no skeleton motifs. Flat white #ffffff main/header, #f7f8fa context sidebar, #272b3a text, #657084 muted, #e6e9f1 thin borders, #4566c6 blue and #edf1ff selection. Crisp Chinese sans-serif, 8px corners, no texture/gradient. Component source WS-023 and owner host linkage are metadata, not product text.",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D019.png",
+          "role": "Only existing DirectoryTreeSelect geometry, open tree, selection; ignore entire surrounding invented host"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat compact palette/border/density only; no full host"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-afd43cf1-8bce-4879-a657-36ac7221683b.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D019-v2.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-afd43cf1-8bce-4879-a657-36ac7221683b.png",
+  "sha256": "6c310f8430cfea4c5b6444dbb1d7b30b2e295fc9848155e30310f66bdc0c8a86",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1047527,
+  "generatedAtUtc": "2026-11-05T01:05:14.947306+00:00",
+  "postprocessing": "None. Original tool-generated PNG copied byte-for-byte; no pixel editing.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "sourceIds": [
+      "WS-023"
+    ],
+    "title": "Canonical shared directory tree selector popup",
+    "role": "authenticated owner",
+    "state": "Enabled searchable combobox, expanded selected ancestors, selected 方法",
+    "location": "metadata by authorized revision scope"
+  },
+  "scope": {
+    "presentation": "component-crop",
+    "hostSourceIds": [
+      "WS-003"
+    ],
+    "sharedReferences": [
+      "ST-015"
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "selfInspection": {
+    "method": "Actual generated native preview viewed in generation child context; compared to actual baseline, source contracts and PILOT-WS-001.",
+    "concerns": [
+      "Raster texture/blue shading and approximate geometry are illustrative only; eventual CSS must use flat shared tokens and preserve resize behavior.",
+      "Static raster does not verify action execution, keyboard, focus, guards, owner enforcement or responsive fit.",
+      "Intentional component crop; owner host/source/role/state are recorded here. This image does not claim to redraw the full application shell."
+    ],
+    "independentReviewStatus": "pending"
+  },
+  "sourceReferences": [
+    {
+      "path": "apps/web/components/DirectoryTreeSelect.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DirectoryTreeSelect.vue:1, apps/web/components/DirectoryTreeSelect.vue:126, apps/web/components/Workspace.vue:2828, apps/web/components/NoteMoveDialog.vue:130, apps/web/components/NoteCopyDialog.vue:105, apps/web/components/settings/TransferPanel.vue:520, apps/web/components/GraphWorkspace.vue:844"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+      "role": "Shared style contract"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D019-review.json",
+      "role": "Prior independent review correction requirements"
+    }
+  ]
+}

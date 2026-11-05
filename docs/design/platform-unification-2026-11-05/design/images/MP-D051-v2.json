@@ -1,0 +1,211 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D051-v2",
+  "assetId": "MP-D051",
+  "sourceIds": [
+    "ST-064"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-064",
+      "title": "API Key客户端管理清单",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "API client manager idle loaded synthetic list; active, expired-active, requires_reauthorization and revoked clients, no open forms/secret/error"
+    }
+  ],
+  "selectedState": "API client manager idle loaded synthetic list; active, expired-active, requires_reauthorization and revoked clients, no open forms/secret/error",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅删除第二张“旧笔记工具”、第三张“资料阅读器”、第四张“停用客户端”卡片中的“当前生效：当前不可访问”整行，连同行前小图标一并去掉。第一张“桌面助手”卡片全部保持不变，包括当前生效行。三张被修改卡片保留“已授予”行、名称、状态、尾号、到期/签发/最近使用、原有按钮及按钮顺序完全不变；顶部标题说明和刷新/创建按钮、卡片边框/布局均保持，不新增任何其他操作或成功提示。",
+  "prompt": "仅删除第二张“旧笔记工具”、第三张“资料阅读器”、第四张“停用客户端”卡片中的“当前生效：当前不可访问”整行，连同行前小图标一并去掉。第一张“桌面助手”卡片全部保持不变，包括当前生效行。三张被修改卡片保留“已授予”行、名称、状态、尾号、到期/签发/最近使用、原有按钮及按钮顺序完全不变；顶部标题说明和刷新/创建按钮、卡片边框/布局均保持，不新增任何其他操作或成功提示。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D051.png",
+      "role": "Edit target; undefined effectivePolicy hides full current-effective row on three invalid clients",
+      "sha256": "11924af3fc0886ba894df27431602428f34ac1666b6fbf3b99dc975842e1fa5c",
+      "dimensions": {
+        "width": 1199,
+        "height": 1312
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D051.png",
+      "role": "Edit target; undefined effectivePolicy hides full current-effective row on three invalid clients",
+      "sha256": "11924af3fc0886ba894df27431602428f34ac1666b6fbf3b99dc975842e1fa5c",
+      "dimensions": {
+        "width": 1199,
+        "height": 1312
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅删除第二张“旧笔记工具”、第三张“资料阅读器”、第四张“停用客户端”卡片中的“当前生效：当前不可访问”整行，连同行前小图标一并去掉。第一张“桌面助手”卡片全部保持不变，包括当前生效行。三张被修改卡片保留“已授予”行、名称、状态、尾号、到期/签发/最近使用、原有按钮及按钮顺序完全不变；顶部标题说明和刷新/创建按钮、卡片边框/布局均保持，不新增任何其他操作或成功提示。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D051.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅删除第二张“旧笔记工具”、第三张“资料阅读器”、第四张“停用客户端”卡片中的“当前生效：当前不可访问”整行，连同行前小图标一并去掉。第一张“桌面助手”卡片全部保持不变，包括当前生效行。三张被修改卡片保留“已授予”行、名称、状态、尾号、到期/签发/最近使用、原有按钮及按钮顺序完全不变；顶部标题说明和刷新/创建按钮、卡片边框/布局均保持，不新增任何其他操作或成功提示。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D051.png",
+          "role": "Edit target; undefined effectivePolicy hides full current-effective row on three invalid clients"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-f3eb3bdb-4adc-4ec1-953d-496c698577ed.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-064",
+      "title": "API Key客户端管理清单",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "MCP连接指南内API Key客户端区",
+        "parentId": "ST-049"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:322",
+        "apps/server/platform/mcp-api-keys.ts:197"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。",
+        "签发/权限修改须MCP插件启用、API Key通道开启且配置已保存；改名和撤销仍可独立进行。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新API客户端",
+          "effect": "读取当前账户客户端",
+          "api": "GET /api/platform/mcp/api-clients",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "创建 / 修改名称 / 编辑权限 / 轮换密钥 / 重新授权并签发 / 撤销API连接",
+          "effect": "进入ST-065至ST-072",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "读取中",
+        "尚无客户端",
+        "读取失败",
+        "active/expired/revoked/requires_reauthorization",
+        "已授予/当前有效policy",
+        "密钥尾号/签发/到期/最近使用",
+        "disabled仍允许改名称与撤销"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:87",
+        "tests/mcp-api-keys.test.ts:211"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "列表永不返回完整旧密钥；图中尾号用占位。所有编辑为行内form，不虚构弹窗。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-064",
+      "parentId": "ST-049",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:322",
+        "apps/server/platform/mcp-api-keys.ts:197"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-019.json#MP-D051",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D051",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-f3eb3bdb-4adc-4ec1-953d-496c698577ed.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D051-v2.png",
+  "sha256": "8db126792a4af00baf7de7bf675e3393933736b74d5c31f739a8a4997795061c",
+  "bytes": 1697498,
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  },
+  "generatedAtUtc": "2026-11-05T04:22:00.346697+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D051.png",
+    "sha256": "11924af3fc0886ba894df27431602428f34ac1666b6fbf3b99dc975842e1fa5c",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/MP-D051-review.json"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "API Key客户端管理清单",
+    "sourceIds": [
+      "ST-064"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "API client manager idle loaded synthetic list; active, expired-active, requires_reauthorization and revoked clients, no open forms/secret/error",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "renderedVariants": []
+}

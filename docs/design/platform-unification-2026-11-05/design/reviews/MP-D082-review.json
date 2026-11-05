@@ -1,0 +1,51 @@
+{
+  "assetId": "MP-D082",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:36:33.354638+00:00",
+  "method": "Actual final PNG viewed; complete initial/correction prompt history and GEN-004 manifest checked against current SetupWizard/SetupFeatures template. No matching captured runtime baseline exists; source-derived state only.",
+  "selectedState": "Source-derived owner onboarding ready/step2, catalog available and plugins uninstalled, all configs closed",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Step1 completed/step2 active/step3 pending and source heading/intro hierarchy retained. All three real feature cards preserve source descriptions, optional states and permissions/backup/manual-sync explanations.",
+    "MCP/Git add actions and closed learn-more disclosures consistent with available catalog/uninstalled state; content-search setup entry remains. No enabled/installed success, unavailable-source warning, install task or expanded plugin/search content mixed in.",
+    "Skip/continue source actions available. Standalone source-derived owner setup with no private rail/account-creation/payment/mandatory-add condition or runtime-success claim."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Residual raster shading and approximate geometry remain illustration only. Use shared flat tokens, exact disclosure open/closed semantics and real conditional field/scroll behavior; no pixel-precision/runtime-fit claim."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-004.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D082.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/SetupWizard.vue:402",
+    "apps/web/components/SetupFeatures.vue:26",
+    "apps/web/components/SetupFeatures.vue:101",
+    "apps/web/components/SetupFeatures.vue:148"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "9785f56bcf87cd75c2936b77acc252e122dce12da0276ce5d63b1ba7ed6efd9b",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D082.png",
+  "sourceIds": [
+    "PB-012"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "assetId": "WS-M020",
+  "sourceIds": [
+    "WS-009",
+    "WS-037",
+    "WS-053"
+  ],
+  "verdict": "pass",
+  "reviewer": "platform_global_design_review independent reviewer, separate from root image generator",
+  "reviewedAtUtc": "2026-11-05T10:35:28.623130+00:00",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-M020.png",
+  "reviewedImageSha256": "ad365f6d8d6015f253d1cc83898ddf34ed3dbcce1760ff0d2188b19cbdb0ee5d",
+  "reviewedSidecarSha256": "248d1a0eedb670d26ae70306aaabdf4619badbd7d04ff2296b58685e7f54d28e",
+  "method": "Opened complete original PNG directly with view_image, read the three-panel contract and submitted prompt, compared controls, text and branching with current component source. Compared the source tool output bytes directly with the review copy.",
+  "sourceRefs": [
+    "apps/web/components/CollectionWorkspace.vue:161",
+    "apps/web/components/DocumentEditor.vue:822",
+    "apps/web/components/DocumentEditor.vue:1300",
+    "apps/web/editor/rich-adapter.ts:74",
+    "apps/web/components/LargeFileWorkspace.vue:313",
+    "apps/web/components/LargeFileWorkspace.vue:376",
+    "apps/web/components/LargeFileWorkspace.vue:502"
+  ],
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "A is the existing owner collection update strip with the exact status message and single enabled 刷新列表; loading in this same region disables the button, represented by a guarded substitution.",
+    "B has editable text, URL, title in source order. ftp://example.invalid fails safeEditorUrl. Validating on click leaves 保存链接 enabled and places the exact message 请输入有效的链接地址 below the URL. The retained input, close, cancel and save remain visible.",
+    "C shows mutually exclusive parent error variants. An unresolved request shows 核对保存结果 alongside 请求失败. Without requestId the same parent alert has only the error text. An unsuccessful save while still dirty retains the existing leave dialog and unsaved fragment. The region does not advertise clicking through that dialog.",
+    "A/B/C and 1/2 are external comparison labels; all three samples are private owner UI."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Image scale and subtle shading are illustrative. Use shared token colors, exact native field and component layout/semantics when implementing."
+    }
+  ],
+  "provenance": {
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "actualSubmittedPromptSha256": "a0ce3bc422094438c8c44269975f0af9a5d525be362eb63a1886d63014354387",
+    "actualRasterInputs": 0,
+    "receipt": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-054-root-receipt.json",
+    "receiptOutputEqualsReviewedBytes": true,
+    "perCallModelIdentityReceiptExposed": false
+  },
+  "requiredCorrections": [],
+  "limitations": [
+    "Static design check only. Real request reconciliation, enabled/disabled behavior, keyboard and focus, phone hit areas and assistive announcements require implementation verification."
+  ]
+}

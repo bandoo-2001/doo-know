@@ -1,0 +1,3491 @@
+{
+  "schema": 1,
+  "createdAtUtc": "2026-11-05T12:18:09.026692+00:00",
+  "scope": "Frozen generated designs (including historical/failed/orphan versions) and isolated before-change baseline PNGs; not post-implementation screenshots",
+  "designCoverageDigest": "b422b7cb1336e0322291ad9ed619fa3c719f02859ec7f5427b7c76a2d6435879",
+  "currentApprovedDesigns": 390,
+  "archive": {
+    "path": "/home/bandoo/documents/doo-know/design-artifacts/platform-unification-2026-11-05-images-b422b7cb.tar.gz",
+    "bytes": 537188063,
+    "sha256": "3b01a27209b559a54c8dd9be3a7741f99d38aba4b57d79e2d26bb6d710cf2885",
+    "entryPrefix": "docs/design/platform-unification-2026-11-05/"
+  },
+  "verification": {
+    "method": "Restored every regular PNG into a fresh owned temporary directory, checked exact bytes and SHA256, then cleaned that restoration only",
+    "restoredAndMatched": 694,
+    "status": "passed"
+  },
+  "files": [
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-apps.png",
+      "bytes": 83957,
+      "sha256": "90e079ba201feefff05f3b7c251ec7d7a9136e8c35f882b5729a475995e7736a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "bytes": 78825,
+      "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-blog-design.png",
+      "bytes": 136748,
+      "sha256": "d91badae422d3e52b77089047ae5861e863d52f8eaa804ef9066016f5df9c22a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-blog-overview.png",
+      "bytes": 140842,
+      "sha256": "83a64d5d67d7606f8f82a5ff064d0ea5b8fc2f9ed0a8e5a21b818f105ad9e0bd"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-blog-settings.png",
+      "bytes": 113422,
+      "sha256": "eccd7d09c3724a2577a6bbdc69b5314a8bee7880ff21584827f52139e7307f70"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-blog-taxonomy.png",
+      "bytes": 84729,
+      "sha256": "ca78d354658d4b7842efdcbd1d479d9dcc7b4e315c1621cede8c3619a6c9435b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-favorites.png",
+      "bytes": 50825,
+      "sha256": "252416e381ce9c2ae4f05a3c4cdeb42a4a51c0dc6fb2337efec05c944205e255"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-folder.png",
+      "bytes": 56843,
+      "sha256": "2baa4f77fa94c81fc233a00b0134ad76cc89d8d93f53ff190d6e51fcee78149e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-graph.png",
+      "bytes": 190893,
+      "sha256": "b12c6d9f125032b6cd0f4c74d3badc16f098543f05d3baffa96f272df1a64cae"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-login.png",
+      "bytes": 36397,
+      "sha256": "10a6aff98a81ca91fdda5199d65590adaaa6426fbf5e4555fef45caa3c3214d4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-note-document.png",
+      "bytes": 72679,
+      "sha256": "0a04d2c0e011c63831b6ab763ea88a6a126d52effbbae29746d311639952e6b7"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-note-read.png",
+      "bytes": 72307,
+      "sha256": "fffcacad3598a52e5518b18759482aa985531a8a5dc85a989418461458be5f22"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-note-source.png",
+      "bytes": 72683,
+      "sha256": "05e844e7237489b6facc5bbfa32cf37e3d3b68b9732c5f00643be8ee18a907a9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-note-split.png",
+      "bytes": 93950,
+      "sha256": "d3370c55c81f193ad05ecfe771aeaefc7dbdf3417cc051f6f7db002d756dfa1f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-oauth-invalid.png",
+      "bytes": 36397,
+      "sha256": "10a6aff98a81ca91fdda5199d65590adaaa6426fbf5e4555fef45caa3c3214d4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-recent.png",
+      "bytes": 95577,
+      "sha256": "ea0a964725f3e84d7bf28bfee0c7843f1b7ed9f7326fea0307a479579f35635f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-about.png",
+      "bytes": 138272,
+      "sha256": "b0167e7b0711964e16df358366c80b4e42bfb6f5b695e1cee5e7534156b38bd7"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-account.png",
+      "bytes": 91708,
+      "sha256": "fd3ded6edb1cec0b726f05588147b12e829f482ffb63f579e154d596a5a146b5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-backup.png",
+      "bytes": 129321,
+      "sha256": "97d08b85c99d01fa5a1193bd951f58708e31f29566db456b5076ce8f799cc4d0"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-editor.png",
+      "bytes": 114863,
+      "sha256": "a229460e7210b44aae017959c4a7c781daab10309f49a14edded0c4daf438d35"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "bytes": 120942,
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "bytes": 61500,
+      "sha256": "20d3af18e07807e109eee306b74d24cab0fdbe1eadc0e5ed5883c727c9863156"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-search.png",
+      "bytes": 98859,
+      "sha256": "942d4e3839184ff0cddeb9e24b9b1ab09f887faa10597afa0387967db47cfa39"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-status.png",
+      "bytes": 109907,
+      "sha256": "6969d2ce8b9bceefc23f26082304cd0b548b3afd147e55ae55ccbabb35bcbaa5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-share-missing.png",
+      "bytes": 28917,
+      "sha256": "c8df8a96082a6bef98cd3dc008c3ce4bbe269280e464ec8baf01c1a6f7df5a5f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-trash.png",
+      "bytes": 88244,
+      "sha256": "6297ff8cbdc72ca786783b2bbf1f2394444026e7eb95a680e11ce2246b9ee061"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/1440-workspace-empty.png",
+      "bytes": 40127,
+      "sha256": "5b5f9e507269f8ff724ae65309a317dbace517722ffdc2bd8552d1001919a8a7"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-apps.png",
+      "bytes": 50875,
+      "sha256": "16eae2dfc11a22c1470d0d4bc9d7c478a40304d5d4c1e07f62d94c275536358a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-blog-articles.png",
+      "bytes": 53410,
+      "sha256": "5acade1cc837a73e8aaa2486267dd6055a1dd056b46d5b77fd0e86aafd1474f4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-blog-design.png",
+      "bytes": 69669,
+      "sha256": "d0a053cc363367071784cb1ad843b65b8e8e46bf60b2e47c406bfce2d67aeffd"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-blog-overview.png",
+      "bytes": 97440,
+      "sha256": "a2e5c9315253831bd1e5a2361643245e6b9d1e3fb59bb60bb5cb2557213456ce"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-blog-settings.png",
+      "bytes": 63085,
+      "sha256": "8bc55d650a632d21f8455e7829cccdba220f89c92deb79b9185ac23f9e384489"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-blog-taxonomy.png",
+      "bytes": 71663,
+      "sha256": "ec5268ddc9383767e71bcb0dd77ca5fc3b8284e47e14a705e794b1e9fefd1bdc"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-favorites.png",
+      "bytes": 31625,
+      "sha256": "f46d57dbb8935509be23e89cef70c45cddf3ec56257d2d4d3f4bc860be41d9db"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-folder.png",
+      "bytes": 33840,
+      "sha256": "c4e8cfe411b47b4fe1138d74c83cd833bdf268e905fb35b102369c94447be0fe"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-graph.png",
+      "bytes": 73363,
+      "sha256": "869e72f5cf7e41543c74135e998600a23fd6b19a87b939e75aff0e2cac4ca516"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-login.png",
+      "bytes": 30634,
+      "sha256": "b35312b4dc5aebecf813d2fd87916f485eb08b69f44e8951dbe064f958920571"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-note-document.png",
+      "bytes": 44811,
+      "sha256": "918edfac5f36b833e6a56c51c3f0ccb38fbcee68664c0a08fa20e82aac5a89ce"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-note-read.png",
+      "bytes": 43847,
+      "sha256": "8b77ebfbb0e5feddc1d5613504528e0abf2cf4f4e49b18786902e41274c23f99"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-note-source.png",
+      "bytes": 44811,
+      "sha256": "918edfac5f36b833e6a56c51c3f0ccb38fbcee68664c0a08fa20e82aac5a89ce"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-note-split.png",
+      "bytes": 56177,
+      "sha256": "4fe8735cbf83716a7aa70a3c0abe678aa3e61a0a8545b1c063dfcab478bc09b1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-oauth-invalid.png",
+      "bytes": 30634,
+      "sha256": "b35312b4dc5aebecf813d2fd87916f485eb08b69f44e8951dbe064f958920571"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-recent.png",
+      "bytes": 52261,
+      "sha256": "dea2092b73ed6208af9325b4c43d0003c14997cb72d24f1c0f9f2e39d3db7615"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-settings-about.png",
+      "bytes": 84427,
+      "sha256": "bbf511c6469d017264f4df2a51981434f8910f4438a870bea926e71d02a5a7a6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-settings-account.png",
+      "bytes": 58960,
+      "sha256": "15df30c1378c377df26460d8ba77ccb49f9a4d721f7d937f519e09c98d0abf17"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-settings-backup.png",
+      "bytes": 81170,
+      "sha256": "dfa6da746282d2784f0490c5c005b0d8a504eb003baa8965f491df1b7824ef09"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-settings-editor.png",
+      "bytes": 66818,
+      "sha256": "f2fbbc498eaeb50cb0513ac14a32de59b2d71cab2cff92cbd982c43efc7406c5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+      "bytes": 61994,
+      "sha256": "3213f7fd9fcf209a067fe82908d8f3d6c96e5a0fea8f63d1ee5ddc7725cd384a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+      "bytes": 32967,
+      "sha256": "fcadab6d4ed2b937d207abd375e9e0bb6c57bf2a156a7af8530e3df1bf3edf39"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-settings-search.png",
+      "bytes": 70534,
+      "sha256": "90ab9e41afd291d9c323d4c67dac881124a81549c2784dec0f284291c8f7247d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-settings-status.png",
+      "bytes": 70942,
+      "sha256": "ae2f273c768e2710bf87571ff520d668a4ebc2edcf38a5b5c5c5dcd0605fe213"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-share-missing.png",
+      "bytes": 22924,
+      "sha256": "73870ba5823257f6ca773af36e92a258bec2f6fbc1eb542ceb0cee6a1b3eea19"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-trash.png",
+      "bytes": 70379,
+      "sha256": "0f75022d513b895e5cdfe000d5509199b2cdcde3811833bcda0da5c2ef1b9204"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/390-workspace-empty.png",
+      "bytes": 23766,
+      "sha256": "93f55ccad4ce6dd829394e0d3e16e051b6c46b1f44c60baaeac837a7760007c2"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-markdown-source.png",
+      "bytes": 139418,
+      "sha256": "6cd760be5fa5e8c4f339eed246e6726567611e9e5fbc69548c8cfde1391ff557"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-more-actions.png",
+      "bytes": 71535,
+      "sha256": "7d2bea222e2b75784af61a7280b95dd96cd3a9c192a88dfdba7302cb49352a7c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-png-preview.png",
+      "bytes": 57573,
+      "sha256": "4c9af4cca73f6a666d5a453b63e6aaa99049dc2eccc95cfb4b5b20c5a4080c4c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-reading.png",
+      "bytes": 67797,
+      "sha256": "881a14d1f24d6c95168b69c8ccd1a09cfaf8c3e082dbfab40638dfa7d07bbc4a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-new-whiteboard-dialog.png",
+      "bytes": 59043,
+      "sha256": "4b5399296d1a8d61863b158151243f85fdc62e2c36342bda463013f577a0896a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-arrow-properties-panel.png",
+      "bytes": 85064,
+      "sha256": "03449dff0bc919e9176e669cb87ce1593593a598752055fbf0d2c44c883011ed"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-arrowhead-end-popover.png",
+      "bytes": 87768,
+      "sha256": "2a18b04a79da41733697c202f721be86d62e858c0edec654918014e83ce9f822"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-arrowhead-expanded-popover.png",
+      "bytes": 89099,
+      "sha256": "c9d41bc36955a7d96870cc392fe63ad5c9ff6dee06b08d9b24e4e17e2d505b8c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-arrowhead-start-popover.png",
+      "bytes": 87220,
+      "sha256": "83a1feb6d8aa06fd2fe0c7002ac3b0290216e7e49d5c490d04cc54580528746b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-canvas-background-color.png",
+      "bytes": 73671,
+      "sha256": "a8929d97ab9e28e7cb355c4b256aceb2e8af6f5226252f6e842cdf6d726736e1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-canvas-shape-properties.png",
+      "bytes": 80177,
+      "sha256": "ca8e0fa6d061db9f209e9541004bf2865d5880bc77534f556117ab10e826e675"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-clear-canvas-confirm.png",
+      "bytes": 88127,
+      "sha256": "7e0f024b61970fd23d3f508fb82dc5792b09ca74dbeb63b0c0820276b4112426"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-command-palette.png",
+      "bytes": 71500,
+      "sha256": "a86e1fb618a0df4f458c8568388464cd199a4460fba479d939c0f48388477b28"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-empty-canvas-context-menu.png",
+      "bytes": 85743,
+      "sha256": "703bf7b37f043cbd5ce4b08b33e25799112951d1f1ed70f5abc6fbc6a519eef4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-extra-tools.png",
+      "bytes": 79175,
+      "sha256": "089ad1fe13b957493590af3b73fbe09037a2517ee6c8c3dae5822690e46a2f76"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-fill-color-popover.png",
+      "bytes": 98766,
+      "sha256": "9605bc08b57aaa62914d294d9b1cc34ed7779bc70056e432fccf6f7ecbd90a8c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-find-sidebar.png",
+      "bytes": 53810,
+      "sha256": "297d372269aae254720e9f920fa2e103cce47e80e55801d7e53b0ef72557479d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-font-picker-popover.png",
+      "bytes": 83849,
+      "sha256": "2a6f9544bfcf2ebb763ad7752877c3a86c1aa0b106ff678bd0cc82190d4624f4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-help-dialog.png",
+      "bytes": 155813,
+      "sha256": "ec775046c74d8f857f685c2a6bdd599b9192a1ff8e40d4698fac440e618173e3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-library-menu.png",
+      "bytes": 78519,
+      "sha256": "ecdb2f3fd721ad3d11f126ade730a830050e95e92721a4564ab135603355acb5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-library-panel.png",
+      "bytes": 78730,
+      "sha256": "199d1baade9af042a003cba0f0efbcc6ad510c11acb175475a49b1d175b926fe"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-main-menu.png",
+      "bytes": 70054,
+      "sha256": "4d5a38ae9789e3c065cf2c1d066bea870a8274d81b83f88e7bffdf0f51413eef"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-mermaid-insert-dialog.png",
+      "bytes": 88633,
+      "sha256": "b992366ce21b79b7b07c75a57839d4abfc3ba1aa4bf6470dee558d90051ed916"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-shape-properties-panel.png",
+      "bytes": 83003,
+      "sha256": "6f34617db07a5ed33de101e242309e5a1f0ab4ec519f058d166a48b5084d2ad8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-stroke-color-popover.png",
+      "bytes": 98432,
+      "sha256": "0a804acc4f82d21b7bec38bfb9d5c3fcd134ed9a8be16d1ee958492148c49550"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-text-properties-panel.png",
+      "bytes": 83729,
+      "sha256": "e5bb09d49db9bc420d8dcb581ba28b90636ac7da737033a4fd4701435d92897f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-whiteboard-canvas.png",
+      "bytes": 57146,
+      "sha256": "c5a3e3206115a6b4b1098c9dfc4590db7a1a64971f24ac9a59e03750e0d2a699"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/320-diagram-more-actions.png",
+      "bytes": 28131,
+      "sha256": "5af9648618e372c192f2ce239d73c1b61cc8db6f736ac8b1e321fb4fca924c7d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/320-vendor-help-dialog.png",
+      "bytes": 38841,
+      "sha256": "84ab3c5dbf5b9a7d62f1aa6974a2bfce1917dd60b5e46ed34db325e66ee07117"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/320-vendor-main-menu.png",
+      "bytes": 37728,
+      "sha256": "eaa938afab4635efffd2f69cd25d195d6731725e718a206099a9000feff54392"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/320-whiteboard-canvas.png",
+      "bytes": 28098,
+      "sha256": "2622effc5e2b43f9e8ee788e003362ef0c3fd4ccc9f0ca788e2ac341df28d562"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-diagram-markdown-source.png",
+      "bytes": 78533,
+      "sha256": "bf047260347dda7e88768054095fa3098b844b288190b21a9473ff502f12bae6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-diagram-more-actions.png",
+      "bytes": 18039,
+      "sha256": "e892cde201e697b43e894efcddf322a6fa25753c183c09ca7da350cbdddcb7e6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-diagram-png-preview.png",
+      "bytes": 23653,
+      "sha256": "c8e6c32028d81c79b334bc221c829d2ee398aeb9a81b717739c046ec2545ae55"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-diagram-reading.png",
+      "bytes": 32774,
+      "sha256": "a79f8ff66a437176fbd5428b88f22e9655816257afe2600492bdb9913598578a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-arrow-properties-panel.png",
+      "bytes": 38127,
+      "sha256": "c75b75a3417379bdbbfd1fb5e1967e4d4ca93ad1cbe9d2d9df0fbf3a5fd4b023"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-arrowhead-end-popover.png",
+      "bytes": 41365,
+      "sha256": "a41d888790afda75c8e7fc20b223ad97956b04c784368525b0ff4475e67a4250"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-arrowhead-start-popover.png",
+      "bytes": 39597,
+      "sha256": "0a159bc71c2c3883333fbf7b1131797bcd086d75e5f604922364b1f1a4bf0227"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-canvas-background-color.png",
+      "bytes": 41660,
+      "sha256": "b0fb999ea6f04433979daf97f1604fbc52e57e767536d4215f2e4ef9c4fef2e3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-canvas-shape-properties.png",
+      "bytes": 29193,
+      "sha256": "0bebb48b4aa5100e31ba1b21324ae06f623eafbdb948dca4cef8c7e1613719b8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-clear-canvas-confirm.png",
+      "bytes": 19160,
+      "sha256": "263f387b5b4ffbe53ea7db914cc47e73602292d4691b5b6324c7629088c2789e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-empty-canvas-context-menu.png",
+      "bytes": 38857,
+      "sha256": "de8004f66ca7efb97866e0799ea84515f7c83a82fdb28401407b6a2e4bb22d4e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-extra-tools.png",
+      "bytes": 36079,
+      "sha256": "a3fcd6d077ed7c5dec28f23dcdfee864c138d8d8bd0415d58f28198da42161f3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-fill-color-popover.png",
+      "bytes": 51802,
+      "sha256": "5ec1a99cec6048c1327308a6c6c063db89541d1aaeb13116b173e07e605f5caa"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-find-sidebar.png",
+      "bytes": 29187,
+      "sha256": "c6f851363f1562f502b5bd4d46c759f1823e394b207a35a06bacb7fa33450a0f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-font-picker-popover.png",
+      "bytes": 43257,
+      "sha256": "2463b863344a47275c5bc58b2c879e3967d7fd531d0876f3529ec14d101fcb6c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-help-dialog.png",
+      "bytes": 42645,
+      "sha256": "10833d1ca796d5de8506335b5ae872f920bb0f7814badff4691c719842abf868"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-library-panel.png",
+      "bytes": 30249,
+      "sha256": "ab192d543009a19ee0e8297c9bfc012f5a5862ff09438947378f2218d8d6a64f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-main-menu.png",
+      "bytes": 39250,
+      "sha256": "d1a806c4aa685af3a2011eea023e08e8d25ecff5089f51c381fb19a0f7d5acce"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-mermaid-insert-dialog.png",
+      "bytes": 35429,
+      "sha256": "d64dd88002b3fd61a8c2a2b5487f716efa94ae0a6bf227fa3e87270c60f5910a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-mobile-shape-properties-sheet.png",
+      "bytes": 38460,
+      "sha256": "9210597e44d965b5d56cd3fe7d428d653d58cc402b69a3e6ba12e5903f7a1fa3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-shape-properties-panel.png",
+      "bytes": 29599,
+      "sha256": "61bd725a1ce956c9d53979f095be7724d40be0cc7d348be35771c239d065b7c9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-stroke-color-popover.png",
+      "bytes": 50811,
+      "sha256": "aa80bb23051305c4f49224ba1a82ab2aa2429ec26bb74b33fbf0255be08511cf"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-text-properties-panel.png",
+      "bytes": 43154,
+      "sha256": "e18144b6e686e5e502d1907af52aa72028d8705a879ac567394eb081417499d4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-whiteboard-canvas.png",
+      "bytes": 29188,
+      "sha256": "24a6700d60e334d4bfd4a794891b95c3c3e9fcf89dd177bced7582ddfa9bd29d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png",
+      "bytes": 66324,
+      "sha256": "2d0e1957205eb4d488fbd90d7a4f3386856e5930b1ec65976a10674e3e2efd8b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/1440-private-blog-preview.png",
+      "bytes": 80356,
+      "sha256": "e908356707edcf9689db9e52e1508e7c97ceea2e0e1f8e1e879c84fa10941588"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-about.png",
+      "bytes": 33482,
+      "sha256": "7e94c5765fb5fc59388ba2da0c5fabb7ac6a4d3ea81601ba0bdcf222ca5f12ed"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-archive.png",
+      "bytes": 39406,
+      "sha256": "c34ef75c7b1bd582bd0796506aba2f1adbdc4a0baf809d2047a255c6aa90e86b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-articles.png",
+      "bytes": 68172,
+      "sha256": "6be685ed3a4e385f4cf3b77a558676f6e655b232df946a1a3af69602741ff957"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-collection.png",
+      "bytes": 50121,
+      "sha256": "4c9332807c7505be19ad89eeac6ef52ef878acecbb3d1fcf3dfd289b7de2fff6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-collections.png",
+      "bytes": 39072,
+      "sha256": "3bec9ff31c6e9d94c6f2f64f58be22f9999ce6fd3fcc2a1a4dbe293546030d92"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-home-journal.png",
+      "bytes": 60864,
+      "sha256": "43ae8d7bd845a60f4199d0cf9d20b084e22fe06e4a24a9c9f6f4f28c5d223c87"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-home-magazine.png",
+      "bytes": 70307,
+      "sha256": "758c405a5a4d3424b187aeb0509ec3afc02b6b317bc17c2198005738622d68c9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-home-profile.png",
+      "bytes": 79758,
+      "sha256": "eff36eef4a5f453e70b41055f7dcda1abd86abcf932ab018de1dcbc4038b6139"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-reader.png",
+      "bytes": 81042,
+      "sha256": "26be9fdc338467a0d7c2f95a504fa3952e3c359c61be8fed0c15cca6f2e46a30"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/1440-share-editor-document.png",
+      "bytes": 56060,
+      "sha256": "1c38eebd017897dbf2d5342d6652b2b300281a5126c57047ad9263c3762f8c4e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/1440-share-editor-source-search.png",
+      "bytes": 64505,
+      "sha256": "786f67c8c0b5e24e91e4c3db87756e4ec929f3db290bb833cb60e8fdecdca3d1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/1440-share-reader.png",
+      "bytes": 45556,
+      "sha256": "cb262d29907ee83ce1309ae1fde51051f31e86b2ce2665a247eaf40ebb2bd2e1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/390-oauth-consent.png",
+      "bytes": 46913,
+      "sha256": "728c3aeae54f202172c642aa4075681d69630c5fb4023e7b22b9c1cd05f927ae"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/390-private-blog-preview.png",
+      "bytes": 51324,
+      "sha256": "72718e5b66c020a74c63e117550ce5a4d7a23292c716cbb761e8b947c75c440c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/390-public-about.png",
+      "bytes": 26929,
+      "sha256": "4506b89ada73565eb1f8a9d45bb49f860ada0f7b32bd381cd784446f1692e874"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/390-public-archive.png",
+      "bytes": 31727,
+      "sha256": "f49c4c068e77829913d9b91feafec95ec730c3af863338965d34b48ab5e13deb"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/390-public-articles.png",
+      "bytes": 53983,
+      "sha256": "fd855191abb0a2e971ff25d9f87a4c4aad9b65a0978144f7a1d064fda9169c05"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/390-public-collection.png",
+      "bytes": 40977,
+      "sha256": "49ffb7d1278a339b7ce8771007f1444556cd999d76b8ddb339f4cae05f7a8234"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/390-public-collections.png",
+      "bytes": 31342,
+      "sha256": "4838f622eb337c0b94c405015ec996ae60a776efd5af7f972f45caaa99e6a9ac"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/390-public-home-journal.png",
+      "bytes": 48045,
+      "sha256": "5dfb0cf223ef2b936ba83d8dbaaaef7dde495f380ceee4060ca65cdfe50d12bb"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/390-public-home-magazine.png",
+      "bytes": 49913,
+      "sha256": "8d31b8ffaf3f210813a129c0d386792ad17a1f12050a41a1df5138ea65120b05"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/390-public-home-profile.png",
+      "bytes": 48507,
+      "sha256": "6192c3edaffe1f95c2c61b4884fa0b6f8d268106bb51ad2c0bf0705b11249d25"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/390-public-reader.png",
+      "bytes": 53438,
+      "sha256": "efa34bb03c5f608d81e247d979dcd2ce886a31b9c171df12f9a74073b2d86c13"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/390-share-editor-document.png",
+      "bytes": 49912,
+      "sha256": "c9558a08d27a12192c476347f97a01f47ded2b8479b939c635df09f04b1a7cde"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/390-share-editor-source-search.png",
+      "bytes": 52965,
+      "sha256": "a3a802524079934e91bb1e5b66e03eb4da21951930aad704b8b1f77d24af5569"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/public/390-share-reader.png",
+      "bytes": 35834,
+      "sha256": "75e64671275e879f0fb9d6629334fb5224ba789962dbb9c71d9e9aa7c7cabf09"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-color.png",
+      "bytes": 79114,
+      "sha256": "47f04fb2b24a323eed2acd08b0b4d69778aaad0ccb33f0dbd450f447e41ebf5e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+      "bytes": 78952,
+      "sha256": "51bb8ab79f889c547f472e964f39a1e208dd3e708ed7ca0c7ed4ce307025aa35"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-find.png",
+      "bytes": 86073,
+      "sha256": "088c151d10aba38a07ec7feb665aed5b71cb41508cc0821db1633424350ff0e4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-link.png",
+      "bytes": 78640,
+      "sha256": "e78c1a3b3357e96474a5199141424ea67955623841515b3af925d47fd4f7c48d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-paragraph.png",
+      "bytes": 79843,
+      "sha256": "8f375295d05e23c75964014bcd2f63fd27515b5b713973fa969a4583213e4ecc"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-table.png",
+      "bytes": 94287,
+      "sha256": "e057ec47df65a4b3b2c9095e88429977a4b78302d6117642df35b9caa3808bd4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/320-owner-rich-color.png",
+      "bytes": 48128,
+      "sha256": "bc5b4f3489f6d834a3fdad963f381e7d11eb8869759a93e503bf70991da19968"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/320-owner-rich-document.png",
+      "bytes": 48290,
+      "sha256": "096c4848c0e1556fd4bbcd545ed3ff19e90596639855e5e8ecc5b071ad0d034c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/320-owner-rich-find.png",
+      "bytes": 51481,
+      "sha256": "e21fbc160ca2498c20c359194e8e251833ae925d8842bd2d000eba38d0b73d46"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/320-owner-rich-link.png",
+      "bytes": 47634,
+      "sha256": "77001fc5b0638a03325ba4f17f1962b83c1f3eedf3f4b6f2e37ab8a8bb0d6b3d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/320-owner-rich-paragraph.png",
+      "bytes": 47220,
+      "sha256": "78b62c7fb1d5c2b68bac708bfa2de229f92720cac7fac263a597b6b97c1aa633"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/320-owner-rich-table.png",
+      "bytes": 47344,
+      "sha256": "b0ec4912b3cb0915fdd70598743f1547da01c903c1f2ed561c091880626f57a4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/390-owner-rich-color.png",
+      "bytes": 50648,
+      "sha256": "a9c5ed813b1a0efbfe81780d9f33860b221e706369502f321f543ed1bba7068b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/390-owner-rich-document.png",
+      "bytes": 50484,
+      "sha256": "af1524fa3504b91472b4ebd97df5c5157c578f86e92a18df3a0ec4bac9e4e86e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/390-owner-rich-find.png",
+      "bytes": 56832,
+      "sha256": "b539ade31b6d21b97c5cdc917bb670a1495058d24ad436157846ebea301c5bec"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/390-owner-rich-link.png",
+      "bytes": 42028,
+      "sha256": "165784f9a5e1a02c56a732e8f56dd07a33af5c14bb8a221e3f88aedb8fc28d61"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/390-owner-rich-paragraph.png",
+      "bytes": 48382,
+      "sha256": "70f44d63e2195394747d0550f363b0844e0f076a012a8f6e95e1f027e44f1184"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/rich/390-owner-rich-table.png",
+      "bytes": 57027,
+      "sha256": "8f9ce082f006dfadc21d8ab3a22f60b80a047ec00b160490e88fb7b50aae39e5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-create-menu.png",
+      "bytes": 80218,
+      "sha256": "8c8af09025d22457d3bd6f56c2202d5c22eceaad15ddfbd379cf98963a571639"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-import-markdown.png",
+      "bytes": 103010,
+      "sha256": "be08e92598bc76d5f3c78f22c80b7db73def1c55b60a92e9c8e74aa05b90f102"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-new-flowchart.png",
+      "bytes": 93258,
+      "sha256": "79f524ffcb2793507b1476fa2a678b350230f68cb96e427beecb7b7ead093459"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-new-folder.png",
+      "bytes": 85201,
+      "sha256": "fbdb2e4ffa585c8b8275fd78f8c6279c6116e34d55a0a466d6c878feb21eb3e8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-new-mindmap.png",
+      "bytes": 92700,
+      "sha256": "5f03402b37888eee5a237abf0e50959fdc0241862816e7804e598a373b925ad8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-new-note.png",
+      "bytes": 100526,
+      "sha256": "6b0be94c7c78affb68d8a299f238934f46b3f8bac35bdc8acc74760ac563db01"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-new-whiteboard.png",
+      "bytes": 92582,
+      "sha256": "7950f183cdc52fde2f7d3b482d13f86b88c59d32314c43ecd3aac6eecd203643"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-note-history.png",
+      "bytes": 39207,
+      "sha256": "381b48652b6513c5b734446594da0fea01ed3a4afa2ccbf7c101fba73eb8dd4c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-note-more.png",
+      "bytes": 68574,
+      "sha256": "37fb6a3376e39ef2488b58aa099e717b89360a2324f68aa698d01c94c919d7ed"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-note-move.png",
+      "bytes": 97441,
+      "sha256": "b6a1867ee801fd267a4a8f6eddac23475a9fc2bca960ce8952a015fafff2e292"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-note-share.png",
+      "bytes": 105658,
+      "sha256": "d762514a30e4eb00193ad723b949ba72cda057c4d1f00801fb59a6bf68a0dbbc"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/320-create-menu.png",
+      "bytes": 22291,
+      "sha256": "c59f3e2f24f7a28c84aa7db1303a7238a45296d451fd4f556d542473dba21d85"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/320-import-markdown.png",
+      "bytes": 48651,
+      "sha256": "31b9cef619314d0ae27e5d955230bccb939e26971ee8d2973b4eeb2549921f1f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/320-new-flowchart.png",
+      "bytes": 42747,
+      "sha256": "6fdc77f91fc25dc99de1fbcb6c01b195e9251e64bfaceaa1efb2441ead9aaace"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/320-new-folder.png",
+      "bytes": 36569,
+      "sha256": "c457e17264142205110f0be82e8424869b80f775cdeeeef6eb6e2bf39f4f6785"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/320-new-mindmap.png",
+      "bytes": 42219,
+      "sha256": "be114589c4edadc35a56bddd79c138d12db2114c2a08d6f70db39e3baf3b80af"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/320-new-note.png",
+      "bytes": 41873,
+      "sha256": "235a2e9a5260da0c7b6a260b0131cceefdf740c4f885e88d55f89c6fe3f99c05"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/320-new-whiteboard.png",
+      "bytes": 42115,
+      "sha256": "11577e7360f8ad8c902a980700f52026a4831408df99e5a5dbc521090433f073"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/320-note-history.png",
+      "bytes": 24844,
+      "sha256": "3e37551b74ef425a1dbac845f6551b908160829d3eca4da65aa78ab956c50f22"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/320-note-more.png",
+      "bytes": 39769,
+      "sha256": "8b3871eb3e594c616a85403db9fb9e577c66ef90fb1dbff954d1c07968a9a10c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/320-note-move.png",
+      "bytes": 51677,
+      "sha256": "7052a6ae9ce1bca00927b2dc0b891905cb8d0cb4d31787246159081366f9255d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/320-note-share.png",
+      "bytes": 39955,
+      "sha256": "7bf50d83e6fa10fd40e97fe9cd8f5816568fce789f1480235831982d9c79292b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/390-create-menu.png",
+      "bytes": 24454,
+      "sha256": "d71fb0b22f7e16f3bc85551504337fae5835c2f0cdbd5e5612b7bed67451ec95"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/390-import-markdown.png",
+      "bytes": 50610,
+      "sha256": "42910e1b507e38a8ac74389df0063f8d9e7e80b2a591ca3b1b471966bd7f3c62"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/390-new-flowchart.png",
+      "bytes": 45132,
+      "sha256": "21f59681b91af9d7ff54ee78a0d2710121c58063c0dcc8158ce97398005a91b8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/390-new-folder.png",
+      "bytes": 38817,
+      "sha256": "d5b61b7ac68fa33045f86f804ecd6b9af5a17363f42c21177e0b1b7ae7d0e6e4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/390-new-mindmap.png",
+      "bytes": 44604,
+      "sha256": "bfeb231261d8570c23ca277d480ed227610f2bdf16493bbc9c5e4b60d588ee2b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/390-new-note.png",
+      "bytes": 44915,
+      "sha256": "e0304915f0dc1c7b5176ecbefa1948e4809b4b031255f71e3c5e7953124d00ae"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/390-new-whiteboard.png",
+      "bytes": 44496,
+      "sha256": "caf427f442ee86174e8a3817493fcadf7d5e2beaedec5168ab8840342dc76f13"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/390-note-history.png",
+      "bytes": 25358,
+      "sha256": "f01aa5ae53097c868e4afc4d26102d940ad207edb7d797ae154872862ea06f31"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/390-note-more.png",
+      "bytes": 42368,
+      "sha256": "c27b9468c98470d6a9a1522520f0f2342ffa1a411bff48f4d8ea034235d2fced"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/390-note-move.png",
+      "bytes": 56120,
+      "sha256": "b870e69f9ce88fe72e68903776994895b3079131afae1bf7ed1367c69818a1c5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/baseline/windows/390-note-share.png",
+      "bytes": 42164,
+      "sha256": "bfe13db55735e5ac1ea899e1f4cea6cdf232ef8b4bb9cdda28b84d1297123cfa"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D001.png",
+      "bytes": 1177590,
+      "sha256": "d548859866aceb14252cf76ca11a86439815aac67b31db5fee2008848c2691cc"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D002.png",
+      "bytes": 1338787,
+      "sha256": "4a87f8dbcf942b3b725c2a8f1cd6eb3fdd10cc5bd509ae1e6243905e8e8d856f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D003.png",
+      "bytes": 1145139,
+      "sha256": "f5991bc61436331ca1fe3b58e7bb27013329d2f289db106a2ac373155994c923"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D004.png",
+      "bytes": 1182603,
+      "sha256": "a3c15c0b710cf04378e90c8b9f43a7d0a4a78fc9b1870e1708463609f690cf8a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D005.png",
+      "bytes": 1172451,
+      "sha256": "d26ed13a32b3733adfaf1ed090522d7cb0b14163c6374d003a23d2cc55231bd5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D006.png",
+      "bytes": 1102558,
+      "sha256": "511b5cb64644ad3540f7794fd03ff3c51bbe6e449bb985f3240ba54c1370014c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D007.png",
+      "bytes": 1212943,
+      "sha256": "88aa57d804cbeab96f478b8c5c1157db2e73e702bbe42b246f41757404ca022c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D008.png",
+      "bytes": 1326455,
+      "sha256": "1f0e06b75b11ec4e6c153705cc9da013e3abe6eb94643e13755aaead144def0f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D009.png",
+      "bytes": 1269661,
+      "sha256": "005d4a1d0ec3d037d0dbd96d31fef8963708327d5d8c3bd20063b41c31a9b114"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D012.png",
+      "bytes": 1122124,
+      "sha256": "9be714f0f5755c21e1cd51cf1f32c19216dfc8351905dcdb190b4c172d9d34f7"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D013.png",
+      "bytes": 1083314,
+      "sha256": "88e2696a26b2d99fd53c64f392aa2347b4f7370f92e77402a6a5e144ba1ccaf6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D014.png",
+      "bytes": 1044229,
+      "sha256": "77b358b4365c9fe932bab2cc5ffd3af63ab7a09df14d2b745203f42bf86f225c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D015.png",
+      "bytes": 1485244,
+      "sha256": "f88fcffa583a47b704f76f741e0eb8119e6609f56325e5dcf016a1119b4599be"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D016.png",
+      "bytes": 1179960,
+      "sha256": "b639858d22027954d6e28068ac2f0ee32c3fe0b8e47a2259ff5162d9f8deb469"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D017.png",
+      "bytes": 1108631,
+      "sha256": "d528b25da2dacca24737147d14c7496dbd4b3772d9f58ae16c4143139af4db15"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D018.png",
+      "bytes": 1114590,
+      "sha256": "0e001a3dd62882387e461bc5cf69a40ad194dfb6f65ceddc39dd943c0749ca3f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D019.png",
+      "bytes": 1180050,
+      "sha256": "bc30c1e9fd39d2379dbce454e15068e05ada4fd9b15419c0992581a138b4a13b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D020.png",
+      "bytes": 920804,
+      "sha256": "085d837820e0004751b0059a1b1969505ca81a5c9ea70ad315e1d34f69626b56"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D022.png",
+      "bytes": 956890,
+      "sha256": "cfe06caf5f262b569564519969b05e6ec92cd2e515d0c47cb5ca27c9e971cbe5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D024.png",
+      "bytes": 1099455,
+      "sha256": "5c18a980d72c07db7f8594d0008bbf6ac572bcae7e4a92bbbfc6e34d75202e42"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D025.png",
+      "bytes": 1157090,
+      "sha256": "edfbd57656f13853422faa312d23f20c681466ab374c229d2445b77c4f08f255"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D026.png",
+      "bytes": 1266826,
+      "sha256": "d332a9d3a871488c39575cca0e76144f27d85fb58a7ee7d6dd9326a6103a1aef"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D027.png",
+      "bytes": 1235437,
+      "sha256": "92ca6a74e282be052903cb96d39e6c7f544b8229f3e55da1ca94af95049580cf"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D028.png",
+      "bytes": 1079471,
+      "sha256": "6e630424ff281d91f4bbdbcf61a2508033e2e0cbbf82b1124d77e7e1c5c370e3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D034.png",
+      "bytes": 1107876,
+      "sha256": "9d82fc6ee5c766e5bdbba2d206738288c21004c10d5d3ae3102ca59aced9c4db"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D038.png",
+      "bytes": 1631333,
+      "sha256": "8fd98a86e358ae659eaa0ca1dc86b6f5581d413f53adfc68665993ebbee1ec79"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D039.png",
+      "bytes": 1197231,
+      "sha256": "759f34662a37d011e3f36eecd7a4f66181a4becaa8472f79fcd944e13494bace"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D040.png",
+      "bytes": 1492825,
+      "sha256": "9570d7290bd01dc59e80442bb58288e6ebecf9a0102c9ef60e5618345e183ae6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D042.png",
+      "bytes": 1352685,
+      "sha256": "246d2adb626737dc1f932974d63552076333fc210b04e21aeb1023d4c4cc3845"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D043.png",
+      "bytes": 973806,
+      "sha256": "45d607a7240bff34826de6b1948b9ca1d173082502dc81c6324793e51afd98ec"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D045.png",
+      "bytes": 1367558,
+      "sha256": "94b4c639168ea8046e6a2f854888899f8df90bf850e4bf0e79672533e23f2aaa"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D046-v2.png",
+      "bytes": 1391062,
+      "sha256": "71a08336a716bf94ed0167332b95eb90ee9678934a986711f69a8589192b49d0"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D046.png",
+      "bytes": 1181158,
+      "sha256": "26af38dcdabc7c77ada03a92acd4c544ca2be6604f4f3184fda2ba75f5240410"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D047-v2.png",
+      "bytes": 1577257,
+      "sha256": "1a84b35a8b3a391a3d85d6d7a219478e940197d91469c3c468b17eb708b654de"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D047.png",
+      "bytes": 1159042,
+      "sha256": "97cf495db3bd0a8a70f925d55adf3313a4e37177fe55a05918792a3fccd3a8b3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D049.png",
+      "bytes": 1180174,
+      "sha256": "07be93480f6e3533b7e1b91d47ef6071feb21741bb7cf7749962179361926da3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D050.png",
+      "bytes": 1217750,
+      "sha256": "0f545477da46d66d5546c2d6efceb57ad8e9405dfa4b338efe3166b379a03344"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D051-v2.png",
+      "bytes": 1697498,
+      "sha256": "8db126792a4af00baf7de7bf675e3393933736b74d5c31f739a8a4997795061c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D051.png",
+      "bytes": 1520205,
+      "sha256": "11924af3fc0886ba894df27431602428f34ac1666b6fbf3b99dc975842e1fa5c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D052.png",
+      "bytes": 1071161,
+      "sha256": "d0521b8627aa47c8a8ff774df7f59abc6a488c0f1184cde7f31ca56363858112"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D053.png",
+      "bytes": 1048985,
+      "sha256": "4780452539339e4b35fa610187024d86c64ad265bfe8de4443ff4b94fe519d47"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D054.png",
+      "bytes": 1050660,
+      "sha256": "7413d2fee38d3be4fd8f049405e28d4b07a1dd369287c660d5a99e592467b870"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D055.png",
+      "bytes": 1099707,
+      "sha256": "41107ccaaf352f164c0b354f0a03141a7767453bc2f4995bbd089477302b66f8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D056.png",
+      "bytes": 1504349,
+      "sha256": "a9618386ed33c201b97f3ca3d5725e5166e13aa35b811564e97baf6b4072008a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D057.png",
+      "bytes": 1038248,
+      "sha256": "f77aec72f8dff822d2159da41ae88fa44a56d6692e102aa7b3f821bb3307924e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D058.png",
+      "bytes": 1242400,
+      "sha256": "0fe87bed68c5cdda624e3238c62391ae39208e75418f7708244900b6c9a0c2c1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D059.png",
+      "bytes": 1414014,
+      "sha256": "ac0b5d841736d902446df5d8228b8f483988545be0b06bcac8e269ab17f004b8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D060.png",
+      "bytes": 1054416,
+      "sha256": "3c65bff2195133470ba6fdc951018c50f1e8ef0af8f2a2f7a3aca9512ee6064b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D061.png",
+      "bytes": 1127879,
+      "sha256": "9f491ac861114c9f7e6383184bb7e92afcab14334dfeacc41e6130736eeb6db9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D062.png",
+      "bytes": 1125004,
+      "sha256": "c0303369852a39a1fd62eb82c57ebf3facc19971aeb4f07e211b65e85e13ddb2"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D065.png",
+      "bytes": 1265079,
+      "sha256": "26d909d8b3e7f891b09bf272e162a74acbd9dcb655e0e047c62a503ed417d3e0"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D067.png",
+      "bytes": 1123312,
+      "sha256": "2424d29f0b8b927d7b7303da14d7237ad8b3dc01637f6f85496c011c3b05950b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D071.png",
+      "bytes": 1114483,
+      "sha256": "77bf20e1e822efa2641ab91ccd4408df4e49462a3408e9e3ec853a27f1a98dae"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D073.png",
+      "bytes": 1163560,
+      "sha256": "32bf2f0e1123a0837df8a87669a1dc102c07de041c0f0d52c17b742c70283367"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D074.png",
+      "bytes": 939304,
+      "sha256": "d8ce883c9a27429fca82585d70de9dd2a97f324f9d924a455be2be154005fe7c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D075.png",
+      "bytes": 918140,
+      "sha256": "e5ed7afee32e4d5a2b79cd24d1140b062ca08f35c7d9dc121c47aa1eda68f9c5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D077.png",
+      "bytes": 860767,
+      "sha256": "eaa3f53c22313dbeb0163e3d8fd87081443566dd35f14bcdf7e7f6675f8b8989"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D078.png",
+      "bytes": 1215951,
+      "sha256": "294c4a5a36a1f16f0cbf6bf3ca6ad73f9136112df1dd05d31969ab9d84837c4d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D079.png",
+      "bytes": 1574109,
+      "sha256": "c7bcb56a7f54c11374f310a795dd0576aff9bff8d8d4c1e74d645114fd424a41"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D081.png",
+      "bytes": 1591844,
+      "sha256": "88c93a51bc2ddcb0d1c16d4725d791ccf5ff5643561ef6ac5e9a108ede3c8bce"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D082.png",
+      "bytes": 1639820,
+      "sha256": "9785f56bcf87cd75c2936b77acc252e122dce12da0276ce5d63b1ba7ed6efd9b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D083.png",
+      "bytes": 1577305,
+      "sha256": "144da64f546e4d84ba4488c7e59ccea982e717cf9aebb8939059aef727402791"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D085.png",
+      "bytes": 1120139,
+      "sha256": "f630fbdd57d881c2697b9d10d82041de77a900a3d83e4cf8c0db5cd3ce5f5fa2"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D086.png",
+      "bytes": 1064905,
+      "sha256": "6780ea39624c7c374a76ac3c2f0c79bb9147d61744c4fcd2150f59a75740ed25"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D087-v2.png",
+      "bytes": 1604152,
+      "sha256": "4e893ecff18e81c2fa200e2dfd685aa58eee8b2d9dcf102cf6fc3181857beef6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D087.png",
+      "bytes": 1123216,
+      "sha256": "243508f33ecaadb7057ef4a2e42d9c8835c90f235c1775f6cf7f0ebd2affe16f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D088.png",
+      "bytes": 1014008,
+      "sha256": "eb3d1f7729d8cfed6b02982acd7d67842651569ca96670650f19945b19b43974"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D089.png",
+      "bytes": 996655,
+      "sha256": "039fe9407eb83cedc59cb0626bcc007269cca96fafffaa1131f2d02d30e67d4f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D090.png",
+      "bytes": 1012435,
+      "sha256": "e9cbae8fa25588bac111005c09509026b593ca0b8171b215b9199506ec381b59"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D091-v2.png",
+      "bytes": 1506941,
+      "sha256": "787d55bf5ef8f90e93df95629d0a40548a280b318a44e0d861352fd37d85dc05"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D091-v3.png",
+      "bytes": 1539544,
+      "sha256": "0ba4460ab24491c5e92409cb5eb28badda261dbe8d78d6a4b019f8eab3410c0e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D091.png",
+      "bytes": 994685,
+      "sha256": "5caa9cfc9e11e083763565c27ef1f8cf78c29b1c519b9c921aabf6b3288e47ae"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D092.png",
+      "bytes": 1104932,
+      "sha256": "b259c1bc9f415649670fe4ec9dc53ec9db4f975d24c8dd31309b3f2601e2ccf1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D093.png",
+      "bytes": 1050105,
+      "sha256": "2c85d07661f8ef7da93a11dc7844080081160cdea7809007ffc0951e87194e8c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D095.png",
+      "bytes": 1163007,
+      "sha256": "088c1e2ff3135d1741bac9879099aca9eee4dc4c8d55f07956368cd54ae3cc8b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D096.png",
+      "bytes": 1197897,
+      "sha256": "f3b901f3127770b7bc256bba72b66e3411a344645ad99924e5020bd73f51352f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D097.png",
+      "bytes": 1135302,
+      "sha256": "3a16cbee21d1b4a35494ed3c7e0b9f5bf19c892409d12cf30eac0621e35e6163"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D098.png",
+      "bytes": 1640077,
+      "sha256": "f09a229f4601bf547bebabd6d436f9447cfe3a024c3644882a0b4104e3398e6e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D099.png",
+      "bytes": 1132154,
+      "sha256": "e7cc6d455ed5f6147cf1e144eea9be7b7dee6f15f6e7f1ec113ba0383974438b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D100.png",
+      "bytes": 1368195,
+      "sha256": "3e61219c502bdd99da369a75227e7bd754603a30819d32d55b18fc0fae0be025"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D101-v2.png",
+      "bytes": 1650341,
+      "sha256": "972d998a86d42cd4502ba7ca373f1271e4295e91860cf8c48e3987d37c26feb3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D101.png",
+      "bytes": 1359842,
+      "sha256": "2942c533bace948781f4e11914e8ff737aac03f70877bf295307f9d945184bb7"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D102.png",
+      "bytes": 1171733,
+      "sha256": "f1eb75fabbccd2f0f8be02e88e4c2c290d6b59ab2d221ef833118b02bae123e8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D103.png",
+      "bytes": 977855,
+      "sha256": "b17d07cf3cf36ffaa65194bbc1733724bbe7b917378592bc4b21074ac3f3bc90"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D104.png",
+      "bytes": 1525185,
+      "sha256": "ba5954735a006b4c0b5ecc5d9ca4578f42c4e5adb30cd6321bba500b476a914d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D105.png",
+      "bytes": 1203797,
+      "sha256": "963aae4ee08561e0bf3b1258104d108305f4eeeadb40347092801ba77d6a2d49"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D106.png",
+      "bytes": 1456999,
+      "sha256": "79bb05eac1df3c11fb9dc23e6a093b110e283efd011fae534ccbe97237b7d1e1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D107-v2.png",
+      "bytes": 1596286,
+      "sha256": "b7f37a2ea6d2cad3d19028228753657b5874d973379cc69fb917a87240ef03dd"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D107.png",
+      "bytes": 1284409,
+      "sha256": "4c86d31234942b6815d824374ba033eed3d606ac10f8de66010525a9bfdd16ac"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D108-v2.png",
+      "bytes": 1471909,
+      "sha256": "4c53b4abfd555d032d20f6752a9ebb58730534dd2f89f8033702d459ebc09c84"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D108.png",
+      "bytes": 1214083,
+      "sha256": "60790de0349de5c62624272259aaf76810742d81626f6f8f91601d70bbbe987c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D109.png",
+      "bytes": 1243603,
+      "sha256": "8fef32e02f21f24b30b5e39998562f04b4a32bb72bb5207c16e8340d6af0e242"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D110.png",
+      "bytes": 1222597,
+      "sha256": "414ed69e0022acd7650d3409d629035bb7859eb8136d4c6647a87b99c62fc416"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D111.png",
+      "bytes": 1178885,
+      "sha256": "a139ff4a0f837b31dc9b9ef6c599a7f4b3d1bb99ad1547d086b84ccffb64aaf8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D112.png",
+      "bytes": 1042539,
+      "sha256": "87b1dea18a9d1ccedcd8d7cdf7933a02e198623a132a2a79de5de1fddbb17c7e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D113.png",
+      "bytes": 942330,
+      "sha256": "05e659182408ab03350bf98cc5b6d640b6e2cc2d2683a45661acdaa9aa4420ab"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D115.png",
+      "bytes": 1102889,
+      "sha256": "017fb2e7ef935582537591673fc4b2d63ff941420fcc577bf119b56eca1ef2d7"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D116.png",
+      "bytes": 1550596,
+      "sha256": "c381fe49a61a4cf5fed10424e1c1801a5adcac75244b2f1f71b857faf2f4ba92"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D117.png",
+      "bytes": 1130813,
+      "sha256": "933ae65808c80417ef4898eb3b631ad78ac2f13297a4fe41ffc5ffed799c7b09"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D118.png",
+      "bytes": 1052165,
+      "sha256": "137eaae786a1ecb1148e0c235363976b9b7b5989f9ce0d622264b8de3f1d0245"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D119.png",
+      "bytes": 1087065,
+      "sha256": "510dfdebaa9e268d4a4cbb3012b557cf4d90fd04ff960358e9393fcc6e7668b3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D121.png",
+      "bytes": 934538,
+      "sha256": "6802fecbbac37eff33075313c04dd9554a9927f306c30d255676a652171e47a7"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D122.png",
+      "bytes": 993612,
+      "sha256": "efdfcde7f00c2631ad436d55a9171c3a9b1a060f6fee611c85d7b5bbcb18ae70"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D123.png",
+      "bytes": 1034646,
+      "sha256": "196ccc09f0ef0655cc1c798a688d31102d0afc94530eddf99b4561da765fb96f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D124.png",
+      "bytes": 979395,
+      "sha256": "ddb68b35f306cf30cbf703a30a487a919818a5cf26e8b762b1022e215bb77d90"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D126.png",
+      "bytes": 1174152,
+      "sha256": "967ca49f271c4c91c646db1f71cc278be2cee179682cf0d07b37ac04c9029f9f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-N001.png",
+      "bytes": 1164329,
+      "sha256": "5dfb936accc554b69e50d3c3071ffb196b266401cf474ce78b68eb0e61858856"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R-GET046.png",
+      "bytes": 1432538,
+      "sha256": "900a9f6a22d265ee403e4419501deee6eaa092e9af3cfbb1b93f0f65e67c31ce"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R001-v2.png",
+      "bytes": 1498077,
+      "sha256": "8daebbf029ff12c311ab607e583f968ee902276fca095a39a6d40d2cee0ff648"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R001.png",
+      "bytes": 1250862,
+      "sha256": "9705e4e678007efe2fd0133b8c7849d0c5cfef423935c55a19c89685a7f0e901"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R002-v2.png",
+      "bytes": 1332602,
+      "sha256": "311cee3e0018321b951a024a90dd50381d734024d1a695801debbacd340efffd"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R002.png",
+      "bytes": 1192689,
+      "sha256": "f7209485acd05b99fbc29bbe6cd9b548fc67eb64620885dd77b2d1eadd45e65f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R003-v2.png",
+      "bytes": 1695942,
+      "sha256": "9459fec13a9156784a395f509f931b4232166d97b4c365fe8665b51512a3d2a5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R003.png",
+      "bytes": 1571311,
+      "sha256": "a35ac39e54d0e8faf1e695db8822499df84ec202c5e5148f9933a863bd6f4c12"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R004.png",
+      "bytes": 1281603,
+      "sha256": "a8b4c02bdf0f75f2ae4b36a06cad7c57dffb1f99b62c0d552d1b03cedecf8242"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R006.png",
+      "bytes": 1361982,
+      "sha256": "73521a3c9990edc31ac288e473a4ad35615205266974bae4b30bc46e5d1f2a43"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R007.png",
+      "bytes": 1188265,
+      "sha256": "6c7f614c1830f447a83a1c0eae1773bfb6a35c3c71ed767811274b91c89cfcc3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R009.png",
+      "bytes": 1706177,
+      "sha256": "a4275632a8bb295df5c1881be0c94c36ed1a50f70aa48bce18f0948d5a105eae"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R010-v2.png",
+      "bytes": 1639475,
+      "sha256": "79a3d411665e5688aa14a9e9bb3d6f588b57999f72ae00087c9d52a2fe30dfde"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R010.png",
+      "bytes": 1368605,
+      "sha256": "145a5db7e3b3b598c9a028bab4640bd74d7f1974088719f53c63d0cc5bfff42d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R011.png",
+      "bytes": 1647916,
+      "sha256": "6ec12bc6786cb83f48ed6e4456e90e01581690c07e4a452530ee5e0e694fc62a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R012.png",
+      "bytes": 1272798,
+      "sha256": "daca4908aeb7da9d0e2ffe0f2b3b5ed1cc21014dd922ce383b6788007e0b1af2"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R013.png",
+      "bytes": 1761826,
+      "sha256": "ffbd72db94eb20beb2d09ab8f92e9ef43f2b9a3bff2ffbc2272ef2ab8aac6efe"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R014.png",
+      "bytes": 1306824,
+      "sha256": "204d306e6e4a499796c5e8c930a82388c23a2bb63635d7d4178b1e08c747686a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R015.png",
+      "bytes": 1188748,
+      "sha256": "b9f3d8f2bf9a52b5746dbefb1c930f15edf529835831d2bd50a9d001e1a981bf"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R016.png",
+      "bytes": 1413220,
+      "sha256": "b53c309244d7f6b0a95ceba20de275cacbff76ca33279dc9176dd504ff1497cc"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R019.png",
+      "bytes": 1374400,
+      "sha256": "7f313ad5820cc09403e1c2831bfbdba75fc882c06dd29a1f07225597238f30b3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R020.png",
+      "bytes": 1587031,
+      "sha256": "8ee46b0fc3c53e59a8c6fd2f409474869175202cb03759adf27c8f418b30b8d9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R021-v2.png",
+      "bytes": 1590963,
+      "sha256": "83caf0115821ef27e64f23911c1a63dded3362bda73f076600ff73d707143266"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R021.png",
+      "bytes": 1519540,
+      "sha256": "c33000c11f032f3c0fa280b875ab46268d2a27eaeae19a8dba6e7f080b076c81"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R023.png",
+      "bytes": 1065133,
+      "sha256": "d714e5119b374fb46a17103bda87787d90951decd6ff9ccbb4c7eac7677e8c46"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R024.png",
+      "bytes": 1592362,
+      "sha256": "18b4b971e1202f496dc1535f1a89fe32a6c80a0cf7ab55dde052a614a4ed70b2"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R025.png",
+      "bytes": 1278201,
+      "sha256": "19f29ee3bd68dbeaa23d692cb8b5006ff776aecf78c547c2323514e2bb5f6972"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R026-v2.png",
+      "bytes": 1585405,
+      "sha256": "898816bae27f7aaef3ea8e00fb2b9d9744c4d82591be7a9093fc9f4e9582444d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R026.png",
+      "bytes": 1635481,
+      "sha256": "c684aed7e2468574e7a53258291c6c3f95c9faca47d5d00def616a63e454608b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R028.png",
+      "bytes": 1393266,
+      "sha256": "3d44cce151baedab1a8affb2626d4860d226c83359a9384d497f687bf835d2ef"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R029.png",
+      "bytes": 1581455,
+      "sha256": "143bb7acb18683dcedf2f5d29c438eafca296387e5f55861b4e509d2bd02a9a4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R030.png",
+      "bytes": 1070239,
+      "sha256": "5f716267d2c14ceab8b421ce5d87059326bfedd683a2555ad1725787ae9e5cb9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R031.png",
+      "bytes": 1144530,
+      "sha256": "49ae9745f8ef5207ffc942f68b75df36c7d90accc43bf0a066aaeb8724554672"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R032.png",
+      "bytes": 1395100,
+      "sha256": "7af2f4ac36966f9c8033deac9446ee195946030f2bd0a5ab00ffe54e6bf94ca9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R033.png",
+      "bytes": 1557832,
+      "sha256": "1e1da34b7e0d6ada4f3946fe61a8368d77362ca49d44e9870cedff7c8f871510"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R035-v2.png",
+      "bytes": 1580453,
+      "sha256": "b837b6b14fab0db334a37ba0bcbbecadf16a2999d03b3a82d3ce0cdc27c39a10"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R035.png",
+      "bytes": 1469827,
+      "sha256": "05f66168aaa94dbd5ce3c50e5d306132df8ef9f03b4c3a20c3c76d6655419274"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R036-v2.png",
+      "bytes": 1678322,
+      "sha256": "09fd0b3493a5dc1773dc5f38ebc32acb9aecb94c1bf86a9ce1ec9fc4a94a2551"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R036.png",
+      "bytes": 1561283,
+      "sha256": "8e3591f6086fa9f01d113300ceab6c293b5f2be72f6dbee524d96ae2aa5195db"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R037-v2.png",
+      "bytes": 1644196,
+      "sha256": "ccd2c1aa9ca271fc3e76d68dfd9020e422e4e2794fdf740e8214d897588c3b5b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R037.png",
+      "bytes": 1495334,
+      "sha256": "706311b56fc60ef39986ddf4aafc437369189c76bddc9a17d9ba90846969f06a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R038.png",
+      "bytes": 1563696,
+      "sha256": "55d06580860fd589803843cd802cf414f99a86ac15242d56e4db86d6cb20e0e9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R039.png",
+      "bytes": 1147627,
+      "sha256": "859f2de066dc26024fb4ac69ad64b7890ccbd46615df4d7c36342462783d524c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R040.png",
+      "bytes": 1330581,
+      "sha256": "f52681e945baf5b315aba22b323622a859cbc4c96a2f0cc8fa896b177394ed20"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R041-v2.png",
+      "bytes": 1478792,
+      "sha256": "2e68fbc4ea21ad3d634ac84565d758bb097ad6dae682f057fd9e688fe1c1a4bd"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R041.png",
+      "bytes": 1280126,
+      "sha256": "6f92d54a0f0c83ac000de7a414143d0d548b6b1bbf8839c2fadc93ccdd8c6378"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R042-v2.png",
+      "bytes": 1287194,
+      "sha256": "9266d4dab673ec98597f30363e76f56b858d7786a0061f6a6cf92d2a16f8ca35"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R042.png",
+      "bytes": 1218091,
+      "sha256": "5020f2224a9fe209b95c1c078d991ceaccd80683c26acf3a1248b6dc2f446141"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R044.png",
+      "bytes": 981692,
+      "sha256": "79cccf21cb2196504d1ba19de5cd16cdd302dcf66176beb513d473fd58e89546"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R046.png",
+      "bytes": 1649998,
+      "sha256": "dccf32f5a79317916999272d32e2660fee85c825f0369fc91ed3faacec72c18f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R047.png",
+      "bytes": 1685423,
+      "sha256": "52b10fa80f686a5b60811b7cbcc196c7dc09796cf1db10c6e6cc7678c29469a1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R048.png",
+      "bytes": 1539446,
+      "sha256": "0896d5cd252558c399d4eafa1a0bf389197eb96d7f740d1dcd0522cd009a84b1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R049.png",
+      "bytes": 1499412,
+      "sha256": "6cf39ca4d06ce9a52a81425f6b9cf86be1374a35478231e1cdd08736897b9300"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R050.png",
+      "bytes": 1411698,
+      "sha256": "8148c430949ff4e8df21b6f191ddcb9d5ab7602f7e7a08b000ecd8aa0dea112f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R051.png",
+      "bytes": 1705532,
+      "sha256": "324926f3e817376a4b3189c620d84702d8a205cf012085b16f635875be36d220"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R052.png",
+      "bytes": 1258767,
+      "sha256": "fb8217d16a4c4e29c028e9871f5c994dde51080e35fe808f43b29815b732ea37"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R053.png",
+      "bytes": 1296819,
+      "sha256": "96ca6748595b7b509283a43cb7dd11608c37827cc55a0b4dc282fcffbddd5681"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R054.png",
+      "bytes": 1244269,
+      "sha256": "0e82fa7e9f0ca1fcfa7e09ab3d1aa2aac64e2fd3ee24786287db2b3a1dc4a6c2"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R055.png",
+      "bytes": 1059295,
+      "sha256": "c09832ae4c0b3411d880fbd1486c0165e7484846aaabcbe290e7aaed3261d042"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R056.png",
+      "bytes": 1266366,
+      "sha256": "56e756dfdb73e19e3142d9f6a0d24267c53b6ab6ffc7ea232dd32b99ed2f8750"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R057-v2.png",
+      "bytes": 1445001,
+      "sha256": "42d670e6e6d1383cc99373ae03fe87d75e6a6eb472f5c754734193b63e3f2ef5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R057.png",
+      "bytes": 1135159,
+      "sha256": "f6984d8461c84883b51072aa44553bbb5d7a485abe92458094c7552d480841ed"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R059.png",
+      "bytes": 1175870,
+      "sha256": "b7775e8dff2f36823c7d02fffeea7e3dedb84f9066739326d1ec3b319776ee34"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R060-v2.png",
+      "bytes": 1632836,
+      "sha256": "72d4a0057e993d479550021d5b81ad31f0dcf92f4739406d099592980f582dec"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R060-v3.png",
+      "bytes": 1679864,
+      "sha256": "c9898a41c4b620238e5e92d3e62f995c4c431696d12d5b5db61f52e904372962"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R060.png",
+      "bytes": 1343040,
+      "sha256": "45479ecb8ee78bc11568f08a450ef240dd81240a7858ea82d62526c38a54549e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R061-v2.png",
+      "bytes": 1673126,
+      "sha256": "5611d705a9a9e63dd8e99df5c59b5a71c5bf491b2d9ed6c28b36f3586d2ff2be"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R061-v3.png",
+      "bytes": 1685000,
+      "sha256": "5842f32ea2e67e330c27386bef3f05a7bee13709b1a389427d2d24bf8e356845"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R061-v4.png",
+      "bytes": 1689135,
+      "sha256": "33baaf29a04e31d59b94deedd7f37a3c18b3b30d32de912954ae6aee54d5f059"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R061.png",
+      "bytes": 1527642,
+      "sha256": "9d822b6eec75631118b2599b07792cfac2d0cff4e96740b7f6c97a73ca3def88"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R062.png",
+      "bytes": 1484699,
+      "sha256": "1a8aad86d5abc259897c491471644db4e2e66464e0327ba3a449b9d62887cf90"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R063.png",
+      "bytes": 1426071,
+      "sha256": "af8f7dd31bf4aa28f43da6db4a42a3d80b81107aadfa0cff92a3840b84b07c84"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R064.png",
+      "bytes": 1689858,
+      "sha256": "450b81d55cacbb9b8dc1d28a509e435cd230e482811a4629e25ee15fc0597b49"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R065.png",
+      "bytes": 1480943,
+      "sha256": "121f0d2bf9d36016af3a717394c3c15d94f4731fe316f7efb3c9f42efcf0733f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R066.png",
+      "bytes": 1086044,
+      "sha256": "5cf2f9f66cd47a4ca0b12f6a0edb826dbaa3526b725cb8d8473a1a89fd0ea712"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R067.png",
+      "bytes": 1634079,
+      "sha256": "9408cfdd219d071b41c94010d04486a9e980ae949ddacdd2fd050094e5899283"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R068.png",
+      "bytes": 1282376,
+      "sha256": "10093677478af52fa97d66339007cfc00abb2570cb2aae40baf7377a2d3614b4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R069.png",
+      "bytes": 1402131,
+      "sha256": "a7f4cfdb6aea863449c4eddabd715366486bec89b7a618dc169bf510f5bec7a8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R070-v2.png",
+      "bytes": 1589128,
+      "sha256": "96b1544d790a090a94f41b1b86e4a1f0b0eef602a626d82a9db15374e032dcd8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R070.png",
+      "bytes": 1213126,
+      "sha256": "41a1978aacd988912020fcd5331f0d21d7d2506dadca37d4c775342e220b917c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R071-v2.png",
+      "bytes": 1502229,
+      "sha256": "68c9d9397ede4c19764b56c89cc5d92ca3973bef979eff938aa9d0d8bcffef56"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R071-v3.png",
+      "bytes": 1202650,
+      "sha256": "d830e3af020a97c934b829ef908628c835f1f8bf7cba5fb9c682155249a64463"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R071.png",
+      "bytes": 1149780,
+      "sha256": "530dde4bb60770a97c25fd60290274bf2a533015feb59267c6a302abdbe1f7e6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R072.png",
+      "bytes": 1124803,
+      "sha256": "52979f74a5071db7cc3a902fd6ec605afea324d92512259d9d70336952673a41"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R073-v2.png",
+      "bytes": 1635752,
+      "sha256": "d65ccce3a875506ea1f3206dce8b1c6b8a21c4832b78a5d98fdc511cdd001aa1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R073.png",
+      "bytes": 1367006,
+      "sha256": "956cfd056ed25755b2e7df16a848a79a3806bf345b9a996222731305dbd99e64"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R074.png",
+      "bytes": 1097230,
+      "sha256": "e0491286d614c7f2ebadc16749e2d0025ef81839ccb46f8530f87665ad843578"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R075-v2.png",
+      "bytes": 1587567,
+      "sha256": "a6a229ee3b2482c2fb91d1b26b28db14d684523930d34cf4847059e0cd788490"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R075.png",
+      "bytes": 1259155,
+      "sha256": "1fdfcfae11d08282a29e5424018d7068cdfcf993d4e6aac53e30a20147a6d75a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R076-v2.png",
+      "bytes": 1411779,
+      "sha256": "7533d3db1bad1ae6c507a0f33cbc6110a6c6189c3aa2d9650c3937a6f9020af1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R076.png",
+      "bytes": 1219441,
+      "sha256": "6ee2b05bb9afe5cd97441f062d498a8a99594bd3f75110e9cfed223d09ee1e32"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R077-v2.png",
+      "bytes": 1555099,
+      "sha256": "7ebb7b36546da545fb06677f7c9c03f9acbd14a18798bc5b19af257f69c14025"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R077.png",
+      "bytes": 1265407,
+      "sha256": "7267eb2414169c922ee93278749d34e21d2b087100fd33a320427e71221bb8cf"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R078-v2.png",
+      "bytes": 1259489,
+      "sha256": "10c4e6084b1e64efd19e18aaf804858bcddcbea46002374e7a95678b953e4bc2"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R078.png",
+      "bytes": 1539735,
+      "sha256": "2727b95522378dd946735e2ab2e98932fb921e6110d337729c3464d068299d61"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R079.png",
+      "bytes": 1296836,
+      "sha256": "ce709c40e5befd0bdcfff6f6a56cd2febe29c2cf6fdc721012b2b5a6a9209c03"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+      "bytes": 1431475,
+      "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R081-v2.png",
+      "bytes": 1073141,
+      "sha256": "bc9f8d56aa457f251da8ae79130eeb491ebfd4fc7768b17b03a01a924b88fa1c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R081.png",
+      "bytes": 1163231,
+      "sha256": "9b429fced19c5b1d0cbd645e62c903ce769a3a373766dd16d2b9643f983d960a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R082-v2.png",
+      "bytes": 1067240,
+      "sha256": "4dff2f6ff119f500d28fbe011768921e816750b3a92b6accff8b33bf739d0e5c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R082.png",
+      "bytes": 1169294,
+      "sha256": "b7263cd3de8a1cbc7ee1822820521e80e065b866cc412f49102e47f0c8604cbf"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R083-v2.png",
+      "bytes": 1210619,
+      "sha256": "f98f5294f60f69a339fe5089bfed6efad0025f72a6ec9486dffdfc5d1bfb26e8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R083.png",
+      "bytes": 1229053,
+      "sha256": "fdd06f04914ab542569c9e984d18a70242ea3c4a3cd7f5f8f6ac86113265c9a7"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R084.png",
+      "bytes": 1054577,
+      "sha256": "a7c90e48b7d3a35df4f0147bce42795f96e47c523e42f3414957defa93d33d6f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S001.png",
+      "bytes": 1475278,
+      "sha256": "dc98d0400d09b3184025aff4094dcce0f0a057b12ce2665967b4bf472ad0381c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S002-v2.png",
+      "bytes": 1661387,
+      "sha256": "a1a55837dfc454cd23d64543d71c1331c64e1868ffe80d804e110ea0c5f05aa4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S002.png",
+      "bytes": 1210779,
+      "sha256": "08333415b0d849378446c81baa93906ca661a5fd78f02388d9fc8e5068fa7b8b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S003-v2.png",
+      "bytes": 1259388,
+      "sha256": "38849623bad61746be1102131b70f2de60bc85a0dd70c6784dcafdeb6da9476f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S003.png",
+      "bytes": 1199028,
+      "sha256": "fdb9059d4f40d9e411ec137e57cbd10ac58a58f60830971fb90bf9b3368ab9af"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S004.png",
+      "bytes": 1275688,
+      "sha256": "1a368902d62634a57b3eb13568015a244f54a817449c6b5739ff0142cd03acd3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S005.png",
+      "bytes": 1392134,
+      "sha256": "8ca43cfb64f14df345cde9752b2e05da3d5e59b349227b5bac481710d2fe90cd"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S006.png",
+      "bytes": 1586081,
+      "sha256": "20cebf516bba2715056a77fc57d08c46718d32b65286386a78a562d480b3aa1c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S007.png",
+      "bytes": 1077543,
+      "sha256": "4c0277dc13ab718f23c65e20ef3e3814a0c5764b61b6e55457c516cfe3a1465c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S008.png",
+      "bytes": 1122705,
+      "sha256": "2799530fc26cc7ac85e18efce3aa6c35674aeb62516e32d88a70d12d4c98ab04"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S009-v2.png",
+      "bytes": 1634329,
+      "sha256": "019d28eb69d978434e020ccce2eb5ebe5a09d80ee25e13a7939195f5e529981c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S009.png",
+      "bytes": 1147014,
+      "sha256": "d94bd71bf3f160fcf94285ea9e8c3ce85093242610d3405663b3f973ddd02012"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S010.png",
+      "bytes": 1001872,
+      "sha256": "7a3d237de48e262bd12c3d33827b36f23bbaa697bb4fed4378904772a1bbacd1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S011.png",
+      "bytes": 1060554,
+      "sha256": "cd6a9732b77df59f3422d2b3edb5d8f6eb391a81811c27e6d931ae239afb0972"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S012-v2.png",
+      "bytes": 1578942,
+      "sha256": "76e747763dda61cbd9ecd16516d308d24db0dbe22aa46e66869fd3e9548e8bc7"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S012-v3.png",
+      "bytes": 1595033,
+      "sha256": "449cc9b8bba96a21632fe8ca8763db86c0b92cac403037d3ae2b938f732914ea"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S012.png",
+      "bytes": 1140735,
+      "sha256": "8020691aa3ec80b2ce9399873f8b6538f279ebef7e439f4aab33d6dcd1453a98"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S013-v2.png",
+      "bytes": 1598090,
+      "sha256": "bd0eb2491b8124475397ae6826930566025fcb5394c8e298d3817465c1a89a14"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S013-v3.png",
+      "bytes": 1537229,
+      "sha256": "1dfb8c2f76e94d72dc26a06edc6f3195cd6c6a4beba178d6d8250ef8e25fd249"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S013.png",
+      "bytes": 1244021,
+      "sha256": "1a2459bd1a4a816f09307f39c7d568667751711ab5ccea4ae12fcaaf289c61a3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S014-v2.png",
+      "bytes": 1228938,
+      "sha256": "8345b66c732b89d5417a77ab3042a4f7701062682c3a126f6547fc66789c8ba3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S014.png",
+      "bytes": 1044126,
+      "sha256": "5167783c3bc39801e1a5586ab8788fc3b0897603b0b1085ea6abee916d7f0f7a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S015.png",
+      "bytes": 1353811,
+      "sha256": "53eb10aa5ef557dad29b5e394467054ea57eb819c321ac68c6fa0664c6a60c64"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S016.png",
+      "bytes": 1586285,
+      "sha256": "e20aac1b4b474a83dd16234d07d9a60c91584ced37c562fdc4e2c6db1f8e11d9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S017.png",
+      "bytes": 1354914,
+      "sha256": "ed63bcf28abf09dadf6e9309a313b08b52607c7967daa17e8c4c134d00b27346"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S018.png",
+      "bytes": 1138820,
+      "sha256": "c0680064f2a0fbc1c903651a6fd0894be20e393b4de2f3152a57e3ebf572e7fe"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S019.png",
+      "bytes": 1015116,
+      "sha256": "6a1cc70e4195ab949a9265366cbb4ac26c0e6e97858d8977d7fdc625a51a38ef"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S020.png",
+      "bytes": 1353314,
+      "sha256": "7ced2ff4e1199a011d3c47f0212973c2a04fc09d3c56cdd182fa88351e75a363"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S021-v2.png",
+      "bytes": 1420693,
+      "sha256": "ebcc518a7df88c89789b167495b82f225f79e33abcaebdf2b0723106e4abe11a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S021.png",
+      "bytes": 1309157,
+      "sha256": "a58552a400563c2608c7958c140b04bd79eaae427a4a1d43c4b8be8bde8d2d7b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S022.png",
+      "bytes": 1344227,
+      "sha256": "83cc5c39b7d5c479c135c156cf8711255593488f9ec3689b7760f96dfd47e235"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S023-v2.png",
+      "bytes": 1479277,
+      "sha256": "20eb38e9cf553c2ddd7423fe9e228547eb51724d22e723132a924913b7f456af"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S023-v3.png",
+      "bytes": 1479424,
+      "sha256": "038ad1619b191be72f9d2dfd53ab9308750337f82383d4bef7e25235bb00b02b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S023.png",
+      "bytes": 1060837,
+      "sha256": "949100f61f2671f162f71ea6b5cbd6a35a3e3a148a16d35619be4784dcaff4b5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S025-v2.png",
+      "bytes": 1462507,
+      "sha256": "7c4c03981d5d46745e1914f6d3db377e9ba00a5fb8a9c467c36390eb48cf1f25"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S025-v3.png",
+      "bytes": 1614124,
+      "sha256": "ff4eda86b937e675b85b4f437a5b4f9659a79cc2c15d845dffe8fb3d7da618ab"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S025.png",
+      "bytes": 1342265,
+      "sha256": "b3d75dbbf53b7a5dc9c4c6007f548dc8036e87b2c57e60cb17756363c07eadde"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S026-v2.png",
+      "bytes": 1567431,
+      "sha256": "18b47cec09ec9546054a89e563c5f309c77fe5e05f7ca9b7198f55903e5f5048"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S026-v3.png",
+      "bytes": 1546192,
+      "sha256": "703dbf30cc8054f372ca5495f2cb98564544c4c0f8b20b2f02680175d3fc1c3d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S026.png",
+      "bytes": 1257343,
+      "sha256": "3837527c594240eb1a930a6605cde261b5c5a746c8aef8e47c510dd3dcdb6ac0"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S027.png",
+      "bytes": 1087985,
+      "sha256": "2f06d158be2706ff9e6cf37eea9cd2be390e40d23f43331200308922aca8f9f5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S028.png",
+      "bytes": 828568,
+      "sha256": "0a99daca72b710a9638568cd58805e9c2d87fd34387c6bdc0c196b691b530e63"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S029-v2.png",
+      "bytes": 1260283,
+      "sha256": "83e5c10cb2b318619caf4d4db87e9b2e9ec703465717392ba7be229373fc69fb"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S029.png",
+      "bytes": 972018,
+      "sha256": "8dd7c7b4602bcfbdcbc3f0d4eb9de6b11e3ab08f36239f2329a7021997a2c8ba"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S030.png",
+      "bytes": 1227263,
+      "sha256": "fd525221165414cd234057c31fe45249a617cd874ffd3e28438ed1347156694c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S031.png",
+      "bytes": 1095929,
+      "sha256": "73760afc7550611d24401593b89202207a345f9f72b76fa1d6ec870588e1e6b1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S032.png",
+      "bytes": 1062756,
+      "sha256": "71ebdc21c6efc5bba17058126576feedea0f6224ebe0082830268e2b47d38be4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S033.png",
+      "bytes": 1416690,
+      "sha256": "78514d4546c94c9322c7a9913f1a3374797267c80c5ec9db653e61cab2605914"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S034-v2.png",
+      "bytes": 1420659,
+      "sha256": "41f503acadae3837853c71be12be42deb82718b8e8ed1261267834ad6a6f56f6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S034.png",
+      "bytes": 998993,
+      "sha256": "fd0f40de3ee8fd4d482352a90c7e4edeb1b3bbfac2e9aed7f1ec51afa01923cc"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S035-v2.png",
+      "bytes": 1286652,
+      "sha256": "c47687e17e2620df4f910a76da66f0817980fda64c9e408667f95aba8d7fb73f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S035.png",
+      "bytes": 1163512,
+      "sha256": "c28edaf5a22848236410f2ced15784c68789dcdd112e1f4d74a669c2ca480d52"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S036.png",
+      "bytes": 1080585,
+      "sha256": "72d0b066d5376cd243cf57703a89ce4899714a5286361d7b050126f44ab88170"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S037.png",
+      "bytes": 1544388,
+      "sha256": "629886f3e78e2ee5450d53ffa9a5c641b827f7a065c60bd027c89cde2901aad6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S038.png",
+      "bytes": 1023668,
+      "sha256": "116d7d0ba756477ed5da4b80a7cac90545a2611bc9d61fc40b3d9c76b1468bc6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S039.png",
+      "bytes": 1356123,
+      "sha256": "de33ff22c087960c7476c5c69e7a058458a19d4f160443da818a680045206a65"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S040.png",
+      "bytes": 1463993,
+      "sha256": "7e9fd48fd226b9da575fcb89215e25a2f6251ca2027a77c647679d46b6f4f578"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S041-v2.png",
+      "bytes": 1367946,
+      "sha256": "2c054082e8ca9ba8a989bf526a69f4c34bb2b19db87bdc48b7eb05cac05b38a1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S041.png",
+      "bytes": 1169769,
+      "sha256": "31ff5c910b33c86b1c2b9d890050c6e319cc9445563e8f48a758ca869429b756"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S042-v2.png",
+      "bytes": 1649883,
+      "sha256": "5570fa184e24ec72d032e47e3d89fbdfa710ff8bed6a4a1061c0b2aba8db7dbb"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S042.png",
+      "bytes": 1347398,
+      "sha256": "5b98eb2db3f114f22988e94aed91a0d0473c732fe4f716294b60f0a6eacf3ad1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S043.png",
+      "bytes": 1456657,
+      "sha256": "561d2d1afd33a6f2ff6a0d619726c3db9ac19bb452063ee07880acfcfba1a992"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S044.png",
+      "bytes": 1285673,
+      "sha256": "3662af05d2df7de60b4e298d032c71d21f0db24dc17a4ec975f810138fde945a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S045.png",
+      "bytes": 1176881,
+      "sha256": "638e7310c0a1da989b64aca9c0a8385e51dc7be1b1a395e8073c00da852bfd31"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S046.png",
+      "bytes": 896221,
+      "sha256": "d0a99f9fab6dc33a7a9225529c9c1dd2408e131606cb69202dda4df5ba145bb2"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S047-v2.png",
+      "bytes": 1605335,
+      "sha256": "e4be6cf0b8b79ec9b2cb67171558513b0e64310b51ff18729754b241965ac891"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S047.png",
+      "bytes": 1089960,
+      "sha256": "2f849d23898622e776e0bfd66ef06e5563fd40af0538e55b3b046e15e9c45075"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S048.png",
+      "bytes": 1053671,
+      "sha256": "c64c66877bf7d0523475e53b9599b00ecc4c539ccdedb8eb44768f66bc793c4b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S049-v2.png",
+      "bytes": 1309437,
+      "sha256": "ea4365638036286129b24aa30b5400208bc4bece92bab1b0b3f71d4249a9bd3c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S049-v3.png",
+      "bytes": 1527550,
+      "sha256": "820cc849cd833312889f6926204e320e38a0900c02d5caff929694e93771ae3e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S049.png",
+      "bytes": 1428000,
+      "sha256": "01bbbc6bb1deca2dac34e64e3862a0a116897e09cf6244e78538a7c6324a58a1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S050.png",
+      "bytes": 1034926,
+      "sha256": "ceba8df2aeafe84bf6b359fb6b44510d485e4c6f29b30299934397af84e1c114"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S051.png",
+      "bytes": 959492,
+      "sha256": "8a70e609b1702a469127c206eca7a257065bc375d20d8c36ef8bbe978ea15cfa"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S052.png",
+      "bytes": 1114900,
+      "sha256": "87016c5a1225d7cbf98224abed5ff0484df3b673599acda506b4962bb7fd8389"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S053.png",
+      "bytes": 1232181,
+      "sha256": "26903f4fdc2cde27846d95f2338995159224150b3eea5bff0948a530a1e06485"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S054.png",
+      "bytes": 927990,
+      "sha256": "a74aaf4467919ab4eaf2d73172b0ec6acd89a7e9a8968b48925a116db3b19d10"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S055-v2.png",
+      "bytes": 1477041,
+      "sha256": "f3ac457605e5fbe12320aa142a19bc8f2bc9db8c6aacb650a3f301b9c3ef94df"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S055.png",
+      "bytes": 1302794,
+      "sha256": "123b86f5422c77db14e0c55497822477af462a0e60f2c0ff1821adfb81e8ed78"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+      "bytes": 1316145,
+      "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056.png",
+      "bytes": 1227917,
+      "sha256": "c37407e36e34abebfd4992e5f089a88ab892da1961d1de41eb580f66119e698c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S057-v2.png",
+      "bytes": 1341785,
+      "sha256": "9d1e5951881756673f7a9d66dbe48d6bc4177217df6680b24c3258898e38391b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S057.png",
+      "bytes": 1191893,
+      "sha256": "84b0ff927a19a8183e1df7230924399de203f378cdbddaad3ad99df02193bdb5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S058-v2.png",
+      "bytes": 1492066,
+      "sha256": "88aede9da38ecfda46db95f6269dc8c38d0c3769827ac8f9573ff819a0954b68"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S058.png",
+      "bytes": 1033053,
+      "sha256": "4740e93d0888c46b9d275f1618f002a19d6939e5e292a0638d1c8c868bfad0f2"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S059.png",
+      "bytes": 1397653,
+      "sha256": "373eb4350378b0b84d6a0e31f7530b7abeba5d7c515d976773af3eeaabd194d9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S060.png",
+      "bytes": 1313991,
+      "sha256": "896e752b09b05837dffe8b71b4f57a4ac479db644a4cf78877f10efcbdd7e004"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S061.png",
+      "bytes": 1473079,
+      "sha256": "7b393a51237671d8fc7312a97aa10f6e393129b0802240e60ddd93ac029aee80"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S062-v2.png",
+      "bytes": 1475762,
+      "sha256": "762965c6ba4303d664bf5032a0ae3f7e76d63847d8f5384d22ce502aada7f851"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S062.png",
+      "bytes": 1367422,
+      "sha256": "f3ba623a52faa905ddf9be03e6865dc803d613566df4eac45ce9d6d4a1eaca7a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S063.png",
+      "bytes": 1550317,
+      "sha256": "b331ee3832bc466208f44e85bc52013e18190c3f0cc9319e2d185b17982af94d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S064.png",
+      "bytes": 1115641,
+      "sha256": "3b873eabcf1f346fe2da7fddb9bb5140174f625d8bd5f19c4ad0b094bd6d0cf6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S065.png",
+      "bytes": 986312,
+      "sha256": "9540173818e191e66c8411ab1d5e1937167eb5ba19be5a8e8c577b06ed33f088"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S066.png",
+      "bytes": 1605227,
+      "sha256": "655a4b6283ab04aca90ba036f5975b0a7e846e1cddde590909234a68a4653d79"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S067-v2.png",
+      "bytes": 1422490,
+      "sha256": "06563d58b82f9c02095d0dd5186ef2d1a60c731de60991c64261095aadc347f6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S067.png",
+      "bytes": 1470436,
+      "sha256": "2cc0cc9b0f0b6fe9f05b76b59a40a4c60eb301116de463682118d9f5d2e58b46"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S068.png",
+      "bytes": 1488270,
+      "sha256": "369c2d2b62a62b2869c0d7a4ea53b4e3d43413ae1d6df27fa4e2980d5979f0cc"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S069.png",
+      "bytes": 1357785,
+      "sha256": "07dd2e17fb22de52ff69e0ebe149d7796fdc550c7892bd122afdb3a7a11a0e0f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S070.png",
+      "bytes": 1130179,
+      "sha256": "7f1cf78e6d5c9e6efc0d797247b787fb26f51f31092a2cba7db8424d49e50f8d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S071.png",
+      "bytes": 1161104,
+      "sha256": "f544978a2dcd048f076d899424a2e5e52144b57bc5d98ad72b3e561fdd56c6c2"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+      "bytes": 1045593,
+      "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001-v2.png",
+      "bytes": 1069679,
+      "sha256": "f9a88ce3ca2511d250431932e344277b006b6a3eb883667a6d4e2be7af40e165"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "bytes": 1010972,
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D002.png",
+      "bytes": 1345724,
+      "sha256": "5c37dd9599e8e01cb70147c3acd33916fad64e15e4ee61cd99c370896b3690dd"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D003-v2.png",
+      "bytes": 1159511,
+      "sha256": "95456726a38d73123459d2e99909386ddb9e3e291901c69751e9363d26fa5e09"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D003-v3.png",
+      "bytes": 1580922,
+      "sha256": "3ec6f161897d4e9cc007d01ecbff02afc4ebdd5a8f9bac74d6d4e52af269e09d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D003.png",
+      "bytes": 1173026,
+      "sha256": "0668f2209270a999b9d84e9abe7c68c995dda17640c8720018f5a134f7e9b887"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D004.png",
+      "bytes": 1242669,
+      "sha256": "a6ba10e6f1673a466e4590453d4b99aa3075663cf8715976ef2949aef23660b1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D006-v2.png",
+      "bytes": 1115831,
+      "sha256": "9ddad6b8c8fd42bcc416c5217ec49fc58272cae62014d84841845a70bb55ce5a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D006.png",
+      "bytes": 1120754,
+      "sha256": "bee531cf7da65bb6e90ed24a378f44fd1625015c7755226c57c2e1ccd7006332"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D007-v2.png",
+      "bytes": 1063506,
+      "sha256": "ac8d25731f068c9173372cdc536363be0bc4da4ebb9182183171963d80dba85d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D007.png",
+      "bytes": 1107135,
+      "sha256": "e1fe262f303631402f8f4834537d0523e231a4dc229bd73921a4f74089c4ebf0"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D008-v2.png",
+      "bytes": 1038336,
+      "sha256": "7715a67ce591c579dbc9cf7e0a5458a920ca267a47a1251fa23d16a95615159e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D008.png",
+      "bytes": 1093990,
+      "sha256": "21c0b16eaafb2b5bda4b7ba982677918c54770f299d3232642b8af022c6c1aa5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D009-v2.png",
+      "bytes": 1153121,
+      "sha256": "cbdd41481c5765fe964b118994994fa97d0ee4e6ca223443bf5a5e7812a14f7d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D009.png",
+      "bytes": 1296150,
+      "sha256": "37fb337f1d15f6cd7d8628672e6f3fa401b0f66dbae8ade48fcd60880b55f829"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D010.png",
+      "bytes": 1038007,
+      "sha256": "5fdf28456dfaa3ef591aba081914d1c025dcad487b57ef5e62b61105aec2e3d4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D011.png",
+      "bytes": 1149464,
+      "sha256": "451b626f4dc7363e45014baa22cc5a8e579b03364ff8cb1a48bedba45600a51d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D014.png",
+      "bytes": 1077369,
+      "sha256": "e0d954fc5ea3b4930faa972f85a6c52c4b82ff547dfa177950138cfa9bc7646d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D015-v2.png",
+      "bytes": 1600921,
+      "sha256": "3124014e57f49b2ff4838f0e0596d639a57216cdc3d33b49e32b49af582672e2"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D015.png",
+      "bytes": 1337268,
+      "sha256": "bf88fb9c3c633a19e95213f580f0f6c8e0e598bfe0a551be58a9c8b6a548afb7"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D017.png",
+      "bytes": 1075972,
+      "sha256": "59b483449d909fa7b536edbd0cc42a050881792f443f212603e66b6d0be43afa"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D018.png",
+      "bytes": 1145695,
+      "sha256": "ce549bb8f1534fc209ce40b129425cbe29b92a62752b43aa3d4626fd5d10d5bd"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D019-v2.png",
+      "bytes": 1047527,
+      "sha256": "6c310f8430cfea4c5b6444dbb1d7b30b2e295fc9848155e30310f66bdc0c8a86"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D019.png",
+      "bytes": 1371370,
+      "sha256": "afd46c771bb45d10be0db9bcf443962b117f50f0355669147beeddf0b1e67b3c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D020.png",
+      "bytes": 1128187,
+      "sha256": "92233fe058857af291ec456be8275f2d2ab87211ce4fbe90b86a1bef27e0b38d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D021.png",
+      "bytes": 1096617,
+      "sha256": "2ca96ea78c13c34c6a522621ca0ef06cb7c131aeb8dee390b9bd4636a77a29b6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D022.png",
+      "bytes": 1172177,
+      "sha256": "05238696904950316cd7e2e7ad1516fde5053e2812d91478074746b37e7997ad"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D023.png",
+      "bytes": 1106762,
+      "sha256": "ddba258fa4644ba822860dcffaad086aa26481a68b0976090a8c7d0a713db75b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D024-v2.png",
+      "bytes": 1484225,
+      "sha256": "cb2366b7c604e4aac6c29b9fd9bc99bf9cfd89309c205ea7e3a5b897bcf44bb8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D024-v3.png",
+      "bytes": 1464971,
+      "sha256": "915d4461e2dec0e0474135a5be1d29b56d2c99a8c96017326e96e65ac2a6ab03"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D024.png",
+      "bytes": 1007656,
+      "sha256": "9d37ead0de2e3c526188606cff00bca45310fde31b8dc7c355a228093d142170"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D025.png",
+      "bytes": 1030855,
+      "sha256": "6f7d002020f5f50c364f79f25795dbcc8c881f6b921b3a060794435f07655050"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D026-v2.png",
+      "bytes": 1469051,
+      "sha256": "aaba97ae546926633d2f96b38793d00f4fce8ce4391663c09c6f38513ef9b2a5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D026-v3.png",
+      "bytes": 1533522,
+      "sha256": "f7608ebf79c28594fdb4c5330a795d9bf763d72c3a3e06efb2d5e033fc44926a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D026.png",
+      "bytes": 1112403,
+      "sha256": "731d3dfff00deb556b8f180e6fbd895636958e2c80d4b05faec1c83dfe1c6e0e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D028-v2.png",
+      "bytes": 1520337,
+      "sha256": "22835d30ffaf69a558ac7223b569b4ed41a2904b815c6865cdf9dbbac7cece5f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D028.png",
+      "bytes": 1036861,
+      "sha256": "35e47ab9dd5501ea8a69e41e6cd309645b84775aee8bbda322e64ce60050aed4"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D029-v2.png",
+      "bytes": 1213094,
+      "sha256": "7f4e5e06f0407c30d7bdad722363a6a070b4c4b43f6a1e0ac26fc2cd4ea2794d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D029-v3.png",
+      "bytes": 1557433,
+      "sha256": "e34b52c952997fae374355e207f4715a186e923426360d4603483c5c188b1203"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D029.png",
+      "bytes": 1361568,
+      "sha256": "f73ea69e23edd25f4cfa51a133decb1981a3191f50980f0ba6e53735909fee10"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D030.png",
+      "bytes": 1267746,
+      "sha256": "2fedfdc03305b2f6b70a64a9c972fa62ff0eec90d230c24f72da023f0441b52f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D031.png",
+      "bytes": 1058418,
+      "sha256": "ca183530a370a212532f1e390d095e2b2fc640a49790204e6910fe7b33c72b1a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D032.png",
+      "bytes": 1061953,
+      "sha256": "9d7c4dfbc319393ba4ecc7c11343fd5c86671758384d2f6a16978c3edf85ae8e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D033.png",
+      "bytes": 1098512,
+      "sha256": "7058ec9cc6cfd323f32a5685c02a3525975f7d1083803d2fea3688f17e369f59"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D034.png",
+      "bytes": 1073580,
+      "sha256": "935f39833042039f9964217af2012ad896748b24e7fa480f9a95e83b39352bf6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D035.png",
+      "bytes": 1067031,
+      "sha256": "c99b8fe2ba45e2614959f0972d1b8dac0218e4e10c05132aad93b14f7c08b7be"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D036.png",
+      "bytes": 968662,
+      "sha256": "56c0a5a9400e972017f1732b6886ccd05dc450655c056bec03f3cc9a9ad44a63"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D037.png",
+      "bytes": 1545771,
+      "sha256": "4a5ba23af3510c89f9ed53b2b866f3379e407655b6626d048fec488cdcd97e6e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D038.png",
+      "bytes": 1240995,
+      "sha256": "6ac9187608008893cc3ce1eac275b95e007b3f3bbe5665b9135eef1eaaa22c3c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D039.png",
+      "bytes": 1151611,
+      "sha256": "1767a45805b181597a1f3e1ec52341321e84a15b65a0f3d388dbc6fd653ac64c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D041.png",
+      "bytes": 1180360,
+      "sha256": "3ac5968457c283d33c50e76efdc4cd95623db6bbd4df80df178467d424c00493"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D044.png",
+      "bytes": 1158809,
+      "sha256": "c36b263d0b8188b12dcc4b8433cff70be5e7ee8f053fe7e87c5e6c2370de58be"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D046.png",
+      "bytes": 1045116,
+      "sha256": "d6471a1732da6ab1b9b32ac3ea8aecd3fb40fd4da891e36703d70eaefe239626"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D047.png",
+      "bytes": 1590950,
+      "sha256": "779b88d9eb616b0e0c060707e4def74ea67d7b865388eb9d625d2c74c7594056"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D048.png",
+      "bytes": 1100339,
+      "sha256": "ee7bffb990362d0d2cb1235bf3771d097cab0fb5871e975dd1ae07784ff94cf3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D049.png",
+      "bytes": 1036090,
+      "sha256": "d0e25a4067474bda3b4ac5bede8c6bfdf2e84f30953b802021af1610f617481d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D050.png",
+      "bytes": 1514006,
+      "sha256": "064c3b03347ce8d1a541f929d3388757d92b4599d4058b3eb45d67c802b4126d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D051.png",
+      "bytes": 961259,
+      "sha256": "6f2b5a56e13588ddf8fe9ec9af8a1ac02ed6b1d9cd503822e6df12b89f87f33d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D052.png",
+      "bytes": 1156392,
+      "sha256": "3574a2aaea636ddcc23720db6526ef9147846e55f539464cd4bc22b6816751f3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D053.png",
+      "bytes": 1081679,
+      "sha256": "68f4ecd1dbaf7c68cde80e55124747b684030c170b0d4e72015f6b91e9fe44f6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D054.png",
+      "bytes": 1115074,
+      "sha256": "2c374a4c5ae3878329e7e8ecad8d4720a36ff5644a18a79f9827250acd4fd33c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D055.png",
+      "bytes": 958864,
+      "sha256": "7a61a23532cc6a18eff886c3683c1f839737f536ab03f00b15c99bb298f6e4da"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D056.png",
+      "bytes": 1006576,
+      "sha256": "a0fb629b65987c0e30810c1d956e3fb9c88795132f75b66d79e11562bf41e2b5"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D057.png",
+      "bytes": 1027162,
+      "sha256": "f3d86de5ed2778af342de997a421f11e46a6268e66a7e09ad848285e8c4177bb"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D058.png",
+      "bytes": 1161460,
+      "sha256": "3ad9b5c24ec306b09343f8d422131f47a8a83e49ee2e0d38ee3cef43a1c52474"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D059.png",
+      "bytes": 1007392,
+      "sha256": "d0292eafdab76c5b923608c88f98ed23fb07f158d95a2107388e87156c8e094f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D060.png",
+      "bytes": 1133998,
+      "sha256": "fc0a66391e8675404f79118b23d1371fcecd76c4dd6028654875b85eb2c07b7d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D061-v2.png",
+      "bytes": 1657556,
+      "sha256": "f04f9d2d1e0224a0996ec961f29c6296e0e20277dab6174e2a9b400620837e7a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D061.png",
+      "bytes": 1278946,
+      "sha256": "2985b7c8fd321f61f0a6d60a50118be78be66a830d6c0cf3ae300f8098aa7200"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D062.png",
+      "bytes": 1066777,
+      "sha256": "1ddb3041befb82563a2bba2ffc5f3973407c01da9c29e82e7c230a4af568588d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D063.png",
+      "bytes": 1127786,
+      "sha256": "f01f8afb5c2c0019668297f75eaf515ea5f78174b08c364bb36f8d5d4da4e140"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D064.png",
+      "bytes": 1271016,
+      "sha256": "dcad24aa7fa474bdf126827c5f51ecd942072eef6efad9b36ea221bb8b200681"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D065-v2.png",
+      "bytes": 1626928,
+      "sha256": "8c4fbc0cc32313fe193308eed591d8df3a2dbfc3d8f74aa8945729d23909d36b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D065.png",
+      "bytes": 1208885,
+      "sha256": "9aa0da601ddb877d56a1531d827c0401628b7f3db0e26ea4911dcbb2156a4a93"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D066.png",
+      "bytes": 1081765,
+      "sha256": "fa452fbdf5d94c321ff2ee856cefd188fc121c9e3899767bec1aa3f07fec83c6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D067.png",
+      "bytes": 1184657,
+      "sha256": "5e869336095aec4b82ae634e96ac7eaaebb589469c5e33f232796933972f7141"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D068.png",
+      "bytes": 1080842,
+      "sha256": "119f5db72db101d58f29eaaa6ae75ad87820ed2d74941ff9ec7c1bd58328c44a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D069.png",
+      "bytes": 1176302,
+      "sha256": "ddba4c636815ffe37fde2dc903f62131ed6cacecde27217a652a386ccef9e533"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D070-v2.png",
+      "bytes": 1470187,
+      "sha256": "4b5a81bc59b19eda1d4c9af6e848ef1ba758cd657d8bfd7372f4a559a4905d9c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D070.png",
+      "bytes": 1088973,
+      "sha256": "0b31df1c3310bd627b5fd52e748b70b5ea2e45d76aa2044575156b5ec9dc745f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D074-v2.png",
+      "bytes": 1531848,
+      "sha256": "6dc9bd5473fb0529272fe08e01db9f732019c6c0537d534d72400e3967cd01da"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D074.png",
+      "bytes": 1168550,
+      "sha256": "be3bdddeb5e8d398ee0227eff7d6fba103c0c8a02871f305abe35dc955e2e38b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D075.png",
+      "bytes": 1148411,
+      "sha256": "86e0969ab24235dd7e3dc959916a4c2a603548fad6f8cb3d5a2e965a99761d9c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D076.png",
+      "bytes": 1391711,
+      "sha256": "f64b4272a9e5537f490b1ca1d11fef5b8205fe4bf469ab0a45aec274de3b00f9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D077.png",
+      "bytes": 1109633,
+      "sha256": "f0b30ebe2549e1faea5bba20e7b56d5581c43c32ecbad203dcab17c5c624a628"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D078.png",
+      "bytes": 1113304,
+      "sha256": "572244d77874c00dcdd5537c6eecd3a84e3e6555ffcbbfa0273d6dc3ad533466"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D079.png",
+      "bytes": 1545048,
+      "sha256": "f37aa01468667902397e10905cf43b4dc1cf2b4b62baf6b0310f82478d3e6e6c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D080.png",
+      "bytes": 1069977,
+      "sha256": "847607888a5aa810304797c139615c5f1ed58e855aa5503aa3327a5f87411c4c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D081.png",
+      "bytes": 1108139,
+      "sha256": "ce659bf569a640dca0fec5a688e131ae162ad634b51698bbea5491564ca039af"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D082.png",
+      "bytes": 1183639,
+      "sha256": "e80975da8bbe8677dc84321aba7402da7686357165796c0b22309f5c1c0a76f2"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D083.png",
+      "bytes": 1574745,
+      "sha256": "964e950d41aa945db4df6107b0f8f48d19ef1009880f640b372e1aff8b871d8a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D084.png",
+      "bytes": 1125563,
+      "sha256": "e9e01bc5371559900238225ab43618b95676eb791816060a2afda11c56fc9380"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D085.png",
+      "bytes": 1106604,
+      "sha256": "49b395bb99ba3105357d09ad5404b1857fc93321937b5ac22ced112301fb0602"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D086.png",
+      "bytes": 1402838,
+      "sha256": "f6963f7e7b71547eef9963372ef786adc9e47b162981788e383c362d171026bc"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D088.png",
+      "bytes": 1151499,
+      "sha256": "c676df6313e23c940b5e9e66d6adab8b990be618d6bcd8789914206ce260fc5c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D089.png",
+      "bytes": 910264,
+      "sha256": "d76d553246b2fd34c244406918a1a3d48431b1b00030cc73aa28af7f735eb855"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D090.png",
+      "bytes": 1090089,
+      "sha256": "7236f7b0fa869cb2464a99e663493e7a12f7dc5186490efc3b9b0a9948f0e18d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D091-v2.png",
+      "bytes": 1495667,
+      "sha256": "155207e9097baba36da00a042477063403e98a6b035801008635882c27862bcd"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D091-v3.png",
+      "bytes": 1638567,
+      "sha256": "51a9728238ad827129fd7380edeee7eea2c9dc736e70bd1ae9cf506c280c6d6b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D091.png",
+      "bytes": 1374424,
+      "sha256": "725495ad2b18bb08d9baba46a623a11c32ceb6ef65774544723f34e1e6c8a598"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D092-v2.png",
+      "bytes": 1207204,
+      "sha256": "398263b76f3c5ef23c50cea2a3ed3bb291d62a9d2aa5dc190ff31ef741dc268f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D092-v3.png",
+      "bytes": 1623325,
+      "sha256": "0f49c22607e6c275c93a04b7496597db9f05a2b5d38243ba5cb968e6744b4f72"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-D092.png",
+      "bytes": 1296236,
+      "sha256": "34dc38ae1b9d942405b18ccf5ad932b3522cc48778699487cc89d56513d9bb70"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-G001.png",
+      "bytes": 1042910,
+      "sha256": "90127fab350ebfc36fbb86de7621f8aa9e37da8b62e47a6e53f06230cbec0d6d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M003-v2.png",
+      "bytes": 1381037,
+      "sha256": "1b6a5047686e62617cf25ab416ae597e2d4bad43cb597ccf3e8b6850bf789481"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M003.png",
+      "bytes": 1227824,
+      "sha256": "0bf05441637878494d25ca851cd50d6910a0e60b412e97ae9282eaa58e6885aa"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M004.png",
+      "bytes": 1102445,
+      "sha256": "f437b7ac2a9cab9668a9faf48e48518d98c2eb650cce3b1cbf863d714a5481fa"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M005.png",
+      "bytes": 1371963,
+      "sha256": "040754744cd6ad48dd7a119c5d846e587b896f3bbc2ca9f9e11264609496c7ef"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M006.png",
+      "bytes": 1088564,
+      "sha256": "bae8d19d9b52d2719b0ddb96a1be845e2a091946fc77649275fab2f982ea7c43"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M007.png",
+      "bytes": 981330,
+      "sha256": "5a0fc982c54b18f74a12def3a3545809c38f9bde2336d6901101531a44d7840c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M008-v2.png",
+      "bytes": 1577392,
+      "sha256": "99f731c13899753ee8b454ca61faf4e53349c148eada330b8ca776274155a183"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M008.png",
+      "bytes": 1128581,
+      "sha256": "4dac93204fa815081d158246d936ffbed362fe27e6a5b90c16023c85053b1abb"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M009.png",
+      "bytes": 1113228,
+      "sha256": "2de0be6fee427a11c57b8c2af1f0d5dac09ba717b3feda33df26e7d43dae6eac"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M010.png",
+      "bytes": 1283323,
+      "sha256": "b368997a6e90a842c58deca201ead0b672707239c9bfde3ff0261748e98c93cf"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M011-v2.png",
+      "bytes": 1404115,
+      "sha256": "97135fad44dbb49ac77839c0b8d6badd4e4b1bbfd8008f091f8c2fbe9c872ace"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M011.png",
+      "bytes": 1520396,
+      "sha256": "2c21b1bfe727010de8c2f99200d9cf5b1e4e94bf645becac3998b4ba92f0a62c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M012.png",
+      "bytes": 1314468,
+      "sha256": "7bd035134b51a6e8450c2279c234830f55bdc5c2e67b74fec4ebf5f161d060bf"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M013.png",
+      "bytes": 1548051,
+      "sha256": "89703c90cd65342e2ebe7e382a3bfcdd8c6ad0c1855fa46f528b883ab9a68869"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M014.png",
+      "bytes": 1090974,
+      "sha256": "9b5dc5715091cdce0e62183c58fd7c529a97d91ccdf5386d2684c9d75760df6f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M017.png",
+      "bytes": 1037528,
+      "sha256": "07baf18c5aede5392e6b4b7dc87b9e9adfe9ff2c5feb972b9e270d1368d78d66"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M018.png",
+      "bytes": 1171480,
+      "sha256": "07d42d922741525ee5deabbf8cc343871a2c17147c3b921e671c516720d31fa9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M019.png",
+      "bytes": 1175642,
+      "sha256": "05506403913377ee0bbc643af04781ab7057bc489e17c21d72f5ddb8e815d89e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M020.png",
+      "bytes": 1144064,
+      "sha256": "ad365f6d8d6015f253d1cc83898ddf34ed3dbcce1760ff0d2188b19cbdb0ee5d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R001.png",
+      "bytes": 1204618,
+      "sha256": "0fdb8ddf78740f0f4ab5819e13df865edb5d36aef604bc0dca22c178e60161b0"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R003.png",
+      "bytes": 1116065,
+      "sha256": "7c264dde76fae1d6c69e41da437fa1a062021a4abbda9d2b123a8fb4308971b0"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R004-v2.png",
+      "bytes": 1596947,
+      "sha256": "f9f16dcb6c45688edabe561d4f0805b9043e084af858311acc2e00808efa86c9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R004.png",
+      "bytes": 1157914,
+      "sha256": "ccc840f95125a2b8068b82e39c6ea478a0af23860f3b015d158978341b2c3204"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R005.png",
+      "bytes": 1130275,
+      "sha256": "73a8dded5b9b1605590a881ab14057846e8e3a566b9e22821d89dc5facdccd8b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R009-v2.png",
+      "bytes": 1560073,
+      "sha256": "3d10d1e5063d828b203bd5416ed31b3d70c9e87b3a7c04a331b79aec5f6972ed"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R009.png",
+      "bytes": 1173588,
+      "sha256": "2101679da7401b24ad812695545ceeaf15b3694f8d89047f74b2dd1bc8353bb7"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R010-v2.png",
+      "bytes": 1473523,
+      "sha256": "7b6bbba397d469d96bc3bfc01df3e34c00aba4ee62aa9bb85f448a72f0b066ac"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R010-v3.png",
+      "bytes": 1462144,
+      "sha256": "c52d934684f4b014be2bcc4a2b2453c0ccd66a85a9426d9fe6fef77beebbe187"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R010.png",
+      "bytes": 1024193,
+      "sha256": "ca7bdce29b20ecc2040d4bc45cf492de6cd81c111473032bd538de2fd0362ee6"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R011-v2.png",
+      "bytes": 1577955,
+      "sha256": "8262d048707cb872e70da6a54caa4ccd0730b8e25d84baac33d292b70df2fb2f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R011-v3.png",
+      "bytes": 1598607,
+      "sha256": "8d6757fffe2ee43365fff6a5a6227efbbd4355de0c3844aeed00271cf1872bb9"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R011.png",
+      "bytes": 1191818,
+      "sha256": "c51764468a9dcf026c1b6ea202c3a805044fa42253985a919f088abfee10592b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R012-v2.png",
+      "bytes": 1648004,
+      "sha256": "75ea4c06fadf5397e179a1acd109f32423380f3239e1c0bdd61f6bec3471275b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R012-v3.png",
+      "bytes": 1653500,
+      "sha256": "1ffa9a82c22f167c1781ff849332d72a80ff4405db7a6760b8a2af989f9465ad"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R012-v4.png",
+      "bytes": 1639503,
+      "sha256": "6e8ecedb02f6ba019d888a09e36a3113c69a61db146345088ba665fbb5962cf1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R012.png",
+      "bytes": 1181726,
+      "sha256": "563a2c517824b87b702bf19b0c0542307fa57a8b50edd30a06d939f70881e47f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R013.png",
+      "bytes": 1442690,
+      "sha256": "7e4595eb9ce731edc61a572231a772db50d4457da6b186a9cd6e7cf50d80867a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R014.png",
+      "bytes": 963510,
+      "sha256": "e347659503fc91cb384f458675d8a997ed323c5593ad0c91e788ec665f39cbdf"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R015.png",
+      "bytes": 1145806,
+      "sha256": "4c9350693685cc3210479fa9ac696fea9bbf0174b82ff538b8f4acd4247b2d0b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R019.png",
+      "bytes": 1217955,
+      "sha256": "a2b2ef58e54b7cd17d53f3d0c23bc7b260a47620895a0733cd301006bfaef4af"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R022-v2.png",
+      "bytes": 1567544,
+      "sha256": "d379fa7c03f9d37176211112d0ee834a1faa090b2b3e3aeb41218f96a7a70694"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R022.png",
+      "bytes": 1364279,
+      "sha256": "cb37f9aa7f1fb2dc6061faeee5ab2cfe46ecf1dc0c9710556a6ed27bdb8300ed"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R023.png",
+      "bytes": 1212775,
+      "sha256": "b1c5d42124c21df7f18feb48a367b4a8b14f8faa9ad933a0916ec89e8b8e82fe"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R024.png",
+      "bytes": 1093261,
+      "sha256": "9baad8528845692212f0a27c27bf483db0a3f7889ac29625b38613d9ad8c6c20"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R025-v2.png",
+      "bytes": 1552031,
+      "sha256": "67b1dba246cd1434098809e3bf8a500dbbd85a914a5fe41880d96fb57fc5299c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R025.png",
+      "bytes": 1066716,
+      "sha256": "dfda403becaa64c3b1bc695dced0176164eedef3790c5481bea48b530124a818"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R026-v2.png",
+      "bytes": 1621106,
+      "sha256": "13b097f4ceaf92a26eaeae8caf06edb5a23925acd97754de7b963ac4b753b11a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R026.png",
+      "bytes": 1354468,
+      "sha256": "2d38c452de68fd4e781d0a6fa159bd0af772d772eaee059eb15ed35321c92eee"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R027-v2.png",
+      "bytes": 1510156,
+      "sha256": "a7f19e2563961a2ae870ec8444f8c4a105b64d2cd69c615de47078bea0e3dd86"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R027-v3.png",
+      "bytes": 1526551,
+      "sha256": "5bfc32cc63dd1c40461806120c9918bc66e23a067b27e700a54a2ff73eeb678d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R027.png",
+      "bytes": 1042262,
+      "sha256": "8c08fa89ccfff328ea3fa26b0f0952560f7ea7311b66b81469ffed01be666406"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R028-v2.png",
+      "bytes": 1342195,
+      "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R028.png",
+      "bytes": 1082813,
+      "sha256": "0ace58dc4928421c0422cbe9e8a19d1772eb125f2006604f88219b6009c5cbdf"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R029.png",
+      "bytes": 1130676,
+      "sha256": "4343387df2d0e0d92bf2c8d39a3b7c2fcfb5baf59f4b9a16260a1be6200eaf7f"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R030-v2.png",
+      "bytes": 1088068,
+      "sha256": "d3f81ebd4bb9fa7792eaa5a4c6180e16cf50cdbb8892c526e9d57c7bce89e763"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R030.png",
+      "bytes": 1225195,
+      "sha256": "1a495f0a786160da8f4eeb3240ea1a7a88539ff28770df91b7d67d0a998417dd"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R031-v2.png",
+      "bytes": 1079179,
+      "sha256": "28646cbac903670b31e09bed13263fb1e541a4c7daba1950ef2d23f33e6941aa"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R031-v3.png",
+      "bytes": 1461979,
+      "sha256": "77c677f73a2b6fc4014d2e194c4d054f832b8bb3931f2bbbcc77e10a83372842"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R031.png",
+      "bytes": 1277848,
+      "sha256": "4bca43272a1f207642ae37d2b4c12da7a0246313361616b05f098d0d9ad96997"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R032.png",
+      "bytes": 1180820,
+      "sha256": "b6ec9c349da169e81d9d193025d50c213626a790a165ba015dbd95f48985fd41"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R033-v2.png",
+      "bytes": 1688578,
+      "sha256": "0f3fc8fda83d34ec50a1566491ab6113424808b9cc5ac90b9089d1263137e97d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R033.png",
+      "bytes": 1436267,
+      "sha256": "63cc09067923f6579beb1cad951bff1d8dfb8fc1c88f4fc12648085ddd847518"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R034.png",
+      "bytes": 1058274,
+      "sha256": "87928065849d2b43a6cf18154f046f5ce573784427dd5f51bd3fdb0526131dd8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R035.png",
+      "bytes": 1304350,
+      "sha256": "13e9dbe362ed74bd3a7041fd8a3cd564d4ddeaf80e170b496289615a5224fbaf"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R037.png",
+      "bytes": 1328613,
+      "sha256": "6faea480f95241b9d8194d12ad9884e66edea0f2cda7db9decf02f10499793f3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R038-v2.png",
+      "bytes": 1597366,
+      "sha256": "3ebdce3c5fe8ecb632bff012736200c7f3a0ebdf7224d46bcc32230a38a0ae6c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R038.png",
+      "bytes": 1482852,
+      "sha256": "c04e7c83912a0d090c1e9eab78b0541a29139c0b897a413b89bb014362db63d7"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R040.png",
+      "bytes": 1213819,
+      "sha256": "b24fa5b0cbd03d757322ff0269e4f23621621d3af7a9e6a3a8e152c030ff446c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R041.png",
+      "bytes": 1313640,
+      "sha256": "a4c8c49d9a570b7c1890499d2ada92ee2463dbd3542913969e8f3c26711da114"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R044-v2.png",
+      "bytes": 1829375,
+      "sha256": "f32491ddece4365676abeb8718ed986f127513074b18084da59ef6ae0c38a91c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R044.png",
+      "bytes": 1556514,
+      "sha256": "21f4e3a10b473e643a05140328a0a8d747c45c89ad629c20b7b96c56318e092c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R045.png",
+      "bytes": 1251989,
+      "sha256": "2e48ac151bbf23c3ce4385024aa4b81a39dbf83c3e3e6a14a8b1273f5580ec18"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R049.png",
+      "bytes": 1175701,
+      "sha256": "9b63bf7722b335ac37311acfc8e8d9916ad90ad9cfd92edc4a71b8f70c1fe5af"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-R050.png",
+      "bytes": 1188051,
+      "sha256": "306abc1aaa378041757b8c15c03871c436e26be531ddbd1d445b788682f946aa"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-V001.png",
+      "bytes": 1005768,
+      "sha256": "935451d77039987a94d5c4abbb46ef7f28dada489308c298f38fae18463ac1c8"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-V002.png",
+      "bytes": 997484,
+      "sha256": "0cad536631d8dee627bd4ae59097d56641016f5119ba91045e2c7203dcbf660c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-V003.png",
+      "bytes": 1368194,
+      "sha256": "c24a802f82eb730e34219b414ccafb284bd99ea5079a2bc38a9b2b49c474403e"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-V004.png",
+      "bytes": 985130,
+      "sha256": "4c5742037d65d333cfdd5649d18e0d9301b27def1e0d5335c17f63a8af26b495"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-V005.png",
+      "bytes": 1215252,
+      "sha256": "0afd71fcff43873851b61e9d2b950ab7899b90b7e6a1f4bdea5ad2ee9582f630"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-V007.png",
+      "bytes": 891566,
+      "sha256": "b8a2a9de9dd61e100665e8bc79ecad4259df62a72a3df3baa6709dc02a6e62fb"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-V008-v2.png",
+      "bytes": 1539568,
+      "sha256": "4b7fabafa7b698ba3a7eaab1c3ecd5a0a75f02642fa2026392de9c94535de010"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-V008.png",
+      "bytes": 1292719,
+      "sha256": "10ae1a6b40f7254642b350e777594b11a2c3d88879ff0103bb15bfd5aed4613b"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-V009.png",
+      "bytes": 1212265,
+      "sha256": "35d0e05d7492837504d03feaff1f5f649c05d1a944c5f538e1c37aa41b1dc576"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-V011.png",
+      "bytes": 1073212,
+      "sha256": "dfa686a5e8f48a95f53b06cf82ef07260849ae599595b8148efbac85ca03b8b3"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-V013.png",
+      "bytes": 1030086,
+      "sha256": "72f799441cd4b82282bff0df6f65468b17d056a7eafb62d6d901a8828c66d35a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-VR001-v2.png",
+      "bytes": 1545984,
+      "sha256": "c2b36fa3cb5316dcc1e2b07a41c0f3f67c16f8a95a3bb8803b5a10c8b5001b35"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-VR001.png",
+      "bytes": 1029870,
+      "sha256": "36af1d26d647a8088d58115f856d68e617de88e5095dc0e83ddcc61d17f4ae2a"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-VR002.png",
+      "bytes": 1034234,
+      "sha256": "e1beefd35e667389ccfefbcc4f9e35a598e99b4b7e156a9a6cf95d111bd0c50d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-VR003.png",
+      "bytes": 1285841,
+      "sha256": "0c898af29d884bf7d521c2a71929b935d8e73b3f9861be91d1c7ecc14e4f9b6c"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-VR004.png",
+      "bytes": 1206360,
+      "sha256": "7d2f68717a2db1ba12ee5906cabde0d3f248a7a03a150f748e62b29bf355ae4d"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-VR005.png",
+      "bytes": 908683,
+      "sha256": "62a376aafdbd9469f3f0b2ec20f654465a72826194138a2a645672db1d93b8a1"
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/design/images/WS-VR006.png",
+      "bytes": 1106787,
+      "sha256": "3f967f3f306b0ce15c0d28456de79f71069a9a103eeea943f42138ad1d7706c9"
+    }
+  ],
+  "gitPolicy": "Text prompts/contracts/reviews/indexes are versioned. These large PNG originals remain locally at their referenced paths and in the verified independent archive; no existing tracked project image is removed."
+}

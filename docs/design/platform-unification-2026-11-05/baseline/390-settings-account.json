@@ -1,0 +1,16 @@
+{
+  "id": "settings-account",
+  "title": "平台设置 account",
+  "width": 390,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?view=settings&section=account",
+  "file": "390-settings-account.png",
+  "sha256": "15df30c1378c377df26460d8ba77ccb49f9a4d721f7d937f519e09c98d0abf17",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

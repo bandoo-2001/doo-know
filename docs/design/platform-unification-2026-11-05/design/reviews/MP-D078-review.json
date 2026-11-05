@@ -1,0 +1,57 @@
+{
+  "assetId": "MP-D078",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:27:23.282649+00:00",
+  "method": "Actual PNG viewed; actual matching baseline (when available), complete sidecar submitted prompt, batch contract and current component template checked under review-execution-contract.",
+  "selectedState": "Source-derived owner setup_required/new, step 1, name populated and advanced fields hidden",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual three-step setup and three source choices; new selected, only knowledge-library name shown, device-location helper, hidden advanced controls, chosen time-zone summary and enabled confirm preserved.",
+    "Independent setup header/welcome/footer only; no owner rail/tree or account-creation form. Name validation, create/validate/bind and owner-bound proof remain source contracts.",
+    "No actual runtime baseline exists: sidecar declares source-derived and runtime false. This pass verifies source-based layout/state representation, not setup reachability or successful execution."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Advanced-settings summary uses a downward-looking glyph although fields are correctly hidden. Implement native closed/open disclosure semantics and source title/eyebrow hierarchy; minor icon/hierarchy treatment does not add or remove a capability in this static source-derived state."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-004.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D078.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/SetupWizard.vue:17",
+    "apps/web/components/SetupWizard.vue:191",
+    "apps/web/components/SetupWizard.vue:216",
+    "apps/web/components/SetupWizard.vue:253",
+    "apps/web/components/SetupWizard.vue:353"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "294c4a5a36a1f16f0cbf6bf3ca6ad73f9136112df1dd05d31969ab9d84837c4d",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D078.png",
+  "sourceIds": [
+    "PB-008"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

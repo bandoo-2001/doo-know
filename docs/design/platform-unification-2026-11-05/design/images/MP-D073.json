@@ -1,0 +1,262 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D073",
+  "assetId": "MP-D073",
+  "sourceIds": [
+    "PB-003"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-003",
+      "title": "会话失效重新登录",
+      "role": "authenticated owner",
+      "state": "完整桌面紧凑真实窗口/浮层；只画实际组件，不重绘外部宿主",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "selectedState": "Source-derived nonclosable compact reauthentication over retained inert workspace, empty required fields and disabled login; three independent viewport crops only"
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-003",
+      "title": "会话失效重新登录 390px",
+      "role": "authenticated owner",
+      "state": "同一完整紧凑组件的390px布局，登记字段/现有动作/焦点和guard不变",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Source-derived nonclosable compact reauthentication over retained inert workspace, empty required fields and disabled login; three independent viewport crops only"
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-003",
+      "title": "会话失效重新登录 320px",
+      "role": "authenticated owner",
+      "state": "同一完整紧凑组件的320px布局，登记字段/现有动作/焦点和guard不变",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Source-derived nonclosable compact reauthentication over retained inert workspace, empty required fields and disabled login; three independent viewport crops only"
+    }
+  ],
+  "selectedState": "Source-derived nonclosable compact reauthentication over retained inert workspace, empty required fields and disabled login; three independent viewport crops only",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作一个UI DESIGN BOARD，外部A桌面1440宿主/B390px/C320px标注三个独立viewport示例，只画同一局部组件，绝不是同一产品页同时打开三窗。画布可扩大以完整展示三份组件，文字可读，B/C可内部滚动、关闭与主要动作可达；不画父页导航或设备外壳，不声称像素实测。三份只画现有App的不可关闭NModal内Login compact，不画保留的背景工作区。每份白卡内准确顺序：DooKnow书本品牌；标题“登录已失效”；说明“重新登录后可继续编辑，未保存内容仍保留。”；用户名label与空input“请输入用户名”；密码label与空password“请输入密码”及眼睛显隐icon；全宽灰色禁用“登录”；锁icon与“笔记默认私有，仅分享链接可公开访问”。无关闭X/关闭/取消按钮（源码closable=false、Escape/外部点击不能关闭），无你的个人知识空间外部story、无第一次使用折叠/注册/找回/社交/记住我或账户切换。移动两份保持两label、空字段、隐私说明完整换行和可达登录。没有错误/busy/成功状态。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。过期会话/背景禁交互仅metadata。",
+  "prompt": "制作一个UI DESIGN BOARD，外部A桌面1440宿主/B390px/C320px标注三个独立viewport示例，只画同一局部组件，绝不是同一产品页同时打开三窗。画布可扩大以完整展示三份组件，文字可读，B/C可内部滚动、关闭与主要动作可达；不画父页导航或设备外壳，不声称像素实测。三份只画现有App的不可关闭NModal内Login compact，不画保留的背景工作区。每份白卡内准确顺序：DooKnow书本品牌；标题“登录已失效”；说明“重新登录后可继续编辑，未保存内容仍保留。”；用户名label与空input“请输入用户名”；密码label与空password“请输入密码”及眼睛显隐icon；全宽灰色禁用“登录”；锁icon与“笔记默认私有，仅分享链接可公开访问”。无关闭X/关闭/取消按钮（源码closable=false、Escape/外部点击不能关闭），无你的个人知识空间外部story、无第一次使用折叠/注册/找回/社交/记住我或账户切换。移动两份保持两label、空字段、隐私说明完整换行和可达登录。没有错误/busy/成功状态。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。过期会话/背景禁交互仅metadata。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-login.png",
+      "role": "Actual parent context only; selected local window/component is source-derived, not a captured runtime overlay",
+      "sha256": "10a6aff98a81ca91fdda5199d65590adaaa6426fbf5e4555fef45caa3c3214d4",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; no owner shell transfer",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-login.png",
+      "role": "Actual parent context only; selected local window/component is source-derived, not a captured runtime overlay",
+      "sha256": "10a6aff98a81ca91fdda5199d65590adaaa6426fbf5e4555fef45caa3c3214d4",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; no owner shell transfer",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作一个UI DESIGN BOARD，外部A桌面1440宿主/B390px/C320px标注三个独立viewport示例，只画同一局部组件，绝不是同一产品页同时打开三窗。画布可扩大以完整展示三份组件，文字可读，B/C可内部滚动、关闭与主要动作可达；不画父页导航或设备外壳，不声称像素实测。三份只画现有App的不可关闭NModal内Login compact，不画保留的背景工作区。每份白卡内准确顺序：DooKnow书本品牌；标题“登录已失效”；说明“重新登录后可继续编辑，未保存内容仍保留。”；用户名label与空input“请输入用户名”；密码label与空password“请输入密码”及眼睛显隐icon；全宽灰色禁用“登录”；锁icon与“笔记默认私有，仅分享链接可公开访问”。无关闭X/关闭/取消按钮（源码closable=false、Escape/外部点击不能关闭），无你的个人知识空间外部story、无第一次使用折叠/注册/找回/社交/记住我或账户切换。移动两份保持两label、空字段、隐私说明完整换行和可达登录。没有错误/busy/成功状态。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。过期会话/背景禁交互仅metadata。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-login.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作一个UI DESIGN BOARD，外部A桌面1440宿主/B390px/C320px标注三个独立viewport示例，只画同一局部组件，绝不是同一产品页同时打开三窗。画布可扩大以完整展示三份组件，文字可读，B/C可内部滚动、关闭与主要动作可达；不画父页导航或设备外壳，不声称像素实测。三份只画现有App的不可关闭NModal内Login compact，不画保留的背景工作区。每份白卡内准确顺序：DooKnow书本品牌；标题“登录已失效”；说明“重新登录后可继续编辑，未保存内容仍保留。”；用户名label与空input“请输入用户名”；密码label与空password“请输入密码”及眼睛显隐icon；全宽灰色禁用“登录”；锁icon与“笔记默认私有，仅分享链接可公开访问”。无关闭X/关闭/取消按钮（源码closable=false、Escape/外部点击不能关闭），无你的个人知识空间外部story、无第一次使用折叠/注册/找回/社交/记住我或账户切换。移动两份保持两label、空字段、隐私说明完整换行和可达登录。没有错误/busy/成功状态。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。过期会话/背景禁交互仅metadata。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-login.png",
+          "role": "Actual parent context only; selected local window/component is source-derived, not a captured runtime overlay"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; no owner shell transfer"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ceb08b5f-ed2f-4a79-849a-c0db09a7e608.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-003",
+      "title": "会话失效重新登录",
+      "kind": "dialog",
+      "module": "auth",
+      "entry": {
+        "route": "Any mounted authenticated route",
+        "trigger": "dooknow-session-expired while logged in",
+        "parentId": "PB-001"
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:234",
+        "apps/web/App.vue:290",
+        "apps/web/App.vue:389",
+        "apps/web/components/Login.vue:40"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Modal is not mask-closable or Escape-closable; no close button."
+      ],
+      "fields": [
+        {
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "constraints": "current-password",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "登录",
+          "effect": "Reauthenticate; restore accepted identity",
+          "api": "POST /api/auth/sign-in/username",
+          "guard": "required fields"
+        }
+      ],
+      "importantStates": [
+        "compact login with retained workspace/draft",
+        "same owner keeps mounted editor; different owner remounts and clears plugin drafts",
+        "busy and sign-in error"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory."
+      },
+      "testRefs": [
+        "tests/e2e/sharing-permissions.spec.ts:71"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete dialog with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Public sharing uses separate capability access and does not require this modal."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-003",
+      "parentId": "PB-001",
+      "route": "Any mounted authenticated route",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/App.vue:234",
+        "apps/web/App.vue:290",
+        "apps/web/App.vue:389",
+        "apps/web/components/Login.vue:40"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-011.json#MP-D073",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D073",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ceb08b5f-ed2f-4a79-849a-c0db09a7e608.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D073.png",
+  "sha256": "32bf2f0e1123a0837df8a87669a1dc102c07de041c0f0d52c17b742c70283367",
+  "bytes": 1163560,
+  "dimensions": {
+    "width": 1774,
+    "height": 887
+  },
+  "generatedAtUtc": "2026-11-05T02:33:37.710603+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "会话失效重新登录",
+    "sourceIds": [
+      "PB-003"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Source-derived nonclosable compact reauthentication over retained inert workspace, empty required fields and disabled login; three independent viewport crops only",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

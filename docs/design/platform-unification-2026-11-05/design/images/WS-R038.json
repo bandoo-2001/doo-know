@@ -1,0 +1,778 @@
+{
+  "id": "WS-R038",
+  "title": "Graph relationship review modal",
+  "kind": "responsive-board",
+  "sourceIds": [
+    "WS-090"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-090",
+      "title": "Graph relationship review modal",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-090",
+      "title": "Graph relationship review modal",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:1148, apps/server/graph/semantic-routes.ts:164, packages/core/graph/analysis-source.ts:31, packages/core/graph/knowledge-state.ts:166, packages/core/graph/knowledge-service.ts:934"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-090",
+      "label": "确认 / 保存",
+      "effect": "Accept candidate or save predicate",
+      "api": "POST /api/graph/commands",
+      "guard": "!busy"
+    },
+    {
+      "sourceId": "WS-090",
+      "label": "忽略 / 恢复候选",
+      "effect": "Ignore or reset decision",
+      "api": "POST /api/graph/commands",
+      "guard": "Reset only shown for non-suggested list"
+    },
+    {
+      "sourceId": "WS-090",
+      "label": "原文证据",
+      "effect": "Open evidence note at startLine",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-090",
+      "label": "加载更多关系",
+      "effect": "Paginate review",
+      "api": "GET /api/graph/review",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R038",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "requiredFieldOrder": [
+        "审核状态",
+        "搜索审核关系",
+        "关系"
+      ],
+      "requiredFields": [
+        {
+          "name": "审核状态",
+          "type": "select",
+          "required": true,
+          "constraints": "suggested | accepted | ignored UI; server also accepts manual.",
+          "sensitive": false
+        },
+        {
+          "name": "搜索审核关系",
+          "type": "search",
+          "required": false,
+          "constraints": "Server q<=256 characters.",
+          "sensitive": false
+        },
+        {
+          "name": "关系",
+          "type": "text",
+          "required": false,
+          "constraints": "Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "确认 / 保存",
+          "effect": "Accept candidate or save predicate",
+          "api": "POST /api/graph/commands",
+          "guard": "!busy"
+        },
+        {
+          "label": "忽略 / 恢复候选",
+          "effect": "Ignore or reset decision",
+          "api": "POST /api/graph/commands",
+          "guard": "Reset only shown for non-suggested list"
+        },
+        {
+          "label": "原文证据",
+          "effect": "Open evidence note at startLine",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "加载更多关系",
+          "effect": "Paginate review",
+          "api": "GET /api/graph/review",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).",
+        "Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-090"
+    }
+  ],
+  "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R038 Graph relationship review modal\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-090\", \"title\": \"Graph relationship review modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\"}, {\"label\": \"B\", \"sourceId\": \"WS-090\", \"title\": \"Graph relationship review modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-090\", \"fieldsInOrder\": [{\"name\": \"审核状态\", \"type\": \"select\", \"required\": true, \"constraints\": \"suggested | accepted | ignored UI; server also accepts manual.\", \"sensitive\": false}, {\"name\": \"搜索审核关系\", \"type\": \"search\", \"required\": false, \"constraints\": \"Server q<=256 characters.\", \"sensitive\": false}, {\"name\": \"关系\", \"type\": \"text\", \"required\": false, \"constraints\": \"Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.\", \"sensitive\": false}], \"actions\": [{\"label\": \"确认 / 保存\", \"effect\": \"Accept candidate or save predicate\", \"api\": \"POST /api/graph/commands\", \"guard\": \"!busy\"}, {\"label\": \"忽略 / 恢复候选\", \"effect\": \"Ignore or reset decision\", \"api\": \"POST /api/graph/commands\", \"guard\": \"Reset only shown for non-suggested list\"}, {\"label\": \"原文证据\", \"effect\": \"Open evidence note at startLine\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"加载更多关系\", \"effect\": \"Paginate review\", \"api\": \"GET /api/graph/review\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading\", \"No relationships for filter\", \"Confidence+evidence per card\", \"State busy disables decision buttons\", \"More-results loading\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).\", \"Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-090\", \"fieldsInOrder\": [{\"name\": \"审核状态\", \"type\": \"select\", \"required\": true, \"constraints\": \"suggested | accepted | ignored UI; server also accepts manual.\", \"sensitive\": false}, {\"name\": \"搜索审核关系\", \"type\": \"search\", \"required\": false, \"constraints\": \"Server q<=256 characters.\", \"sensitive\": false}, {\"name\": \"关系\", \"type\": \"text\", \"required\": false, \"constraints\": \"Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.\", \"sensitive\": false}], \"actions\": [{\"label\": \"确认 / 保存\", \"effect\": \"Accept candidate or save predicate\", \"api\": \"POST /api/graph/commands\", \"guard\": \"!busy\"}, {\"label\": \"忽略 / 恢复候选\", \"effect\": \"Ignore or reset decision\", \"api\": \"POST /api/graph/commands\", \"guard\": \"Reset only shown for non-suggested list\"}, {\"label\": \"原文证据\", \"effect\": \"Open evidence note at startLine\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"加载更多关系\", \"effect\": \"Paginate review\", \"api\": \"GET /api/graph/review\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading\", \"No relationships for filter\", \"Confidence+evidence per card\", \"State busy disables decision buttons\", \"More-results loading\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).\", \"Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R038.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-090",
+      "title": "Graph relationship review modal",
+      "kind": "dialog",
+      "module": "graph",
+      "entry": {
+        "route": "/?view=apps&app=graph",
+        "trigger": "关系审核",
+        "parentId": "WS-085"
+      },
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:1148",
+        "apps/server/graph/semantic-routes.ts:164",
+        "packages/core/graph/analysis-source.ts:31",
+        "packages/core/graph/knowledge-state.ts:166",
+        "packages/core/graph/knowledge-service.ts:934"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).",
+        "Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target."
+      ],
+      "fields": [
+        {
+          "name": "审核状态",
+          "type": "select",
+          "required": true,
+          "constraints": "suggested | accepted | ignored UI; server also accepts manual.",
+          "sensitive": false
+        },
+        {
+          "name": "搜索审核关系",
+          "type": "search",
+          "required": false,
+          "constraints": "Server q<=256 characters.",
+          "sensitive": false
+        },
+        {
+          "name": "关系",
+          "type": "text",
+          "required": false,
+          "constraints": "Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "确认 / 保存",
+          "effect": "Accept candidate or save predicate",
+          "api": "POST /api/graph/commands",
+          "guard": "!busy"
+        },
+        {
+          "label": "忽略 / 恢复候选",
+          "effect": "Ignore or reset decision",
+          "api": "POST /api/graph/commands",
+          "guard": "Reset only shown for non-suggested list"
+        },
+        {
+          "label": "原文证据",
+          "effect": "Open evidence note at startLine",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "加载更多关系",
+          "effect": "Paginate review",
+          "api": "GET /api/graph/review",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Loading",
+        "No relationships for filter",
+        "Confidence+evidence per card",
+        "State busy disables decision buttons",
+        "More-results loading"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "testRefs": [
+        "tests/graph-semantic-api.test.ts",
+        "tests/e2e/knowledge-graph-full.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-090",
+      "parentId": "WS-085",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-090",
+  "stateCoverageRefs": [],
+  "statePatternRefs": [
+    {
+      "sourceId": "WS-090",
+      "assetId": "WS-D066",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-R038",
+  "originalManifest": {
+    "id": "WS-R038",
+    "title": "Graph relationship review modal",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-090"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-090",
+        "title": "Graph relationship review modal",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards."
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-090",
+        "title": "Graph relationship review modal",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards."
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "apps/web/components/GraphWorkspace.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:1148, apps/server/graph/semantic-routes.ts:164, packages/core/graph/analysis-source.ts:31, packages/core/graph/knowledge-state.ts:166, packages/core/graph/knowledge-service.ts:934"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-090",
+        "label": "确认 / 保存",
+        "effect": "Accept candidate or save predicate",
+        "api": "POST /api/graph/commands",
+        "guard": "!busy"
+      },
+      {
+        "sourceId": "WS-090",
+        "label": "忽略 / 恢复候选",
+        "effect": "Ignore or reset decision",
+        "api": "POST /api/graph/commands",
+        "guard": "Reset only shown for non-suggested list"
+      },
+      {
+        "sourceId": "WS-090",
+        "label": "原文证据",
+        "effect": "Open evidence note at startLine",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-090",
+        "label": "加载更多关系",
+        "effect": "Paginate review",
+        "api": "GET /api/graph/review",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-R038",
+        "representation": "direct",
+        "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+        },
+        "requiredFieldOrder": [
+          "审核状态",
+          "搜索审核关系",
+          "关系"
+        ],
+        "requiredFields": [
+          {
+            "name": "审核状态",
+            "type": "select",
+            "required": true,
+            "constraints": "suggested | accepted | ignored UI; server also accepts manual.",
+            "sensitive": false
+          },
+          {
+            "name": "搜索审核关系",
+            "type": "search",
+            "required": false,
+            "constraints": "Server q<=256 characters.",
+            "sensitive": false
+          },
+          {
+            "name": "关系",
+            "type": "text",
+            "required": false,
+            "constraints": "Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "确认 / 保存",
+            "effect": "Accept candidate or save predicate",
+            "api": "POST /api/graph/commands",
+            "guard": "!busy"
+          },
+          {
+            "label": "忽略 / 恢复候选",
+            "effect": "Ignore or reset decision",
+            "api": "POST /api/graph/commands",
+            "guard": "Reset only shown for non-suggested list"
+          },
+          {
+            "label": "原文证据",
+            "effect": "Open evidence note at startLine",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "加载更多关系",
+            "effect": "Paginate review",
+            "api": "GET /api/graph/review",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).",
+          "Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target."
+        ],
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-090"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R038 Graph relationship review modal\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-090\", \"title\": \"Graph relationship review modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\"}, {\"label\": \"B\", \"sourceId\": \"WS-090\", \"title\": \"Graph relationship review modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-090\", \"fieldsInOrder\": [{\"name\": \"审核状态\", \"type\": \"select\", \"required\": true, \"constraints\": \"suggested | accepted | ignored UI; server also accepts manual.\", \"sensitive\": false}, {\"name\": \"搜索审核关系\", \"type\": \"search\", \"required\": false, \"constraints\": \"Server q<=256 characters.\", \"sensitive\": false}, {\"name\": \"关系\", \"type\": \"text\", \"required\": false, \"constraints\": \"Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.\", \"sensitive\": false}], \"actions\": [{\"label\": \"确认 / 保存\", \"effect\": \"Accept candidate or save predicate\", \"api\": \"POST /api/graph/commands\", \"guard\": \"!busy\"}, {\"label\": \"忽略 / 恢复候选\", \"effect\": \"Ignore or reset decision\", \"api\": \"POST /api/graph/commands\", \"guard\": \"Reset only shown for non-suggested list\"}, {\"label\": \"原文证据\", \"effect\": \"Open evidence note at startLine\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"加载更多关系\", \"effect\": \"Paginate review\", \"api\": \"GET /api/graph/review\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading\", \"No relationships for filter\", \"Confidence+evidence per card\", \"State busy disables decision buttons\", \"More-results loading\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).\", \"Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-090\", \"fieldsInOrder\": [{\"name\": \"审核状态\", \"type\": \"select\", \"required\": true, \"constraints\": \"suggested | accepted | ignored UI; server also accepts manual.\", \"sensitive\": false}, {\"name\": \"搜索审核关系\", \"type\": \"search\", \"required\": false, \"constraints\": \"Server q<=256 characters.\", \"sensitive\": false}, {\"name\": \"关系\", \"type\": \"text\", \"required\": false, \"constraints\": \"Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.\", \"sensitive\": false}], \"actions\": [{\"label\": \"确认 / 保存\", \"effect\": \"Accept candidate or save predicate\", \"api\": \"POST /api/graph/commands\", \"guard\": \"!busy\"}, {\"label\": \"忽略 / 恢复候选\", \"effect\": \"Ignore or reset decision\", \"api\": \"POST /api/graph/commands\", \"guard\": \"Reset only shown for non-suggested list\"}, {\"label\": \"原文证据\", \"effect\": \"Open evidence note at startLine\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"加载更多关系\", \"effect\": \"Paginate review\", \"api\": \"GET /api/graph/review\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading\", \"No relationships for filter\", \"Confidence+evidence per card\", \"State busy disables decision buttons\", \"More-results loading\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).\", \"Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R038.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-090",
+        "title": "Graph relationship review modal",
+        "kind": "dialog",
+        "module": "graph",
+        "entry": {
+          "route": "/?view=apps&app=graph",
+          "trigger": "关系审核",
+          "parentId": "WS-085"
+        },
+        "sourceRefs": [
+          "apps/web/components/GraphWorkspace.vue:1148",
+          "apps/server/graph/semantic-routes.ts:164",
+          "packages/core/graph/analysis-source.ts:31",
+          "packages/core/graph/knowledge-state.ts:166",
+          "packages/core/graph/knowledge-service.ts:934"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).",
+          "Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target."
+        ],
+        "fields": [
+          {
+            "name": "审核状态",
+            "type": "select",
+            "required": true,
+            "constraints": "suggested | accepted | ignored UI; server also accepts manual.",
+            "sensitive": false
+          },
+          {
+            "name": "搜索审核关系",
+            "type": "search",
+            "required": false,
+            "constraints": "Server q<=256 characters.",
+            "sensitive": false
+          },
+          {
+            "name": "关系",
+            "type": "text",
+            "required": false,
+            "constraints": "Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "确认 / 保存",
+            "effect": "Accept candidate or save predicate",
+            "api": "POST /api/graph/commands",
+            "guard": "!busy"
+          },
+          {
+            "label": "忽略 / 恢复候选",
+            "effect": "Ignore or reset decision",
+            "api": "POST /api/graph/commands",
+            "guard": "Reset only shown for non-suggested list"
+          },
+          {
+            "label": "原文证据",
+            "effect": "Open evidence note at startLine",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "加载更多关系",
+            "effect": "Paginate review",
+            "api": "GET /api/graph/review",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Loading",
+          "No relationships for filter",
+          "Confidence+evidence per card",
+          "State busy disables decision buttons",
+          "More-results loading"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+        },
+        "testRefs": [
+          "tests/graph-semantic-api.test.ts",
+          "tests/e2e/knowledge-graph-full.spec.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-090",
+        "parentId": "WS-085",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-090",
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "WS-090",
+        "assetId": "WS-D066",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作中文“关系审核”手机弹窗两独立窄列视口A/B，A390/B320比例，正常可读字号，白底细边线小圆角，中性背景，不画手机壳/系统栏/宿主导航。标题“关系审核”、描述“核对原文证据，再确认、修改或忽略模型建议。”、可达关闭X。两屏均是已确认筛选的相同真实表单，正文内部滚动，正常排版不缩小。顶部审核状态下拉“已确认”，下方搜索输入placeholder“搜索实体或关系”，搜索图标。下面一张已有关系卡：卡标题“记录 → 方法”，小标签“置信分 80%”；label“关系”，输入值“关联”；引用blockquote“记录为整理方法提供线索。”；蓝色来源链接“示例笔记 · L3”。卡内底部依次蓝色“确认 / 保存”、次按钮“忽略”、文字按钮“恢复候选”，窄屏自然换行；这是已确认状态，因此保留恢复候选。卡下独立按钮“加载更多关系”，当前非busy且有下一页。若B空间不足，B可展示同一弹窗正文下半部滚动位置，保留卡的输入尾部/证据/来源/三个动作及分页，不删动作或缩字。没有成功通知、协议版本输入、删除关系、批量批准、创建关系或独立“证据/真实来源”编辑字段。",
+  "actualToolArguments": {
+    "prompt": "制作中文“关系审核”手机弹窗两独立窄列视口A/B，A390/B320比例，正常可读字号，白底细边线小圆角，中性背景，不画手机壳/系统栏/宿主导航。标题“关系审核”、描述“核对原文证据，再确认、修改或忽略模型建议。”、可达关闭X。两屏均是已确认筛选的相同真实表单，正文内部滚动，正常排版不缩小。顶部审核状态下拉“已确认”，下方搜索输入placeholder“搜索实体或关系”，搜索图标。下面一张已有关系卡：卡标题“记录 → 方法”，小标签“置信分 80%”；label“关系”，输入值“关联”；引用blockquote“记录为整理方法提供线索。”；蓝色来源链接“示例笔记 · L3”。卡内底部依次蓝色“确认 / 保存”、次按钮“忽略”、文字按钮“恢复候选”，窄屏自然换行；这是已确认状态，因此保留恢复候选。卡下独立按钮“加载更多关系”，当前非busy且有下一页。若B空间不足，B可展示同一弹窗正文下半部滚动位置，保留卡的输入尾部/证据/来源/三个动作及分页，不删动作或缩字。没有成功通知、协议版本输入、删除关系、批量批准、创建关系或独立“证据/真实来源”编辑字段。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D066.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D066.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D066.png",
+      "order": 1,
+      "role": "existing review relationship/evidence content only; exact source accepted actions specified",
+      "sha256": "fa452fbdf5d94c321ff2ee856cefd188fc121c9e3899767bec1aa3f07fec83c6",
+      "bytes": 1081765,
+      "dimensions": {
+        "width": 1129,
+        "height": 1393
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "sha256": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/server/graph/semantic-routes.ts",
+      "sha256": "0f4d81250bee2aa5d27fdfd65bb5209f52525fdec1275f8ac680e17f7ea8f12a",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "packages/core/graph/analysis-source.ts",
+      "sha256": "c87083ae267c60d4d876a82ca93d7f51d87cb6156f7f325c778fe3e77362eca1",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "packages/core/graph/knowledge-state.ts",
+      "sha256": "24c5340305cd0a988e08a86ae8e2366078b6453ea336ae6f2c3c80b30ceb1001",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "packages/core/graph/knowledge-service.ts",
+      "sha256": "f1ff93c9dc7a502d3f3e61c9f4d2d4166f93f5d391b608440c1f3589782a0dfc",
+      "role": "actual source template/behavior authority; read before generation"
+    }
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "fallbackUsed": false,
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "url": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "verifiedModel": "gpt-image-2",
+      "scope": "Codex built-in image generation",
+      "date": "2026-11-05",
+      "apiReference": "https://developers.openai.com/api/reference/resources/images/methods/generate",
+      "apiModelSupported": true,
+      "apiReferenceDoesNotProveBuiltinRouteAlone": true
+    }
+  },
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-32387658-8ce6-4b70-bd2d-947583d17b7c.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-32387658-8ce6-4b70-bd2d-947583d17b7c.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generatedAtUtc": "2026-11-05T09:10:11.107Z",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R038.png",
+  "generationCalls": [
+    {
+      "status": "completed-with-tool-receipt",
+      "actualToolArguments": {
+        "prompt": "制作中文“关系审核”手机弹窗两独立窄列视口A/B，A390/B320比例，正常可读字号，白底细边线小圆角，中性背景，不画手机壳/系统栏/宿主导航。标题“关系审核”、描述“核对原文证据，再确认、修改或忽略模型建议。”、可达关闭X。两屏均是已确认筛选的相同真实表单，正文内部滚动，正常排版不缩小。顶部审核状态下拉“已确认”，下方搜索输入placeholder“搜索实体或关系”，搜索图标。下面一张已有关系卡：卡标题“记录 → 方法”，小标签“置信分 80%”；label“关系”，输入值“关联”；引用blockquote“记录为整理方法提供线索。”；蓝色来源链接“示例笔记 · L3”。卡内底部依次蓝色“确认 / 保存”、次按钮“忽略”、文字按钮“恢复候选”，窄屏自然换行；这是已确认状态，因此保留恢复候选。卡下独立按钮“加载更多关系”，当前非busy且有下一页。若B空间不足，B可展示同一弹窗正文下半部滚动位置，保留卡的输入尾部/证据/来源/三个动作及分页，不删动作或缩字。没有成功通知、协议版本输入、删除关系、批量批准、创建关系或独立“证据/真实来源”编辑字段。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D066.png",
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-32387658-8ce6-4b70-bd2d-947583d17b7c.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    }
+  ],
+  "generationCallCount": 1,
+  "selfInspection": {
+    "status": "pending-independent-review",
+    "method": "Native original PNG inspected versus actual template, scroll/role/field/action contract",
+    "concerns": [
+      "Source action order is confirm/save, ignore, reset; raster right-aligns confirm then ignore/reset left. Same controls retained; source implementation order remains authoritative."
+    ]
+  },
+  "sha256": "c04e7c83912a0d090c1e9eab78b0541a29139c0b897a413b89bb014362db63d7",
+  "bytes": 1482852,
+  "dimensions": {
+    "width": 1407,
+    "height": 1118
+  },
+  "selectedState": [
+    "390 accepted status source-derived fixture; hasMore; idle",
+    "320 same review renderer/card; lower scroll permitted"
+  ],
+  "sourceStateRationale": "Accepted filter deliberately reveals existing reset candidate action, distinct from suggested-only mother. Fixture uses existing approved synthetic evidence, no live model result asserted.",
+  "runtimeResponsiveVerified": false,
+  "responsiveTargetCssWidths": [
+    390,
+    320
+  ],
+  "currentGenerationReceipt": {
+    "toolResultReceiptObserved": true,
+    "receiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-7.json",
+    "actualToolArguments": {
+      "prompt": "制作中文“关系审核”手机弹窗两独立窄列视口A/B，A390/B320比例，正常可读字号，白底细边线小圆角，中性背景，不画手机壳/系统栏/宿主导航。标题“关系审核”、描述“核对原文证据，再确认、修改或忽略模型建议。”、可达关闭X。两屏均是已确认筛选的相同真实表单，正文内部滚动，正常排版不缩小。顶部审核状态下拉“已确认”，下方搜索输入placeholder“搜索实体或关系”，搜索图标。下面一张已有关系卡：卡标题“记录 → 方法”，小标签“置信分 80%”；label“关系”，输入值“关联”；引用blockquote“记录为整理方法提供线索。”；蓝色来源链接“示例笔记 · L3”。卡内底部依次蓝色“确认 / 保存”、次按钮“忽略”、文字按钮“恢复候选”，窄屏自然换行；这是已确认状态，因此保留恢复候选。卡下独立按钮“加载更多关系”，当前非busy且有下一页。若B空间不足，B可展示同一弹窗正文下半部滚动位置，保留卡的输入尾部/证据/来源/三个动作及分页，不删动作或缩字。没有成功通知、协议版本输入、删除关系、批量批准、创建关系或独立“证据/真实来源”编辑字段。",
+      "referenced_image_paths": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D066.png",
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "transparent_background": false
+    },
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-32387658-8ce6-4b70-bd2d-947583d17b7c.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-32387658-8ce6-4b70-bd2d-947583d17b7c.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "completionObservedAtUtc": "2026-11-05T09:10:11.107Z",
+    "exactToolServerCompletionTimestampExposed": false
+  },
+  "generatedAtUtcBasis": "Local observation after awaited callback; tool does not expose exact server completion timestamp.",
+  "sourceImageSha256": "c04e7c83912a0d090c1e9eab78b0541a29139c0b897a413b89bb014362db63d7",
+  "metadataAmendments": [
+    {
+      "atUtc": "2026-11-05T09:18:09.836367+00:00",
+      "reason": "Attach observed current receipt, source byte verification and full prior revision chain without changing PNG or rewriting historical no-receipt status."
+    }
+  ]
+}

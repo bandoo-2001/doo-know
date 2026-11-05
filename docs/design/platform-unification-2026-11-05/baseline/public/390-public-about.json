@@ -1,0 +1,15 @@
+{
+  "id": "public-about",
+  "title": "公开关于页",
+  "width": 390,
+  "audience": "public",
+  "route": "/blog/about",
+  "file": "390-public-about.png",
+  "sha256": "4506b89ada73565eb1f8a9d45bb49f860ada0f7b32bd381cd784446f1692e874",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "pageErrors": [],
+  "outerOverflow": 0
+}

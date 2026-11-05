@@ -1,0 +1,170 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D023",
+  "sourceIds": [
+    "WS-027"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-027",
+      "title": "Saved/draft reading preview mode",
+      "role": "authenticated owner",
+      "state": "Actual legacy reading preview baseline, 预览 active, formatting disabled, saved note, outline docked",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host."
+    }
+  ],
+  "selectedBaselineState": "Actual legacy reading preview baseline, 预览 active, formatting disabled, saved note, outline docked",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "Use case: ui-mockup. Full desktop DooKnow owner page, about 1440x1000. Image 1 is the actual content/controls/state/geometry authority. Image 2 supplies only flat palette, compact density and unified DooKnow header/rail hierarchy. Add the horizontal header DooKnow book identity | 笔记 above the note region, without adding actions. Narrow owner rail: O account, 笔记 selected, 最近, 收藏, 应用, bottom 回收站 and 设置. Keep notebook context sidebar exactly: 搜索笔记与目录, 新建 split button, 笔记本 plus/refresh, collapsed 00-Inbox and 30-Knowledge; preserve resize divider. No invented navigation. Preserve the note header: sidebar-collapse/back/forward, breadcrumb 笔记本 › 00-Inbox › 界面盘点样例-72ab64c8; 已保存, disabled undo/redo, favorite star, 分享, disabled 保存 Ctrl+S, … . No fake unsaved/auto-save/shared status. Preserve the baseline compact formatting controls in order: 标题 1 selector, B/I/strike, inline code, clear format, color, three alignments, quote, bullet/numbered/task lists, indent/outdent, link, code block, table, rule, image upload, whiteboard. Keep source conditional/disabled appearance and any overflow behavior; do not replace them with unrelated controls.\nOne saved READING PREVIEW state. Preserve baseline tabs 编辑 / 预览 / 分屏 with 预览 active, and 章节目录 control. Every formatting/edit control remains visible but disabled/pale as in Image 1; do not remove the toolbar. Main body is one rendered preview, no source text or editable Markdown markers: H1 知识与行动; paragraph 用于平台界面盘点的隔离示例，不含用户资料。; H2 整理方法; bullets 收集想法 and 按主题整理; blockquote 保留清晰的下一步。 with pale left rule. Right dock 目录 with 知识与行动 selected, nested 整理方法. Keep full owner navigation, favorite/share/more controls and saved disabled-save status; no public guest restrictions, no editor character footer from source mode, no fake shared warning or new actions. Use compact flat white/main and pale #f7f8fa sidebar, thin #e6e9f1 dividers, #272b3a text, muted #657084, #4566c6 blue, #edf1ff selected, crisp Chinese sans-serif and small line icons. No gradient/texture or browser chrome. Caption is metadata.",
+  "prompt": "Use case: ui-mockup. Full desktop DooKnow owner page, about 1440x1000. Image 1 is the actual content/controls/state/geometry authority. Image 2 supplies only flat palette, compact density and unified DooKnow header/rail hierarchy. Add the horizontal header DooKnow book identity | 笔记 above the note region, without adding actions. Narrow owner rail: O account, 笔记 selected, 最近, 收藏, 应用, bottom 回收站 and 设置. Keep notebook context sidebar exactly: 搜索笔记与目录, 新建 split button, 笔记本 plus/refresh, collapsed 00-Inbox and 30-Knowledge; preserve resize divider. No invented navigation. Preserve the note header: sidebar-collapse/back/forward, breadcrumb 笔记本 › 00-Inbox › 界面盘点样例-72ab64c8; 已保存, disabled undo/redo, favorite star, 分享, disabled 保存 Ctrl+S, … . No fake unsaved/auto-save/shared status. Preserve the baseline compact formatting controls in order: 标题 1 selector, B/I/strike, inline code, clear format, color, three alignments, quote, bullet/numbered/task lists, indent/outdent, link, code block, table, rule, image upload, whiteboard. Keep source conditional/disabled appearance and any overflow behavior; do not replace them with unrelated controls.\nOne saved READING PREVIEW state. Preserve baseline tabs 编辑 / 预览 / 分屏 with 预览 active, and 章节目录 control. Every formatting/edit control remains visible but disabled/pale as in Image 1; do not remove the toolbar. Main body is one rendered preview, no source text or editable Markdown markers: H1 知识与行动; paragraph 用于平台界面盘点的隔离示例，不含用户资料。; H2 整理方法; bullets 收集想法 and 按主题整理; blockquote 保留清晰的下一步。 with pale left rule. Right dock 目录 with 知识与行动 selected, nested 整理方法. Keep full owner navigation, favorite/share/more controls and saved disabled-save status; no public guest restrictions, no editor character footer from source mode, no fake shared warning or new actions. Use compact flat white/main and pale #f7f8fa sidebar, thin #e6e9f1 dividers, #272b3a text, muted #657084, #4566c6 blue, #edf1ff selected, crisp Chinese sans-serif and small line icons. No gradient/texture or browser chrome. Caption is metadata.",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-note-read.png",
+      "role": "Actual owner read-preview baseline, document flag disabled, formatting controls disabled",
+      "sha256": "fffcacad3598a52e5518b18759482aa985531a8a5dc85a989418461458be5f22",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Unified DooKnow palette/density/header/rail hierarchy only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-note-read.png",
+      "role": "Actual owner read-preview baseline, document flag disabled, formatting controls disabled",
+      "sha256": "fffcacad3598a52e5518b18759482aa985531a8a5dc85a989418461458be5f22",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Unified DooKnow palette/density/header/rail hierarchy only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "sourceReferences": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3187, apps/web/components/Workspace.vue:3322"
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/generation-batch-02.json#WS-D023",
+  "generationCallCount": 1,
+  "generationAttempts": [
+    {
+      "submittedPrompt": "Use case: ui-mockup. Full desktop DooKnow owner page, about 1440x1000. Image 1 is the actual content/controls/state/geometry authority. Image 2 supplies only flat palette, compact density and unified DooKnow header/rail hierarchy. Add the horizontal header DooKnow book identity | 笔记 above the note region, without adding actions. Narrow owner rail: O account, 笔记 selected, 最近, 收藏, 应用, bottom 回收站 and 设置. Keep notebook context sidebar exactly: 搜索笔记与目录, 新建 split button, 笔记本 plus/refresh, collapsed 00-Inbox and 30-Knowledge; preserve resize divider. No invented navigation. Preserve the note header: sidebar-collapse/back/forward, breadcrumb 笔记本 › 00-Inbox › 界面盘点样例-72ab64c8; 已保存, disabled undo/redo, favorite star, 分享, disabled 保存 Ctrl+S, … . No fake unsaved/auto-save/shared status. Preserve the baseline compact formatting controls in order: 标题 1 selector, B/I/strike, inline code, clear format, color, three alignments, quote, bullet/numbered/task lists, indent/outdent, link, code block, table, rule, image upload, whiteboard. Keep source conditional/disabled appearance and any overflow behavior; do not replace them with unrelated controls.\nOne saved READING PREVIEW state. Preserve baseline tabs 编辑 / 预览 / 分屏 with 预览 active, and 章节目录 control. Every formatting/edit control remains visible but disabled/pale as in Image 1; do not remove the toolbar. Main body is one rendered preview, no source text or editable Markdown markers: H1 知识与行动; paragraph 用于平台界面盘点的隔离示例，不含用户资料。; H2 整理方法; bullets 收集想法 and 按主题整理; blockquote 保留清晰的下一步。 with pale left rule. Right dock 目录 with 知识与行动 selected, nested 整理方法. Keep full owner navigation, favorite/share/more controls and saved disabled-save status; no public guest restrictions, no editor character footer from source mode, no fake shared warning or new actions. Use compact flat white/main and pale #f7f8fa sidebar, thin #e6e9f1 dividers, #272b3a text, muted #657084, #4566c6 blue, #edf1ff selected, crisp Chinese sans-serif and small line icons. No gradient/texture or browser chrome. Caption is metadata.",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-note-read.png",
+          "role": "Actual owner read-preview baseline, document flag disabled, formatting controls disabled"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Unified DooKnow palette/density/header/rail hierarchy only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-a9ca382c-27c8-4ff3-8cfd-fc0c37b52b8a.png"
+    }
+  ],
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D023.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-a9ca382c-27c8-4ff3-8cfd-fc0c37b52b8a.png",
+  "sha256": "ddba258fa4644ba822860dcffaad086aa26481a68b0976090a8c7d0a713db75b",
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "bytes": 1106762,
+  "generatedAtUtc": "2026-11-05T01:15:43.705109+00:00",
+  "postprocessing": "None. Original PNG copied byte-for-byte from built-in image tool; no pixel editing.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "sourceIds": [
+      "WS-027"
+    ],
+    "title": "Saved/draft reading preview mode",
+    "role": "authenticated owner",
+    "state": "Actual legacy reading preview baseline, 预览 active, formatting disabled, saved note, outline docked",
+    "location": "metadata, outside product UI"
+  },
+  "scope": {
+    "presentation": "full-desktop",
+    "hostSourceIds": [
+      "WS-027"
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "baselineConfiguration": {
+    "documentEditorFlag": "legacy-tabs-observed",
+    "deploymentFlagVerified": false
+  },
+  "sourceStateAndActionContracts": {
+    "functionalInvariants": [
+      "Every input constraint, action guard and important-state contract below is required. This plan is not a claim that incompatible states coexist or that source-only states ran.",
+      "Owner navigation may use the existing ToDoo two-level hierarchy; public guest and standalone reading may not contain private chrome.",
+      "STATE WS-027: Formatting disabled in preview",
+      "STATE WS-027: Safe rendered Markdown and diagrams",
+      "STATE WS-027: Shared note status remains",
+      "POLICY Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+      "UI structure rather than backend state count determines bitmap jobs. StateCoverage names exact component/bindings/guards and compact matrix rows; shared-pattern is not a claim that incompatible alternatives were visually proven together."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-027",
+        "label": "文档编辑 / Markdown 源码",
+        "effect": "Return to edit view",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-027",
+        "label": "链接 / 大纲 / 图形",
+        "effect": "Navigate previews and headings",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      }
+    ],
+    "otherVariantsDrawn": false
+  },
+  "selfInspection": {
+    "method": "Actual native generated preview viewed against the actual matching baseline, source and viewed PILOT-WS-001.",
+    "concerns": [
+      "Bitmap cannot verify owner enforcement, source action execution, busy guards, keyboard/focus, resize or responsive fit.",
+      "Light raster texture and approximate dimensions remain illustrative; eventual code must use flat shared CSS tokens.",
+      "Dense toolbar icons are illustrative; source order, overflow, disabled and conditional behavior remain implementation/review requirements."
+    ],
+    "independentReviewStatus": "pending"
+  }
+}

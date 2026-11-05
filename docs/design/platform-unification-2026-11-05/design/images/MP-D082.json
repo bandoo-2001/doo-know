@@ -1,0 +1,257 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D082",
+  "assetId": "MP-D082",
+  "sourceIds": [
+    "PB-012"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-012",
+      "title": "首次设置：选择可选功能",
+      "role": "authenticated owner",
+      "state": "Source-derived ready/onboarding step2; catalog available, MCP/Git not installed, no expanded config or task/error"
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "Source-derived ready/onboarding step2; catalog available, MCP/Git not installed, no expanded config or task/error",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-runtime-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "只对这张DooKnow第2步首次设置图修正标题层级：将“按自己的需要选择”改为小号次级eyebrow，其下用独立最大主标题“选择需要的功能”。再下一行完整副文“知识库已经可以使用。这些功能都可以跳过，以后在设置中添加。”，不要将主标题混入副文。保持所有其余内容/按钮/状态/三卡/描述/步骤/位置/页脚完全不动，不新增导航/设置/弹窗。",
+  "prompt": "只对这张DooKnow第2步首次设置图修正标题层级：将“按自己的需要选择”改为小号次级eyebrow，其下用独立最大主标题“选择需要的功能”。再下一行完整副文“知识库已经可以使用。这些功能都可以跳过，以后在设置中添加。”，不要将主标题混入副文。保持所有其余内容/按钮/状态/三卡/描述/步骤/位置/页脚完全不动，不新增导航/设置/弹窗。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Palette/density and DooKnow book identity only; no owner shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-4bc2583a-3ed3-4f4d-b5e1-2b2dfc0a3dd9.png",
+      "role": "Edit target: preserve all existing source-derived setup controls/content except exact label/title correction",
+      "sha256": "fc42fca2771ccabfc3d0c973ed69f3d505099cdcffd99311ea75354ab8da34df",
+      "dimensions": {
+        "width": 1374,
+        "height": 1145
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Palette/density and DooKnow book identity only; no owner shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-4bc2583a-3ed3-4f4d-b5e1-2b2dfc0a3dd9.png",
+      "role": "Edit target: preserve all existing source-derived setup controls/content except exact label/title correction",
+      "sha256": "fc42fca2771ccabfc3d0c973ed69f3d505099cdcffd99311ea75354ab8da34df",
+      "dimensions": {
+        "width": 1374,
+        "height": 1145
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "只对这张DooKnow第2步首次设置图修正标题层级：将“按自己的需要选择”改为小号次级eyebrow，其下用独立最大主标题“选择需要的功能”。再下一行完整副文“知识库已经可以使用。这些功能都可以跳过，以后在设置中添加。”，不要将主标题混入副文。保持所有其余内容/按钮/状态/三卡/描述/步骤/位置/页脚完全不动，不新增导航/设置/弹窗。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-4bc2583a-3ed3-4f4d-b5e1-2b2dfc0a3dd9.png"
+    ],
+    "transparent_background": false
+  },
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-004.json#MP-D082",
+  "sourceReferences": [
+    {
+      "sourceId": "PB-012",
+      "parentId": "PB-008",
+      "route": "/ (phase ready; onboarding required; step2)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:402",
+        "apps/web/components/SetupFeatures.vue:26",
+        "apps/web/components/SetupFeatures.vue:101",
+        "apps/web/components/SetupFeatures.vue:148"
+      ]
+    }
+  ],
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D082",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "generationCallCount": 2,
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-1a9fd7ac-c6e2-4c36-b078-8ba59bc1b729.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D082.png",
+  "sha256": "9785f56bcf87cd75c2936b77acc252e122dce12da0276ce5d63b1ba7ed6efd9b",
+  "dimensions": {
+    "width": 1374,
+    "height": 1145
+  },
+  "bytes": 1639820,
+  "generatedAtUtc": "2026-11-05T01:34:35.775615+00:00",
+  "postprocessing": "Original built-in tool PNG copied byte-for-byte; no pixel editing.",
+  "revisionOf": {
+    "kind": "generation-attempt",
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-4bc2583a-3ed3-4f4d-b5e1-2b2dfc0a3dd9.png",
+    "sha256": "fc42fca2771ccabfc3d0c973ed69f3d505099cdcffd99311ea75354ab8da34df"
+  },
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "首次设置：选择可选功能",
+    "sourceIds": [
+      "PB-012"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Source-derived ready/onboarding step2; catalog available, MCP/Git not installed, no expanded config or task/error",
+    "location": "metadata, outside product UI"
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-012",
+      "parentId": "PB-008",
+      "route": "/ (phase ready; onboarding required; step2)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:402",
+        "apps/web/components/SetupFeatures.vue:26",
+        "apps/web/components/SetupFeatures.vue:101",
+        "apps/web/components/SetupFeatures.vue:148"
+      ]
+    }
+  ],
+  "sourceStateAndActionContracts": {
+    "functionalInvariants": [
+      {
+        "sourceId": "PB-012",
+        "route": "/ (phase ready; onboarding required; step2)",
+        "trigger": "Library binding reaches ready",
+        "parentId": "PB-008",
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+        ],
+        "fields": [],
+        "importantStates": [
+          "not added; added but needs configuration; enabled",
+          "installation pending/succeeded/result needs reconciliation",
+          "catalog unavailable; read/install error with skip guidance",
+          "expanded MCP/Git configuration; expanded content-search setup"
+        ],
+        "notes": [
+          "PluginManager/MCP/Git/SearchRuntimeSettings interiors belong to settings/plugin inventory; this record owns onboarding cards and expanded-entry composition."
+        ]
+      },
+      {
+        "type": "composition",
+        "details": [
+          "首启可选功能完整页：连接设置、版本记录、内容搜索卡片，添加/查看/配置/暂时跳过/继续；没有强制开户或购买。"
+        ]
+      },
+      {
+        "type": "role-shell",
+        "rule": "已验证主人会话的首启壳，仅首启步骤与允许入口，无主人私有文件树。PB-016可达性待核，不增浏览器主人创建。"
+      }
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "PB-012",
+        "label": "添加连接设置 / 添加版本记录 / 查看",
+        "effect": "Install plugin if needed and open shared configuration",
+        "api": "/api/platform/plugin-installations; shared plugin APIs",
+        "guard": "not busy"
+      },
+      {
+        "sourceId": "PB-012",
+        "label": "设置内容搜索",
+        "effect": "Expand SearchRuntimeSettings onboarding",
+        "api": "",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-012",
+        "label": "暂时跳过 / 继续",
+        "effect": "Advance to step3",
+        "api": "",
+        "guard": ""
+      }
+    ],
+    "responsiveContract": [
+      {
+        "sourceId": "PB-012",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified.",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      }
+    ],
+    "otherVariantsDrawn": false
+  },
+  "selfInspection": {
+    "method": "Native generated PNG actually viewed in generation child context against all submitted image inputs and actual component templates.",
+    "concerns": [
+      "Static raster does not establish source/API execution, role enforcement, conditional guards, keyboard/focus, responsive fit or actual action outcomes.",
+      "Light raster shading/texture and approximate proportions are illustrative CSS guidance, not exact measured compliance.",
+      "SOURCE-DERIVED: no actual runtime screenshot for this selected setup surface; source template/state and synthetic /srv/example placeholders only. No runtime/reachability acceptance implied.",
+      "Synthetic catalog-available and plugins-uninstalled state, not a runtime claim. Plugin/search interiors remain collapsed and separate mapped surfaces."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作独立DooKnow首次设置第2步完整页，约1440×1200可延长。完整独立DooKnow首次设置页面，1440px左右桌面画布，中央约840px宽纵向页面，淡灰外背景、白卡。只参考输入图的平面配色和密度，完全不复制它的主人rail、目录树、顶部工作区导航或空笔记内容。此处只有页首书本DooKnow，右侧欢迎使用；卡内三步进度为准备知识库/选择功能/开始使用，卡外底部你的资料，由你掌握。只画声明的一种源码状态，无浏览器账号创建、注册、找回密码、社交登录、私人目录树或新增按钮。三步进度第1步已完成，第2步选择功能激活，第3步未完成。卡内按自己的需要选择；选择需要的功能；知识库已经可以使用。这些功能都可以跳过，以后在设置中添加。以下3张紧凑纵排功能卡：1 让 ChatGPT 使用你的资料，说明连接后，可在你授权的范围内查找和阅读资料。，状态可选 · 随时添加，细节需要完成ChatGPT连接设置。只有你同意后，它才能访问资料。，按钮添加连接设置，折叠了解更多。2 记录文件版本，说明查看修改记录，在需要时恢复以前的内容。，状态可选 · 随时添加，细节版本记录保存在本机，不能代替独立备份。添加后可设置署名，也可关联GitHub／Gitee手动同步。，按钮添加版本记录，折叠了解更多。3 搜索资料内容，说明输入关键词或描述，查找知识库里的相关内容。，状态可选 · 需要下载搜索组件，细节下载和准备期间仍可写笔记。可以查看进度，也可以稍后再准备。，按钮设置内容搜索。底部左暂时跳过、右蓝色继续。当前没有插件安装/配置展开、错误/忙态，不画已启用或付费开户。平面白底、#f7f8fa浅面、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中；紧凑清晰中文无衬线、小线性图标、8px圆角，无渐变纹理，无浏览器外壳。所有runtime未验证说明在metadata。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Palette/density and DooKnow book identity only; no owner shell"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-4bc2583a-3ed3-4f4d-b5e1-2b2dfc0a3dd9.png"
+    },
+    {
+      "submittedPrompt": "只对这张DooKnow第2步首次设置图修正标题层级：将“按自己的需要选择”改为小号次级eyebrow，其下用独立最大主标题“选择需要的功能”。再下一行完整副文“知识库已经可以使用。这些功能都可以跳过，以后在设置中添加。”，不要将主标题混入副文。保持所有其余内容/按钮/状态/三卡/描述/步骤/位置/页脚完全不动，不新增导航/设置/弹窗。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-4bc2583a-3ed3-4f4d-b5e1-2b2dfc0a3dd9.png",
+          "role": "Edit target: preserve all existing source-derived setup controls/content except exact label/title correction"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-1a9fd7ac-c6e2-4c36-b078-8ba59bc1b729.png"
+    }
+  ]
+}

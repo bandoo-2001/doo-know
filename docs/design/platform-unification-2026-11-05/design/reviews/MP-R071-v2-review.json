@@ -1,0 +1,58 @@
+{
+  "assetId": "MP-R071-v2",
+  "sourceIds": [
+    "PB-043"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:43:12.262520+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner local collection editor: A two members including removed/public-hidden one, published picker open; B empty collection/nonmatching query; C no collections.",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "panel": "B",
+      "finding": "The 搜索文章 input includes a right-side X clear action. BlogDesignCollections renders a plain input with v-model and placeholder only, default text type, no allowClear or X control/handler. This adds an unsupported action.",
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignCollections.vue:107"
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actual current v2 PNG/full original and targeted edit prompts read. A missing title/slug fields restored, false collection-level disclosure removed, member移出 restored, empty query now compatible with displayed published candidates.",
+    "B empty membership/no-match and C single top add action coherent. Member boundary guards, selected published disabled and retained removed member hidden-public indicator correct.",
+    "B still draws a clear-X action inside the plain default-type input; current source has no clear-control renderer/handler."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-043.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R071-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/blog/BlogDesignCollections.vue:7",
+    "apps/web/components/blog/BlogDesignCollections.vue:30",
+    "packages/core/blog/studio.ts:102",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R071.json"
+  ],
+  "requiredCorrections": [
+    "B only: remove the search-input X; retain actual query无匹配示例, no-match guidance and source field/actions. Preserve all v2 field/member/disclosure corrections."
+  ],
+  "reviewedImageSha256": "68c9d9397ede4c19764b56c89cc5d92ca3973bef979eff938aa9d0d8bcffef56",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R071-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

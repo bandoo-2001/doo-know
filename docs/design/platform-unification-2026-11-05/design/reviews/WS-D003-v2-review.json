@@ -1,0 +1,119 @@
+{
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:09:02.046096+00:00",
+  "method": "Each delivered v2 PNG actually viewed in the independent child context. Compared to original per-image review, actual revision brief/progress/submitted prompt, current component and helper source, shared style contract and relevant previously viewed actual baselines. No image-generation, product code or runtime test performed.",
+  "reviewRulings": [
+    "Source/title/role/state caption may reside in metadata; missing bitmap caption is not blocking.",
+    "A real local component/state crop is sufficient when metadata precisely maps source/owner/host. Existing host, if drawn, must preserve source capabilities.",
+    "Light raster texture and approximate geometry are implementation token guidance, not grounds for indefinite bitmap revisions."
+  ],
+  "limitations": [
+    "Per-image static design review only; does not complete the full platform coverage/global consistency gate or authorize product implementation.",
+    "No raster can prove API behavior, owner enforcement, keyboard/focus, accessible names, input filtering, busy guards, resizing or responsive fit.",
+    "Only the declared coherent visible state was reviewed; incompatible state variants are not asserted to coexist."
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-tool-contract",
+    "required": "gpt-image-2",
+    "perCallModelIdentityReceiptExposed": false
+  },
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Residual light raster texture, blue shading and illustrative spacing remain. Use shared flat CSS color/border/radius/spacing tokens; preserve resizable knowledge-sidebar behavior where the shell is drawn. No exact pixel compliance is claimed and this is not a regeneration blocker."
+    }
+  ],
+  "assetId": "WS-D003-v2",
+  "sourceAssetId": "WS-D003",
+  "sourceIds": [
+    "WS-003"
+  ],
+  "verdict": "needs-revision",
+  "functionalFindings": [
+    {
+      "id": "WS-D003-v2-F01",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The query is 知识, yet a folder search result is 30-Knowledge with relativePath 30-Knowledge. Source folder hits are exclusively local filenameResults filtered by literal path.includes(searchNeedle(query)); this path does not contain 知识 and cannot be a folder hit. This is a source search-state mismatch, beyond allowed example-body variation.",
+      "evidence": [
+        "shared/search-matching.ts:10",
+        "shared/search-matching.ts:13",
+        "apps/web/search-results.ts:26",
+        "apps/web/components/Workspace.vue:2529"
+      ]
+    },
+    {
+      "id": "WS-D003-v2-F02",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The degraded feedback says 语义检索暂不可用，已显示文本检索结果 and omits the actual renderer warning that results may be incomplete. For a degraded non-RECALL_LIMIT branch the source always displays 部分内容搜索或索引尚未准备好，结果可能不完整。; narrowing this to a specific semantic cause and dropping incompleteness changes the important degraded-state explanation. This wording came from the revision prompt but current source remains authoritative.",
+      "evidence": [
+        "apps/web/components/Workspace.vue:528",
+        "apps/web/components/Workspace.vue:2851"
+      ]
+    }
+  ],
+  "fieldActionAndStateChecks": [
+    "Real DooKnow book/header, account O and notes/recent/favorites/apps/trash/settings rail are present; search/new split/heading/add-folder/refresh/resize context retained.",
+    "Query then mode then directory order retained (mode/directory adjacent, left-to-right); no explicit search submit button; load-more/settings visible with no error retry mixed into declared non-error state.",
+    "Ready main restores exact source 选择一篇笔记 and helper copy plus distinct 快速记录 / 导入 Markdown actions. QuickBusy guards remain a source requirement, not raster-verified.",
+    "Result relative paths and content line/snippet are visible. Highlight of content result can be focus/emphasis without opening it; metadata explicitly states no note is open."
+  ],
+  "resolvedPriorFindings": [
+    {
+      "priorId": "WS-D003-F01",
+      "status": "resolved",
+      "reason": "Invented explicit 搜索 button removed; controls now map to reactive search."
+    },
+    {
+      "priorId": "WS-D003-F02",
+      "status": "resolved",
+      "reason": "Exact ready-empty main copy and quick-note/import actions restored."
+    }
+  ],
+  "metadataMapping": {
+    "caption": {
+      "sourceIds": [
+        "WS-003"
+      ],
+      "title": "Sidebar notebook and directory search",
+      "role": "authenticated owner",
+      "state": "Paginated query with folder/filename/content results and hybrid degradation; ready main with no note open",
+      "location": "metadata by authorized revision scope"
+    },
+    "scope": {
+      "presentation": "full-desktop",
+      "hostSourceIds": [
+        "WS-003"
+      ],
+      "sharedReferences": [],
+      "runtimeBehaviorVerified": false
+    },
+    "status": "accepted"
+  },
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/regenerate-first-six-brief.json",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/regenerate-first-six-progress.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D003-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D003-review.json",
+    "docs/design/platform-unification-2026-11-05/coverage/workspace.json",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/Workspace.vue:528",
+    "apps/web/components/Workspace.vue:2602",
+    "apps/web/components/Workspace.vue:2732",
+    "apps/web/components/Workspace.vue:2812",
+    "apps/web/components/Workspace.vue:2833",
+    "apps/web/components/Workspace.vue:3367",
+    "apps/web/search-results.ts:15",
+    "apps/web/search-results.ts:26",
+    "shared/search-matching.ts:10"
+  ],
+  "requiredCorrections": [
+    "Use a folder result whose existing relative path actually contains 知识 (and keep its displayed title/path consistent), or change the fixture query/results together so all rendered folder matches are source-reachable. Preserve result count and pagination state.",
+    "Restore the exact source non-RECALL_LIMIT degraded explanation 部分内容搜索或索引尚未准备好，结果可能不完整。 with existing 检查搜索设置 action. Do not assert a more specific semantic outage from the generic degraded flag."
+  ],
+  "reviewedImageSha256": "95456726a38d73123459d2e99909386ddb9e3e291901c69751e9363d26fa5e09",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D003-v2.png",
+  "metadataExists": true
+}

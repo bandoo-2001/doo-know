@@ -1,0 +1,59 @@
+{
+  "assetId": "MP-D093",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:29:45.979329+00:00",
+  "method": "Actual PNG viewed; actual matching baseline (when available), complete sidecar submitted prompt, batch contract and current component template checked under review-execution-contract.",
+  "selectedState": "Guest clean source editor, current-note find/replace open with empty query and zero results",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Guest document/source modes, source active, saved status, save disabled for clean draft and return-reading retained with exact manual-save/no-upload help. No owner toolbar or invented find opener.",
+    "Keyboard-opened find strip correctly has empty focused query, 0/0 matches, disabled previous/next and replace actions, unchecked case switch, editable replacement input and available close. Blank query is not an error.",
+    "Editable Markdown markers/body, no line-number gutter and 65-character metric retained. Source/resource/CAS/anonymous-CSRF, busy/read-only and IME replacement guards remain source contracts; blank body is allowed."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Source-count label reads 源码字数 rather than source 源码字符. Same visible 65-character metric/state, no capability or guard drift; keep exact source copy in implementation without another bitmap iteration for this synonym."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-005.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D093.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/PublicShareEditor.vue:119",
+    "apps/web/components/PublicShareEditor.vue:175",
+    "apps/web/components/NoteEditorHost.vue:266",
+    "apps/web/components/NoteEditorHost.vue:449",
+    "apps/web/components/EditorSearch.vue:24",
+    "apps/web/public-share-api.ts:1",
+    "docs/design/platform-unification-2026-11-05/baseline/public/1440-share-editor-source-search.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "2c85d07661f8ef7da93a11dc7844080081160cdea7809007ffc0951e87194e8c",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D093.png",
+  "sourceIds": [
+    "PB-027"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

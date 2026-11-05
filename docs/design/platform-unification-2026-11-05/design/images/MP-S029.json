@@ -1,0 +1,903 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S029",
+  "assetId": "MP-S029",
+  "sourceIds": [
+    "ST-074",
+    "ST-075",
+    "ST-076",
+    "ST-077",
+    "ST-078",
+    "ST-080"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-074",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Git connection credentialAvailable false local warning plus genuine repository/credential action card; no server credential inputs or alternate branches"
+    }
+  ],
+  "selectedState": "Git connection credentialAvailable false local warning plus genuine repository/credential action card; no server credential inputs or alternate branches",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制中文网页局部组件对照板，白底浅灰面、蓝色主动作、细线小圆角、文字清楚。各行是互相独立的局部状态，留白细线分隔；只画指定控件/提示，不画外部导航、全窗口、审查编号或额外说明。单个紧凑局部区：普通说明“凭据不可用，请重新选择认证并关联。”；下方真实操作卡片，标题“云端仓库与认证”，说明“管理仓库地址、分支和登录凭据。”，右侧按钮“管理同步”。不加重新登录、重试、测试、令牌、密码框或连接成功提示。",
+  "prompt": "绘制中文网页局部组件对照板，白底浅灰面、蓝色主动作、细线小圆角、文字清楚。各行是互相独立的局部状态，留白细线分隔；只画指定控件/提示，不画外部导航、全窗口、审查编号或额外说明。单个紧凑局部区：普通说明“凭据不可用，请重新选择认证并关联。”；下方真实操作卡片，标题“云端仓库与认证”，说明“管理仓库地址、分支和登录凭据。”，右侧按钮“管理同步”。不加重新登录、重试、测试、令牌、密码框或连接成功提示。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual owner parent baseline only; requested local state source-derived",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; no feature or owner shell authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual owner parent baseline only; requested local state source-derived",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; no feature or owner shell authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制中文网页局部组件对照板，白底浅灰面、蓝色主动作、细线小圆角、文字清楚。各行是互相独立的局部状态，留白细线分隔；只画指定控件/提示，不画外部导航、全窗口、审查编号或额外说明。单个紧凑局部区：普通说明“凭据不可用，请重新选择认证并关联。”；下方真实操作卡片，标题“云端仓库与认证”，说明“管理仓库地址、分支和登录凭据。”，右侧按钮“管理同步”。不加重新登录、重试、测试、令牌、密码框或连接成功提示。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制中文网页局部组件对照板，白底浅灰面、蓝色主动作、细线小圆角、文字清楚。各行是互相独立的局部状态，留白细线分隔；只画指定控件/提示，不画外部导航、全窗口、审查编号或额外说明。单个紧凑局部区：普通说明“凭据不可用，请重新选择认证并关联。”；下方真实操作卡片，标题“云端仓库与认证”，说明“管理仓库地址、分支和登录凭据。”，右侧按钮“管理同步”。不加重新登录、重试、测试、令牌、密码框或连接成功提示。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+          "role": "Actual owner parent baseline only; requested local state source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only; no feature or owner shell authority"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-67147e79-664a-4a41-b3c8-8ca57c742338.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-074",
+      "title": "云端同步概览",
+      "kind": "state",
+      "module": "settings/git",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins | 当前笔记路由",
+        "trigger": "GitRemotePanel；Workspace外层Git同步窗口inline模式",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:786",
+        "apps/web/components/GitRemotePanel.vue:827",
+        "apps/server/git/routes.ts:8"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新同步状态",
+          "effect": "并行读取Git状态和当前所有者凭据摘要",
+          "api": "GET /api/platform/git/status; GET /api/platform/git/credentials",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "关联云端仓库 / 管理同步",
+          "effect": "打开ST-075",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "检查云端 / 仅推送 / 拉取更新",
+          "effect": "创建对应job",
+          "api": "POST /api/platform/git/jobs",
+          "guard": "非running；pull要求无未保存草稿；commitUnknown锁变更操作"
+        },
+        {
+          "label": "预览提交并推送",
+          "effect": "打开ST-078",
+          "api": "无请求",
+          "guard": "有变更且无未保存笔记"
+        }
+      ],
+      "importantStates": [
+        "未初始化",
+        "未关联",
+        "分支/HEAD/未提交数",
+        "ahead/behind未知",
+        "最近检查时间",
+        "历史推送成功不保证今后写权限",
+        "凭据不可用",
+        "WORKSPACE_BUSY",
+        "未保存笔记警告和返回保存"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/z-git-remote.spec.ts:16",
+        "tests/e2e/settings-overlays.spec.ts:385"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "设置知识库页和Git配置均嵌入；Workspace外层窗口由workspace模块盘点，本记录负责inline内容。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-075",
+      "title": "管理云端同步",
+      "kind": "drawer",
+      "module": "settings/git",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "管理同步 / 关联云端仓库",
+        "parentId": "ST-074"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:172",
+        "apps/web/components/GitRemotePanel.vue:985",
+        "apps/server/git/transport.ts:29",
+        "apps/server/git/service.ts:228"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "仓库克隆地址",
+          "type": "text",
+          "required": true,
+          "constraints": "≤2048；仅github.com/gitee.com HTTPS或SSH；拒绝凭据嵌URL/空格/查询/fragment/其他主机",
+          "sensitive": false
+        },
+        {
+          "name": "云端分支",
+          "type": "text",
+          "required": false,
+          "constraints": "空用默认；服务端≤200字符、不得以-开头，须通过git check-ref-format refs/heads/…",
+          "sensitive": false
+        },
+        {
+          "name": "仓库认证",
+          "type": "select",
+          "required": false,
+          "constraints": "公开HTTPS可无凭据；只显示当前所有者凭据摘要",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "测试读取连接",
+          "effect": "仅验证读取，不保证推送",
+          "api": "POST /api/platform/git/jobs kind:test",
+          "guard": "URL非空；非running/busy"
+        },
+        {
+          "label": "关联云端仓库",
+          "effect": "保存关联并按流程安装启用Git",
+          "api": "POST /api/platform/git/jobs kind:connect",
+          "guard": "URL非空；非busy；上次提交需先核对"
+        },
+        {
+          "label": "添加 / 更换 / 移除凭据",
+          "effect": "ST-076/ST-077；删除凭据",
+          "api": "POST /api/platform/git/credentials; DELETE /api/platform/git/credentials/:id",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "确认解除云端关联",
+          "effect": "只解除DooKnow同步关联",
+          "api": "POST /api/platform/git/jobs kind:disconnect",
+          "guard": "details内明确确认；本地原文/历史/Git remote保留"
+        }
+      ],
+      "importantStates": [
+        "已有/无凭据",
+        "dirty关闭ST-089",
+        "连接测试成功",
+        "认证/权限错误",
+        "任务进行中",
+        "未确定请求回执"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/z-git-remote.spec.ts:16",
+        "tests/git-remote-routes.test.ts:7",
+        "tests/e2e/settings-overlays.spec.ts:266"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "请求drawer宽960px；inline父容器时作为内页，不再套第二层窗口。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-076",
+      "title": "添加/更换HTTPS仓库凭据",
+      "kind": "dialog",
+      "module": "settings/git-credentials",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "管理同步→添加凭据 / 更换凭据；认证方式HTTPS",
+        "parentId": "ST-075"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:567",
+        "apps/web/components/GitRemotePanel.vue:585",
+        "apps/web/components/GitRemotePanel.vue:1118",
+        "apps/server/git/credentials.ts:176",
+        "apps/server/git/credentials.ts:197"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "凭据名称",
+          "type": "text",
+          "required": true,
+          "constraints": "服务端≤120且无控制字符",
+          "sensitive": false
+        },
+        {
+          "name": "服务平台",
+          "type": "select",
+          "required": true,
+          "constraints": "github.com/gitee.com",
+          "sensitive": false
+        },
+        {
+          "name": "认证方式",
+          "type": "select",
+          "required": true,
+          "constraints": "https/ssh",
+          "sensitive": false
+        },
+        {
+          "name": "仓库用户名",
+          "type": "text",
+          "required": false,
+          "constraints": "服务端≤128、无控制字符、不得冒号",
+          "sensitive": false
+        },
+        {
+          "name": "访问令牌",
+          "type": "password",
+          "required": false,
+          "constraints": "新增必填；更换同平台同方式时留空保留；服务端≤16384字符、非空、无控制字符；秘密不回显",
+          "sensitive": true
+        },
+        {
+          "name": "服务器加密保存凭据",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "默认true；取消后仅保留30分钟",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存仓库凭据",
+          "effect": "创建/更新所有者凭据，清秘密并返回原连接草稿",
+          "api": "POST /api/platform/git/credentials",
+          "guard": "名称非空；新增token必填；非running"
+        },
+        {
+          "label": "取消编辑凭据",
+          "effect": "返回原管理内页；有修改确认放弃",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "新增/更换标题与token占位不同",
+        "保存中",
+        "服务错误",
+        "dirty确认",
+        "秘密离开清除",
+        "连接草稿仍保留"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:266",
+        "tests/git-credentials.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "modal请求宽640px；不把令牌写入图、JSON或文档。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-077",
+      "title": "SSH凭据与主机指纹确认",
+      "kind": "state",
+      "module": "settings/git-credentials",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "凭据编辑→SSH私钥（高级）",
+        "parentId": "ST-076"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:1166",
+        "apps/server/git/credentials.ts:42",
+        "apps/server/git/credentials.ts:70",
+        "apps/server/git/credentials.ts:205"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "SSH私钥",
+          "type": "textarea",
+          "required": false,
+          "constraints": "新增必填；更换留空保留；服务端≤65536及PEM/OpenSSH格式验证",
+          "sensitive": true
+        },
+        {
+          "name": "私钥口令",
+          "type": "password",
+          "required": false,
+          "constraints": "可选；服务端≤4096字符且无控制字符；留空保留仅适用原绑定且复用私钥；秘密不回显",
+          "sensitive": true
+        },
+        {
+          "name": "已核对known_hosts",
+          "type": "textarea",
+          "required": true,
+          "constraints": "服务端≤65536，1–20非注释行；仅所选exact host及支持公钥类型",
+          "sensitive": false
+        },
+        {
+          "name": "已对照官方文档核对并信任主机",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "更改known_hosts/平台即重置；不能仅依赖扫描",
+          "sensitive": false
+        },
+        {
+          "name": "服务器加密保存凭据",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "false仅30分钟",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "读取SSH主机指纹",
+          "effect": "服务器扫描所选平台并显示公钥指纹",
+          "api": "POST /api/platform/git/jobs kind:ssh-host",
+          "guard": "非running且workspace不忙"
+        },
+        {
+          "label": "保存仓库凭据",
+          "effect": "保存私钥和显式host trust",
+          "api": "POST /api/platform/git/credentials",
+          "guard": "knownHosts非空、trustHost=true"
+        },
+        {
+          "label": "GitHub/Gitee官方指纹帮助",
+          "effect": "外部帮助链接",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "指纹扫描任务",
+        "扫描失败可粘贴已核对known_hosts",
+        "信任未勾选禁保存",
+        "主机变更警告",
+        "秘密不回显"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/git-credentials.test.ts:1",
+        "tests/git-transport.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "非新窗口实例；与HTTPS共用编辑modal，但结构/安全动作显著不同，需要独立设计图。",
+        "统计为ST-076同一凭据窗口的SSH变体，不增加窗口数。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-078",
+      "title": "确认本次提交内容并推送",
+      "kind": "drawer",
+      "module": "settings/git",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "预览提交并推送",
+        "parentId": "ST-074"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:668",
+        "apps/web/components/GitRemotePanel.vue:1233",
+        "plugins/git/server/index.ts:381"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "同步提交作者",
+          "type": "text",
+          "required": false,
+          "constraints": "未配置时显示；保存作者配置≤100",
+          "sensitive": false
+        },
+        {
+          "name": "同步作者邮箱",
+          "type": "email",
+          "required": false,
+          "constraints": "未配置时显示；≤254",
+          "sensitive": false
+        },
+        {
+          "name": "云端同步提交说明",
+          "type": "text",
+          "required": true,
+          "constraints": "trim非空；服务端UTF8≤8192字节、无NUL",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存同步署名",
+          "effect": "保存Git插件configVersion作者配置",
+          "api": "PUT /api/platform/plugins/git/config",
+          "guard": "作者与邮箱非空"
+        },
+        {
+          "label": "预览本次提交 / 重新预览",
+          "effect": "生成含文件完整列表的临时预览",
+          "api": "POST /api/plugins/git/call command:git.preview",
+          "guard": "无未保存草稿、有变更、authorReady、说明非空、无未知提交"
+        },
+        {
+          "label": "确认提交并推送",
+          "effect": "先幂等提交成功，再创建push任务",
+          "api": "POST /api/plugins/git/call command:git.commit; POST /api/platform/git/jobs kind:push",
+          "guard": "previewCurrent；token未过期；原requestId"
+        },
+        {
+          "label": "取消提交",
+          "effect": "取消预览并还原草稿基线",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "作者未设置",
+        "预览文件列表/diff",
+        "部分暂存会提交完整当前版本提示",
+        "说明修改使预览失效",
+        "过期/原文变更需重览",
+        "busy锁关闭",
+        "本地提交成功但推送失败保留HEAD"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/z-git-remote.spec.ts:16",
+        "tests/e2e/settings-overlays.spec.ts:385"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "请求drawer宽960px；inline时父窗口内页。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-080",
+      "title": "Git任务进行、拒绝、冲突与核对",
+      "kind": "state",
+      "module": "settings/git",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "Git job回执或网络失败",
+        "parentId": "ST-074"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:363",
+        "apps/web/components/GitRemotePanel.vue:439",
+        "apps/web/components/GitRemotePanel.vue:896",
+        "apps/server/git/transport.ts:103"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新任务状态",
+          "effect": "读取当前job",
+          "api": "GET /api/platform/git/jobs/:id",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消当前任务",
+          "effect": "请求取消",
+          "api": "POST /api/platform/git/jobs/:id/cancel",
+          "guard": "jobPending且不busy"
+        },
+        {
+          "label": "核对并重试任务",
+          "effect": "沿原回执重试/核对",
+          "api": "POST /api/platform/git/jobs/:id/retry",
+          "guard": "failed/needs_reconciliation；pull要求无未保存草稿"
+        },
+        {
+          "label": "核对请求结果",
+          "effect": "按requestId找回服务器已接受回执",
+          "api": "GET /api/platform/git/jobs",
+          "guard": "unresolved存在"
+        }
+      ],
+      "importantStates": [
+        "phase阶段/服务器继续执行",
+        "failed/cancelled/needs_reconciliation",
+        "连接认证失败/权限拒绝/受保护分支",
+        "非快进分歧停止",
+        "本地变更不能pull",
+        "SSH host key变化",
+        "WORKSPACE_BUSY/依赖缺失",
+        "pull成功但索引刷新待处理",
+        "请求已接受但响应丢失"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/git-remote-safety.test.ts:1",
+        "tests/git-cancellation.test.ts:1",
+        "tests/git-recovery.test.ts:1",
+        "tests/git-remote-routes.test.ts:7"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-074",
+      "parentId": "ST-002",
+      "route": "/?view=settings&section=library | /?view=settings&section=plugins | 当前笔记路由",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:786",
+        "apps/web/components/GitRemotePanel.vue:827",
+        "apps/server/git/routes.ts:8"
+      ]
+    },
+    {
+      "sourceId": "ST-075",
+      "parentId": "ST-074",
+      "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:172",
+        "apps/web/components/GitRemotePanel.vue:985",
+        "apps/server/git/transport.ts:29",
+        "apps/server/git/service.ts:228"
+      ]
+    },
+    {
+      "sourceId": "ST-076",
+      "parentId": "ST-075",
+      "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:567",
+        "apps/web/components/GitRemotePanel.vue:585",
+        "apps/web/components/GitRemotePanel.vue:1118",
+        "apps/server/git/credentials.ts:176",
+        "apps/server/git/credentials.ts:197"
+      ]
+    },
+    {
+      "sourceId": "ST-077",
+      "parentId": "ST-076",
+      "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:1166",
+        "apps/server/git/credentials.ts:42",
+        "apps/server/git/credentials.ts:70",
+        "apps/server/git/credentials.ts:205"
+      ]
+    },
+    {
+      "sourceId": "ST-078",
+      "parentId": "ST-074",
+      "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:668",
+        "apps/web/components/GitRemotePanel.vue:1233",
+        "plugins/git/server/index.ts:381"
+      ]
+    },
+    {
+      "sourceId": "ST-080",
+      "parentId": "ST-074",
+      "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:363",
+        "apps/web/components/GitRemotePanel.vue:439",
+        "apps/web/components/GitRemotePanel.vue:896",
+        "apps/server/git/transport.ts:103"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-025.json#MP-S029",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S029",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-67147e79-664a-4a41-b3c8-8ca57c742338.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S029.png",
+  "sha256": "8dd7c7b4602bcfbdcbc3f0d4eb9de6b11e3ab08f36239f2329a7021997a2c8ba",
+  "bytes": 972018,
+  "dimensions": {
+    "width": 2172,
+    "height": 724
+  },
+  "generatedAtUtc": "2026-11-05T04:44:31.714533+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / GitRemotePanel.vue",
+    "sourceIds": [
+      "ST-074",
+      "ST-075",
+      "ST-076",
+      "ST-077",
+      "ST-078",
+      "ST-080"
+    ],
+    "roles": [
+      "authenticated-owner",
+      "owner-private"
+    ],
+    "state": "Git connection credentialAvailable false local warning plus genuine repository/credential action card; no server credential inputs or alternate branches",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-074",
+      "title": "凭据不可用",
+      "renderer": "apps/web/components/GitRemotePanel.vue",
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:786",
+        "apps/web/components/GitRemotePanel.vue:827",
+        "apps/server/git/routes.ts:8"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新同步状态",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "关联云端仓库 / 管理同步",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "检查云端 / 仅推送 / 拉取更新",
+          "guard": "非running；pull要求无未保存草稿；commitUnknown锁变更操作"
+        },
+        {
+          "label": "预览提交并推送",
+          "guard": "有变更且无未保存笔记"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "凭据不可用",
+          "variant": "凭据不可用",
+          "representation": "visible"
+        },
+        {
+          "state": "未保存笔记警告和返回保存",
+          "variant": "未保存笔记警告和返回保存",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-074",
+        "ST-075",
+        "ST-076",
+        "ST-077",
+        "ST-078",
+        "ST-080"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": []
+}

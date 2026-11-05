@@ -1,0 +1,16 @@
+{
+  "id": "settings-editor",
+  "title": "平台设置 editor",
+  "width": 390,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?view=settings&section=editor",
+  "file": "390-settings-editor.png",
+  "sha256": "f2fbbc498eaeb50cb0513ac14a32de59b2d71cab2cff92cbd982c43efc7406c5",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

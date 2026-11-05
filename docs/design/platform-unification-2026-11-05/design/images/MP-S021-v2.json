@@ -1,0 +1,771 @@
+{
+  "id": "MP-S021",
+  "title": "Component state matrix: owner-private / MCPAuthorizationManager.vue",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-059",
+    "ST-061"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-059",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-059",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "MCP配置OAuth清单；插件页保留的连接授权卡片",
+      "parentId": "ST-006",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "active授权保留 / revoked",
+        "已授予及当前有效policy/scopes/prefixes",
+        "旧版无policy描述",
+        "插件未装/停用仍可撤销",
+        "无记录时保留卡隐藏",
+        "读取/撤销结果不确定"
+      ],
+      "notes": [
+        "公共OAuth consent路由由public模块盘点；此处是所有者连接管理。",
+        "MCPAuthorizationManager卡片仅MCP未安装时挂载（PluginsSettings.vue:8）；已安装但停用时，通过MCP配置内MCPConnectionGuide管理保留授权。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "OAuth授权完整清单：当前有效/已授policy/scopes、active/revoked、收窄/撤销/刷新；停用卸载仍保留授权。"
+      ]
+    },
+    {
+      "sourceId": "ST-061",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "撤销连接授权 / 撤销此连接授权",
+      "parentId": "ST-059",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "不可继续原授权说明",
+        "撤销busy",
+        "令牌存储清理待重试",
+        "结果未确认→刷新核对",
+        "刷新发现已撤销后清提示"
+      ],
+      "notes": [
+        "这是行内状态，非弹窗或新增页面。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/web/components/MCPAuthorizationManager.vue",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-059",
+      "label": "收窄连接权限",
+      "effect": "打开ST-060",
+      "api": "无请求",
+      "guard": "active且effectivePolicy"
+    },
+    {
+      "sourceId": "ST-059",
+      "label": "撤销连接授权",
+      "effect": "显示ST-061确认",
+      "api": "无请求",
+      "guard": "active"
+    },
+    {
+      "sourceId": "ST-059",
+      "label": "重新读取授权",
+      "effect": "失败后重试",
+      "api": "GET /api/platform/mcp/connection",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-061",
+      "label": "确认撤销授权",
+      "effect": "立即撤销原授权",
+      "api": "POST /api/platform/mcp/clients/revoke",
+      "guard": "clientId非空≤512；不busy"
+    },
+    {
+      "sourceId": "ST-061",
+      "label": "取消",
+      "effect": "收起行内确认",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-059",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-061",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "只修改最上方第一个客户端局部样例，其余五个样例完全保留。第一个保留“example-client-01”“授权保留”“已授予：知识库：读取、内容编辑（整个知识库）”和可用“撤销连接授权”按钮。删除“当前生效：知识库：读取（整个知识库）”整行，删除“收窄连接权限”按钮。其余布局适当收紧，不添加说明或其它控件。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S021-v2.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-059",
+      "title": "已授予及当前有效policy/scopes/prefixes",
+      "renderer": "apps/web/components/MCPAuthorizationManager.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPAuthorizationManager.vue:71",
+        "apps/web/components/MCPConnectionGuide.vue:238",
+        "apps/server/platform/mcp-management.ts:44",
+        "apps/web/components/settings/PluginsSettings.vue:8"
+      ],
+      "guardBindings": [
+        {
+          "label": "收窄连接权限",
+          "guard": "active且effectivePolicy"
+        },
+        {
+          "label": "撤销连接授权",
+          "guard": "active"
+        },
+        {
+          "label": "重新读取授权",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "granted policy in uninstalled Manager",
+          "representation": "visible"
+        },
+        {
+          "state": "effective policy/scopes/prefixes",
+          "representation": "not visible in this host; parent remaps to installed Guide/ClientPermissions"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-059"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-059",
+      "title": "旧版无policy描述",
+      "renderer": "apps/web/components/MCPAuthorizationManager.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPAuthorizationManager.vue:71",
+        "apps/web/components/MCPConnectionGuide.vue:238",
+        "apps/server/platform/mcp-management.ts:44",
+        "apps/web/components/settings/PluginsSettings.vue:8"
+      ],
+      "guardBindings": [
+        {
+          "label": "收窄连接权限",
+          "guard": "active且effectivePolicy"
+        },
+        {
+          "label": "撤销连接授权",
+          "guard": "active"
+        },
+        {
+          "label": "重新读取授权",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "旧版无policy描述",
+          "variant": "旧版无policy描述",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-059"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-059",
+      "title": "无记录时保留卡隐藏",
+      "renderer": "apps/web/components/MCPAuthorizationManager.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPAuthorizationManager.vue:71",
+        "apps/web/components/MCPConnectionGuide.vue:238",
+        "apps/server/platform/mcp-management.ts:44",
+        "apps/web/components/settings/PluginsSettings.vue:8"
+      ],
+      "guardBindings": [
+        {
+          "label": "收窄连接权限",
+          "guard": "active且effectivePolicy"
+        },
+        {
+          "label": "撤销连接授权",
+          "guard": "active"
+        },
+        {
+          "label": "重新读取授权",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "无记录时保留卡隐藏",
+          "variant": "无记录时保留卡隐藏",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-059"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "ST-059",
+      "title": "读取/撤销结果不确定",
+      "renderer": "apps/web/components/MCPAuthorizationManager.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPAuthorizationManager.vue:71",
+        "apps/web/components/MCPConnectionGuide.vue:238",
+        "apps/server/platform/mcp-management.ts:44",
+        "apps/web/components/settings/PluginsSettings.vue:8"
+      ],
+      "guardBindings": [
+        {
+          "label": "收窄连接权限",
+          "guard": "active且effectivePolicy"
+        },
+        {
+          "label": "撤销连接授权",
+          "guard": "active"
+        },
+        {
+          "label": "重新读取授权",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "读取/撤销结果不确定",
+          "variant": "读取/撤销结果不确定",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-059"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "ST-061",
+      "title": "不可继续原授权说明",
+      "renderer": "apps/web/components/MCPAuthorizationManager.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPAuthorizationManager.vue:98",
+        "apps/web/components/MCPConnectionGuide.vue:261",
+        "apps/server/platform/mcp-management.ts:79"
+      ],
+      "guardBindings": [
+        {
+          "label": "确认撤销授权",
+          "guard": "clientId非空≤512；不busy"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "不可继续原授权说明",
+          "variant": "不可继续原授权说明",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-061"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r6",
+      "sourceId": "ST-061",
+      "title": "撤销busy",
+      "renderer": "apps/web/components/MCPAuthorizationManager.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPAuthorizationManager.vue:98",
+        "apps/web/components/MCPConnectionGuide.vue:261",
+        "apps/server/platform/mcp-management.ts:79"
+      ],
+      "guardBindings": [
+        {
+          "label": "确认撤销授权",
+          "guard": "clientId非空≤512；不busy"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "撤销busy",
+          "variant": "撤销busy",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-061"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r7",
+      "sourceId": "ST-061",
+      "title": "结果未确认→刷新核对",
+      "renderer": "apps/web/components/MCPAuthorizationManager.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPAuthorizationManager.vue:98",
+        "apps/web/components/MCPConnectionGuide.vue:261",
+        "apps/server/platform/mcp-management.ts:79"
+      ],
+      "guardBindings": [
+        {
+          "label": "确认撤销授权",
+          "guard": "clientId非空≤512；不busy"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "结果未确认→刷新核对",
+          "variant": "结果未确认→刷新核对",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-061"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-059",
+      "parentId": "ST-006",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPAuthorizationManager.vue:71",
+        "apps/web/components/MCPConnectionGuide.vue:238",
+        "apps/server/platform/mcp-management.ts:44",
+        "apps/web/components/settings/PluginsSettings.vue:8"
+      ]
+    },
+    {
+      "sourceId": "ST-061",
+      "parentId": "ST-059",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPAuthorizationManager.vue:98",
+        "apps/web/components/MCPConnectionGuide.vue:261",
+        "apps/server/platform/mcp-management.ts:79"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-059",
+      "title": "OAuth授权清单与停用卸载后保留授权",
+      "kind": "state",
+      "module": "settings/mcp",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "MCP配置OAuth清单；插件页保留的连接授权卡片",
+        "parentId": "ST-006"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPAuthorizationManager.vue:71",
+        "apps/web/components/MCPConnectionGuide.vue:238",
+        "apps/server/platform/mcp-management.ts:44",
+        "apps/web/components/settings/PluginsSettings.vue:8"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "收窄连接权限",
+          "effect": "打开ST-060",
+          "api": "无请求",
+          "guard": "active且effectivePolicy"
+        },
+        {
+          "label": "撤销连接授权",
+          "effect": "显示ST-061确认",
+          "api": "无请求",
+          "guard": "active"
+        },
+        {
+          "label": "重新读取授权",
+          "effect": "失败后重试",
+          "api": "GET /api/platform/mcp/connection",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "active授权保留 / revoked",
+        "已授予及当前有效policy/scopes/prefixes",
+        "旧版无policy描述",
+        "插件未装/停用仍可撤销",
+        "无记录时保留卡隐藏",
+        "读取/撤销结果不确定"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-onboarding.spec.ts:42",
+        "tests/mcp-authorization-ui.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "公共OAuth consent路由由public模块盘点；此处是所有者连接管理。",
+        "MCPAuthorizationManager卡片仅MCP未安装时挂载（PluginsSettings.vue:8）；已安装但停用时，通过MCP配置内MCPConnectionGuide管理保留授权。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-061",
+      "title": "撤销OAuth授权行内确认",
+      "kind": "state",
+      "module": "settings/mcp",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "撤销连接授权 / 撤销此连接授权",
+        "parentId": "ST-059"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPAuthorizationManager.vue:98",
+        "apps/web/components/MCPConnectionGuide.vue:261",
+        "apps/server/platform/mcp-management.ts:79"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "确认撤销授权",
+          "effect": "立即撤销原授权",
+          "api": "POST /api/platform/mcp/clients/revoke",
+          "guard": "clientId非空≤512；不busy"
+        },
+        {
+          "label": "取消",
+          "effect": "收起行内确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "不可继续原授权说明",
+        "撤销busy",
+        "令牌存储清理待重试",
+        "结果未确认→刷新核对",
+        "刷新发现已撤销后清提示"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-onboarding.spec.ts:42",
+        "tests/mcp-authorization-ui.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "这是行内状态，非弹窗或新增页面。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S021",
+  "roles": [
+    "owner-private"
+  ],
+  "selectedState": [
+    "r1 uninstalled MCP retained client: granted policy only, no effective policy or narrow action",
+    "r2 legacy client no policy fields",
+    "r3 no-record branch intentionally has zero rendered pixels",
+    "r4 read failure",
+    "r5 inline revoke idle",
+    "r6 inline revoke busy",
+    "r7 unconfirmed revoke with original row retained"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "只修改最上方第一个客户端局部样例，其余五个样例完全保留。第一个保留“example-client-01”“授权保留”“已授予：知识库：读取、内容编辑（整个知识库）”和可用“撤销连接授权”按钮。删除“当前生效：知识库：读取（整个知识库）”整行，删除“收窄连接权限”按钮。其余布局适当收紧，不添加说明或其它控件。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S021 Component state matrix: owner-private / MCPAuthorizationManager.vue\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | ST-059 | 真实组件局部状态矩阵 | role=owner-private | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\nOAuth授权完整清单：当前有效/已授policy/scopes、active/revoked、收窄/撤销/刷新；停用卸载仍保留授权。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n局部矩阵（≤7行/卡）：\nr1 | ST-059 | 实际只画代表：已授予及当前有效policy/scopes/prefixes | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/MCPAuthorizationManager.vue\nr2 | ST-059 | 实际只画代表：旧版无policy描述 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/MCPAuthorizationManager.vue\nr3 | ST-059 | 实际只画代表：无记录时保留卡隐藏 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/MCPAuthorizationManager.vue\nr4 | ST-059 | 实际只画代表：读取/撤销结果不确定 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/MCPAuthorizationManager.vue\nr5 | ST-061 | 实际只画代表：不可继续原授权说明 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/MCPAuthorizationManager.vue\nr6 | ST-061 | 实际只画代表：撤销busy | 既有busy/spinner/禁用控件模式，按原guard锁定。 | renderer=apps/web/components/MCPAuthorizationManager.vue\nr7 | ST-061 | 实际只画代表：结果未确认→刷新核对 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/MCPAuthorizationManager.vue\n\n精确功能/字段/动作guard合同：\nST-059/ST-061权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-059/ST-061字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-059白名单：收窄连接权限 => 打开ST-060；guard=active且effectivePolicy；接口约束=无请求\nST-059白名单：撤销连接授权 => 显示ST-061确认；guard=active；接口约束=无请求\nST-059白名单：重新读取授权 => 失败后重试；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/platform/mcp/connection\nST-061白名单：确认撤销授权 => 立即撤销原授权；guard=clientId非空≤512；不busy；接口约束=POST /api/platform/mcp/clients/revoke\nST-061白名单：取消 => 收起行内确认；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\n插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "20d3af18e07807e109eee306b74d24cab0fdbe1eadc0e5ed5883c727c9863156",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 61500
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S021.png",
+      "role": "previous generated design edit target",
+      "responsibility": "Targeted host reachability correction, preserve valid specimens",
+      "sha256": "a58552a400563c2608c7958c140b04bd79eaae427a4a1d43c4b8be8bde8d2d7b",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1309157
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S021.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S021-v2.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c567e635-7161-4688-83d1-8045d613a433.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c567e635-7161-4688-83d1-8045d613a433.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T04:41:44.392Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "concerns": [],
+    "pageSpecific": "Corrected only source-proven independent specimen, preserved all other valid content."
+  },
+  "sha256": "ebcc518a7df88c89789b167495b82f225f79e33abcaebdf2b0723106e4abe11a",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1420693,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/MCPAuthorizationManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "4a156e69d63a1916a19bea6a50ce7267f9a3b8216c2eaf5d8c1cc52645bc406a"
+    },
+    {
+      "path": "apps/web/components/MCPConnectionGuide.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "48e5e616137c8434d94d907478bb5dcb8dce2941b93ee16eaaebe9c749a637f7"
+    },
+    {
+      "path": "apps/server/platform/mcp-management.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9ebee2b98d784c2d39877d94d12daf7d980fbf7ea81146dca6ca6055688e4200"
+    },
+    {
+      "path": "apps/web/components/settings/PluginsSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "31c37b6356ec51c9ba878ba934ccb463e16818185e13b1d13cf602cd9be726f2"
+    },
+    {
+      "path": "apps/web/components/MCPAuthorizationManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "4a156e69d63a1916a19bea6a50ce7267f9a3b8216c2eaf5d8c1cc52645bc406a"
+    },
+    {
+      "path": "apps/web/components/MCPConnectionGuide.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "48e5e616137c8434d94d907478bb5dcb8dce2941b93ee16eaaebe9c749a637f7"
+    },
+    {
+      "path": "apps/server/platform/mcp-management.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9ebee2b98d784c2d39877d94d12daf7d980fbf7ea81146dca6ca6055688e4200"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Exact child states source-derived; no token revocation/permission mutation or responsive acceptance executed.",
+  "selectedHost": "MCPAuthorizationManager retained card, mounted only when MCP not installed; independent rows are local excerpts.",
+  "hiddenBranch": "stateMatrix r3 clients.length=0 && !error && !actionError => section v-if false; no rendered empty card or synthetic no-record label. Visually intentionally absent.",
+  "priorGeneration": {
+    "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内按顺序竖排六个互相独立的授权局部样例，留白/细线分开，正常可读字号，不加每行说明标题。\n第一行：只读客户端标识“example-client-01”，状态“授权保留”，两段“已授予：知识库：读取、内容编辑（整个知识库）”“当前生效：知识库：读取（整个知识库）”；按钮“收窄连接权限”“撤销连接授权”均可用。\n第二行：只读客户端标识“legacy-client”，状态“授权保留”，仅可用“撤销连接授权”按钮；没有权限policy描述或收窄按钮，不编造旧版说明。\n第三行：黄色提示“暂时无法读取连接授权，请重试。”，可用“重新读取授权”按钮，不画旧记录数据。\n第四行：客户端标识“example-client-02”，状态“授权保留”；行内说明“撤销后，此客户端无法继续使用原授权。”，红色“确认撤销授权”和普通“取消”按钮可用。\n第五行：与上一行相同的独立行内确认，但“确认撤销授权”红色带进行中转圈不可重复点击，“取消”灰色禁用。\n第六行：黄色提示“未能确认撤销结果，请刷新授权列表后重试。”，可用“重新读取授权”按钮；下面仍保留客户端标识“example-client-02”、状态“授权保留”、行内说明“撤销后，此客户端无法继续使用原授权。”以及可用“确认撤销授权”“取消”按钮。不要添加“无记录”卡片、弹窗、重试签发、原始scopes或编辑协议字段。",
+    "actualImageInputOrder": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-2273c734-2904-4a41-89bc-7c51630edac3.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-2273c734-2904-4a41-89bc-7c51630edac3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "sha256": "a58552a400563c2608c7958c140b04bd79eaae427a4a1d43c4b8be8bde8d2d7b",
+    "dimensions": {
+      "width": 1536,
+      "height": 1024
+    },
+    "generationCallCount": 1
+  },
+  "revision": 2,
+  "revises": "docs/design/platform-unification-2026-11-05/design/images/MP-S021.json",
+  "revisionReason": "Current-hash independent P2 verified against actual host call chain",
+  "sourceCorrection": "PluginsSettings mounts Manager only without installed MCP. platformPolicy requires installed enabled plugin, so effectivePolicy absent. Current-effective and narrow branches are not reachable in this host; no product changes."
+}

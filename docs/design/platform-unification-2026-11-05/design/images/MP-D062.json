@@ -1,0 +1,267 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D062",
+  "assetId": "MP-D062",
+  "sourceIds": [
+    "ST-078"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-078",
+      "title": "确认本次提交内容并推送",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Source-derived cloud commit-and-push review drawer, author already configured, valid current preview of 2 synthetic files and diff, no partial-staging/error/result/uncertain state"
+    }
+  ],
+  "selectedState": "Source-derived cloud commit-and-push review drawer, author already configured, valid current preview of 2 synthetic files and diff, no partial-staging/error/result/uncertain state",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作完整局部SettingsOverlay drawer“确认本次提交内容”，意图宽960，不画父页/主导航。header commit icon、标题、说明“先填写说明并预览文件，再确认提交与推送。”与关闭X。当前同步作者已配置，所以不显示署名字段。正文准确：云端同步提交说明输入“整理笔记”；说明“提交包含暂存、未暂存及未忽略的新增和删除文件。请核对完整文件列表。”；可用“重新预览本次提交”。有效current预览框显示“2 项文件变更 · 整理笔记”，完整两行文件“M · notes/example.md”“A · notes/ideas.md”，下方只读diff pre两行“- 旧段落”“+ 整理后的段落”。没有部分暂存警告（本状态无部分暂存）。正文下部蓝色可用“确认提交并推送”、普通可用“取消提交”。不显示requestId/token/hash输入，不画未知结果/核对按钮或成功提交推送结果，不重复作者设置或增加其他按钮。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。这是source-derived合成预览，未运行声明仅metadata。",
+  "prompt": "制作完整局部SettingsOverlay drawer“确认本次提交内容”，意图宽960，不画父页/主导航。header commit icon、标题、说明“先填写说明并预览文件，再确认提交与推送。”与关闭X。当前同步作者已配置，所以不显示署名字段。正文准确：云端同步提交说明输入“整理笔记”；说明“提交包含暂存、未暂存及未忽略的新增和删除文件。请核对完整文件列表。”；可用“重新预览本次提交”。有效current预览框显示“2 项文件变更 · 整理笔记”，完整两行文件“M · notes/example.md”“A · notes/ideas.md”，下方只读diff pre两行“- 旧段落”“+ 整理后的段落”。没有部分暂存警告（本状态无部分暂存）。正文下部蓝色可用“确认提交并推送”、普通可用“取消提交”。不显示requestId/token/hash输入，不画未知结果/核对按钮或成功提交推送结果，不重复作者设置或增加其他按钮。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。这是source-derived合成预览，未运行声明仅metadata。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual parent context only; selected local window/component is source-derived, not a captured runtime overlay",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; no owner shell transfer",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual parent context only; selected local window/component is source-derived, not a captured runtime overlay",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; no owner shell transfer",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作完整局部SettingsOverlay drawer“确认本次提交内容”，意图宽960，不画父页/主导航。header commit icon、标题、说明“先填写说明并预览文件，再确认提交与推送。”与关闭X。当前同步作者已配置，所以不显示署名字段。正文准确：云端同步提交说明输入“整理笔记”；说明“提交包含暂存、未暂存及未忽略的新增和删除文件。请核对完整文件列表。”；可用“重新预览本次提交”。有效current预览框显示“2 项文件变更 · 整理笔记”，完整两行文件“M · notes/example.md”“A · notes/ideas.md”，下方只读diff pre两行“- 旧段落”“+ 整理后的段落”。没有部分暂存警告（本状态无部分暂存）。正文下部蓝色可用“确认提交并推送”、普通可用“取消提交”。不显示requestId/token/hash输入，不画未知结果/核对按钮或成功提交推送结果，不重复作者设置或增加其他按钮。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。这是source-derived合成预览，未运行声明仅metadata。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作完整局部SettingsOverlay drawer“确认本次提交内容”，意图宽960，不画父页/主导航。header commit icon、标题、说明“先填写说明并预览文件，再确认提交与推送。”与关闭X。当前同步作者已配置，所以不显示署名字段。正文准确：云端同步提交说明输入“整理笔记”；说明“提交包含暂存、未暂存及未忽略的新增和删除文件。请核对完整文件列表。”；可用“重新预览本次提交”。有效current预览框显示“2 项文件变更 · 整理笔记”，完整两行文件“M · notes/example.md”“A · notes/ideas.md”，下方只读diff pre两行“- 旧段落”“+ 整理后的段落”。没有部分暂存警告（本状态无部分暂存）。正文下部蓝色可用“确认提交并推送”、普通可用“取消提交”。不显示requestId/token/hash输入，不画未知结果/核对按钮或成功提交推送结果，不重复作者设置或增加其他按钮。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。这是source-derived合成预览，未运行声明仅metadata。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+          "role": "Actual parent context only; selected local window/component is source-derived, not a captured runtime overlay"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; no owner shell transfer"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ecf220ad-8670-43c9-a239-d34c7ed3f9a4.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-078",
+      "title": "确认本次提交内容并推送",
+      "kind": "drawer",
+      "module": "settings/git",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "预览提交并推送",
+        "parentId": "ST-074"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:668",
+        "apps/web/components/GitRemotePanel.vue:1233",
+        "plugins/git/server/index.ts:381"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "同步提交作者",
+          "type": "text",
+          "required": false,
+          "constraints": "未配置时显示；保存作者配置≤100",
+          "sensitive": false
+        },
+        {
+          "name": "同步作者邮箱",
+          "type": "email",
+          "required": false,
+          "constraints": "未配置时显示；≤254",
+          "sensitive": false
+        },
+        {
+          "name": "云端同步提交说明",
+          "type": "text",
+          "required": true,
+          "constraints": "trim非空；服务端UTF8≤8192字节、无NUL",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存同步署名",
+          "effect": "保存Git插件configVersion作者配置",
+          "api": "PUT /api/platform/plugins/git/config",
+          "guard": "作者与邮箱非空"
+        },
+        {
+          "label": "预览本次提交 / 重新预览",
+          "effect": "生成含文件完整列表的临时预览",
+          "api": "POST /api/plugins/git/call command:git.preview",
+          "guard": "无未保存草稿、有变更、authorReady、说明非空、无未知提交"
+        },
+        {
+          "label": "确认提交并推送",
+          "effect": "先幂等提交成功，再创建push任务",
+          "api": "POST /api/plugins/git/call command:git.commit; POST /api/platform/git/jobs kind:push",
+          "guard": "previewCurrent；token未过期；原requestId"
+        },
+        {
+          "label": "取消提交",
+          "effect": "取消预览并还原草稿基线",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "作者未设置",
+        "预览文件列表/diff",
+        "部分暂存会提交完整当前版本提示",
+        "说明修改使预览失效",
+        "过期/原文变更需重览",
+        "busy锁关闭",
+        "本地提交成功但推送失败保留HEAD"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/z-git-remote.spec.ts:16",
+        "tests/e2e/settings-overlays.spec.ts:385"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "请求drawer宽960px；inline时父窗口内页。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-078",
+      "parentId": "ST-074",
+      "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:668",
+        "apps/web/components/GitRemotePanel.vue:1233",
+        "plugins/git/server/index.ts:381"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-011.json#MP-D062",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D062",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ecf220ad-8670-43c9-a239-d34c7ed3f9a4.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D062.png",
+  "sha256": "c0303369852a39a1fd62eb82c57ebf3facc19971aeb4f07e211b65e85e13ddb2",
+  "bytes": 1125004,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T02:31:35.928957+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "确认本次提交内容并推送",
+    "sourceIds": [
+      "ST-078"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Source-derived cloud commit-and-push review drawer, author already configured, valid current preview of 2 synthetic files and diff, no partial-staging/error/result/uncertain state",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

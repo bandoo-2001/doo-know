@@ -1,0 +1,214 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D047-v2",
+  "assetId": "MP-D047",
+  "sourceIds": [
+    "ST-060"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-060",
+      "title": "收窄OAuth连接权限表单",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Active OAuth client permission narrowing draft; current/effective ceiling contains knowledge only, read/write/all; read/all draft, idle, no error/notice"
+    }
+  ],
+  "selectedState": "Active OAuth client permission narrowing draft; current/effective ceiling contains knowledge only, read/write/all; read/all draft, idle, no error/notice",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅删除这张表单中“知识库能力预设”和“知识库资源范围”标签旁的两个圆圈 i 图标。两个字段标签、下拉框内容、所有文字、复选框、开关、按钮、间距和布局完全保持不变。不新增任何其他元素。",
+  "prompt": "仅删除这张表单中“知识库能力预设”和“知识库资源范围”标签旁的两个圆圈 i 图标。两个字段标签、下拉框内容、所有文字、复选框、开关、按钮、间距和布局完全保持不变。不新增任何其他元素。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D047.png",
+      "role": "Edit target; remove only two unsupported information icons beside field labels",
+      "sha256": "97cf495db3bd0a8a70f925d55adf3313a4e37177fe55a05918792a3fccd3a8b3",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D047.png",
+      "role": "Edit target; remove only two unsupported information icons beside field labels",
+      "sha256": "97cf495db3bd0a8a70f925d55adf3313a4e37177fe55a05918792a3fccd3a8b3",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅删除这张表单中“知识库能力预设”和“知识库资源范围”标签旁的两个圆圈 i 图标。两个字段标签、下拉框内容、所有文字、复选框、开关、按钮、间距和布局完全保持不变。不新增任何其他元素。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D047.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅删除这张表单中“知识库能力预设”和“知识库资源范围”标签旁的两个圆圈 i 图标。两个字段标签、下拉框内容、所有文字、复选框、开关、按钮、间距和布局完全保持不变。不新增任何其他元素。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D047.png",
+          "role": "Edit target; remove only two unsupported information icons beside field labels"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-aebabba0-3af2-45f1-bcd9-4e37c7acefb5.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-060",
+      "title": "收窄OAuth连接权限表单",
+      "kind": "state",
+      "module": "settings/mcp",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "收窄连接权限",
+        "parentId": "ST-059"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPClientPermissions.vue:12",
+        "apps/web/components/MCPClientPermissions.vue:25",
+        "apps/server/platform/mcp-client-permissions.ts:52"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "连接权限policy",
+          "type": "domain-permissions",
+          "required": true,
+          "constraints": "ceiling=当前effectivePolicy/permissionPolicy；只收窄，不能扩大",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存收窄权限",
+          "effect": "按expectedGrantVersion保存；原令牌失效需客户端重授",
+          "api": "POST /api/platform/mcp/clients/narrow",
+          "guard": "active；effectivePolicy存在；不busy"
+        },
+        {
+          "label": "取消",
+          "effect": "移除本地draft",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "域/操作/资源编辑",
+        "busy",
+        "保存未确认提示刷新核对",
+        "保存成功需重授权"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/mcp-permission-settings.test.ts:4",
+        "tests/mcp-authorization-ui.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-060",
+      "parentId": "ST-059",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPClientPermissions.vue:12",
+        "apps/web/components/MCPClientPermissions.vue:25",
+        "apps/server/platform/mcp-client-permissions.ts:52"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-019.json#MP-D047",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D047",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-aebabba0-3af2-45f1-bcd9-4e37c7acefb5.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D047-v2.png",
+  "sha256": "1a84b35a8b3a391a3d85d6d7a219478e940197d91469c3c468b17eb708b654de",
+  "bytes": 1577257,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T04:04:35.806934+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D047.png",
+    "sha256": "97cf495db3bd0a8a70f925d55adf3313a4e37177fe55a05918792a3fccd3a8b3"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "收窄OAuth连接权限表单",
+    "sourceIds": [
+      "ST-060"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Active OAuth client permission narrowing draft; current/effective ceiling contains knowledge only, read/write/all; read/all draft, idle, no error/notice",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "renderedVariants": []
+}

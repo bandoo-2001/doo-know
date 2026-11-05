@@ -1,0 +1,290 @@
+{
+  "kind": "generated-design",
+  "id": "WS-G001",
+  "assetId": "WS-G001",
+  "sourceIds": [
+    "WS-045"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "guest holding currently editable public share"
+  ],
+  "panels": [
+    {
+      "label": "desktop",
+      "sourceId": "WS-045",
+      "title": "Shared owner/guest current-note find and replace",
+      "role": "guest holding currently editable public share",
+      "state": "Public guest desktop find/replace in existing source/document host; query/case/replace/count/previous/next/close only. No owner navigation or toolbar.",
+      "presentationInstruction": "Public guest desktop find/replace in existing source/document host; query/case/replace/count/previous/next/close only. No owner navigation or toolbar.",
+      "selectedState": "Public editable-share local find/replace widget at desktop/390/320, empty query/replacement, 0/0, no private controls; responsive arrangements derived."
+    },
+    {
+      "label": "A",
+      "sourceId": "WS-045",
+      "title": "Shared owner/guest current-note find and replace",
+      "role": "guest holding currently editable public share",
+      "state": "Public guest find/replace in document/source host only. No owner toolbar/navigation/file/sharing/upload actions.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Public guest find/replace in document/source host only. No owner toolbar/navigation/file/sharing/upload actions.",
+      "selectedState": "Public editable-share local find/replace widget at desktop/390/320, empty query/replacement, 0/0, no private controls; responsive arrangements derived."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-045",
+      "title": "Shared owner/guest current-note find and replace",
+      "role": "guest holding currently editable public share",
+      "state": "Public guest find/replace in document/source host only. No owner toolbar/navigation/file/sharing/upload actions.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Public guest find/replace in document/source host only. No owner toolbar/navigation/file/sharing/upload actions.",
+      "selectedState": "Public editable-share local find/replace widget at desktop/390/320, empty query/replacement, 0/0, no private controls; responsive arrangements derived."
+    }
+  ],
+  "selectedState": "Public editable-share local find/replace widget at desktop/390/320, empty query/replacement, 0/0, no private controls; responsive arrangements derived.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作三个独立分区对照板，外部只标桌面、390px、320px，三个局部组件而非三窗同时打开。保持全部字段/动作，窄分区自然换行与可达关闭，比例仅示意。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。仅当前笔记查找工具条，不画任何产品header/正文/目录/账户/分享管理/格式工具栏或背景页面。桌面条较宽，390和320两分区明显较窄并在框内多行排列，别把手机分区拉成桌面同宽。每份按序完整保留：label查找、焦点空input；0 / 0；↑/↓两按钮灰色禁用；未勾区分大小写checkbox；label替换、空input可输入；替换当前/全部替换两按钮灰色禁用；关闭×可用。没有其他按钮、URL或访问令牌。",
+  "prompt": "制作三个独立分区对照板，外部只标桌面、390px、320px，三个局部组件而非三窗同时打开。保持全部字段/动作，窄分区自然换行与可达关闭，比例仅示意。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。仅当前笔记查找工具条，不画任何产品header/正文/目录/账户/分享管理/格式工具栏或背景页面。桌面条较宽，390和320两分区明显较窄并在框内多行排列，别把手机分区拉成桌面同宽。每份按序完整保留：label查找、焦点空input；0 / 0；↑/↓两按钮灰色禁用；未勾区分大小写checkbox；label替换、空input可输入；替换当前/全部替换两按钮灰色禁用；关闭×可用。没有其他按钮、URL或访问令牌。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-editor-source-search.png",
+      "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured",
+      "sha256": "a3a802524079934e91bb1e5b66e03eb4da21951930aad704b8b1f77d24af5569",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exclude owner workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-editor-source-search.png",
+      "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured",
+      "sha256": "a3a802524079934e91bb1e5b66e03eb4da21951930aad704b8b1f77d24af5569",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exclude owner workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作三个独立分区对照板，外部只标桌面、390px、320px，三个局部组件而非三窗同时打开。保持全部字段/动作，窄分区自然换行与可达关闭，比例仅示意。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。仅当前笔记查找工具条，不画任何产品header/正文/目录/账户/分享管理/格式工具栏或背景页面。桌面条较宽，390和320两分区明显较窄并在框内多行排列，别把手机分区拉成桌面同宽。每份按序完整保留：label查找、焦点空input；0 / 0；↑/↓两按钮灰色禁用；未勾区分大小写checkbox；label替换、空input可输入；替换当前/全部替换两按钮灰色禁用；关闭×可用。没有其他按钮、URL或访问令牌。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-editor-source-search.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作三个独立分区对照板，外部只标桌面、390px、320px，三个局部组件而非三窗同时打开。保持全部字段/动作，窄分区自然换行与可达关闭，比例仅示意。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。仅当前笔记查找工具条，不画任何产品header/正文/目录/账户/分享管理/格式工具栏或背景页面。桌面条较宽，390和320两分区明显较窄并在框内多行排列，别把手机分区拉成桌面同宽。每份按序完整保留：label查找、焦点空input；0 / 0；↑/↓两按钮灰色禁用；未勾区分大小写checkbox；label替换、空input可输入；替换当前/全部替换两按钮灰色禁用；关闭×可用。没有其他按钮、URL或访问令牌。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-editor-source-search.png",
+          "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; exclude owner workspace shell"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-90215ab3-5198-4e6d-b951-4a33cebf7a22.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-045",
+      "title": "Shared owner/guest current-note find and replace",
+      "kind": "popover",
+      "module": "editor",
+      "entry": {
+        "route": "Owner /?note=:id; public guest edit host /s/:token (PB-026/PB-027)",
+        "trigger": "Ctrl/Cmd+F or Ctrl/Cmd+H inside NoteEditorHost in either document/source mode; owner toolbar also exposes 查找替换",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/EditorSearch.vue:1",
+        "apps/web/components/NoteEditorHost.vue:22",
+        "apps/web/components/NoteEditorHost.vue:266",
+        "apps/web/components/PublicShareEditor.vue:224"
+      ],
+      "roles": [
+        "authenticated owner",
+        "guest holding currently editable public share"
+      ],
+      "permissionRules": [
+        "Canonical shared NoteEditorHost/EditorSearch visual for owner and public edit hosts. Owner API authorization is defined by owner host; guest is constrained to public share grant and public editor source. No owner toolbar/menu privilege is granted to guest.",
+        "Ctrl/Cmd+F/H withoutAlt and notIME composition opens search in both modes even without owner toolbar. Replace is blocked by props.readOnly or session.composing; guest host readOnly=busy||loading. Matching count must be nonzero.",
+        "PB-026/PB-027 own external editor page, public save/reload/expiry permissions and host context; this row owns shared find/replace widget."
+      ],
+      "fields": [
+        {
+          "name": "查找内容",
+          "type": "text",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "区分大小写",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "替换内容",
+          "type": "text",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "上一个 / 下一个 / Enter / Shift+Enter",
+          "effect": "Cycle matches",
+          "api": "none (local UI)",
+          "guard": "Authenticated owner or valid editable-share host; the shared find/replace panel is mounted. No owner-only API permission is required by this local editor action."
+        },
+        {
+          "label": "替换当前 / 全部替换",
+          "effect": "Replace matches in active editor",
+          "api": "none",
+          "guard": "!readOnly, match count>0; no replacement during composition"
+        },
+        {
+          "label": "关闭 / Escape",
+          "effect": "Clear highlights and focus editor",
+          "api": "none (local UI)",
+          "guard": "Authenticated owner or valid editable-share host; the shared find/replace panel is mounted. No owner-only API permission is required by this local editor action."
+        }
+      ],
+      "importantStates": [
+        "0 / 0 match count",
+        "Active match highlight",
+        "Read-only search keeps replacement disabled"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "testRefs": [
+        "tests/editor-search.test.ts",
+        "tests/e2e/editor-improvements.spec.ts",
+        "tests/share-options.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Public edit host uses same widget via keyboard. Do not infer guest access to owner formatting toolbar, file operations, directory selector, account or sharing management."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-045",
+      "parentId": "WS-024",
+      "route": "Owner /?note=:id; public guest edit host /s/:token (PB-026/PB-027)",
+      "roles": [
+        "authenticated owner",
+        "guest holding currently editable public share"
+      ],
+      "sourceRefs": [
+        "apps/web/components/EditorSearch.vue:1",
+        "apps/web/components/NoteEditorHost.vue:22",
+        "apps/web/components/NoteEditorHost.vue:266",
+        "apps/web/components/PublicShareEditor.vue:224"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-017.json#WS-G001",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-G001",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-90215ab3-5198-4e6d-b951-4a33cebf7a22.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-G001.png",
+  "sha256": "90127fab350ebfc36fbb86de7621f8aa9e37da8b62e47a6e53f06230cbec0d6d",
+  "bytes": 1042910,
+  "dimensions": {
+    "width": 1752,
+    "height": 897
+  },
+  "generatedAtUtc": "2026-11-05T03:42:30.988063+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Shared owner/guest current-note find and replace",
+    "sourceIds": [
+      "WS-045"
+    ],
+    "roles": [
+      "authenticated owner",
+      "guest holding currently editable public share"
+    ],
+    "state": "Public editable-share local find/replace widget at desktop/390/320, empty query/replacement, 0/0, no private controls; responsive arrangements derived.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "renderedVariants": []
+}

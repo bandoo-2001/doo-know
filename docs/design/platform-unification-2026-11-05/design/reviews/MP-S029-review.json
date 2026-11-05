@@ -1,0 +1,72 @@
+{
+  "assetId": "MP-S029",
+  "sourceIds": [
+    "ST-074",
+    "ST-075",
+    "ST-076",
+    "ST-077",
+    "ST-078",
+    "ST-080"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:08:59.452128+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "CredentialUnavailable Git status prose plus manage-sync entry; additional mapped warnings/errors absent.",
+  "functionalFindings": [
+    {
+      "id": "MP-S029-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "r1 also maps unsaved-note warning/return-save, but the credential-unavailable paragraph/card has no actual warning AAlert or 返回笔记保存 action. This source-specific action is not covered by 管理同步.",
+      "sourceEvidence": "GitRemotePanel gitUnsaved warning AAlert includes returnSave button separately from connection credentialAvailable paragraph."
+    },
+    {
+      "id": "MP-S029-F2",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Root-assigned403/503/business caller error region cannot bind this current PNG: it contains no Git caller error AAlert or existing refresh control, only credential-status prose/manage-sync. Reauthentication must remain401-only, but these failures still need actual caller error renderer.",
+      "sourceEvidence": "GitRemotePanel.vue:799 error AAlert and header refresh are separate source regions; api.ts only dispatches session-expired for401."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Visible credential warning/manage-sync card match associatedremote credentialAvailablefalse source, no login/token fields or fake success."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-025.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S029.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/GitRemotePanel.vue:799",
+    "apps/web/components/GitRemotePanel.vue:817",
+    "apps/web/components/GitRemotePanel.vue:853"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "MP-S029-F1",
+      "correction": "Add/bind genuine unsaved-note warning with 返回笔记保存 and preserve do-not-commit/pull-unsaved distinction, separate from credentialUnavailable."
+    },
+    {
+      "findingId": "MP-S029-F2",
+      "correction": "Add or root bind a separately reviewed actual Git error AAlert/refresh region for403/503/business errors with exact message/guard/role conditions, rather than binding absent renderer or compactLogin."
+    }
+  ],
+  "reviewedImageSha256": "8dd7c7b4602bcfbdcbc3f0d4eb9de6b11e3ab08f36239f2329a7021997a2c8ba",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S029.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

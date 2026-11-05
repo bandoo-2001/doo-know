@@ -1,0 +1,65 @@
+{
+  "assetId": "WS-M011",
+  "sourceIds": [
+    "WS-088"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T06:08:56.789629+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Six graph task-state specimens; row4 waiting-model combination conflicts with current API",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Row4 draws 等待模型 + 基础分析可用 +0/10 with pending sources, but this cannot be returned by current graph status API. Any pending>0 yields queued, while provider=none waiting-model is only reached when pending=running=failed=0, and the UI renders 基础分析就绪 for that actual combination.",
+      "sourceEvidence": [
+        "knowledge-service.ts:570 pending=total-completed-failed-running; :633..646 prioritizes paused/running/pending/failed before provider=none -> waiting-model.",
+        "GraphWorkspace.vue:168..175 substitutes 基础分析就绪 when provider=none,state=waiting-model,pending=0."
+      ],
+      "affectedSourceIds": [
+        "WS-088"
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed current PNG/new SHA and complete first+edit prompt history. Idle/running/paused/failed/queued counts and progress are internally coherent, failed progress uses exception red/X; five control actions stay available in every row when !busy, as actual template.",
+    "Per-source failed extraction explanation/expanded readonly diagnostic and retained-human-decisions/shared-background-task note match source. No editable protocol/task-count input invented.",
+    "Row4 deliberately declares pending exists to get 等待模型 instead of special UI fallback, but server state ordering forbids this combination. Source-derived examples still must follow actual API data contracts."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-034.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-M011.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/GraphWorkspace.vue:168",
+    "apps/web/components/GraphWorkspace.vue:979",
+    "apps/web/components/graph/labels.ts:25",
+    "apps/server/graph/semantic-routes.ts:151",
+    "packages/core/graph/knowledge-service.ts:554",
+    "packages/core/graph/knowledge-service.ts:633",
+    "packages/core/graph/analysis-source.ts:31"
+  ],
+  "requiredCorrections": [
+    "Replace only r4 with a genuine basic-analysis-ready sample: provider=none, automatic=true, completed10,total10,pending0,failed0,running0 -> 基础分析就绪,10/10,100%,自动更新开启,基础分析可用. Keep five existing actions available under !busy and do not imply model configured.",
+    "Alternatively use any other source/API-coherent combination and exact current status label; do not synthesize waiting-model with pending>0. Preserve other five valid rows and expanded diagnostic."
+  ],
+  "reviewedImageSha256": "2c21b1bfe727010de8c2f99200d9cf5b1e4e94bf645becac3998b4ba92f0a62c",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-M011.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

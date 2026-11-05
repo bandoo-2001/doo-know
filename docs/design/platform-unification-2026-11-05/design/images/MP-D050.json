@@ -1,0 +1,260 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D050",
+  "assetId": "MP-D050",
+  "sourceIds": [
+    "ST-063"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-063",
+      "title": "知识库权限资源树浮层",
+      "role": "authenticated-owner",
+      "state": "完整桌面紧凑真实窗口/浮层；只画实际组件，不重绘外部宿主",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "selectedState": "Source-derived strict resource multi-select open popup, ceiling all, one directory selected; descendants inherited/noncheckable and summary 1 directory/0 explicit notes"
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-063",
+      "title": "知识库权限资源树浮层 390px",
+      "role": "authenticated-owner",
+      "state": "同一完整紧凑组件的390px布局，登记字段/现有动作/焦点和guard不变",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Source-derived strict resource multi-select open popup, ceiling all, one directory selected; descendants inherited/noncheckable and summary 1 directory/0 explicit notes"
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-063",
+      "title": "知识库权限资源树浮层 320px",
+      "role": "authenticated-owner",
+      "state": "同一完整紧凑组件的320px布局，登记字段/现有动作/焦点和guard不变",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Source-derived strict resource multi-select open popup, ceiling all, one directory selected; descendants inherited/noncheckable and summary 1 directory/0 explicit notes"
+    }
+  ],
+  "selectedState": "Source-derived strict resource multi-select open popup, ceiling all, one directory selected; descendants inherited/noncheckable and summary 1 directory/0 explicit notes",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作一个UI DESIGN BOARD，外部A桌面1440宿主/B390px/C320px标注三个独立viewport示例，只画同一局部组件，绝不是同一产品页同时打开三窗。画布可扩大以完整展示三份组件，文字可读，B/C可内部滚动、关闭与主要动作可达；不画父页导航或设备外壳，不声称像素实测。只画KnowledgeResourceTreeSelect复选资源选择combobox及打开树，不造标题栏/确认/取消按钮。三份相同数据：combobox已选tag“30-Knowledge”带可移除小X与下拉箭头，搜索属于同一个combobox，不能加独立搜索框。树根是现有00-Inbox（折叠、未勾）与30-Knowledge（展开、蓝色勾选）；其直接子项“方法”文件夹（折叠）和“入门指南.md”笔记均呈灰色已包含勾标、旁注“随父目录包含”，不能再独立勾选。没有虚拟全库根或批量选择按钮。树下准确摘要“已选 1 个目录 · 0 篇笔记”，再准确帮助“目录包含当前及以后新增的子目录和笔记。取消父目录后，可单独选择其中的资料。”。长名称/帮助在390/320内换行，popup有内部滚动边界。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。不要真实私有文件/权限保存动作。",
+  "prompt": "制作一个UI DESIGN BOARD，外部A桌面1440宿主/B390px/C320px标注三个独立viewport示例，只画同一局部组件，绝不是同一产品页同时打开三窗。画布可扩大以完整展示三份组件，文字可读，B/C可内部滚动、关闭与主要动作可达；不画父页导航或设备外壳，不声称像素实测。只画KnowledgeResourceTreeSelect复选资源选择combobox及打开树，不造标题栏/确认/取消按钮。三份相同数据：combobox已选tag“30-Knowledge”带可移除小X与下拉箭头，搜索属于同一个combobox，不能加独立搜索框。树根是现有00-Inbox（折叠、未勾）与30-Knowledge（展开、蓝色勾选）；其直接子项“方法”文件夹（折叠）和“入门指南.md”笔记均呈灰色已包含勾标、旁注“随父目录包含”，不能再独立勾选。没有虚拟全库根或批量选择按钮。树下准确摘要“已选 1 个目录 · 0 篇笔记”，再准确帮助“目录包含当前及以后新增的子目录和笔记。取消父目录后，可单独选择其中的资料。”。长名称/帮助在390/320内换行，popup有内部滚动边界。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。不要真实私有文件/权限保存动作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "Actual parent context only; selected local window/component is source-derived, not a captured runtime overlay",
+      "sha256": "20d3af18e07807e109eee306b74d24cab0fdbe1eadc0e5ed5883c727c9863156",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; no owner shell transfer",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "Actual parent context only; selected local window/component is source-derived, not a captured runtime overlay",
+      "sha256": "20d3af18e07807e109eee306b74d24cab0fdbe1eadc0e5ed5883c727c9863156",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; no owner shell transfer",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作一个UI DESIGN BOARD，外部A桌面1440宿主/B390px/C320px标注三个独立viewport示例，只画同一局部组件，绝不是同一产品页同时打开三窗。画布可扩大以完整展示三份组件，文字可读，B/C可内部滚动、关闭与主要动作可达；不画父页导航或设备外壳，不声称像素实测。只画KnowledgeResourceTreeSelect复选资源选择combobox及打开树，不造标题栏/确认/取消按钮。三份相同数据：combobox已选tag“30-Knowledge”带可移除小X与下拉箭头，搜索属于同一个combobox，不能加独立搜索框。树根是现有00-Inbox（折叠、未勾）与30-Knowledge（展开、蓝色勾选）；其直接子项“方法”文件夹（折叠）和“入门指南.md”笔记均呈灰色已包含勾标、旁注“随父目录包含”，不能再独立勾选。没有虚拟全库根或批量选择按钮。树下准确摘要“已选 1 个目录 · 0 篇笔记”，再准确帮助“目录包含当前及以后新增的子目录和笔记。取消父目录后，可单独选择其中的资料。”。长名称/帮助在390/320内换行，popup有内部滚动边界。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。不要真实私有文件/权限保存动作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作一个UI DESIGN BOARD，外部A桌面1440宿主/B390px/C320px标注三个独立viewport示例，只画同一局部组件，绝不是同一产品页同时打开三窗。画布可扩大以完整展示三份组件，文字可读，B/C可内部滚动、关闭与主要动作可达；不画父页导航或设备外壳，不声称像素实测。只画KnowledgeResourceTreeSelect复选资源选择combobox及打开树，不造标题栏/确认/取消按钮。三份相同数据：combobox已选tag“30-Knowledge”带可移除小X与下拉箭头，搜索属于同一个combobox，不能加独立搜索框。树根是现有00-Inbox（折叠、未勾）与30-Knowledge（展开、蓝色勾选）；其直接子项“方法”文件夹（折叠）和“入门指南.md”笔记均呈灰色已包含勾标、旁注“随父目录包含”，不能再独立勾选。没有虚拟全库根或批量选择按钮。树下准确摘要“已选 1 个目录 · 0 篇笔记”，再准确帮助“目录包含当前及以后新增的子目录和笔记。取消父目录后，可单独选择其中的资料。”。长名称/帮助在390/320内换行，popup有内部滚动边界。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。不要真实私有文件/权限保存动作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+          "role": "Actual parent context only; selected local window/component is source-derived, not a captured runtime overlay"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; no owner shell transfer"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ff314786-3d9e-41b0-84f3-6de25060db95.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-063",
+      "title": "知识库权限资源树浮层",
+      "kind": "popover",
+      "module": "settings/mcp-permissions",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "指定目录/笔记→选择知识库资源",
+        "parentId": "ST-062"
+      },
+      "sourceRefs": [
+        "apps/web/components/KnowledgeResourceTreeSelect.vue:85",
+        "apps/web/components/KnowledgeResourceTreeSelect.vue:117"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "搜索或选择目录、笔记",
+          "type": "checkable-tree",
+          "required": false,
+          "constraints": "strict多选；遵循ceiling；目录包含当前和未来后代",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "选择 / 取消父目录",
+          "effect": "更新稳定ResourceRef集合，取消父目录后可独立选子项",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "Escape",
+          "effect": "只关闭当前树浮层",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "无匹配目录/笔记",
+        "随父目录包含且不可独立重复勾选",
+        "未加载选中项保留",
+        "已选目录/笔记数摘要"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "动态24–300px列表高度",
+          "100vw−16px最大宽度"
+        ],
+        "behavior": "上下空间择向，resize/scroll重算，长标题两行与选择标签最多2个；body z-index3000。"
+      },
+      "testRefs": [
+        "tests/mcp-domain-editor.test.ts:1",
+        "tests/e2e/plugin-config.spec.ts:127"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-063",
+      "parentId": "ST-062",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/KnowledgeResourceTreeSelect.vue:85",
+        "apps/web/components/KnowledgeResourceTreeSelect.vue:117"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-011.json#MP-D050",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D050",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ff314786-3d9e-41b0-84f3-6de25060db95.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D050.png",
+  "sha256": "0f545477da46d66d5546c2d6efceb57ad8e9405dfa4b338efe3166b379a03344",
+  "bytes": 1217750,
+  "dimensions": {
+    "width": 1920,
+    "height": 819
+  },
+  "generatedAtUtc": "2026-11-05T02:28:41.388184+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "知识库权限资源树浮层",
+    "sourceIds": [
+      "ST-063"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Source-derived strict resource multi-select open popup, ceiling all, one directory selected; descendants inherited/noncheckable and summary 1 directory/0 explicit notes",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

@@ -1,0 +1,601 @@
+{
+  "id": "WS-R032",
+  "title": "Native applications home",
+  "kind": "responsive-board",
+  "sourceIds": [
+    "WS-084"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-084",
+      "title": "Native applications home",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport"
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-084",
+      "title": "Native applications home",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport"
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-apps.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+    },
+    {
+      "path": "apps/web/components/AppsWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/AppsWorkspace.vue:136, apps/web/app-shortcuts.ts:1, apps/web/blog.css:37, apps/web/blog.css:1433"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-084",
+      "label": "应用卡片",
+      "effect": "Open existing blog, ToDoo or graph app",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-084",
+      "label": "加入左侧菜单 / 从左侧菜单移除",
+      "effect": "Persist pin preference in browser",
+      "api": "none",
+      "guard": "Workspace reports persistence failure as toast"
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R032",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=700px home padding35px24px; app cards one column max360px. Desktop uses apps-grid. Actual320px card clipping unverified."
+      },
+      "requiredFieldOrder": [],
+      "requiredFields": [],
+      "requiredActions": [
+        {
+          "label": "应用卡片",
+          "effect": "Open existing blog, ToDoo or graph app",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "加入左侧菜单 / 从左侧菜单移除",
+          "effect": "Persist pin preference in browser",
+          "api": "none",
+          "guard": "Workspace reports persistence failure as toast"
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-084"
+    }
+  ],
+  "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R032 Native applications home\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-084\", \"title\": \"Native applications home\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport\"}, {\"label\": \"B\", \"sourceId\": \"WS-084\", \"title\": \"Native applications home\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-084\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"应用卡片\", \"effect\": \"Open existing blog, ToDoo or graph app\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"加入左侧菜单 / 从左侧菜单移除\", \"effect\": \"Persist pin preference in browser\", \"api\": \"none\", \"guard\": \"Workspace reports persistence failure as toast\"}], \"importantStates\": [\"Pinned/unpinned card actions\", \"Local storage unavailable warning via toast\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-084\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"应用卡片\", \"effect\": \"Open existing blog, ToDoo or graph app\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"加入左侧菜单 / 从左侧菜单移除\", \"effect\": \"Persist pin preference in browser\", \"api\": \"none\", \"guard\": \"Workspace reports persistence failure as toast\"}], \"importantStates\": [\"Pinned/unpinned card actions\", \"Local storage unavailable warning via toast\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R032.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-084",
+      "title": "Native applications home",
+      "kind": "page",
+      "module": "apps",
+      "entry": {
+        "route": "/?view=apps",
+        "trigger": "应用 navigation",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/AppsWorkspace.vue:136",
+        "apps/web/app-shortcuts.ts:1",
+        "apps/web/blog.css:37",
+        "apps/web/blog.css:1433"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "应用卡片",
+          "effect": "Open existing blog, ToDoo or graph app",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "加入左侧菜单 / 从左侧菜单移除",
+          "effect": "Persist pin preference in browser",
+          "api": "none",
+          "guard": "Workspace reports persistence failure as toast"
+        }
+      ],
+      "importantStates": [
+        "Pinned/unpinned card actions",
+        "Local storage unavailable warning via toast"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=700px home padding35px24px; app cards one column max360px. Desktop uses apps-grid. Actual320px card clipping unverified."
+      },
+      "testRefs": [
+        "tests/workspace-main-menu.test.ts",
+        "tests/e2e/workspace-lifecycle.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Blog and ToDoo interiors explicitly excluded."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-084",
+      "parentId": "WS-001",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-084",
+  "stateCoverageRefs": [],
+  "statePatternRefs": [
+    {
+      "sourceId": "WS-084",
+      "assetId": "WS-D060",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-R032",
+  "originalManifest": {
+    "id": "WS-R032",
+    "title": "Native applications home",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-084"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-084",
+        "title": "Native applications home",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport"
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-084",
+        "title": "Native applications home",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport"
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/390-apps.png",
+        "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+      },
+      {
+        "path": "apps/web/components/AppsWorkspace.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/AppsWorkspace.vue:136, apps/web/app-shortcuts.ts:1, apps/web/blog.css:37, apps/web/blog.css:1433"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-084",
+        "label": "应用卡片",
+        "effect": "Open existing blog, ToDoo or graph app",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-084",
+        "label": "加入左侧菜单 / 从左侧菜单移除",
+        "effect": "Persist pin preference in browser",
+        "api": "none",
+        "guard": "Workspace reports persistence failure as toast"
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-R032",
+        "representation": "direct",
+        "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "<=700px home padding35px24px; app cards one column max360px. Desktop uses apps-grid. Actual320px card clipping unverified."
+        },
+        "requiredFieldOrder": [],
+        "requiredFields": [],
+        "requiredActions": [
+          {
+            "label": "应用卡片",
+            "effect": "Open existing blog, ToDoo or graph app",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "加入左侧菜单 / 从左侧菜单移除",
+            "effect": "Persist pin preference in browser",
+            "api": "none",
+            "guard": "Workspace reports persistence failure as toast"
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-084"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R032 Native applications home\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-084\", \"title\": \"Native applications home\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport\"}, {\"label\": \"B\", \"sourceId\": \"WS-084\", \"title\": \"Native applications home\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. single-column max360px cards constrained inside320px viewport\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-084\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"应用卡片\", \"effect\": \"Open existing blog, ToDoo or graph app\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"加入左侧菜单 / 从左侧菜单移除\", \"effect\": \"Persist pin preference in browser\", \"api\": \"none\", \"guard\": \"Workspace reports persistence failure as toast\"}], \"importantStates\": [\"Pinned/unpinned card actions\", \"Local storage unavailable warning via toast\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-084\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"应用卡片\", \"effect\": \"Open existing blog, ToDoo or graph app\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"加入左侧菜单 / 从左侧菜单移除\", \"effect\": \"Persist pin preference in browser\", \"api\": \"none\", \"guard\": \"Workspace reports persistence failure as toast\"}], \"importantStates\": [\"Pinned/unpinned card actions\", \"Local storage unavailable warning via toast\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R032.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-084",
+        "title": "Native applications home",
+        "kind": "page",
+        "module": "apps",
+        "entry": {
+          "route": "/?view=apps",
+          "trigger": "应用 navigation",
+          "parentId": "WS-001"
+        },
+        "sourceRefs": [
+          "apps/web/components/AppsWorkspace.vue:136",
+          "apps/web/app-shortcuts.ts:1",
+          "apps/web/blog.css:37",
+          "apps/web/blog.css:1433"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "fields": [],
+        "actions": [
+          {
+            "label": "应用卡片",
+            "effect": "Open existing blog, ToDoo or graph app",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "加入左侧菜单 / 从左侧菜单移除",
+            "effect": "Persist pin preference in browser",
+            "api": "none",
+            "guard": "Workspace reports persistence failure as toast"
+          }
+        ],
+        "importantStates": [
+          "Pinned/unpinned card actions",
+          "Local storage unavailable warning via toast"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "<=700px home padding35px24px; app cards one column max360px. Desktop uses apps-grid. Actual320px card clipping unverified."
+        },
+        "testRefs": [
+          "tests/workspace-main-menu.test.ts",
+          "tests/e2e/workspace-lifecycle.spec.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted.",
+          "Blog and ToDoo interiors explicitly excluded."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-084",
+        "parentId": "WS-001",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-084",
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "WS-084",
+        "assetId": "WS-D060",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作中文DooKnow应用首页的手机适配设计板，只有A/B两个独立手机页面视口，A按390、B按320宽比例，正常字号，不画设备壳/系统栏/尺寸数字。白底浅灰边线小圆角蓝色主色，保持真实宿主顶部菜单图标、DooKnow、私人笔记，底部导航笔记/最近/收藏/应用/更多，应用选中。页面单列纵向滚动，卡片宽度不超过视口内边距，三张卡顺序不变，不缩小塞一屏。A是顶部：小字“YOUR WORKSPACE, EXTENDED”、主标题“应用”、描述“让知识走得更远。为你的笔记，打开新的可能。”；第一张知识图谱卡有网络图标、“原生应用”小标签、标题“知识图谱”、描述“从原文发现概念与关系，沿着证据探索知识。”、中性浅灰应用示意、底部“自动分析 · 关系证据 · 局部探索”及右箭头；卡外按钮“＋ 加入左侧菜单”；下方露出下一张博客卡顶部，表示继续滚动。B是同一页已滚下去：博客完整卡，书本图标、“原生应用”、标题“博客”、描述“把值得分享的笔记，变成你的个人博客。”、中性浅灰示意、底部“选稿 · 预览 · 手动发布”及箭头，卡外“＋ 加入左侧菜单”；再To Doo卡，任务图标、“原生应用”、标题“To Doo”、描述“带着资料做事，把每一步成果留下来。”、中性浅灰示意、底部“目标 · 任务 · 日程 · 专注”及箭头，卡外“＋ 加入左侧菜单”；最下锁图标小字“资料与应用数据由你掌握，公开分享由你决定。”。B正文可延长画布保持正常字号，但不重画页面大标题。三个都是实际已有应用，不新增安装/商店/删除/定价按钮。",
+  "actualToolArguments": {
+    "prompt": "制作中文DooKnow应用首页的手机适配设计板，只有A/B两个独立手机页面视口，A按390、B按320宽比例，正常字号，不画设备壳/系统栏/尺寸数字。白底浅灰边线小圆角蓝色主色，保持真实宿主顶部菜单图标、DooKnow、私人笔记，底部导航笔记/最近/收藏/应用/更多，应用选中。页面单列纵向滚动，卡片宽度不超过视口内边距，三张卡顺序不变，不缩小塞一屏。A是顶部：小字“YOUR WORKSPACE, EXTENDED”、主标题“应用”、描述“让知识走得更远。为你的笔记，打开新的可能。”；第一张知识图谱卡有网络图标、“原生应用”小标签、标题“知识图谱”、描述“从原文发现概念与关系，沿着证据探索知识。”、中性浅灰应用示意、底部“自动分析 · 关系证据 · 局部探索”及右箭头；卡外按钮“＋ 加入左侧菜单”；下方露出下一张博客卡顶部，表示继续滚动。B是同一页已滚下去：博客完整卡，书本图标、“原生应用”、标题“博客”、描述“把值得分享的笔记，变成你的个人博客。”、中性浅灰示意、底部“选稿 · 预览 · 手动发布”及箭头，卡外“＋ 加入左侧菜单”；再To Doo卡，任务图标、“原生应用”、标题“To Doo”、描述“带着资料做事，把每一步成果留下来。”、中性浅灰示意、底部“目标 · 任务 · 日程 · 专注”及箭头，卡外“＋ 加入左侧菜单”；最下锁图标小字“资料与应用数据由你掌握，公开分享由你决定。”。B正文可延长画布保持正常字号，但不重画页面大标题。三个都是实际已有应用，不新增安装/商店/删除/定价按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-apps.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-apps.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-apps.png",
+      "order": 1,
+      "role": "actual mobile applications home, existing card content and host",
+      "sha256": "16eae2dfc11a22c1470d0d4bc9d7c478a40304d5d4c1e07f62d94c275536358a",
+      "bytes": 50875,
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/AppsWorkspace.vue",
+      "sha256": "85e67be3816be504ff83e01b6057a52ae96752ad1241d2ca8c9747b0fb73ec19",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/app-shortcuts.ts",
+      "sha256": "39de15ed7b82df33977cd602be7ba7cea80e200cad035d574814a93596e50857",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/blog.css",
+      "sha256": "40a771720b67cedf129ed46b8c3bb940b5875ff4941e725333b5d5021fe0f74a",
+      "role": "actual source template/behavior authority; read before generation"
+    }
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "fallbackUsed": false,
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "url": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "verifiedModel": "gpt-image-2",
+      "scope": "Codex built-in image generation",
+      "date": "2026-11-05",
+      "apiReference": "https://developers.openai.com/api/reference/resources/images/methods/generate",
+      "apiModelSupported": true,
+      "apiReferenceDoesNotProveBuiltinRouteAlone": true
+    }
+  },
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-4e489d29-5f2c-468f-b556-ed5452aac1c7.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-4e489d29-5f2c-468f-b556-ed5452aac1c7.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generatedAtUtc": "2026-11-05T09:03:23.051Z",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R032.png",
+  "generationCalls": [
+    {
+      "status": "completed-with-tool-receipt",
+      "actualToolArguments": {
+        "prompt": "制作中文DooKnow应用首页的手机适配设计板，只有A/B两个独立手机页面视口，A按390、B按320宽比例，正常字号，不画设备壳/系统栏/尺寸数字。白底浅灰边线小圆角蓝色主色，保持真实宿主顶部菜单图标、DooKnow、私人笔记，底部导航笔记/最近/收藏/应用/更多，应用选中。页面单列纵向滚动，卡片宽度不超过视口内边距，三张卡顺序不变，不缩小塞一屏。A是顶部：小字“YOUR WORKSPACE, EXTENDED”、主标题“应用”、描述“让知识走得更远。为你的笔记，打开新的可能。”；第一张知识图谱卡有网络图标、“原生应用”小标签、标题“知识图谱”、描述“从原文发现概念与关系，沿着证据探索知识。”、中性浅灰应用示意、底部“自动分析 · 关系证据 · 局部探索”及右箭头；卡外按钮“＋ 加入左侧菜单”；下方露出下一张博客卡顶部，表示继续滚动。B是同一页已滚下去：博客完整卡，书本图标、“原生应用”、标题“博客”、描述“把值得分享的笔记，变成你的个人博客。”、中性浅灰示意、底部“选稿 · 预览 · 手动发布”及箭头，卡外“＋ 加入左侧菜单”；再To Doo卡，任务图标、“原生应用”、标题“To Doo”、描述“带着资料做事，把每一步成果留下来。”、中性浅灰示意、底部“目标 · 任务 · 日程 · 专注”及箭头，卡外“＋ 加入左侧菜单”；最下锁图标小字“资料与应用数据由你掌握，公开分享由你决定。”。B正文可延长画布保持正常字号，但不重画页面大标题。三个都是实际已有应用，不新增安装/商店/删除/定价按钮。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-apps.png",
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-4e489d29-5f2c-468f-b556-ed5452aac1c7.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    }
+  ],
+  "generationCallCount": 1,
+  "selfInspection": {
+    "status": "pending-independent-review",
+    "method": "Native PNG inspected against component template/role and selected state",
+    "concerns": [
+      "Raster geometry approximate; runtime scroll/actions remain unverified."
+    ]
+  },
+  "sha256": "b6ec9c349da169e81d9d193025d50c213626a790a165ba015dbd95f48985fd41",
+  "bytes": 1180820,
+  "dimensions": {
+    "width": 1312,
+    "height": 1199
+  },
+  "selectedState": [
+    "390 home top and first graph card",
+    "320 same single-column home lower scroll, blog and To Doo existing cards"
+  ],
+  "unscreenedControlsBinding": {
+    "assetId": "WS-D060",
+    "fieldOrder": [
+      "eyebrow/title/description",
+      "graph/card+pin",
+      "blog/card+pin",
+      "to-doo/card+pin",
+      "footnote"
+    ],
+    "sha256": "fc0a66391e8675404f79118b23d1371fcecd76c4dd6028654875b85eb2c07b7d",
+    "path": "docs/design/platform-unification-2026-11-05/design/images/WS-D060.png"
+  },
+  "runtimeResponsiveVerified": false,
+  "responsiveTargetCssWidths": [
+    390,
+    320
+  ],
+  "currentGenerationReceipt": {
+    "toolResultReceiptObserved": true,
+    "receiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-5.json",
+    "actualToolArguments": {
+      "prompt": "制作中文DooKnow应用首页的手机适配设计板，只有A/B两个独立手机页面视口，A按390、B按320宽比例，正常字号，不画设备壳/系统栏/尺寸数字。白底浅灰边线小圆角蓝色主色，保持真实宿主顶部菜单图标、DooKnow、私人笔记，底部导航笔记/最近/收藏/应用/更多，应用选中。页面单列纵向滚动，卡片宽度不超过视口内边距，三张卡顺序不变，不缩小塞一屏。A是顶部：小字“YOUR WORKSPACE, EXTENDED”、主标题“应用”、描述“让知识走得更远。为你的笔记，打开新的可能。”；第一张知识图谱卡有网络图标、“原生应用”小标签、标题“知识图谱”、描述“从原文发现概念与关系，沿着证据探索知识。”、中性浅灰应用示意、底部“自动分析 · 关系证据 · 局部探索”及右箭头；卡外按钮“＋ 加入左侧菜单”；下方露出下一张博客卡顶部，表示继续滚动。B是同一页已滚下去：博客完整卡，书本图标、“原生应用”、标题“博客”、描述“把值得分享的笔记，变成你的个人博客。”、中性浅灰示意、底部“选稿 · 预览 · 手动发布”及箭头，卡外“＋ 加入左侧菜单”；再To Doo卡，任务图标、“原生应用”、标题“To Doo”、描述“带着资料做事，把每一步成果留下来。”、中性浅灰示意、底部“目标 · 任务 · 日程 · 专注”及箭头，卡外“＋ 加入左侧菜单”；最下锁图标小字“资料与应用数据由你掌握，公开分享由你决定。”。B正文可延长画布保持正常字号，但不重画页面大标题。三个都是实际已有应用，不新增安装/商店/删除/定价按钮。",
+      "referenced_image_paths": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-apps.png",
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "transparent_background": false
+    },
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-4e489d29-5f2c-468f-b556-ed5452aac1c7.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-4e489d29-5f2c-468f-b556-ed5452aac1c7.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "completionObservedAtUtc": "2026-11-05T09:03:23.051Z",
+    "exactToolServerCompletionTimestampExposed": false
+  },
+  "generatedAtUtcBasis": "Local observation after awaited callback; tool does not expose exact server completion timestamp.",
+  "sourceImageSha256": "b6ec9c349da169e81d9d193025d50c213626a790a165ba015dbd95f48985fd41",
+  "metadataAmendments": [
+    {
+      "atUtc": "2026-11-05T09:18:09.836367+00:00",
+      "reason": "Attach observed current receipt, source byte verification and full prior revision chain without changing PNG or rewriting historical no-receipt status."
+    }
+  ]
+}

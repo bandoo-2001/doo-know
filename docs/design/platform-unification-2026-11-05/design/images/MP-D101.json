@@ -1,0 +1,256 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D101",
+  "assetId": "MP-D101",
+  "sourceIds": [
+    "PB-035"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-035",
+      "title": "博客图片：裁切与上传",
+      "role": "authenticated owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Article cover16:9 image decoded, crop source active zoom1/x50/y50; no prior cover value, pending false, no error; three range inputs"
+    }
+  ],
+  "selectedState": "Article cover16:9 image decoded, crop source active zoom1/x50/y50; no prior cover value, pending false, no error; three range inputs",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。单个完整裁切组件，标题“上传并裁切封面”，按钮“选择图片”；说明“支持 JPEG、PNG、WebP，最大 10 MB。选择后可调整裁切范围。”。下方说明“调整缩放和位置，确认画面后上传。”，一个16:9山景裁切预览。控件依序为“缩放”水平滑杆（滑块位于最左）；下一行“水平位置”“垂直位置”各自滑杆，滑块均居中。底部蓝色按钮“裁切并上传”和普通“取消裁切”均可用。只三个滑杆，不画数值输入框、不加旋转/比例选择/确认/移除，不显示上传中或已选择图片。",
+  "prompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。单个完整裁切组件，标题“上传并裁切封面”，按钮“选择图片”；说明“支持 JPEG、PNG、WebP，最大 10 MB。选择后可调整裁切范围。”。下方说明“调整缩放和位置，确认画面后上传。”，一个16:9山景裁切预览。控件依序为“缩放”水平滑杆（滑块位于最左）；下一行“水平位置”“垂直位置”各自滑杆，滑块均居中。底部蓝色按钮“裁切并上传”和普通“取消裁切”均可用。只三个滑杆，不画数值输入框、不加旋转/比例选择/确认/移除，不显示上传中或已选择图片。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "role": "Actual matching parent/content reference; selected local substate follows source template",
+      "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette and density only; no feature or owner chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "role": "Actual matching parent/content reference; selected local substate follows source template",
+      "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette and density only; no feature or owner chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。单个完整裁切组件，标题“上传并裁切封面”，按钮“选择图片”；说明“支持 JPEG、PNG、WebP，最大 10 MB。选择后可调整裁切范围。”。下方说明“调整缩放和位置，确认画面后上传。”，一个16:9山景裁切预览。控件依序为“缩放”水平滑杆（滑块位于最左）；下一行“水平位置”“垂直位置”各自滑杆，滑块均居中。底部蓝色按钮“裁切并上传”和普通“取消裁切”均可用。只三个滑杆，不画数值输入框、不加旋转/比例选择/确认/移除，不显示上传中或已选择图片。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。单个完整裁切组件，标题“上传并裁切封面”，按钮“选择图片”；说明“支持 JPEG、PNG、WebP，最大 10 MB。选择后可调整裁切范围。”。下方说明“调整缩放和位置，确认画面后上传。”，一个16:9山景裁切预览。控件依序为“缩放”水平滑杆（滑块位于最左）；下一行“水平位置”“垂直位置”各自滑杆，滑块均居中。底部蓝色按钮“裁切并上传”和普通“取消裁切”均可用。只三个滑杆，不画数值输入框、不加旋转/比例选择/确认/移除，不显示上传中或已选择图片。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+          "role": "Actual matching parent/content reference; selected local substate follows source template"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette and density only; no feature or owner chrome authority"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-e158d2c0-a8cb-4440-86e7-61ff2cf10778.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-035",
+      "title": "博客图片：裁切与上传",
+      "kind": "state",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design|articles",
+        "trigger": "Choose avatar/banner/article-cover file",
+        "parentId": "PB-034"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogImageEditor.vue:41",
+        "apps/web/components/blog/BlogImageEditor.vue:109",
+        "apps/web/components/blog/BlogArticleCover.vue:51",
+        "apps/web/blog-workbench.ts:469"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "file",
+          "type": "image file",
+          "required": true,
+          "constraints": "JPEG/PNG/WebP; chooser<=10MB; cropped WebP output<=1600px wide; processed design upload<=5MiB",
+          "sensitive": false
+        },
+        {
+          "name": "zoom",
+          "type": "range",
+          "required": true,
+          "constraints": "1..3 step.05",
+          "sensitive": false
+        },
+        {
+          "name": "x/y",
+          "type": "range",
+          "required": true,
+          "constraints": "0..100; default50",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "裁切并上传",
+          "effect": "Process chosen crop and upload to current destination",
+          "api": "POST /api/blog/design/media (JSON); POST /api/notes/:noteId/assets (multipart)",
+          "guard": "image decoded; not pending"
+        },
+        {
+          "label": "取消裁切",
+          "effect": "Release local object URL",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "移除",
+          "effect": "Clear image selection",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "file type/size rejection",
+        "crop preview; zoom/position controls",
+        "processing/uploading locks controls; upload failure retains crop",
+        "selected; remove; cancel crop"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio-workbench.test.ts:166",
+        "tests/blog-studio-workbench.test.ts:208"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Avatar aspect1:1; homepage banner3:1; article cover16:9. UI chooser10MB and processed design upload5MiB are different constraints."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-035",
+      "parentId": "PB-034",
+      "route": "/?view=apps&app=blog&appSection=design|articles",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/blog/BlogImageEditor.vue:41",
+        "apps/web/components/blog/BlogImageEditor.vue:109",
+        "apps/web/components/blog/BlogArticleCover.vue:51",
+        "apps/web/blog-workbench.ts:469"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-021.json#MP-D101",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D101",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-e158d2c0-a8cb-4440-86e7-61ff2cf10778.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D101.png",
+  "sha256": "2942c533bace948781f4e11914e8ff737aac03f70877bf295307f9d945184bb7",
+  "bytes": 1359842,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T04:09:17.282223+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "博客图片：裁切与上传",
+    "sourceIds": [
+      "PB-035"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Article cover16:9 image decoded, crop source active zoom1/x50/y50; no prior cover value, pending false, no error; three range inputs",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "renderedVariants": []
+}

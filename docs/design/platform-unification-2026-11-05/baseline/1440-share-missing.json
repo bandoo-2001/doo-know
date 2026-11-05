@@ -1,0 +1,16 @@
+{
+  "id": "share-missing",
+  "title": "分享不存在/失效公共状态",
+  "width": 1440,
+  "height": 1000,
+  "audience": "anonymous",
+  "route": "/s/baseline-missing-share",
+  "file": "1440-share-missing.png",
+  "sha256": "c8df8a96082a6bef98cd3dc008c3ce4bbe269280e464ec8baf01c1a6f7df5a5f",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

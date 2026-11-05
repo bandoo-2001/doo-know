@@ -1,0 +1,1054 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S012",
+  "assetId": "MP-S012",
+  "sourceIds": [
+    "ST-018",
+    "ST-020",
+    "ST-022",
+    "ST-024",
+    "ST-019",
+    "ST-021",
+    "ST-023"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-018",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Seven compact state slices r1-r7 per manifest; no full dialogs. Initial no files; overquota; directory loading; expanded chosen files; server warning; settings invalidates old preview; portable result locks reimport. Synthetic warnings/results"
+    }
+  ],
+  "selectedState": "Seven compact state slices r1-r7 per manifest; no full dialogs. Initial no files; overquota; directory loading; expanded chosen files; server warning; settings invalidates old preview; portable result locks reimport. Synthetic warnings/results",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作中文网页组件局部对照板：白底、浅灰面、蓝色动作、细边框小圆角、文字清晰紧凑。每个指定行是独立场景，只画受影响的控件/提示/局部列表，不画外部页面导航、全页头、审查编号或解释性标题。各行用留白和细线明确分离，不能混成一个产品状态。纵向七个紧凑行，只画指定局部，画布加高保持可读。1 空文件选择局部：“选择文件”及原生选择文件控件，“选择目录（保留目录内结构）”及原生选择目录控件；底部“取消”可用、“预览导入”灰色禁用。2 红色提示“每批最多 200 个文件，请分批导入。”，预览导入禁用。3 标签“选择已有目录（可选）”，禁用下拉框“00-Inbox”，灰字“正在读取目录…”。4 展开明细“已选择 2 个文件 · 2.0 KiB”，两条“记录.md”“附件.png”，按钮“清除选择”“预览导入”可用。5 黄色告警“记录.md: 未随批次提供引用 附件.png”，下方“返回修改”“下一步：确认导入”按钮。6 步骤条“1 选择资料”选中、“2 检查预览”“3 确认导入”；灰色说明“导入设置已改变，原预览已失效，请重新预览。”，底部可用“预览导入”。7 完成结果局部“导入完成：1 篇笔记，1 个附件。”，蓝色可点笔记路径“00-Inbox/记录.md”，文件选择/导入目录控件灰色禁用，按钮“关闭”可用、“导入整包”禁用。不画7个完整弹窗，不加覆盖文件选项。",
+  "prompt": "制作中文网页组件局部对照板：白底、浅灰面、蓝色动作、细边框小圆角、文字清晰紧凑。每个指定行是独立场景，只画受影响的控件/提示/局部列表，不画外部页面导航、全页头、审查编号或解释性标题。各行用留白和细线明确分离，不能混成一个产品状态。纵向七个紧凑行，只画指定局部，画布加高保持可读。1 空文件选择局部：“选择文件”及原生选择文件控件，“选择目录（保留目录内结构）”及原生选择目录控件；底部“取消”可用、“预览导入”灰色禁用。2 红色提示“每批最多 200 个文件，请分批导入。”，预览导入禁用。3 标签“选择已有目录（可选）”，禁用下拉框“00-Inbox”，灰字“正在读取目录…”。4 展开明细“已选择 2 个文件 · 2.0 KiB”，两条“记录.md”“附件.png”，按钮“清除选择”“预览导入”可用。5 黄色告警“记录.md: 未随批次提供引用 附件.png”，下方“返回修改”“下一步：确认导入”按钮。6 步骤条“1 选择资料”选中、“2 检查预览”“3 确认导入”；灰色说明“导入设置已改变，原预览已失效，请重新预览。”，底部可用“预览导入”。7 完成结果局部“导入完成：1 篇笔记，1 个附件。”，蓝色可点笔记路径“00-Inbox/记录.md”，文件选择/导入目录控件灰色禁用，按钮“关闭”可用、“导入整包”禁用。不画7个完整弹窗，不加覆盖文件选项。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual matching owner settings parent baseline; selected local state matrix source-derived",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; local matrix has no owner shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual matching owner settings parent baseline; selected local state matrix source-derived",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; local matrix has no owner shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作中文网页组件局部对照板：白底、浅灰面、蓝色动作、细边框小圆角、文字清晰紧凑。每个指定行是独立场景，只画受影响的控件/提示/局部列表，不画外部页面导航、全页头、审查编号或解释性标题。各行用留白和细线明确分离，不能混成一个产品状态。纵向七个紧凑行，只画指定局部，画布加高保持可读。1 空文件选择局部：“选择文件”及原生选择文件控件，“选择目录（保留目录内结构）”及原生选择目录控件；底部“取消”可用、“预览导入”灰色禁用。2 红色提示“每批最多 200 个文件，请分批导入。”，预览导入禁用。3 标签“选择已有目录（可选）”，禁用下拉框“00-Inbox”，灰字“正在读取目录…”。4 展开明细“已选择 2 个文件 · 2.0 KiB”，两条“记录.md”“附件.png”，按钮“清除选择”“预览导入”可用。5 黄色告警“记录.md: 未随批次提供引用 附件.png”，下方“返回修改”“下一步：确认导入”按钮。6 步骤条“1 选择资料”选中、“2 检查预览”“3 确认导入”；灰色说明“导入设置已改变，原预览已失效，请重新预览。”，底部可用“预览导入”。7 完成结果局部“导入完成：1 篇笔记，1 个附件。”，蓝色可点笔记路径“00-Inbox/记录.md”，文件选择/导入目录控件灰色禁用，按钮“关闭”可用、“导入整包”禁用。不画7个完整弹窗，不加覆盖文件选项。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作中文网页组件局部对照板：白底、浅灰面、蓝色动作、细边框小圆角、文字清晰紧凑。每个指定行是独立场景，只画受影响的控件/提示/局部列表，不画外部页面导航、全页头、审查编号或解释性标题。各行用留白和细线明确分离，不能混成一个产品状态。纵向七个紧凑行，只画指定局部，画布加高保持可读。1 空文件选择局部：“选择文件”及原生选择文件控件，“选择目录（保留目录内结构）”及原生选择目录控件；底部“取消”可用、“预览导入”灰色禁用。2 红色提示“每批最多 200 个文件，请分批导入。”，预览导入禁用。3 标签“选择已有目录（可选）”，禁用下拉框“00-Inbox”，灰字“正在读取目录…”。4 展开明细“已选择 2 个文件 · 2.0 KiB”，两条“记录.md”“附件.png”，按钮“清除选择”“预览导入”可用。5 黄色告警“记录.md: 未随批次提供引用 附件.png”，下方“返回修改”“下一步：确认导入”按钮。6 步骤条“1 选择资料”选中、“2 检查预览”“3 确认导入”；灰色说明“导入设置已改变，原预览已失效，请重新预览。”，底部可用“预览导入”。7 完成结果局部“导入完成：1 篇笔记，1 个附件。”，蓝色可点笔记路径“00-Inbox/记录.md”，文件选择/导入目录控件灰色禁用，按钮“关闭”可用、“导入整包”禁用。不画7个完整弹窗，不加覆盖文件选项。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+          "role": "Actual matching owner settings parent baseline; selected local state matrix source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only; local matrix has no owner shell"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-9c191ad1-53d0-432f-aacc-0b0a67695798.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-018",
+      "title": "批量导入：选择资料",
+      "kind": "drawer",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "批量导入；工作区Markdown导入入口复用inline内容",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:215",
+        "apps/web/components/settings/TransferPanel.vue:356",
+        "apps/web/components/settings/TransferPanel.vue:507",
+        "apps/server/platform/transfer-import.ts:29",
+        "apps/server/platform/transfer-import.ts:94"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "选择文件 / 选择目录",
+          "type": "file[]",
+          "required": true,
+          "constraints": "每批≤200文件且≤20MiB；Markdown≤1MiB、Excalidraw≤8MiB、附件≤10MiB；目录保留内部结构",
+          "sensitive": false
+        },
+        {
+          "name": "选择已有目录",
+          "type": "tree-select",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "导入到知识库目录",
+          "type": "text",
+          "required": false,
+          "constraints": "相对目录最长2000；不可绝对路径、反斜杠、%或非法名称段；可新建；留空保留完整分类路径；拒绝链接祖先",
+          "sensitive": false
+        },
+        {
+          "name": "遇到同名文件",
+          "type": "select",
+          "required": true,
+          "constraints": "skip/rename",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "预览导入",
+          "effect": "服务器生成预览；不提交任务",
+          "api": "POST /api/manage/import/preview",
+          "guard": "文件非空且不busy"
+        },
+        {
+          "label": "清除选择",
+          "effect": "清除文件并废弃旧预览",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "effect": "dirty显示ST-089",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "未选文件",
+        "文件超限/读取失败",
+        "目录读取中/失败可重试",
+        "已选文件展开列表"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:41",
+        "tests/e2e/settings-overlays.spec.ts:141",
+        "tests/settings-transfer-files.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "抽屉请求宽840px；同一内页以inline方式供Workspace外层窗口复用。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-020",
+      "title": "批量导入：确认提交",
+      "kind": "state",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "检查预览→下一步",
+        "parentId": "ST-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:271",
+        "apps/web/components/settings/TransferPanel.vue:632"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "返回预览",
+          "effect": "保留预览回到第二步",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "确认导入N个文件",
+          "effect": "创建后台任务；关闭抽屉并保留页面任务列表",
+          "api": "POST /api/manage/import",
+          "guard": "step=3且preview存在；稳定requestId；busy防重"
+        }
+      ],
+      "importantStates": [
+        "目录/数量/处理结果/同名策略摘要",
+        "提交中锁输入及关闭",
+        "成功关闭，任务常驻",
+        "错误可按原requestId重试"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:141"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-022",
+      "title": "导入便携包",
+      "kind": "dialog",
+      "module": "settings/portable",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "导入便携包",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:58",
+        "apps/web/components/settings/TransferPanel.vue:89",
+        "apps/web/components/settings/TransferPanel.vue:412",
+        "shared/portable-resource-limits.ts:4"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "完整解压目录",
+          "type": "file-directory",
+          "required": false,
+          "constraints": "含dooknow-portable.json及完整所需文件；≤10000+1文件、总≤256MiB客户端初检",
+          "sensitive": false
+        },
+        {
+          "name": "便携归档文件",
+          "type": "file",
+          "required": false,
+          "constraints": ".tar.gz/.tgz/application/gzip；与解压目录二选一",
+          "sensitive": false
+        },
+        {
+          "name": "导入目录",
+          "type": "text",
+          "required": false,
+          "constraints": "默认父folderPath；服务端验证",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "导入整包",
+          "effect": "导入完整归档/目录并完成便携图形预览",
+          "api": "POST /api/portable-deliveries/import?folderPath=&requestId= 或 POST /api/portable-deliveries/import-directory",
+          "guard": "有归档或目录；不busy；未已有结果"
+        },
+        {
+          "label": "关闭",
+          "effect": "输入未提交时显示ST-089",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "文件配额超限",
+        "上传/预览准备中",
+        "服务错误",
+        "完成ST-023"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/portable-owner-directory.spec.ts:1",
+        "tests/portable-owner-workflow.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-024",
+      "title": "导出资料",
+      "kind": "dialog",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "导出资料",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:336",
+        "apps/web/components/settings/TransferPanel.vue:708"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "导出范围",
+          "type": "select",
+          "required": true,
+          "constraints": "整个知识库/library或指定目录/folder",
+          "sensitive": false
+        },
+        {
+          "name": "仅导出指定目录",
+          "type": "tree-select",
+          "required": false,
+          "constraints": "scope=folder必选非空已有目录",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "导出资料",
+          "effect": "后台打包原文/白板/可读关联附件与清单",
+          "api": "POST /api/manage/export",
+          "guard": "不busy；指定目录时非空"
+        },
+        {
+          "label": "重新读取目录",
+          "effect": "重读目录树",
+          "api": "GET /api/tree",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "effect": "dirty显示ST-089",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "目录读取/空选/失败",
+        "提交中",
+        "提交后页面任务处下载",
+        "exportError"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-layout.spec.ts:112",
+        "tests/e2e/management-features.spec.ts:232"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "不包含账户和完整历史；恢复使用加密备份。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-019",
+      "title": "批量导入：检查预览",
+      "kind": "state",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "预览导入成功",
+        "parentId": "ST-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:249",
+        "apps/web/components/settings/TransferPanel.vue:601"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "返回修改",
+          "effect": "使旧预览失效并返回选择",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "下一步：确认导入",
+          "effect": "进入ST-020；不请求提交",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "导入位置/类型/新建跳过改名表格",
+        "总文件/字节数",
+        "服务端warning",
+        "横向滚动表"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:141",
+        "tests/e2e/management-features.spec.ts:232"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-021",
+      "title": "导入预览失效、冲突与错误",
+      "kind": "state",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "修改目录/同名策略或请求失败",
+        "parentId": "ST-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:177",
+        "apps/web/components/settings/TransferPanel.vue:249"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新预览",
+          "effect": "从当前选择生成新预览",
+          "api": "POST /api/manage/import/preview",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "原预览失效回到第一步",
+        "进行中修改仍以原位置提交的提示",
+        "旧响应忽略",
+        "文件验证/路径验证/目录读取/提交错误"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/settings-transfer-regressions.test.ts:1",
+        "tests/e2e/settings-overlays.spec.ts:141"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "没有覆盖同名已有原文选项，只提供跳过/改名。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-023",
+      "title": "便携导入结果与原资料续传",
+      "kind": "state",
+      "module": "settings/portable",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "整包完成；任务→选择原资料继续",
+        "parentId": "ST-022"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:78",
+        "apps/web/components/settings/TransferPanel.vue:429",
+        "apps/web/components/settings/TransferPanel.vue:475"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "续传原始完整资料",
+          "type": "file/directory",
+          "required": true,
+          "constraints": "任务原kind限制归档/目录输入；续传目录锁定；沿用原requestId",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "导入整包",
+          "effect": "按原任务继续，不重复创建已导入笔记",
+          "api": "同ST-022",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "结果笔记",
+          "effect": "关闭面板并打开新noteId",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "完成笔记数/附件数/路径列表",
+        "导入完成后禁用再次提交",
+        "缺原资料需重选",
+        "图形预览准备未完成"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/portable-owner-workflow.test.ts:1",
+        "tests/e2e/portable-owner-directory.spec.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-018",
+      "parentId": "ST-002",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:215",
+        "apps/web/components/settings/TransferPanel.vue:356",
+        "apps/web/components/settings/TransferPanel.vue:507",
+        "apps/server/platform/transfer-import.ts:29",
+        "apps/server/platform/transfer-import.ts:94"
+      ]
+    },
+    {
+      "sourceId": "ST-020",
+      "parentId": "ST-018",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:271",
+        "apps/web/components/settings/TransferPanel.vue:632"
+      ]
+    },
+    {
+      "sourceId": "ST-022",
+      "parentId": "ST-002",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:58",
+        "apps/web/components/settings/TransferPanel.vue:89",
+        "apps/web/components/settings/TransferPanel.vue:412",
+        "shared/portable-resource-limits.ts:4"
+      ]
+    },
+    {
+      "sourceId": "ST-024",
+      "parentId": "ST-002",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:336",
+        "apps/web/components/settings/TransferPanel.vue:708"
+      ]
+    },
+    {
+      "sourceId": "ST-019",
+      "parentId": "ST-018",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:249",
+        "apps/web/components/settings/TransferPanel.vue:601"
+      ]
+    },
+    {
+      "sourceId": "ST-021",
+      "parentId": "ST-018",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:177",
+        "apps/web/components/settings/TransferPanel.vue:249"
+      ]
+    },
+    {
+      "sourceId": "ST-023",
+      "parentId": "ST-022",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:78",
+        "apps/web/components/settings/TransferPanel.vue:429",
+        "apps/web/components/settings/TransferPanel.vue:475"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-023.json#MP-S012",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S012",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-9c191ad1-53d0-432f-aacc-0b0a67695798.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S012.png",
+  "sha256": "8020691aa3ec80b2ce9399873f8b6538f279ebef7e439f4aab33d6dcd1453a98",
+  "bytes": 1140735,
+  "dimensions": {
+    "width": 1024,
+    "height": 1536
+  },
+  "generatedAtUtc": "2026-11-05T04:24:40.573669+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / TransferPanel.vue",
+    "sourceIds": [
+      "ST-018",
+      "ST-020",
+      "ST-022",
+      "ST-024",
+      "ST-019",
+      "ST-021",
+      "ST-023"
+    ],
+    "roles": [
+      "authenticated-owner",
+      "owner-private"
+    ],
+    "state": "Seven compact state slices r1-r7 per manifest; no full dialogs. Initial no files; overquota; directory loading; expanded chosen files; server warning; settings invalidates old preview; portable result locks reimport. Synthetic warnings/results",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-018",
+      "title": "未选文件",
+      "renderer": "apps/web/components/settings/TransferPanel.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:215",
+        "apps/web/components/settings/TransferPanel.vue:356",
+        "apps/web/components/settings/TransferPanel.vue:507",
+        "apps/server/platform/transfer-import.ts:29",
+        "apps/server/platform/transfer-import.ts:94"
+      ],
+      "guardBindings": [
+        {
+          "label": "预览导入",
+          "guard": "文件非空且不busy"
+        },
+        {
+          "label": "清除选择",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "未选文件",
+          "variant": "未选文件",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-018"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-018",
+      "title": "文件超限/读取失败",
+      "renderer": "apps/web/components/settings/TransferPanel.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:215",
+        "apps/web/components/settings/TransferPanel.vue:356",
+        "apps/web/components/settings/TransferPanel.vue:507",
+        "apps/server/platform/transfer-import.ts:29",
+        "apps/server/platform/transfer-import.ts:94"
+      ],
+      "guardBindings": [
+        {
+          "label": "预览导入",
+          "guard": "文件非空且不busy"
+        },
+        {
+          "label": "清除选择",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "文件超限/读取失败",
+          "variant": "文件超限/读取失败",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-018"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-018",
+      "title": "目录读取中；目录选择暂不可用",
+      "renderer": "apps/web/components/settings/TransferPanel.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:215",
+        "apps/web/components/settings/TransferPanel.vue:356",
+        "apps/web/components/settings/TransferPanel.vue:507",
+        "apps/server/platform/transfer-import.ts:29",
+        "apps/server/platform/transfer-import.ts:94"
+      ],
+      "guardBindings": [
+        {
+          "label": "预览导入",
+          "guard": "文件非空且不busy"
+        },
+        {
+          "label": "清除选择",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "目录读取中/失败可重试",
+          "variant": "目录读取中/失败可重试",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-018",
+        "ST-020",
+        "ST-022",
+        "ST-024"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "ST-018",
+      "title": "已选文件展开列表",
+      "renderer": "apps/web/components/settings/TransferPanel.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:215",
+        "apps/web/components/settings/TransferPanel.vue:356",
+        "apps/web/components/settings/TransferPanel.vue:507",
+        "apps/server/platform/transfer-import.ts:29",
+        "apps/server/platform/transfer-import.ts:94"
+      ],
+      "guardBindings": [
+        {
+          "label": "预览导入",
+          "guard": "文件非空且不busy"
+        },
+        {
+          "label": "清除选择",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "已选文件展开列表",
+          "variant": "已选文件展开列表",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-018"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "ST-019",
+      "title": "服务端warning",
+      "renderer": "apps/web/components/settings/TransferPanel.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:249",
+        "apps/web/components/settings/TransferPanel.vue:601"
+      ],
+      "guardBindings": [
+        {
+          "label": "返回修改",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "下一步：确认导入",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "服务端warning",
+          "variant": "服务端warning",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-019",
+        "ST-020",
+        "ST-021",
+        "ST-022",
+        "ST-024"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r6",
+      "sourceId": "ST-021",
+      "title": "原预览失效回到第一步",
+      "renderer": "apps/web/components/settings/TransferPanel.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:177",
+        "apps/web/components/settings/TransferPanel.vue:249"
+      ],
+      "guardBindings": [
+        {
+          "label": "重新预览",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "原预览失效回到第一步",
+          "variant": "原预览失效回到第一步",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-021"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r7",
+      "sourceId": "ST-023",
+      "title": "导入完成后禁用再次提交",
+      "renderer": "apps/web/components/settings/TransferPanel.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:78",
+        "apps/web/components/settings/TransferPanel.vue:429",
+        "apps/web/components/settings/TransferPanel.vue:475"
+      ],
+      "guardBindings": [
+        {
+          "label": "导入整包",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "结果笔记",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "导入完成后禁用再次提交",
+          "variant": "导入完成后禁用再次提交",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-023"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": []
+}

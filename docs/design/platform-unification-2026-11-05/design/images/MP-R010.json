@@ -1,0 +1,362 @@
+{
+  "id": "MP-R010",
+  "title": "Responsive family: SettingsOverlay + TransferPanel stepper/table/summary/error stage regions",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-019"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-019",
+      "title": "批量导入：检查预览390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-019",
+      "title": "批量导入：检查预览320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-019",
+      "title": "批量导入：检查预览320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "viewportIntent": "390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-019",
+      "route": "/?view=settings&section=library",
+      "trigger": "预览导入成功",
+      "parentId": "ST-018",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "导入位置/类型/新建跳过改名表格",
+        "总文件/字节数",
+        "服务端warning",
+        "横向滚动表"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。"
+    },
+    {
+      "type": "responsive-family-reuse",
+      "renderer": "SettingsOverlay + TransferPanel stepper/table/summary/error stage regions",
+      "allSourceIds": [
+        "ST-019",
+        "ST-020",
+        "ST-021"
+      ],
+      "rule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-019",
+      "label": "返回修改",
+      "effect": "使旧预览失效并返回选择",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-019",
+      "label": "下一步：确认导入",
+      "effect": "进入ST-020；不请求提交",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-019",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-020",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-021",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n制作三个并排独立的窄屏内容面板，外部只标A、B、C，不画手机外壳、宽度数字或额外说明。A按390宽、B按320宽的相同比例布局，C按390宽；窄屏字段和操作自然换行，文本不省略，画布可纵向延长保持正常字号。不画全局header/底栏/侧栏或虚构宿主，每个只画指定真实组件。\nA和B完整画：完整窄屏抽屉标题“批量导入”，可用关闭X，说明“先选择资料，再检查预览，最后确认导入。”；数字三步“1 选择资料”“2 检查预览”当前蓝色、“3 确认导入”，窄屏数字在各自文字上。小标题“检查导入预览”，帮助“以下是知识库返回的预览。请检查导入位置与同名文件的处理方式。”；一个容器内三列表格，表头“导入位置”“类型”“处理方式”；两行依次“00-Inbox/示例笔记.md | 笔记 | 新建”“00-Inbox/assets/example-2.png | 附件 | 使用新名称”，长路径在单元格内自然换行，三列表头保持清楚；表格下“2 个文件 · 合计 64.0 KiB”；底部“取消”“返回修改”“下一步：确认导入”可用，最后蓝色，按窄屏空间换行。\nC相同真实预览窗口与数据，下方额外黄色服务器警告“示例笔记.md: 未随批次提供引用 assets/example.png”，原表格和合计保留，三个底部按钮仍可用。没有文件选择、确认执行按钮、后台成功或协议输入。表格只能在自身容器滚动，不让整个页面横向溢出。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R010.png",
+  "reviewStatus": "pending-independent-review",
+  "responsiveFamily": {
+    "id": "MP-RF010",
+    "actualComponent": "SettingsOverlay + TransferPanel stepper/table/summary/error stage regions",
+    "sourceIds": [
+      "ST-019",
+      "ST-020",
+      "ST-021"
+    ],
+    "roleBoundary": "owner-private",
+    "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+  },
+  "parentBindings": [
+    {
+      "sourceId": "ST-019",
+      "parentId": "ST-018",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:249",
+        "apps/web/components/settings/TransferPanel.vue:601"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-019",
+      "title": "批量导入：检查预览",
+      "kind": "state",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "预览导入成功",
+        "parentId": "ST-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:249",
+        "apps/web/components/settings/TransferPanel.vue:601"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "返回修改",
+          "effect": "使旧预览失效并返回选择",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "下一步：确认导入",
+          "effect": "进入ST-020；不请求提交",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "导入位置/类型/新建跳过改名表格",
+        "总文件/字节数",
+        "服务端warning",
+        "横向滚动表"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:141",
+        "tests/e2e/management-features.spec.ts:232"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-R010",
+  "roles": [
+    "authenticated-owner",
+    "authenticated-owner",
+    "authenticated-owner"
+  ],
+  "selectedState": [
+    "A390/B320 target step2 preview",
+    "C same preview with server reference warning"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n制作三个并排独立的窄屏内容面板，外部只标A、B、C，不画手机外壳、宽度数字或额外说明。A按390宽、B按320宽的相同比例布局，C按390宽；窄屏字段和操作自然换行，文本不省略，画布可纵向延长保持正常字号。不画全局header/底栏/侧栏或虚构宿主，每个只画指定真实组件。\nA和B完整画：完整窄屏抽屉标题“批量导入”，可用关闭X，说明“先选择资料，再检查预览，最后确认导入。”；数字三步“1 选择资料”“2 检查预览”当前蓝色、“3 确认导入”，窄屏数字在各自文字上。小标题“检查导入预览”，帮助“以下是知识库返回的预览。请检查导入位置与同名文件的处理方式。”；一个容器内三列表格，表头“导入位置”“类型”“处理方式”；两行依次“00-Inbox/示例笔记.md | 笔记 | 新建”“00-Inbox/assets/example-2.png | 附件 | 使用新名称”，长路径在单元格内自然换行，三列表头保持清楚；表格下“2 个文件 · 合计 64.0 KiB”；底部“取消”“返回修改”“下一步：确认导入”可用，最后蓝色，按窄屏空间换行。\nC相同真实预览窗口与数据，下方额外黄色服务器警告“示例笔记.md: 未随批次提供引用 assets/example.png”，原表格和合计保留，三个底部按钮仍可用。没有文件选择、确认执行按钮、后台成功或协议输入。表格只能在自身容器滚动，不让整个页面横向溢出。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-R010 Responsive family: SettingsOverlay + TransferPanel stepper/table/summary/error stage regions\n\n390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。\n\n角色壳：所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。\n\n独立场景：\nA | ST-019 | 批量导入：检查预览390px | role=authenticated-owner | 390px完整可读代表：字段按登记顺序，动作保持源guard\nB | ST-019 | 批量导入：检查预览320px | role=authenticated-owner | 320px字段/长值/内层滚动与操作可达\nC | ST-019 | 批量导入：检查预览320px guard | role=authenticated-owner | 同源关键禁用/错误/长标签状态，使用已有组件且保留输入\n\n完整构图：\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n精确功能/字段/动作guard合同：\nST-019/ST-020/ST-021权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-019/ST-020/ST-021字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-019白名单：返回修改 => 使旧预览失效并返回选择；guard=已登录所有者；请求期间禁用重复操作\nST-019白名单：下一步：确认导入 => 进入ST-020；不请求提交；guard=已登录所有者；请求期间禁用重复操作\nST-020白名单：返回预览 => 保留预览回到第二步；guard=已登录所有者；请求期间禁用重复操作\nST-020白名单：确认导入N个文件 => 创建后台任务；关闭抽屉并保留页面任务列表；guard=step=3且preview存在；稳定requestId；busy防重；接口约束=POST /api/manage/import\nST-021白名单：重新预览 => 从当前选择生成新预览；guard=已登录所有者；请求期间禁用重复操作；接口约束=POST /api/manage/import/preview\n\n响应式合同：\n1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "3213f7fd9fcf209a067fe82908d8f3d6c96e5a0fea8f63d1ee5ddc7725cd384a",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "bytes": 61994
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R010.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-5df2e2a6-a739-4f0c-a815-65291b5c89e0.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-5df2e2a6-a739-4f0c-a815-65291b5c89e0.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T06:51:17.942Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Three independent step2 previews retain exact table headers, wrapped paths, summary, navigation and actual missing-reference warning.",
+    "concerns": []
+  },
+  "sha256": "145a5db7e3b3b598c9a028bab4640bd74d7f1974088719f53c63d0cc5bfff42d",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1368605,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/settings/TransferPanel.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "de54810859e5243fa4db2ac8bafeae0b887ad7900bac346cd623cdad95e5a4f0"
+    },
+    {
+      "path": "apps/web/components/settings/TransferPanel.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "de54810859e5243fa4db2ac8bafeae0b887ad7900bac346cd623cdad95e5a4f0"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Synthetic preview data, not submitted import; widths are design targets, no actual narrow-browser layout/scroll/focus verified.",
+  "responsiveWidths": [
+    390,
+    320,
+    390
+  ],
+  "runtimeResponsiveVerified": false
+}

@@ -1,0 +1,238 @@
+{
+  "id": "WS-V005",
+  "title": "Mermaid to Excalidraw dialog",
+  "kind": "generated-design",
+  "sourceIds": [
+    "RTD-009"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "RTD-009",
+      "title": "Mermaid to Excalidraw dialog",
+      "role": "authenticated owner",
+      "state": "Complete definition textarea/preview/Insert, actual vendor default example only; no insertion execution claim.",
+      "presentationInstruction": "Complete definition textarea/preview/Insert, actual vendor default example only; no insertion execution claim."
+    }
+  ],
+  "viewportIntent": "One complete readable large window/form; no independent-window montage.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-mermaid-insert-dialog.png",
+      "role": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion."
+    },
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:18580"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+    "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-VR004",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": "Only opened and dismissed. Default example is vendor fixture text; Insert was not clicked. Mermaid documentation links not followed.",
+      "requiredVisibleLabels": [
+        "Mermaid 至 Excalidraw",
+        "Write Mermaid diagram defintion here...",
+        "预览",
+        "插入"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "role": "authenticated owner",
+      "scrollContract": "Keep actual vendor panel scroll/viewport anchor and real close/Edit trigger reachable. Do not introduce native OS/browser windows.",
+      "focusContract": "Retain actual vendor focus/keyboard limitations; advertised unobserved command palette and absent mobile statistics are not invented.",
+      "requiresActualFitReview": true,
+      "sourceId": "RTD-009"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. One complete existing DooKnow LOCAL component on neutral light-gray backdrop, not a full invented host page. Simplified Chinese, crisp natural-size controls, flat white/#f7f8fa, dark #272b3a/secondary#657084, thin #e6e9f1 lines, primary#4566c6,8px radii and restrained shadow. PILOT input is STYLE ONLY, no importing its rail/header/tree/content. Actual source templates determine all titles, field order, controls, permissions and selected state. No protocol requestId/version/hash/cursor/CSRF fields, fabricated success/online states, team/AI/ToDoo features or OS/browser-dialog chrome. Secret data empty or masked only. One coherent selected condition; hidden alternatives remain hidden. Preserve header/close/body-scroll/footer actions and actual disabled guards; do not derive new disabled rules from API constraints.\nEXACT ACTUAL VENDOR MERMAID-TO-EXCALIDRAW DIALOG from Image1, local modal only, exclude surrounding owner host/canvas/toolbars. Header actual Mermaid 至 Excalidraw, no added closeX/cancel/menu because matching native capture has none. Exact descriptor with native documentation links:目前仅支持流程图、序列图和类图。其他类型在 Excalidraw 中将以图像呈现。 Left panel label Mermaid 语法 and large focused definition textarea, actual placeholder whenempty Write Mermaid diagram defintion here..., but current text is this exact VENDOR DEFAULT EXAMPLE (not app's primary decision-loop):\nflowchart TD\n A[Christmas] -->|Get money| B(Go shopping)\n B --> C{Let me think}\n C -->|One| D[Laptop]\n C -->|Two| E[iPhone]\n C -->|Three| F[Car]\nRight panel label 预览 and exact captured loading output: gray/white checkerboard preview surface with centered circular loading indicator, no newly rendered or recolored graph. Keep actual source 插入 button with right arrow and adjacent Ctrl Enter shortcut below preview, as captured (source has no busy disable prop for this panel action). No insertion success/AI prompt/node toolbox/new template/rich settings/native save/load/export dialog. Source fixture was only opened/dismissed and Insert not executed. Native documentation links are existing; do not invent additional controls or imply external docs were followed. Preserve two-panel layout, exact source/default text, safe diagram capabilities and flat shared UI palette while checkerboard remains content gray/white.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-V005.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "RTD-009",
+      "runtimeKey": "vendor-mermaid-insert-dialog",
+      "title": "Mermaid to Excalidraw dialog",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "Mermaid 至 Excalidraw",
+        "Write Mermaid diagram defintion here...",
+        "预览",
+        "插入"
+      ],
+      "roleEvidence": {
+        "dialog:unnamed": 1,
+        "tabpanel": 1,
+        "textbox:Write Mermaid diagram defintion here...": 1,
+        "button:插入": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:18580"
+      ],
+      "evidence": [
+        "1440-vendor-mermaid-insert-dialog.json",
+        "390-vendor-mermaid-insert-dialog.json"
+      ],
+      "constraints": "Only opened and dismissed. Default example is vendor fixture text; Insert was not clicked. Mermaid documentation links not followed."
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "RTD-009",
+      "parentIds": [
+        "WS-068"
+      ],
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Excalidraw child UI inside the actual owner whiteboard; no private page/navigation controls invented."
+    }
+  ],
+  "presentationScope": "complete-large-window-or-dense-form",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 1,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: RTD-009",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "RTD-009",
+      "state": "Only opened and dismissed. Default example is vendor fixture text; Insert was not clicked. Mermaid documentation links not followed.",
+      "representation": "nonvisual-data-rule"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-V005",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "actual vendor captured default/loading preview state, Insert not executed"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. One complete existing DooKnow LOCAL component on neutral light-gray backdrop, not a full invented host page. Simplified Chinese, crisp natural-size controls, flat white/#f7f8fa, dark #272b3a/secondary#657084, thin #e6e9f1 lines, primary#4566c6,8px radii and restrained shadow. PILOT input is STYLE ONLY, no importing its rail/header/tree/content. Actual source templates determine all titles, field order, controls, permissions and selected state. No protocol requestId/version/hash/cursor/CSRF fields, fabricated success/online states, team/AI/ToDoo features or OS/browser-dialog chrome. Secret data empty or masked only. One coherent selected condition; hidden alternatives remain hidden. Preserve header/close/body-scroll/footer actions and actual disabled guards; do not derive new disabled rules from API constraints.\nEXACT ACTUAL VENDOR MERMAID-TO-EXCALIDRAW DIALOG from Image1, local modal only, exclude surrounding owner host/canvas/toolbars. Header actual Mermaid 至 Excalidraw, no added closeX/cancel/menu because matching native capture has none. Exact descriptor with native documentation links:目前仅支持流程图、序列图和类图。其他类型在 Excalidraw 中将以图像呈现。 Left panel label Mermaid 语法 and large focused definition textarea, actual placeholder whenempty Write Mermaid diagram defintion here..., but current text is this exact VENDOR DEFAULT EXAMPLE (not app's primary decision-loop):\nflowchart TD\n A[Christmas] -->|Get money| B(Go shopping)\n B --> C{Let me think}\n C -->|One| D[Laptop]\n C -->|Two| E[iPhone]\n C -->|Three| F[Car]\nRight panel label 预览 and exact captured loading output: gray/white checkerboard preview surface with centered circular loading indicator, no newly rendered or recolored graph. Keep actual source 插入 button with right arrow and adjacent Ctrl Enter shortcut below preview, as captured (source has no busy disable prop for this panel action). No insertion success/AI prompt/node toolbox/new template/rich settings/native save/load/export dialog. Source fixture was only opened/dismissed and Insert not executed. Native documentation links are existing; do not invent additional controls or imply external docs were followed. Preserve two-panel layout, exact source/default text, safe diagram capabilities and flat shared UI palette while checkerboard remains content gray/white.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-V005 Mermaid to Excalidraw dialog\nSCOPE complete-large-window-or-dense-form\nVIEW One complete readable large window/form; no independent-window montage.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 1, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"full\", \"sourceId\": \"RTD-009\", \"title\": \"Mermaid to Excalidraw dialog\", \"role\": \"authenticated owner\", \"state\": \"Complete definition textarea/preview/Insert, actual vendor default example only; no insertion execution claim.\", \"presentationInstruction\": \"Complete definition textarea/preview/Insert, actual vendor default example only; no insertion execution claim.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"full\", \"sourceId\": \"RTD-009\", \"visibleLabels\": [\"Mermaid 至 Excalidraw\", \"Write Mermaid diagram defintion here...\", \"预览\", \"插入\"], \"constraints\": \"Only opened and dismissed. Default example is vendor fixture text; Insert was not clicked. Mermaid documentation links not followed.\"}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-mermaid-insert-dialog.png",
+      "role": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion.",
+      "responsibility": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion.",
+      "sha256": "b992366ce21b79b7b07c75a57839d4abfc3ba1aa4bf6470dee558d90051ed916",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 88633
+    },
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:18580",
+      "responsibility": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:18580",
+      "sha256": "e10e24df153077770849c7d68f9a8f5db3bb1eb1576d909d1e3c9a5b024d1882"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-mermaid-insert-dialog.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-V005.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-14136ce1-1842-4455-8ff7-780073abd1e8.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-14136ce1-1842-4455-8ff7-780073abd1e8.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T02:44:57.034Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Actual vendor default Mermaid definition/loading checkerboard state preserved with source labels/documentation/Insert shortcut, no new graph or insertion execution claim.",
+    "concerns": [
+      "Static design does not verify navigation/keyboard/focus/native rendering or actual insertion behavior.",
+      "Exact geometry/text/texture are approximate; WS085 source disables popover arrow, so implementation must keep show-arrow=false despite illustrative raster pointer."
+    ]
+  },
+  "sha256": "0afd71fcff43873851b61e9d2b950ab7899b90b7e6a1f4bdea5ad2ee9582f630",
+  "dimensions": {
+    "width": 1505,
+    "height": 1045
+  },
+  "bytes": 1215252,
+  "sourceInspection": [
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e10e24df153077770849c7d68f9a8f5db3bb1eb1576d909d1e3c9a5b024d1882"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-mermaid-insert-dialog.json",
+      "role": "actual native DOM/labels and selected captured state authority; text reference",
+      "sha256": "0da0e56e4787e9b45ff1dea3742b024ea12fecc4fb353098547c4e7356a23104"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Matching before-change native component captured; source fixture was only opened/dismissed."
+}

@@ -1,0 +1,372 @@
+{
+  "id": "WS-D076",
+  "title": "Workspace cloud-sync drawer entry",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-100"
+  ],
+  "panels": [
+    {
+      "label": "desktop",
+      "sourceId": "WS-100",
+      "title": "Workspace cloud-sync drawer entry",
+      "role": "authenticated owner",
+      "state": "Only existing900px GitRemotePanel drawer host; settings plan owns interior.",
+      "presentationInstruction": "Only existing900px GitRemotePanel drawer host; settings plan owns interior."
+    },
+    {
+      "label": "phone-390",
+      "sourceId": "WS-100",
+      "title": "Workspace cloud-sync drawer entry",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. drawer fits viewport; interior delegated to settings",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. drawer fits viewport; interior delegated to settings"
+    },
+    {
+      "label": "phone-320",
+      "sourceId": "WS-100",
+      "title": "Workspace cloud-sync drawer entry",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. drawer fits viewport; interior delegated to settings",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. drawer fits viewport; interior delegated to settings"
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:2929, apps/web/components/Workspace.vue:2954, apps/web/components/GitRemotePanel.vue:1"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-100",
+      "label": "云端同步",
+      "effect": "Open GitRemotePanel inside900px drawer",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-100",
+      "label": "返回保存",
+      "effect": "Return to note save flow",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-D076",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [],
+      "requiredFields": [],
+      "requiredActions": [
+        {
+          "label": "云端同步",
+          "effect": "Open GitRemotePanel inside900px drawer",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "返回保存",
+          "effect": "Return to note save flow",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-100"
+    }
+  ],
+  "prompt": "保留此图A/B/C三个抽屉头部及其标题、说明、关闭X和截取边界。只修正每个面板上方的小入口按钮：A、B、C每一个都必须是同一个完整按钮，左侧刷新图标，中间完整文字“云端同步”，右侧小箭头；不能把这三个组成部分分别分配到三个面板。三个入口均为白色或极浅灰色、细边框、深色文字，不用蓝色填充主按钮。保持不同宽度适配，除A/B/C与真实界面文案外不增加说明。其它内容不变，不补正文表单或额外控件。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D076.png",
+  "reviewStatus": "pending-independent-review",
+  "geometryFamily": "same source renderer: desktop local component and 390/320 component fit",
+  "sourceContracts": [
+    {
+      "id": "WS-100",
+      "title": "Workspace cloud-sync drawer entry",
+      "kind": "drawer",
+      "module": "sync-entry",
+      "entry": {
+        "route": "/",
+        "trigger": "云端同步 sidebar extension",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:2929",
+        "apps/web/components/Workspace.vue:2954",
+        "apps/web/components/GitRemotePanel.vue:1"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "云端同步",
+          "effect": "Open GitRemotePanel inside900px drawer",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "返回保存",
+          "effect": "Return to note save flow",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Only if gitAvailable",
+        "Busy/dirty propagated to SettingsOverlay",
+        "Unsaved close prompt inherited"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "GitRemotePanel interior and sync dialogs owned by platform/settings inventory."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-100",
+      "parentId": "WS-001",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-100",
+      "state": "Only if gitAvailable",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-100",
+      "state": "Busy/dirty propagated to SettingsOverlay",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-100",
+      "state": "Unsaved close prompt inherited",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D076",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "source-derived Git-available idle entry/open900px drawer header crop; no delegated interior state asserted"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "保留此图A/B/C三个抽屉头部及其标题、说明、关闭X和截取边界。只修正每个面板上方的小入口按钮：A、B、C每一个都必须是同一个完整按钮，左侧刷新图标，中间完整文字“云端同步”，右侧小箭头；不能把这三个组成部分分别分配到三个面板。三个入口均为白色或极浅灰色、细边框、深色文字，不用蓝色填充主按钮。保持不同宽度适配，除A/B/C与真实界面文案外不增加说明。其它内容不变，不补正文表单或额外控件。",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D076 Workspace cloud-sync drawer entry\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"desktop\", \"sourceId\": \"WS-100\", \"title\": \"Workspace cloud-sync drawer entry\", \"role\": \"authenticated owner\", \"state\": \"Only existing900px GitRemotePanel drawer host; settings plan owns interior.\", \"presentationInstruction\": \"Only existing900px GitRemotePanel drawer host; settings plan owns interior.\"}, {\"label\": \"phone-390\", \"sourceId\": \"WS-100\", \"title\": \"Workspace cloud-sync drawer entry\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. drawer fits viewport; interior delegated to settings\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. drawer fits viewport; interior delegated to settings\"}, {\"label\": \"phone-320\", \"sourceId\": \"WS-100\", \"title\": \"Workspace cloud-sync drawer entry\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. drawer fits viewport; interior delegated to settings\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. drawer fits viewport; interior delegated to settings\"}]\nVISIBLE CONTRACTS [{\"panel\": \"desktop\", \"sourceId\": \"WS-100\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"云端同步\", \"effect\": \"Open GitRemotePanel inside900px drawer\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"返回保存\", \"effect\": \"Return to note save flow\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Only if gitAvailable\", \"Busy/dirty propagated to SettingsOverlay\", \"Unsaved close prompt inherited\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"phone-390\", \"sourceId\": \"WS-100\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"云端同步\", \"effect\": \"Open GitRemotePanel inside900px drawer\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"返回保存\", \"effect\": \"Return to note save flow\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Only if gitAvailable\", \"Busy/dirty propagated to SettingsOverlay\", \"Unsaved close prompt inherited\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"phone-320\", \"sourceId\": \"WS-100\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"云端同步\", \"effect\": \"Open GitRemotePanel inside900px drawer\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"返回保存\", \"effect\": \"Return to note save flow\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Only if gitAvailable\", \"Busy/dirty propagated to SettingsOverlay\", \"Unsaved close prompt inherited\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:2929, apps/web/components/Workspace.vue:2954, apps/web/components/GitRemotePanel.vue:1",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:2929, apps/web/components/Workspace.vue:2954, apps/web/components/GitRemotePanel.vue:1",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-43bf3478-bac8-41b7-aa2c-1c24bd48e110.png",
+      "role": "edit target",
+      "responsibility": "Restore complete entrybutton in every width specimen",
+      "sha256": "28eb01c72257b2662b5f053ccfd2a587a4cd5efcb37a78117e76e510dcf859e0",
+      "dimensions": {
+        "width": 1920,
+        "height": 819
+      },
+      "bytes": 942702
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-43bf3478-bac8-41b7-aa2c-1c24bd48e110.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D076.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-445abd71-f25e-4893-a2d0-123e67f1d0c6.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-445abd71-f25e-4893-a2d0-123e67f1d0c6.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T03:14:34.324Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Three host-only entry/header crops preserve actual云端同步 button+drawer title/description/close; corrected each trigger to include fullicon/text/chevron. GitRemotePanel interior explicitly delegated to settings.",
+    "concerns": [
+      "Host-only crop scope does not claim complete delegated settings/reminder interior or runtime navigation validation.",
+      "Static3-width positioning does not verify actual safe-area/bottom-inset/z-index/modal overlap, keyboard or retained-note/history guards."
+    ]
+  },
+  "sha256": "f64b4272a9e5537f490b1ca1d11fef5b8205fe4bf469ab0a45aec274de3b00f9",
+  "dimensions": {
+    "width": 1920,
+    "height": 819
+  },
+  "bytes": 1391711,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/GitRemotePanel.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1ef7dbfc441518f0aaed509633413592b74a170897c602f802e9c2492ff9fe4c"
+    }
+  ],
+  "coverageScope": "Only existing workspace entry and SettingsOverlay drawer host; GitRemotePanel interior belongs to settings inventory and is intentionally outside crop.",
+  "sourceDerivedUnverifiedScope": "Actual source establishes host rules.390workspace screenshot only supports truthful navigation/context; selected missed summary/cropped host is not a captured runtime state.",
+  "actualInitialImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "generationHistory": [
+    {
+      "call": 1,
+      "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n只画三个独立的抽屉入口与头部局部面板，外部仅标A、B、C。A对应桌面900px宽抽屉；B适配390px视口，C适配320px视口。每个面板上方保留一个小入口按钮：刷新图标、“云端同步”、右箭头。下方是已打开抽屉的顶部截面：平直白色框架、左侧细边线，标题旁刷新图标，标题“云端同步”，完整说明“查看同步状态，管理云端关联并检查本次提交。”，右侧关闭X可用。宽度变窄时说明自然换行。只截取到正文开始的边界，正文继续在画面下沿之外，不画虚构空状态或任何占位解释。不要画整个侧栏/工作区、云端地址/认证/凭据表单、同步数量、连接成功、提交/push/pull结果或错误。不要增加底部按钮。画面仅有上述真实入口和抽屉外框头部，三个面板分开独立。",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-43bf3478-bac8-41b7-aa2c-1c24bd48e110.png",
+      "selected": false,
+      "reason": "Trigger icon/text/chevron mistakenly distributed across3specimens",
+      "inputOrder": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "sha256": "28eb01c72257b2662b5f053ccfd2a587a4cd5efcb37a78117e76e510dcf859e0",
+      "dimensions": {
+        "width": 1920,
+        "height": 819
+      },
+      "bytes": 942702
+    },
+    {
+      "call": 2,
+      "submittedPrompt": "保留此图A/B/C三个抽屉头部及其标题、说明、关闭X和截取边界。只修正每个面板上方的小入口按钮：A、B、C每一个都必须是同一个完整按钮，左侧刷新图标，中间完整文字“云端同步”，右侧小箭头；不能把这三个组成部分分别分配到三个面板。三个入口均为白色或极浅灰色、细边框、深色文字，不用蓝色填充主按钮。保持不同宽度适配，除A/B/C与真实界面文案外不增加说明。其它内容不变，不补正文表单或额外控件。",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-445abd71-f25e-4893-a2d0-123e67f1d0c6.png",
+      "selected": true,
+      "inputOrder": [
+        "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-43bf3478-bac8-41b7-aa2c-1c24bd48e110.png"
+      ],
+      "sha256": "f64b4272a9e5537f490b1ca1d11fef5b8205fe4bf469ab0a45aec274de3b00f9",
+      "dimensions": {
+        "width": 1920,
+        "height": 819
+      },
+      "bytes": 1391711
+    }
+  ]
+}

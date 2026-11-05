@@ -1,0 +1,273 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D029",
+  "assetId": "WS-D029",
+  "sourceIds": [
+    "WS-037"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "desktop",
+      "sourceId": "WS-037",
+      "title": "Edit document link",
+      "role": "authenticated owner",
+      "state": "Invalid URL inline error",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.",
+      "selectedState": "Editor link modal valid filled values, writable captured selection; same desktop/390/320 form, no error/stale/blocked branch"
+    },
+    {
+      "label": "phone-390",
+      "sourceId": "WS-037",
+      "title": "Edit document link",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+      "selectedState": "Editor link modal valid filled values, writable captured selection; same desktop/390/320 form, no error/stale/blocked branch"
+    },
+    {
+      "label": "phone-320",
+      "sourceId": "WS-037",
+      "title": "Edit document link",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+      "selectedState": "Editor link modal valid filled values, writable captured selection; same desktop/390/320 form, no error/stale/blocked branch"
+    }
+  ],
+  "selectedState": "Editor link modal valid filled values, writable captured selection; same desktop/390/320 form, no error/stale/blocked branch",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作一张清晰三分区对照板，外部只标桌面、390px、320px，表示三个独立视口中的同一窗口，不是同页同时打开。全部字段/按钮保持可读，窄屏自然换行，允许内部滚动，关闭和主动作可达。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。每份白色局部弹窗相同：标题“编辑链接”、右上关闭X；准确3个纵排字段“显示文字”input参考链接；“链接地址”input https://example.invalid/guide；“标题”input参考资料。底部右侧“取消”和蓝色“保存链接”均可用。没有删除链接/打开链接/新建笔记/URL错误、只读警告或其他按钮。三个视口完整保留每个label和输入值，长URL在字段内正常裁切或内部滚动，不溢出整个窗口。",
+  "prompt": "制作一张清晰三分区对照板，外部只标桌面、390px、320px，表示三个独立视口中的同一窗口，不是同页同时打开。全部字段/按钮保持可读，窄屏自然换行，允许内部滚动，关闭和主动作可达。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。每份白色局部弹窗相同：标题“编辑链接”、右上关闭X；准确3个纵排字段“显示文字”input参考链接；“链接地址”input https://example.invalid/guide；“标题”input参考资料。底部右侧“取消”和蓝色“保存链接”均可用。没有删除链接/打开链接/新建笔记/URL错误、只读警告或其他按钮。三个视口完整保留每个label和输入值，长URL在字段内正常裁切或内部滚动，不溢出整个窗口。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-link.png",
+      "role": "Actual matching component/parent reference; only its captured visible state is runtime baseline",
+      "sha256": "e78c1a3b3357e96474a5199141424ea67955623841515b3af925d47fd4f7c48d",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; omit workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-link.png",
+      "role": "Actual matching component/parent reference; only its captured visible state is runtime baseline",
+      "sha256": "e78c1a3b3357e96474a5199141424ea67955623841515b3af925d47fd4f7c48d",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; omit workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作一张清晰三分区对照板，外部只标桌面、390px、320px，表示三个独立视口中的同一窗口，不是同页同时打开。全部字段/按钮保持可读，窄屏自然换行，允许内部滚动，关闭和主动作可达。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。每份白色局部弹窗相同：标题“编辑链接”、右上关闭X；准确3个纵排字段“显示文字”input参考链接；“链接地址”input https://example.invalid/guide；“标题”input参考资料。底部右侧“取消”和蓝色“保存链接”均可用。没有删除链接/打开链接/新建笔记/URL错误、只读警告或其他按钮。三个视口完整保留每个label和输入值，长URL在字段内正常裁切或内部滚动，不溢出整个窗口。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-link.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作一张清晰三分区对照板，外部只标桌面、390px、320px，表示三个独立视口中的同一窗口，不是同页同时打开。全部字段/按钮保持可读，窄屏自然换行，允许内部滚动，关闭和主动作可达。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。每份白色局部弹窗相同：标题“编辑链接”、右上关闭X；准确3个纵排字段“显示文字”input参考链接；“链接地址”input https://example.invalid/guide；“标题”input参考资料。底部右侧“取消”和蓝色“保存链接”均可用。没有删除链接/打开链接/新建笔记/URL错误、只读警告或其他按钮。三个视口完整保留每个label和输入值，长URL在字段内正常裁切或内部滚动，不溢出整个窗口。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-link.png",
+          "role": "Actual matching component/parent reference; only its captured visible state is runtime baseline"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; omit workspace shell"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-31ff1dc4-1a71-46df-8501-8893e3e98961.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-037",
+      "title": "Edit document link",
+      "kind": "dialog",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "插入链接 / 编辑链接",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/DocumentEditor.vue:822",
+        "apps/web/components/DocumentEditor.vue:1296",
+        "apps/web/editor/rich-adapter.ts:74"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "显示文字",
+          "type": "text",
+          "required": false,
+          "constraints": "When empty, URL becomes display text.",
+          "sensitive": false
+        },
+        {
+          "name": "链接地址",
+          "type": "text",
+          "required": true,
+          "constraints": "Trimmed nonempty; no backslash or U+0000–0020; no protocol-relative //; allowed explicit schemes http,https,mailto,tel or relative/fragment URLs.",
+          "sensitive": false
+        },
+        {
+          "name": "标题",
+          "type": "text",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存链接",
+          "effect": "Apply link to captured selection",
+          "api": "none",
+          "guard": "Editor writable/unblocked; captured revision still matches; safeEditorUrl required"
+        },
+        {
+          "label": "取消",
+          "effect": "Keep draft unchanged",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Invalid URL inline error",
+        "Document changed since dialog opened",
+        "Editor blocked"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/editor-content-security.test.ts",
+        "tests/e2e/document-editor-controls.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-037",
+      "parentId": "WS-024",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/DocumentEditor.vue:822",
+        "apps/web/components/DocumentEditor.vue:1296",
+        "apps/web/editor/rich-adapter.ts:74"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-015.json#WS-D029",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D029",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-31ff1dc4-1a71-46df-8501-8893e3e98961.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D029.png",
+  "sha256": "f73ea69e23edd25f4cfa51a133decb1981a3191f50980f0ba6e53735909fee10",
+  "bytes": 1361568,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T03:04:24.403492+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Edit document link",
+    "sourceIds": [
+      "WS-037"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Editor link modal valid filled values, writable captured selection; same desktop/390/320 form, no error/stale/blocked branch",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

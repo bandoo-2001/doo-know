@@ -1,0 +1,515 @@
+{
+  "assetId": "MP-R073-v2",
+  "sourceIds": [
+    "PB-046"
+  ],
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "responsive-board",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-046",
+      "title": "博客装修：实时私有预览390px",
+      "role": "authenticated owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-046",
+      "title": "博客装修：实时私有预览320px",
+      "role": "authenticated owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-046",
+      "title": "博客装修：实时私有预览320px guard",
+      "role": "authenticated owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "只改中间B列iframe内的博客桌面内容，保留iframe上方全部对话框设备/1100px/禁用刷新/正在生成状态。B iframe改成实际profile双列模板：左栏仅“关于我”个人介绍、记录连接与行动、示例作者、浏览文章→；右栏为完整“精选文章”模块及两个现有示例文章卡（置顶、2026-11-04·方法、让知识保持可用、用于页面盘点的隔离发布快照。），后续模块自然在右栏向下延伸。彻底删除原右侧虚构盒子“最新文章”和其三个短链接。不要在左栏intro下再放精选文章。保留B iframe的装修草稿预览仅你可见横幅、博客页头/现有导航。B右上×按钮改为文字“关闭预览”。A/C全部每一处保持不变。",
+  "sourceContracts": [
+    {
+      "id": "PB-046",
+      "title": "博客装修：实时私有预览",
+      "kind": "state",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design; GET /api/blog/design/preview (authenticated HTML alias)",
+        "trigger": "Design mounted; editor changes or manual refresh; direct authenticated GET /api/blog/design/preview",
+        "parentId": "PB-041"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:60",
+        "apps/web/components/blog/BlogDesignStudio.vue:238",
+        "apps/web/components/blog/BlogPreviewViewport.vue:34",
+        "apps/web/blog-workbench.ts:454",
+        "apps/server/blog/routes.ts:151",
+        "apps/server/blog/routes.ts:158",
+        "apps/server/app.ts:141",
+        "apps/server/blog/render.ts:74"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage.",
+        "GET /api/blog/design/preview is an owner-authenticated API route under the same /api/ session hook; it is not an anonymous /blog preview link. The preview service authorizes the owner principal and may preview a disabled public site."
+      ],
+      "fields": [
+        {
+          "name": "live",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "defaulttrue",
+          "sensitive": false
+        },
+        {
+          "name": "device",
+          "type": "segmented",
+          "required": true,
+          "constraints": "desktop1100|mobile375",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "桌面 / 手机",
+          "effect": "Switch internal preview viewport",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "刷新预览 / 重试预览 / 生成预览",
+          "effect": "Request current draft preview",
+          "api": "POST /api/blog/design/preview",
+          "guard": "refresh disabled while previewBusy"
+        }
+      ],
+      "importantStates": [
+        "450ms live debounce; unsaved design included",
+        "desktop1100/mobile375 viewport scaled to host",
+        "empty preview generation button",
+        "preview busy; latest-request wins; failure retains last successful HTML and retry",
+        "Direct authenticated GET /api/blog/design/preview returns the same private homepage template as standalone text/html with the private-preview banner, using the stored design draft; no studio form or embedded device controls wrap this response.",
+        "POST /api/blog/design/preview accepts current unsaved design and returns JSON {html}; this differs from the direct GET HTML route."
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio-workbench.test.ts:58",
+        "tests/blog-studio-workbench.test.ts:131",
+        "tests/e2e/blog-admin-preview.spec.ts:5"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Sandbox allow-same-origin only; no allow-scripts. Owner-only media endpoints; preview does not publish.",
+        "The direct GET is an alias/entry for this same owner homepage-preview surface, not another public route or invented UI button. Its HTML body uses homeHtml and previewSource; the studio POST is the live unsaved-design flow."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "originalManifestContract": {
+    "id": "MP-R073",
+    "title": "Responsive family: BlogPreviewViewport.vue internal1100/375 viewport scaling; inline/modal host focus remains separately bound",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "PB-046"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "PB-046",
+        "title": "博客装修：实时私有预览390px",
+        "role": "authenticated owner",
+        "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        }
+      },
+      {
+        "label": "B",
+        "sourceId": "PB-046",
+        "title": "博客装修：实时私有预览320px",
+        "role": "authenticated owner",
+        "state": "320px字段/长值/内层滚动与操作可达",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        }
+      },
+      {
+        "label": "C",
+        "sourceId": "PB-046",
+        "title": "博客装修：实时私有预览320px guard",
+        "role": "authenticated owner",
+        "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        }
+      }
+    ],
+    "viewportIntent": "390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/public/390-private-blog-preview.png",
+        "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+        "role": "精确sourceId字段/动作/权限合同；非图片输入"
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+        "role": "已复核边界与尚未验证运行项；非图片输入"
+      }
+    ],
+    "functionalInvariants": [
+      {
+        "sourceId": "PB-046",
+        "route": "/?view=apps&app=blog&appSection=design; GET /api/blog/design/preview (authenticated HTML alias)",
+        "trigger": "Design mounted; editor changes or manual refresh; direct authenticated GET /api/blog/design/preview",
+        "parentId": "PB-041",
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage.",
+          "GET /api/blog/design/preview is an owner-authenticated API route under the same /api/ session hook; it is not an anonymous /blog preview link. The preview service authorizes the owner principal and may preview a disabled public site."
+        ],
+        "fields": [
+          {
+            "name": "live",
+            "type": "checkbox",
+            "required": true,
+            "constraints": "defaulttrue",
+            "sensitive": false
+          },
+          {
+            "name": "device",
+            "type": "segmented",
+            "required": true,
+            "constraints": "desktop1100|mobile375",
+            "sensitive": false
+          }
+        ],
+        "importantStates": [
+          "450ms live debounce; unsaved design included",
+          "desktop1100/mobile375 viewport scaled to host",
+          "empty preview generation button",
+          "preview busy; latest-request wins; failure retains last successful HTML and retry",
+          "Direct authenticated GET /api/blog/design/preview returns the same private homepage template as standalone text/html with the private-preview banner, using the stored design draft; no studio form or embedded device controls wrap this response.",
+          "POST /api/blog/design/preview accepts current unsaved design and returns JSON {html}; this differs from the direct GET HTML route."
+        ],
+        "notes": [
+          "Sandbox allow-same-origin only; no allow-scripts. Owner-only media endpoints; preview does not publish.",
+          "The direct GET is an alias/entry for this same owner homepage-preview surface, not another public route or invented UI button. Its HTML body uses homeHtml and previewSource; the studio POST is the live unsaved-design flow."
+        ]
+      },
+      {
+        "type": "composition",
+        "details": [
+          "装修内嵌私有预览：live、desktop1100/mobile375、POST当前未保存design返回JSON html，空/忙/错误保留旧HTML和重试。直接GET完整HTML由独立资产另列。"
+        ]
+      },
+      {
+        "type": "role-shell",
+        "rule": "所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。"
+      },
+      {
+        "type": "responsive-family-reuse",
+        "renderer": "BlogPreviewViewport.vue internal1100/375 viewport scaling; inline/modal host focus remains separately bound",
+        "allSourceIds": [
+          "PB-046",
+          "PB-047"
+        ],
+        "rule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+      },
+      {
+        "type": "local-component-composition",
+        "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+      }
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "PB-046",
+        "label": "桌面 / 手机",
+        "effect": "Switch internal preview viewport",
+        "api": "",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-046",
+        "label": "刷新预览 / 重试预览 / 生成预览",
+        "effect": "Request current draft preview",
+        "api": "POST /api/blog/design/preview",
+        "guard": "refresh disabled while previewBusy"
+      }
+    ],
+    "forbiddenAdditions": [
+      "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+      "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+      "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+      "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+      "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+      "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+    ],
+    "responsiveContract": [
+      {
+        "sourceId": "PB-046",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified.",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      }
+    ],
+    "prompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-R073 Responsive family: BlogPreviewViewport.vue internal1100/375 viewport scaling; inline/modal host focus remains separately bound\n\n390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。\n\n角色壳：所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。\n\n独立场景：\nA | PB-046 | 博客装修：实时私有预览390px | role=authenticated owner | 390px完整可读代表：字段按登记顺序，动作保持源guard\nB | PB-046 | 博客装修：实时私有预览320px | role=authenticated owner | 320px字段/长值/内层滚动与操作可达\nC | PB-046 | 博客装修：实时私有预览320px guard | role=authenticated owner | 同源关键禁用/错误/长标签状态，使用已有组件且保留输入\n\n完整构图：\n装修内嵌私有预览：live、desktop1100/mobile375、POST当前未保存design返回JSON html，空/忙/错误保留旧HTML和重试。直接GET完整HTML由独立资产另列。\n\n精确功能/字段/动作guard合同：\nPB-046权限：Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage. / GET /api/blog/design/preview is an owner-authenticated API route under the same /api/ session hook; it is not an anonymous /blog preview link. The preview service authorizes the owner principal and may preview a disabled public site.\nPB-047权限：Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage.\nPB-046字段顺序：live [checkbox; 必填]: defaulttrue | device [segmented; 必填]: desktop1100|mobile375\nPB-047字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nPB-046白名单：桌面 / 手机 => Switch internal preview viewport；guard=既有上下文\nPB-046白名单：刷新预览 / 重试预览 / 生成预览 => Request current draft preview；guard=refresh disabled while previewBusy；接口约束=POST /api/blog/design/preview\nPB-047白名单：关闭预览 => Close and restore originating focus；guard=既有上下文\nPB-047白名单：桌面 / 手机 => Switch fixed internal viewport；guard=既有上下文\nPB-047白名单：刷新预览 => Regenerate current draft；guard=not previewBusy；接口约束=POST /api/blog/design/preview\n\n响应式合同：\n<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R073.png",
+    "reviewStatus": "pending-generation",
+    "responsiveFamily": {
+      "id": "MP-RF073",
+      "actualComponent": "BlogPreviewViewport.vue internal1100/375 viewport scaling; inline/modal host focus remains separately bound",
+      "sourceIds": [
+        "PB-046",
+        "PB-047"
+      ],
+      "roleBoundary": "owner-private",
+      "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+    },
+    "parentBindings": [
+      {
+        "sourceId": "PB-046",
+        "parentId": "PB-041",
+        "route": "/?view=apps&app=blog&appSection=design; GET /api/blog/design/preview (authenticated HTML alias)",
+        "roles": [
+          "authenticated owner"
+        ],
+        "sourceRefs": [
+          "apps/web/components/blog/BlogDesignStudio.vue:60",
+          "apps/web/components/blog/BlogDesignStudio.vue:238",
+          "apps/web/components/blog/BlogPreviewViewport.vue:34",
+          "apps/web/blog-workbench.ts:454",
+          "apps/server/blog/routes.ts:151",
+          "apps/server/blog/routes.ts:158",
+          "apps/server/app.ts:141",
+          "apps/server/blog/render.ts:74"
+        ]
+      }
+    ],
+    "sourceContracts": [
+      {
+        "id": "PB-046",
+        "title": "博客装修：实时私有预览",
+        "kind": "state",
+        "module": "studio",
+        "entry": {
+          "route": "/?view=apps&app=blog&appSection=design; GET /api/blog/design/preview (authenticated HTML alias)",
+          "trigger": "Design mounted; editor changes or manual refresh; direct authenticated GET /api/blog/design/preview",
+          "parentId": "PB-041"
+        },
+        "sourceRefs": [
+          "apps/web/components/blog/BlogDesignStudio.vue:60",
+          "apps/web/components/blog/BlogDesignStudio.vue:238",
+          "apps/web/components/blog/BlogPreviewViewport.vue:34",
+          "apps/web/blog-workbench.ts:454",
+          "apps/server/blog/routes.ts:151",
+          "apps/server/blog/routes.ts:158",
+          "apps/server/app.ts:141",
+          "apps/server/blog/render.ts:74"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage.",
+          "GET /api/blog/design/preview is an owner-authenticated API route under the same /api/ session hook; it is not an anonymous /blog preview link. The preview service authorizes the owner principal and may preview a disabled public site."
+        ],
+        "fields": [
+          {
+            "name": "live",
+            "type": "checkbox",
+            "required": true,
+            "constraints": "defaulttrue",
+            "sensitive": false
+          },
+          {
+            "name": "device",
+            "type": "segmented",
+            "required": true,
+            "constraints": "desktop1100|mobile375",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "桌面 / 手机",
+            "effect": "Switch internal preview viewport",
+            "api": "",
+            "guard": ""
+          },
+          {
+            "label": "刷新预览 / 重试预览 / 生成预览",
+            "effect": "Request current draft preview",
+            "api": "POST /api/blog/design/preview",
+            "guard": "refresh disabled while previewBusy"
+          }
+        ],
+        "importantStates": [
+          "450ms live debounce; unsaved design included",
+          "desktop1100/mobile375 viewport scaled to host",
+          "empty preview generation button",
+          "preview busy; latest-request wins; failure retains last successful HTML and retry",
+          "Direct authenticated GET /api/blog/design/preview returns the same private homepage template as standalone text/html with the private-preview banner, using the stored design draft; no studio form or embedded device controls wrap this response.",
+          "POST /api/blog/design/preview accepts current unsaved design and returns JSON {html}; this differs from the direct GET HTML route."
+        ],
+        "responsive": {
+          "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+        },
+        "testRefs": [
+          "tests/blog-studio-workbench.test.ts:58",
+          "tests/blog-studio-workbench.test.ts:131",
+          "tests/e2e/blog-admin-preview.spec.ts:5"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+        "notes": [
+          "Sandbox allow-same-origin only; no allow-scripts. Owner-only media endpoints; preview does not publish.",
+          "The direct GET is an alias/entry for this same owner homepage-preview surface, not another public route or invented UI button. Its HTML body uses homeHtml and previewSource; the studio POST is the live unsaved-design flow."
+        ],
+        "inventoryFile": "coverage/public-and-blog.json"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "manifestReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-043.json",
+  "sourceDerived": true,
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "只改中间B列iframe内的博客桌面内容，保留iframe上方全部对话框设备/1100px/禁用刷新/正在生成状态。B iframe改成实际profile双列模板：左栏仅“关于我”个人介绍、记录连接与行动、示例作者、浏览文章→；右栏为完整“精选文章”模块及两个现有示例文章卡（置顶、2026-11-04·方法、让知识保持可用、用于页面盘点的隔离发布快照。），后续模块自然在右栏向下延伸。彻底删除原右侧虚构盒子“最新文章”和其三个短链接。不要在左栏intro下再放精选文章。保留B iframe的装修草稿预览仅你可见横幅、博客页头/现有导航。B右上×按钮改为文字“关闭预览”。A/C全部每一处保持不变。",
+  "actualToolArguments": {
+    "prompt": "只改中间B列iframe内的博客桌面内容，保留iframe上方全部对话框设备/1100px/禁用刷新/正在生成状态。B iframe改成实际profile双列模板：左栏仅“关于我”个人介绍、记录连接与行动、示例作者、浏览文章→；右栏为完整“精选文章”模块及两个现有示例文章卡（置顶、2026-11-04·方法、让知识保持可用、用于页面盘点的隔离发布快照。），后续模块自然在右栏向下延伸。彻底删除原右侧虚构盒子“最新文章”和其三个短链接。不要在左栏intro下再放精选文章。保留B iframe的装修草稿预览仅你可见横幅、博客页头/现有导航。B右上×按钮改为文字“关闭预览”。A/C全部每一处保持不变。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R073.png"
+    ],
+    "transparent_background": false
+  },
+  "inputs": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R073.png",
+      "role": "edit target",
+      "sha256": "956cfd056ed25755b2e7df16a848a79a3806bf345b9a996222731305dbd99e64",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "inputReferences": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R073.png",
+      "role": "edit target",
+      "sha256": "956cfd056ed25755b2e7df16a848a79a3806bf345b9a996222731305dbd99e64",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-27a8ae26-efba-48d4-b0cb-30ba8d563964.png",
+  "toolDefaultOutputSource": "$CODEX_HOME/generated_images (actual path in toolOutputFile)",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R073-v2.png",
+  "sha256": "d65ccce3a875506ea1f3206dce8b1c6b8a21c4832b78a5d98fdc511cdd001aa1",
+  "bytes": 1635752,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T08:45:41.969119+00:00",
+  "revisionOf": "MP-R073",
+  "generationAttempts": [
+    {
+      "actualToolArguments": {
+        "prompt": "只改中间B列iframe内的博客桌面内容，保留iframe上方全部对话框设备/1100px/禁用刷新/正在生成状态。B iframe改成实际profile双列模板：左栏仅“关于我”个人介绍、记录连接与行动、示例作者、浏览文章→；右栏为完整“精选文章”模块及两个现有示例文章卡（置顶、2026-11-04·方法、让知识保持可用、用于页面盘点的隔离发布快照。），后续模块自然在右栏向下延伸。彻底删除原右侧虚构盒子“最新文章”和其三个短链接。不要在左栏intro下再放精选文章。保留B iframe的装修草稿预览仅你可见横幅、博客页头/现有导航。B右上×按钮改为文字“关闭预览”。A/C全部每一处保持不变。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R073.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-27a8ae26-efba-48d4-b0cb-30ba8d563964.png",
+      "status": "saved"
+    }
+  ],
+  "postprocessing": "original PNG copied without pixel modification",
+  "selfInspection": {
+    "method": "Viewed actual inputs and generated native preview; compared selected state to source contracts",
+    "concerns": [
+      "Targeted independent review source correction; static behavior remains unverified."
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "reviewStatus": "pending-independent-review",
+  "pendingReview": true,
+  "revisionHistory": {
+    "previousSidecar": "docs/design/platform-unification-2026-11-05/design/images/MP-R073.json",
+    "previousSidecarSha256": "5a30bf3a4ac29a1051e015635400317a35cdfdc5b4be9090dfe79378e181236b",
+    "previousSubmittedPrompt": "Use case: ui-mockup. 高清中文移动端组件设计板，三个独立可读面板，A为390px、B/C为320px宽；无设备外壳，普通字号，不将长表单压缩塞满。白底#fff、浅面#f7f8fa、文字#272b3a、蓝色#4566c6、细线#e6e9f1、8px圆角，参考图1仅作样式，图2仅作现有内容。只画局部组件，不重复外部导航。标题和控件真实自然，不把设计编号或技术合同画进UI。A为嵌入式预览局部卡：“访客视角”“未保存的修改也能预览”，桌面/手机切换，手机选中；勾选实时预览，刷新预览可用；内部窄iframe保留“装修草稿预览 · 仅你可见”，博客标题隔离示例手记、首页文章专题归档关于RSS及示例作者、浏览文章；底部“预览仅自己可见。发布主页后访客才能看到更改。” B为320宽独立“主页预览”对话框，说明“查看当前草稿的访客视角”，关闭预览按钮可达；桌面选中、手机未选，文案“1100 px 视口 · 按窗口缩放”，刷新预览灰禁用、正在生成…；iframe显示宽桌面博客按比例缩小，正文内滚动。C嵌入式手机预览失败保留旧HTML，顶部同A，刷新预览可用，错误“预览暂时无法生成”与重试预览可用；保留旧的博客HTML。只画这3独立组件，不加保存/发布按钮。"
+  }
+}

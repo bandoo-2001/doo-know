@@ -1,0 +1,55 @@
+{
+  "assetId": "MP-D006",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:23:40.172141+00:00",
+  "method": "Actual generated PNG and matching real baseline each viewed in independent child context. Exact submitted sidecar prompt and batch requirements checked against current templates; source outranks generic prompt/API summaries.",
+  "selectedState": "Owner plugins page, installed tab empty, no retained authorizations",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual installed/add tabs, installed selected, refresh-plugin-state button and exact empty installed-plugin message retained.",
+    "No MCP/Git installed cards or configure/enable/disable/upgrade/uninstall actions fabricated; those require different source data/state. No installation receipt/restart/dependency notice or retained-authorization row mixed into actual empty state.",
+    "MCPAuthorizationManager template itself hides its section when no clients/error/actionError; blank area therefore matches source. No need to add installed cards from generic API/action summaries.",
+    "Real eight settings destinations, current 插件与连接 selection, private owner account/rail/back controls and shared DooKnow header retained."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/generation-batch-03.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D006.json",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/PluginsSettings.vue:1",
+    "apps/web/components/PluginManager.vue:359",
+    "apps/web/components/PluginManager.vue:426",
+    "apps/web/components/MCPAuthorizationManager.vue:71",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "511b5cb64644ad3540f7794fd03ff3c51bbe6e449bb985f3240ba54c1370014c",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D006.png",
+  "sourceIds": [
+    "ST-006",
+    "ST-047",
+    "ST-048",
+    "ST-054"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D003-v3",
+  "sourceIds": [
+    "WS-003"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-003",
+      "title": "Sidebar notebook and directory search",
+      "role": "authenticated owner",
+      "state": "Paginated query with folder/filename/content results and hybrid degradation; ready main with no note open",
+      "presentationInstruction": "Search query/mode/directory and current result groups/paging/degraded explanation."
+    }
+  ],
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D003-v2.png",
+    "sha256": "95456726a38d73123459d2e99909386ddb9e3e291901c69751e9363d26fa5e09",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D003-v2-review.json"
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "Edit this exact DooKnow UI screenshot. Change only two text areas and preserve every other element, position, layout, control, color, query and main panel unchanged. Keep query 知识. First folder result title must become 个人知识管理 and its smaller path must become 30-Knowledge/个人知识管理. Replace the bottom degraded explanation exactly with 部分内容搜索或索引尚未准备好，结果可能不完整。 Preserve 检查搜索设置 immediately below. Allow that explanation to wrap within the existing sidebar without moving its block. Keep all three results, 已显示 3 项, 加载更多搜索结果, query/mode/directory controls, no 搜索 submit button, header and rail, 选择一篇笔记 main with 快速记录 and 导入 Markdown unchanged. Do not make any other visual or textual change.",
+  "prompt": "Edit this exact DooKnow UI screenshot. Change only two text areas and preserve every other element, position, layout, control, color, query and main panel unchanged. Keep query 知识. First folder result title must become 个人知识管理 and its smaller path must become 30-Knowledge/个人知识管理. Replace the bottom degraded explanation exactly with 部分内容搜索或索引尚未准备好，结果可能不完整。 Preserve 检查搜索设置 immediately below. Allow that explanation to wrap within the existing sidebar without moving its block. Keep all three results, 已显示 3 项, 加载更多搜索结果, query/mode/directory controls, no 搜索 submit button, header and rail, 选择一篇笔记 main with 快速记录 and 导入 Markdown unchanged. Do not make any other visual or textual change.",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D003-v2.png",
+      "role": "Edit target: preserve all existing geometry, chrome, actions, text and styling except the two explicit corrections"
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D003-v2.png",
+      "role": "Edit target: preserve all existing geometry, chrome, actions, text and styling except the two explicit corrections"
+    }
+  ],
+  "generationAttempts": [
+    {
+      "submittedPrompt": "Edit this exact DooKnow UI screenshot. Change only two text areas and preserve every other element, position, layout, control, color, query and main panel unchanged. Keep query 知识. First folder result title must become 个人知识管理 and its smaller path must become 30-Knowledge/个人知识管理. Replace the bottom degraded explanation exactly with 部分内容搜索或索引尚未准备好，结果可能不完整。 Preserve 检查搜索设置 immediately below. Allow that explanation to wrap within the existing sidebar without moving its block. Keep all three results, 已显示 3 项, 加载更多搜索结果, query/mode/directory controls, no 搜索 submit button, header and rail, 选择一篇笔记 main with 快速记录 and 导入 Markdown unchanged. Do not make any other visual or textual change.",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D003-v2.png",
+          "role": "Edit target: preserve all existing geometry, chrome, actions, text and styling except the two explicit corrections"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-8a379f2a-82f7-4eb8-9d77-6455af05e13b.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D003-v3.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-8a379f2a-82f7-4eb8-9d77-6455af05e13b.png",
+  "sha256": "3ec6f161897d4e9cc007d01ecbff02afc4ebdd5a8f9bac74d6d4e52af269e09d",
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "bytes": 1580922,
+  "generatedAtUtc": "2026-11-05T01:10:45.423601+00:00",
+  "postprocessing": "None. Original tool-generated PNG copied byte-for-byte; no pixel editing.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "sourceIds": [
+      "WS-003"
+    ],
+    "title": "Sidebar notebook and directory search",
+    "role": "authenticated owner",
+    "state": "Paginated query with folder/filename/content results and hybrid degradation; ready main with no note open",
+    "location": "metadata by authorized revision scope"
+  },
+  "scope": {
+    "presentation": "full-desktop",
+    "hostSourceIds": [
+      "WS-003"
+    ],
+    "sharedReferences": [],
+    "runtimeBehaviorVerified": false
+  },
+  "selfInspection": {
+    "method": "Actual v3 native preview compared to viewed v2 target; only requested folder hit text and degraded explanation changed.",
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending",
+    "concerns": [
+      "Query 知识 retained; folder title 个人知识管理 and path 30-Knowledge/个人知识管理 now contain the literal search term.",
+      "Exact generic degraded warning is visible with its original settings action; no semantic-specific outage claim.",
+      "Minor raster re-rendering is possible; static design is not proof of source behavior, focus, busy guards or permissions."
+    ]
+  },
+  "sourceReferences": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:2812, apps/web/components/Workspace.vue:2833, apps/web/search-results.ts:1, apps/server/knowledge/web-routes.ts:51"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+      "role": "Shared style contract"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D003-review.json",
+      "role": "Prior independent review correction requirements"
+    }
+  ],
+  "originalPlanningPanels": [
+    {
+      "label": "full",
+      "sourceId": "WS-003",
+      "title": "Sidebar notebook and directory search",
+      "role": "authenticated owner",
+      "state": "Paginated query with folder/filename/content results and hybrid degradation; ready main with no note open",
+      "presentationInstruction": "Search query/mode/directory and current result groups/paging/degraded explanation."
+    }
+  ],
+  "actualRenderedPanels": [
+    {
+      "label": "search-sidebar",
+      "sourceId": "WS-003",
+      "title": "Sidebar notebook and directory search",
+      "role": "authenticated owner",
+      "state": "Query then mode then directory, populated folder/filename/content results, degraded explanation and load-more. Query/mode/directory trigger search reactively; do not draw a search-submit button.",
+      "presentationInstruction": "Search query/mode/directory and current result groups/paging/degraded explanation."
+    }
+  ],
+  "coverageClarification": {
+    "assetId": "WS-M018",
+    "panel": "A",
+    "reason": "Current reviewed v3 depicts only the coherent full query result page; its planned status matrix was not drawn and is now required separately."
+  }
+}

@@ -1,0 +1,487 @@
+{
+  "id": "MP-D085",
+  "title": "首次设置：初始化中 / 首次设置：尚无主人账号 / 首次设置：目录不可用或配置冲突",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-015",
+    "PB-016",
+    "PB-017"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-015",
+      "title": "首次设置：初始化中",
+      "role": "authenticated owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-016",
+      "title": "首次设置：尚无主人账号",
+      "role": "authenticated owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-017",
+      "title": "首次设置：目录不可用或配置冲突",
+      "role": "authenticated owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    }
+  ],
+  "viewportIntent": "1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-015",
+      "route": "/ (platform.phase=initializing)",
+      "trigger": "Bound knowledge runtime is preparing",
+      "parentId": "PB-008",
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "importantStates": [
+        "retained-files reassurance; auto-poll each1.5s",
+        "manual progress check"
+      ],
+      "notes": []
+    },
+    {
+      "sourceId": "PB-016",
+      "route": "/ (platform.phase=owner_required)",
+      "trigger": "SetupWizard receives owner_required",
+      "parentId": "PB-008",
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "importantStates": [
+        "message directs deployment-device installation command; no browser account form"
+      ],
+      "notes": [
+        "Reachability from normal unauthenticated App is uncertain: App renders Login before platform setup and /api/platform/status requires an owner session. Do not depict this as a verified public first-owner registration route."
+      ]
+    },
+    {
+      "sourceId": "PB-017",
+      "route": "/ (source_unavailable/configuration_error)",
+      "trigger": "SetupWizard receives other non-ready phase",
+      "parentId": "PB-008",
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "importantStates": [
+        "saved data/settings retained",
+        "details exposes actual status code/phase",
+        "manual recheck"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。",
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。",
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "已验证主人会话的首启壳，仅首启步骤与允许入口，无主人私有文件树。PB-016可达性待核，不增浏览器主人创建。"
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-015",
+      "label": "检查进度",
+      "effect": "Refresh platform status",
+      "api": "GET /api/platform/status",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-017",
+      "label": "重新检查",
+      "effect": "Refresh platform status",
+      "api": "GET /api/platform/status",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-017",
+      "label": "查看详细信息",
+      "effect": "Expand status code",
+      "api": "",
+      "guard": ""
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-015",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "PB-016",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "PB-017",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n横向排列三个独立完整首次设置页面，外面仅标A、B、C，每页正常可读字号；各页均只有顶部小蓝色书本图标+DooKnow、灰色“欢迎使用”；白色卡片中三步条“1 准备知识库”“2 选择功能”“3 开始使用”，第一步蓝色当前，其余灰色。卡片底外小字“你的资料，由你掌握。”。A卡片正文标题“正在准备你的知识库”，说明“正在读取资料，请稍候。已有文件会保留。”，按钮“检查进度”可用。B卡片正文标题“还差一个登录账号”，说明“请在部署设备上运行安装命令，完成账号创建后刷新此页。”，没有按钮或表单。C卡片正文标题“暂时无法打开知识库”，说明“原有资料和设置已保留。请检查保存位置是否可用，再重试。”，按钮“重新检查”可用，下面折叠项“查看详细信息”关闭。每页只画对应内容，不加来源选择、新建账号、安装命令输入、私有导航或其他按钮。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D085.png",
+  "reviewStatus": "pending-independent-review",
+  "parentBindings": [
+    {
+      "sourceId": "PB-015",
+      "parentId": "PB-008",
+      "route": "/ (platform.phase=initializing)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:189",
+        "apps/web/components/SetupWizard.vue:443"
+      ]
+    },
+    {
+      "sourceId": "PB-016",
+      "parentId": "PB-008",
+      "route": "/ (platform.phase=owner_required)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:448",
+        "apps/server/platform/settings.ts:80",
+        "apps/server/auth.ts:34"
+      ]
+    },
+    {
+      "sourceId": "PB-017",
+      "parentId": "PB-008",
+      "route": "/ (source_unavailable/configuration_error)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:452",
+        "apps/server/platform/settings.ts:80"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-015",
+      "title": "首次设置：初始化中",
+      "kind": "state",
+      "module": "setup",
+      "entry": {
+        "route": "/ (platform.phase=initializing)",
+        "trigger": "Bound knowledge runtime is preparing",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:189",
+        "apps/web/components/SetupWizard.vue:443"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "检查进度",
+          "effect": "Refresh platform status",
+          "api": "GET /api/platform/status",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "retained-files reassurance; auto-poll each1.5s",
+        "manual progress check"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-016",
+      "title": "首次设置：尚无主人账号",
+      "kind": "state",
+      "module": "setup",
+      "entry": {
+        "route": "/ (platform.phase=owner_required)",
+        "trigger": "SetupWizard receives owner_required",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:448",
+        "apps/server/platform/settings.ts:80",
+        "apps/server/auth.ts:34"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "actions": [],
+      "importantStates": [
+        "message directs deployment-device installation command; no browser account form"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Reachability from normal unauthenticated App is uncertain: App renders Login before platform setup and /api/platform/status requires an owner session. Do not depict this as a verified public first-owner registration route."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-017",
+      "title": "首次设置：目录不可用或配置冲突",
+      "kind": "state",
+      "module": "setup",
+      "entry": {
+        "route": "/ (source_unavailable/configuration_error)",
+        "trigger": "SetupWizard receives other non-ready phase",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:452",
+        "apps/server/platform/settings.ts:80"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新检查",
+          "effect": "Refresh platform status",
+          "api": "GET /api/platform/status",
+          "guard": ""
+        },
+        {
+          "label": "查看详细信息",
+          "effect": "Expand status code",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "saved data/settings retained",
+        "details exposes actual status code/phase",
+        "manual recheck"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-D085",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "A initializing phase",
+    "B owner_required phase (source reachability uncertain)",
+    "C source_unavailable with detail closed"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n横向排列三个独立完整首次设置页面，外面仅标A、B、C，每页正常可读字号；各页均只有顶部小蓝色书本图标+DooKnow、灰色“欢迎使用”；白色卡片中三步条“1 准备知识库”“2 选择功能”“3 开始使用”，第一步蓝色当前，其余灰色。卡片底外小字“你的资料，由你掌握。”。A卡片正文标题“正在准备你的知识库”，说明“正在读取资料，请稍候。已有文件会保留。”，按钮“检查进度”可用。B卡片正文标题“还差一个登录账号”，说明“请在部署设备上运行安装命令，完成账号创建后刷新此页。”，没有按钮或表单。C卡片正文标题“暂时无法打开知识库”，说明“原有资料和设置已保留。请检查保存位置是否可用，再重试。”，按钮“重新检查”可用，下面折叠项“查看详细信息”关闭。每页只画对应内容，不加来源选择、新建账号、安装命令输入、私有导航或其他按钮。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-D085 首次设置：初始化中 / 首次设置：尚无主人账号 / 首次设置：目录不可用或配置冲突\n\n1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。\n\n角色壳：已验证主人会话的首启壳，仅首启步骤与允许入口，无主人私有文件树。PB-016可达性待核，不增浏览器主人创建。\n\n独立场景：\nA | PB-015 | 首次设置：初始化中 | role=authenticated owner | 实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\nB | PB-016 | 首次设置：尚无主人账号 | role=authenticated owner | 实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\nC | PB-017 | 首次设置：目录不可用或配置冲突 | role=authenticated owner | 实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\n\n完整构图：\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n精确功能/字段/动作guard合同：\nPB-015/PB-016/PB-017权限：Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression.\nPB-015/PB-016/PB-017字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nPB-015白名单：检查进度 => Refresh platform status；guard=既有上下文；接口约束=GET /api/platform/status\nPB-017白名单：重新检查 => Refresh platform status；guard=既有上下文；接口约束=GET /api/platform/status\nPB-017白名单：查看详细信息 => Expand status code；guard=既有上下文\n\n响应式合同：\n<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D085.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-293095b8-9b85-41cc-961f-4c95818f48d7.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-293095b8-9b85-41cc-961f-4c95818f48d7.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T03:51:53.848Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Independent A/B/C setup branches with real stepper and actions; no browser account registration/private shell.",
+    "concerns": []
+  },
+  "sha256": "f630fbdd57d881c2697b9d10d82041de77a900a3d83e4cf8c0db5cd3ce5f5fa2",
+  "dimensions": {
+    "width": 1920,
+    "height": 819
+  },
+  "bytes": 1120139,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/SetupWizard.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "12cf67b88737b8af2fd285494e578904487a2a3b20e2573674b36f4c5b930cce"
+    },
+    {
+      "path": "apps/web/components/SetupWizard.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "12cf67b88737b8af2fd285494e578904487a2a3b20e2573674b36f4c5b930cce"
+    },
+    {
+      "path": "apps/web/components/SetupWizard.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "12cf67b88737b8af2fd285494e578904487a2a3b20e2573674b36f4c5b930cce"
+    },
+    {
+      "path": "apps/server/platform/settings.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9dcebe469eb409443ad8ab04a72b8672e4fee6cf2fa0e22e25c949b3aa7fdf4f"
+    },
+    {
+      "path": "apps/server/auth.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "48876c03e5e22753369f84b6dca60e887cf46d4b9030450b504ce5d79304ff2b"
+    },
+    {
+      "path": "apps/web/components/SetupWizard.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "12cf67b88737b8af2fd285494e578904487a2a3b20e2573674b36f4c5b930cce"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "SetupWizard source-defined conditional branches only. PB-016 reachability via normal unauthenticated App remains uncertain; does not represent a verified public first-owner route. No setup or polling runtime verified."
+}

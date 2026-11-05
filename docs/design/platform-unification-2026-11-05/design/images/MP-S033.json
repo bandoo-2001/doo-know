@@ -1,0 +1,897 @@
+{
+  "id": "MP-S033",
+  "title": "Component state matrix: owner-private / index.ts",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-082",
+    "ST-083",
+    "ST-084"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-082",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-082",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "Git配置页settingsPage贡献git.settings",
+      "parentId": "ST-050",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "loading/missing/ready/异常code",
+        "Git≥2.39依赖提示",
+        "未解决冲突/不可信filter/软链接或子模块暂停写",
+        "pending commit/request/phase"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "实际Git仓库状态：Git>=2.39、missing初始化main、ready/异常、核对暂存区/刷新；核对不修改index。"
+      ]
+    },
+    {
+      "sourceId": "ST-083",
+      "route": "工作区当前路由",
+      "trigger": "libraryAction“提交全部变更”→git.commitPanel（notePanel贡献）",
+      "parentId": "ST-056",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "Git提交说明",
+          "type": "textarea",
+          "required": true,
+          "constraints": "trim非空；服务器≤8192 UTF8字节、无NUL",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "无预览输入",
+        "服务错误",
+        "预览ST-084",
+        "提交未知锁消息",
+        "已完成/生成但需核对暂存区"
+      ],
+      "notes": [
+        "与ST-078云端提交并推送不同：本贡献只提交，不自动推送。PluginPanel容器本身未感知busy。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "实际Git提交完整窗口：message、预览全部、确认本地提交/核对/取消；无额外远端push。"
+      ]
+    },
+    {
+      "sourceId": "ST-084",
+      "route": "工作区当前路由",
+      "trigger": "ST-083预览全部变更成功",
+      "parentId": "ST-083",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "文件数/状态代码/路径滚动列表",
+        "预览到期时间",
+        "部分暂存警告",
+        "说明变化取消旧预览",
+        "未知结果必须沿原请求核对",
+        "成功commit hash / needsReconciliation"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "plugins/git/web/index.ts",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-082",
+      "label": "初始化Git仓库（main）",
+      "effect": "创建main仓库",
+      "api": "POST /api/plugins/git/call command:git.initialize",
+      "guard": "repository=missing"
+    },
+    {
+      "sourceId": "ST-082",
+      "label": "已核对暂存区",
+      "effect": "确认服务器手工检查过原pending操作",
+      "api": "POST /api/plugins/git/call command:git.acknowledge",
+      "guard": "operationId及confirm=true；不修改文件/暂存区"
+    },
+    {
+      "sourceId": "ST-082",
+      "label": "刷新Git状态",
+      "effect": "读本地repo状态",
+      "api": "POST /api/plugins/git/call provider:git.status",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-083",
+      "label": "预览全部变更",
+      "effect": "生成预览token及新requestId",
+      "api": "POST /api/plugins/git/call command:git.preview",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-083",
+      "label": "确认提交 / 核对提交结果",
+      "effect": "幂等提交原预览",
+      "api": "POST /api/plugins/git/call command:git.commit",
+      "guard": "须preview且message一致；未已有result"
+    },
+    {
+      "sourceId": "ST-083",
+      "label": "取消预览",
+      "effect": "取消未提交预览",
+      "api": "POST /api/plugins/git/call command:git.cancelPreview",
+      "guard": "不busy、无result、无uncertain"
+    },
+    {
+      "sourceId": "ST-084",
+      "label": "确认提交",
+      "effect": "提交完整已审查工作树版本",
+      "api": "POST /api/plugins/git/call command:git.commit",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-084",
+      "label": "取消预览",
+      "effect": "取消token",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "Git本地commit成功即使push失败仍存在；unknown沿原request核对，干净已保存才pull，分歧停止。PluginPanel不凭空添加busy/dirty关闭保护。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-082",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-083",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-084",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排七个独立Git局部样例，长画布和清楚字号，留白/细线分隔，无额外状态说明标题。\n第一行：“Git 仓库”标题，只读状态“正在检查 Git”，可用“刷新 Git 状态”按钮。\n第二行：“Git 仓库”标题，红色错误提示“需要安装系统 Git 2.39 或更新版本”，可用“刷新 Git 状态”。\n第三行：三个独立的红色错误提示，依次“仓库有未解决的冲突，请先在服务器处理”“仓库存在外部过滤器，暂停写操作”“仓库包含软链接或子模块，请先在服务器核对后再提交”，不加修复动作。\n第四行：字段“提交说明”多行框值“记录示例”，灰色禁用；按钮“预览全部变更”可用；预览局部标题“1 项文件变更”、只读“预览有效至 10:30:00”，文件列表“M · 示例.md”；按钮“核对提交结果”蓝色可用、“取消预览”灰色禁用。不要添加额外提交未知说明。\n第五行：黄色提示“提交 <commit> 已生成，暂存区需在服务器核对”，下方“确认提交”“取消预览”灰色禁用。\n第六行：字段“提交说明”可编辑多行框值“更新后的说明”，下方仅可用“预览全部变更”按钮，没有旧预览列表/确认按钮/提示。\n第七行：两个独立紧凑仓库状态卡。左卡“Git 仓库”，状态“尚未建立 Git 仓库”，可用“初始化 Git 仓库（main）”“刷新 Git 状态”。右卡“Git 仓库”，状态“当前分支：main”，只读段落“待核对提交：<commit> · 请求 <request> · needs_reconciliation”，说明“请在服务器核对当前分支及暂存区。此操作只确认已核对，不修改文件或暂存区。”，可用“已核对暂存区”“刷新 Git 状态”。这些回执都是普通只读文字，不是协议输入。不加推送或云端同步动作。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S033.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-082",
+      "title": "loading",
+      "renderer": "plugins/git/web/index.ts",
+      "sourceRefs": [
+        "plugins/git/web/index.ts:116",
+        "plugins/git/server/index.ts:326",
+        "plugins/git/server/index.ts:545"
+      ],
+      "guardBindings": [
+        {
+          "label": "初始化Git仓库（main）",
+          "guard": "repository=missing"
+        },
+        {
+          "label": "已核对暂存区",
+          "guard": "operationId及confirm=true；不修改文件/暂存区"
+        },
+        {
+          "label": "刷新Git状态",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "loading/missing/ready/异常code",
+          "variant": "loading",
+          "representation": "visible"
+        },
+        {
+          "state": "pending commit/request/phase",
+          "variant": "pending commit/request/phase",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-082"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage.",
+      "registeredRenderer": "git.settings"
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-082",
+      "title": "error code; existing alert",
+      "renderer": "plugins/git/web/index.ts",
+      "sourceRefs": [
+        "plugins/git/web/index.ts:116",
+        "plugins/git/server/index.ts:326",
+        "plugins/git/server/index.ts:545"
+      ],
+      "guardBindings": [
+        {
+          "label": "初始化Git仓库（main）",
+          "guard": "repository=missing"
+        },
+        {
+          "label": "已核对暂存区",
+          "guard": "operationId及confirm=true；不修改文件/暂存区"
+        },
+        {
+          "label": "刷新Git状态",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "loading/missing/ready/异常code",
+          "variant": "error code; existing alert",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-082",
+        "ST-083",
+        "ST-084"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage.",
+      "registeredRenderer": "git.settings"
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-082",
+      "title": "未解决冲突/不可信filter/软链接或子模块暂停写",
+      "renderer": "plugins/git/web/index.ts",
+      "sourceRefs": [
+        "plugins/git/web/index.ts:116",
+        "plugins/git/server/index.ts:326",
+        "plugins/git/server/index.ts:545"
+      ],
+      "guardBindings": [
+        {
+          "label": "初始化Git仓库（main）",
+          "guard": "repository=missing"
+        },
+        {
+          "label": "已核对暂存区",
+          "guard": "operationId及confirm=true；不修改文件/暂存区"
+        },
+        {
+          "label": "刷新Git状态",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "未解决冲突/不可信filter/软链接或子模块暂停写",
+          "variant": "未解决冲突/不可信filter/软链接或子模块暂停写",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-082"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage.",
+      "registeredRenderer": "git.settings"
+    },
+    {
+      "row": "r4",
+      "sourceId": "ST-083",
+      "title": "提交未知锁消息",
+      "renderer": "plugins/git/web/index.ts",
+      "sourceRefs": [
+        "plugins/git/web/index.ts:207",
+        "plugins/git/web/index.ts:214",
+        "plugins/git/web/index.ts:291"
+      ],
+      "guardBindings": [
+        {
+          "label": "预览全部变更",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "确认提交 / 核对提交结果",
+          "guard": "须preview且message一致；未已有result"
+        },
+        {
+          "label": "取消预览",
+          "guard": "不busy、无result、无uncertain"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "提交未知锁消息",
+          "variant": "提交未知锁消息",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-083"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage.",
+      "registeredRenderer": "git.commitPanel"
+    },
+    {
+      "row": "r5",
+      "sourceId": "ST-083",
+      "title": "已完成/生成但需核对暂存区",
+      "renderer": "plugins/git/web/index.ts",
+      "sourceRefs": [
+        "plugins/git/web/index.ts:207",
+        "plugins/git/web/index.ts:214",
+        "plugins/git/web/index.ts:291"
+      ],
+      "guardBindings": [
+        {
+          "label": "预览全部变更",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "确认提交 / 核对提交结果",
+          "guard": "须preview且message一致；未已有result"
+        },
+        {
+          "label": "取消预览",
+          "guard": "不busy、无result、无uncertain"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "已完成/生成但需核对暂存区",
+          "variant": "已完成/生成但需核对暂存区",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-083"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage.",
+      "registeredRenderer": "git.commitPanel"
+    },
+    {
+      "row": "r6",
+      "sourceId": "ST-084",
+      "title": "说明变化取消旧预览",
+      "renderer": "plugins/git/web/index.ts",
+      "sourceRefs": [
+        "plugins/git/web/index.ts:317",
+        "plugins/git/web/index.ts:363"
+      ],
+      "guardBindings": [
+        {
+          "label": "确认提交",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消预览",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "说明变化取消旧预览",
+          "variant": "说明变化取消旧预览",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-084"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage.",
+      "registeredRenderer": "git.commitPanel"
+    },
+    {
+      "row": "r7",
+      "sourceId": "ST-082",
+      "title": "git.settings完整仓库状态卡：missing时初始化main，ready分支与待核对暂存区；不合并成commit表单",
+      "renderer": "plugins/git/web/index.ts",
+      "sourceRefs": [
+        "plugins/git/web/index.ts:116",
+        "plugins/git/server/index.ts:326",
+        "plugins/git/server/index.ts:545"
+      ],
+      "guardBindings": [
+        {
+          "label": "初始化Git仓库（main）",
+          "guard": "repository=missing"
+        },
+        {
+          "label": "已核对暂存区",
+          "guard": "operationId及confirm=true；不修改文件/暂存区"
+        },
+        {
+          "label": "刷新Git状态",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。",
+      "coveredSourceIds": [
+        "ST-082"
+      ],
+      "registeredRenderer": "git.settings"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-082",
+      "parentId": "ST-050",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "plugins/git/web/index.ts:116",
+        "plugins/git/server/index.ts:326",
+        "plugins/git/server/index.ts:545"
+      ]
+    },
+    {
+      "sourceId": "ST-083",
+      "parentId": "ST-056",
+      "route": "工作区当前路由",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "plugins/git/web/index.ts:207",
+        "plugins/git/web/index.ts:214",
+        "plugins/git/web/index.ts:291"
+      ]
+    },
+    {
+      "sourceId": "ST-084",
+      "parentId": "ST-083",
+      "route": "工作区当前路由",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "plugins/git/web/index.ts:317",
+        "plugins/git/web/index.ts:363"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-082",
+      "title": "Git实际插件仓库状态与暂存区核对",
+      "kind": "state",
+      "module": "plugins/git",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "Git配置页settingsPage贡献git.settings",
+        "parentId": "ST-050"
+      },
+      "sourceRefs": [
+        "plugins/git/web/index.ts:116",
+        "plugins/git/server/index.ts:326",
+        "plugins/git/server/index.ts:545"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "初始化Git仓库（main）",
+          "effect": "创建main仓库",
+          "api": "POST /api/plugins/git/call command:git.initialize",
+          "guard": "repository=missing"
+        },
+        {
+          "label": "已核对暂存区",
+          "effect": "确认服务器手工检查过原pending操作",
+          "api": "POST /api/plugins/git/call command:git.acknowledge",
+          "guard": "operationId及confirm=true；不修改文件/暂存区"
+        },
+        {
+          "label": "刷新Git状态",
+          "effect": "读本地repo状态",
+          "api": "POST /api/plugins/git/call provider:git.status",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "loading/missing/ready/异常code",
+        "Git≥2.39依赖提示",
+        "未解决冲突/不可信filter/软链接或子模块暂停写",
+        "pending commit/request/phase"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/git.spec.ts:7",
+        "tests/git-plugin.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-083",
+      "title": "Git实际插件：提交全部变更",
+      "kind": "dialog",
+      "module": "plugins/git",
+      "entry": {
+        "route": "工作区当前路由",
+        "trigger": "libraryAction“提交全部变更”→git.commitPanel（notePanel贡献）",
+        "parentId": "ST-056"
+      },
+      "sourceRefs": [
+        "plugins/git/web/index.ts:207",
+        "plugins/git/web/index.ts:214",
+        "plugins/git/web/index.ts:291"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "Git提交说明",
+          "type": "textarea",
+          "required": true,
+          "constraints": "trim非空；服务器≤8192 UTF8字节、无NUL",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "预览全部变更",
+          "effect": "生成预览token及新requestId",
+          "api": "POST /api/plugins/git/call command:git.preview",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "确认提交 / 核对提交结果",
+          "effect": "幂等提交原预览",
+          "api": "POST /api/plugins/git/call command:git.commit",
+          "guard": "须preview且message一致；未已有result"
+        },
+        {
+          "label": "取消预览",
+          "effect": "取消未提交预览",
+          "api": "POST /api/plugins/git/call command:git.cancelPreview",
+          "guard": "不busy、无result、无uncertain"
+        }
+      ],
+      "importantStates": [
+        "无预览输入",
+        "服务错误",
+        "预览ST-084",
+        "提交未知锁消息",
+        "已完成/生成但需核对暂存区"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/git.spec.ts:7",
+        "tests/git-web-regressions.test.ts:155"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "与ST-078云端提交并推送不同：本贡献只提交，不自动推送。PluginPanel容器本身未感知busy。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-084",
+      "title": "Git插件提交预览、部分暂存与结果",
+      "kind": "state",
+      "module": "plugins/git",
+      "entry": {
+        "route": "工作区当前路由",
+        "trigger": "ST-083预览全部变更成功",
+        "parentId": "ST-083"
+      },
+      "sourceRefs": [
+        "plugins/git/web/index.ts:317",
+        "plugins/git/web/index.ts:363"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "确认提交",
+          "effect": "提交完整已审查工作树版本",
+          "api": "POST /api/plugins/git/call command:git.commit",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消预览",
+          "effect": "取消token",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "文件数/状态代码/路径滚动列表",
+        "预览到期时间",
+        "部分暂存警告",
+        "说明变化取消旧预览",
+        "未知结果必须沿原请求核对",
+        "成功commit hash / needsReconciliation"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/git-web-regressions.test.ts:155"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S033",
+  "roles": [
+    "owner-private"
+  ],
+  "selectedState": [
+    "r1 git settings loading",
+    "r2 Git dependency error",
+    "r3 independent conflict/filter/unsupported entry errors",
+    "r4 uncertain commit disables message/cancel but prepare remains source-clickable",
+    "r5 needsReconciliation result locks confirm/cancel",
+    "r6 changed message invalidates old preview",
+    "r7 independent repository missing and ready/pending cards"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排七个独立Git局部样例，长画布和清楚字号，留白/细线分隔，无额外状态说明标题。\n第一行：“Git 仓库”标题，只读状态“正在检查 Git”，可用“刷新 Git 状态”按钮。\n第二行：“Git 仓库”标题，红色错误提示“需要安装系统 Git 2.39 或更新版本”，可用“刷新 Git 状态”。\n第三行：三个独立的红色错误提示，依次“仓库有未解决的冲突，请先在服务器处理”“仓库存在外部过滤器，暂停写操作”“仓库包含软链接或子模块，请先在服务器核对后再提交”，不加修复动作。\n第四行：字段“提交说明”多行框值“记录示例”，灰色禁用；按钮“预览全部变更”可用；预览局部标题“1 项文件变更”、只读“预览有效至 10:30:00”，文件列表“M · 示例.md”；按钮“核对提交结果”蓝色可用、“取消预览”灰色禁用。不要添加额外提交未知说明。\n第五行：黄色提示“提交 <commit> 已生成，暂存区需在服务器核对”，下方“确认提交”“取消预览”灰色禁用。\n第六行：字段“提交说明”可编辑多行框值“更新后的说明”，下方仅可用“预览全部变更”按钮，没有旧预览列表/确认按钮/提示。\n第七行：两个独立紧凑仓库状态卡。左卡“Git 仓库”，状态“尚未建立 Git 仓库”，可用“初始化 Git 仓库（main）”“刷新 Git 状态”。右卡“Git 仓库”，状态“当前分支：main”，只读段落“待核对提交：<commit> · 请求 <request> · needs_reconciliation”，说明“请在服务器核对当前分支及暂存区。此操作只确认已核对，不修改文件或暂存区。”，可用“已核对暂存区”“刷新 Git 状态”。这些回执都是普通只读文字，不是协议输入。不加推送或云端同步动作。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S033 Component state matrix: owner-private / index.ts\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | ST-082 | 真实组件局部状态矩阵 | role=owner-private | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n实际Git仓库状态：Git>=2.39、missing初始化main、ready/异常、核对暂存区/刷新；核对不修改index。\n实际Git提交完整窗口：message、预览全部、确认本地提交/核对/取消；无额外远端push。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n局部矩阵（≤7行/卡）：\nr1 | ST-082 | 实际只画代表：loading | 既有busy/spinner/禁用控件模式，按原guard锁定。 | renderer=plugins/git/web/index.ts git.settings\nr2 | ST-082 | 实际只画代表：error code; existing alert | 已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。 | renderer=plugins/git/web/index.ts git.settings\nr3 | ST-082 | 实际只画代表：未解决冲突/不可信filter/软链接或子模块暂停写 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=plugins/git/web/index.ts git.settings\nr4 | ST-083 | 实际只画代表：提交未知锁消息 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=plugins/git/web/index.ts git.commitPanel\nr5 | ST-083 | 实际只画代表：已完成/生成但需核对暂存区 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=plugins/git/web/index.ts git.commitPanel\nr6 | ST-084 | 实际只画代表：说明变化取消旧预览 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=plugins/git/web/index.ts git.commitPanel\nr7 | ST-082 | 实际只画代表：git.settings完整仓库状态卡：missing时初始化main，ready分支与待核对暂存区；不合并成commit表单 | 完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。 | renderer=plugins/git/web/index.ts git.settings\n\n精确功能/字段/动作guard合同：\nST-082/ST-083/ST-084权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-082/ST-084字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-083字段顺序：Git提交说明 [textarea; 必填]: trim非空；服务器≤8192 UTF8字节、无NUL\nST-082白名单：初始化Git仓库（main） => 创建main仓库；guard=repository=missing；接口约束=POST /api/plugins/git/call command:git.initialize\nST-082白名单：已核对暂存区 => 确认服务器手工检查过原pending操作；guard=operationId及confirm=true；不修改文件/暂存区；接口约束=POST /api/plugins/git/call command:git.acknowledge\nST-082白名单：刷新Git状态 => 读本地repo状态；guard=已登录所有者；请求期间禁用重复操作；接口约束=POST /api/plugins/git/call provider:git.status\nST-083白名单：预览全部变更 => 生成预览token及新requestId；guard=已登录所有者；请求期间禁用重复操作；接口约束=POST /api/plugins/git/call command:git.preview\nST-083白名单：确认提交 / 核对提交结果 => 幂等提交原预览；guard=须preview且message一致；未已有result；接口约束=POST /api/plugins/git/call command:git.commit\nST-083白名单：取消预览 => 取消未提交预览；guard=不busy、无result、无uncertain；接口约束=POST /api/plugins/git/call command:git.cancelPreview\nST-084白名单：确认提交 => 提交完整已审查工作树版本；guard=已登录所有者；请求期间禁用重复操作；接口约束=POST /api/plugins/git/call command:git.commit\nST-084白名单：取消预览 => 取消token；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\n插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\nGit本地commit成功即使push失败仍存在；unknown沿原request核对，干净已保存才pull，分歧停止。PluginPanel不凭空添加busy/dirty关闭保护。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "20d3af18e07807e109eee306b74d24cab0fdbe1eadc0e5ed5883c727c9863156",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 61500
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S033.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-b0b41fca-216f-473a-902a-b34b99b41acc.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-b0b41fca-216f-473a-902a-b34b99b41acc.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T04:21:06.063Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Exact source local cards/errors and conditional controls checked; no auto-push, fabricated progress, protocol inputs or host navigation.",
+    "concerns": []
+  },
+  "sha256": "78514d4546c94c9322c7a9913f1a3374797267c80c5ec9db653e61cab2605914",
+  "dimensions": {
+    "width": 1024,
+    "height": 1536
+  },
+  "bytes": 1416690,
+  "sourceInspection": [
+    {
+      "path": "plugins/git/web/index.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d6639cec6106c64c9e648e599930f2349da7a9de52f1eb2843945b92babe65ee"
+    },
+    {
+      "path": "plugins/git/server/index.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "b3ec841ce417b1fe34dbb1d1d40c496e2ed533774c6e03f012639ada11144b9c"
+    },
+    {
+      "path": "plugins/git/server/index.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "b3ec841ce417b1fe34dbb1d1d40c496e2ed533774c6e03f012639ada11144b9c"
+    },
+    {
+      "path": "plugins/git/web/index.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d6639cec6106c64c9e648e599930f2349da7a9de52f1eb2843945b92babe65ee"
+    },
+    {
+      "path": "plugins/git/web/index.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d6639cec6106c64c9e648e599930f2349da7a9de52f1eb2843945b92babe65ee"
+    },
+    {
+      "path": "plugins/git/web/index.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d6639cec6106c64c9e648e599930f2349da7a9de52f1eb2843945b92babe65ee"
+    },
+    {
+      "path": "plugins/git/web/index.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d6639cec6106c64c9e648e599930f2349da7a9de52f1eb2843945b92babe65ee"
+    },
+    {
+      "path": "plugins/git/web/index.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d6639cec6106c64c9e648e599930f2349da7a9de52f1eb2843945b92babe65ee"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived child state examples; no Git operations/errors/network executed. Synthetic read-only receipts do not imply successful tasks.",
+  "sourceGuardNote": "Plugin commit prepare button remains enabled when uncertain but handler rejects; do not infer disabled attribute. Host PluginPanel itself remains closable."
+}

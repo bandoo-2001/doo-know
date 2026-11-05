@@ -1,0 +1,47 @@
+{
+  "assetId": "MP-R068",
+  "sourceIds": [
+    "PB-040"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:22:55.664169+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner local site-settings form: A/B saved disabled/system theme/empty optional metadata, C local enabled draft during settingsBusy while saved dashboard remains disabled.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG/full submitted prompt and real site-settings baseline viewed. All actual fields/sections ordered: enabled,title,description,author,baseUrl,theme,about, navigation and save state/actions. Title required; other text optional; no fake required markers.",
+    "C real saved badge remains站点未开启 while local toggle enabled and pending explanation reflects future saved behavior. It is not a claim live public site is already enabled.",
+    "Only save disabled during settingsBusy in current template; fields/toggle/theme and design navigation remain editable. No blanket lock, spinner or unsupported explicit dark theme.",
+    "Settings save/CAS retains concurrent edits via mergeDraft; site enable and article/design snapshot publication remain independent. Status text is existing saved-state indicator, not a newly executed success receipt."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-042.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R068.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/BlogWorkspace.vue:897",
+    "apps/web/blog-workbench.ts:324",
+    "packages/core/blog/service.ts:568",
+    "docs/design/platform-unification-2026-11-05/baseline/390-blog-settings.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "10093677478af52fa97d66339007cfc00abb2570cb2aae40baf7377a2d3614b4",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R068.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

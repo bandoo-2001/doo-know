@@ -1,0 +1,401 @@
+[
+  {
+    "id": "owner-rich-document",
+    "title": "所有者文档编辑（构建开关开启）",
+    "sourceIds": [
+      "WS-024",
+      "WS-029"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-owner-rich-document.png",
+    "sha256": "51bb8ab79f889c547f472e964f39a1e208dd3e708ed7ca0c7ed4ce307025aa35",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-table",
+    "title": "表格插入选择",
+    "sourceIds": [
+      "WS-031"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-owner-rich-table.png",
+    "sha256": "e057ec47df65a4b3b2c9095e88429977a4b78302d6117642df35b9caa3808bd4",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-color",
+    "title": "文字颜色选择",
+    "sourceIds": [
+      "WS-032"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-owner-rich-color.png",
+    "sha256": "47f04fb2b24a323eed2acd08b0b4d69778aaad0ccb33f0dbd450f447e41ebf5e",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-find",
+    "title": "文档查找与替换",
+    "sourceIds": [
+      "WS-045"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-owner-rich-find.png",
+    "sha256": "088c151d10aba38a07ec7feb665aed5b71cb41508cc0821db1633424350ff0e4",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-document",
+    "title": "所有者文档编辑（构建开关开启）",
+    "sourceIds": [
+      "WS-024",
+      "WS-029"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-owner-rich-document.png",
+    "sha256": "af1524fa3504b91472b4ebd97df5c5157c578f86e92a18df3a0ec4bac9e4e86e",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-table",
+    "title": "表格插入选择",
+    "sourceIds": [
+      "WS-031"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-owner-rich-table.png",
+    "sha256": "8f9ce082f006dfadc21d8ab3a22f60b80a047ec00b160490e88fb7b50aae39e5",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-color",
+    "title": "文字颜色选择",
+    "sourceIds": [
+      "WS-032"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-owner-rich-color.png",
+    "sha256": "a9c5ed813b1a0efbfe81780d9f33860b221e706369502f321f543ed1bba7068b",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-find",
+    "title": "文档查找与替换",
+    "sourceIds": [
+      "WS-045"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-owner-rich-find.png",
+    "sha256": "b539ade31b6d21b97c5cdc917bb670a1495058d24ad436157846ebea301c5bec",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-document",
+    "title": "所有者文档编辑（构建开关开启）",
+    "sourceIds": [
+      "WS-024",
+      "WS-029"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-owner-rich-document.png",
+    "sha256": "096c4848c0e1556fd4bbcd545ed3ff19e90596639855e5e8ecc5b071ad0d034c",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-table",
+    "title": "表格插入选择",
+    "sourceIds": [
+      "WS-031"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-owner-rich-table.png",
+    "sha256": "b0ec4912b3cb0915fdd70598743f1547da01c903c1f2ed561c091880626f57a4",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-color",
+    "title": "文字颜色选择",
+    "sourceIds": [
+      "WS-032"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-owner-rich-color.png",
+    "sha256": "bc5b4f3489f6d834a3fdad963f381e7d11eb8869759a93e503bf70991da19968",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-find",
+    "title": "文档查找与替换",
+    "sourceIds": [
+      "WS-045"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-owner-rich-find.png",
+    "sha256": "e21fbc160ca2498c20c359194e8e251833ae925d8842bd2d000eba38d0b73d46",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-paragraph",
+    "title": "段落与标题选择",
+    "sourceIds": [
+      "WS-030"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-owner-rich-paragraph.png",
+    "sha256": "8f375295d05e23c75964014bcd2f63fd27515b5b713973fa969a4583213e4ecc",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-link",
+    "title": "链接编辑窗口",
+    "sourceIds": [
+      "WS-037"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-owner-rich-link.png",
+    "sha256": "e78c1a3b3357e96474a5199141424ea67955623841515b3af925d47fd4f7c48d",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-paragraph",
+    "title": "段落与标题选择",
+    "sourceIds": [
+      "WS-030"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-owner-rich-paragraph.png",
+    "sha256": "70f44d63e2195394747d0550f363b0844e0f076a012a8f6e95e1f027e44f1184",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-link",
+    "title": "链接编辑窗口",
+    "sourceIds": [
+      "WS-037"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-owner-rich-link.png",
+    "sha256": "165784f9a5e1a02c56a732e8f56dd07a33af5c14bb8a221e3f88aedb8fc28d61",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-paragraph",
+    "title": "段落与标题选择",
+    "sourceIds": [
+      "WS-030"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-owner-rich-paragraph.png",
+    "sha256": "78b62c7fb1d5c2b68bac708bfa2de229f92720cac7fac263a597b6b97c1aa633",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  },
+  {
+    "id": "owner-rich-link",
+    "title": "链接编辑窗口",
+    "sourceIds": [
+      "WS-037"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-owner-rich-link.png",
+    "sha256": "77001fc5b0638a03325ba4f17f1962b83c1f3eedf3f4b6f2e37ab8a8bb0d6b3d",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "status": "captured",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "pageErrors": [],
+    "outerOverflow": 0
+  }
+]

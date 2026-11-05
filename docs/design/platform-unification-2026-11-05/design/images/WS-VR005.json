@@ -1,0 +1,289 @@
+{
+  "id": "WS-VR005",
+  "title": "Empty canvas context menu",
+  "kind": "generated-design",
+  "sourceIds": [
+    "RTD-012"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "RTD-012",
+      "title": "Empty canvas context menu",
+      "role": "authenticated owner",
+      "state": "Actual empty-canvas context menu in390/320 viewport.390 source used mouse rightclick; no invented long-press trigger or unverified mobile statistics.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Actual empty-canvas context menu in390/320 viewport.390 source used mouse rightclick; no invented long-press trigger or unverified mobile statistics."
+    },
+    {
+      "label": "B",
+      "sourceId": "RTD-012",
+      "title": "Empty canvas context menu",
+      "role": "authenticated owner",
+      "state": "Actual empty-canvas context menu in390/320 viewport.390 source used mouse rightclick; no invented long-press trigger or unverified mobile statistics.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Actual empty-canvas context menu in390/320 viewport.390 source used mouse rightclick; no invented long-press trigger or unverified mobile statistics."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-empty-canvas-context-menu.png",
+      "role": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion."
+    },
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:29140"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+    "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-VR005",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": "Narrow capture uses a real mouse right-click at 390 viewport; no touch/long-press claim. Clipboard content was not read or pasted.",
+      "requiredVisibleLabels": [
+        "粘贴",
+        "全部选中",
+        "Toggle grid",
+        "吸附至对象",
+        "禅模式",
+        "查看模式",
+        "Canvas & Shape properties"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "role": "authenticated owner",
+      "scrollContract": "Keep actual vendor panel scroll/viewport anchor and real close/Edit trigger reachable. Do not introduce native OS/browser windows.",
+      "focusContract": "Retain actual vendor focus/keyboard limitations; advertised unobserved command palette and absent mobile statistics are not invented.",
+      "requiresActualFitReview": true,
+      "sourceId": "RTD-012"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. Create one new high-fidelity flat UI comparison board for the existing DooKnow whiteboard canvas context menu. Image 1 is authoritative existing UI content; image 2 supplies ONLY flat palette/typographic hierarchy, never copy its desktop rail, title or notebook fields. Two independent narrow local viewport specimens side by side, left 390px wide and right 320px wide, each representing height844. Small external A / B labels allowed outside the product. Neutral white canvas, generous outside whitespace, absolutely no device/browser chrome or descriptive paragraphs. Within each white canvas place a bounded context menu near the lower-right anchor, fully inside the visible viewport. Preserve exactly seven existing text-only rows, in this exact order: \"粘贴\", separator, \"全部选中\", separator, \"Toggle grid\", \"吸附至对象\", \"禅模式\", \"查看模式\", \"Canvas & Shape properties\". Last label must remain readable and wrap within320 if needed, with enough row height; no truncated button. This is the empty canvas state: no drawn shapes, selected objects, copy/export/group/delete items, statistics panel or invented long-press control. Do not add submenu arrows, checkboxes, icons, close button, search or Done/Cancel. This menu is dismissed through its existing behavior, not an added action. Keep style calm and compact: white paper, #272b3a text, #657084 secondary, #e6e9f1 one-pixel borders, #4566c6 accents if relevant, 8px corner radius, very restrained shadow. Exact labels may be mixed Chinese/English as above. Crisp readable14px-equivalent type, clear hit rows, no gradients/textures/3D. Local component comparison only; no owner/private navigation or extra app toolbar. These are design specimens, not a claim that touch/clipboard/statistics behavior was verified.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-VR005.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "RTD-012",
+      "runtimeKey": "vendor-empty-canvas-context-menu",
+      "title": "Empty canvas context menu",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "粘贴",
+        "全部选中",
+        "Toggle grid",
+        "吸附至对象",
+        "禅模式",
+        "查看模式",
+        "Canvas & Shape properties"
+      ],
+      "roleEvidence": {
+        "context-button-count": 7
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:29140"
+      ],
+      "evidence": [
+        "1440-vendor-empty-canvas-context-menu.json",
+        "390-vendor-empty-canvas-context-menu.json"
+      ],
+      "constraints": "Narrow capture uses a real mouse right-click at 390 viewport; no touch/long-press claim. Clipboard content was not read or pasted."
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "RTD-012",
+      "parentIds": [
+        "WS-068"
+      ],
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Excalidraw child UI inside the actual owner whiteboard; no private page/navigation controls invented."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: RTD-012",
+  "stateCoverageRefs": [],
+  "statePatternRefs": [
+    {
+      "sourceId": "RTD-012",
+      "assetId": "WS-V007",
+      "representation": "nonvisual-data-rule"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-VR005",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "Use case: ui-mockup. Create one new high-fidelity flat UI comparison board for the existing DooKnow whiteboard canvas context menu. Image 1 is authoritative existing UI content; image 2 supplies ONLY flat palette/typographic hierarchy, never copy its desktop rail, title or notebook fields. Two independent narrow local viewport specimens side by side, left 390px wide and right 320px wide, each representing height844. Small external A / B labels allowed outside the product. Neutral white canvas, generous outside whitespace, absolutely no device/browser chrome or descriptive paragraphs. Within each white canvas place a bounded context menu near the lower-right anchor, fully inside the visible viewport. Preserve exactly seven existing text-only rows, in this exact order: \"粘贴\", separator, \"全部选中\", separator, \"Toggle grid\", \"吸附至对象\", \"禅模式\", \"查看模式\", \"Canvas & Shape properties\". Last label must remain readable and wrap within320 if needed, with enough row height; no truncated button. This is the empty canvas state: no drawn shapes, selected objects, copy/export/group/delete items, statistics panel or invented long-press control. Do not add submenu arrows, checkboxes, icons, close button, search or Done/Cancel. This menu is dismissed through its existing behavior, not an added action. Keep style calm and compact: white paper, #272b3a text, #657084 secondary, #e6e9f1 one-pixel borders, #4566c6 accents if relevant, 8px corner radius, very restrained shadow. Exact labels may be mixed Chinese/English as above. Crisp readable14px-equivalent type, clear hit rows, no gradients/textures/3D. Local component comparison only; no owner/private navigation or extra app toolbar. These are design specimens, not a claim that touch/clipboard/statistics behavior was verified.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-VR005 Empty canvas context menu\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"RTD-012\", \"title\": \"Empty canvas context menu\", \"role\": \"authenticated owner\", \"state\": \"Actual empty-canvas context menu in390/320 viewport.390 source used mouse rightclick; no invented long-press trigger or unverified mobile statistics.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Actual empty-canvas context menu in390/320 viewport.390 source used mouse rightclick; no invented long-press trigger or unverified mobile statistics.\"}, {\"label\": \"B\", \"sourceId\": \"RTD-012\", \"title\": \"Empty canvas context menu\", \"role\": \"authenticated owner\", \"state\": \"Actual empty-canvas context menu in390/320 viewport.390 source used mouse rightclick; no invented long-press trigger or unverified mobile statistics.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Actual empty-canvas context menu in390/320 viewport.390 source used mouse rightclick; no invented long-press trigger or unverified mobile statistics.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"RTD-012\", \"visibleLabels\": [\"粘贴\", \"全部选中\", \"Toggle grid\", \"吸附至对象\", \"禅模式\", \"查看模式\", \"Canvas & Shape properties\"], \"constraints\": \"Narrow capture uses a real mouse right-click at 390 viewport; no touch/long-press claim. Clipboard content was not read or pasted.\"}, {\"panel\": \"B\", \"sourceId\": \"RTD-012\", \"visibleLabels\": [\"粘贴\", \"全部选中\", \"Toggle grid\", \"吸附至对象\", \"禅模式\", \"查看模式\", \"Canvas & Shape properties\"], \"constraints\": \"Narrow capture uses a real mouse right-click at 390 viewport; no touch/long-press claim. Clipboard content was not read or pasted.\"}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "actualToolArguments": {
+    "prompt": "Use case: ui-mockup. Create one new high-fidelity flat UI comparison board for the existing DooKnow whiteboard canvas context menu. Image 1 is authoritative existing UI content; image 2 supplies ONLY flat palette/typographic hierarchy, never copy its desktop rail, title or notebook fields. Two independent narrow local viewport specimens side by side, left 390px wide and right 320px wide, each representing height844. Small external A / B labels allowed outside the product. Neutral white canvas, generous outside whitespace, absolutely no device/browser chrome or descriptive paragraphs. Within each white canvas place a bounded context menu near the lower-right anchor, fully inside the visible viewport. Preserve exactly seven existing text-only rows, in this exact order: \"粘贴\", separator, \"全部选中\", separator, \"Toggle grid\", \"吸附至对象\", \"禅模式\", \"查看模式\", \"Canvas & Shape properties\". Last label must remain readable and wrap within320 if needed, with enough row height; no truncated button. This is the empty canvas state: no drawn shapes, selected objects, copy/export/group/delete items, statistics panel or invented long-press control. Do not add submenu arrows, checkboxes, icons, close button, search or Done/Cancel. This menu is dismissed through its existing behavior, not an added action. Keep style calm and compact: white paper, #272b3a text, #657084 secondary, #e6e9f1 one-pixel borders, #4566c6 accents if relevant, 8px corner radius, very restrained shadow. Exact labels may be mixed Chinese/English as above. Crisp readable14px-equivalent type, clear hit rows, no gradients/textures/3D. Local component comparison only; no owner/private navigation or extra app toolbar. These are design specimens, not a claim that touch/clipboard/statistics behavior was verified.",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-empty-canvas-context-menu.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-empty-canvas-context-menu.png",
+      "role": "Authoritative actual mobile renderer and visible state; no runtime redesign acceptance implied",
+      "sha256": "de8004f66ca7efb97866e0799ea84515f7c83a82fdb28401407b6a2e4bb22d4e",
+      "bytes": 38857,
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved palette/hierarchy only, no notebook fields or owner rail transfer",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-empty-canvas-context-menu.png",
+      "role": "Authoritative actual mobile renderer and visible state; no runtime redesign acceptance implied",
+      "sha256": "de8004f66ca7efb97866e0799ea84515f7c83a82fdb28401407b6a2e4bb22d4e",
+      "bytes": 38857,
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved palette/hierarchy only, no notebook fields or owner rail transfer",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-empty-canvas-context-menu.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "sourceInspection": [
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "Current installed vendor source inspected as behavioral authority",
+      "sha256": "e10e24df153077770849c7d68f9a8f5db3bb1eb1576d909d1e3c9a5b024d1882",
+      "bytes": 1147428
+    }
+  ],
+  "generationCallCount": 1,
+  "generationAttempts": [
+    {
+      "id": "WS-VR005",
+      "submittedPrompt": "Use case: ui-mockup. Create one new high-fidelity flat UI comparison board for the existing DooKnow whiteboard canvas context menu. Image 1 is authoritative existing UI content; image 2 supplies ONLY flat palette/typographic hierarchy, never copy its desktop rail, title or notebook fields. Two independent narrow local viewport specimens side by side, left 390px wide and right 320px wide, each representing height844. Small external A / B labels allowed outside the product. Neutral white canvas, generous outside whitespace, absolutely no device/browser chrome or descriptive paragraphs. Within each white canvas place a bounded context menu near the lower-right anchor, fully inside the visible viewport. Preserve exactly seven existing text-only rows, in this exact order: \"粘贴\", separator, \"全部选中\", separator, \"Toggle grid\", \"吸附至对象\", \"禅模式\", \"查看模式\", \"Canvas & Shape properties\". Last label must remain readable and wrap within320 if needed, with enough row height; no truncated button. This is the empty canvas state: no drawn shapes, selected objects, copy/export/group/delete items, statistics panel or invented long-press control. Do not add submenu arrows, checkboxes, icons, close button, search or Done/Cancel. This menu is dismissed through its existing behavior, not an added action. Keep style calm and compact: white paper, #272b3a text, #657084 secondary, #e6e9f1 one-pixel borders, #4566c6 accents if relevant, 8px corner radius, very restrained shadow. Exact labels may be mixed Chinese/English as above. Crisp readable14px-equivalent type, clear hit rows, no gradients/textures/3D. Local component comparison only; no owner/private navigation or extra app toolbar. These are design specimens, not a claim that touch/clipboard/statistics behavior was verified.",
+      "actualImageInputOrder": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-empty-canvas-context-menu.png",
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-bb4c8fc7-dbfb-47e2-a7e7-d4c4ede31321.png",
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2 as /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-bb4c8fc7-dbfb-47e2-a7e7-d4c4ede31321.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "startedAtUtc": "2026-11-05T08:15:34.316Z",
+      "completedAtUtc": "2026-11-05T08:15:53.695Z"
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-bb4c8fc7-dbfb-47e2-a7e7-d4c4ede31321.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2 as /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-bb4c8fc7-dbfb-47e2-a7e7-d4c4ede31321.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generatedAtUtc": "2026-11-05T08:15:53.695Z",
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-VR005.png",
+  "postprocessing": "Raw PNG bytes copied unchanged; no pixel editing or raster overlays",
+  "pendingReview": true,
+  "selfInspection": {
+    "method": "Actual native generated image visually inspected in root tool output against viewed actual mobile baseline and installed vendor source",
+    "status": "source/content self-check passed; independent SHA review pending",
+    "checks": [
+      "Seven exact existing text-only rows and two separators; no new control or mobile statistics window",
+      "390/320 intended narrow local specimens; long last label wraps in narrower specimen",
+      "No notebook rail, invented close, device chrome or selected elements"
+    ],
+    "limitations": [
+      "Raster dimensions and scale are illustrative, not measured CSS viewport widths",
+      "Static design does not verify scrolling, focus, keyboard, touch, clipboard, actions or permission enforcement"
+    ]
+  },
+  "sha256": "62a376aafdbd9469f3f0b2ec20f654465a72826194138a2a645672db1d93b8a1",
+  "bytes": 908683,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "assetId": "WS-M019",
+  "sourceIds": [
+    "WS-064",
+    "WS-066"
+  ],
+  "reviewedAtUtc": "2026-11-05T09:52:57.722815+00:00",
+  "reviewer": "Independent source-binding auditor",
+  "verdict": "pass",
+  "reviewedImageSha256": "05506403913377ee0bbc643af04781ab7057bc489e17c21d72f5ddb8e815d89e",
+  "artifact": {
+    "file": "docs/design/platform-unification-2026-11-05/design/images/WS-M019.png",
+    "width": 1774,
+    "height": 887,
+    "bytes": 1175642
+  },
+  "method": "Viewed the actual current PNG with view_image. Compared both panels with the complete submittedPrompt, GEN-053 manifest, patch, earlier source-binding audit, renderer and parent template/CSS. Compared the saved PNG byte-for-byte against the tool-returned file and matched the receipt, sidecar and submission prompt/arguments.",
+  "selectedState": "Two independent local ready-state specimens in the authenticated owner saved-history compare pane. A uses selected wide side-by-side; B represents 320px forced unified. Example data is source-derived.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Both local crops show 差异对比 active before 历史原文, then the separate 逐行/左右对照 control group. The saved parent mounts these in its own diffToolbarHost. The file label 示例笔记 and 1 addition/1 deletion are coherent with the one-file sample patch.",
+    "A shows enabled 逐行 and selected 左右对照. The four headings are 旧行/旧内容/新行/新内容, a single spanning hunk, paired old/new line 1, minus-old and plus-new in separate colored cells. Wide requires viewport >=640 and measured renderer >=600.",
+    "B shows 逐行 selected, visibly muted disabled 左右对照. Narrow is viewport <640 or measured host <600 when width is positive. The three headings are 旧行/新行/内容, the same hunk spans them, old line 1 and new line 1 occupy their own rows and the complementary number cells are empty. The native history parent hides the narrow hint.",
+    "Both have one right-pointing, default-collapsed 原始差异 disclosure under the structured table. Keep native details/summary and the underlying patch on expansion. Loading, unavailable/retry, original-copy, commit/push and restoration controls are excluded from these local ready specimens.",
+    "WS-066 only reuses component regions of the loaded diff. Git uses its own commit baseline, fileLabel, truncation, readiness guard and inline layout toolbar. Saved compare/source tabs and teleport positioning are specific to WS-064."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "The external specimen borders, large raster typography, discrete layout button outlines, tab label styling and B row stacking express the two local examples. Implement the existing parent tab icons and compact control row, <=360 padding, grouped buttons, file heading/count badge, change-row styling and native raw disclosure with shared flat tokens. Derive spacing and wrapping from real container dimensions."
+    }
+  ],
+  "requiredCorrections": [],
+  "sourceRefs": [
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/source-binding-audit.json",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-053.json",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-053-root-prompt.json",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-053-root-receipt.json",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-053-root-report.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-M019.json",
+    "apps/web/components/NoteHistoryDialog.vue:663-729,877-895,1423-1442,1510-1597,1859-1870",
+    "packages/plugin-ui/diff-view.ts:27-38,92-211,217-259,262-352",
+    "apps/web/note-history.ts:128-153"
+  ],
+  "generationEvidence": {
+    "exactOutputMatchesReceiptFile": true,
+    "originalToolFile": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-e440f687-91c0-42a8-9f28-def32c14f596.png",
+    "completePromptSha256": "3ea5d1c099901a65a210924081b97f0a73a5874dcde2423ab783bb6eb505d8c8",
+    "actualArgsKeys": [
+      "prompt",
+      "transparent_background"
+    ],
+    "imageInputs": [],
+    "modelVerification": "Parent model preflight supplies built-in tool contract. Receipt supplies original file path and actual arguments; per-call model identity is unavailable."
+  },
+  "limitations": [
+    "Static local component-design approval for this SHA only. No product, server, tests, API, keyboard/focus, measured CSS, restore operation or runtime data were exercised.",
+    "Separate global coverage/style review and implementation gate remain outside scope."
+  ]
+}

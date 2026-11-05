@@ -1,0 +1,64 @@
+{
+  "assetId": "MP-S031",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_state_backlog agent",
+  "reviewedAtUtc": "2026-11-05T04:33:54.750543+00:00",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S031.png",
+  "reviewedImageSha256": "73760afc7550611d24401593b89202207a345f9f72b76fa1d6ec870588e1e6b1",
+  "reviewedSidecarSha256": "824282e49c9a6c1f19b7647ae50dcec234ff324cf2fe6cce9ca350ee22ab86d1",
+  "requirementsManifest": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-026.json",
+  "requirementsSha256": "02b14122eb31d055c5a63fa4d87685e2598bd638fa318433af72fd3986c1a6e8",
+  "viewMethod": "Actual individual PNG viewed via tools.view_image; full actual submittedPrompt and selectedState read; current template, parent/role/API/guard chain inspected. Matching backup/plugins/library/login baseline PNGs and approved style PNG were directly viewed where applicable.",
+  "sourceIds": [
+    "ST-080"
+  ],
+  "selectedState": [
+    "A push needs_reconciliation, idle",
+    "B clone running, busy=false"
+  ],
+  "sourceRefs": [
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/api.ts:30",
+    "apps/server/app.ts:141",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-026.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S031.json",
+    "apps/web/components/GitRemotePanel.vue:363",
+    "apps/web/components/GitRemotePanel.vue:439",
+    "apps/web/components/GitRemotePanel.vue:896",
+    "apps/server/git/transport.ts:103",
+    "apps/web/components/GitRemotePanel.vue:78",
+    "apps/web/components/GitRemotePanel.vue:913",
+    "apps/web/git-sync.ts:79"
+  ],
+  "reviewedSourceSha256": {
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md": "f78c14e2c450641e9ecc10864168fef272bc07cb0eb47e23e0e0d475bdbf9ff9",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md": "d184372a8eefffe8079b87aa9c2988e487507d95b41b263d6ed7b7a0f7827711",
+    "apps/web/api.ts": "f3cfa4add2ed9f30efb83d401345d9c95e7437b8d2e09cea21fd853ac79b55ec",
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-026.json": "02b14122eb31d055c5a63fa4d87685e2598bd638fa318433af72fd3986c1a6e8",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S031.json": "824282e49c9a6c1f19b7647ae50dcec234ff324cf2fe6cce9ca350ee22ab86d1",
+    "apps/web/components/GitRemotePanel.vue": "1ef7dbfc441518f0aaed509633413592b74a170897c602f802e9c2492ff9fe4c",
+    "apps/server/git/transport.ts": "81050cfeb9732f4682ba65ca77a555fcaf3f0405c1d202113240ac23ba385a23",
+    "apps/web/git-sync.ts": "e2bb1532d5943da5c36bd7eef7adb1697d8a9f8c74c0d8a5e1393638918c9eb7"
+  },
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Push needs_reconciliation and clone running are independent complete job cards, both using current phase/status strings.",
+    "Idle push allows refresh and retry and omits cancel because jobPending=false. Running clone with busy=false allows refresh/cancel and omits retry because jobPending=true; no percentage/count/receipt input is invented."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Readable white/light-gray local components, fine borders, restrained corners and blue action hierarchy match the shared style direction. Raster shading/texture and approximate scale must become flat CSS tokens; do not regenerate solely for those details."
+    }
+  ],
+  "requiredCorrections": [],
+  "limitations": [
+    "Source-derived static design review only; no runtime API operation, authorization, clipboard, network, keyboard/focus, close/mask/Escape behavior or responsive viewport was executed.",
+    "Local-component specimens are independent; parent role/source bindings remain metadata. Existing baseline references establish host context, not runtime capture of these synthetic error/busy states.",
+    "Raster shading/texture, font/icon geometry and dimensions are approximate. Implement shared flat CSS tokens, responsive wrapping and existing scroll/focus/guard rules; this is not pixel-level CSS approval.",
+    "This per-image result neither completes the non-ToDoo platform unification task nor substitutes for the later global coverage/style/function review or authorizes product implementation."
+  ]
+}

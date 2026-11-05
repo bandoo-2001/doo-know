@@ -1,0 +1,555 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S061",
+  "assetId": "MP-S061",
+  "sourceIds": [
+    "PB-041"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-041",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Six BlogDesignAppearance/studio local slices: loading config; three template options journal selected; missing avatar/banner with image selectors; error recheck; selected avatar/banner with remove; separate status-badge value alternatives. No live publication claim."
+    }
+  ],
+  "selectedState": "Six BlogDesignAppearance/studio local slices: loading config; three template options journal selected; missing avatar/banner with image selectors; error recheck; selected avatar/banner with remove; separate status-badge value alternatives. No live publication claim.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制中文博客网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、字体清晰紧凑。每行是独立状态，细线留白分隔，只画指定组件，不画外部导航/页头、浏览器或审查注释。六个独立局部行，可向下加高。1 状态“正在读取装修配置，当前修改会保留…”。2 模板选择区标题“选择一种表达”，说明“从适合内容的版式开始，随时可以切换主题。”，三个可选版式卡“文字博客”，说明“留白与时间线，让文字自然流动”选中、“卡片杂志”，说明“用封面与精选，呈现丰富的主题”、“个人主页”，说明“从你出发，连接文章、项目与朋友”，三张小型版式缩略图。3 缺图片局部左右两栏：左方头像占位“你”，标题“头像”、按钮“选择图片”，提示“支持 JPEG、PNG、WebP，最大 10 MB。头像将裁切为正方形。”；右方横幅占位“给主页留一张风景”，标题“主页横幅”、按钮“选择图片”，提示“支持 JPEG、PNG、WebP，最大 10 MB。横幅将裁切为 3:1。”。4 红色“博客装修已变化，请重新读取”、可用“重新核对版本”按钮、保留“姓名”输入“示例作者”。5 另一独立已选图片局部：左为正方形合成头像，标题“头像”、两个独立按钮“选择图片”“移除”可用、状态“已选择图片”；右为3:1合成山景横幅，标题“主页横幅”、两个独立按钮“选择图片”“移除”可用、状态“已选择图片”，没有裁切控制。6 三个相互分离的小徽标样例，文字分别“与线上一致”“草稿尚未发布”“有未保存修改”，不要合成同一工作室状态。不画上传成功toast或新增动作。",
+  "prompt": "绘制中文博客网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、字体清晰紧凑。每行是独立状态，细线留白分隔，只画指定组件，不画外部导航/页头、浏览器或审查注释。六个独立局部行，可向下加高。1 状态“正在读取装修配置，当前修改会保留…”。2 模板选择区标题“选择一种表达”，说明“从适合内容的版式开始，随时可以切换主题。”，三个可选版式卡“文字博客”，说明“留白与时间线，让文字自然流动”选中、“卡片杂志”，说明“用封面与精选，呈现丰富的主题”、“个人主页”，说明“从你出发，连接文章、项目与朋友”，三张小型版式缩略图。3 缺图片局部左右两栏：左方头像占位“你”，标题“头像”、按钮“选择图片”，提示“支持 JPEG、PNG、WebP，最大 10 MB。头像将裁切为正方形。”；右方横幅占位“给主页留一张风景”，标题“主页横幅”、按钮“选择图片”，提示“支持 JPEG、PNG、WebP，最大 10 MB。横幅将裁切为 3:1。”。4 红色“博客装修已变化，请重新读取”、可用“重新核对版本”按钮、保留“姓名”输入“示例作者”。5 另一独立已选图片局部：左为正方形合成头像，标题“头像”、两个独立按钮“选择图片”“移除”可用、状态“已选择图片”；右为3:1合成山景横幅，标题“主页横幅”、两个独立按钮“选择图片”“移除”可用、状态“已选择图片”，没有裁切控制。6 三个相互分离的小徽标样例，文字分别“与线上一致”“草稿尚未发布”“有未保存修改”，不要合成同一工作室状态。不画上传成功toast或新增动作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-design.png",
+      "role": "Actual owner blog host baseline; selected local component/error state source-derived",
+      "sha256": "d91badae422d3e52b77089047ae5861e863d52f8eaa804ef9066016f5df9c22a",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-design.png",
+      "role": "Actual owner blog host baseline; selected local component/error state source-derived",
+      "sha256": "d91badae422d3e52b77089047ae5861e863d52f8eaa804ef9066016f5df9c22a",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制中文博客网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、字体清晰紧凑。每行是独立状态，细线留白分隔，只画指定组件，不画外部导航/页头、浏览器或审查注释。六个独立局部行，可向下加高。1 状态“正在读取装修配置，当前修改会保留…”。2 模板选择区标题“选择一种表达”，说明“从适合内容的版式开始，随时可以切换主题。”，三个可选版式卡“文字博客”，说明“留白与时间线，让文字自然流动”选中、“卡片杂志”，说明“用封面与精选，呈现丰富的主题”、“个人主页”，说明“从你出发，连接文章、项目与朋友”，三张小型版式缩略图。3 缺图片局部左右两栏：左方头像占位“你”，标题“头像”、按钮“选择图片”，提示“支持 JPEG、PNG、WebP，最大 10 MB。头像将裁切为正方形。”；右方横幅占位“给主页留一张风景”，标题“主页横幅”、按钮“选择图片”，提示“支持 JPEG、PNG、WebP，最大 10 MB。横幅将裁切为 3:1。”。4 红色“博客装修已变化，请重新读取”、可用“重新核对版本”按钮、保留“姓名”输入“示例作者”。5 另一独立已选图片局部：左为正方形合成头像，标题“头像”、两个独立按钮“选择图片”“移除”可用、状态“已选择图片”；右为3:1合成山景横幅，标题“主页横幅”、两个独立按钮“选择图片”“移除”可用、状态“已选择图片”，没有裁切控制。6 三个相互分离的小徽标样例，文字分别“与线上一致”“草稿尚未发布”“有未保存修改”，不要合成同一工作室状态。不画上传成功toast或新增动作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-design.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制中文博客网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、字体清晰紧凑。每行是独立状态，细线留白分隔，只画指定组件，不画外部导航/页头、浏览器或审查注释。六个独立局部行，可向下加高。1 状态“正在读取装修配置，当前修改会保留…”。2 模板选择区标题“选择一种表达”，说明“从适合内容的版式开始，随时可以切换主题。”，三个可选版式卡“文字博客”，说明“留白与时间线，让文字自然流动”选中、“卡片杂志”，说明“用封面与精选，呈现丰富的主题”、“个人主页”，说明“从你出发，连接文章、项目与朋友”，三张小型版式缩略图。3 缺图片局部左右两栏：左方头像占位“你”，标题“头像”、按钮“选择图片”，提示“支持 JPEG、PNG、WebP，最大 10 MB。头像将裁切为正方形。”；右方横幅占位“给主页留一张风景”，标题“主页横幅”、按钮“选择图片”，提示“支持 JPEG、PNG、WebP，最大 10 MB。横幅将裁切为 3:1。”。4 红色“博客装修已变化，请重新读取”、可用“重新核对版本”按钮、保留“姓名”输入“示例作者”。5 另一独立已选图片局部：左为正方形合成头像，标题“头像”、两个独立按钮“选择图片”“移除”可用、状态“已选择图片”；右为3:1合成山景横幅，标题“主页横幅”、两个独立按钮“选择图片”“移除”可用、状态“已选择图片”，没有裁切控制。6 三个相互分离的小徽标样例，文字分别“与线上一致”“草稿尚未发布”“有未保存修改”，不要合成同一工作室状态。不画上传成功toast或新增动作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-design.png",
+          "role": "Actual owner blog host baseline; selected local component/error state source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-4574452f-1eb9-4789-b9b7-2288b06f494e.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-041",
+      "title": "博客装修：主题与个人资料",
+      "kind": "page",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design",
+        "trigger": "Design navigation; default appearance tab",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:53",
+        "apps/web/components/blog/BlogDesignStudio.vue:94",
+        "apps/web/components/blog/BlogDesignAppearance.vue:11",
+        "packages/core/blog/studio.ts:67",
+        "packages/core/blog/studio.ts:220"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "template",
+          "type": "choice",
+          "required": true,
+          "constraints": "journal文字博客; magazine卡片杂志; profile个人主页",
+          "sensitive": false
+        },
+        {
+          "name": "accent",
+          "type": "color+text",
+          "required": true,
+          "constraints": "#RRGGBB",
+          "sensitive": false
+        },
+        {
+          "name": "font",
+          "type": "select",
+          "required": true,
+          "constraints": "sans|serif",
+          "sensitive": false
+        },
+        {
+          "name": "width",
+          "type": "select",
+          "required": true,
+          "constraints": "comfortable|wide",
+          "sensitive": false
+        },
+        {
+          "name": "cardStyle",
+          "type": "select",
+          "required": true,
+          "constraints": "plain|bordered",
+          "sensitive": false
+        },
+        {
+          "name": "profile.name",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; server<=256",
+          "sensitive": false
+        },
+        {
+          "name": "profile.tagline",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=200; server<=1000",
+          "sensitive": false
+        },
+        {
+          "name": "profile.bio",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=5000; server<=50000",
+          "sensitive": false
+        },
+        {
+          "name": "profile.avatar/cover",
+          "type": "media",
+          "required": false,
+          "constraints": "only registered /blog/media/:hash references; referenced media must exist; total design images <=20MiB server-side",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存装修草稿",
+          "effect": "CAS save current draft",
+          "api": "PATCH /api/blog/design",
+          "guard": "dirty; not busy/loading"
+        },
+        {
+          "label": "发布主页",
+          "effect": "Publish saved design revision",
+          "api": "POST /api/blog/design/publish",
+          "guard": "not dirty/busy/loading; unpublished changes exist"
+        },
+        {
+          "label": "重新核对版本",
+          "effect": "Reload design and merge local changes",
+          "api": "GET /api/blog/design",
+          "guard": "not busy/loading"
+        },
+        {
+          "label": "放大预览",
+          "effect": "Open modal viewport",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "选择图片",
+          "effect": "Open shared crop UI",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "loading/error/retry config; local modifications preserved",
+        "saved draft/unpublished/online-matched badges",
+        "three templates selected state",
+        "missing avatar/banner placeholders; media selected"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-studio.spec.ts:67",
+        "tests/blog-studio-workbench.test.ts:22",
+        "tests/blog-studio-workbench.test.ts:39"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Design save does not publish homepage. Dirty beforeunload guard is implemented.",
+        "Public profile bio is escaped plain text in profileIntro; public about page separately parses sanitized Markdown."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-041",
+      "parentId": "PB-030",
+      "route": "/?view=apps&app=blog&appSection=design",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:53",
+        "apps/web/components/blog/BlogDesignStudio.vue:94",
+        "apps/web/components/blog/BlogDesignAppearance.vue:11",
+        "packages/core/blog/studio.ts:67",
+        "packages/core/blog/studio.ts:220"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-029.json#MP-S061",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S061",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-4574452f-1eb9-4789-b9b7-2288b06f494e.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S061.png",
+  "sha256": "7b393a51237671d8fc7312a97aa10f6e393129b0802240e60ddd93ac029aee80",
+  "bytes": 1473079,
+  "dimensions": {
+    "width": 1181,
+    "height": 1331
+  },
+  "generatedAtUtc": "2026-11-05T05:51:27.544735+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / BlogDesignAppearance.vue",
+    "sourceIds": [
+      "PB-041"
+    ],
+    "roles": [
+      "authenticated owner",
+      "owner-private"
+    ],
+    "state": "Six BlogDesignAppearance/studio local slices: loading config; three template options journal selected; missing avatar/banner with image selectors; error recheck; selected avatar/banner with remove; separate status-badge value alternatives. No live publication claim.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-041",
+      "title": "装修配置读取中",
+      "renderer": "apps/web/components/blog/BlogDesignAppearance.vue",
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:53",
+        "apps/web/components/blog/BlogDesignStudio.vue:94",
+        "apps/web/components/blog/BlogDesignAppearance.vue:11",
+        "packages/core/blog/studio.ts:67",
+        "packages/core/blog/studio.ts:220"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存装修草稿",
+          "guard": "dirty; not busy/loading"
+        },
+        {
+          "label": "发布主页",
+          "guard": "not dirty/busy/loading; unpublished changes exist"
+        },
+        {
+          "label": "重新核对版本",
+          "guard": "not busy/loading"
+        },
+        {
+          "label": "放大预览",
+          "guard": ""
+        },
+        {
+          "label": "选择图片",
+          "guard": ""
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "loading/error/retry config; local modifications preserved",
+          "variant": "loading/error/retry config",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-041"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "PB-041",
+      "title": "three templates selected state",
+      "renderer": "apps/web/components/blog/BlogDesignAppearance.vue",
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:53",
+        "apps/web/components/blog/BlogDesignStudio.vue:94",
+        "apps/web/components/blog/BlogDesignAppearance.vue:11",
+        "packages/core/blog/studio.ts:67",
+        "packages/core/blog/studio.ts:220"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存装修草稿",
+          "guard": "dirty; not busy/loading"
+        },
+        {
+          "label": "发布主页",
+          "guard": "not dirty/busy/loading; unpublished changes exist"
+        },
+        {
+          "label": "重新核对版本",
+          "guard": "not busy/loading"
+        },
+        {
+          "label": "放大预览",
+          "guard": ""
+        },
+        {
+          "label": "选择图片",
+          "guard": ""
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "three templates selected state",
+          "variant": "three templates selected state",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-041"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "PB-041",
+      "title": "missing avatar/banner placeholders",
+      "renderer": "apps/web/components/blog/BlogDesignAppearance.vue",
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:53",
+        "apps/web/components/blog/BlogDesignStudio.vue:94",
+        "apps/web/components/blog/BlogDesignAppearance.vue:11",
+        "packages/core/blog/studio.ts:67",
+        "packages/core/blog/studio.ts:220"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存装修草稿",
+          "guard": "dirty; not busy/loading"
+        },
+        {
+          "label": "发布主页",
+          "guard": "not dirty/busy/loading; unpublished changes exist"
+        },
+        {
+          "label": "重新核对版本",
+          "guard": "not busy/loading"
+        },
+        {
+          "label": "放大预览",
+          "guard": ""
+        },
+        {
+          "label": "选择图片",
+          "guard": ""
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "missing avatar/banner placeholders; media selected",
+          "variant": "missing avatar/banner placeholders",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-041"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "PB-041",
+      "title": "装修配置读取失败，原有重试",
+      "renderer": "apps/web/components/blog/BlogDesignAppearance.vue",
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:53",
+        "apps/web/components/blog/BlogDesignStudio.vue:94",
+        "apps/web/components/blog/BlogDesignAppearance.vue:11",
+        "packages/core/blog/studio.ts:67",
+        "packages/core/blog/studio.ts:220"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存装修草稿",
+          "guard": "dirty; not busy/loading"
+        },
+        {
+          "label": "发布主页",
+          "guard": "not dirty/busy/loading; unpublished changes exist"
+        },
+        {
+          "label": "重新核对版本",
+          "guard": "not busy/loading"
+        },
+        {
+          "label": "放大预览",
+          "guard": ""
+        },
+        {
+          "label": "选择图片",
+          "guard": ""
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "loading/error/retry config; local modifications preserved",
+          "variant": "loading/error/retry config",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-041"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": [
+    {
+      "row": "r1",
+      "designLoading": true
+    },
+    {
+      "row": "r2",
+      "template": "journal",
+      "alternatives": [
+        "magazine",
+        "profile"
+      ]
+    },
+    {
+      "row": "r3",
+      "avatar": "",
+      "cover": "",
+      "source": "",
+      "pending": false
+    },
+    {
+      "row": "r4",
+      "designLoading": false,
+      "designError": "博客装修已变化，请重新读取",
+      "localProfileName": "示例作者",
+      "recheckEnabled": true
+    },
+    {
+      "row": "r5",
+      "avatar": "synthetic",
+      "cover": "synthetic",
+      "source": "",
+      "pending": false,
+      "actions": [
+        "选择图片",
+        "移除"
+      ]
+    },
+    {
+      "row": "r6",
+      "renderer": "BlogDesignStudio span.blog-badge",
+      "independentValues": [
+        "与线上一致",
+        "草稿尚未发布",
+        "有未保存修改"
+      ],
+      "notSimultaneousInOneStudio": true
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "folder",
+  "title": "目录概览",
+  "width": 390,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?folder=00-Inbox",
+  "file": "390-folder.png",
+  "sha256": "c4e8cfe411b47b4fe1138d74c83cd833bdf268e905fb35b102369c94447be0fe",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

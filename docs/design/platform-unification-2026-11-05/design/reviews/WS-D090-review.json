@@ -1,0 +1,45 @@
+{
+  "assetId": "WS-D090",
+  "sourceIds": [
+    "WS-124"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:23:01.836024+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Source-derived standalone script-free ordinary-note reading/print artifact",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Read-only escaped YAML properties, rendered ordinary body/static math/callout/list/footnote and anchors preserved. Private/local related link shown as plain text, external HTTP link retained.",
+    "No owner/public-blog chrome, source-editor/print/settings/export buttons, native dialog or protocol form. This recipient artifact is static and needs no private API to read; no original diagram source or synthetic image grant."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-009.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D090.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/reading-export.ts:36",
+    "apps/web/reading-export.ts:107",
+    "apps/web/reading-export.ts:225",
+    "apps/web/reading-export.ts:237"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "7236f7b0fa869cb2464a99e663493e7a12f7dc5186490efc3b9b0a9948f0e18d",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D090.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

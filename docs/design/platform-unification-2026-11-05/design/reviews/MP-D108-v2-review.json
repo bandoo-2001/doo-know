@@ -1,0 +1,66 @@
+{
+  "assetId": "MP-D108-v2",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:02:30.104705+00:00",
+  "method": "Actual v2 PNG viewed against prior actually viewed v1 and its SHA-bound review; exact targeted edit prompt and current Studio/Modules label source checked. Reviewed correction and surrounding retained fields/guards without rerunning product tests.",
+  "selectedState": "Source-derived dirty local one-collection draft with zero members; published picker expanded and empty",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Source collection title/slug/description, zero-member badge/help, expanded published-search input/empty result and add/delete actions retained. No nonexistent article/membership sorting row invented.",
+    "Dirty draft preserves enabled draft save and disabled publish with no site-on/publication success claim; preview fallback/private meaning/history zero retained.",
+    "First studio tab now accurately says 主题与个人资料; selected 专题合集 fields/guards remain source-correct."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Preview note retains a raster prefix 下方 while actual source says 预览仅自己可见。发布主页后访客才能看到更改。 Privacy/publication meaning remains correct; use exact source wording without a direction prefix in implementation. No new bitmap iteration required for this minor copy alone."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-006.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D108.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-blog-design.png",
+    "apps/web/components/blog/BlogDesignStudio.vue:53",
+    "apps/web/components/blog/BlogDesignStudio.vue:167",
+    "apps/web/components/blog/BlogDesignCollections.vue:30",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D108-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/reviews/MP-D108-review.json"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "4c53b4abfd555d032d20f6752a9ebb58730534dd2f89f8033702d459ebc09c84",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D108-v2.png",
+  "sourceIds": [
+    "PB-043"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ],
+  "sourceAssetId": "MP-D108",
+  "resolvedPriorFindings": [
+    {
+      "priorId": "MP-D108-F01",
+      "status": "resolved",
+      "reason": "First studio tab restored exactly to 主题与个人资料; collection selection/data, empty published picker and dirty save/publish state retained."
+    }
+  ]
+}

@@ -1,0 +1,320 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R060-v3",
+  "assetId": "MP-R060",
+  "sourceIds": [
+    "PB-031"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-031",
+      "title": "博客管理：文章列表与筛选390px",
+      "role": "authenticated owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three owner Blog articles narrow positions: A390 actual empty dashboard list and select placeholder; B320 synthetic2 rows selected published changes+dirty metadata row and one draft, count2; C320 no-match query retains total2, clear filter action, no selected detail. Parent actual blog app navigation retained, list scroll stays bounded."
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-031",
+      "title": "博客管理：文章列表与筛选320px",
+      "role": "authenticated owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three owner Blog articles narrow positions: A390 actual empty dashboard list and select placeholder; B320 synthetic2 rows selected published changes+dirty metadata row and one draft, count2; C320 no-match query retains total2, clear filter action, no selected detail. Parent actual blog app navigation retained, list scroll stays bounded."
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-031",
+      "title": "博客管理：文章列表与筛选320px guard",
+      "role": "authenticated owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three owner Blog articles narrow positions: A390 actual empty dashboard list and select placeholder; B320 synthetic2 rows selected published changes+dirty metadata row and one draft, count2; C320 no-match query retains total2, clear filter action, no selected detail. Parent actual blog app navigation retained, list scroll stays bounded."
+    }
+  ],
+  "selectedState": "Three owner Blog articles narrow positions: A390 actual empty dashboard list and select placeholder; B320 synthetic2 rows selected published changes+dirty metadata row and one draft, count2; C320 no-match query retains total2, clear filter action, no selected detail. Parent actual blog app navigation retained, list scroll stays bounded.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "只修中间B列底部关联原稿区域的重复动作：目前有两个“编辑原稿”按钮，删掉上方那个，只保留下方一个。将“关联原稿”和“示例笔记”作为同一小区域的两行普通只读文字，下面/旁边只有一个可用“编辑原稿”。不能复制第二个按钮。其它全部像素尽量保持，尤其右列不存在搜索词、0篇共2篇、三列导航、列表和状态都不变。",
+  "prompt": "只修中间B列底部关联原稿区域的重复动作：目前有两个“编辑原稿”按钮，删掉上方那个，只保留下方一个。将“关联原稿”和“示例笔记”作为同一小区域的两行普通只读文字，下面/旁边只有一个可用“编辑原稿”。不能复制第二个按钮。其它全部像素尽量保持，尤其右列不存在搜索词、0篇共2篇、三列导航、列表和状态都不变。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R060-v2.png",
+      "role": "Edit target B duplicate edit-source action only",
+      "sha256": "72d4a0057e993d479550021d5b81ad31f0dcf92f4739406d099592980f582dec",
+      "dimensions": {
+        "width": 1512,
+        "height": 1040
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R060-v2.png",
+      "role": "Edit target B duplicate edit-source action only",
+      "sha256": "72d4a0057e993d479550021d5b81ad31f0dcf92f4739406d099592980f582dec",
+      "dimensions": {
+        "width": 1512,
+        "height": 1040
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "只修中间B列底部关联原稿区域的重复动作：目前有两个“编辑原稿”按钮，删掉上方那个，只保留下方一个。将“关联原稿”和“示例笔记”作为同一小区域的两行普通只读文字，下面/旁边只有一个可用“编辑原稿”。不能复制第二个按钮。其它全部像素尽量保持，尤其右列不存在搜索词、0篇共2篇、三列导航、列表和状态都不变。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R060-v2.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "只修中间B列底部关联原稿区域的重复动作：目前有两个“编辑原稿”按钮，删掉上方那个，只保留下方一个。将“关联原稿”和“示例笔记”作为同一小区域的两行普通只读文字，下面/旁边只有一个可用“编辑原稿”。不能复制第二个按钮。其它全部像素尽量保持，尤其右列不存在搜索词、0篇共2篇、三列导航、列表和状态都不变。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R060-v2.png",
+          "role": "Edit target B duplicate edit-source action only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-974b0ad3-63c5-4b7a-ad84-9ecb63e8bf07.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-031",
+      "title": "博客管理：文章列表与筛选",
+      "kind": "page",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "Blog nav, stats or taxonomy",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:77",
+        "apps/web/components/BlogWorkspace.vue:428",
+        "apps/web/blog-workbench.ts:133"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "query",
+          "type": "search",
+          "required": false,
+          "constraints": "matches title/sourceTitle/summary/category/tags case-insensitively",
+          "sensitive": false
+        },
+        {
+          "name": "filter",
+          "type": "select",
+          "required": false,
+          "constraints": "all,draft,published,changes,withdrawn",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "刷新文章",
+          "effect": "Reload all dashboard pages and selected detail",
+          "api": "GET /api/blog[?cursor=…]; GET /api/blog/posts/:id",
+          "guard": "not loading"
+        },
+        {
+          "label": "文章行",
+          "effect": "Select detail",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "清除搜索和筛选",
+          "effect": "Reset query/state/category/tag",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "从笔记中选稿",
+          "effect": "Open note picker",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "all/draft/published/changes/withdrawn filters",
+        "query and category/tag chips",
+        "empty library vs no matches",
+        "selected row; per-article dirty badges",
+        "refresh keeps per-article local forms; repeated cursor error"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-polish.spec.ts:74",
+        "tests/e2e/blog.spec.ts:196",
+        "tests/e2e/blog-admin-content.spec.ts:43"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-031",
+      "parentId": "PB-030",
+      "route": "/?view=apps&app=blog&appSection=articles",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:77",
+        "apps/web/components/BlogWorkspace.vue:428",
+        "apps/web/blog-workbench.ts:133"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-041.json#MP-R060",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R060",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-974b0ad3-63c5-4b7a-ad84-9ecb63e8bf07.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R060-v3.png",
+  "sha256": "c9898a41c4b620238e5e92d3e62f995c4c431696d12d5b5db61f52e904372962",
+  "bytes": 1679864,
+  "dimensions": {
+    "width": 1512,
+    "height": 1040
+  },
+  "generatedAtUtc": "2026-11-05T08:17:59.655825+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R060-v2.png",
+    "sha256": "72d4a0057e993d479550021d5b81ad31f0dcf92f4739406d099592980f582dec"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: BlogWorkspace.vue article filter/list rows",
+    "sourceIds": [
+      "PB-031"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Three owner Blog articles narrow positions: A390 actual empty dashboard list and select placeholder; B320 synthetic2 rows selected published changes+dirty metadata row and one draft, count2; C320 no-match query retains total2, clear filter action, no selected detail. Parent actual blog app navigation retained, list scroll stays bounded.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "posts": [],
+      "visiblePosts": [],
+      "query": "",
+      "filter": "all",
+      "settingsEnabled": false,
+      "selectedId": ""
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "posts": [
+        {
+          "title": "让知识保持可用",
+          "state": "published",
+          "hasUnpublishedChanges": true,
+          "pinned": true,
+          "category": "方法",
+          "tags": [
+            "知识"
+          ],
+          "dirty": true
+        },
+        {
+          "title": "日常观察的记录",
+          "state": "draft",
+          "category": "记录",
+          "tags": [],
+          "dirty": false
+        }
+      ],
+      "visibleCount": 2,
+      "query": "",
+      "filter": "all",
+      "selectedId": "first",
+      "scroll": "bounded list with selected detail below viewport"
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "postsCount": 2,
+      "visibleCount": 0,
+      "query": "不存在",
+      "filter": "all",
+      "selectedId": "",
+      "settingsEnabled": false
+    }
+  ]
+}

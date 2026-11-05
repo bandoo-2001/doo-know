@@ -1,0 +1,58 @@
+{
+  "assetId": "WS-D070",
+  "sourceIds": [
+    "WS-094"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:54:25.769319+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner desktop concept inspector记录, two entity forms expanded, empty mutation targets and one synthetic local evidence.",
+  "functionalFindings": [
+    {
+      "id": "WS-D070-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The inspector body exposes source-derived: 是 / 角色: 概念 / parent: —. These are generation metadata, absent from GraphInspector product UI, and 角色:概念 also confuses graph node kind with authorization role.",
+      "sourceEvidence": "GraphInspector.vue renders description then aliases/hop controls and management sections; no source-derived/role/parent rows exist."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Concept metadata/source count/community/description, hop controls, entity organize/manual relation fields and evidence source line retained.",
+    "Mutation buttons disabled for missing alias/merge/target/source; no note-only open-original or semantic-edge review controls."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-013.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D070.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/graph/GraphInspector.vue:92",
+    "apps/web/components/graph/GraphInspector.vue:122",
+    "apps/web/components/graph/GraphInspector.vue:257",
+    "apps/web/components/GraphWorkspace.vue:811"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "WS-D070-F1",
+      "correction": "Delete all three metadata lines from inside the inspector. Keep source-derived/owner/parent only in sidecar. Preserve concept/source-count/community/description/hop controls and both genuine forms/evidence. Restore exact field label 新增别名 while regenerating this local component."
+    }
+  ],
+  "reviewedImageSha256": "0b31df1c3310bd627b5fd52e748b70b5ea2e45d76aa2044575156b5ec9dc745f",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D070.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

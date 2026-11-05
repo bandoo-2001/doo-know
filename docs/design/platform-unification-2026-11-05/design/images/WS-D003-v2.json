@@ -1,0 +1,132 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D003-v2",
+  "sourceIds": [
+    "WS-003"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-003",
+      "title": "Sidebar notebook and directory search",
+      "role": "authenticated owner",
+      "state": "Paginated query with folder/filename/content results and hybrid degradation; ready main with no note open",
+      "presentationInstruction": "Search query/mode/directory and current result groups/paging/degraded explanation."
+    }
+  ],
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D003.png",
+    "sha256": "0668f2209270a999b9d84e9abe7c68c995dda17640c8720018f5a134f7e9b887",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D003-review.json"
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "Edit this exact DooKnow screenshot only to add the existing search-result path small text. Preserve every other element, global header, owner rail, controls and empty main panel unchanged. First folder result 30-Knowledge must include smaller gray relative path 30-Knowledge. Second filename result 知识整理.md must include smaller gray relative path 30-Knowledge/知识整理.md. Third result 入门指南.md must include smaller gray path 30-Knowledge/个人知识管理/方法/入门指南.md above 第 3 行 and its snippet. Allow wrapping in the sidebar. These are existing result metadata, not extra controls. Preserve no 搜索 submit button, automatic query/mode/directory controls, 已显示 3 项, load-more and degraded explanation/settings link. Keep the main 选择一篇笔记 with 快速记录 and 导入 Markdown. Flat palette, no texture.",
+  "prompt": "Edit this exact DooKnow screenshot only to add the existing search-result path small text. Preserve every other element, global header, owner rail, controls and empty main panel unchanged. First folder result 30-Knowledge must include smaller gray relative path 30-Knowledge. Second filename result 知识整理.md must include smaller gray relative path 30-Knowledge/知识整理.md. Third result 入门指南.md must include smaller gray path 30-Knowledge/个人知识管理/方法/入门指南.md above 第 3 行 and its snippet. Allow wrapping in the sidebar. These are existing result metadata, not extra controls. Preserve no 搜索 submit button, automatic query/mode/directory controls, 已显示 3 项, load-more and degraded explanation/settings link. Keep the main 选择一篇笔记 with 快速记录 and 导入 Markdown. Flat palette, no texture.",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ce23289f-fa48-42b5-8b3d-8202115aa212.png",
+      "role": "Edit target: generated DooKnow page; change only result path metadata"
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ce23289f-fa48-42b5-8b3d-8202115aa212.png",
+      "role": "Edit target: generated DooKnow page; change only result path metadata"
+    }
+  ],
+  "generationAttempts": [
+    {
+      "submittedPrompt": "Use case: ui-mockup. Create one readable full desktop DooKnow owner page, about 1440x1000. Image 1 is actual content/geometry; Image 2 supplies global header and flat compact styling. Preserve the real DooKnow book identity and full horizontal global header as in Image 2. A narrow left owner rail has account O, 笔记/最近/收藏/应用, bottom 回收站/设置. Keep the contextual sidebar and its search field, 新建 split button, contextual heading, add-folder and refresh icons, and resize divider. No invented navigation or header actions.\nSidebar state: query input contains 知识, then 搜索结果 heading, 混合检索 select, 所有目录 directory combobox. Search reacts automatically to query/mode/directory: do not draw a 搜索 submit button. Below show a folder result 30-Knowledge, filename result 知识整理.md, content result 入门指南.md with 第 3 行 and short snippet, 已显示 3 项, 加载更多搜索结果. Show plain feedback 语义检索暂不可用，已显示文本检索结果 and 检查搜索设置 link. No retry in this non-error state.\nMain ready empty panel exactly: 选择一篇笔记; 从左侧目录打开笔记，或新建笔记开始记录。; 快速记录 blue action and 导入 Markdown secondary action. Flat white #ffffff main/header, #f7f8fa context sidebar, #272b3a text, #657084 muted, #e6e9f1 thin borders, #4566c6 blue and #edf1ff selection. Crisp Chinese sans-serif, 8px corners, no texture/gradient. No browser chrome, ToDoo content, notifications or extra controls. Source caption is stored in metadata, not product UI.",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-workspace-empty.png",
+          "role": "Actual DooKnow content and host geometry reference"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "DooKnow global-header hierarchy, flat palette and compact density only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ce23289f-fa48-42b5-8b3d-8202115aa212.png"
+    },
+    {
+      "submittedPrompt": "Edit this exact DooKnow screenshot only to add the existing search-result path small text. Preserve every other element, global header, owner rail, controls and empty main panel unchanged. First folder result 30-Knowledge must include smaller gray relative path 30-Knowledge. Second filename result 知识整理.md must include smaller gray relative path 30-Knowledge/知识整理.md. Third result 入门指南.md must include smaller gray path 30-Knowledge/个人知识管理/方法/入门指南.md above 第 3 行 and its snippet. Allow wrapping in the sidebar. These are existing result metadata, not extra controls. Preserve no 搜索 submit button, automatic query/mode/directory controls, 已显示 3 项, load-more and degraded explanation/settings link. Keep the main 选择一篇笔记 with 快速记录 and 导入 Markdown. Flat palette, no texture.",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ce23289f-fa48-42b5-8b3d-8202115aa212.png",
+          "role": "Edit target: generated DooKnow page; change only result path metadata"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-fb8ead92-dec1-441d-8f55-ab79646be33a.png"
+    }
+  ],
+  "generationCallCount": 2,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D003-v2.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-fb8ead92-dec1-441d-8f55-ab79646be33a.png",
+  "sha256": "95456726a38d73123459d2e99909386ddb9e3e291901c69751e9363d26fa5e09",
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "bytes": 1159511,
+  "generatedAtUtc": "2026-11-05T01:05:14.937064+00:00",
+  "postprocessing": "None. Original tool-generated PNG copied byte-for-byte; no pixel editing.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "sourceIds": [
+      "WS-003"
+    ],
+    "title": "Sidebar notebook and directory search",
+    "role": "authenticated owner",
+    "state": "Paginated query with folder/filename/content results and hybrid degradation; ready main with no note open",
+    "location": "metadata by authorized revision scope"
+  },
+  "scope": {
+    "presentation": "full-desktop",
+    "hostSourceIds": [
+      "WS-003"
+    ],
+    "sharedReferences": [],
+    "runtimeBehaviorVerified": false
+  },
+  "selfInspection": {
+    "method": "Actual generated native preview viewed in generation child context; compared to actual baseline, source contracts and PILOT-WS-001.",
+    "concerns": [
+      "Raster texture/blue shading and approximate geometry are illustrative only; eventual CSS must use flat shared tokens and preserve resize behavior.",
+      "Static raster does not verify action execution, keyboard, focus, guards, owner enforcement or responsive fit.",
+      "Highlighted content result is visual emphasis only; no note is opened in the main pane. Search mode and directory are adjacent controls in the source order."
+    ],
+    "independentReviewStatus": "pending"
+  },
+  "sourceReferences": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:2812, apps/web/components/Workspace.vue:2833, apps/web/search-results.ts:1, apps/server/knowledge/web-routes.ts:51"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+      "role": "Shared style contract"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D003-review.json",
+      "role": "Prior independent review correction requirements"
+    }
+  ]
+}

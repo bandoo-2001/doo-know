@@ -1,0 +1,323 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S009-v2",
+  "assetId": "MP-S009",
+  "sourceIds": [
+    "ST-013"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-013",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Four independent compact rows per matrix: category table; initial read failure; partial count slice; full seven-row table plus expanded bounds/details. All counts/limits synthetic"
+    }
+  ],
+  "selectedState": "Four independent compact rows per matrix: category table; initial read failure; partial count slice; full seven-row table plus expanded bounds/details. All counts/limits synthetic",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅修正最下方第四区“存储占用”中的提示：删除七行表格上方的浅蓝信息横条（含圆圈i图标和蓝色可点字样）。把其原文字“统计可能不完整，查看统计范围与提示。”作为一行普通灰色说明，放到该区表格下面“统计时间：2026/11/5 12:00”之后、“统计范围 · 1 条提示”展开区之前。普通文字无边框、无图标、无下划线、不能像链接。保持其他三个区、两张七类别表的全部数据/部分统计标记、所有刷新统计按钮和最下展开区全部内容不变。",
+  "prompt": "仅修正最下方第四区“存储占用”中的提示：删除七行表格上方的浅蓝信息横条（含圆圈i图标和蓝色可点字样）。把其原文字“统计可能不完整，查看统计范围与提示。”作为一行普通灰色说明，放到该区表格下面“统计时间：2026/11/5 12:00”之后、“统计范围 · 1 条提示”展开区之前。普通文字无边框、无图标、无下划线、不能像链接。保持其他三个区、两张七类别表的全部数据/部分统计标记、所有刷新统计按钮和最下展开区全部内容不变。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S009.png",
+      "role": "Edit target; restore r4 storage hint plain paragraph after timestamp instead of invented info/link banner",
+      "sha256": "d94bd71bf3f160fcf94285ea9e8c3ce85093242610d3405663b3f973ddd02012",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S009.png",
+      "role": "Edit target; restore r4 storage hint plain paragraph after timestamp instead of invented info/link banner",
+      "sha256": "d94bd71bf3f160fcf94285ea9e8c3ce85093242610d3405663b3f973ddd02012",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅修正最下方第四区“存储占用”中的提示：删除七行表格上方的浅蓝信息横条（含圆圈i图标和蓝色可点字样）。把其原文字“统计可能不完整，查看统计范围与提示。”作为一行普通灰色说明，放到该区表格下面“统计时间：2026/11/5 12:00”之后、“统计范围 · 1 条提示”展开区之前。普通文字无边框、无图标、无下划线、不能像链接。保持其他三个区、两张七类别表的全部数据/部分统计标记、所有刷新统计按钮和最下展开区全部内容不变。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S009.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅修正最下方第四区“存储占用”中的提示：删除七行表格上方的浅蓝信息横条（含圆圈i图标和蓝色可点字样）。把其原文字“统计可能不完整，查看统计范围与提示。”作为一行普通灰色说明，放到该区表格下面“统计时间：2026/11/5 12:00”之后、“统计范围 · 1 条提示”展开区之前。普通文字无边框、无图标、无下划线、不能像链接。保持其他三个区、两张七类别表的全部数据/部分统计标记、所有刷新统计按钮和最下展开区全部内容不变。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S009.png",
+          "role": "Edit target; restore r4 storage hint plain paragraph after timestamp instead of invented info/link banner"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-7e8bc715-2f24-4715-9751-ad325ef81d68.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-013",
+      "title": "存储占用与不完整统计",
+      "kind": "state",
+      "module": "settings/storage",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "存储占用卡片；统计范围details",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/StorageSettings.vue:13",
+        "apps/web/components/StorageSettings.vue:42",
+        "apps/server/platform/management.ts:180"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新统计",
+          "effect": "有界扫描可读取文件",
+          "api": "GET /api/manage/storage",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "7类别表：原文/附件/历史/回收站/索引/模型/升级备份",
+        "加载/读取失败",
+        "部分统计标记",
+        "数量与深度上限/警告列表",
+        "统计时间"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-layout.spec.ts:69",
+        "tests/management-api.test.ts:92",
+        "tests/maintenance-storage.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "仅有读取统计，无删除缓存/数据操作；加密备份由备份页管理。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-013",
+      "parentId": "ST-002",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/StorageSettings.vue:13",
+        "apps/web/components/StorageSettings.vue:42",
+        "apps/server/platform/management.ts:180"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-023.json#MP-S009",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S009",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-7e8bc715-2f24-4715-9751-ad325ef81d68.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S009-v2.png",
+  "sha256": "019d28eb69d978434e020ccce2eb5ebe5a09d80ee25e13a7939195f5e529981c",
+  "bytes": 1634329,
+  "dimensions": {
+    "width": 1024,
+    "height": 1536
+  },
+  "generatedAtUtc": "2026-11-05T04:27:30.854632+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S009.png",
+    "sha256": "d94bd71bf3f160fcf94285ea9e8c3ce85093242610d3405663b3f973ddd02012"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / StorageSettings.vue",
+    "sourceIds": [
+      "ST-013"
+    ],
+    "roles": [
+      "authenticated-owner",
+      "owner-private"
+    ],
+    "state": "Four independent compact rows per matrix: category table; initial read failure; partial count slice; full seven-row table plus expanded bounds/details. All counts/limits synthetic",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-013",
+      "title": "7类别表：原文/附件/历史/回收站/索引/模型/升级备份",
+      "renderer": "apps/web/components/StorageSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/StorageSettings.vue:13",
+        "apps/web/components/StorageSettings.vue:42",
+        "apps/server/platform/management.ts:180"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新统计",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "7类别表：原文/附件/历史/回收站/索引/模型/升级备份",
+          "variant": "7类别表：原文/附件/历史/回收站/索引/模型/升级备份",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-013"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-013",
+      "title": "读取失败",
+      "renderer": "apps/web/components/StorageSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/StorageSettings.vue:13",
+        "apps/web/components/StorageSettings.vue:42",
+        "apps/server/platform/management.ts:180"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新统计",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "加载/读取失败",
+          "variant": "读取失败",
+          "representation": "visible"
+        },
+        {
+          "state": "数量与深度上限/警告列表",
+          "variant": "数量与深度上限/警告列表",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-013"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-013",
+      "title": "部分统计标记",
+      "renderer": "apps/web/components/StorageSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/StorageSettings.vue:13",
+        "apps/web/components/StorageSettings.vue:42",
+        "apps/server/platform/management.ts:180"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新统计",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "部分统计标记",
+          "variant": "部分统计标记",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-013"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "ST-013",
+      "title": "完整存储只读类别表：7类名称/占用/统计时间/partial标记，长表内部滚动",
+      "renderer": "apps/web/components/StorageSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/StorageSettings.vue:13",
+        "apps/web/components/StorageSettings.vue:42",
+        "apps/server/platform/management.ts:180"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新统计",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。",
+      "coveredSourceIds": [
+        "ST-013"
+      ]
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": []
+}

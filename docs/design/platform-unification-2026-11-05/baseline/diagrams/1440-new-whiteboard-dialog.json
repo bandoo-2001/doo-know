@@ -1,0 +1,68 @@
+{
+  "id": "new-whiteboard-dialog",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "file": "1440-new-whiteboard-dialog.png",
+  "sha256": "4b5399296d1a8d61863b158151243f85fdc62e2c36342bda463013f577a0896a",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "dom": "- complementary \"笔记导航\":\n  - strong: DooKnow\n  - textbox \"搜索笔记与目录\"\n  - button \"新建笔记\": 新建\n  - button \"创建与导入\"\n  - text: 笔记本\n  - button \"新建文件夹\"\n  - button \"刷新目录\"\n  - list:\n    - listitem:\n      - button \"展开 00-Inbox\"\n      - button \"00-Inbox\"\n      - button \"00-Inbox 的更多操作\"\n    - listitem:\n      - button \"展开 30-Knowledge\"\n      - button \"30-Knowledge\"\n      - button \"30-Knowledge 的更多操作\"\n- contentinfo:\n  - button \"个人账户\"\n  - navigation \"工作区\":\n    - button \"笔记\"\n    - button \"最近\"\n    - button \"收藏\"\n    - button \"应用\"\n  - navigation \"常用工具\":\n    - button \"回收站\"\n    - button \"设置\"\n- separator \"调整侧栏宽度\"\n- main:\n  - heading \"选择一篇笔记\" [level=1]\n  - paragraph: 从左侧目录打开笔记，或新建笔记开始记录。\n  - button \"快速记录\"\n  - button \"导入 Markdown\"\n- dialog \"新建白板\":\n  - heading \"新建白板 close\":\n    - heading \"新建白板\"\n    - button \"close\"\n  - text: 所在目录 所在目录 00-Inbox\n  - combobox \"所在目录\"\n  - text: 00-Inbox 文件名\n  - textbox \"文件名\":\n    - /placeholder: 例如：新的想法.md\n  - paragraph: 源与 PNG 预览完整保存后创建 Markdown 图形文档，默认私有。\n  - paragraph: 在所选目录中创建子文件夹。\n  - button \"取消\"\n  - button \"创建\" [disabled]",
+  "outerOverflow": {
+    "x": 0,
+    "y": 0
+  },
+  "pageErrors": [],
+  "existingSurfaceIds": [
+    "WS-013"
+  ],
+  "pageAccessibilityRoleCounts": {
+    "button": 22,
+    "combobox": 1,
+    "complementary": 1,
+    "contentinfo": 1,
+    "dialog": 1,
+    "heading": 3,
+    "list": 1,
+    "listitem": 2,
+    "main": 1,
+    "navigation": 2,
+    "paragraph": 3,
+    "separator": 1,
+    "strong": 1,
+    "text": 3,
+    "textbox": 2
+  },
+  "pageAccessibilityControlLines": [
+    "textbox \"搜索笔记与目录\"",
+    "button \"新建笔记\": 新建",
+    "button \"创建与导入\"",
+    "button \"新建文件夹\"",
+    "button \"刷新目录\"",
+    "button \"展开 00-Inbox\"",
+    "button \"00-Inbox\"",
+    "button \"00-Inbox 的更多操作\"",
+    "button \"展开 30-Knowledge\"",
+    "button \"30-Knowledge\"",
+    "button \"30-Knowledge 的更多操作\"",
+    "button \"个人账户\"",
+    "button \"笔记\"",
+    "button \"最近\"",
+    "button \"收藏\"",
+    "button \"应用\"",
+    "button \"回收站\"",
+    "button \"设置\"",
+    "button \"快速记录\"",
+    "button \"导入 Markdown\"",
+    "dialog \"新建白板\":",
+    "button \"close\"",
+    "combobox \"所在目录\"",
+    "textbox \"文件名\":",
+    "button \"取消\"",
+    "button \"创建\" [disabled]"
+  ],
+  "accessibilityCountScope": "Entire actual page ARIA snapshot, including app navigation and any offscreen nodes; presence is not proof of viewport visibility.",
+  "status": "captured-visible"
+}

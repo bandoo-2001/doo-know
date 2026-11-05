@@ -1,0 +1,416 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S044",
+  "assetId": "MP-S044",
+  "sourceIds": [
+    "PB-014"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "owner-setup"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-014",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-setup",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Seven SetupImport slices: no file; invalid extension; upload busy; same-name conflict; retained file after network failure; full valid UTF8markdown input; success receipt with file cleared. Distinct success Alert shown."
+    }
+  ],
+  "selectedState": "Seven SetupImport slices: no file; invalid extension; upload busy; same-name conflict; retained file after network failure; full valid UTF8markdown input; success receipt with file cleared. Distinct success Alert shown.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。七个独立紧凑行。1 标签“选择 Markdown 文件”、原生文件选择未选文件，按钮“确认导入”灰色禁用。2 红色“请选择 Markdown 文件（文件名以 .md 结尾）。”。3 已选择“记录.md · 2.0 KiB”，文件选择灰色禁用，“确认导入”转圈且禁用。4 红色“已有同名文件，没有覆盖。请修改文件名后重新选择。”。5 红色“暂时没能导入。请检查连接后重试，原文件不会被修改。”，仍有“已选择 记录.md · 2.0 KiB”和可用“确认导入”。6 完整单文件组件：说明“从当前电脑或手机选择一个 Markdown 文件，复制到“40-Resources”资料文件夹。原文件保持不变，不会覆盖同名资料。”，标签“选择 Markdown 文件”，原生选择控件已选记录.md；提示“单个文件不超过 256 KiB。文中的图片和附件不会随文件一起导入。”，选择摘要“已选择 记录.md · 2.0 KiB”，按钮“确认导入”可用。7 绿色成功提示“记录.md 已导入，进入工作区后可以查看。”，文件选择为空且可用，“确认导入”禁用。不要多文件、目录、附件开关、覆盖操作或额外按钮。",
+  "prompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。七个独立紧凑行。1 标签“选择 Markdown 文件”、原生文件选择未选文件，按钮“确认导入”灰色禁用。2 红色“请选择 Markdown 文件（文件名以 .md 结尾）。”。3 已选择“记录.md · 2.0 KiB”，文件选择灰色禁用，“确认导入”转圈且禁用。4 红色“已有同名文件，没有覆盖。请修改文件名后重新选择。”。5 红色“暂时没能导入。请检查连接后重试，原文件不会被修改。”，仍有“已选择 记录.md · 2.0 KiB”和可用“确认导入”。6 完整单文件组件：说明“从当前电脑或手机选择一个 Markdown 文件，复制到“40-Resources”资料文件夹。原文件保持不变，不会覆盖同名资料。”，标签“选择 Markdown 文件”，原生选择控件已选记录.md；提示“单个文件不超过 256 KiB。文中的图片和附件不会随文件一起导入。”，选择摘要“已选择 记录.md · 2.0 KiB”，按钮“确认导入”可用。7 绿色成功提示“记录.md 已导入，进入工作区后可以查看。”，文件选择为空且可用，“确认导入”禁用。不要多文件、目录、附件开关、覆盖操作或额外按钮。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only, never owner shell reference",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only, never owner shell reference",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。七个独立紧凑行。1 标签“选择 Markdown 文件”、原生文件选择未选文件，按钮“确认导入”灰色禁用。2 红色“请选择 Markdown 文件（文件名以 .md 结尾）。”。3 已选择“记录.md · 2.0 KiB”，文件选择灰色禁用，“确认导入”转圈且禁用。4 红色“已有同名文件，没有覆盖。请修改文件名后重新选择。”。5 红色“暂时没能导入。请检查连接后重试，原文件不会被修改。”，仍有“已选择 记录.md · 2.0 KiB”和可用“确认导入”。6 完整单文件组件：说明“从当前电脑或手机选择一个 Markdown 文件，复制到“40-Resources”资料文件夹。原文件保持不变，不会覆盖同名资料。”，标签“选择 Markdown 文件”，原生选择控件已选记录.md；提示“单个文件不超过 256 KiB。文中的图片和附件不会随文件一起导入。”，选择摘要“已选择 记录.md · 2.0 KiB”，按钮“确认导入”可用。7 绿色成功提示“记录.md 已导入，进入工作区后可以查看。”，文件选择为空且可用，“确认导入”禁用。不要多文件、目录、附件开关、覆盖操作或额外按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。七个独立紧凑行。1 标签“选择 Markdown 文件”、原生文件选择未选文件，按钮“确认导入”灰色禁用。2 红色“请选择 Markdown 文件（文件名以 .md 结尾）。”。3 已选择“记录.md · 2.0 KiB”，文件选择灰色禁用，“确认导入”转圈且禁用。4 红色“已有同名文件，没有覆盖。请修改文件名后重新选择。”。5 红色“暂时没能导入。请检查连接后重试，原文件不会被修改。”，仍有“已选择 记录.md · 2.0 KiB”和可用“确认导入”。6 完整单文件组件：说明“从当前电脑或手机选择一个 Markdown 文件，复制到“40-Resources”资料文件夹。原文件保持不变，不会覆盖同名资料。”，标签“选择 Markdown 文件”，原生选择控件已选记录.md；提示“单个文件不超过 256 KiB。文中的图片和附件不会随文件一起导入。”，选择摘要“已选择 记录.md · 2.0 KiB”，按钮“确认导入”可用。7 绿色成功提示“记录.md 已导入，进入工作区后可以查看。”，文件选择为空且可用，“确认导入”禁用。不要多文件、目录、附件开关、覆盖操作或额外按钮。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only, never owner shell reference"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-14b7d793-da19-499e-9f59-ef1c285b0f2c.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-014",
+      "title": "首次设置：导入单个 Markdown",
+      "kind": "state",
+      "module": "setup",
+      "entry": {
+        "route": "/ (ready onboarding step3)",
+        "trigger": "Expand 导入已有资料",
+        "parentId": "PB-013"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupImport.vue:32",
+        "apps/web/components/SetupImport.vue:92",
+        "apps/web/components/SetupWizard.vue:432"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [
+        {
+          "name": "file",
+          "type": "file",
+          "required": true,
+          "constraints": ".md UTF-8; <=256 KiB; images/attachments do not accompany import",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "选择 Markdown 文件",
+          "effect": "Choose local browser-device file",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "确认导入",
+          "effect": "Create 40-Resources if missing and copy new note",
+          "api": "GET /api/tree; POST /api/folders; POST /api/notes",
+          "guard": "selected file; not busy; valid size/encoding"
+        }
+      ],
+      "importantStates": [
+        "no file; selection filename/size",
+        "invalid extension; >256 KiB; invalid UTF-8",
+        "upload busy; success receipt",
+        "same-name conflict never overwrites",
+        "network failure retains source file"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "At baseline SetupImport is this bounded direct note form, not TransferPanel. Batch/portable/resume transfer interiors are inventoried by settings; do not replace this actual surface with hypothetical features."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-014",
+      "parentId": "PB-013",
+      "route": "/ (ready onboarding step3)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupImport.vue:32",
+        "apps/web/components/SetupImport.vue:92",
+        "apps/web/components/SetupWizard.vue:432"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-027.json#MP-S044",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S044",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-14b7d793-da19-499e-9f59-ef1c285b0f2c.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S044.png",
+  "sha256": "3662af05d2df7de60b4e298d032c71d21f0db24dc17a4ec975f810138fde945a",
+  "bytes": 1285673,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T05:25:32.148551+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-setup / SetupImport.vue",
+    "sourceIds": [
+      "PB-014"
+    ],
+    "roles": [
+      "authenticated owner",
+      "owner-setup"
+    ],
+    "state": "Seven SetupImport slices: no file; invalid extension; upload busy; same-name conflict; retained file after network failure; full valid UTF8markdown input; success receipt with file cleared. Distinct success Alert shown.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-014",
+      "title": "no file; confirm disabled",
+      "renderer": "apps/web/components/SetupImport.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupImport.vue:32",
+        "apps/web/components/SetupImport.vue:92",
+        "apps/web/components/SetupWizard.vue:432"
+      ],
+      "guardBindings": [
+        {
+          "label": "选择 Markdown 文件",
+          "guard": ""
+        },
+        {
+          "label": "确认导入",
+          "guard": "selected file; not busy; valid size/encoding"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "no file; selection filename/size",
+          "variant": "no file; confirm disabled",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-014"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "PB-014",
+      "title": "invalid extension",
+      "renderer": "apps/web/components/SetupImport.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupImport.vue:32",
+        "apps/web/components/SetupImport.vue:92",
+        "apps/web/components/SetupWizard.vue:432"
+      ],
+      "guardBindings": [
+        {
+          "label": "选择 Markdown 文件",
+          "guard": ""
+        },
+        {
+          "label": "确认导入",
+          "guard": "selected file; not busy; valid size/encoding"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "invalid extension; >256 KiB; invalid UTF-8",
+          "variant": "invalid extension",
+          "representation": "visible"
+        },
+        {
+          "state": "invalid extension; >256 KiB; invalid UTF-8",
+          "variant": ">256 KiB",
+          "representation": "shared-pattern"
+        },
+        {
+          "state": "invalid extension; >256 KiB; invalid UTF-8",
+          "variant": "invalid UTF-8",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-014"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "PB-014",
+      "title": "upload busy",
+      "renderer": "apps/web/components/SetupImport.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupImport.vue:32",
+        "apps/web/components/SetupImport.vue:92",
+        "apps/web/components/SetupWizard.vue:432"
+      ],
+      "guardBindings": [
+        {
+          "label": "选择 Markdown 文件",
+          "guard": ""
+        },
+        {
+          "label": "确认导入",
+          "guard": "selected file; not busy; valid size/encoding"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "upload busy; success receipt",
+          "variant": "upload busy",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-014"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "PB-014",
+      "title": "same-name conflict never overwrites",
+      "renderer": "apps/web/components/SetupImport.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupImport.vue:32",
+        "apps/web/components/SetupImport.vue:92",
+        "apps/web/components/SetupWizard.vue:432"
+      ],
+      "guardBindings": [
+        {
+          "label": "选择 Markdown 文件",
+          "guard": ""
+        },
+        {
+          "label": "确认导入",
+          "guard": "selected file; not busy; valid size/encoding"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "same-name conflict never overwrites",
+          "variant": "same-name conflict never overwrites",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-014"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "PB-014",
+      "title": "network failure retains source file",
+      "renderer": "apps/web/components/SetupImport.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupImport.vue:32",
+        "apps/web/components/SetupImport.vue:92",
+        "apps/web/components/SetupWizard.vue:432"
+      ],
+      "guardBindings": [
+        {
+          "label": "选择 Markdown 文件",
+          "guard": ""
+        },
+        {
+          "label": "确认导入",
+          "guard": "selected file; not busy; valid size/encoding"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "network failure retains source file",
+          "variant": "network failure retains source file",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-014"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r6",
+      "sourceId": "PB-014",
+      "title": "SetupImport完整单文件选择/文件名大小/确认控件，限UTF-8.md<=256KiB且不带附件",
+      "renderer": "apps/web/components/SetupImport.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupImport.vue:32",
+        "apps/web/components/SetupImport.vue:92",
+        "apps/web/components/SetupWizard.vue:432"
+      ],
+      "guardBindings": [
+        {
+          "label": "选择 Markdown 文件",
+          "guard": ""
+        },
+        {
+          "label": "确认导入",
+          "guard": "selected file; not busy; valid size/encoding"
+        }
+      ],
+      "presentation": "完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。",
+      "coveredSourceIds": [
+        "PB-014"
+      ]
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": []
+}

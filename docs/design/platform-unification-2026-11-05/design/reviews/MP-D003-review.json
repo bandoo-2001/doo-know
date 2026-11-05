@@ -1,0 +1,53 @@
+{
+  "assetId": "MP-D003",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:18:37.742314+00:00",
+  "method": "Actual generated PNG and matching real baseline each viewed in independent child context. Exact submitted sidecar prompt and batch requirements checked against current templates; source outranks generic prompt/API summaries.",
+  "selectedState": "Owner search settings with text dependency unavailable, semantic unavailable, no downloadable distribution",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Text/semantic not-ready states are separately preserved, with paused-index explanation and unavailable distribution note; no success/online badge or installation/preparation button fabricated.",
+    "Advanced runtime details remain collapsed; enabled 检查检索状态 action and complete 索引与搜索 explanation retained. No extra editable runtime/protocol input.",
+    "Real eight settings destinations, current 搜索与索引 selection, owner account/rail and back actions retain actual roles with shared header. Other prepare/download/externally-managed branches are not required simultaneously in this unavailable baseline."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/generation-batch-03.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D003.json",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/SearchSettings.vue:1",
+    "apps/web/components/SearchRuntimeSettings.vue:98",
+    "apps/web/components/SearchRuntimeSettings.vue:213",
+    "apps/web/components/settings/SettingsWorkspace.vue:29",
+    "apps/web/settings.ts:1",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-settings-search.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "f5991bc61436331ca1fe3b58e7bb27013329d2f289db106a2ac373155994c923",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D003.png",
+  "sourceIds": [
+    "ST-003",
+    "ST-038"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

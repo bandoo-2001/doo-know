@@ -1,0 +1,439 @@
+{
+  "id": "MP-R064",
+  "title": "Responsive family: BlogImageEditor.vue image crop/position form",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-035"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-035",
+      "title": "博客图片：裁切与上传390px",
+      "role": "authenticated owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-035",
+      "title": "博客图片：裁切与上传320px",
+      "role": "authenticated owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-035",
+      "title": "博客图片：裁切与上传320px guard",
+      "role": "authenticated owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "viewportIntent": "390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-blog-articles.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-035",
+      "route": "/?view=apps&app=blog&appSection=design|articles",
+      "trigger": "Choose avatar/banner/article-cover file",
+      "parentId": "PB-034",
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "file",
+          "type": "image file",
+          "required": true,
+          "constraints": "JPEG/PNG/WebP; chooser<=10MB; cropped WebP output<=1600px wide; processed design upload<=5MiB",
+          "sensitive": false
+        },
+        {
+          "name": "zoom",
+          "type": "range",
+          "required": true,
+          "constraints": "1..3 step.05",
+          "sensitive": false
+        },
+        {
+          "name": "x/y",
+          "type": "range",
+          "required": true,
+          "constraints": "0..100; default50",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "file type/size rejection",
+        "crop preview; zoom/position controls",
+        "processing/uploading locks controls; upload failure retains crop",
+        "selected; remove; cancel crop"
+      ],
+      "notes": [
+        "Avatar aspect1:1; homepage banner3:1; article cover16:9. UI chooser10MB and processed design upload5MiB are different constraints."
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "图片裁切完整表单：JPEG/PNG/WebP源文件<=10MB，zoom1..3 step.05、x/y0..100、裁切上传/取消/移除；处理输出<=1600px且上传<=5MiB。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。"
+    },
+    {
+      "type": "responsive-family-reuse",
+      "renderer": "BlogImageEditor.vue image crop/position form",
+      "allSourceIds": [
+        "PB-035"
+      ],
+      "rule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-035",
+      "label": "裁切并上传",
+      "effect": "Process chosen crop and upload to current destination",
+      "api": "POST /api/blog/design/media (JSON); POST /api/notes/:noteId/assets (multipart)",
+      "guard": "image decoded; not pending"
+    },
+    {
+      "sourceId": "PB-035",
+      "label": "取消裁切",
+      "effect": "Release local object URL",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-035",
+      "label": "移除",
+      "effect": "Clear image selection",
+      "api": "",
+      "guard": ""
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-035",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "只把最右C面板“取消裁切”按钮改成清楚的灰色禁用外观：浅灰填充、浅灰边线、低对比灰文字，与C其它禁用控件一致。它在上传进行中不可用。所有三面板其它内容、图片、滑条值、上传文字与按钮状态完全不变，不加说明。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R064.png",
+  "reviewStatus": "pending-independent-review",
+  "responsiveFamily": {
+    "id": "MP-RF064",
+    "actualComponent": "BlogImageEditor.vue image crop/position form",
+    "sourceIds": [
+      "PB-035"
+    ],
+    "roleBoundary": "owner-private",
+    "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-035",
+      "parentId": "PB-034",
+      "route": "/?view=apps&app=blog&appSection=design|articles",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/blog/BlogImageEditor.vue:41",
+        "apps/web/components/blog/BlogImageEditor.vue:109",
+        "apps/web/components/blog/BlogArticleCover.vue:51",
+        "apps/web/blog-workbench.ts:469"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-035",
+      "title": "博客图片：裁切与上传",
+      "kind": "state",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design|articles",
+        "trigger": "Choose avatar/banner/article-cover file",
+        "parentId": "PB-034"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogImageEditor.vue:41",
+        "apps/web/components/blog/BlogImageEditor.vue:109",
+        "apps/web/components/blog/BlogArticleCover.vue:51",
+        "apps/web/blog-workbench.ts:469"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "file",
+          "type": "image file",
+          "required": true,
+          "constraints": "JPEG/PNG/WebP; chooser<=10MB; cropped WebP output<=1600px wide; processed design upload<=5MiB",
+          "sensitive": false
+        },
+        {
+          "name": "zoom",
+          "type": "range",
+          "required": true,
+          "constraints": "1..3 step.05",
+          "sensitive": false
+        },
+        {
+          "name": "x/y",
+          "type": "range",
+          "required": true,
+          "constraints": "0..100; default50",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "裁切并上传",
+          "effect": "Process chosen crop and upload to current destination",
+          "api": "POST /api/blog/design/media (JSON); POST /api/notes/:noteId/assets (multipart)",
+          "guard": "image decoded; not pending"
+        },
+        {
+          "label": "取消裁切",
+          "effect": "Release local object URL",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "移除",
+          "effect": "Clear image selection",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "file type/size rejection",
+        "crop preview; zoom/position controls",
+        "processing/uploading locks controls; upload failure retains crop",
+        "selected; remove; cancel crop"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio-workbench.test.ts:166",
+        "tests/blog-studio-workbench.test.ts:208"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Avatar aspect1:1; homepage banner3:1; article cover16:9. UI chooser10MB and processed design upload5MiB are different constraints."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-R064",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "cover image editor aspect16/9, value absent, source decoded, zoom1 x50 y50, pending false",
+    "same target320",
+    "same crop/source/values with upload pending true"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "只把最右C面板“取消裁切”按钮改成清楚的灰色禁用外观：浅灰填充、浅灰边线、低对比灰文字，与C其它禁用控件一致。它在上传进行中不可用。所有三面板其它内容、图片、滑条值、上传文字与按钮状态完全不变，不加说明。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-R064 Responsive family: BlogImageEditor.vue image crop/position form\n\n390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。\n\n角色壳：所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。\n\n独立场景：\nA | PB-035 | 博客图片：裁切与上传390px | role=authenticated owner | 390px完整可读代表：字段按登记顺序，动作保持源guard\nB | PB-035 | 博客图片：裁切与上传320px | role=authenticated owner | 320px字段/长值/内层滚动与操作可达\nC | PB-035 | 博客图片：裁切与上传320px guard | role=authenticated owner | 同源关键禁用/错误/长标签状态，使用已有组件且保留输入\n\n完整构图：\n图片裁切完整表单：JPEG/PNG/WebP源文件<=10MB，zoom1..3 step.05、x/y0..100、裁切上传/取消/移除；处理输出<=1600px且上传<=5MiB。\n\n精确功能/字段/动作guard合同：\nPB-035权限：Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage.\nPB-035字段顺序：file [image file; 必填]: JPEG/PNG/WebP; chooser<=10MB; cropped WebP output<=1600px wide; processed design upload<=5MiB | zoom [range; 必填]: 1..3 step.05 | x/y [range; 必填]: 0..100; default50\nPB-035白名单：裁切并上传 => Process chosen crop and upload to current destination；guard=image decoded; not pending；接口约束=POST /api/blog/design/media (JSON); POST /api/notes/:noteId/assets (multipart)\nPB-035白名单：取消裁切 => Release local object URL；guard=既有上下文\nPB-035白名单：移除 => Clear image selection；guard=既有上下文\n\n响应式合同：\n<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-blog-articles.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "5acade1cc837a73e8aaa2486267dd6055a1dd056b46d5b77fd0e86aafd1474f4",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "bytes": 53410
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-3033c087-1f91-4646-a98a-c2c8e3890fbf.png",
+      "role": "edit-target",
+      "responsibility": "Dim only C pending cancel-crop button; preserve all actual crop values/content.",
+      "sha256": "b76d0752dc3dec265223fb2164fe95eb12fabf4c03ffb300c2e5c3feb4113f85",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-3033c087-1f91-4646-a98a-c2c8e3890fbf.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R064.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-6445a570-e2b1-4fb1-81d6-208271fbf771.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-6445a570-e2b1-4fb1-81d6-208271fbf771.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T07:51:57.839Z",
+  "selfInspection": {
+    "method": "Native generated PNG inspected in child against exact source selected template and guards",
+    "status": "pending-independent-review",
+    "pageSpecific": "A/B complete decoded source crop with real three ranges at1/50/50; C upload pending locks chooser/ranges/primary/cancel with actual status. No rotate/drag handles/AI/readouts. Natural image content preserved.",
+    "concerns": []
+  },
+  "sha256": "450b81d55cacbb9b8dc1d28a509e435cd230e482811a4629e25ee15fc0597b49",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1689858,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/blog/BlogImageEditor.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "546728a1feeeb50ef54deb0a47f5e52b14d67bd56756a67b5f9a3c6ca40f873d"
+    },
+    {
+      "path": "apps/web/components/blog/BlogImageEditor.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "546728a1feeeb50ef54deb0a47f5e52b14d67bd56756a67b5f9a3c6ca40f873d"
+    },
+    {
+      "path": "apps/web/components/blog/BlogArticleCover.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "c7f3011ea1fa4c84c458ba30f7335db457a2ff8566bb6529d451d1a49d9a1625"
+    },
+    {
+      "path": "apps/web/blog-workbench.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "5f7859526e908362d7420d67e87b1b1119adbe757a84b9bc88bdd3412d6406d5"
+    }
+  ],
+  "responsiveTargetCssWidths": [
+    390,
+    320,
+    320
+  ],
+  "runtimeResponsiveVerified": false,
+  "baselineStatus": "actual articles host viewed; local components source-derived",
+  "sourceDerivedUnverifiedScope": "Synthetic local crops/confirmation fixtures, no image upload/process or withdrawal/removal executed.",
+  "generationCalls": [
+    {
+      "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n制作三个并排独立的窄屏内容面板，外部只标A、B、C，不画手机外壳、宽度数字或额外说明。A按390宽、B和C按320宽的相同比例布局；窄屏字段和操作自然换行，文本不省略，画布可纵向延长保持正常字号。不画全局header/底栏/侧栏或虚构宿主，每个只画指定真实组件。\n三个完整局部图片裁切表单，顶部粗体“上传并裁切封面”、按钮“选择图片”；帮助“支持 JPEG、PNG、WebP，最大 10 MB。选择后可调整裁切范围。”；正文“调整缩放和位置，确认画面后上传。”；16:9裁切预览，内容为自然绿色山丘与浅米白天空的真实照片示例，保留自然颜色，不改成蓝色UI装饰。预览下面“缩放”水平range滑条，滑块最左；下一行“水平位置”和“垂直位置”两个range滑条，滑块都居中；没有数值输入或额外倍率读数。底部依次蓝色“裁切并上传”、普通“取消裁切”。A/B按钮和三个滑条可用。C保留相同画面和位置，选择图片、三个滑条与取消裁切都灰色禁用；主按钮灰色禁用，文案“正在上传…”；下方状态文字“正在处理并上传图片，请稍候…”。没有移除、已选择图片、额外上传进度百分比、旋转/拖动裁切手柄、AI、保存/发布或宿主导航。",
+      "actualImageInputOrder": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-blog-articles.png",
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-3033c087-1f91-4646-a98a-c2c8e3890fbf.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-3033c087-1f91-4646-a98a-c2c8e3890fbf.png"
+    },
+    {
+      "submittedPrompt": "只把最右C面板“取消裁切”按钮改成清楚的灰色禁用外观：浅灰填充、浅灰边线、低对比灰文字，与C其它禁用控件一致。它在上传进行中不可用。所有三面板其它内容、图片、滑条值、上传文字与按钮状态完全不变，不加说明。",
+      "actualImageInputOrder": [
+        "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-3033c087-1f91-4646-a98a-c2c8e3890fbf.png"
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-6445a570-e2b1-4fb1-81d6-208271fbf771.png"
+    }
+  ]
+}

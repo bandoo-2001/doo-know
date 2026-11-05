@@ -1,0 +1,473 @@
+{
+  "id": "MP-D056",
+  "title": "新API Key一次性展示 / API客户端版本冲突与结果未确认",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-070",
+    "ST-071"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-070",
+      "title": "新API Key一次性展示",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-071",
+      "title": "API客户端版本冲突与结果未确认",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    }
+  ],
+  "viewportIntent": "1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-070",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "创建/轮换/重授权成功",
+      "parentId": "ST-064",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "新API Key",
+          "type": "read-only-textarea",
+          "required": false,
+          "constraints": "只在签发响应后内存显示一次；不进入持久草稿；离开/卸载清空",
+          "sensitive": true
+        }
+      ],
+      "importantStates": [
+        "复制成功",
+        "剪贴板失败可手动复制",
+        "尚未关闭密钥时阻止新表单/签发",
+        "撤销对应身份立即清除展示"
+      ],
+      "notes": [
+        "所有图只允许占位掩码，不生成或使用真实token。"
+      ]
+    },
+    {
+      "sourceId": "ST-071",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "修改/签发API请求失败",
+      "parentId": "ST-064",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "409客户端/授权变化，草稿保留并禁提交",
+        "其他失败提示先刷新核对",
+        "密钥已签发但未显示→轮换",
+        "重载后对象消失则收起form"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。"
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-070",
+      "label": "复制API Key",
+      "effect": "写剪贴板",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-070",
+      "label": "已保存，关闭密钥",
+      "effect": "清空secret及secretClientId",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-071",
+      "label": "重新载入客户端",
+      "effect": "重读列表并为原编辑类型重建form",
+      "api": "GET /api/platform/mcp/api-clients",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-071",
+      "label": "刷新API客户端",
+      "effect": "核对服务器状态",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-070",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-071",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "保持图中A/B内容、字号、布局、按钮和禁用状态不变。只修正A的密钥展示：它必须是一个单独的两行高只读文本域，内部只显示一串掩码“••••••••••••••••••••••••”，不能是上下两个独立框。删除中间分隔与第二个重复框，形成一个两行高的完整边框。其余不变。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D056.png",
+  "reviewStatus": "pending-independent-review",
+  "parentBindings": [
+    {
+      "sourceId": "ST-070",
+      "parentId": "ST-064",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:234",
+        "apps/web/components/MCPApiClients.vue:298",
+        "apps/web/components/MCPApiClients.vue:340"
+      ]
+    },
+    {
+      "sourceId": "ST-071",
+      "parentId": "ST-064",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:247",
+        "apps/web/components/MCPApiClients.vue:258",
+        "apps/web/components/MCPApiClients.vue:411"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-070",
+      "title": "新API Key一次性展示",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "创建/轮换/重授权成功",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:234",
+        "apps/web/components/MCPApiClients.vue:298",
+        "apps/web/components/MCPApiClients.vue:340"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "新API Key",
+          "type": "read-only-textarea",
+          "required": false,
+          "constraints": "只在签发响应后内存显示一次；不进入持久草稿；离开/卸载清空",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "复制API Key",
+          "effect": "写剪贴板",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "已保存，关闭密钥",
+          "effect": "清空secret及secretClientId",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "复制成功",
+        "剪贴板失败可手动复制",
+        "尚未关闭密钥时阻止新表单/签发",
+        "撤销对应身份立即清除展示"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:149",
+        "tests/mcp-api-keys.test.ts:286"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "所有图只允许占位掩码，不生成或使用真实token。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-071",
+      "title": "API客户端版本冲突与结果未确认",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "修改/签发API请求失败",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:247",
+        "apps/web/components/MCPApiClients.vue:258",
+        "apps/web/components/MCPApiClients.vue:411"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新载入客户端",
+          "effect": "重读列表并为原编辑类型重建form",
+          "api": "GET /api/platform/mcp/api-clients",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新API客户端",
+          "effect": "核对服务器状态",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "409客户端/授权变化，草稿保留并禁提交",
+        "其他失败提示先刷新核对",
+        "密钥已签发但未显示→轮换",
+        "重载后对象消失则收起form"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:164"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-D056",
+  "roles": [
+    "authenticated-owner",
+    "authenticated-owner"
+  ],
+  "selectedState": [
+    "A: one-time masked key display excerpt, no form",
+    "B: independent client rename 409 conflict, preserved name, submit disabled, reload enabled"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "保持图中A/B内容、字号、布局、按钮和禁用状态不变。只修正A的密钥展示：它必须是一个单独的两行高只读文本域，内部只显示一串掩码“••••••••••••••••••••••••”，不能是上下两个独立框。删除中间分隔与第二个重复框，形成一个两行高的完整边框。其余不变。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-D056 新API Key一次性展示 / API客户端版本冲突与结果未确认\n\n1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。\n\n角色壳：所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。\n\n独立场景：\nA | ST-070 | 新API Key一次性展示 | role=authenticated-owner | 实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\nB | ST-071 | API客户端版本冲突与结果未确认 | role=authenticated-owner | 实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\n\n完整构图：\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n精确功能/字段/动作guard合同：\nST-070/ST-071权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-070字段顺序：新API Key [read-only-textarea; 可选]: 只在签发响应后内存显示一次；不进入持久草稿；离开/卸载清空；仅合成掩码\nST-071字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-070白名单：复制API Key => 写剪贴板；guard=已登录所有者；请求期间禁用重复操作\nST-070白名单：已保存，关闭密钥 => 清空secret及secretClientId；guard=已登录所有者；请求期间禁用重复操作\nST-071白名单：重新载入客户端 => 重读列表并为原编辑类型重建form；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/platform/mcp/api-clients\nST-071白名单：刷新API客户端 => 核对服务器状态；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\n插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "20d3af18e07807e109eee306b74d24cab0fdbe1eadc0e5ed5883c727c9863156",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 61500
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-f6d660ec-6daa-4cca-97f8-f19f663c3cd2.png",
+      "role": "initial generated candidate targeted edit",
+      "responsibility": "Replace accidental two key boxes with one readonly textarea; preserve A/B content",
+      "sha256": "3f0d3ad120039819abfdf03bcc9f62b8f097446e2d51c9b1fb89b37f2de22779",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1142879
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-f6d660ec-6daa-4cca-97f8-f19f663c3cd2.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D056.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-4d4a25b0-e1d4-4d71-b349-d41f30244fcb.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-4d4a25b0-e1d4-4d71-b349-d41f30244fcb.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T03:50:32.356Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Single readonly textarea corrected; separate A/B key/conflict states, name retained and save disabled.",
+    "concerns": []
+  },
+  "sha256": "a9618386ed33c201b97f3ca3d5725e5166e13aa35b811564e97baf6b4072008a",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1504349,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/MCPApiClients.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "412bf10ba4f6d64f1ca6eae9e328eb8d36943e751f780c16c7612f8fb11912e4"
+    },
+    {
+      "path": "apps/web/components/MCPApiClients.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "412bf10ba4f6d64f1ca6eae9e328eb8d36943e751f780c16c7612f8fb11912e4"
+    },
+    {
+      "path": "apps/web/components/MCPApiClients.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "412bf10ba4f6d64f1ca6eae9e328eb8d36943e751f780c16c7612f8fb11912e4"
+    },
+    {
+      "path": "apps/web/components/MCPApiClients.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "412bf10ba4f6d64f1ca6eae9e328eb8d36943e751f780c16c7612f8fb11912e4"
+    },
+    {
+      "path": "apps/web/components/MCPApiClients.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "412bf10ba4f6d64f1ca6eae9e328eb8d36943e751f780c16c7612f8fb11912e4"
+    },
+    {
+      "path": "apps/web/components/MCPApiClients.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "412bf10ba4f6d64f1ca6eae9e328eb8d36943e751f780c16c7612f8fb11912e4"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Exact one-time-key and conflict states derived from MCPApiClients.vue, not captured in parent baseline; no credentials or mutations executed.",
+  "generationHistoryFiles": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-020-MP-D056-call-01-output.json",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-020-MP-D056-call-02-output.json"
+  ]
+}

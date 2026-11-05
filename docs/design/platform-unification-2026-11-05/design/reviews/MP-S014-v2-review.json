@@ -1,0 +1,45 @@
+{
+  "assetId": "MP-S014-v2",
+  "sourceIds": [
+    "ST-028"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T04:58:44.748205+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "PortableJobs original empty/error plus5 genuine independent task-card structures.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Newv2 viewed: runningexportcancel, failedexportpreviewlist+cancelpreview/continue, cancelledexportretry, interruptedimportneedsSource+resultnote/resume, completedexportdownload match actual conditionals.",
+    "Distinct task records avoid incompatible simultaneous actions; original empty/error retained and scopeID/protocol inputs absent.",
+    "Root can bind actual status/action family tor3..r7, not empty/readerrorr2."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-023.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S014-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/PortableJobs.vue:70",
+    "apps/web/components/settings/PortableJobs.vue:95",
+    "docs/design/platform-unification-2026-11-05/design/reviews/MP-S014-review.json"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "8345b66c732b89d5417a77ab3042a4f7701062682c3a126f6547fc66789c8ba3",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S014-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

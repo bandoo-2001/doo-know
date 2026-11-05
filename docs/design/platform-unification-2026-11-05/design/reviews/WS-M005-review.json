@@ -1,0 +1,51 @@
+{
+  "assetId": "WS-M005",
+  "sourceIds": [
+    "WS-054"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T07:00:05.584328+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Five independent local draft unchanged/changed/changed-fragment/locked-editor/clipboard-fallback states",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed five snippets/full actual prompt/contracts. Full-note unchanged and changed retain exact restore/copy/discard/manual-save copy; changed fragment10..20 explicitly disables restore while copy/discard remain available, preventing wrong-range overwrite.",
+    "Recovery-pending body shows retained read-only text/no caret; no adoption or saved-source result claimed. Diagram reuse is the same actual DraftRecovery renderer with exact baseline/data/parent inert mapping, not a different editing capability.",
+    "Clipboard fallback reveals actual readonly selectable textarea and exact status text, no new operation or editable recovery source. Restore only loads draft to editor; busy/epoch/account-scope/stale-version guards stay in source."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Fallback copy-status line is highlighted with red error styling/icon in raster. Keep actual ordinary p role=status within parent DraftRecovery severity and readonly textarea in implementation; this crop does not authorize a new error-alert workflow."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-033.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-M005.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/DraftRecovery.vue:1",
+    "apps/web/components/Workspace.vue:3279",
+    "apps/web/useNoteDraft.ts:205",
+    "apps/web/components/NoteEditorHost.vue"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "040754744cd6ad48dd7a119c5d846e587b896f3bbc2ca9f9e11264609496c7ef",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-M005.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

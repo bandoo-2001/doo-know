@@ -1,0 +1,15 @@
+{
+  "id": "public-home-profile",
+  "title": "公开博客 profile",
+  "width": 1440,
+  "audience": "public",
+  "route": "/blog",
+  "file": "1440-public-home-profile.png",
+  "sha256": "eff36eef4a5f453e70b41055f7dcda1abd86abcf932ab018de1dcbc4038b6139",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "pageErrors": [],
+  "outerOverflow": 0
+}

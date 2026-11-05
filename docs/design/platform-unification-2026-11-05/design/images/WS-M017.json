@@ -1,0 +1,317 @@
+{
+  "id": "WS-M017",
+  "title": "GraphOverlay shared unsaved-close guard",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-089"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-089",
+      "title": "GraphOverlay unsaved-close guard footer",
+      "role": "authenticated owner",
+      "state": "Existing model configuration is dirty; close requested while not busy; real discard block rendered, both actions enabled."
+    }
+  ],
+  "viewportIntent": "One readable local actual GraphOverlay discard block; no full app or other simultaneous windows.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "style-only flat palette/density"
+    },
+    {
+      "path": "apps/web/components/graph/GraphOverlay.vue",
+      "role": "actual component shape/controls/guard authority lines66..90,202..220"
+    }
+  ],
+  "functionalInvariants": [
+    "GraphOverlay uses actual AAlert warning with icon/title/description plus two Ant buttons; SettingsOverlay strong/p discard is a different renderer, not exact visual reuse.",
+    "Only depict real existing local guard; header/body retained in actual host but need not repeat dense form.",
+    "No new business operation or API; existing finishClose(false)/discard()/emit remain source authority."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-089",
+      "label": "继续编辑",
+      "effect": "finishClose(false), keep draft",
+      "guard": "!busy"
+    },
+    {
+      "sourceId": "WS-089",
+      "label": "放弃更改",
+      "effect": "discard closes existing overlay after resolving pending close",
+      "guard": "!busy"
+    }
+  ],
+  "forbiddenAdditions": [
+    "No source-ID/role/parent/developer note inside UI",
+    "No new fields, context menu or model source state",
+    "Do not show SettingsOverlay discard markup instead of actual GraphOverlay AAlert"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "WS-089",
+      "contract": "Same existing GraphOverlay width min(requested,100vw-24), true body/footer scroll and focus return. Layout family can share this precise footer across graph hosts without changing source fields/guards."
+    }
+  ],
+  "prompt": "保留所有真实文案和两个可用按钮，仅校准真实警告组件形状：上半部分“有未保存的更改 / 关闭后将放弃本次输入。”和黄色警告图标应位于一个独立的浅黄色背景、黄色细边框、小圆角的警告提示条内；下方两个按钮保持在提示条外的白色操作区，右对齐。“继续编辑”为普通可用按钮，“放弃更改”为红色危险可用按钮。外层不要像完整对话框的大灰色框，不添加标题栏、X、遮罩或其它内容。保持紧凑清楚字号，不改文案。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M017.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceRefs": [
+    "apps/web/components/graph/GraphOverlay.vue:66",
+    "apps/web/components/graph/GraphOverlay.vue:202",
+    "apps/web/components/GraphWorkspace.vue:826"
+  ],
+  "originalPlanReference": "Root source-backed gap found during GEN034 model matrix audit",
+  "sourceContracts": [
+    {
+      "id": "WS-089",
+      "title": "Graph model configuration modal",
+      "kind": "dialog",
+      "module": "graph",
+      "entry": {
+        "route": "/?view=apps&app=graph",
+        "trigger": "模型设置",
+        "parentId": "WS-085"
+      },
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:1029",
+        "apps/server/graph/semantic-routes.ts:131",
+        "packages/core/graph/model.ts:244",
+        "packages/core/graph/analysis-source.ts:31"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31)."
+      ],
+      "fields": [
+        {
+          "name": "提供方",
+          "type": "select",
+          "required": true,
+          "constraints": "none | ollama | openai-compatible",
+          "sensitive": false
+        },
+        {
+          "name": "服务地址",
+          "type": "url",
+          "required": false,
+          "constraints": "<=2048 characters; http/https only, no credentials/query/hash. HTTP allowed loopback, or Ollama private IPv4 LAN. Conditional provider fields hidden when none.",
+          "sensitive": false
+        },
+        {
+          "name": "模型名称",
+          "type": "text",
+          "required": false,
+          "constraints": "<=200 characters; model calls require nonblank model and baseURL.",
+          "sensitive": false
+        },
+        {
+          "name": "API 密钥",
+          "type": "password",
+          "required": false,
+          "constraints": "<=8192 chars; no CR/LF. Blank normally retains; clear checkbox sends removal; provider/address change clears stored credential.",
+          "sensitive": true
+        },
+        {
+          "name": "清除已保存密钥",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "允许发送至非本机模型",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "remoteContentAllowed required boolean; explicit permission needed to send actual note content off-loopback.",
+          "sensitive": false
+        },
+        {
+          "name": "自动分析内容变化",
+          "type": "switch",
+          "required": true,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "结构化输出",
+          "type": "select",
+          "required": false,
+          "constraints": "schema | json",
+          "sensitive": false
+        },
+        {
+          "name": "超时（毫秒）",
+          "type": "integer",
+          "required": true,
+          "constraints": "100–120000 inclusive; UIstep1000.",
+          "sensitive": false
+        },
+        {
+          "name": "单次输入字符上限",
+          "type": "integer",
+          "required": true,
+          "constraints": "100–50000 inclusive; UIstep1000.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存设置",
+          "effect": "Update configuration with expectedVersion",
+          "api": "PUT /api/graph/settings",
+          "guard": "!busy; valid server settings; stale version rejected"
+        },
+        {
+          "label": "测试已保存连接",
+          "effect": "Test saved config using synthetic text",
+          "api": "POST /api/graph/settings/test",
+          "guard": "Disabled if form dirty or busy"
+        },
+        {
+          "label": "重新加载配置",
+          "effect": "Initialize missing config",
+          "api": "GET /api/graph/settings",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Loading/unavailable config",
+        "Provider-dependent fields",
+        "Saved secret configured",
+        "Unsaved changes close guard",
+        "Test success/failure",
+        "Version conflict/invalid address/remote permission error"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "testRefs": [
+        "tests/graph-model.test.ts",
+        "tests/e2e/knowledge-graph-full.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ]
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Extra actual inherited GraphOverlay footer only; keep main model matrix recipe+loader independent, do not substitute or add old form fields. Inspect actual source and style first. Metadata separate from prompt.",
+  "assetId": "WS-M017",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "dirty model configuration, close requested, busy=false, discardOpen=true"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "保留所有真实文案和两个可用按钮，仅校准真实警告组件形状：上半部分“有未保存的更改 / 关闭后将放弃本次输入。”和黄色警告图标应位于一个独立的浅黄色背景、黄色细边框、小圆角的警告提示条内；下方两个按钮保持在提示条外的白色操作区，右对齐。“继续编辑”为普通可用按钮，“放弃更改”为红色危险可用按钮。外层不要像完整对话框的大灰色框，不添加标题栏、X、遮罩或其它内容。保持紧凑清楚字号，不改文案。",
+  "batchOriginalPrompt": "制作一个清晰可读的真实网页局部：浅色平面背景上是一块警告提示，带黄色警告图标，标题“有未保存的更改”，正文“关闭后将放弃本次输入。”；下方右对齐两个正常可用的按钮，普通“继续编辑”和红色危险样式“放弃更改”。只画这块局部控件，干净白底、细边线、小圆角、紧凑清晰中文。不要画其他页面或控件。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "style-only flat palette/density",
+      "responsibility": "style-only flat palette/density",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/graph/GraphOverlay.vue",
+      "role": "actual component shape/controls/guard authority lines66..90,202..220",
+      "responsibility": "actual component shape/controls/guard authority lines66..90,202..220",
+      "sha256": "0261e8d7dfde8c21c24a5793144b7ce2cb00fbbec49c05ec70d25d8af57439cd"
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-7dd4fae6-89a4-43ed-ba2d-2ae3922f9f0e.png",
+      "role": "initial generated candidate targeted edit",
+      "responsibility": "Separate actual AAlert warning surface from white action area",
+      "sha256": "c841d009a106707afbf923cc1ef841de9d05a400ba1b25acb6add6e8078ddef8",
+      "dimensions": {
+        "width": 1774,
+        "height": 887
+      },
+      "bytes": 1043749
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-7dd4fae6-89a4-43ed-ba2d-2ae3922f9f0e.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M017.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-6fe68fe9-8624-4f97-b2fc-ec625f4df54d.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-6fe68fe9-8624-4f97-b2fc-ec625f4df54d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T06:24:34.599Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Actual GraphOverlay warning alert separated from enabled Ant action row, precise text/icon/description; not SettingsOverlay strong/p or full model form.",
+    "concerns": []
+  },
+  "sha256": "07baf18c5aede5392e6b4b7dc87b9e9adfe9ff2c5feb972b9e270d1368d78d66",
+  "dimensions": {
+    "width": 1774,
+    "height": 887
+  },
+  "bytes": 1037528,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e"
+    },
+    {
+      "path": "apps/server/graph/semantic-routes.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "0f4d81250bee2aa5d27fdfd65bb5209f52525fdec1275f8ac680e17f7ea8f12a"
+    },
+    {
+      "path": "packages/core/graph/model.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "b11ebeed7ad8ceb63ac553ef4b035b6ad06ebccd25daa1e711663801a8133b6c"
+    },
+    {
+      "path": "packages/core/graph/analysis-source.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "c87083ae267c60d4d876a82ca93d7f51d87cb6156f7f325c778fe3e77362eca1"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived GraphOverlay block only; no close/discard/focus execution or responsive runtime verified.",
+  "sourceGuardBinding": "AAlert warning show-icon/message/description; continue finishClose(false), discard closes via actual GraphOverlay; both disabled only busy. No new operation.",
+  "generationHistoryFiles": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-051-WS-M017-call-01-output.json",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-051-WS-M017-call-02-output.json"
+  ]
+}

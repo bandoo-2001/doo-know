@@ -1,0 +1,428 @@
+{
+  "id": "MP-S022",
+  "title": "Component state matrix: owner-private / MCPClientPermissions.vue",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-060"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-060",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-060",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "收窄连接权限",
+      "parentId": "ST-059",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "连接权限policy",
+          "type": "domain-permissions",
+          "required": true,
+          "constraints": "ceiling=当前effectivePolicy/permissionPolicy；只收窄，不能扩大",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "域/操作/资源编辑",
+        "busy",
+        "保存未确认提示刷新核对",
+        "保存成功需重授权"
+      ],
+      "notes": []
+    },
+    {
+      "type": "shared-fields-only",
+      "sourceId": "ST-062",
+      "fields": [
+        {
+          "name": "知识库 / 博客 / To Doo启用",
+          "type": "switch",
+          "required": false,
+          "constraints": "仅实现的selectableDomains；初值按服务端policy",
+          "sensitive": false
+        },
+        {
+          "name": "知识库能力预设",
+          "type": "select",
+          "required": false,
+          "constraints": "只读/内容编辑/自主整理；受ceiling约束",
+          "sensitive": false
+        },
+        {
+          "name": "资源范围",
+          "type": "select",
+          "required": false,
+          "constraints": "all或selected；ceiling选定范围时禁止扩大为all",
+          "sensitive": false
+        },
+        {
+          "name": "指定资源",
+          "type": "resource-tree/multi-select",
+          "required": false,
+          "constraints": "知识库稳定目录/笔记身份；To Doo清单；博客文章",
+          "sensitive": false
+        },
+        {
+          "name": "独立权限与高级选项",
+          "type": "checkbox[]",
+          "required": false,
+          "constraints": "各域implemented actions；read/write/organize/archive/index/share/manage等独立，受ceiling限制",
+          "sensitive": false
+        }
+      ],
+      "rule": "按本宿主allowed domains/current ceiling筛选，不导入global重绑动作；OAuth只允许当前申请业务与资源。"
+    },
+    {
+      "type": "composition",
+      "details": [
+        "OAuth收窄完整行内权限表单：现有effectivePolicy为ceiling，只收窄域/操作/资源，保存/取消。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/web/components/MCPClientPermissions.vue",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-060",
+      "label": "保存收窄权限",
+      "effect": "按expectedGrantVersion保存；原令牌失效需客户端重授",
+      "api": "POST /api/platform/mcp/clients/narrow",
+      "guard": "active；effectivePolicy存在；不busy"
+    },
+    {
+      "sourceId": "ST-060",
+      "label": "取消",
+      "effect": "移除本地draft",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-060",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n上下两个独立权限编辑局部区域，外部只标A、B。A：一个知识库权限卡，标题“知识库”，启用开关打开且灰色禁用；“知识库能力预设”下拉“只读”，“知识库资源范围”下拉“整个知识库”，这两个下拉均灰色禁用；帮助“目录授权跟随身份并覆盖后代；自主整理允许直接创建、移动和改名。归档和维护索引独立设置。”；收起的“独立权限与高级选项”。没有博客或To Doo卡片。下方“保存后立即收窄权限并使原令牌失效；扩大权限需重新发起客户端授权。”；按钮“保存收窄权限”带转圈不可重复点击，“取消”灰色禁用。\nB：一个知识库权限卡，标题“知识库”，启用开关打开；“知识库能力预设”下拉“只读”，“知识库资源范围”下拉“整个知识库”，这两个下拉均可用；帮助“目录授权跟随身份并覆盖后代；自主整理允许直接创建、移动和改名。归档和维护索引独立设置。”；收起的“独立权限与高级选项”。没有博客或To Doo卡片。下方“保存后立即收窄权限并使原令牌失效；扩大权限需重新发起客户端授权。”；按钮“保存收窄权限”可用，“取消”可用。下方黄色提示“未能确认权限更新，请刷新连接状态后核对。”。不画已保存成功或同时出现主权限清单。不添加刷新按钮、客户端ID输入、授权版本输入或密钥字段。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S022.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-060",
+      "title": "busy",
+      "renderer": "apps/web/components/MCPClientPermissions.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPClientPermissions.vue:12",
+        "apps/web/components/MCPClientPermissions.vue:25",
+        "apps/server/platform/mcp-client-permissions.ts:52"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存收窄权限",
+          "guard": "active；effectivePolicy存在；不busy"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "busy",
+          "variant": "busy",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-060"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-060",
+      "title": "保存未确认提示刷新核对",
+      "renderer": "apps/web/components/MCPClientPermissions.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPClientPermissions.vue:12",
+        "apps/web/components/MCPClientPermissions.vue:25",
+        "apps/server/platform/mcp-client-permissions.ts:52"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存收窄权限",
+          "guard": "active；effectivePolicy存在；不busy"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "保存未确认提示刷新核对",
+          "variant": "保存未确认提示刷新核对",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-060"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-060",
+      "parentId": "ST-059",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPClientPermissions.vue:12",
+        "apps/web/components/MCPClientPermissions.vue:25",
+        "apps/server/platform/mcp-client-permissions.ts:52"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-060",
+      "title": "收窄OAuth连接权限表单",
+      "kind": "state",
+      "module": "settings/mcp",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "收窄连接权限",
+        "parentId": "ST-059"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPClientPermissions.vue:12",
+        "apps/web/components/MCPClientPermissions.vue:25",
+        "apps/server/platform/mcp-client-permissions.ts:52"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "连接权限policy",
+          "type": "domain-permissions",
+          "required": true,
+          "constraints": "ceiling=当前effectivePolicy/permissionPolicy；只收窄，不能扩大",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存收窄权限",
+          "effect": "按expectedGrantVersion保存；原令牌失效需客户端重授",
+          "api": "POST /api/platform/mcp/clients/narrow",
+          "guard": "active；effectivePolicy存在；不busy"
+        },
+        {
+          "label": "取消",
+          "effect": "移除本地draft",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "域/操作/资源编辑",
+        "busy",
+        "保存未确认提示刷新核对",
+        "保存成功需重授权"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/mcp-permission-settings.test.ts:4",
+        "tests/mcp-authorization-ui.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S022",
+  "roles": [
+    "owner-private"
+  ],
+  "selectedState": [
+    "A narrowing request busy, knowledge-only effective ceiling, read/all resources",
+    "B save outcome unknown, draft retained and controls restored"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n上下两个独立权限编辑局部区域，外部只标A、B。A：一个知识库权限卡，标题“知识库”，启用开关打开且灰色禁用；“知识库能力预设”下拉“只读”，“知识库资源范围”下拉“整个知识库”，这两个下拉均灰色禁用；帮助“目录授权跟随身份并覆盖后代；自主整理允许直接创建、移动和改名。归档和维护索引独立设置。”；收起的“独立权限与高级选项”。没有博客或To Doo卡片。下方“保存后立即收窄权限并使原令牌失效；扩大权限需重新发起客户端授权。”；按钮“保存收窄权限”带转圈不可重复点击，“取消”灰色禁用。\nB：一个知识库权限卡，标题“知识库”，启用开关打开；“知识库能力预设”下拉“只读”，“知识库资源范围”下拉“整个知识库”，这两个下拉均可用；帮助“目录授权跟随身份并覆盖后代；自主整理允许直接创建、移动和改名。归档和维护索引独立设置。”；收起的“独立权限与高级选项”。没有博客或To Doo卡片。下方“保存后立即收窄权限并使原令牌失效；扩大权限需重新发起客户端授权。”；按钮“保存收窄权限”可用，“取消”可用。下方黄色提示“未能确认权限更新，请刷新连接状态后核对。”。不画已保存成功或同时出现主权限清单。不添加刷新按钮、客户端ID输入、授权版本输入或密钥字段。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S022 Component state matrix: owner-private / MCPClientPermissions.vue\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | ST-060 | 真实组件局部状态矩阵 | role=owner-private | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\nOAuth收窄完整行内权限表单：现有effectivePolicy为ceiling，只收窄域/操作/资源，保存/取消。\n\n局部矩阵（≤7行/卡）：\nr1 | ST-060 | 实际只画代表：busy | 既有busy/spinner/禁用控件模式，按原guard锁定。 | renderer=apps/web/components/MCPClientPermissions.vue\nr2 | ST-060 | 实际只画代表：保存未确认提示刷新核对 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/MCPClientPermissions.vue\n\n精确功能/字段/动作guard合同：\nST-060权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-060字段顺序：连接权限policy [domain-permissions; 必填]: ceiling=当前effectivePolicy/permissionPolicy；只收窄，不能扩大\nST-060白名单：保存收窄权限 => 按expectedGrantVersion保存；原令牌失效需客户端重授；guard=active；effectivePolicy存在；不busy；接口约束=POST /api/platform/mcp/clients/narrow\nST-060白名单：取消 => 移除本地draft；guard=已登录所有者；请求期间禁用重复操作\n共享MCPDomainPermissions真实字段（本宿主ceiling/请求业务过滤）：知识库 / 博客 / To Doo启用 [switch; 可选]: 仅实现的selectableDomains；初值按服务端policy | 知识库能力预设 [select; 可选]: 只读/内容编辑/自主整理；受ceiling约束 | 资源范围 [select; 可选]: all或selected；ceiling选定范围时禁止扩大为all | 指定资源 [resource-tree/multi-select; 可选]: 知识库稳定目录/笔记身份；To Doo清单；博客文章 | 独立权限与高级选项 [checkbox[]; 可选]: 各域implemented actions；read/write/organize/archive/index/share/manage等独立，受ceiling限制；不导入全局重绑动作到consent/ceiling。\n\n响应式合同：\n插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "20d3af18e07807e109eee306b74d24cab0fdbe1eadc0e5ed5883c727c9863156",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 61500
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S022.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-42037558-6667-413f-8692-2312fa563590.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-42037558-6667-413f-8692-2312fa563590.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T04:16:57.163Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Independent local authorization specimens, readonly labels, error retention and busy guards checked. No extra refresh/narrowing or secret protocol inputs.",
+    "concerns": []
+  },
+  "sha256": "83cc5c39b7d5c479c135c156cf8711255593488f9ec3689b7760f96dfd47e235",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1344227,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/MCPClientPermissions.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9c13dacffebf790c5f3ce1897314e897208c824f7902662113229a41b8202423"
+    },
+    {
+      "path": "apps/web/components/MCPClientPermissions.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9c13dacffebf790c5f3ce1897314e897208c824f7902662113229a41b8202423"
+    },
+    {
+      "path": "apps/server/platform/mcp-client-permissions.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "158b75d21eec29db7bd62e7eaad44a9508ebd1252ecc8fed48631032bcb98122"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Exact child states source-derived; no token revocation/permission mutation or responsive acceptance executed.",
+  "selectedPolicy": "knowledge domain only exists in effective ceiling, enabled read/all; other domains absent, not fabricated as disabled cards."
+}

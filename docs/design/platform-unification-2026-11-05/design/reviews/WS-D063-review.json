@@ -1,0 +1,45 @@
+{
+  "assetId": "WS-D063",
+  "sourceIds": [
+    "WS-087"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:45:36.531932+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner graph filter overlay, includeSimilarity enabled with threshold0.65, confidence0, advanced range expanded.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "All filter fields and relative order retained: root directory, node/relation multiselect, three clues, conditional similarity/helper, confidence, advanced color/start/target/limit/path.",
+    "Selected clues and displayed thresholds match source conditions; no fabricated apply/reset/save/export controls.",
+    "Header description/close and real path action retained; 1..1000 integer and0..1 step0.05 remain source validation, not new protocol inputs."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-013.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D063.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/GraphWorkspace.vue:828",
+    "apps/web/components/GraphWorkspace.vue:836",
+    "apps/web/components/graph/GraphOverlay.vue:36"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "f01f8afb5c2c0019668297f75eaf515ea5f78174b08c364bb36f8d5d4da4e140",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D063.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

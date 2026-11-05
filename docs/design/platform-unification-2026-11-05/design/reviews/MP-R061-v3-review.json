@@ -1,0 +1,64 @@
+{
+  "assetId": "MP-R061-v3",
+  "sourceIds": [
+    "PB-032"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:19:34.632341+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Current owner metadata detail revision: draft clean A, published dirty B, declared ordinary recheck retaining old selected error C.",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "panel": "C",
+      "finding": "The current revision still depicts ordinary recheck with the previous article-read error/recheck control retained. model.select(id) clears state.errors[id] before read begins, and failed read resets reading before select catch assigns its error. The declared normal retry state cannot preserve that previous alert while reading.",
+      "sourceRefs": [
+        "apps/web/blog-workbench.ts:164",
+        "apps/web/blog-workbench.ts:185",
+        "apps/web/components/BlogWorkspace.vue:538"
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed current v3 and intermediate v2 SHA; full original/v2/v3 edit prompts read. Optional summary/category/tags no longer marked required, textarea/datalist-input structures restored, cover upload label versus real buttons and slug prefix restored.",
+    "B dirty state correctly permits withdraw/remove while blocking preview/publish until save, whereas C reading disables danger controls. Most previous field/action issues closed.",
+    "C ordinary prior-read-error recheck still draws selected error and enabled recheck together with reading. This unresolved source-chain mismatch remains blocking."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-041.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R061-v3.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/BlogWorkspace.vue:508",
+    "apps/web/components/BlogWorkspace.vue:588",
+    "apps/web/blog-workbench.ts:164",
+    "apps/web/blog-workbench.ts:185",
+    "apps/web/components/blog/BlogArticleCover.vue",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R061.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R061-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/reviews/MP-R061-review.json"
+  ],
+  "requiredCorrections": [
+    "C only: remove prior article-error/recheck alert during ordinary reading; retain actual reading status, dirty editable form, source edit, disabled save/preview/publish and disabled withdraw/remove. A/B and corrected field structures stay. If a different concurrent producer is intended, first document its actual causal sequence and guards; sidecar prior-error-retained wording is not evidence of the ordinary path."
+  ],
+  "reviewedImageSha256": "5842f32ea2e67e330c27386bef3f05a7bee13709b1a389427d2d24bf8e356845",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R061-v3.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

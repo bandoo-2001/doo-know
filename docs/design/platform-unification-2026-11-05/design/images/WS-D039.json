@@ -1,0 +1,660 @@
+{
+  "id": "WS-D039",
+  "title": "Fragment leave, saved-version conflict and note leave confirmations",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-053",
+    "WS-056",
+    "WS-058"
+  ],
+  "panels": [
+    {
+      "label": "fragment-leave",
+      "sourceId": "WS-053",
+      "title": "Unsaved large fragment leave dialog",
+      "role": "authenticated owner",
+      "state": "Actual fragment save/discard/cancel choices; save error retains fragment."
+    },
+    {
+      "label": "saved-conflict",
+      "sourceId": "WS-056",
+      "title": "Saved original changed / overwrite conflict",
+      "role": "authenticated owner",
+      "state": "Opened/current timestamps and existing overwrite/latest-source/error/busy actions."
+    },
+    {
+      "label": "note-leave",
+      "sourceId": "WS-058",
+      "title": "Unsaved note navigation confirmation",
+      "role": "authenticated owner",
+      "state": "Actual save/discard/cancel actions, error retains editor and preview generation may interrupt save."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/LargeFileWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/LargeFileWorkspace.vue:553"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-053",
+      "label": "保存",
+      "effect": "Save then continue",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-053",
+      "label": "放弃",
+      "effect": "Discard fragment then continue",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-053",
+      "label": "取消",
+      "effect": "Continue editing",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-056",
+      "label": "取消",
+      "effect": "Preserve unsaved editor content",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-056",
+      "label": "查看最新版本",
+      "effect": "Read saved server original into separate modal",
+      "api": "GET /api/notes/:id",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-056",
+      "label": "确定覆盖",
+      "effect": "Save against latest conflict version",
+      "api": "PUT /api/notes/:id",
+      "guard": "Busy/version/request safeguards; no unsupported force flag"
+    },
+    {
+      "sourceId": "WS-058",
+      "label": "保存并继续",
+      "effect": "Persist current content then execute pending navigation",
+      "api": "PUT /api/notes/:id",
+      "guard": "Do not continue if still dirty"
+    },
+    {
+      "sourceId": "WS-058",
+      "label": "放弃修改",
+      "effect": "Discard browser/fragment/diagram local draft and continue",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-058",
+      "label": "取消",
+      "effect": "Cancel pending navigation",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R022",
+      "reuseSourceId": "WS-049",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "保存",
+          "effect": "Save then continue",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "放弃",
+          "effect": "Discard fragment then continue",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "取消",
+          "effect": "Continue editing",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-053"
+    },
+    {
+      "assetId": "WS-R011",
+      "reuseSourceId": "WS-024",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "取消",
+          "effect": "Preserve unsaved editor content",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "查看最新版本",
+          "effect": "Read saved server original into separate modal",
+          "api": "GET /api/notes/:id",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "确定覆盖",
+          "effect": "Save against latest conflict version",
+          "api": "PUT /api/notes/:id",
+          "guard": "Busy/version/request safeguards; no unsupported force flag"
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-056"
+    },
+    {
+      "assetId": "WS-R011",
+      "reuseSourceId": "WS-024",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "保存并继续",
+          "effect": "Persist current content then execute pending navigation",
+          "api": "PUT /api/notes/:id",
+          "guard": "Do not continue if still dirty"
+        },
+        {
+          "label": "放弃修改",
+          "effect": "Discard browser/fragment/diagram local draft and continue",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "取消",
+          "effect": "Cancel pending navigation",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-058"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. ONE clearly labeled DESIGN BOARD of the declared independent REAL DooKnow local components; never pretend these mutually exclusive windows are open in one app. Only external DESIGN BOARD/A/B/C labels, no added product logo or host/rail/tree. PILOT is STYLE ONLY: flat white/light-gray, dark/muted text, thin borders, blue primary where actual source primary, restrained8px corners, readable natural-size Chinese. Source templates determine all fields, copy, conditional actions, actual disabled/close guards. No requestId/hash/version/cursor/CSRF inputs or fake production success, new features/AI/ToDoo app pages. No OS/browser chrome. Each component complete with source header/close/body-scroll/actions, but inline sections must NOT acquire dialog header/close controls. Source-derived sample paths/times/text only, no real private data.\nExactly3 independent owner confirmation specimens around1536×1024, source-derived idle/nobusy/noerror states. A片段离开: actual NModal title片段尚未保存, body保存或放弃当前修改后再切换。, exact source-order plain outlined buttons 保存 / 放弃 / 取消, closeX. No full-file save text or new inputs.\nB版本冲突: actual title原文件已更新, body这篇笔记在其他地方被修改，是否覆盖最新版本？; readonly versionbox2rows 打开时的版本:2026/11/5 00:00:00 and 当前文件版本:2026/11/5 00:10:00; helper取消后会保留当前编辑内容。 Exact buttons取消,查看最新版本, danger-outlined确定覆盖. No forced overwrite flag/checkbox/request fields, no latest-source child modal already open.\nC笔记离开: actual title当前笔记尚未保存, body离开前，请选择如何处理当前编辑内容。 Exact buttons取消,放弃修改, blue primary保存并继续. Source does not navigate if save leaves draft dirty; no false saved result or nested diagram-preview prerequisite shown. All3 complete, closeX available in selected idle state, source masks onB/C not dismissible. No busy/error/success/recovery variants mixed into these default confirmations.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D039.png",
+  "reviewStatus": "pending-independent-review",
+  "geometryFamily": "Workspace.vue owner confirmation .dialog-card body and footer; exact source-specific actions",
+  "sourceContracts": [
+    {
+      "id": "WS-053",
+      "title": "Unsaved large fragment leave dialog",
+      "kind": "dialog",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Navigate range/note while fragment dirty",
+        "parentId": "WS-049"
+      },
+      "sourceRefs": [
+        "apps/web/components/LargeFileWorkspace.vue:553"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "保存",
+          "effect": "Save then continue",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "放弃",
+          "effect": "Discard fragment then continue",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "取消",
+          "effect": "Continue editing",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Save error keeps fragment"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/web-note-drafts.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-056",
+      "title": "Saved original changed / overwrite conflict",
+      "kind": "dialog",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Save version conflict",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:1236",
+        "apps/web/components/Workspace.vue:3588",
+        "packages/core/notes.ts:366"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "取消",
+          "effect": "Preserve unsaved editor content",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "查看最新版本",
+          "effect": "Read saved server original into separate modal",
+          "api": "GET /api/notes/:id",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "确定覆盖",
+          "effect": "Save against latest conflict version",
+          "api": "PUT /api/notes/:id",
+          "guard": "Busy/version/request safeguards; no unsupported force flag"
+        }
+      ],
+      "importantStates": [
+        "Opened/current version timestamps",
+        "Dialog error",
+        "Overwrite busy"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/workspace-save-recovery.test.ts",
+        "tests/e2e/document-editor-recovery.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-058",
+      "title": "Unsaved note navigation confirmation",
+      "kind": "dialog",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Leave dirty note",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:1181",
+        "apps/web/components/Workspace.vue:3713"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "保存并继续",
+          "effect": "Persist current content then execute pending navigation",
+          "api": "PUT /api/notes/:id",
+          "guard": "Do not continue if still dirty"
+        },
+        {
+          "label": "放弃修改",
+          "effect": "Discard browser/fragment/diagram local draft and continue",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "取消",
+          "effect": "Cancel pending navigation",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Busy",
+        "Save error retains editor",
+        "Diagram-preview-save dialog may interrupt save"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/workspace-save-recovery.test.ts",
+        "tests/e2e/workspace-lifecycle.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-053",
+      "parentId": "WS-049",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-056",
+      "parentId": "WS-024",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-058",
+      "parentId": "WS-024",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-053",
+      "state": "Save error keeps fragment",
+      "representation": "visible"
+    },
+    {
+      "sourceId": "WS-056",
+      "state": "Opened/current version timestamps",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-056",
+      "state": "Dialog error",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-056",
+      "state": "Overwrite busy",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-058",
+      "state": "Busy",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-058",
+      "state": "Save error retains editor",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-058",
+      "state": "Diagram-preview-save dialog may interrupt save",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D039",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "source-derived3idle confirmations/noerror"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. ONE clearly labeled DESIGN BOARD of the declared independent REAL DooKnow local components; never pretend these mutually exclusive windows are open in one app. Only external DESIGN BOARD/A/B/C labels, no added product logo or host/rail/tree. PILOT is STYLE ONLY: flat white/light-gray, dark/muted text, thin borders, blue primary where actual source primary, restrained8px corners, readable natural-size Chinese. Source templates determine all fields, copy, conditional actions, actual disabled/close guards. No requestId/hash/version/cursor/CSRF inputs or fake production success, new features/AI/ToDoo app pages. No OS/browser chrome. Each component complete with source header/close/body-scroll/actions, but inline sections must NOT acquire dialog header/close controls. Source-derived sample paths/times/text only, no real private data.\nExactly3 independent owner confirmation specimens around1536×1024, source-derived idle/nobusy/noerror states. A片段离开: actual NModal title片段尚未保存, body保存或放弃当前修改后再切换。, exact source-order plain outlined buttons 保存 / 放弃 / 取消, closeX. No full-file save text or new inputs.\nB版本冲突: actual title原文件已更新, body这篇笔记在其他地方被修改，是否覆盖最新版本？; readonly versionbox2rows 打开时的版本:2026/11/5 00:00:00 and 当前文件版本:2026/11/5 00:10:00; helper取消后会保留当前编辑内容。 Exact buttons取消,查看最新版本, danger-outlined确定覆盖. No forced overwrite flag/checkbox/request fields, no latest-source child modal already open.\nC笔记离开: actual title当前笔记尚未保存, body离开前，请选择如何处理当前编辑内容。 Exact buttons取消,放弃修改, blue primary保存并继续. Source does not navigate if save leaves draft dirty; no false saved result or nested diagram-preview prerequisite shown. All3 complete, closeX available in selected idle state, source masks onB/C not dismissible. No busy/error/success/recovery variants mixed into these default confirmations.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D039 Fragment leave, saved-version conflict and note leave confirmations\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"fragment-leave\", \"sourceId\": \"WS-053\", \"title\": \"Unsaved large fragment leave dialog\", \"role\": \"authenticated owner\", \"state\": \"Actual fragment save/discard/cancel choices; save error retains fragment.\"}, {\"label\": \"saved-conflict\", \"sourceId\": \"WS-056\", \"title\": \"Saved original changed / overwrite conflict\", \"role\": \"authenticated owner\", \"state\": \"Opened/current timestamps and existing overwrite/latest-source/error/busy actions.\"}, {\"label\": \"note-leave\", \"sourceId\": \"WS-058\", \"title\": \"Unsaved note navigation confirmation\", \"role\": \"authenticated owner\", \"state\": \"Actual save/discard/cancel actions, error retains editor and preview generation may interrupt save.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"fragment-leave\", \"sourceId\": \"WS-053\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"保存\", \"effect\": \"Save then continue\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"放弃\", \"effect\": \"Discard fragment then continue\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"取消\", \"effect\": \"Continue editing\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Save error keeps fragment\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"saved-conflict\", \"sourceId\": \"WS-056\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"取消\", \"effect\": \"Preserve unsaved editor content\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"查看最新版本\", \"effect\": \"Read saved server original into separate modal\", \"api\": \"GET /api/notes/:id\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"确定覆盖\", \"effect\": \"Save against latest conflict version\", \"api\": \"PUT /api/notes/:id\", \"guard\": \"Busy/version/request safeguards; no unsupported force flag\"}], \"importantStates\": [\"Opened/current version timestamps\", \"Dialog error\", \"Overwrite busy\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"note-leave\", \"sourceId\": \"WS-058\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"保存并继续\", \"effect\": \"Persist current content then execute pending navigation\", \"api\": \"PUT /api/notes/:id\", \"guard\": \"Do not continue if still dirty\"}, {\"label\": \"放弃修改\", \"effect\": \"Discard browser/fragment/diagram local draft and continue\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"取消\", \"effect\": \"Cancel pending navigation\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Busy\", \"Save error retains editor\", \"Diagram-preview-save dialog may interrupt save\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/LargeFileWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/LargeFileWorkspace.vue:553",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/LargeFileWorkspace.vue:553",
+      "sha256": "3ffb2de293a67b91689eaffebdf1b89cde8335075553c5bc3a0b680bf310d56c"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D039.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-f0d83862-9e25-48a4-80ff-f8af7dbc48c4.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-f0d83862-9e25-48a4-80ff-f8af7dbc48c4.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T03:02:11.521Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Three independent idle confirmations preserve exact fragment/save-conflict/note-leave choices, readonly opened/current times and source action hierarchy.",
+    "concerns": [
+      "All selected variants are source-derived; sample times/text/needs do not assert runtime outcomes.",
+      "Static component boards do not verify focus/close/navigation/save-error/busy guards, responsive fit or actual clipboard/media behavior."
+    ]
+  },
+  "sha256": "1767a45805b181597a1f3e1ec52341321e84a15b65a0f3d388dbc6fd653ac64c",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1151611,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/LargeFileWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "3ffb2de293a67b91689eaffebdf1b89cde8335075553c5bc3a0b680bf310d56c"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "packages/core/notes.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "3550a15b0d37f4a6847a879e5887a208219f6f1534ea9620731ab2b26c7e5002"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "No exact matching runtime captures; current component templates and sourceContracts govern independent coherent specimens."
+}

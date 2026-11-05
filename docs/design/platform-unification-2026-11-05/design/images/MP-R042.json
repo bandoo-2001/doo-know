@@ -1,0 +1,310 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R042",
+  "assetId": "MP-R042",
+  "sourceIds": [
+    "PB-001"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "unauthenticated visitor"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-001",
+      "title": "登录 DooKnow390px",
+      "role": "unauthenticated visitor",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three standalone visitor Login pages at390/320/320: A actual baseline empty required form disabled and help collapsed; B failed sign-in retains username and masked password, help expanded, submit enabled; C busy locks inputs/submit with spinner, normal visitor help still collapsed. No owner shell/registration/reset/social signup."
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-001",
+      "title": "登录 DooKnow320px",
+      "role": "unauthenticated visitor",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three standalone visitor Login pages at390/320/320: A actual baseline empty required form disabled and help collapsed; B failed sign-in retains username and masked password, help expanded, submit enabled; C busy locks inputs/submit with spinner, normal visitor help still collapsed. No owner shell/registration/reset/social signup."
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-001",
+      "title": "登录 DooKnow320px guard",
+      "role": "unauthenticated visitor",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three standalone visitor Login pages at390/320/320: A actual baseline empty required form disabled and help collapsed; B failed sign-in retains username and masked password, help expanded, submit enabled; C busy locks inputs/submit with spinner, normal visitor help still collapsed. No owner shell/registration/reset/social signup."
+    }
+  ],
+  "selectedState": "Three standalone visitor Login pages at390/320/320: A actual baseline empty required form disabled and help collapsed; B failed sign-in retains username and masked password, help expanded, submit enabled; C busy locks inputs/submit with spinner, normal visitor help still collapsed. No owner shell/registration/reset/social signup.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制横向并排三个完整独立DooKnow访客登录窄网页，宽比例390、320、320，白灰蓝平面，无手机硬件。严格照第二图真实结构：卡片上方蓝书本标志+DooKnow，副文案“你的个人知识空间”；卡片标题“登录 DooKnow”、说明“登录后访问你的私人笔记”；依次用户名、密码，密码框有眼睛图标；宽登录按钮；锁图标“笔记默认私有，仅分享链接可公开访问”；底部原生折叠“第一次使用或还没有账号？”。左窗用户名和密码空，分别占位请输入用户名/请输入密码，登录禁用，帮助收起。中窗用户名example-owner、密码六圆点，标题说明下方红色登录失败，登录蓝色可用；帮助展开，原文三段“账号在安装 DooKnow 时创建。”“如果由他人部署，请向部署者获取用户名和密码。”“如果由你部署，请在运行 DooKnow 的设备终端中继续完成安装，再回到这里登录。”，蓝色链接“查看安装说明”。右窗同中输入值保留，输入与密码眼睛禁用，登录禁用并转圈，错误没有，帮助收起。窄页面文字换行、需要时整页纵向滚动，不能加入主人的顶栏/底栏、注册、找回密码、社交登录或浏览器创建账号。",
+  "prompt": "绘制横向并排三个完整独立DooKnow访客登录窄网页，宽比例390、320、320，白灰蓝平面，无手机硬件。严格照第二图真实结构：卡片上方蓝书本标志+DooKnow，副文案“你的个人知识空间”；卡片标题“登录 DooKnow”、说明“登录后访问你的私人笔记”；依次用户名、密码，密码框有眼睛图标；宽登录按钮；锁图标“笔记默认私有，仅分享链接可公开访问”；底部原生折叠“第一次使用或还没有账号？”。左窗用户名和密码空，分别占位请输入用户名/请输入密码，登录禁用，帮助收起。中窗用户名example-owner、密码六圆点，标题说明下方红色登录失败，登录蓝色可用；帮助展开，原文三段“账号在安装 DooKnow 时创建。”“如果由他人部署，请向部署者获取用户名和密码。”“如果由你部署，请在运行 DooKnow 的设备终端中继续完成安装，再回到这里登录。”，蓝色链接“查看安装说明”。右窗同中输入值保留，输入与密码眼睛禁用，登录禁用并转圈，错误没有，帮助收起。窄页面文字换行、需要时整页纵向滚动，不能加入主人的顶栏/底栏、注册、找回密码、社交登录或浏览器创建账号。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; visitor role no owner navigation",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-login.png",
+      "role": "Actual standalone visitor login geometry, fields, help and brand",
+      "sha256": "b35312b4dc5aebecf813d2fd87916f485eb08b69f44e8951dbe064f958920571",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; visitor role no owner navigation",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-login.png",
+      "role": "Actual standalone visitor login geometry, fields, help and brand",
+      "sha256": "b35312b4dc5aebecf813d2fd87916f485eb08b69f44e8951dbe064f958920571",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制横向并排三个完整独立DooKnow访客登录窄网页，宽比例390、320、320，白灰蓝平面，无手机硬件。严格照第二图真实结构：卡片上方蓝书本标志+DooKnow，副文案“你的个人知识空间”；卡片标题“登录 DooKnow”、说明“登录后访问你的私人笔记”；依次用户名、密码，密码框有眼睛图标；宽登录按钮；锁图标“笔记默认私有，仅分享链接可公开访问”；底部原生折叠“第一次使用或还没有账号？”。左窗用户名和密码空，分别占位请输入用户名/请输入密码，登录禁用，帮助收起。中窗用户名example-owner、密码六圆点，标题说明下方红色登录失败，登录蓝色可用；帮助展开，原文三段“账号在安装 DooKnow 时创建。”“如果由他人部署，请向部署者获取用户名和密码。”“如果由你部署，请在运行 DooKnow 的设备终端中继续完成安装，再回到这里登录。”，蓝色链接“查看安装说明”。右窗同中输入值保留，输入与密码眼睛禁用，登录禁用并转圈，错误没有，帮助收起。窄页面文字换行、需要时整页纵向滚动，不能加入主人的顶栏/底栏、注册、找回密码、社交登录或浏览器创建账号。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-login.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制横向并排三个完整独立DooKnow访客登录窄网页，宽比例390、320、320，白灰蓝平面，无手机硬件。严格照第二图真实结构：卡片上方蓝书本标志+DooKnow，副文案“你的个人知识空间”；卡片标题“登录 DooKnow”、说明“登录后访问你的私人笔记”；依次用户名、密码，密码框有眼睛图标；宽登录按钮；锁图标“笔记默认私有，仅分享链接可公开访问”；底部原生折叠“第一次使用或还没有账号？”。左窗用户名和密码空，分别占位请输入用户名/请输入密码，登录禁用，帮助收起。中窗用户名example-owner、密码六圆点，标题说明下方红色登录失败，登录蓝色可用；帮助展开，原文三段“账号在安装 DooKnow 时创建。”“如果由他人部署，请向部署者获取用户名和密码。”“如果由你部署，请在运行 DooKnow 的设备终端中继续完成安装，再回到这里登录。”，蓝色链接“查看安装说明”。右窗同中输入值保留，输入与密码眼睛禁用，登录禁用并转圈，错误没有，帮助收起。窄页面文字换行、需要时整页纵向滚动，不能加入主人的顶栏/底栏、注册、找回密码、社交登录或浏览器创建账号。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; visitor role no owner navigation"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-login.png",
+          "role": "Actual standalone visitor login geometry, fields, help and brand"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-4f80fb11-631f-4b8f-9d60-fec8092cd132.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-001",
+      "title": "登录 DooKnow",
+      "kind": "page",
+      "module": "auth",
+      "entry": {
+        "route": "/ (unauthenticated); /login",
+        "trigger": "App session resolves without an owner session",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:264",
+        "apps/web/App.vue:360",
+        "apps/web/components/Login.vue:13",
+        "apps/web/components/Login.vue:38"
+      ],
+      "roles": [
+        "unauthenticated visitor"
+      ],
+      "permissionRules": [
+        "Single-owner installation; account creation is performed by installation/CLI, not this form."
+      ],
+      "fields": [
+        {
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "constraints": "trimmed nonempty submit guard; sent as entered; autocomplete=username",
+          "sensitive": false
+        },
+        {
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "constraints": "nonempty; current-password autocomplete",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "登录",
+          "effect": "Authenticate and open platform or OAuth continuation",
+          "api": "POST /api/auth/sign-in/username; GET /api/auth/get-session",
+          "guard": "not busy and username.trim() and password"
+        }
+      ],
+      "importantStates": [
+        "empty required fields; submit disabled",
+        "busy locks inputs and submit",
+        "API error alert cleared on input",
+        "successful sign-in clears password, refreshes CSRF, then accepts session"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory."
+      },
+      "testRefs": [
+        "tests/e2e/login-help.spec.ts:3",
+        "tests/auth.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-001",
+      "parentId": null,
+      "route": "/ (unauthenticated); /login",
+      "roles": [
+        "unauthenticated visitor"
+      ],
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:264",
+        "apps/web/App.vue:360",
+        "apps/web/components/Login.vue:13",
+        "apps/web/components/Login.vue:38"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-039.json#MP-R042",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R042",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-4f80fb11-631f-4b8f-9d60-fec8092cd132.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R042.png",
+  "sha256": "5020f2224a9fe209b95c1c078d991ceaccd80683c26acf3a1248b6dc2f446141",
+  "bytes": 1218091,
+  "dimensions": {
+    "width": 1938,
+    "height": 812
+  },
+  "generatedAtUtc": "2026-11-05T07:50:50.167012+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: Login.vue standalone visitor login/help card",
+    "sourceIds": [
+      "PB-001"
+    ],
+    "roles": [
+      "unauthenticated visitor"
+    ],
+    "state": "Three standalone visitor Login pages at390/320/320: A actual baseline empty required form disabled and help collapsed; B failed sign-in retains username and masked password, help expanded, submit enabled; C busy locks inputs/submit with spinner, normal visitor help still collapsed. No owner shell/registration/reset/social signup.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "compact": false,
+      "username": "",
+      "password": "",
+      "busy": false,
+      "error": "",
+      "helpOpen": false,
+      "submitDisabled": true
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "compact": false,
+      "username": "example-owner",
+      "password": "masked",
+      "busy": false,
+      "error": "登录失败",
+      "helpOpen": true,
+      "submitDisabled": false
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "compact": false,
+      "username": "example-owner",
+      "password": "masked",
+      "busy": true,
+      "error": "",
+      "helpOpen": false,
+      "submitDisabled": true
+    }
+  ]
+}

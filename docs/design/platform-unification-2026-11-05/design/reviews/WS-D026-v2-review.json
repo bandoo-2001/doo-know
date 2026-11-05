@@ -1,0 +1,59 @@
+{
+  "assetId": "WS-D026-v2",
+  "sourceIds": [
+    "WS-030",
+    "WS-031",
+    "WS-032",
+    "WS-033"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T06:24:07.846236+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Independent HEX invalid/full palette and valid compact card now separated; fixed preset ordering still wrong",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The second and third rows of the fixed36-color palette are swapped: the raster puts bright/medium tints in row2 and very light tints in row3, while actual rows and accessible names are base/light/bright/dark. Preset location and keyboard9-column navigation therefore no longer select the existing source-mapped color.",
+      "sourceEvidence": "TextColorPicker.vue rows[1]=#e5e7eb,#f1f5f9,#dbeafe,#cffafe,#dcfce7,#fee2e2,#ffedd5,#fef9c3,#f3e8ff; rows[2]=#9ca3af,#94a3b8,#60a5fa,#22d3ee,#4ade80,#f87171,#fb923c,#facc15,#c084fc. tones=[base,浅,亮,深]; ArrowDown advances9."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed v2/new SHA and targeted boundary-only edit. Invalid#12 full palette and valid#2563EB now have separate clear independent cards. Heading/table controls and actual HEX guards preserved.",
+    "Previously reported fixed row2/3 preset color ordering is visibly unchanged in this v2; direct new-image inspection confirms it remains unresolved."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-031.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D026-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/TextColorPicker.vue:7",
+    "apps/web/components/TextColorPicker.vue:65",
+    "apps/web/components/TextColorPicker.vue:160",
+    "apps/web/components/HeadingPicker.vue:130",
+    "apps/web/components/TablePicker.vue:117",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D026-review.json"
+  ],
+  "requiredCorrections": [
+    "Swap only the two middle rows of nine color presets so source order is base, very light(浅), bright(亮), dark. Preserve columns black/gray/blue/cyan/green/red/orange/yellow/purple, current base-blue check, both independent HEX states and all heading/table controls. This is fixed color/keyboard binding fidelity, not an absolute raster/CSS pixel-color precision demand."
+  ],
+  "reviewedImageSha256": "aaba97ae546926633d2f96b38793d00f4fce8ce4391663c09c6f38513ef9b2a5",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D026-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

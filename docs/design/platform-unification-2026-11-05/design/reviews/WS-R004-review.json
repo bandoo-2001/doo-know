@@ -1,0 +1,63 @@
+{
+  "assetId": "WS-R004",
+  "sourceIds": [
+    "WS-007",
+    "WS-008"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T09:06:37.508934+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner mobile recent A claimed2loadedof3withcursor, favorite-empty B.",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "panel": "A",
+      "finding": "Displays total3, loaded2/3 and enabled加载更多笔记, but UI always requests limit24 and collection API selects min(limit,total) rows and emits cursor only when more exist. A3-total normal list yields3loaded/no cursor. Two visible virtual cards do not imply2loaded.",
+      "sourceRefs": [
+        "apps/web/collection-feed.ts:86",
+        "packages/core/collections/service.ts:507",
+        "packages/core/collections/service.ts:538",
+        "apps/web/components/CollectionWorkspace.vue:262"
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG/full prompt, real recent/favorites baselines and current feed/API pagination chain inspected. Owner shell/nav, favorite empty copy, note actions/summary/path/time fields otherwise retained.",
+    "A invents a2-item page for a3-total source list. The actual UI requests limit24; API returns all3 and no cursor, so2/3 with load-more is not its ordinary source-reachable first-page state. Virtualization only changes rendered visible cards, not loaded count."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-045.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R004.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/CollectionWorkspace.vue:132",
+    "apps/web/collection-feed.ts:86",
+    "packages/core/collections/service.ts:460",
+    "packages/core/collections/service.ts:507",
+    "docs/design/platform-unification-2026-11-05/baseline/390-recent.png",
+    "docs/design/platform-unification-2026-11-05/baseline/390-favorites.png"
+  ],
+  "requiredCorrections": [
+    "Use a source-coherent fixture: minimally make the selected list total2, loaded2/2 and replace load-more with actual已经到底了, keeping two cards; or depict real24-item first page of larger total with correctly bound loaded count/cursor and genuine virtual scroll positions. Do not claim limit2 from this UI. B unchanged."
+  ],
+  "reviewedImageSha256": "ccc840f95125a2b8068b82e39c6ea478a0af23860f3b015d158978341b2c3204",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-R004.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

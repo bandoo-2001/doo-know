@@ -1,0 +1,266 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D070-v2",
+  "assetId": "WS-D070",
+  "sourceIds": [
+    "WS-094"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-094",
+      "title": "Desktop graph node/edge inspector",
+      "role": "authenticated owner",
+      "state": "Desktop entity inspector all alias/merge/manual-relation fields; note/semantic/similarity conditions stay distinct.",
+      "presentationInstruction": "Desktop entity inspector all alias/merge/manual-relation fields; note/semantic/similarity conditions stay distinct.",
+      "selectedState": "Source-derived desktop concept inspector, both entity-management sections expanded, empty required manual fields keep mutations disabled; one synthetic local evidence"
+    }
+  ],
+  "selectedState": "Source-derived desktop concept inspector, both entity-management sections expanded, empty required manual fields keep mutations disabled; one synthetic local evidence",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "只定点编辑这张DooKnow实体详情卡：删除描述“将观察保存，供后续整理。”下方3行错误附加注解，分别是“source-derived: 是”“角色: 概念”“parent: —”，删除后这小块留白自然收拢。整理实体分区第一字段label目前“别名”，精确恢复为“新增别名”。其他全部元素、实体记录/概念/1来源/尚未分组、描述、1跳2跳、全部输入值、下拉placeholder、各禁用按钮、两个展开分区、原文证据/来源/基础词项分析、关闭X、颜色和布局均保持不变。不增加其他说明或控件。",
+  "prompt": "只定点编辑这张DooKnow实体详情卡：删除描述“将观察保存，供后续整理。”下方3行错误附加注解，分别是“source-derived: 是”“角色: 概念”“parent: —”，删除后这小块留白自然收拢。整理实体分区第一字段label目前“别名”，精确恢复为“新增别名”。其他全部元素、实体记录/概念/1来源/尚未分组、描述、1跳2跳、全部输入值、下拉placeholder、各禁用按钮、两个展开分区、原文证据/来源/基础词项分析、关闭X、颜色和布局均保持不变。不增加其他说明或控件。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D070.png",
+      "role": "Edit target: remove non-product annotations and restore exact alias field label while preserving inspector",
+      "sha256": "0b31df1c3310bd627b5fd52e748b70b5ea2e45d76aa2044575156b5ec9dc745f",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D070.png",
+      "role": "Edit target: remove non-product annotations and restore exact alias field label while preserving inspector",
+      "sha256": "0b31df1c3310bd627b5fd52e748b70b5ea2e45d76aa2044575156b5ec9dc745f",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "只定点编辑这张DooKnow实体详情卡：删除描述“将观察保存，供后续整理。”下方3行错误附加注解，分别是“source-derived: 是”“角色: 概念”“parent: —”，删除后这小块留白自然收拢。整理实体分区第一字段label目前“别名”，精确恢复为“新增别名”。其他全部元素、实体记录/概念/1来源/尚未分组、描述、1跳2跳、全部输入值、下拉placeholder、各禁用按钮、两个展开分区、原文证据/来源/基础词项分析、关闭X、颜色和布局均保持不变。不增加其他说明或控件。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D070.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "只定点编辑这张DooKnow实体详情卡：删除描述“将观察保存，供后续整理。”下方3行错误附加注解，分别是“source-derived: 是”“角色: 概念”“parent: —”，删除后这小块留白自然收拢。整理实体分区第一字段label目前“别名”，精确恢复为“新增别名”。其他全部元素、实体记录/概念/1来源/尚未分组、描述、1跳2跳、全部输入值、下拉placeholder、各禁用按钮、两个展开分区、原文证据/来源/基础词项分析、关闭X、颜色和布局均保持不变。不增加其他说明或控件。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D070.png",
+          "role": "Edit target: remove non-product annotations and restore exact alias field label while preserving inspector"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-8c4f112c-c635-4c2e-b989-48bc5c5edcb5.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-094",
+      "title": "Desktop graph node/edge inspector",
+      "kind": "state",
+      "module": "graph",
+      "entry": {
+        "route": "/?view=apps&app=graph",
+        "trigger": "Select graph node/edge at desktop",
+        "parentId": "WS-085"
+      },
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:811",
+        "apps/web/components/graph/GraphInspector.vue:92",
+        "packages/core/graph/analysis-source.ts:31",
+        "packages/core/graph/knowledge-state.ts:166",
+        "packages/core/graph/knowledge-service.ts:934"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).",
+        "Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target."
+      ],
+      "fields": [
+        {
+          "name": "新增别名",
+          "type": "text",
+          "required": false,
+          "constraints": "UImaxlength100; server trimmed nonblank, <=128chars, no U+0000–001F.",
+          "sensitive": false
+        },
+        {
+          "name": "合并到",
+          "type": "entity-select",
+          "required": false,
+          "constraints": "Other visible non-note node.",
+          "sensitive": false
+        },
+        {
+          "name": "目标",
+          "type": "entity-select",
+          "required": false,
+          "constraints": "Other visible non-note node.",
+          "sensitive": false
+        },
+        {
+          "name": "关系 / 关系名称",
+          "type": "text",
+          "required": false,
+          "constraints": "Manual relation UImaxlength100; semantic edge name has no UImaxlength. Server predicate: trimmed nonblank, <=128 chars, no U+0000–001F.",
+          "sensitive": false
+        },
+        {
+          "name": "原文依据",
+          "type": "note-select",
+          "required": false,
+          "constraints": "Visible note node or source evidence note; required for manual relation.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "打开原文 / 证据",
+          "effect": "Open authorized note and evidence line",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "1跳关系 / 2跳关系",
+          "effect": "Focus graph around selected node",
+          "api": "GET /api/graph/explore",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "保存别名 / 合并实体 / 添加关系",
+          "effect": "Persist manual owner graph edits",
+          "api": "POST /api/graph/commands",
+          "guard": "Non-note entity; required fields and !busy"
+        },
+        {
+          "label": "确认 / 保存 / 忽略关系",
+          "effect": "Review selected semantic edge",
+          "api": "POST /api/graph/commands",
+          "guard": "Only semantic edges; !busy and predicate nonblank"
+        },
+        {
+          "label": "关闭详情",
+          "effect": "Clear selected id",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Entity aliases/merge/manual relation forms",
+        "Note open/focus controls",
+        "Semantic edge review",
+        "Similarity explicitly shown as clue, not factual relation",
+        "No evidence"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "testRefs": [
+        "tests/graph-semantic-api.test.ts",
+        "tests/e2e/knowledge-graph-full.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-094",
+      "parentId": "WS-085",
+      "route": "/?view=apps&app=graph",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:811",
+        "apps/web/components/graph/GraphInspector.vue:92",
+        "packages/core/graph/analysis-source.ts:31",
+        "packages/core/graph/knowledge-state.ts:166",
+        "packages/core/graph/knowledge-service.ts:934"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-013.json#WS-D070",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D070",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-8c4f112c-c635-4c2e-b989-48bc5c5edcb5.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D070-v2.png",
+  "sha256": "4b5a81bc59b19eda1d4c9af6e848ef1ba758cd657d8bfd7372f4a559a4905d9c",
+  "bytes": 1470187,
+  "dimensions": {
+    "width": 1024,
+    "height": 1536
+  },
+  "generatedAtUtc": "2026-11-05T02:55:23.250900+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D070.png",
+    "sha256": "0b31df1c3310bd627b5fd52e748b70b5ea2e45d76aa2044575156b5ec9dc745f",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D070-review.json"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Desktop graph node/edge inspector",
+    "sourceIds": [
+      "WS-094"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Source-derived desktop concept inspector, both entity-management sections expanded, empty required manual fields keep mutations disabled; one synthetic local evidence",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  }
+}

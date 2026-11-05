@@ -1,0 +1,361 @@
+{
+  "id": "MP-D006",
+  "title": "插件与连接",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-006",
+    "ST-047",
+    "ST-048",
+    "ST-054"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-006",
+      "title": "插件与连接",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    }
+  ],
+  "viewportIntent": "1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved DooKnow shared palette/density only; existing settings baseline controls/navigation authoritative"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-006",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "设置→插件与连接 / 直接地址",
+      "parentId": null,
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "插件目录空",
+        "运行异常/重启待生效",
+        "保留用户资料的依赖提示",
+        "卸载后仍可撤销OAuth授权"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "完整插件与连接页：已安装/添加插件、真实MCP/Git条目与配置/启停/升级/卸载、依赖和重启待生效状态。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。"
+    },
+    {
+      "sourceId": "ST-047",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "已安装tab / 返回插件列表",
+      "parentId": "ST-006",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "无已安装插件",
+        "enabled/disabled/starting/stopping/failed",
+        "版本差异升级可见",
+        "保留资料依赖提示"
+      ],
+      "notes": []
+    },
+    {
+      "sourceId": "ST-048",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "添加插件tab",
+      "parentId": "ST-006",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "未安装卡片标题/版本/说明/能力",
+        "没有其他可安装官方插件",
+        "安装过程ST-054",
+        "安装源未提供focusPlugin"
+      ],
+      "notes": []
+    },
+    {
+      "sourceId": "ST-054",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "安装/升级或重进页面恢复回执",
+      "parentId": "ST-006",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "下载/安装阶段",
+        "服务器任务离页继续",
+        "succeeded/failed/needs_reconciliation",
+        "重启待生效",
+        "资料missing/unavailable/disabled/version_mismatch/incompatible/invalid"
+      ],
+      "notes": []
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-006",
+      "label": "已安装 / 添加插件",
+      "effect": "切换ST-047/ST-048",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-006",
+      "label": "刷新插件状态",
+      "effect": "更新注册表与安装回执",
+      "api": "GET /api/platform/plugins; GET /api/platform/plugin-installations",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-047",
+      "label": "配置",
+      "effect": "进入所选插件内页",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-047",
+      "label": "停用 / 启用",
+      "effect": "切换插件运行",
+      "api": "POST /api/platform/plugins/:id/disable|enable",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-047",
+      "label": "升级",
+      "effect": "服务器安装新版本",
+      "api": "POST /api/platform/plugin-installations",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-047",
+      "label": "卸载",
+      "effect": "打开ST-053",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-048",
+      "label": "安装",
+      "effect": "提交/恢复服务器安装回执",
+      "api": "POST /api/platform/plugin-installations",
+      "guard": "catalog条目未安装；非busy"
+    },
+    {
+      "sourceId": "ST-054",
+      "label": "刷新插件状态",
+      "effect": "核对安装回执与注册表",
+      "api": "GET /api/platform/plugin-installations; GET /api/platform/plugins",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-054",
+      "label": "安装插件",
+      "effect": "缺依赖且安装源提供时重新安装",
+      "api": "POST /api/platform/plugin-installations",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-006",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-047",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "planned; not runtime approval"
+    },
+    {
+      "sourceId": "ST-048",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "planned; not runtime approval"
+    },
+    {
+      "sourceId": "ST-054",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "planned; not runtime approval"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. Produce exactly ONE clear high-fidelity Simplified Chinese desktop DooKnow settings-page design for an authenticated owner, straight-on full application canvas around 1536×1024, no browser/device frame, no external title/caption.\nINPUT AUTHORITY: Image 1 is this exact running pre-redesign settings baseline, authoritative for existing content, controls, navigation, permissions and selected state. Image 2 PILOT-WS-001 is ONLY the approved DooKnow palette, typography/density and rail/header hierarchy reference. Do not import its notebook tree, empty-note content or note toolbar. Real source templates override generic API summaries.\nShared shell: full-height approximately 64px muted gray owner rail at far left, account avatar O at top; real destinations 笔记, 最近, 收藏, separator, 应用; bottom 回收站 and 设置, with 设置 active. Full 56px global header to the right of owner rail: existing blue open-book logo and exact DooKnow wordmark, divider, static context 设置. No invented header actions, counts or notifications. Below header use a light-gray contextual settings sidebar with 返回笔记 and exactly eight destinations in order: 通用与编辑, 知识库与存储, 搜索与索引, 备份与恢复, 后台状态, 插件与连接, 账号与安全, 关于与诊断; select only current destination. Main content is white, flexible max approximately 1000px, aligned card edges/fields and readable compact desktop text. Preserve existing page eyebrow 设置, page title, description and top-right 返回笔记.\nStyle: flat white #ffffff surfaces and #f7f8fa rail/sidebar, text #272b3a secondary #657084, thin #e6e9f1 separators, blue #4566c6 primary actions and #edf1ff selected rows, restrained 8px radii, no gradients/textures/heavy shadows. Preserve exact controls and their enabled/disabled state. Legible Chinese and clear spacing matter more than decorative polish.\nHard invariants: one coherent actual baseline state; do not combine mutually exclusive overlays or states. No ToDoo brand, tasks, calendars, habits, teams, members, AI chat, new features or invented navigation. No protocol metadata fields (requestId, versions, hash, cursor, nonce, CSRF), no developer/contract captions inside UI, no new fake connected/online/success states. Secrets masked, server paths /srv/example only if actually expanded. Static concept does not prove runtime/interaction/responsiveness.\nPAGE-SPECIFIC CONTENT:\nCURRENT PAGE 插件与连接. Description 管理已安装功能和外部应用连接。 EXACT actual baseline is the INSTALLED TAB EMPTY state: no installed plugins and no retained OAuth authorization entries. Main top toolbar has exactly tabs 已安装 (active blue underline and check icon) and 添加插件 (plus icon), with existing outlined refresh button 刷新插件状态 at the right. Under toolbar show the baseline's wide quiet fine dashed empty-state container, existing small empty-tray icon and exact message 尚未安装插件，可在「添加插件」中查看。 The rest of main canvas remains whitespace. No MCP or Git installed cards, configure/enable/disable/upgrade/uninstall buttons, installation receipts, restart notices, dependency alerts, authorization list, connection secrets or simultaneous 添加插件 content may be invented: they belong to separate conditional states. Keep complete full owner rail/global header/eight-item contextual settings navigation with 插件与连接 selected, and top-right 返回笔记; no new search/filter/sort/download button. Render normal clean 1536×1024 full-page settings canvas.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D006.png",
+  "reviewStatus": "pending-independent-review",
+  "generationInstruction": "Style-only unification of one coherent actual baseline settings page. Use actual matching screenshot as content/role/navigation authority and PILOT-WS001 only as muted palette, compact 64px owner rail / global header hierarchy, flat surfaces and aligned fields/toolbar. Preserve settings context labels, currently visible fields, busy/read-only/connection state and existing buttons. Source-hidden fields stay hidden in this selected flag/baseline; other conditions mapped in state matrices. No transfer of note tree into settings, ToDoo logo/text, invented notifications/actions/features, fake connected states or protocol fields. Real template source outranks generic API field summaries. Full concise prompt actually submitted + full job reference/contract mapping must be saved; no developer captions inside product UI.",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. Produce exactly ONE clear high-fidelity Simplified Chinese desktop DooKnow settings-page design for an authenticated owner, straight-on full application canvas around 1536×1024, no browser/device frame, no external title/caption.\nINPUT AUTHORITY: Image 1 is this exact running pre-redesign settings baseline, authoritative for existing content, controls, navigation, permissions and selected state. Image 2 PILOT-WS-001 is ONLY the approved DooKnow palette, typography/density and rail/header hierarchy reference. Do not import its notebook tree, empty-note content or note toolbar. Real source templates override generic API summaries.\nShared shell: full-height approximately 64px muted gray owner rail at far left, account avatar O at top; real destinations 笔记, 最近, 收藏, separator, 应用; bottom 回收站 and 设置, with 设置 active. Full 56px global header to the right of owner rail: existing blue open-book logo and exact DooKnow wordmark, divider, static context 设置. No invented header actions, counts or notifications. Below header use a light-gray contextual settings sidebar with 返回笔记 and exactly eight destinations in order: 通用与编辑, 知识库与存储, 搜索与索引, 备份与恢复, 后台状态, 插件与连接, 账号与安全, 关于与诊断; select only current destination. Main content is white, flexible max approximately 1000px, aligned card edges/fields and readable compact desktop text. Preserve existing page eyebrow 设置, page title, description and top-right 返回笔记.\nStyle: flat white #ffffff surfaces and #f7f8fa rail/sidebar, text #272b3a secondary #657084, thin #e6e9f1 separators, blue #4566c6 primary actions and #edf1ff selected rows, restrained 8px radii, no gradients/textures/heavy shadows. Preserve exact controls and their enabled/disabled state. Legible Chinese and clear spacing matter more than decorative polish.\nHard invariants: one coherent actual baseline state; do not combine mutually exclusive overlays or states. No ToDoo brand, tasks, calendars, habits, teams, members, AI chat, new features or invented navigation. No protocol metadata fields (requestId, versions, hash, cursor, nonce, CSRF), no developer/contract captions inside UI, no new fake connected/online/success states. Secrets masked, server paths /srv/example only if actually expanded. Static concept does not prove runtime/interaction/responsiveness.\nPAGE-SPECIFIC CONTENT:\nCURRENT PAGE 插件与连接. Description 管理已安装功能和外部应用连接。 EXACT actual baseline is the INSTALLED TAB EMPTY state: no installed plugins and no retained OAuth authorization entries. Main top toolbar has exactly tabs 已安装 (active blue underline and check icon) and 添加插件 (plus icon), with existing outlined refresh button 刷新插件状态 at the right. Under toolbar show the baseline's wide quiet fine dashed empty-state container, existing small empty-tray icon and exact message 尚未安装插件，可在「添加插件」中查看。 The rest of main canvas remains whitespace. No MCP or Git installed cards, configure/enable/disable/upgrade/uninstall buttons, installation receipts, restart notices, dependency alerts, authorization list, connection secrets or simultaneous 添加插件 content may be invented: they belong to separate conditional states. Keep complete full owner rail/global header/eight-item contextual settings navigation with 插件与连接 selected, and top-right 返回笔记; no new search/filter/sort/download button. Render normal clean 1536×1024 full-page settings canvas.",
+  "batchOriginalPrompt": "用已核实的内置GPT-Image2生成一个中文设计资产。ToDoo仅style-only：浅灰侧栏/白内容、蓝色主动作、细线小圆角、清楚字体层级/间距/密度与响应式；保留DooKnow和真实模块菜单。\n\nMP-D006 插件与连接\n\n1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。\n\n角色壳：所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。\n\n明确独立场景：\nA | ST-006 | 插件与连接 | role=authenticated-owner | state=实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\n\n完整构图：\n完整插件与连接页：已安装/添加插件、真实MCP/Git条目与配置/启停/升级/卸载、依赖和重启待生效状态。\n\n精确字段/操作/权限合同（API元数据不画成输入）：\nST-006权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-006真实可见字段顺序：无额外编辑输入，不发明控件。\nST-006动作白名单：已安装 / 添加插件 => 切换ST-047/ST-048；guard=已登录所有者；请求期间禁用重复操作\nST-006动作白名单：刷新插件状态 => 更新注册表与安装回执；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/platform/plugins; GET /api/platform/plugin-installations\n\n响应式合同：\n1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。\n390/320目标：label/错误/长URL路径换行；表格代码仅内层滚动，无页面横向溢出；窗口限高正文滚动/页脚可达，focus可见。SettingsOverlay与PluginPanel各自真实busy/dirty关闭差异不可混用；公开/登录/首启/OAuth无主人私有栏。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF只是不可见guard，不画成输入；仅fields中的真实UI控件可编辑，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n内容参考：匹配真实baseline时沿用knowledge/Asia/Shanghai，公开夹具“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客已保存accent #44684f与journal/magazine/profile差异保留。未捕获状态只用明确合成示例，数量/成功/客户端状态不成为固定业务结果。登录空占位、秘密掩码，禁止照搬ToDoo任务内容。\n\n状态编号/说明放产品画面外。仅fields是真实可见输入；requestId/version/hash/cursor/nonce/CSRF等只作后台guard。输出不是实测通过或审批；逐图功能/权限/响应式审查与全局审查完成前不得开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved DooKnow shared palette/density only; existing settings baseline controls/navigation authoritative",
+      "responsibility": "Approved DooKnow shared palette/density only; existing settings baseline controls/navigation authoritative",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "20d3af18e07807e109eee306b74d24cab0fdbe1eadc0e5ed5883c727c9863156",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 61500
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+    "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D006.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-606fe326-cdb9-4b0b-872e-7ca675ab1a6c.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-606fe326-cdb9-4b0b-872e-7ca675ab1a6c.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T01:21:10.345Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "preserved": "Full owner rail, DooKnow global header, actual eight-item settings navigation and matching selected state retained.",
+    "concerns": [
+      "Static raster cannot prove behavior, guards or responsive layouts.",
+      "Generated proportions and minor raster texture need independent review; source tokens remain authoritative."
+    ],
+    "pageSpecific": "Exact no-installed-plugin state retained; installed/add tabs and refresh remain. No invented MCP/Git card, retained authorization section or configuration fields."
+  },
+  "sha256": "511b5cb64644ad3540f7794fd03ff3c51bbe6e449bb985f3240ba54c1370014c",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1102558,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/settings/SettingsWorkspace.vue",
+      "role": "actual UI template content, controls and visibility-condition authority",
+      "sha256": "e9c0b0d2399cae094e29926dfbcf5dbf9a099857330f280e3d532cd1a8887fe7"
+    },
+    {
+      "path": "apps/web/settings.ts",
+      "role": "actual UI template content, controls and visibility-condition authority",
+      "sha256": "95b2194400a131de9e14943a735dba7a7c6100615c573cb8b88547540731c08d"
+    },
+    {
+      "path": "apps/web/components/settings/PluginsSettings.vue",
+      "role": "actual UI template content, controls and visibility-condition authority",
+      "sha256": "31c37b6356ec51c9ba878ba934ccb463e16818185e13b1d13cf602cd9be726f2"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "actual UI template content, controls and visibility-condition authority",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/MCPAuthorizationManager.vue",
+      "role": "actual UI template content, controls and visibility-condition authority",
+      "sha256": "4a156e69d63a1916a19bea6a50ce7267f9a3b8216c2eaf5d8c1cc52645bc406a"
+    }
+  ],
+  "assetId": "MP-D006",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "selectedState": [
+    "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+  ]
+}

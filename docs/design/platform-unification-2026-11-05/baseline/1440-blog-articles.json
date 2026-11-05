@@ -1,0 +1,16 @@
+{
+  "id": "blog-articles",
+  "title": "博客管理 articles",
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?view=apps&app=blog&appSection=articles",
+  "file": "1440-blog-articles.png",
+  "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

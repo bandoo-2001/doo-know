@@ -1,0 +1,66 @@
+{
+  "assetId": "MP-S016",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_state_backlog agent",
+  "reviewedAtUtc": "2026-11-05T04:33:54.750543+00:00",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S016.png",
+  "reviewedImageSha256": "e20aac1b4b474a83dd16234d07d9a60c91584ced37c562fdc4e2c6db1f8e11d9",
+  "reviewedSidecarSha256": "b3e17da588e8942bc949e5630c95341d6421681afd8a9285467aec9b1ef6dd49",
+  "requirementsManifest": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json",
+  "requirementsSha256": "b00025577cc63764c920052eb18432f5956200c2daa4ae915d201c20eea86ba9",
+  "viewMethod": "Actual individual PNG viewed via tools.view_image; full actual submittedPrompt and selectedState read; current template, parent/role/API/guard chain inspected. Matching backup/plugins/library/login baseline PNGs and approved style PNG were directly viewed where applicable.",
+  "sourceIds": [
+    "ST-037"
+  ],
+  "selectedState": [
+    "r1 read failure before loaded",
+    "r2 invalid integer empty",
+    "r3 unconfirmed save",
+    "r4 retention safeguards",
+    "r5 complete compact390 target",
+    "r6 complete compact320 target"
+  ],
+  "sourceRefs": [
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/api.ts:30",
+    "apps/server/app.ts:141",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S016.json",
+    "apps/web/components/OrganizationRetentionSettings.vue:9",
+    "apps/web/components/OrganizationRetentionSettings.vue:50",
+    "apps/server/knowledge/web-routes.ts:44",
+    "apps/web/components/OrganizationRetentionSettings.vue:12",
+    "apps/web/components/OrganizationRetentionSettings.vue:27"
+  ],
+  "reviewedSourceSha256": {
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md": "f78c14e2c450641e9ecc10864168fef272bc07cb0eb47e23e0e0d475bdbf9ff9",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md": "d184372a8eefffe8079b87aa9c2988e487507d95b41b263d6ed7b7a0f7827711",
+    "apps/web/api.ts": "f3cfa4add2ed9f30efb83d401345d9c95e7437b8d2e09cea21fd853ac79b55ec",
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json": "b00025577cc63764c920052eb18432f5956200c2daa4ae915d201c20eea86ba9",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S016.json": "b3e17da588e8942bc949e5630c95341d6421681afd8a9285467aec9b1ef6dd49",
+    "apps/web/components/OrganizationRetentionSettings.vue": "8ab7bb0dd86c6068162b3a7b08a8b680c63e383bef8031d89c5d94965b865fc4",
+    "apps/server/knowledge/web-routes.ts": "c79f2fe3f0efdafae64d37e69f1e64665cf35896158783771481846d1c2810a9"
+  },
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Loaded=false read failure hides the numeric field and offers reread; invalid empty integer and unconfirmed-save cases retain the correct existing save action after busy clears.",
+    "Range 1..3650, default 30 days, future-tasks-only scope, preservation of incomplete/reconciliation materials and expired-undo limitations match the source. No note deletion or retroactive retention claim is added.",
+    "Two compact source-derived form specimens preserve the complete explanatory copy, days field and save action. Widths are design targets rather than runtime measurements."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Readable white/light-gray local components, fine borders, restrained corners and blue action hierarchy match the shared style direction. Raster shading/texture and approximate scale must become flat CSS tokens; do not regenerate solely for those details."
+    }
+  ],
+  "requiredCorrections": [],
+  "limitations": [
+    "Source-derived static design review only; no runtime API operation, authorization, clipboard, network, keyboard/focus, close/mask/Escape behavior or responsive viewport was executed.",
+    "Local-component specimens are independent; parent role/source bindings remain metadata. Existing baseline references establish host context, not runtime capture of these synthetic error/busy states.",
+    "Raster shading/texture, font/icon geometry and dimensions are approximate. Implement shared flat CSS tokens, responsive wrapping and existing scroll/focus/guard rules; this is not pixel-level CSS approval.",
+    "This per-image result neither completes the non-ToDoo platform unification task nor substitutes for the later global coverage/style/function review or authorizes product implementation."
+  ]
+}

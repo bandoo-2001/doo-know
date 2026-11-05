@@ -1,0 +1,51 @@
+{
+  "assetId": "MP-S029-v2",
+  "sourceIds": [
+    "ST-074",
+    "ST-075",
+    "ST-076",
+    "ST-077",
+    "ST-078",
+    "ST-080"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:23:24.915478+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Independent credential-unavailable entry, gitUnsaved return-save warning and non401callererror/refresh.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actualnewv2 viewed: true unsaved-note AAlert/返回笔记保存 now present, retains save/commit/push draftboundary.",
+    "Caller permissionerror AAlert plus existing refresh-sync action added separately; no fictitious Git-local401/login.403/503/business message variations mustretain exact error/active/job guards.",
+    "Original credentialUnavailable/managecard retained asdistinct state; root binds r1credential,r2unsaved,r3non401callererror."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-025.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S029-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/GitRemotePanel.vue:799",
+    "apps/web/components/GitRemotePanel.vue:817",
+    "apps/web/api.ts:59",
+    "docs/design/platform-unification-2026-11-05/design/reviews/MP-S029-review.json"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "83e5c10cb2b318619caf4d4db87e9b2e9ec703465717392ba7be229373fc69fb",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S029-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

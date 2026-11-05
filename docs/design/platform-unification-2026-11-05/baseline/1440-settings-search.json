@@ -1,0 +1,16 @@
+{
+  "id": "settings-search",
+  "title": "平台设置 search",
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?view=settings&section=search",
+  "file": "1440-settings-search.png",
+  "sha256": "942d4e3839184ff0cddeb9e24b9b1ab09f887faa10597afa0387967db47cfa39",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

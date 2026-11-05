@@ -1,0 +1,576 @@
+{
+  "id": "WS-M012",
+  "title": "Graph model configuration modal — compact component state matrix",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-089"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-089",
+      "title": "Graph model configuration modal — compact component state matrix",
+      "role": "authenticated owner",
+      "state": "GraphWorkspace.vue modelDraft provider/settings/secret/consent/test regions; full dense form appears once separately.",
+      "presentation": "ONE compact component matrix, not multiple simultaneously open full windows",
+      "rows": [
+        {
+          "label": "row-1",
+          "sourceId": "WS-089",
+          "title": "Graph model configuration modal",
+          "role": "authenticated owner",
+          "state": "Provider none; conditional provider fields hidden",
+          "actionPresentation": "Keep all actual config controls and expectedVersion guard; test saved connection disabled if dirty or state.busy. Do not display a real credential, request version input, or false remote-content consent.",
+          "sourceComponent": "apps/web/components/GraphWorkspace.vue"
+        },
+        {
+          "label": "row-2",
+          "sourceId": "WS-089",
+          "title": "Graph model configuration modal",
+          "role": "authenticated owner",
+          "state": "Ollama provider configuration",
+          "actionPresentation": "Keep all actual config controls and expectedVersion guard; test saved connection disabled if dirty or state.busy. Do not display a real credential, request version input, or false remote-content consent.",
+          "sourceComponent": "apps/web/components/GraphWorkspace.vue"
+        },
+        {
+          "label": "row-3",
+          "sourceId": "WS-089",
+          "title": "Graph model configuration modal",
+          "role": "authenticated owner",
+          "state": "OpenAI-compatible provider configuration",
+          "actionPresentation": "Keep all actual config controls and expectedVersion guard; test saved connection disabled if dirty or state.busy. Do not display a real credential, request version input, or false remote-content consent.",
+          "sourceComponent": "apps/web/components/GraphWorkspace.vue"
+        },
+        {
+          "label": "row-4",
+          "sourceId": "WS-089",
+          "title": "Graph model configuration modal",
+          "role": "authenticated owner",
+          "state": "Saved masked credential and clear-key checkbox",
+          "actionPresentation": "Keep all actual config controls and expectedVersion guard; test saved connection disabled if dirty or state.busy. Do not display a real credential, request version input, or false remote-content consent.",
+          "sourceComponent": "apps/web/components/GraphWorkspace.vue"
+        },
+        {
+          "label": "row-5",
+          "sourceId": "WS-089",
+          "title": "Graph model configuration modal",
+          "role": "authenticated owner",
+          "state": "Connection test success/failure feedback",
+          "actionPresentation": "Keep all actual config controls and expectedVersion guard; test saved connection disabled if dirty or state.busy. Do not display a real credential, request version input, or false remote-content consent.",
+          "sourceComponent": "apps/web/components/GraphWorkspace.vue"
+        },
+        {
+          "label": "row-6",
+          "sourceId": "WS-089",
+          "title": "Graph model configuration modal",
+          "role": "authenticated owner",
+          "state": "Version/address/remote-consent validation error",
+          "actionPresentation": "Keep all actual config controls and expectedVersion guard; test saved connection disabled if dirty or state.busy. Do not display a real credential, request version input, or false remote-content consent.",
+          "sourceComponent": "apps/web/components/GraphWorkspace.vue"
+        }
+      ]
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:1029, apps/server/graph/semantic-routes.ts:131, packages/core/graph/model.ts:244, packages/core/graph/analysis-source.ts:31"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-089",
+      "label": "保存设置",
+      "effect": "Update configuration with expectedVersion",
+      "api": "PUT /api/graph/settings",
+      "guard": "!busy; valid server settings; stale version rejected"
+    },
+    {
+      "sourceId": "WS-089",
+      "label": "测试已保存连接",
+      "effect": "Test saved config using synthetic text",
+      "api": "POST /api/graph/settings/test",
+      "guard": "Disabled if form dirty or busy"
+    },
+    {
+      "sourceId": "WS-089",
+      "label": "重新加载配置",
+      "effect": "Initialize missing config",
+      "api": "GET /api/graph/settings",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R037",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "requiredFieldOrder": [
+        "提供方",
+        "服务地址",
+        "模型名称",
+        "API 密钥",
+        "清除已保存密钥",
+        "允许发送至非本机模型",
+        "自动分析内容变化",
+        "结构化输出",
+        "超时（毫秒）",
+        "单次输入字符上限"
+      ],
+      "requiredFields": [
+        {
+          "name": "提供方",
+          "type": "select",
+          "required": true,
+          "constraints": "none | ollama | openai-compatible",
+          "sensitive": false
+        },
+        {
+          "name": "服务地址",
+          "type": "url",
+          "required": false,
+          "constraints": "<=2048 characters; http/https only, no credentials/query/hash. HTTP allowed loopback, or Ollama private IPv4 LAN. Conditional provider fields hidden when none.",
+          "sensitive": false
+        },
+        {
+          "name": "模型名称",
+          "type": "text",
+          "required": false,
+          "constraints": "<=200 characters; model calls require nonblank model and baseURL.",
+          "sensitive": false
+        },
+        {
+          "name": "API 密钥",
+          "type": "password",
+          "required": false,
+          "constraints": "<=8192 chars; no CR/LF. Blank normally retains; clear checkbox sends removal; provider/address change clears stored credential.",
+          "sensitive": true
+        },
+        {
+          "name": "清除已保存密钥",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "允许发送至非本机模型",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "remoteContentAllowed required boolean; explicit permission needed to send actual note content off-loopback.",
+          "sensitive": false
+        },
+        {
+          "name": "自动分析内容变化",
+          "type": "switch",
+          "required": true,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "结构化输出",
+          "type": "select",
+          "required": false,
+          "constraints": "schema | json",
+          "sensitive": false
+        },
+        {
+          "name": "超时（毫秒）",
+          "type": "integer",
+          "required": true,
+          "constraints": "100–120000 inclusive; UIstep1000.",
+          "sensitive": false
+        },
+        {
+          "name": "单次输入字符上限",
+          "type": "integer",
+          "required": true,
+          "constraints": "100–50000 inclusive; UIstep1000.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "保存设置",
+          "effect": "Update configuration with expectedVersion",
+          "api": "PUT /api/graph/settings",
+          "guard": "!busy; valid server settings; stale version rejected"
+        },
+        {
+          "label": "测试已保存连接",
+          "effect": "Test saved config using synthetic text",
+          "api": "POST /api/graph/settings/test",
+          "guard": "Disabled if form dirty or busy"
+        },
+        {
+          "label": "重新加载配置",
+          "effect": "Initialize missing config",
+          "api": "GET /api/graph/settings",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31)."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-089"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排七个独立模型设置局部样例，长画布保持完整清楚中文，留白细线分开，不加说明标题或宿主。\n第一行：标签“提供方”下拉“基础本地分析”；“自动分析内容变化”开关关闭；收起“高级参数”；“保存设置”“测试已保存连接”均可用。没有服务地址、模型、密钥或发送许可字段。\n第二行：标签“提供方”下拉“Ollama · 本地模型”；依次“服务地址”值“http://127.0.0.1:11434”，帮助“填写 DooKnow 服务器能够访问的基础地址。”；“模型名称”值“example-model”；“API 密钥”空密码框placeholder“选填”；未勾选“允许将笔记内容发送到非本机模型服务”；帮助“测试连接使用合成文本；密钥仅加密保存在本机。”；“自动分析内容变化”开关开启；“高级参数”收起；“保存设置”“测试已保存连接”均可用，无已存密钥清除框。\n第三行：提供方“OpenAI 兼容 API”，服务地址“https://model.example.invalid”，相同基础地址帮助，模型名称“example-model”，API密钥只用掩码“••••••••”，已勾选“允许将笔记内容发送到非本机模型服务”，相同合成文本帮助，自动分析开启，高级参数收起；“保存设置”可用，“测试已保存连接”灰色禁用。\n第四行：独立密钥局部，标签“API 密钥”，空密码框placeholder“已配置，留空保留”，未勾选“清除已保存密钥”；没有真实密钥或自动替换说明。\n第五行：可用“测试已保存连接”按钮与普通状态文字“连接成功”。\n第六行：独立全局错误提示条“模型设置已变化，请重新打开设置后重试”，旁可用文字按钮“重试”，没有新增版本输入或字段内错误框。\n第七行：空态“正在读取模型配置…”与可用“重新加载配置”按钮，没有其它表单字段。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M012.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-089",
+      "title": "Graph model configuration modal",
+      "kind": "dialog",
+      "module": "graph",
+      "entry": {
+        "route": "/?view=apps&app=graph",
+        "trigger": "模型设置",
+        "parentId": "WS-085"
+      },
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:1029",
+        "apps/server/graph/semantic-routes.ts:131",
+        "packages/core/graph/model.ts:244",
+        "packages/core/graph/analysis-source.ts:31"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31)."
+      ],
+      "fields": [
+        {
+          "name": "提供方",
+          "type": "select",
+          "required": true,
+          "constraints": "none | ollama | openai-compatible",
+          "sensitive": false
+        },
+        {
+          "name": "服务地址",
+          "type": "url",
+          "required": false,
+          "constraints": "<=2048 characters; http/https only, no credentials/query/hash. HTTP allowed loopback, or Ollama private IPv4 LAN. Conditional provider fields hidden when none.",
+          "sensitive": false
+        },
+        {
+          "name": "模型名称",
+          "type": "text",
+          "required": false,
+          "constraints": "<=200 characters; model calls require nonblank model and baseURL.",
+          "sensitive": false
+        },
+        {
+          "name": "API 密钥",
+          "type": "password",
+          "required": false,
+          "constraints": "<=8192 chars; no CR/LF. Blank normally retains; clear checkbox sends removal; provider/address change clears stored credential.",
+          "sensitive": true
+        },
+        {
+          "name": "清除已保存密钥",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "允许发送至非本机模型",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "remoteContentAllowed required boolean; explicit permission needed to send actual note content off-loopback.",
+          "sensitive": false
+        },
+        {
+          "name": "自动分析内容变化",
+          "type": "switch",
+          "required": true,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "结构化输出",
+          "type": "select",
+          "required": false,
+          "constraints": "schema | json",
+          "sensitive": false
+        },
+        {
+          "name": "超时（毫秒）",
+          "type": "integer",
+          "required": true,
+          "constraints": "100–120000 inclusive; UIstep1000.",
+          "sensitive": false
+        },
+        {
+          "name": "单次输入字符上限",
+          "type": "integer",
+          "required": true,
+          "constraints": "100–50000 inclusive; UIstep1000.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存设置",
+          "effect": "Update configuration with expectedVersion",
+          "api": "PUT /api/graph/settings",
+          "guard": "!busy; valid server settings; stale version rejected"
+        },
+        {
+          "label": "测试已保存连接",
+          "effect": "Test saved config using synthetic text",
+          "api": "POST /api/graph/settings/test",
+          "guard": "Disabled if form dirty or busy"
+        },
+        {
+          "label": "重新加载配置",
+          "effect": "Initialize missing config",
+          "api": "GET /api/graph/settings",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Loading/unavailable config",
+        "Provider-dependent fields",
+        "Saved secret configured",
+        "Unsaved changes close guard",
+        "Test success/failure",
+        "Version conflict/invalid address/remote permission error"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "testRefs": [
+        "tests/graph-model.test.ts",
+        "tests/e2e/knowledge-graph-full.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-089",
+      "parentId": "WS-085",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-089",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-089",
+      "state": "Loading/unavailable config",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-089",
+      "state": "Provider-dependent fields",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-089",
+      "state": "Saved secret configured",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-089",
+      "state": "Unsaved changes close guard",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-089",
+      "state": "Test success/failure",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-089",
+      "state": "Version conflict/invalid address/remote permission error",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-M012",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "r1 provider none conditional fields absent",
+    "r2 saved clean Ollama no saved key",
+    "r3 OpenAI-compatible new masked key dirty and explicit remote consent",
+    "r4 configured stored key blank placeholder and clear checkbox",
+    "r5 successful saved-connection test",
+    "r6 global model settings conflict alert",
+    "r7 draft missing loading with reload action"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排七个独立模型设置局部样例，长画布保持完整清楚中文，留白细线分开，不加说明标题或宿主。\n第一行：标签“提供方”下拉“基础本地分析”；“自动分析内容变化”开关关闭；收起“高级参数”；“保存设置”“测试已保存连接”均可用。没有服务地址、模型、密钥或发送许可字段。\n第二行：标签“提供方”下拉“Ollama · 本地模型”；依次“服务地址”值“http://127.0.0.1:11434”，帮助“填写 DooKnow 服务器能够访问的基础地址。”；“模型名称”值“example-model”；“API 密钥”空密码框placeholder“选填”；未勾选“允许将笔记内容发送到非本机模型服务”；帮助“测试连接使用合成文本；密钥仅加密保存在本机。”；“自动分析内容变化”开关开启；“高级参数”收起；“保存设置”“测试已保存连接”均可用，无已存密钥清除框。\n第三行：提供方“OpenAI 兼容 API”，服务地址“https://model.example.invalid”，相同基础地址帮助，模型名称“example-model”，API密钥只用掩码“••••••••”，已勾选“允许将笔记内容发送到非本机模型服务”，相同合成文本帮助，自动分析开启，高级参数收起；“保存设置”可用，“测试已保存连接”灰色禁用。\n第四行：独立密钥局部，标签“API 密钥”，空密码框placeholder“已配置，留空保留”，未勾选“清除已保存密钥”；没有真实密钥或自动替换说明。\n第五行：可用“测试已保存连接”按钮与普通状态文字“连接成功”。\n第六行：独立全局错误提示条“模型设置已变化，请重新打开设置后重试”，旁可用文字按钮“重试”，没有新增版本输入或字段内错误框。\n第七行：空态“正在读取模型配置…”与可用“重新加载配置”按钮，没有其它表单字段。",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-M012 Graph model configuration modal — compact component state matrix\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-089\", \"title\": \"Graph model configuration modal — compact component state matrix\", \"role\": \"authenticated owner\", \"state\": \"GraphWorkspace.vue modelDraft provider/settings/secret/consent/test regions; full dense form appears once separately.\", \"presentation\": \"ONE compact component matrix, not multiple simultaneously open full windows\", \"rows\": [{\"label\": \"row-1\", \"sourceId\": \"WS-089\", \"title\": \"Graph model configuration modal\", \"role\": \"authenticated owner\", \"state\": \"Provider none; conditional provider fields hidden\", \"actionPresentation\": \"Keep all actual config controls and expectedVersion guard; test saved connection disabled if dirty or state.busy. Do not display a real credential, request version input, or false remote-content consent.\", \"sourceComponent\": \"apps/web/components/GraphWorkspace.vue\"}, {\"label\": \"row-2\", \"sourceId\": \"WS-089\", \"title\": \"Graph model configuration modal\", \"role\": \"authenticated owner\", \"state\": \"Ollama provider configuration\", \"actionPresentation\": \"Keep all actual config controls and expectedVersion guard; test saved connection disabled if dirty or state.busy. Do not display a real credential, request version input, or false remote-content consent.\", \"sourceComponent\": \"apps/web/components/GraphWorkspace.vue\"}, {\"label\": \"row-3\", \"sourceId\": \"WS-089\", \"title\": \"Graph model configuration modal\", \"role\": \"authenticated owner\", \"state\": \"OpenAI-compatible provider configuration\", \"actionPresentation\": \"Keep all actual config controls and expectedVersion guard; test saved connection disabled if dirty or state.busy. Do not display a real credential, request version input, or false remote-content consent.\", \"sourceComponent\": \"apps/web/components/GraphWorkspace.vue\"}, {\"label\": \"row-4\", \"sourceId\": \"WS-089\", \"title\": \"Graph model configuration modal\", \"role\": \"authenticated owner\", \"state\": \"Saved masked credential and clear-key checkbox\", \"actionPresentation\": \"Keep all actual config controls and expectedVersion guard; test saved connection disabled if dirty or state.busy. Do not display a real credential, request version input, or false remote-content consent.\", \"sourceComponent\": \"apps/web/components/GraphWorkspace.vue\"}, {\"label\": \"row-5\", \"sourceId\": \"WS-089\", \"title\": \"Graph model configuration modal\", \"role\": \"authenticated owner\", \"state\": \"Connection test success/failure feedback\", \"actionPresentation\": \"Keep all actual config controls and expectedVersion guard; test saved connection disabled if dirty or state.busy. Do not display a real credential, request version input, or false remote-content consent.\", \"sourceComponent\": \"apps/web/components/GraphWorkspace.vue\"}, {\"label\": \"row-6\", \"sourceId\": \"WS-089\", \"title\": \"Graph model configuration modal\", \"role\": \"authenticated owner\", \"state\": \"Version/address/remote-consent validation error\", \"actionPresentation\": \"Keep all actual config controls and expectedVersion guard; test saved connection disabled if dirty or state.busy. Do not display a real credential, request version input, or false remote-content consent.\", \"sourceComponent\": \"apps/web/components/GraphWorkspace.vue\"}]}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-089\", \"fieldsInOrder\": [{\"name\": \"提供方\", \"type\": \"select\", \"required\": true, \"constraints\": \"none | ollama | openai-compatible\", \"sensitive\": false}, {\"name\": \"服务地址\", \"type\": \"url\", \"required\": false, \"constraints\": \"<=2048 characters; http/https only, no credentials/query/hash. HTTP allowed loopback, or Ollama private IPv4 LAN. Conditional provider fields hidden when none.\", \"sensitive\": false}, {\"name\": \"模型名称\", \"type\": \"text\", \"required\": false, \"constraints\": \"<=200 characters; model calls require nonblank model and baseURL.\", \"sensitive\": false}, {\"name\": \"API 密钥\", \"type\": \"password\", \"required\": false, \"constraints\": \"<=8192 chars; no CR/LF. Blank normally retains; clear checkbox sends removal; provider/address change clears stored credential.\", \"sensitive\": true}, {\"name\": \"清除已保存密钥\", \"type\": \"checkbox\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"允许发送至非本机模型\", \"type\": \"checkbox\", \"required\": true, \"constraints\": \"remoteContentAllowed required boolean; explicit permission needed to send actual note content off-loopback.\", \"sensitive\": false}, {\"name\": \"自动分析内容变化\", \"type\": \"switch\", \"required\": true, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"结构化输出\", \"type\": \"select\", \"required\": false, \"constraints\": \"schema | json\", \"sensitive\": false}, {\"name\": \"超时（毫秒）\", \"type\": \"integer\", \"required\": true, \"constraints\": \"100–120000 inclusive; UIstep1000.\", \"sensitive\": false}, {\"name\": \"单次输入字符上限\", \"type\": \"integer\", \"required\": true, \"constraints\": \"100–50000 inclusive; UIstep1000.\", \"sensitive\": false}], \"actions\": [{\"label\": \"保存设置\", \"effect\": \"Update configuration with expectedVersion\", \"api\": \"PUT /api/graph/settings\", \"guard\": \"!busy; valid server settings; stale version rejected\"}, {\"label\": \"测试已保存连接\", \"effect\": \"Test saved config using synthetic text\", \"api\": \"POST /api/graph/settings/test\", \"guard\": \"Disabled if form dirty or busy\"}, {\"label\": \"重新加载配置\", \"effect\": \"Initialize missing config\", \"api\": \"GET /api/graph/settings\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading/unavailable config\", \"Provider-dependent fields\", \"Saved secret configured\", \"Unsaved changes close guard\", \"Test success/failure\", \"Version conflict/invalid address/remote permission error\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:1029, apps/server/graph/semantic-routes.ts:131, packages/core/graph/model.ts:244, packages/core/graph/analysis-source.ts:31",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:1029, apps/server/graph/semantic-routes.ts:131, packages/core/graph/model.ts:244, packages/core/graph/analysis-source.ts:31",
+      "sha256": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M012.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-8277558a-7f8a-491c-aa0c-ed79923aa1a9.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-8277558a-7f8a-491c-aa0c-ed79923aa1a9.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T06:03:52.548Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Conditional provider/secret/consent controls and dirty-test guard; real global error slot and missing-draft reload kept.",
+    "concerns": []
+  },
+  "sha256": "7bd035134b51a6e8450c2279c234830f55bdc5c2e67b74fec4ebf5f161d060bf",
+  "dimensions": {
+    "width": 1024,
+    "height": 1536
+  },
+  "bytes": 1314468,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e"
+    },
+    {
+      "path": "apps/server/graph/semantic-routes.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "0f4d81250bee2aa5d27fdfd65bb5209f52525fdec1275f8ac680e17f7ea8f12a"
+    },
+    {
+      "path": "packages/core/graph/model.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "b11ebeed7ad8ceb63ac553ef4b035b6ad06ebccd25daa1e711663801a8133b6c"
+    },
+    {
+      "path": "packages/core/graph/analysis-source.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "c87083ae267c60d4d876a82ca93d7f51d87cb6156f7f325c778fe3e77362eca1"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived local specimens, synthetic counters/providers/model values. No model call, credential save, test, task command or responsive runtime executed.",
+  "exactSharedPatternBindings": {
+    "testFailure": {
+      "visible": false,
+      "renderer": "same p.graph-feedback role=status",
+      "message": "连接未成功，请检查服务地址、模型名称与发送许可。",
+      "guard": "test result ok=false, same saved clean config; test button not busy/dirty"
+    },
+    "invalidSettings": {
+      "visible": false,
+      "renderer": "same global GraphWorkspace state.error AAlert type=error + retry",
+      "message": "模型配置格式不正确，请检查地址、模型名称和高级参数"
+    },
+    "remotePermission": {
+      "visible": false,
+      "renderer": "same global error slot",
+      "message": "向此地址发送资料前，请在模型设置中明确允许"
+    }
+  },
+  "sourceCorrection": "Save/test rejection errors are global GraphWorkspace error slot, not new form-field alerts. Dirty close guard is assigned separate GEN051 WS-M017, not claimed by these seven rows."
+}

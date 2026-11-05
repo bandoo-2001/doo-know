@@ -1,0 +1,307 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R040",
+  "assetId": "MP-R040",
+  "sourceIds": [
+    "ST-083"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-083",
+      "title": "Git实际插件：提交全部变更390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three PluginPanel git.commitPanel local commit-only windows at390/320/320: initial blank message preview button enabled; current one-file preview+partial-staging count/expiry confirmation; uncertain true busyfalse message/cancel disabled but preview button still enabled (handler rejects), reconcile confirmation enabled. Container close always available; no push/diff UI."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-083",
+      "title": "Git实际插件：提交全部变更320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three PluginPanel git.commitPanel local commit-only windows at390/320/320: initial blank message preview button enabled; current one-file preview+partial-staging count/expiry confirmation; uncertain true busyfalse message/cancel disabled but preview button still enabled (handler rejects), reconcile confirmation enabled. Container close always available; no push/diff UI."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-083",
+      "title": "Git实际插件：提交全部变更320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three PluginPanel git.commitPanel local commit-only windows at390/320/320: initial blank message preview button enabled; current one-file preview+partial-staging count/expiry confirmation; uncertain true busyfalse message/cancel disabled but preview button still enabled (handler rejects), reconcile confirmation enabled. Container close always available; no push/diff UI."
+    }
+  ],
+  "selectedState": "Three PluginPanel git.commitPanel local commit-only windows at390/320/320: initial blank message preview button enabled; current one-file preview+partial-staging count/expiry confirmation; uncertain true busyfalse message/cancel disabled but preview button still enabled (handler rejects), reconcile confirmation enabled. Container close always available; no push/diff UI.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制并排三个完整独立窄网页插件浮窗，宽比例390、320、320，白灰蓝细边框，标题“提交全部变更”，右上文字按钮“关闭”始终可用，没有X、没有系统窗口。正文提示“提交包含暂存、未暂存和未忽略的新增、删除。部分暂存文件使用当前工作树的完整版本。”。左窗字段标签“提交说明”，三行空textarea占位填写提交说明，下面可用“预览全部变更”，即使空文本按钮也不要灰；没有预览时不画确认或取消预览。中窗同textarea值更新示例笔记，可用预览全部变更；下面预览1 项文件变更、预览有效至 15:00:00；黄色提示“以下部分暂存文件将提交完整当前版本：00-Inbox/示例笔记.md”；只读文件列表“M · 00-Inbox/示例笔记.md”；可用蓝色确认提交、普通取消预览。右窗同中保留预览和文案，顶部红色“请先核对上一次提交结果”，textarea值保留但禁用；预览全部变更仍可用，蓝主按钮变为可用“核对提交结果”，取消预览灰禁用，右上关闭仍可用。各窗正文独立滚动，按钮自然换行，不加差异视图、推送、署名字段、协议输入、百分比或已完成结果。",
+  "prompt": "绘制并排三个完整独立窄网页插件浮窗，宽比例390、320、320，白灰蓝细边框，标题“提交全部变更”，右上文字按钮“关闭”始终可用，没有X、没有系统窗口。正文提示“提交包含暂存、未暂存和未忽略的新增、删除。部分暂存文件使用当前工作树的完整版本。”。左窗字段标签“提交说明”，三行空textarea占位填写提交说明，下面可用“预览全部变更”，即使空文本按钮也不要灰；没有预览时不画确认或取消预览。中窗同textarea值更新示例笔记，可用预览全部变更；下面预览1 项文件变更、预览有效至 15:00:00；黄色提示“以下部分暂存文件将提交完整当前版本：00-Inbox/示例笔记.md”；只读文件列表“M · 00-Inbox/示例笔记.md”；可用蓝色确认提交、普通取消预览。右窗同中保留预览和文案，顶部红色“请先核对上一次提交结果”，textarea值保留但禁用；预览全部变更仍可用，蓝主按钮变为可用“核对提交结果”，取消预览灰禁用，右上关闭仍可用。各窗正文独立滚动，按钮自然换行，不加差异视图、推送、署名字段、协议输入、百分比或已完成结果。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制并排三个完整独立窄网页插件浮窗，宽比例390、320、320，白灰蓝细边框，标题“提交全部变更”，右上文字按钮“关闭”始终可用，没有X、没有系统窗口。正文提示“提交包含暂存、未暂存和未忽略的新增、删除。部分暂存文件使用当前工作树的完整版本。”。左窗字段标签“提交说明”，三行空textarea占位填写提交说明，下面可用“预览全部变更”，即使空文本按钮也不要灰；没有预览时不画确认或取消预览。中窗同textarea值更新示例笔记，可用预览全部变更；下面预览1 项文件变更、预览有效至 15:00:00；黄色提示“以下部分暂存文件将提交完整当前版本：00-Inbox/示例笔记.md”；只读文件列表“M · 00-Inbox/示例笔记.md”；可用蓝色确认提交、普通取消预览。右窗同中保留预览和文案，顶部红色“请先核对上一次提交结果”，textarea值保留但禁用；预览全部变更仍可用，蓝主按钮变为可用“核对提交结果”，取消预览灰禁用，右上关闭仍可用。各窗正文独立滚动，按钮自然换行，不加差异视图、推送、署名字段、协议输入、百分比或已完成结果。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制并排三个完整独立窄网页插件浮窗，宽比例390、320、320，白灰蓝细边框，标题“提交全部变更”，右上文字按钮“关闭”始终可用，没有X、没有系统窗口。正文提示“提交包含暂存、未暂存和未忽略的新增、删除。部分暂存文件使用当前工作树的完整版本。”。左窗字段标签“提交说明”，三行空textarea占位填写提交说明，下面可用“预览全部变更”，即使空文本按钮也不要灰；没有预览时不画确认或取消预览。中窗同textarea值更新示例笔记，可用预览全部变更；下面预览1 项文件变更、预览有效至 15:00:00；黄色提示“以下部分暂存文件将提交完整当前版本：00-Inbox/示例笔记.md”；只读文件列表“M · 00-Inbox/示例笔记.md”；可用蓝色确认提交、普通取消预览。右窗同中保留预览和文案，顶部红色“请先核对上一次提交结果”，textarea值保留但禁用；预览全部变更仍可用，蓝主按钮变为可用“核对提交结果”，取消预览灰禁用，右上关闭仍可用。各窗正文独立滚动，按钮自然换行，不加差异视图、推送、署名字段、协议输入、百分比或已完成结果。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ccd39af2-fb90-493e-b3f9-85c115f37ed2.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-083",
+      "title": "Git实际插件：提交全部变更",
+      "kind": "dialog",
+      "module": "plugins/git",
+      "entry": {
+        "route": "工作区当前路由",
+        "trigger": "libraryAction“提交全部变更”→git.commitPanel（notePanel贡献）",
+        "parentId": "ST-056"
+      },
+      "sourceRefs": [
+        "plugins/git/web/index.ts:207",
+        "plugins/git/web/index.ts:214",
+        "plugins/git/web/index.ts:291"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "Git提交说明",
+          "type": "textarea",
+          "required": true,
+          "constraints": "trim非空；服务器≤8192 UTF8字节、无NUL",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "预览全部变更",
+          "effect": "生成预览token及新requestId",
+          "api": "POST /api/plugins/git/call command:git.preview",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "确认提交 / 核对提交结果",
+          "effect": "幂等提交原预览",
+          "api": "POST /api/plugins/git/call command:git.commit",
+          "guard": "须preview且message一致；未已有result"
+        },
+        {
+          "label": "取消预览",
+          "effect": "取消未提交预览",
+          "api": "POST /api/plugins/git/call command:git.cancelPreview",
+          "guard": "不busy、无result、无uncertain"
+        }
+      ],
+      "importantStates": [
+        "无预览输入",
+        "服务错误",
+        "预览ST-084",
+        "提交未知锁消息",
+        "已完成/生成但需核对暂存区"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/git.spec.ts:7",
+        "tests/git-web-regressions.test.ts:155"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "与ST-078云端提交并推送不同：本贡献只提交，不自动推送。PluginPanel容器本身未感知busy。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-083",
+      "parentId": "ST-056",
+      "route": "工作区当前路由",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "plugins/git/web/index.ts:207",
+        "plugins/git/web/index.ts:214",
+        "plugins/git/web/index.ts:291"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-039.json#MP-R040",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R040",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ccd39af2-fb90-493e-b3f9-85c115f37ed2.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R040.png",
+  "sha256": "f52681e945baf5b315aba22b323622a859cbc4c96a2f0cc8fa896b177394ed20",
+  "bytes": 1330581,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:50:49.989200+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: plugins/git/web/index.ts commit message/current-preview/result region",
+    "sourceIds": [
+      "ST-083"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three PluginPanel git.commitPanel local commit-only windows at390/320/320: initial blank message preview button enabled; current one-file preview+partial-staging count/expiry confirmation; uncertain true busyfalse message/cancel disabled but preview button still enabled (handler rejects), reconcile confirmation enabled. Container close always available; no push/diff UI.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "message": "",
+      "preview": null,
+      "busy": false,
+      "uncertain": false,
+      "previewButtonEnabled": true,
+      "containerCloseEnabled": true
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "message": "更新示例笔记",
+      "preview": {
+        "message": "更新示例笔记",
+        "changes": [
+          {
+            "code": "M",
+            "path": "00-Inbox/示例笔记.md"
+          }
+        ],
+        "partialStaging": [
+          "00-Inbox/示例笔记.md"
+        ],
+        "expiresAt": "15:00:00"
+      },
+      "result": null,
+      "busy": false,
+      "uncertain": false
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "message": "更新示例笔记",
+      "preview": "same B",
+      "result": null,
+      "busy": false,
+      "uncertain": true,
+      "error": "请先核对上一次提交结果",
+      "previewButtonEnabled": true,
+      "confirmEnabled": true,
+      "cancelDisabled": true,
+      "containerCloseEnabled": true
+    }
+  ]
+}

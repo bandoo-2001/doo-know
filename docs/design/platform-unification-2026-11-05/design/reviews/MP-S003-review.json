@@ -1,0 +1,61 @@
+{
+  "assetId": "MP-S003",
+  "sourceIds": [
+    "ST-003",
+    "ST-040",
+    "ST-038",
+    "ST-039"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T04:02:14.974284+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Six independent search runtime excerpts: unavailable distribution, initialloading, split readiness, advancedinfo, status-readfailure, downloading40/200MiB.",
+  "functionalFindings": [
+    {
+      "id": "MP-S003-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "r1 maps ST-040 preparation 失败/取消/中断 to the no-distribution note. Task failure/cancel/interruption actually renders phase text plus task-error AAlert (with distinct retained-download explanations/details) and state-dependent 重新准备 action. None of these appears in the no-distribution specimen; r5 is only status-read failure.",
+      "sourceEvidence": "SearchRuntimeSettings.vue runtime-task AAlert v-if=state.task.error uses taskErrorDescription and phase cancelled info vs warning, distinct from statusError; available failed task labels prepare as重新准备."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Six visible excerpts preserve genuine fields/actions/read-only data, text vs semantic readiness and downloading cancel guard.",
+    "Initial status-read warning is distinct from task errors; no operational success or protocol input fabricated."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-022.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S003.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/SearchRuntimeSettings.vue:17",
+    "apps/web/components/SearchRuntimeSettings.vue:95",
+    "apps/web/components/SearchRuntimeSettings.vue:166",
+    "apps/web/components/SearchRuntimeSettings.vue:172"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "MP-S003-F1",
+      "correction": "Add or substitute a compact genuine task-failure/error specimen with phase label, source taskErrorDescription/details and correct 重新准备/check controls. Preserve separate cancellation/interruption text/type/guards explicitly as same-renderer bindings, and keep no-distribution r1 mapped only to that actual branch."
+    }
+  ],
+  "reviewedImageSha256": "fdb9059d4f40d9e411ec137e57cbd10ac58a58f60830971fb90bf9b3368ab9af",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S003.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

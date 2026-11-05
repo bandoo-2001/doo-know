@@ -1,0 +1,384 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R020",
+  "assetId": "MP-R020",
+  "sourceIds": [
+    "ST-049"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-049",
+      "title": "MCP插件配置内页390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent narrow local scroll regions of installed disabled MCP PluginManager: A390 header/lifecycle plus actual Guide upper region; B320 complete modern-policy form KB read/all,blog/off,ToDoo/off, OAuth/API on, disabled task selectors and blank URL; C320 remote config conflict retaining editable OAuth/API/URL, enable/save disabled re-load available. No legacy fields when permissionPolicy present. Guide/API child structure separately represented MP-R024, no collapsed fake guide."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-049",
+      "title": "MCP插件配置内页320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent narrow local scroll regions of installed disabled MCP PluginManager: A390 header/lifecycle plus actual Guide upper region; B320 complete modern-policy form KB read/all,blog/off,ToDoo/off, OAuth/API on, disabled task selectors and blank URL; C320 remote config conflict retaining editable OAuth/API/URL, enable/save disabled re-load available. No legacy fields when permissionPolicy present. Guide/API child structure separately represented MP-R024, no collapsed fake guide."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-049",
+      "title": "MCP插件配置内页320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent narrow local scroll regions of installed disabled MCP PluginManager: A390 header/lifecycle plus actual Guide upper region; B320 complete modern-policy form KB read/all,blog/off,ToDoo/off, OAuth/API on, disabled task selectors and blank URL; C320 remote config conflict retaining editable OAuth/API/URL, enable/save disabled re-load available. No legacy fields when permissionPolicy present. Guide/API child structure separately represented MP-R024, no collapsed fake guide."
+    }
+  ],
+  "selectedState": "Three independent narrow local scroll regions of installed disabled MCP PluginManager: A390 header/lifecycle plus actual Guide upper region; B320 complete modern-policy form KB read/all,blog/off,ToDoo/off, OAuth/API on, disabled task selectors and blank URL; C320 remote config conflict retaining editable OAuth/API/URL, enable/save disabled re-load available. No legacy fields when permissionPolicy present. Guide/API child structure separately represented MP-R024, no collapsed fake guide.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制横向并排三个独立窄网页设置局部，宽比例390、320、320，白灰蓝平面、细边框，各有明确纵向滚动边界，不画主人全局导航。第三参考只作实际控件内容。左上部滚动位置：返回插件列表、刷新插件状态；MCP 服务设置；调整插件参数，管理运行状态。 · 已停用；请先保存配置，再启用插件。保存本身不会启用连接。；启用插件和卸载插件可用，折叠插件能力与版本。下方实际MCP 连接区域：说明通过 OAuth 或独立 API Key，将支持 MCP 的客户端连接到你授权的业务与资源。、检查本机连接条件；四项进度纵向排列：1. 配置/配置已保存，插件尚未启用；2. 本机服务/需要完成下方准备；3. 网络可达/外部连接尚未验证；4. 工具调用/尚未确认工具调用；说明本机状态不能验证外部网络可达性。历史调用不代表客户端当前在线。；OAuth 接入选中、API Key 接入未选中；该区域下面可继续滚动，不新增折叠整个MCP连接的控件。中列为同页表单下部独立滚动位置：知识库开关开，知识库能力预设=只读，知识库资源范围=整个知识库，原有目录授权说明，折叠独立权限与高级选项；博客开关关、To Doo开关关；说明插件权限是客户端能力上限。收窄后下次调用立即受限；扩大后已有客户端须重新授权一次。；启用 OAuth 连接开、启用 API Key 连接开，均选填；允许访问的 To Doo 清单=全部清单，可选择缩小范围，灰色禁用；允许的 To Doo 内容=任务与目标，灰色禁用；两选择框各保留实际范围说明；外部网页地址空白可用、选填，提示可选的 HTTPS 网页地址，用于返回可访问的资料链接。留空不返回网页链接。；保存插件配置可用。右列独立冲突局部：启用插件禁用、卸载插件可用；黄色“已保存配置在其他位置发生变化”，说明当前输入已保留。请先重新载入最新配置，再检查并重新填写需要保留的更改。，可用按钮重新载入已保存配置；保留启用 OAuth 连接开、启用 API Key 连接关、外部网页地址https://example.invalid且均可编辑，保存插件配置禁用。每列字段文字窄屏换行，不加旧版兼容字段、JSON、密码、安装、连接成功或隐含重启按钮。",
+  "prompt": "绘制横向并排三个独立窄网页设置局部，宽比例390、320、320，白灰蓝平面、细边框，各有明确纵向滚动边界，不画主人全局导航。第三参考只作实际控件内容。左上部滚动位置：返回插件列表、刷新插件状态；MCP 服务设置；调整插件参数，管理运行状态。 · 已停用；请先保存配置，再启用插件。保存本身不会启用连接。；启用插件和卸载插件可用，折叠插件能力与版本。下方实际MCP 连接区域：说明通过 OAuth 或独立 API Key，将支持 MCP 的客户端连接到你授权的业务与资源。、检查本机连接条件；四项进度纵向排列：1. 配置/配置已保存，插件尚未启用；2. 本机服务/需要完成下方准备；3. 网络可达/外部连接尚未验证；4. 工具调用/尚未确认工具调用；说明本机状态不能验证外部网络可达性。历史调用不代表客户端当前在线。；OAuth 接入选中、API Key 接入未选中；该区域下面可继续滚动，不新增折叠整个MCP连接的控件。中列为同页表单下部独立滚动位置：知识库开关开，知识库能力预设=只读，知识库资源范围=整个知识库，原有目录授权说明，折叠独立权限与高级选项；博客开关关、To Doo开关关；说明插件权限是客户端能力上限。收窄后下次调用立即受限；扩大后已有客户端须重新授权一次。；启用 OAuth 连接开、启用 API Key 连接开，均选填；允许访问的 To Doo 清单=全部清单，可选择缩小范围，灰色禁用；允许的 To Doo 内容=任务与目标，灰色禁用；两选择框各保留实际范围说明；外部网页地址空白可用、选填，提示可选的 HTTPS 网页地址，用于返回可访问的资料链接。留空不返回网页链接。；保存插件配置可用。右列独立冲突局部：启用插件禁用、卸载插件可用；黄色“已保存配置在其他位置发生变化”，说明当前输入已保留。请先重新载入最新配置，再检查并重新填写需要保留的更改。，可用按钮重新载入已保存配置；保留启用 OAuth 连接开、启用 API Key 连接关、外部网页地址https://example.invalid且均可编辑，保存插件配置禁用。每列字段文字窄屏换行，不加旧版兼容字段、JSON、密码、安装、连接成功或隐含重启按钮。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+      "role": "Actual mobile parent only",
+      "sha256": "fcadab6d4ed2b937d207abd375e9e0bb6c57bf2a156a7af8530e3df1bf3edf39",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D038.png",
+      "role": "Reviewed exact same modern MCP PluginManager content/layout, responsive positions source-derived",
+      "sha256": "8fd98a86e358ae659eaa0ca1dc86b6f5581d413f53adfc68665993ebbee1ec79",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+      "role": "Actual mobile parent only",
+      "sha256": "fcadab6d4ed2b937d207abd375e9e0bb6c57bf2a156a7af8530e3df1bf3edf39",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D038.png",
+      "role": "Reviewed exact same modern MCP PluginManager content/layout, responsive positions source-derived",
+      "sha256": "8fd98a86e358ae659eaa0ca1dc86b6f5581d413f53adfc68665993ebbee1ec79",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制横向并排三个独立窄网页设置局部，宽比例390、320、320，白灰蓝平面、细边框，各有明确纵向滚动边界，不画主人全局导航。第三参考只作实际控件内容。左上部滚动位置：返回插件列表、刷新插件状态；MCP 服务设置；调整插件参数，管理运行状态。 · 已停用；请先保存配置，再启用插件。保存本身不会启用连接。；启用插件和卸载插件可用，折叠插件能力与版本。下方实际MCP 连接区域：说明通过 OAuth 或独立 API Key，将支持 MCP 的客户端连接到你授权的业务与资源。、检查本机连接条件；四项进度纵向排列：1. 配置/配置已保存，插件尚未启用；2. 本机服务/需要完成下方准备；3. 网络可达/外部连接尚未验证；4. 工具调用/尚未确认工具调用；说明本机状态不能验证外部网络可达性。历史调用不代表客户端当前在线。；OAuth 接入选中、API Key 接入未选中；该区域下面可继续滚动，不新增折叠整个MCP连接的控件。中列为同页表单下部独立滚动位置：知识库开关开，知识库能力预设=只读，知识库资源范围=整个知识库，原有目录授权说明，折叠独立权限与高级选项；博客开关关、To Doo开关关；说明插件权限是客户端能力上限。收窄后下次调用立即受限；扩大后已有客户端须重新授权一次。；启用 OAuth 连接开、启用 API Key 连接开，均选填；允许访问的 To Doo 清单=全部清单，可选择缩小范围，灰色禁用；允许的 To Doo 内容=任务与目标，灰色禁用；两选择框各保留实际范围说明；外部网页地址空白可用、选填，提示可选的 HTTPS 网页地址，用于返回可访问的资料链接。留空不返回网页链接。；保存插件配置可用。右列独立冲突局部：启用插件禁用、卸载插件可用；黄色“已保存配置在其他位置发生变化”，说明当前输入已保留。请先重新载入最新配置，再检查并重新填写需要保留的更改。，可用按钮重新载入已保存配置；保留启用 OAuth 连接开、启用 API Key 连接关、外部网页地址https://example.invalid且均可编辑，保存插件配置禁用。每列字段文字窄屏换行，不加旧版兼容字段、JSON、密码、安装、连接成功或隐含重启按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D038.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制横向并排三个独立窄网页设置局部，宽比例390、320、320，白灰蓝平面、细边框，各有明确纵向滚动边界，不画主人全局导航。第三参考只作实际控件内容。左上部滚动位置：返回插件列表、刷新插件状态；MCP 服务设置；调整插件参数，管理运行状态。 · 已停用；请先保存配置，再启用插件。保存本身不会启用连接。；启用插件和卸载插件可用，折叠插件能力与版本。下方实际MCP 连接区域：说明通过 OAuth 或独立 API Key，将支持 MCP 的客户端连接到你授权的业务与资源。、检查本机连接条件；四项进度纵向排列：1. 配置/配置已保存，插件尚未启用；2. 本机服务/需要完成下方准备；3. 网络可达/外部连接尚未验证；4. 工具调用/尚未确认工具调用；说明本机状态不能验证外部网络可达性。历史调用不代表客户端当前在线。；OAuth 接入选中、API Key 接入未选中；该区域下面可继续滚动，不新增折叠整个MCP连接的控件。中列为同页表单下部独立滚动位置：知识库开关开，知识库能力预设=只读，知识库资源范围=整个知识库，原有目录授权说明，折叠独立权限与高级选项；博客开关关、To Doo开关关；说明插件权限是客户端能力上限。收窄后下次调用立即受限；扩大后已有客户端须重新授权一次。；启用 OAuth 连接开、启用 API Key 连接开，均选填；允许访问的 To Doo 清单=全部清单，可选择缩小范围，灰色禁用；允许的 To Doo 内容=任务与目标，灰色禁用；两选择框各保留实际范围说明；外部网页地址空白可用、选填，提示可选的 HTTPS 网页地址，用于返回可访问的资料链接。留空不返回网页链接。；保存插件配置可用。右列独立冲突局部：启用插件禁用、卸载插件可用；黄色“已保存配置在其他位置发生变化”，说明当前输入已保留。请先重新载入最新配置，再检查并重新填写需要保留的更改。，可用按钮重新载入已保存配置；保留启用 OAuth 连接开、启用 API Key 连接关、外部网页地址https://example.invalid且均可编辑，保存插件配置禁用。每列字段文字窄屏换行，不加旧版兼容字段、JSON、密码、安装、连接成功或隐含重启按钮。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+          "role": "Actual mobile parent only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D038.png",
+          "role": "Reviewed exact same modern MCP PluginManager content/layout, responsive positions source-derived"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ccbc52ce-8710-455e-a7b5-203dcaf73b2b.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-049",
+      "title": "MCP插件配置内页",
+      "kind": "state",
+      "module": "settings/plugins/mcp",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "MCP服务→配置",
+        "parentId": "ST-047"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:544",
+        "apps/web/components/PluginManager.vue:591",
+        "apps/web/components/PluginManager.vue:634",
+        "plugins/mcp/manifest.json:27"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "启用OAuth连接 / 启用API Key连接",
+          "type": "switch",
+          "required": false,
+          "constraints": "默认均true；保存不自动启用插件",
+          "sensitive": false
+        },
+        {
+          "name": "分域权限",
+          "type": "policy",
+          "required": false,
+          "constraints": "ST-062",
+          "sensitive": false
+        },
+        {
+          "name": "允许访问To Doo清单",
+          "type": "multi-select",
+          "required": false,
+          "constraints": "最多100项，每ID≤128；空=全部",
+          "sensitive": false
+        },
+        {
+          "name": "允许To Doo内容",
+          "type": "multi-select",
+          "required": false,
+          "constraints": "8枚举：tasks/records/focus/habits/anniversaries/calendar/statistics/settings",
+          "sensitive": false
+        },
+        {
+          "name": "外部网页地址",
+          "type": "url",
+          "required": false,
+          "constraints": "可选HTTPS；最长2048；空不返回链接",
+          "sensitive": false
+        },
+        {
+          "name": "旧版兼容设置",
+          "type": "details",
+          "required": false,
+          "constraints": "无permissionPolicy时显示；只读/index/publish/task开关和相对目录最多64项",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存插件配置",
+          "effect": "按configVersion保存；不自动启用",
+          "api": "PUT /api/platform/plugins/mcp/config",
+          "guard": "不busy且无远端冲突"
+        },
+        {
+          "label": "启用插件",
+          "effect": "启用已保存配置",
+          "api": "POST /api/platform/plugins/mcp/enable",
+          "guard": "无dirty、无remoteChanged"
+        },
+        {
+          "label": "停用插件 / 卸载插件",
+          "effect": "暂停运行或打开卸载确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "未启用",
+        "未保存草稿跨插件保留",
+        "配置版本冲突",
+        "重启待生效",
+        "连接指南和实际插件连接调用区域"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/plugin-config.spec.ts:45",
+        "tests/e2e/plugin-config.spec.ts:127",
+        "tests/e2e/plugin-config.spec.ts:185"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "To Doo业务UI不在本次盘点；此处仅MCP权限编辑器的域/清单字段。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-049",
+      "parentId": "ST-047",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:544",
+        "apps/web/components/PluginManager.vue:591",
+        "apps/web/components/PluginManager.vue:634",
+        "plugins/mcp/manifest.json:27"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-037.json#MP-R020",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R020",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ccbc52ce-8710-455e-a7b5-203dcaf73b2b.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R020.png",
+  "sha256": "8ee46b0fc3c53e59a8c6fd2f409474869175202cb03759adf27c8f418b30b8d9",
+  "bytes": 1587031,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:32:06.371829+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: PluginManager.vue MCP full config with conflict banner",
+    "sourceIds": [
+      "ST-049"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent narrow local scroll regions of installed disabled MCP PluginManager: A390 header/lifecycle plus actual Guide upper region; B320 complete modern-policy form KB read/all,blog/off,ToDoo/off, OAuth/API on, disabled task selectors and blank URL; C320 remote config conflict retaining editable OAuth/API/URL, enable/save disabled re-load available. No legacy fields when permissionPolicy present. Guide/API child structure separately represented MP-R024, no collapsed fake guide.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scope": "upper scroll position",
+      "state": "disabled",
+      "dirty": false,
+      "remoteChanged": false
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "scope": "full modern policy and standard fields lower scroll position",
+      "permissionPolicy": {
+        "knowledge": "enabled/read/all",
+        "blog": "disabled",
+        "to-doo": "disabled"
+      },
+      "oauthEnabled": true,
+      "apiKeyEnabled": true,
+      "toDooDomains": [
+        "tasks"
+      ],
+      "toDooListIds": [],
+      "externalWebOrigin": "",
+      "legacyVisible": false
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "scope": "conflict alert and retained standard fields/footer",
+      "state": "disabled",
+      "dirty": true,
+      "remoteChanged": true,
+      "busy": false,
+      "oauthEnabled": true,
+      "apiKeyEnabled": false,
+      "externalWebOrigin": "https://example.invalid"
+    }
+  ]
+}

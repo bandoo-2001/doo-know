@@ -1,0 +1,71 @@
+{
+  "assetId": "MP-R073",
+  "sourceIds": [
+    "PB-046"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:38:30.402769+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner local embedded mobile preview A, expanded desktop preview dialog busy B, retained mobile HTML after preview failure C.",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "panel": "B",
+      "finding": "Desktop iframe has an extra right-side boxed 最新文章 link-list while 关于我 and 精选文章 occupy its left main column. Current homeHtml profile template places only intro in the left profile-sidebar and remaining modules in the right profile-section; journal has one stream, magazine latest/intro/featured span the grid. None renders this additional latest-articles sidebar.",
+      "sourceRefs": [
+        "apps/server/blog/render.ts:109",
+        "apps/server/blog/render.ts:160",
+        "apps/server/blog/styles.ts:168",
+        "apps/server/blog/styles.ts:179",
+        "apps/server/blog/styles.ts:190"
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG/full submitted prompt, real private homepage baseline and current embedded/dialog/iframe templates checked. A/C preserve real device/live/refresh controls and private banner; C failed request can retain previously successful HTML.",
+    "B refresh disabled and generating status coherent, but iframe invents a latest-articles sidebar alongside both intro and featured content. No current homeHtml template yields that additional sidebar structure.",
+    "Actual iframe1100 desktop/375 mobile scaled-to-host, sandbox allow-same-origin without scripts and live debounce/latest-request handling remain source contracts, not measured raster/runtime assertions."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Implement actual dialog close button label 关闭预览, source private-preview closing note, iframe scaling/scroll and Escape/focus behavior. Approximate font sizes and raster ratios alone are not blockers."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-043.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R073.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/blog/BlogDesignStudio.vue:238",
+    "apps/web/components/blog/BlogDesignStudio.vue:313",
+    "apps/web/components/blog/BlogPreviewViewport.vue:34",
+    "apps/web/blog-workbench.ts:454",
+    "apps/server/blog/render.ts:109",
+    "apps/server/blog/styles.ts:168",
+    "apps/server/blog/styles.ts:190",
+    "docs/design/platform-unification-2026-11-05/baseline/public/390-private-blog-preview.png"
+  ],
+  "requiredCorrections": [
+    "B only: replace fabricated 最新文章 sidebar with actual saved/current draft desktop template output. For this profile fixture retain genuine left intro and right featured/later modules from homeHtml; no invented additional latest-post widget. Keep actual device selection,1100px label, busy refresh/status and reachable close action. Do not chase exact raster pixel scale."
+  ],
+  "reviewedImageSha256": "956cfd056ed25755b2e7df16a848a79a3806bf345b9a996222731305dbd99e64",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R073.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "assetId": "MP-S025-v3",
+  "sourceIds": [
+    "ST-064",
+    "ST-065",
+    "ST-066",
+    "ST-067",
+    "ST-068",
+    "ST-072",
+    "ST-070",
+    "ST-071"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:23:24.912138+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Seven corrected API slices including true custom-expiry error and independent blank-name disable.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actualv3 viewed; past customdatetime with validname shows exact future-date error and enabled submit, per expiration precatch/canSubmit.",
+    "Blank-name disabledcreate restored separately, conflict drafts/reload unchanged; initial refresh can retain existing valid clientsummary while initialreaderror hasemptylist.",
+    "Precise bindings: customdate r4; blankname r5; rename409r6; permissions409r7; reading+summaryr1 versusreaderrorr2."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-025.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S025-v3.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/MCPApiClients.vue:65",
+    "apps/web/components/MCPApiClients.vue:168",
+    "apps/web/components/MCPApiClients.vue:185",
+    "docs/design/platform-unification-2026-11-05/design/reviews/MP-S025-review.json"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "ff4eda86b937e675b85b4f437a5b4f9659a79cc2c15d845dffe8fb3d7da618ab",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S025-v3.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "assetId": "WS-VR002",
+  "sourceIds": [
+    "RTD-005",
+    "RTD-010",
+    "RTD-011"
+  ],
+  "reviewer": "independent platform_review_gen048, exclusively assigned GEN049 WS-VR001..004",
+  "reviewedAtUtc": "2026-11-05T10:05:06.537941+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed through tools.view_image; full actual submittedPrompt and exact input duties read, all actual input mothers viewed and SHA-matched to their existing reviews; actual selected runtime baselines viewed; current locked Excalidraw0.18.1 compiled source, platform mount, owner editability and previous targeted vendor-resolution evidence compared. Static content/design review only; no new runtime interaction/tests.",
+  "actualViewMethod": {
+    "tool": "tools.view_image",
+    "image": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-VR002.png",
+    "detail": "high",
+    "boardPanelsActuallyViewed": [
+      "A",
+      "B"
+    ]
+  },
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-VR002.png",
+  "reviewedImageSha256": "e1beefd35e667389ccfefbcc4f9e35a598e99b4b7e156a9a6cf95d111bd0c50d",
+  "reviewedSidecarSha256": "b5e05ed7e14c9577be54dae93534d838516754da40f127b77d20eb20bd8a500d",
+  "reviewedManifestSha256": "c858cdc33ed20c9bfa0574bd71a76a8e7d84dd1607baca580c20a4ff366e5490",
+  "submissionReview": {
+    "completeSubmittedPromptRead": true,
+    "submittedPromptSha256": "d2fec556d8fa533ab7300d6670c6cf0ebe0bb67383a39750fa907e753fba3780",
+    "actualToolArgumentsAndAttemptPromptMatch": true,
+    "defaultToolOutputPathRecorded": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-afd6c2bb-f75e-4f94-ae9a-b5c6bca68923.png",
+    "nativeToolOutputBytesMatchReviewedPng": true
+  },
+  "inputImageChecks": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V002.png",
+      "role": "supporting reference",
+      "sha256": "0cad536631d8dee627bd4ae59097d56641016f5119ba91045e2c7203dcbf660c",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true,
+      "actualSha256": "0cad536631d8dee627bd4ae59097d56641016f5119ba91045e2c7203dcbf660c",
+      "actuallyViewedByReviewer": true,
+      "matchingPriorReview": {
+        "path": "docs/design/platform-unification-2026-11-05/design/reviews/WS-V002-review.json",
+        "sha256": "b41e380cb051af7e7db7e86a8243b0f51a756d2cff920f54bfff1a60ac44b6df",
+        "verdict": "pass"
+      }
+    }
+  ],
+  "baselineChecks": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-find-sidebar.png",
+      "sha256": "297d372269aae254720e9f920fa2e103cce47e80e55801d7e53b0ef72557479d",
+      "actuallyViewed": true,
+      "role": "actual before-unification behavior/content/selected-state evidence; not target style or new runtime acceptance"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-library-menu.png",
+      "sha256": "ecdb2f3fd721ad3d11f126ade730a830050e95e92721a4564ab135603355acb5",
+      "actuallyViewed": true,
+      "role": "actual before-unification behavior/content/selected-state evidence; not target style or new runtime acceptance"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-find-sidebar.png",
+      "sha256": "c6f851363f1562f502b5bd4d46c759f1823e394b207a35a06bacb7fa33450a0f",
+      "actuallyViewed": true,
+      "role": "actual before-unification behavior/content/selected-state evidence; not target style or new runtime acceptance"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-library-panel.png",
+      "sha256": "ab192d543009a19ee0e8297c9bfc012f5a5862ff09438947378f2218d8d6a64f",
+      "actuallyViewed": true,
+      "role": "actual before-unification behavior/content/selected-state evidence; not target style or new runtime acceptance"
+    }
+  ],
+  "selectedState": "Use case:ui-mockup. 依据输入已审局部组件制作两个独立手机Sidebar设计A390/B320，白底浅灰细线8px圆角，正常可读字号。A为Find on canvas侧栏，顶部两个icon tabs（搜索选中、素材库未选）、右上×关闭可达；下方唯一textbox placeholder“Find text on canvas...”为空，下面空白搜索内容，不新增结果计数或搜索按钮。B为素材库侧栏：顶部搜索tab/素材库tab（后者选中）、右上×关闭可达；中央“尚未添加任何项目……”“选中画布上的项目添加到此处，或从下方的公共素材库中导入。”；下方浏览素材库链接与三点本地菜单按钮，菜单已展开且仅一项“打开”。不显示文件选择器、不增导入URL/账户/云同步。两侧栏全部在视口内，限高内部滚动、tab和关闭始终可达；纯局部组件，无DooKnow宿主、目录或底部导航，无设备壳。输入图只三组件内容，A/B需要按手机宽度布局，右侧独立打开菜单合到B作为其锚定popup。",
+  "fieldActionRoleStateChecks": [
+    "A is an empty Find on canvas tab: source-ordered search/library icon tabs, search selected, real close button, one empty textbox with search icon and exact placeholder. No clear X, search-submit action, count, result navigation or no-match message appears without a query.",
+    "B is the mutually exclusive empty library tab: source-ordered tabs/library selected, close, no-items title/hint, actual browse-library anchor styled as primary and three-dot local menu. Open is the only menu item with empty library/no selection; no export/remove/publish/count or OS picker is added.",
+    "Actual1440 find and library-menu baselines confirm content; actual390 find/library screenshots plus JSON show the known mounted-but-offscreen sidebar atx=-295 and closex=-43. This design bounds the local panel and makes existing controls visible; it does not claim RTD-G01 is fixed or its mobile click/focus passed.",
+    "Component fields and conditions compared with locked DefaultSidebar/SearchMenu/SidebarHeader/LibraryDropdownMenu/LibraryMenuItems. Search/library states are independent specimens, not simultaneously active tabs. External library links were not followed and no callback token is displayed."
+  ],
+  "functionalFindings": [],
+  "requiredCorrections": [],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster shading/texture/approximate geometry are illustrative. Implement shared flat CSS palette, thin borders and8px corners; use actual source focus/dismissal/keyboard/conditional guards. Normal text is readable on this design board, which does not measure physical320/390 layout or interaction."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-049.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-VR002.json",
+    "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/whiteboards/canvas.ts:36",
+    "apps/web/components/DiagramDocumentWorkspace.vue:185",
+    "docs/design/platform-unification-2026-11-05/reviews/vendor-attempt-resolution.md",
+    "docs/design/platform-unification-2026-11-05/reviews/vendor-attempt-resolution.json",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:17732",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:18241",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:11603",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:10030",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:11742",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:16828",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:17925",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:11061",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:11512"
+  ],
+  "currentSourceSha256": {
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js": "e10e24df153077770849c7d68f9a8f5db3bb1eb1576d909d1e3c9a5b024d1882",
+    "node_modules/@excalidraw/excalidraw/dist/prod/index.js": "7f651063487849c79a8cdedc3aa6bd04c6b0c717ee63959116f1f12dbc0a51b8",
+    "node_modules/@excalidraw/excalidraw/package.json": "402f54fc7de128b25d22bd4d905fb46dbcdbe2ce6efee567d4da0fc79a29aab1",
+    "package-lock.json": "e224c40bae0c0b2519d0ef5ef956d7fd39e029fb88f27f7bfa7a344462e8d20f",
+    "apps/web/whiteboards/canvas.ts": "421649c508e3da5a25da20249dcbf1fdb889f8efa9f2a3b6adf30440377ab352",
+    "apps/web/components/DiagramDocumentWorkspace.vue": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+  },
+  "vendorRuntimeResolution": {
+    "lockedPackageVersion": "0.18.1",
+    "matchesPriorResolutionSourceHashes": true,
+    "commandPalette": "not mounted by current integration; help may advertise the read-only shortcut",
+    "mobileStats": "not rendered in mobile branch; no phone stats panel authorized",
+    "mobileSidebarGap": "RTD-G01 remains an implementation/runtime issue; bounded artwork does not close it"
+  },
+  "permissionAndPersistenceChecks": [
+    "These are local controls inside the authenticated-owner whiteboard design editor. DiagramDocumentWorkspace mounts only design mode with resource.capabilities.canEdit and no recovered draft; vendor changes call parent editSource through the active epoch guard. No separate admin/member role or public editing capability is introduced.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage are disabled by canvas.ts. App-owned commit/export flows stay separate and are not declared executed by these local menus.",
+    "External links, OS library file picker, embedding, insertion, keyboard commands and persistence were not invoked. No real library callback token, live note content or secret is displayed."
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static PNG and source inspection do not prove physical phone fit/scrolling, focus/keyboard/dismissal behavior, successful actions/conversion, resource permissions enforcement or server/API outcomes.",
+    "Current per-image content verdict does not pass platform-wide coverage/style/provenance gates or authorize implementation.",
+    "Original runtime unsuccessful/offscreen observations remain unchanged; no new browser run or test was performed."
+  ]
+}

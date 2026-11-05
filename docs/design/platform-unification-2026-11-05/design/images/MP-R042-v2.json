@@ -1,0 +1,288 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R042-v2",
+  "assetId": "MP-R042",
+  "sourceIds": [
+    "PB-001"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "unauthenticated visitor"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-001",
+      "title": "登录 DooKnow390px",
+      "role": "unauthenticated visitor",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three standalone visitor Login pages at390/320/320: A actual baseline empty required form disabled and help collapsed; B failed sign-in retains username and masked password, help expanded, submit enabled; C busy locks inputs/submit with spinner, normal visitor help still collapsed. No owner shell/registration/reset/social signup."
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-001",
+      "title": "登录 DooKnow320px",
+      "role": "unauthenticated visitor",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three standalone visitor Login pages at390/320/320: A actual baseline empty required form disabled and help collapsed; B failed sign-in retains username and masked password, help expanded, submit enabled; C busy locks inputs/submit with spinner, normal visitor help still collapsed. No owner shell/registration/reset/social signup."
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-001",
+      "title": "登录 DooKnow320px guard",
+      "role": "unauthenticated visitor",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three standalone visitor Login pages at390/320/320: A actual baseline empty required form disabled and help collapsed; B failed sign-in retains username and masked password, help expanded, submit enabled; C busy locks inputs/submit with spinner, normal visitor help still collapsed. No owner shell/registration/reset/social signup."
+    }
+  ],
+  "selectedState": "Three standalone visitor Login pages at390/320/320: A actual baseline empty required form disabled and help collapsed; B failed sign-in retains username and masked password, help expanded, submit enabled; C busy locks inputs/submit with spinner, normal visitor help still collapsed. No owner shell/registration/reset/social signup.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "只修改两处，保持整图其余不变：最右C列忙态的用户名输入和密码输入都设为明显灰色禁用外观，框底浅灰、文本灰色，值example-owner与密码圆点保留，密码眼睛仍灰禁用，登录按钮保持转圈禁用；中B列红色错误文案精确缩为“登录失败”，删除后面的额外解释。A列、B其它字段/帮助文案/链接、C品牌/标题/隐私提示/折叠帮助、布局和全部动作保持不变，不新增控件。",
+  "prompt": "只修改两处，保持整图其余不变：最右C列忙态的用户名输入和密码输入都设为明显灰色禁用外观，框底浅灰、文本灰色，值example-owner与密码圆点保留，密码眼睛仍灰禁用，登录按钮保持转圈禁用；中B列红色错误文案精确缩为“登录失败”，删除后面的额外解释。A列、B其它字段/帮助文案/链接、C品牌/标题/隐私提示/折叠帮助、布局和全部动作保持不变，不新增控件。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R042.png",
+      "role": "Edit target C disabled field presentation and B exact fallback error",
+      "sha256": "5020f2224a9fe209b95c1c078d991ceaccd80683c26acf3a1248b6dc2f446141",
+      "dimensions": {
+        "width": 1938,
+        "height": 812
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R042.png",
+      "role": "Edit target C disabled field presentation and B exact fallback error",
+      "sha256": "5020f2224a9fe209b95c1c078d991ceaccd80683c26acf3a1248b6dc2f446141",
+      "dimensions": {
+        "width": 1938,
+        "height": 812
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "只修改两处，保持整图其余不变：最右C列忙态的用户名输入和密码输入都设为明显灰色禁用外观，框底浅灰、文本灰色，值example-owner与密码圆点保留，密码眼睛仍灰禁用，登录按钮保持转圈禁用；中B列红色错误文案精确缩为“登录失败”，删除后面的额外解释。A列、B其它字段/帮助文案/链接、C品牌/标题/隐私提示/折叠帮助、布局和全部动作保持不变，不新增控件。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R042.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "只修改两处，保持整图其余不变：最右C列忙态的用户名输入和密码输入都设为明显灰色禁用外观，框底浅灰、文本灰色，值example-owner与密码圆点保留，密码眼睛仍灰禁用，登录按钮保持转圈禁用；中B列红色错误文案精确缩为“登录失败”，删除后面的额外解释。A列、B其它字段/帮助文案/链接、C品牌/标题/隐私提示/折叠帮助、布局和全部动作保持不变，不新增控件。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R042.png",
+          "role": "Edit target C disabled field presentation and B exact fallback error"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-5a931784-f6b2-43f9-a963-065d2349a4f3.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-001",
+      "title": "登录 DooKnow",
+      "kind": "page",
+      "module": "auth",
+      "entry": {
+        "route": "/ (unauthenticated); /login",
+        "trigger": "App session resolves without an owner session",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:264",
+        "apps/web/App.vue:360",
+        "apps/web/components/Login.vue:13",
+        "apps/web/components/Login.vue:38"
+      ],
+      "roles": [
+        "unauthenticated visitor"
+      ],
+      "permissionRules": [
+        "Single-owner installation; account creation is performed by installation/CLI, not this form."
+      ],
+      "fields": [
+        {
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "constraints": "trimmed nonempty submit guard; sent as entered; autocomplete=username",
+          "sensitive": false
+        },
+        {
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "constraints": "nonempty; current-password autocomplete",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "登录",
+          "effect": "Authenticate and open platform or OAuth continuation",
+          "api": "POST /api/auth/sign-in/username; GET /api/auth/get-session",
+          "guard": "not busy and username.trim() and password"
+        }
+      ],
+      "importantStates": [
+        "empty required fields; submit disabled",
+        "busy locks inputs and submit",
+        "API error alert cleared on input",
+        "successful sign-in clears password, refreshes CSRF, then accepts session"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory."
+      },
+      "testRefs": [
+        "tests/e2e/login-help.spec.ts:3",
+        "tests/auth.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-001",
+      "parentId": null,
+      "route": "/ (unauthenticated); /login",
+      "roles": [
+        "unauthenticated visitor"
+      ],
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:264",
+        "apps/web/App.vue:360",
+        "apps/web/components/Login.vue:13",
+        "apps/web/components/Login.vue:38"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-039.json#MP-R042",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R042",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-5a931784-f6b2-43f9-a963-065d2349a4f3.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R042-v2.png",
+  "sha256": "9266d4dab673ec98597f30363e76f56b858d7786a0061f6a6cf92d2a16f8ca35",
+  "bytes": 1287194,
+  "dimensions": {
+    "width": 1938,
+    "height": 812
+  },
+  "generatedAtUtc": "2026-11-05T07:54:26.515931+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R042.png",
+    "sha256": "5020f2224a9fe209b95c1c078d991ceaccd80683c26acf3a1248b6dc2f446141"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: Login.vue standalone visitor login/help card",
+    "sourceIds": [
+      "PB-001"
+    ],
+    "roles": [
+      "unauthenticated visitor"
+    ],
+    "state": "Three standalone visitor Login pages at390/320/320: A actual baseline empty required form disabled and help collapsed; B failed sign-in retains username and masked password, help expanded, submit enabled; C busy locks inputs/submit with spinner, normal visitor help still collapsed. No owner shell/registration/reset/social signup.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "compact": false,
+      "username": "",
+      "password": "",
+      "busy": false,
+      "error": "",
+      "helpOpen": false,
+      "submitDisabled": true
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "compact": false,
+      "username": "example-owner",
+      "password": "masked",
+      "busy": false,
+      "error": "登录失败",
+      "helpOpen": true,
+      "submitDisabled": false
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "compact": false,
+      "username": "example-owner",
+      "password": "masked",
+      "busy": true,
+      "error": "",
+      "helpOpen": false,
+      "submitDisabled": true
+    }
+  ]
+}

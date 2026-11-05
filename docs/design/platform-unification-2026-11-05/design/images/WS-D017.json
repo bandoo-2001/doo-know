@@ -1,0 +1,347 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D017",
+  "assetId": "WS-D017",
+  "sourceIds": [
+    "WS-020",
+    "WS-021"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-020",
+      "title": "Move note into trash confirmation",
+      "role": "authenticated owner",
+      "state": "Note and whole-folder trash confirmations are separate states; show saved source/share/attachment/unsaved consequences, no purge.",
+      "presentationInstruction": "Note and whole-folder trash confirmations are separate states; show saved source/share/attachment/unsaved consequences, no purge.",
+      "selectedState": "Two independent initial idle confirmation modals: note saved source with dirty current draft, folder entire tree trash. No pending/uncertain/error or purge; note and folder paths synthetic isolated."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-021",
+      "title": "Move entire folder into trash confirmation",
+      "role": "authenticated owner",
+      "state": "Note and whole-folder trash confirmations are separate states; show saved source/share/attachment/unsaved consequences, no purge.",
+      "presentationInstruction": "Note and whole-folder trash confirmations are separate states; show saved source/share/attachment/unsaved consequences, no purge.",
+      "selectedState": "Two independent initial idle confirmation modals: note saved source with dirty current draft, folder entire tree trash. No pending/uncertain/error or purge; note and folder paths synthetic isolated."
+    }
+  ],
+  "selectedState": "Two independent initial idle confirmation modals: note saved source with dirty current draft, folder entire tree trash. No pending/uncertain/error or purge; note and folder paths synthetic isolated.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制清晰中文网页局部组件设计，白底浅灰面、蓝色普通主动作、红色危险动作、细边框小圆角，密度沿参考图。只画真实局部组件和留白，不画外部主人导航、品牌页头、审查编号或注解。横向两个独立完整确认窗口，清楚留白分开，不同时挂在同一页面。左窗口标题“移入回收站？”，右上关闭X；只读路径“00-Inbox/示例笔记.md”；原文“已保存原文将移入回收站，分享立即失效。当前未保存输入将被放弃。”；底部普通“取消”和红色主按钮“移入回收站”，均可用。右窗口标题“文件夹移入回收站？”，关闭X；只读路径“30-Knowledge/示例目录”；原文“文件夹及其中的笔记、附件和子文件夹将一起移入回收站，可整体恢复。相关笔记的分享链接立即失效。”；同样取消/红色移入回收站可用。不要加勾选确认、永久删除、删除数量、恢复按钮、搜索或其他动作。",
+  "prompt": "绘制清晰中文网页局部组件设计，白底浅灰面、蓝色普通主动作、红色危险动作、细边框小圆角，密度沿参考图。只画真实局部组件和留白，不画外部主人导航、品牌页头、审查编号或注解。横向两个独立完整确认窗口，清楚留白分开，不同时挂在同一页面。左窗口标题“移入回收站？”，右上关闭X；只读路径“00-Inbox/示例笔记.md”；原文“已保存原文将移入回收站，分享立即失效。当前未保存输入将被放弃。”；底部普通“取消”和红色主按钮“移入回收站”，均可用。右窗口标题“文件夹移入回收站？”，关闭X；只读路径“30-Knowledge/示例目录”；原文“文件夹及其中的笔记、附件和子文件夹将一起移入回收站，可整体恢复。相关笔记的分享链接立即失效。”；同样取消/红色移入回收站可用。不要加勾选确认、永久删除、删除数量、恢复按钮、搜索或其他动作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+      "role": "Actual owner rich-document host and heading fixture reference; requested popup/confirmation source-derived",
+      "sha256": "51bb8ab79f889c547f472e964f39a1e208dd3e708ed7ca0c7ed4ce307025aa35",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+      "role": "Actual owner rich-document host and heading fixture reference; requested popup/confirmation source-derived",
+      "sha256": "51bb8ab79f889c547f472e964f39a1e208dd3e708ed7ca0c7ed4ce307025aa35",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制清晰中文网页局部组件设计，白底浅灰面、蓝色普通主动作、红色危险动作、细边框小圆角，密度沿参考图。只画真实局部组件和留白，不画外部主人导航、品牌页头、审查编号或注解。横向两个独立完整确认窗口，清楚留白分开，不同时挂在同一页面。左窗口标题“移入回收站？”，右上关闭X；只读路径“00-Inbox/示例笔记.md”；原文“已保存原文将移入回收站，分享立即失效。当前未保存输入将被放弃。”；底部普通“取消”和红色主按钮“移入回收站”，均可用。右窗口标题“文件夹移入回收站？”，关闭X；只读路径“30-Knowledge/示例目录”；原文“文件夹及其中的笔记、附件和子文件夹将一起移入回收站，可整体恢复。相关笔记的分享链接立即失效。”；同样取消/红色移入回收站可用。不要加勾选确认、永久删除、删除数量、恢复按钮、搜索或其他动作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制清晰中文网页局部组件设计，白底浅灰面、蓝色普通主动作、红色危险动作、细边框小圆角，密度沿参考图。只画真实局部组件和留白，不画外部主人导航、品牌页头、审查编号或注解。横向两个独立完整确认窗口，清楚留白分开，不同时挂在同一页面。左窗口标题“移入回收站？”，右上关闭X；只读路径“00-Inbox/示例笔记.md”；原文“已保存原文将移入回收站，分享立即失效。当前未保存输入将被放弃。”；底部普通“取消”和红色主按钮“移入回收站”，均可用。右窗口标题“文件夹移入回收站？”，关闭X；只读路径“30-Knowledge/示例目录”；原文“文件夹及其中的笔记、附件和子文件夹将一起移入回收站，可整体恢复。相关笔记的分享链接立即失效。”；同样取消/红色移入回收站可用。不要加勾选确认、永久删除、删除数量、恢复按钮、搜索或其他动作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+          "role": "Actual owner rich-document host and heading fixture reference; requested popup/confirmation source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-f55f1ca3-f59b-4771-b0fc-c150ec63b8fc.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-020",
+      "title": "Move note into trash confirmation",
+      "kind": "dialog",
+      "module": "files",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "删除笔记 / 移入回收站",
+        "parentId": "WS-005"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3766",
+        "apps/web/components/Workspace.vue:1882",
+        "apps/server/app.ts:479"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "移入回收站",
+          "effect": "Trash saved source; revoke share; abandon current unsaved input if this note",
+          "api": "DELETE /api/notes/:id",
+          "guard": "expectedModifiedAt and requestId required"
+        },
+        {
+          "label": "核对删除结果",
+          "effect": "Check immutable original request",
+          "api": "GET /api/operations?requestId=:id",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "取消",
+          "effect": "Dismiss",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Path and unsaved-input warning",
+        "Pending uncertain deletion",
+        "Version conflict rejects deletion",
+        "Error"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/note-trash-native-restore.test.ts",
+        "tests/e2e/note-native-restore.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-021",
+      "title": "Move entire folder into trash confirmation",
+      "kind": "dialog",
+      "module": "files",
+      "entry": {
+        "route": "/?folder=:path",
+        "trigger": "Folder context menu 移入回收站",
+        "parentId": "WS-005"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3729",
+        "apps/web/components/Workspace.vue:1700",
+        "apps/server/app.ts:362"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Context menu excludes protected archive/system folders as listed in WS-005. Server archive policy is not fully re-audited here."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "移入回收站 / 核对删除结果",
+          "effect": "Trash folder, notes, attachments, descendants and invalidate affected shares",
+          "api": "DELETE /api/folders",
+          "guard": "path/requestId; busy/unknown outcome block cancellation"
+        },
+        {
+          "label": "取消",
+          "effect": "Cancel before submission",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Affected folder path",
+        "Busy",
+        "Outcome uncertain switches action to check",
+        "Error"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/note-trash-native-restore.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-020",
+      "parentId": "WS-005",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3766",
+        "apps/web/components/Workspace.vue:1882",
+        "apps/server/app.ts:479"
+      ]
+    },
+    {
+      "sourceId": "WS-021",
+      "parentId": "WS-005",
+      "route": "/?folder=:path",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3729",
+        "apps/web/components/Workspace.vue:1700",
+        "apps/server/app.ts:362"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-031.json#WS-D017",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D017",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-f55f1ca3-f59b-4771-b0fc-c150ec63b8fc.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D017.png",
+  "sha256": "59b483449d909fa7b536edbd0cc42a050881792f443f212603e66b6d0be43afa",
+  "bytes": 1075972,
+  "dimensions": {
+    "width": 1774,
+    "height": 887
+  },
+  "generatedAtUtc": "2026-11-05T06:15:23.712288+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Move note into trash confirmation / Move entire folder into trash confirmation",
+    "sourceIds": [
+      "WS-020",
+      "WS-021"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Two independent initial idle confirmation modals: note saved source with dirty current draft, folder entire tree trash. No pending/uncertain/error or purge; note and folder paths synthetic isolated.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "sourceId": "WS-020",
+      "deleteOpen": true,
+      "deleteTarget": "00-Inbox/示例笔记.md",
+      "dirty": true,
+      "pendingDelete": false,
+      "buttons": [
+        "取消",
+        "移入回收站"
+      ],
+      "closable": true
+    },
+    {
+      "panel": "B",
+      "sourceId": "WS-021",
+      "folderDeleteTarget": "30-Knowledge/示例目录",
+      "folderDeleteBusy": false,
+      "folderDeleteUncertain": false,
+      "buttons": [
+        "取消",
+        "移入回收站"
+      ],
+      "closable": true
+    }
+  ]
+}

@@ -1,0 +1,608 @@
+{
+  "id": "WS-M018",
+  "title": "Exact notebook search feedback and sidebar directory error",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-003",
+    "WS-002"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-003",
+      "title": "Exact notebook search and sidebar feedback",
+      "role": "authenticated owner",
+      "state": "Seven separate local renderer specimens; full query/mode/directory fields remain in the reviewed D003 mother.",
+      "presentation": "One compact component board, exactly seven independently bounded rows",
+      "rows": [
+        {
+          "label": "row-1",
+          "sourceId": "WS-003",
+          "state": "Searching",
+          "condition": "query && searchBusy; crop only the existing progress region",
+          "renderer": "p.search-feedback > span.loading-dot + text",
+          "visibleText": [
+            "正在搜索…"
+          ],
+          "actions": [],
+          "role": "authenticated owner",
+          "sourceComponent": "apps/web/components/Workspace.vue",
+          "presentation": "Independent exact local feedback fragment, not simultaneous states or a new card workflow"
+        },
+        {
+          "label": "row-2",
+          "sourceId": "WS-003",
+          "state": "Index updating/waiting",
+          "condition": "query && !searchBusy && searchWaiting",
+          "renderer": "p.search-feedback > span.loading-dot + text",
+          "visibleText": [
+            "搜索索引正在更新，请稍候…"
+          ],
+          "actions": [],
+          "role": "authenticated owner",
+          "sourceComponent": "apps/web/components/Workspace.vue",
+          "presentation": "Independent exact local feedback fragment, not simultaneous states or a new card workflow"
+        },
+        {
+          "label": "row-3",
+          "sourceId": "WS-003",
+          "state": "No matches",
+          "condition": "query && !results.length && !searchBusy && !searchWaiting && !searchError && !searchDegraded",
+          "renderer": "p.muted.empty-search",
+          "visibleText": [
+            "没有匹配的笔记"
+          ],
+          "actions": [],
+          "role": "authenticated owner",
+          "sourceComponent": "apps/web/components/Workspace.vue",
+          "presentation": "Independent exact local feedback fragment, not simultaneous states or a new card workflow"
+        },
+        {
+          "label": "row-4",
+          "sourceId": "WS-003",
+          "state": "Degraded hybrid/semantic explanation",
+          "condition": "query && searchDegraded && !searchError && !searchRecallLimited; showSearchSettings true",
+          "renderer": "p.search-feedback with inline text-link",
+          "visibleText": [
+            "部分内容搜索或索引尚未准备好，结果可能不完整。"
+          ],
+          "actions": [
+            "检查搜索设置"
+          ],
+          "effect": "settings(search)",
+          "role": "authenticated owner",
+          "sourceComponent": "apps/web/components/Workspace.vue",
+          "presentation": "Independent exact local feedback fragment, not simultaneous states or a new card workflow"
+        },
+        {
+          "label": "row-5",
+          "sourceId": "WS-003",
+          "state": "Error with retry",
+          "condition": "query && searchError, example NOT_PREPARED mapped by describeSearchFailure",
+          "renderer": "div.search-feedback > AAlert type=error (no showIcon/close) + two small AButtons",
+          "visibleText": [
+            "内容搜索组件还未准备好，文件名搜索仍可使用。"
+          ],
+          "actions": [
+            "重试搜索",
+            "检查搜索设置"
+          ],
+          "effect": "searchCursor ? moreSearch() : beginSearch(query); settings(search)",
+          "role": "authenticated owner",
+          "sourceComponent": "apps/web/components/Workspace.vue",
+          "presentation": "Independent exact local feedback fragment, not simultaneous states or a new card workflow"
+        },
+        {
+          "label": "row-6",
+          "sourceId": "WS-003",
+          "state": "Paginated folder/filename/content results",
+          "condition": "query && results.length=3 with a folder && searchCursor && !searchError && !searchBusy; full result types remain in the reviewed mother page",
+          "renderer": "p.muted.search-results-count + AButton",
+          "visibleText": [
+            "已显示 3 项"
+          ],
+          "actions": [
+            "加载更多搜索结果"
+          ],
+          "effect": "moreSearch(); loading/disabled bind searchBusy",
+          "role": "authenticated owner",
+          "sourceComponent": "apps/web/components/Workspace.vue",
+          "presentation": "Independent exact local feedback fragment, not simultaneous states or a new card workflow"
+        },
+        {
+          "label": "row-7",
+          "sourceId": "WS-002",
+          "state": "Sidebar tree unavailable with reload",
+          "condition": "!query && !treeLoaded && !treeRefreshing, after the preceding list loader branch",
+          "renderer": "div.tree-load-error > p.muted + AButton size=small",
+          "visibleText": [
+            "目录暂时无法读取"
+          ],
+          "actions": [
+            "重新加载目录"
+          ],
+          "effect": "run(refresh), existing GET /api/tree; not the main-content unavailable landing",
+          "role": "authenticated owner",
+          "sourceComponent": "apps/web/components/Workspace.vue",
+          "presentation": "Independent exact local feedback fragment, not simultaneous states or a new card workflow"
+        }
+      ]
+    }
+  ],
+  "viewportIntent": "Seven readable local fragments; bounded narrow container wraps text without shrinking controls. No whole mobile window duplication; actual320/390 fit remains runtime work.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved style only; source text/template determines all content. No owner shell is drawn."
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "Authoritative renderer/guards; exact refs apps/web/components/Workspace.vue:528, apps/web/components/Workspace.vue:2492, apps/web/components/Workspace.vue:2812, apps/web/components/Workspace.vue:2850, apps/web/components/Workspace.vue:2899"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-003",
+      "label": "检查搜索设置",
+      "effect": "settings(search)",
+      "guard": "query && searchDegraded && !searchError && !searchRecallLimited; showSearchSettings true"
+    },
+    {
+      "sourceId": "WS-003",
+      "label": "重试搜索",
+      "effect": "searchCursor ? moreSearch() : beginSearch(query); settings(search)",
+      "guard": "query && searchError, example NOT_PREPARED mapped by describeSearchFailure"
+    },
+    {
+      "sourceId": "WS-003",
+      "label": "检查搜索设置",
+      "effect": "searchCursor ? moreSearch() : beginSearch(query); settings(search)",
+      "guard": "query && searchError, example NOT_PREPARED mapped by describeSearchFailure"
+    },
+    {
+      "sourceId": "WS-003",
+      "label": "加载更多搜索结果",
+      "effect": "moreSearch(); loading/disabled bind searchBusy",
+      "guard": "query && results.length=3 with a folder && searchCursor && !searchError && !searchBusy; full result types remain in the reviewed mother page"
+    },
+    {
+      "sourceId": "WS-002",
+      "label": "重新加载目录",
+      "effect": "run(refresh), existing GET /api/tree; not the main-content unavailable landing",
+      "guard": "!query && !treeLoaded && !treeRefreshing, after the preceding list loader branch"
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "sourceIds": [
+        "WS-003",
+        "WS-002"
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "representation": "exact-shared-local-renderers",
+      "reason": "The actual sidebar contains these same local fragments; source nowrap/wrap and scroll behavior remain authoritative.",
+      "requiresActualFitReview": true,
+      "notAClaimOfMeasuredRasterWidths": true
+    }
+  ],
+  "prompt": "Use case: ui-mockup. Create ONE new high-fidelity flat UI specimen board for existing DooKnow notebook sidebar feedback. Seven independent local UI fragments arranged in a clean vertical stack, generous readable width, not seven full windows. Outside each fragment use only a tiny number 1–7 so reviewers can distinguish separate mutually exclusive examples; these numbers are not product controls. No app navigation/header, query inputs, footer, device/browser frame, explanations or invented state headings. Every fragment is an actual narrow sidebar content region, normal readable Chinese type, white/light-gray environment, #272b3a text, #657084 muted, #e6e9f1 border, cobalt #4566c6 and pale #edf1ff accent;8px corner radius only where actual control/alert needs it, flat CSS style with no gradients/raster texture. Keep text and small outlined source buttons readable, and wrap long status text naturally rather than reducing fonts.\n\nFragment1: only a small animated-dot indication (still illustration is a small blue dot) followed by exact normal status text \"正在搜索…\". No buttons or alert box.\nFragment2: same small dot and exact normal status text \"搜索索引正在更新，请稍候…\". No buttons or alert.\nFragment3: only muted paragraph \"没有匹配的笔记\". No icon, no action button.\nFragment4: normal status paragraph \"部分内容搜索或索引尚未准备好，结果可能不完整。\" followed by the existing INLINE transparent text button \"检查搜索设置\". Do not turn it into an error alert, modal, or filled button.\nFragment5: one existing Ant-style ERROR alert region with exact message \"内容搜索组件还未准备好，文件名搜索仍可使用。\". It has NO show-icon or close X. Immediately below, two small neutral OUTLINED buttons side by side in this exact order: \"重试搜索\" and \"检查搜索设置\". No added dismiss/reload/OK action.\nFragment6: muted actual count paragraph \"已显示 3 项\", then one neutral outlined button \"加载更多搜索结果\". This is a separate valid nonbusy/nonerror pagination example, not a global or numbered page navigator. Full result cards live on a separate page and must not be redrawn here; no spinner, no total-count invention.\nFragment7: simple muted paragraph \"目录暂时无法读取\" and below one small neutral outlined button \"重新加载目录\". This is the SIDEBAR div fragment, not the main unavailable landing: no folder illustration, heading, additional explanatory text, retry connection button or red alert.\n\nKeep each numbered region independent, visibly separated only by external board spacing/thin neutral comparison guides, not a new application card workflow. Never blend1–7 into one simultaneous product state. No search-submit, filter, native chooser, owner rail, private content, API/code/role metadata or English labels. Preserve all exact Chinese punctuation and button labels. One crisp illustrative board, taller if necessary to show seven legible fragments; do not crop any controls.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M018.png",
+  "reviewStatus": "pending-independent-review",
+  "geometryFamily": "Workspace.vue notebook-search: controls/results + same-renderer status rows",
+  "sourceContracts": [
+    {
+      "id": "WS-003",
+      "title": "Sidebar notebook and directory search",
+      "kind": "state",
+      "module": "search",
+      "entry": {
+        "route": "/",
+        "trigger": "Enter sidebar search query",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:2812",
+        "apps/web/components/Workspace.vue:2833",
+        "apps/web/search-results.ts:1",
+        "apps/server/knowledge/web-routes.ts:51"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "搜索词",
+          "type": "search",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "搜索模式",
+          "type": "select",
+          "required": true,
+          "constraints": "hybrid | text | semantic; semantic label indicates preparation when vector not ready.",
+          "sensitive": false
+        },
+        {
+          "name": "搜索目录",
+          "type": "directory",
+          "required": false,
+          "constraints": "Existing folder or all directories.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "搜索 / 加载更多",
+          "effect": "Run paginated advanced search; merge with filename results",
+          "api": "POST /api/search/advanced",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "搜索结果",
+          "effect": "Open note at matching line or directory",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "重试搜索",
+          "effect": "Repeat current search",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "检查搜索设置",
+          "effect": "Navigate settings/search",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Searching",
+        "Index updating/waiting",
+        "No matches",
+        "Degraded hybrid/semantic result with explanation",
+        "Error and retry",
+        "Paginated results including folder, filename and content matches"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/web-search-results.test.ts",
+        "tests/search/web-status.test.ts",
+        "tests/e2e/search-filenames.spec.ts",
+        "tests/e2e/search-result-highlight.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-002",
+      "title": "Mobile notebook navigation drawer",
+      "kind": "drawer",
+      "module": "knowledge",
+      "entry": {
+        "route": "/ and /?note=:id",
+        "trigger": "打开侧栏",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:2707",
+        "apps/web/components/Workspace.vue:2995",
+        "apps/web/style.css:1083"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "搜索笔记与目录",
+          "type": "search",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "关闭侧栏 / scrim",
+          "effect": "Close drawer",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "选择笔记或目录",
+          "effect": "Open selection and close drawer",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Open/closed",
+        "Tree/search/loading/error content inherited from notebook navigation"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "320/390 use min(290px,85vw); not displayed as a drawer at desktop."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-003",
+      "parentId": "WS-001",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-feedback-regions-only",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 1,
+    "maxCompactRowsPerRenderer": 7,
+    "sourceConditionsNotDrawnAsProductText": true
+  },
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-003",
+      "state": "Searching",
+      "representation": "visible"
+    },
+    {
+      "sourceId": "WS-003",
+      "state": "Index updating/waiting",
+      "representation": "visible"
+    },
+    {
+      "sourceId": "WS-003",
+      "state": "No matches",
+      "representation": "visible"
+    },
+    {
+      "sourceId": "WS-003",
+      "state": "Degraded hybrid/semantic result with explanation",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-003",
+      "state": "Error and retry",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-003",
+      "state": "Paginated results including folder, filename and content matches",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "priorArtifactHistory": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D003.png",
+    "sha256": "0668f2209270a999b9d84e9abe7c68c995dda17640c8720018f5a134f7e9b887",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D003-review.json",
+    "verdict": "needs-revision",
+    "status": "historical-only; not accepted and not overwritten by this planning task",
+    "requiredCorrections": [
+      "Remove the explicit 搜索 submit button; preserve reactive query/mode/directory search and existing pagination/retry guards.",
+      "Restore ready empty-state source copy and both 快速记录 and 导入 Markdown actions, with existing quickBusy behavior retained."
+    ]
+  },
+  "sourceRefs": [
+    "apps/web/components/Workspace.vue:528",
+    "apps/web/components/Workspace.vue:2492",
+    "apps/web/components/Workspace.vue:2812",
+    "apps/web/components/Workspace.vue:2850",
+    "apps/web/components/Workspace.vue:2899"
+  ],
+  "parentImageBindings": [
+    {
+      "sourceId": "WS-003",
+      "assetId": "WS-D003",
+      "panel": "search-sidebar",
+      "sha256": "3ec6f161897d4e9cc007d01ecbff02afc4ebdd5a8f9bac74d6d4e52af269e09d",
+      "scope": "Full query/mode/directory and populated folder/filename/content result page; feedback specimens supplement it"
+    }
+  ],
+  "originalUnrenderedPanel": {
+    "label": "status-matrix",
+    "sourceId": "WS-003",
+    "title": "Sidebar notebook and directory search — compact component state matrix",
+    "role": "authenticated owner",
+    "state": "Existing Workspace.vue notebook-search result/status region. Query/mode/directory form is shown once in its canonical job.",
+    "presentation": "ONE compact component matrix, not multiple simultaneously open full windows",
+    "rows": [
+      {
+        "label": "row-1",
+        "sourceId": "WS-003",
+        "title": "Sidebar notebook and directory search",
+        "role": "authenticated owner",
+        "state": "Searching",
+        "actionPresentation": "Keep source 搜索/加载更多, result-open, retry and search-settings actions; only actual busy/vector/search conditions affect existing controls.",
+        "sourceComponent": "apps/web/components/Workspace.vue"
+      },
+      {
+        "label": "row-2",
+        "sourceId": "WS-003",
+        "title": "Sidebar notebook and directory search",
+        "role": "authenticated owner",
+        "state": "Index updating/waiting",
+        "actionPresentation": "Keep source 搜索/加载更多, result-open, retry and search-settings actions; only actual busy/vector/search conditions affect existing controls.",
+        "sourceComponent": "apps/web/components/Workspace.vue"
+      },
+      {
+        "label": "row-3",
+        "sourceId": "WS-003",
+        "title": "Sidebar notebook and directory search",
+        "role": "authenticated owner",
+        "state": "No matches",
+        "actionPresentation": "Keep source 搜索/加载更多, result-open, retry and search-settings actions; only actual busy/vector/search conditions affect existing controls.",
+        "sourceComponent": "apps/web/components/Workspace.vue"
+      },
+      {
+        "label": "row-4",
+        "sourceId": "WS-003",
+        "title": "Sidebar notebook and directory search",
+        "role": "authenticated owner",
+        "state": "Degraded hybrid/semantic explanation",
+        "actionPresentation": "Keep source 搜索/加载更多, result-open, retry and search-settings actions; only actual busy/vector/search conditions affect existing controls.",
+        "sourceComponent": "apps/web/components/Workspace.vue"
+      },
+      {
+        "label": "row-5",
+        "sourceId": "WS-003",
+        "title": "Sidebar notebook and directory search",
+        "role": "authenticated owner",
+        "state": "Error with retry",
+        "actionPresentation": "Keep source 搜索/加载更多, result-open, retry and search-settings actions; only actual busy/vector/search conditions affect existing controls.",
+        "sourceComponent": "apps/web/components/Workspace.vue"
+      },
+      {
+        "label": "row-6",
+        "sourceId": "WS-003",
+        "title": "Sidebar notebook and directory search",
+        "role": "authenticated owner",
+        "state": "Paginated folder/filename/content results",
+        "actionPresentation": "Keep source 搜索/加载更多, result-open, retry and search-settings actions; only actual busy/vector/search conditions affect existing controls.",
+        "sourceComponent": "apps/web/components/Workspace.vue"
+      }
+    ]
+  },
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Root-owned necessary local board. Full actual prompt/inputs/source hashes/raw PNG retained; independent review required.",
+  "assetId": "WS-M018",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "Use case: ui-mockup. Create ONE new high-fidelity flat UI specimen board for existing DooKnow notebook sidebar feedback. Seven independent local UI fragments arranged in a clean vertical stack, generous readable width, not seven full windows. Outside each fragment use only a tiny number 1–7 so reviewers can distinguish separate mutually exclusive examples; these numbers are not product controls. No app navigation/header, query inputs, footer, device/browser frame, explanations or invented state headings. Every fragment is an actual narrow sidebar content region, normal readable Chinese type, white/light-gray environment, #272b3a text, #657084 muted, #e6e9f1 border, cobalt #4566c6 and pale #edf1ff accent;8px corner radius only where actual control/alert needs it, flat CSS style with no gradients/raster texture. Keep text and small outlined source buttons readable, and wrap long status text naturally rather than reducing fonts.\n\nFragment1: only a small animated-dot indication (still illustration is a small blue dot) followed by exact normal status text \"正在搜索…\". No buttons or alert box.\nFragment2: same small dot and exact normal status text \"搜索索引正在更新，请稍候…\". No buttons or alert.\nFragment3: only muted paragraph \"没有匹配的笔记\". No icon, no action button.\nFragment4: normal status paragraph \"部分内容搜索或索引尚未准备好，结果可能不完整。\" followed by the existing INLINE transparent text button \"检查搜索设置\". Do not turn it into an error alert, modal, or filled button.\nFragment5: one existing Ant-style ERROR alert region with exact message \"内容搜索组件还未准备好，文件名搜索仍可使用。\". It has NO show-icon or close X. Immediately below, two small neutral OUTLINED buttons side by side in this exact order: \"重试搜索\" and \"检查搜索设置\". No added dismiss/reload/OK action.\nFragment6: muted actual count paragraph \"已显示 3 项\", then one neutral outlined button \"加载更多搜索结果\". This is a separate valid nonbusy/nonerror pagination example, not a global or numbered page navigator. Full result cards live on a separate page and must not be redrawn here; no spinner, no total-count invention.\nFragment7: simple muted paragraph \"目录暂时无法读取\" and below one small neutral outlined button \"重新加载目录\". This is the SIDEBAR div fragment, not the main unavailable landing: no folder illustration, heading, additional explanatory text, retry connection button or red alert.\n\nKeep each numbered region independent, visibly separated only by external board spacing/thin neutral comparison guides, not a new application card workflow. Never blend1–7 into one simultaneous product state. No search-submit, filter, native chooser, owner rail, private content, API/code/role metadata or English labels. Preserve all exact Chinese punctuation and button labels. One crisp illustrative board, taller if necessary to show seven legible fragments; do not crop any controls.",
+  "actualToolArguments": {
+    "prompt": "Use case: ui-mockup. Create ONE new high-fidelity flat UI specimen board for existing DooKnow notebook sidebar feedback. Seven independent local UI fragments arranged in a clean vertical stack, generous readable width, not seven full windows. Outside each fragment use only a tiny number 1–7 so reviewers can distinguish separate mutually exclusive examples; these numbers are not product controls. No app navigation/header, query inputs, footer, device/browser frame, explanations or invented state headings. Every fragment is an actual narrow sidebar content region, normal readable Chinese type, white/light-gray environment, #272b3a text, #657084 muted, #e6e9f1 border, cobalt #4566c6 and pale #edf1ff accent;8px corner radius only where actual control/alert needs it, flat CSS style with no gradients/raster texture. Keep text and small outlined source buttons readable, and wrap long status text naturally rather than reducing fonts.\n\nFragment1: only a small animated-dot indication (still illustration is a small blue dot) followed by exact normal status text \"正在搜索…\". No buttons or alert box.\nFragment2: same small dot and exact normal status text \"搜索索引正在更新，请稍候…\". No buttons or alert.\nFragment3: only muted paragraph \"没有匹配的笔记\". No icon, no action button.\nFragment4: normal status paragraph \"部分内容搜索或索引尚未准备好，结果可能不完整。\" followed by the existing INLINE transparent text button \"检查搜索设置\". Do not turn it into an error alert, modal, or filled button.\nFragment5: one existing Ant-style ERROR alert region with exact message \"内容搜索组件还未准备好，文件名搜索仍可使用。\". It has NO show-icon or close X. Immediately below, two small neutral OUTLINED buttons side by side in this exact order: \"重试搜索\" and \"检查搜索设置\". No added dismiss/reload/OK action.\nFragment6: muted actual count paragraph \"已显示 3 项\", then one neutral outlined button \"加载更多搜索结果\". This is a separate valid nonbusy/nonerror pagination example, not a global or numbered page navigator. Full result cards live on a separate page and must not be redrawn here; no spinner, no total-count invention.\nFragment7: simple muted paragraph \"目录暂时无法读取\" and below one small neutral outlined button \"重新加载目录\". This is the SIDEBAR div fragment, not the main unavailable landing: no folder illustration, heading, additional explanatory text, retry connection button or red alert.\n\nKeep each numbered region independent, visibly separated only by external board spacing/thin neutral comparison guides, not a new application card workflow. Never blend1–7 into one simultaneous product state. No search-submit, filter, native chooser, owner rail, private content, API/code/role metadata or English labels. Preserve all exact Chinese punctuation and button labels. One crisp illustrative board, taller if necessary to show seven legible fragments; do not crop any controls.",
+    "transparent_background": false
+  },
+  "inputs": [],
+  "inputReferences": [],
+  "actualImageInputOrder": [],
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "Authoritative current source text inspected; no raster input needed for standalone local fragments",
+      "refs": [
+        "apps/web/components/Workspace.vue:528",
+        "apps/web/components/Workspace.vue:2492",
+        "apps/web/components/Workspace.vue:2812",
+        "apps/web/components/Workspace.vue:2850",
+        "apps/web/components/Workspace.vue:2899"
+      ],
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385",
+      "bytes": 173296
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-9c98c2c7-1074-4797-adab-8916a26ec2f0.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2 as /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-9c98c2c7-1074-4797-adab-8916a26ec2f0.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationAttempts": [
+    {
+      "assetId": "WS-M018",
+      "submittedPrompt": "Use case: ui-mockup. Create ONE new high-fidelity flat UI specimen board for existing DooKnow notebook sidebar feedback. Seven independent local UI fragments arranged in a clean vertical stack, generous readable width, not seven full windows. Outside each fragment use only a tiny number 1–7 so reviewers can distinguish separate mutually exclusive examples; these numbers are not product controls. No app navigation/header, query inputs, footer, device/browser frame, explanations or invented state headings. Every fragment is an actual narrow sidebar content region, normal readable Chinese type, white/light-gray environment, #272b3a text, #657084 muted, #e6e9f1 border, cobalt #4566c6 and pale #edf1ff accent;8px corner radius only where actual control/alert needs it, flat CSS style with no gradients/raster texture. Keep text and small outlined source buttons readable, and wrap long status text naturally rather than reducing fonts.\n\nFragment1: only a small animated-dot indication (still illustration is a small blue dot) followed by exact normal status text \"正在搜索…\". No buttons or alert box.\nFragment2: same small dot and exact normal status text \"搜索索引正在更新，请稍候…\". No buttons or alert.\nFragment3: only muted paragraph \"没有匹配的笔记\". No icon, no action button.\nFragment4: normal status paragraph \"部分内容搜索或索引尚未准备好，结果可能不完整。\" followed by the existing INLINE transparent text button \"检查搜索设置\". Do not turn it into an error alert, modal, or filled button.\nFragment5: one existing Ant-style ERROR alert region with exact message \"内容搜索组件还未准备好，文件名搜索仍可使用。\". It has NO show-icon or close X. Immediately below, two small neutral OUTLINED buttons side by side in this exact order: \"重试搜索\" and \"检查搜索设置\". No added dismiss/reload/OK action.\nFragment6: muted actual count paragraph \"已显示 3 项\", then one neutral outlined button \"加载更多搜索结果\". This is a separate valid nonbusy/nonerror pagination example, not a global or numbered page navigator. Full result cards live on a separate page and must not be redrawn here; no spinner, no total-count invention.\nFragment7: simple muted paragraph \"目录暂时无法读取\" and below one small neutral outlined button \"重新加载目录\". This is the SIDEBAR div fragment, not the main unavailable landing: no folder illustration, heading, additional explanatory text, retry connection button or red alert.\n\nKeep each numbered region independent, visibly separated only by external board spacing/thin neutral comparison guides, not a new application card workflow. Never blend1–7 into one simultaneous product state. No search-submit, filter, native chooser, owner rail, private content, API/code/role metadata or English labels. Preserve all exact Chinese punctuation and button labels. One crisp illustrative board, taller if necessary to show seven legible fragments; do not crop any controls.",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-9c98c2c7-1074-4797-adab-8916a26ec2f0.png",
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2 as /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-9c98c2c7-1074-4797-adab-8916a26ec2f0.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "startedAtUtc": "2026-11-05T08:49:19.230Z",
+      "completedAtUtc": "2026-11-05T08:49:43.987Z",
+      "actualToolArguments": {
+        "prompt": "Use case: ui-mockup. Create ONE new high-fidelity flat UI specimen board for existing DooKnow notebook sidebar feedback. Seven independent local UI fragments arranged in a clean vertical stack, generous readable width, not seven full windows. Outside each fragment use only a tiny number 1–7 so reviewers can distinguish separate mutually exclusive examples; these numbers are not product controls. No app navigation/header, query inputs, footer, device/browser frame, explanations or invented state headings. Every fragment is an actual narrow sidebar content region, normal readable Chinese type, white/light-gray environment, #272b3a text, #657084 muted, #e6e9f1 border, cobalt #4566c6 and pale #edf1ff accent;8px corner radius only where actual control/alert needs it, flat CSS style with no gradients/raster texture. Keep text and small outlined source buttons readable, and wrap long status text naturally rather than reducing fonts.\n\nFragment1: only a small animated-dot indication (still illustration is a small blue dot) followed by exact normal status text \"正在搜索…\". No buttons or alert box.\nFragment2: same small dot and exact normal status text \"搜索索引正在更新，请稍候…\". No buttons or alert.\nFragment3: only muted paragraph \"没有匹配的笔记\". No icon, no action button.\nFragment4: normal status paragraph \"部分内容搜索或索引尚未准备好，结果可能不完整。\" followed by the existing INLINE transparent text button \"检查搜索设置\". Do not turn it into an error alert, modal, or filled button.\nFragment5: one existing Ant-style ERROR alert region with exact message \"内容搜索组件还未准备好，文件名搜索仍可使用。\". It has NO show-icon or close X. Immediately below, two small neutral OUTLINED buttons side by side in this exact order: \"重试搜索\" and \"检查搜索设置\". No added dismiss/reload/OK action.\nFragment6: muted actual count paragraph \"已显示 3 项\", then one neutral outlined button \"加载更多搜索结果\". This is a separate valid nonbusy/nonerror pagination example, not a global or numbered page navigator. Full result cards live on a separate page and must not be redrawn here; no spinner, no total-count invention.\nFragment7: simple muted paragraph \"目录暂时无法读取\" and below one small neutral outlined button \"重新加载目录\". This is the SIDEBAR div fragment, not the main unavailable landing: no folder illustration, heading, additional explanatory text, retry connection button or red alert.\n\nKeep each numbered region independent, visibly separated only by external board spacing/thin neutral comparison guides, not a new application card workflow. Never blend1–7 into one simultaneous product state. No search-submit, filter, native chooser, owner rail, private content, API/code/role metadata or English labels. Preserve all exact Chinese punctuation and button labels. One crisp illustrative board, taller if necessary to show seven legible fragments; do not crop any controls.",
+        "transparent_background": false
+      }
+    }
+  ],
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T08:49:43.987Z",
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M018.png",
+  "postprocessing": "Raw original PNG byte copy only, no pixel editing",
+  "pendingReview": true,
+  "selfInspection": {
+    "method": "Actual native generated image visually inspected against exact Workspace.vue branches and seven-row manifest",
+    "status": "source/content self-check passed; independent review required",
+    "checks": [
+      "Exactly seven independent feedback fragments, not simultaneous product states",
+      "Correct busy/wait/no-match and degraded messages with only real status/settings actions",
+      "Actual error alert without showIcon/close and both small retry/settings buttons",
+      "Valid three-item paging example plus the distinct sidebar tree-error paragraph/reload button",
+      "Comparison-frame borders and numbered labels are external board guides, not new app cards or UI"
+    ],
+    "limitations": [
+      "Source-derived state examples; no new runtime acceptance",
+      "Approximate raster typography/color/geometry must use actual shared tokens and existing components",
+      "No scroll/focus/keyboard/action/permission verification from this static board"
+    ]
+  },
+  "sha256": "07d42d922741525ee5deabbf8cc343871a2c17147c3b921e671c516720d31fa9",
+  "bytes": 1171480,
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  }
+}

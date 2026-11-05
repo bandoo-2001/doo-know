@@ -1,0 +1,116 @@
+{
+  "assetId": "WS-R041",
+  "sourceIds": [
+    "WS-099"
+  ],
+  "reviewer": "independent platform_review_gen048 child agent, exclusively assigned eight GEN048 responsive assets",
+  "reviewedAtUtc": "2026-11-05T09:25:24.930457+00:00",
+  "verdict": "pass",
+  "method": "Actual current PNG viewed using tools.view_image in this independent context; complete actual submittedPrompt and GEN048 source contracts compared with actual input mother/baseline images, matching existing mother SHA reviews, current Vue templates/handlers/CSS and server/API policy sources. Static content review only; no generation or runtime tests.",
+  "actualViewMethod": {
+    "tool": "tools.view_image",
+    "image": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R041.png",
+    "detail": "high",
+    "boardPanelsActuallyViewed": [
+      "A",
+      "B"
+    ]
+  },
+  "reviewedImageSha256": "a4c8c49d9a570b7c1890499d2ada92ee2463dbd3542913969e8f3c26711da114",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-R041.png",
+  "reviewedSidecarSha256": "21704988994bf1edb9aed43fe25ee5770b7c82dd61e7150fa8b848e909e0f177",
+  "reviewedManifestSha256": "7f3fc0492e62f25af38e6dc0c0135db54d73fed95d3c1554e71f632cfb9a2474",
+  "submissionReview": {
+    "completeSubmittedPromptRead": true,
+    "submittedPromptSha256": "1c7fc9ab90dc82631cf652b35d69f5ee5b2421b846432ccf55ec37096b91977d",
+    "actualToolArgumentsPromptMatchesReceipt": true,
+    "observedReceiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-7.json",
+    "receiptOutputBytesMatchReviewedPng": true
+  },
+  "inputImageChecks": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D075.png",
+      "order": 1,
+      "role": "existing sharing modal framing/style only; active custom fields/actions from actual ShareDialog source",
+      "sha256": "86e0969ab24235dd7e3dc959916a4c2a603548fad6f8cb3d5a2e965a99761d9c",
+      "bytes": 1148411,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "actualSha256": "86e0969ab24235dd7e3dc959916a4c2a603548fad6f8cb3d5a2e965a99761d9c",
+      "actuallyViewed": true,
+      "roleChecked": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "actualSha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "actuallyViewed": true,
+      "roleChecked": true
+    }
+  ],
+  "selectedState": [
+    "390 active readonly grant custom expiry upper scroll; editSupported true; busy false",
+    "320 same grant lower scroll including source opt-in and reset/revoke/save/done"
+  ],
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "A upper active owner grant has title/status, read-only example.invalid public link with copy, view-only public access statement, permission=view, duration=custom, future local date2026-12-05 18:00 and local-device-time help.",
+    "B lower repeats the custom field as scroll overlap, then unchecked original-download opt-in/help, saved-content-only info and reset/revoke/save/done in actual source order; close remains visible. Active, nonbusy, editSupported=true is a producible API state.",
+    "WS-D075 SHA86e0969ab24235dd7e3dc959916a4c2a603548fad6f8cb3d5a2e965a99761d9c is visually inspected private-form framing/common source-opt-in/info reference only. Its private state does not certify new URL/custom-expiry/reset/revoke fields: every one is visible here and checked directly against ShareDialog.vue:105-205 and shares.ts:34-127.",
+    "No edit-policy warning is required when editSupported=true and permission=view. Link stays read-only, revoke has no invented confirmation, only saved content publishes. Busy controls/Done disable while modal dismissal and copy have no added busy lock; no runtime clipboard/share execution claimed."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster shading, slight texture, rounded proportions and intended390/320 geometry are approximate. Implement flat shared CSS colors/borders/8px corners and readable source-sized text; do not reproduce raster gradients or infer exact responsive fit from this board."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-048.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R041.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/app.ts:141",
+    "apps/web/components/ShareDialog.vue:1",
+    "apps/web/components/ShareDialog.vue:57",
+    "apps/web/components/ShareDialog.vue:95",
+    "apps/web/components/ShareDialog.vue:134",
+    "apps/web/components/Workspace.vue:1543",
+    "apps/server/app.ts:553",
+    "packages/core/shares.ts:10",
+    "packages/core/shares.ts:53",
+    "packages/core/share-policy.ts:17",
+    "shared/share-contracts.ts:1",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D075-review.json"
+  ],
+  "currentSourceSha256": {
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    "apps/web/components/ShareDialog.vue": "6e070e1a20fd1d82e249292a8b7588cae7bcfde0baa3676953c54fb1bc4e557f",
+    "apps/web/components/Workspace.vue": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385",
+    "packages/core/share-policy.ts": "8e26ebb554110a783f3a2f3d1f6b1d4a9be5511e4ad0d32a86b6f24ec0542c36",
+    "packages/core/shares.ts": "779f776d0098ff55dfac58402316656bc6774049c1fbd5fcf83271bcb0eee0e5",
+    "shared/share-contracts.ts": "95aba074a219921e20b84a9c0acafee8c0cf25c95fdc3c8507f914e9983c1951"
+  },
+  "requiredCorrections": [],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false,
+    "limitations": "The tool does not expose a per-call physical model identity receipt; none is claimed."
+  },
+  "limitations": [
+    "Only these actual image bytes and their declared compatible selected state received static content review. Source-derived data are examples, not captured API/model outcomes.",
+    "A static PNG cannot prove physical320/390 scrolling or safe viewport, source focus trapping/return, keyboard/Escape, busy/dirty/version guards, action execution, persistence, permissions enforcement, live model/clipboard behavior or exact canvas topology.",
+    "Unshown alternative loading/error/unavailable/conflict/role variants retain their individual source contracts and mother mappings; this verdict does not claim their simultaneous presence.",
+    "Per-image content verdict does not pass platform-wide consistency/coverage/provenance gates or authorize product implementation."
+  ]
+}

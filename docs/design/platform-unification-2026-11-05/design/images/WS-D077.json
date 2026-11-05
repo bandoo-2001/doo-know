@@ -1,0 +1,372 @@
+{
+  "id": "WS-D077",
+  "title": "Create task linked from current note",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-101"
+  ],
+  "panels": [
+    {
+      "label": "desktop",
+      "sourceId": "WS-101",
+      "title": "Create task linked from current note",
+      "role": "authenticated owner",
+      "state": "Title/list/action-description and captured saved/unsaved source explanation; manual note save remains separate.",
+      "presentationInstruction": "Title/list/action-description and captured saved/unsaved source explanation; manual note save remains separate."
+    },
+    {
+      "label": "phone-390",
+      "sourceId": "WS-101",
+      "title": "Create task linked from current note",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Title/list/action-description and captured saved/unsaved source explanation; manual note save remains separate.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Title/list/action-description and captured saved/unsaved source explanation; manual note save remains separate."
+    },
+    {
+      "label": "phone-320",
+      "sourceId": "WS-101",
+      "title": "Create task linked from current note",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Title/list/action-description and captured saved/unsaved source explanation; manual note save remains separate.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Title/list/action-description and captured saved/unsaved source explanation; manual note save remains separate."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3521, apps/web/to-doo-capture.ts:1, apps/web/components/Workspace.vue:245"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-101",
+      "label": "创建任务",
+      "effect": "Create linked task from saved note or unsaved snapshot; note requires own manual save",
+      "api": "GET /api/to-doo/state?kind=list&limit=1000; POST /api/to-doo/commands action=create_task",
+      "guard": "!busy and nonblank title"
+    },
+    {
+      "sourceId": "WS-101",
+      "label": "取消",
+      "effect": "Close idle modal",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-D077",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "requiredFieldOrder": [
+        "任务标题",
+        "目标或清单",
+        "行动说明"
+      ],
+      "requiredFields": [
+        {
+          "name": "任务标题",
+          "type": "text",
+          "required": true,
+          "constraints": "Trimmed nonblank; UImaxlength256.",
+          "sensitive": false
+        },
+        {
+          "name": "目标或清单",
+          "type": "select",
+          "required": true,
+          "constraints": "Inbox or available capture lists.",
+          "sensitive": false
+        },
+        {
+          "name": "行动说明",
+          "type": "textarea",
+          "required": false,
+          "constraints": "Auto-size3–10 rows; exact backend cap delegated to ToDoo inventory.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "创建任务",
+          "effect": "Create linked task from saved note or unsaved snapshot; note requires own manual save",
+          "api": "GET /api/to-doo/state?kind=list&limit=1000; POST /api/to-doo/commands action=create_task",
+          "guard": "!busy and nonblank title"
+        },
+        {
+          "label": "取消",
+          "effect": "Close idle modal",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-101"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n三个独立窗口，仅外部标A、B、C；A正常桌面紧凑宽度，B适配390px视口，C适配320px视口，三个完整表单相同。\n标题“从资料创建任务”，右上关闭X。字段按顺序：“任务标题”文本框值“回顾这篇资料”；“目标或清单”下拉框当前“收集箱”，保持关闭；“行动说明”三行文本框值“整理本文要点。”。随后完整帮助文案“来源包含尚未保存的笔记内容，将保留本次引用快照，笔记仍由你手动保存。”。底部按钮“取消”和蓝色“创建任务”，均可用。不要加日期/优先级/提醒/成员/账户/任务应用导航，不加成功或错误提示，不同时显示另一条已保存来源说明。表单文字与长帮助在窄屏换行，关闭和两个主操作均可达。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D077.png",
+  "reviewStatus": "pending-independent-review",
+  "geometryFamily": "same source renderer: desktop local component and 390/320 component fit",
+  "sourceContracts": [
+    {
+      "id": "WS-101",
+      "title": "Create task linked from current note",
+      "kind": "dialog",
+      "module": "knowledge-to-task-entry",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "创建关联任务 in note action slot",
+        "parentId": "WS-028"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3521",
+        "apps/web/to-doo-capture.ts:1",
+        "apps/web/components/Workspace.vue:245"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "任务标题",
+          "type": "text",
+          "required": true,
+          "constraints": "Trimmed nonblank; UImaxlength256.",
+          "sensitive": false
+        },
+        {
+          "name": "目标或清单",
+          "type": "select",
+          "required": true,
+          "constraints": "Inbox or available capture lists.",
+          "sensitive": false
+        },
+        {
+          "name": "行动说明",
+          "type": "textarea",
+          "required": false,
+          "constraints": "Auto-size3–10 rows; exact backend cap delegated to ToDoo inventory.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "创建任务",
+          "effect": "Create linked task from saved note or unsaved snapshot; note requires own manual save",
+          "api": "GET /api/to-doo/state?kind=list&limit=1000; POST /api/to-doo/commands action=create_task",
+          "guard": "!busy and nonblank title"
+        },
+        {
+          "label": "取消",
+          "effect": "Close idle modal",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Saved versus unsaved source snapshot explanation",
+        "Busy disables dismissal",
+        "Error retains captured form"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Workspace bridge only; all ToDoo app pages, editors and task semantics excluded from this module."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-101",
+      "parentId": "WS-028",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-101",
+      "state": "Saved versus unsaved source snapshot explanation",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-101",
+      "state": "Busy disables dismissal",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-101",
+      "state": "Error retains captured form",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D077",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "source-derived captured unsaved note snapshot, title nonempty, inboxselected,busyfalse/noerror"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n三个独立窗口，仅外部标A、B、C；A正常桌面紧凑宽度，B适配390px视口，C适配320px视口，三个完整表单相同。\n标题“从资料创建任务”，右上关闭X。字段按顺序：“任务标题”文本框值“回顾这篇资料”；“目标或清单”下拉框当前“收集箱”，保持关闭；“行动说明”三行文本框值“整理本文要点。”。随后完整帮助文案“来源包含尚未保存的笔记内容，将保留本次引用快照，笔记仍由你手动保存。”。底部按钮“取消”和蓝色“创建任务”，均可用。不要加日期/优先级/提醒/成员/账户/任务应用导航，不加成功或错误提示，不同时显示另一条已保存来源说明。表单文字与长帮助在窄屏换行，关闭和两个主操作均可达。",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D077 Create task linked from current note\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"desktop\", \"sourceId\": \"WS-101\", \"title\": \"Create task linked from current note\", \"role\": \"authenticated owner\", \"state\": \"Title/list/action-description and captured saved/unsaved source explanation; manual note save remains separate.\", \"presentationInstruction\": \"Title/list/action-description and captured saved/unsaved source explanation; manual note save remains separate.\"}, {\"label\": \"phone-390\", \"sourceId\": \"WS-101\", \"title\": \"Create task linked from current note\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Title/list/action-description and captured saved/unsaved source explanation; manual note save remains separate.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Title/list/action-description and captured saved/unsaved source explanation; manual note save remains separate.\"}, {\"label\": \"phone-320\", \"sourceId\": \"WS-101\", \"title\": \"Create task linked from current note\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Title/list/action-description and captured saved/unsaved source explanation; manual note save remains separate.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Title/list/action-description and captured saved/unsaved source explanation; manual note save remains separate.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"desktop\", \"sourceId\": \"WS-101\", \"fieldsInOrder\": [{\"name\": \"任务标题\", \"type\": \"text\", \"required\": true, \"constraints\": \"Trimmed nonblank; UImaxlength256.\", \"sensitive\": false}, {\"name\": \"目标或清单\", \"type\": \"select\", \"required\": true, \"constraints\": \"Inbox or available capture lists.\", \"sensitive\": false}, {\"name\": \"行动说明\", \"type\": \"textarea\", \"required\": false, \"constraints\": \"Auto-size3–10 rows; exact backend cap delegated to ToDoo inventory.\", \"sensitive\": false}], \"actions\": [{\"label\": \"创建任务\", \"effect\": \"Create linked task from saved note or unsaved snapshot; note requires own manual save\", \"api\": \"GET /api/to-doo/state?kind=list&limit=1000; POST /api/to-doo/commands action=create_task\", \"guard\": \"!busy and nonblank title\"}, {\"label\": \"取消\", \"effect\": \"Close idle modal\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Saved versus unsaved source snapshot explanation\", \"Busy disables dismissal\", \"Error retains captured form\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"phone-390\", \"sourceId\": \"WS-101\", \"fieldsInOrder\": [{\"name\": \"任务标题\", \"type\": \"text\", \"required\": true, \"constraints\": \"Trimmed nonblank; UImaxlength256.\", \"sensitive\": false}, {\"name\": \"目标或清单\", \"type\": \"select\", \"required\": true, \"constraints\": \"Inbox or available capture lists.\", \"sensitive\": false}, {\"name\": \"行动说明\", \"type\": \"textarea\", \"required\": false, \"constraints\": \"Auto-size3–10 rows; exact backend cap delegated to ToDoo inventory.\", \"sensitive\": false}], \"actions\": [{\"label\": \"创建任务\", \"effect\": \"Create linked task from saved note or unsaved snapshot; note requires own manual save\", \"api\": \"GET /api/to-doo/state?kind=list&limit=1000; POST /api/to-doo/commands action=create_task\", \"guard\": \"!busy and nonblank title\"}, {\"label\": \"取消\", \"effect\": \"Close idle modal\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Saved versus unsaved source snapshot explanation\", \"Busy disables dismissal\", \"Error retains captured form\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"phone-320\", \"sourceId\": \"WS-101\", \"fieldsInOrder\": [{\"name\": \"任务标题\", \"type\": \"text\", \"required\": true, \"constraints\": \"Trimmed nonblank; UImaxlength256.\", \"sensitive\": false}, {\"name\": \"目标或清单\", \"type\": \"select\", \"required\": true, \"constraints\": \"Inbox or available capture lists.\", \"sensitive\": false}, {\"name\": \"行动说明\", \"type\": \"textarea\", \"required\": false, \"constraints\": \"Auto-size3–10 rows; exact backend cap delegated to ToDoo inventory.\", \"sensitive\": false}], \"actions\": [{\"label\": \"创建任务\", \"effect\": \"Create linked task from saved note or unsaved snapshot; note requires own manual save\", \"api\": \"GET /api/to-doo/state?kind=list&limit=1000; POST /api/to-doo/commands action=create_task\", \"guard\": \"!busy and nonblank title\"}, {\"label\": \"取消\", \"effect\": \"Close idle modal\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Saved versus unsaved source snapshot explanation\", \"Busy disables dismissal\", \"Error retains captured form\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3521, apps/web/to-doo-capture.ts:1, apps/web/components/Workspace.vue:245",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3521, apps/web/to-doo-capture.ts:1, apps/web/components/Workspace.vue:245",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D077.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-f4b2199f-62a5-4aae-a0e5-4ad0132602f3.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-f4b2199f-62a5-4aae-a0e5-4ad0132602f3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T03:06:22.055Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Three width specimens of the existing note-to-task bridge preserve title/list/description and unsaved-snapshot/manual-note-save explanation; no ToDoo app redesign or extra task fields.",
+    "concerns": [
+      "Selected sample states are source-derived; counters and values do not assert actual live backend state.",
+      "Static3-width boards do not prove responsive focus/scroll/fit, graph authorization, task/manual-save or busy behavior."
+    ]
+  },
+  "sha256": "f0b30ebe2549e1faea5bba20e7b56d5581c43c32ecbad203dcab17c5c624a628",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1109633,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/to-doo-capture.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ad66cee3a684de820e253f9a487a24c6e4028a857150c50721e2d3098de18bb9"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "No exact matching runtime capture; source renderer/default/guard conditions define chosen width specimens."
+}

@@ -1,0 +1,49 @@
+{
+  "assetId": "MP-D085",
+  "sourceIds": [
+    "PB-015",
+    "PB-016",
+    "PB-017"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T03:57:33.622958+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Three independent source-derived setup phases initializing/owner_required/source_unavailable, no claimed public runtime reachability.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Each keeps actual setupbrand/steps/footer and only phase-specific title/helper/control.",
+    "Initializing progress and source-unavailable recheck/details remain real actions; owner-required has deployment-device guidance only, no browser account creation form/command input.",
+    "Source-derived owner_required rendering does not assert a public reachable route; hidden source-choice/new-library branches not mixed."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-020.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D085.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/SetupWizard.vue:189",
+    "apps/web/components/SetupWizard.vue:443",
+    "apps/web/components/SetupWizard.vue:448",
+    "apps/web/components/SetupWizard.vue:452",
+    "apps/server/platform/settings.ts:80"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "f630fbdd57d881c2697b9d10d82041de77a900a3d83e4cf8c0db5cd3ce5f5fa2",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D085.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

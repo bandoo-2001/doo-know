@@ -1,0 +1,496 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S041",
+  "assetId": "MP-S041",
+  "sourceIds": [
+    "PB-009",
+    "PB-010",
+    "PB-017"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "owner-setup"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-009",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-setup",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Four SetupWizard slices: chosen-folder receipt; UTC timezone autocomplete dropdown; actual invalid timezone error details; unavailable platform-state card with real recheck and code details. No runtime baseline."
+    }
+  ],
+  "selectedState": "Four SetupWizard slices: chosen-folder receipt; UTC timezone autocomplete dropdown; actual invalid timezone error details; unavailable platform-state card with real recheck and code details. No runtime baseline.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。四个独立紧凑局部。1 选择回执：蓝色轻背景“已选择”，下面只读路径/srv/example/knowledge，说明“已有文件会保留，不会清空这个文件夹。”。2 标签“时区”，自动补全输入框内容UTC，下方展开一个候选“协调世界时（UTC）”，不加保存按钮。3 红色提示“这个时区无法使用，请在高级设置中重新选择。”，展开“查看详细信息”，等宽只读INVALID_TIME_ZONE。4 状态卡标题“暂时无法打开知识库”，说明“原有资料和设置已保留。请检查保存位置是否可用，再重试。”，现有按钮“重新检查”，展开“查看详细信息”显示只读SOURCE_UNAVAILABLE。无主人导航、密码、注册、清空或修复按钮。",
+  "prompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。四个独立紧凑局部。1 选择回执：蓝色轻背景“已选择”，下面只读路径/srv/example/knowledge，说明“已有文件会保留，不会清空这个文件夹。”。2 标签“时区”，自动补全输入框内容UTC，下方展开一个候选“协调世界时（UTC）”，不加保存按钮。3 红色提示“这个时区无法使用，请在高级设置中重新选择。”，展开“查看详细信息”，等宽只读INVALID_TIME_ZONE。4 状态卡标题“暂时无法打开知识库”，说明“原有资料和设置已保留。请检查保存位置是否可用，再重试。”，现有按钮“重新检查”，展开“查看详细信息”显示只读SOURCE_UNAVAILABLE。无主人导航、密码、注册、清空或修复按钮。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; no actual matching runtime baseline or role-shell reference exists",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; no actual matching runtime baseline or role-shell reference exists",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。四个独立紧凑局部。1 选择回执：蓝色轻背景“已选择”，下面只读路径/srv/example/knowledge，说明“已有文件会保留，不会清空这个文件夹。”。2 标签“时区”，自动补全输入框内容UTC，下方展开一个候选“协调世界时（UTC）”，不加保存按钮。3 红色提示“这个时区无法使用，请在高级设置中重新选择。”，展开“查看详细信息”，等宽只读INVALID_TIME_ZONE。4 状态卡标题“暂时无法打开知识库”，说明“原有资料和设置已保留。请检查保存位置是否可用，再重试。”，现有按钮“重新检查”，展开“查看详细信息”显示只读SOURCE_UNAVAILABLE。无主人导航、密码、注册、清空或修复按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。四个独立紧凑局部。1 选择回执：蓝色轻背景“已选择”，下面只读路径/srv/example/knowledge，说明“已有文件会保留，不会清空这个文件夹。”。2 标签“时区”，自动补全输入框内容UTC，下方展开一个候选“协调世界时（UTC）”，不加保存按钮。3 红色提示“这个时区无法使用，请在高级设置中重新选择。”，展开“查看详细信息”，等宽只读INVALID_TIME_ZONE。4 状态卡标题“暂时无法打开知识库”，说明“原有资料和设置已保留。请检查保存位置是否可用，再重试。”，现有按钮“重新检查”，展开“查看详细信息”显示只读SOURCE_UNAVAILABLE。无主人导航、密码、注册、清空或修复按钮。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only; no actual matching runtime baseline or role-shell reference exists"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-c42db31c-2130-44fa-906b-c3251a52f7d7.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-009",
+      "title": "首次设置：已有资料目录浏览",
+      "kind": "page",
+      "module": "setup",
+      "entry": {
+        "route": "/ (platform.phase=setup_required)",
+        "trigger": "Choose 使用已有资料",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:91",
+        "apps/web/components/SetupWizard.vue:277",
+        "apps/server/platform/setup-directories.ts:6",
+        "apps/server/platform/settings.ts:173"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [
+        {
+          "name": "knowledgeRoot",
+          "type": "server directory",
+          "required": true,
+          "constraints": "absolute readable/writable non-symlink child of allowed base; not hidden component",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "返回上一级 / 可用位置 / 文件夹",
+          "effect": "Browse server directories",
+          "api": "POST /api/platform/setup/directories",
+          "guard": "not browserBusy/busy"
+        },
+        {
+          "label": "使用这个文件夹",
+          "effect": "Select current server folder",
+          "api": "",
+          "guard": "not an allowed base itself"
+        },
+        {
+          "label": "确认并继续",
+          "effect": "Validate and bind chosen folder",
+          "api": "POST /api/platform/setup/validate; /complete",
+          "guard": "nonempty selected path"
+        }
+      ],
+      "importantStates": [
+        "folder listing loading",
+        "no child directories; current path selectable",
+        "truncated listing with advanced-path fallback",
+        "read failure and retry; chosen-folder receipt",
+        "allowed root itself cannot be bound"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "This browser describes the deployment device, not the browser device."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-010",
+      "title": "首次设置：高级位置与时区",
+      "kind": "state",
+      "module": "setup",
+      "entry": {
+        "route": "/ (setup required)",
+        "trigger": "Expand 高级设置 in new/existing modes",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:338",
+        "apps/server/platform/settings.ts:122",
+        "apps/server/platform/setup-directories.ts:10"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [
+        {
+          "name": "parentPath",
+          "type": "server directory",
+          "required": false,
+          "constraints": "new mode only; blank uses recommended server location",
+          "sensitive": false
+        },
+        {
+          "name": "knowledgeRoot",
+          "type": "server directory",
+          "required": true,
+          "constraints": "existing mode only; absolute allowed child",
+          "sensitive": false
+        },
+        {
+          "name": "timeZone",
+          "type": "autocomplete",
+          "required": true,
+          "constraints": "Intl-valid timezone; browser-resolved default or Asia/Shanghai",
+          "sensitive": false
+        }
+      ],
+      "actions": [],
+      "importantStates": [
+        "new-mode optional parent path",
+        "existing-mode full root path",
+        "allowed-range hint; timezone autocomplete",
+        "invalid timezone/path validation errors"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Remote import mode does not show this advanced section."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-017",
+      "title": "首次设置：目录不可用或配置冲突",
+      "kind": "state",
+      "module": "setup",
+      "entry": {
+        "route": "/ (source_unavailable/configuration_error)",
+        "trigger": "SetupWizard receives other non-ready phase",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:452",
+        "apps/server/platform/settings.ts:80"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新检查",
+          "effect": "Refresh platform status",
+          "api": "GET /api/platform/status",
+          "guard": ""
+        },
+        {
+          "label": "查看详细信息",
+          "effect": "Expand status code",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "saved data/settings retained",
+        "details exposes actual status code/phase",
+        "manual recheck"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-009",
+      "parentId": "PB-008",
+      "route": "/ (platform.phase=setup_required)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:91",
+        "apps/web/components/SetupWizard.vue:277",
+        "apps/server/platform/setup-directories.ts:6",
+        "apps/server/platform/settings.ts:173"
+      ]
+    },
+    {
+      "sourceId": "PB-010",
+      "parentId": "PB-008",
+      "route": "/ (setup required)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:338",
+        "apps/server/platform/settings.ts:122",
+        "apps/server/platform/setup-directories.ts:10"
+      ]
+    },
+    {
+      "sourceId": "PB-017",
+      "parentId": "PB-008",
+      "route": "/ (source_unavailable/configuration_error)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:452",
+        "apps/server/platform/settings.ts:80"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-027.json#MP-S041",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S041",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-c42db31c-2130-44fa-906b-c3251a52f7d7.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S041.png",
+  "sha256": "31ff5c910b33c86b1c2b9d890050c6e319cc9445563e8f48a758ca869429b756",
+  "bytes": 1169769,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T05:05:27.906347+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-setup / SetupWizard.vue",
+    "sourceIds": [
+      "PB-009",
+      "PB-010",
+      "PB-017"
+    ],
+    "roles": [
+      "authenticated owner",
+      "owner-setup"
+    ],
+    "state": "Four SetupWizard slices: chosen-folder receipt; UTC timezone autocomplete dropdown; actual invalid timezone error details; unavailable platform-state card with real recheck and code details. No runtime baseline.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-009",
+      "title": "chosen-folder receipt",
+      "renderer": "apps/web/components/SetupWizard.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:91",
+        "apps/web/components/SetupWizard.vue:277",
+        "apps/server/platform/setup-directories.ts:6",
+        "apps/server/platform/settings.ts:173"
+      ],
+      "guardBindings": [
+        {
+          "label": "返回上一级 / 可用位置 / 文件夹",
+          "guard": "not browserBusy/busy"
+        },
+        {
+          "label": "使用这个文件夹",
+          "guard": "not an allowed base itself"
+        },
+        {
+          "label": "确认并继续",
+          "guard": "nonempty selected path"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "read failure and retry; chosen-folder receipt",
+          "variant": "chosen-folder receipt",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-009"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "PB-010",
+      "title": "timezone autocomplete",
+      "renderer": "apps/web/components/SetupWizard.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:338",
+        "apps/server/platform/settings.ts:122",
+        "apps/server/platform/setup-directories.ts:10"
+      ],
+      "guardBindings": [],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "allowed-range hint; timezone autocomplete",
+          "variant": "timezone autocomplete",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-010"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "PB-010",
+      "title": "invalid timezone/path validation errors",
+      "renderer": "apps/web/components/SetupWizard.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:338",
+        "apps/server/platform/settings.ts:122",
+        "apps/server/platform/setup-directories.ts:10"
+      ],
+      "guardBindings": [],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "invalid timezone/path validation errors",
+          "variant": "invalid timezone/path validation errors",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-010"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "PB-017",
+      "title": "details exposes actual status code/phase",
+      "renderer": "apps/web/components/SetupWizard.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:452",
+        "apps/server/platform/settings.ts:80"
+      ],
+      "guardBindings": [
+        {
+          "label": "重新检查",
+          "guard": ""
+        },
+        {
+          "label": "查看详细信息",
+          "guard": ""
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "details exposes actual status code/phase",
+          "variant": "details exposes actual status code/phase",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-017"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": []
+}

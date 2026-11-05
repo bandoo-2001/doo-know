@@ -1,0 +1,309 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S071",
+  "assetId": "MP-S071",
+  "sourceIds": [
+    "PB-055"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "anonymous guest",
+    "anonymous-blog"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-055",
+      "title": "真实组件局部状态矩阵",
+      "role": "anonymous-blog",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Five public reader-script local specimens: share copy fallback success; copied code report; code copy failure manual guidance; link copy failure address guidance; nonAbort share error. Clipboard fallback hidden textarea adds no UI; AbortError silent per source."
+    }
+  ],
+  "selectedState": "Five public reader-script local specimens: share copy fallback success; copied code report; code copy failure manual guidance; link copy failure address guidance; nonAbort share error. Clipboard fallback hidden textarea adds no UI; AbortError silent per source.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制清晰中文网页局部组件对照板，白底浅灰面、细边框小圆角、字体紧凑，独立场景用留白细线分开。只画指定局部，不画外部主人导航、浏览器或审查文字。局部控件沿博客参考的暗绿#44684f与白底，不用蓝色主人菜单。五行独立片段。1 文章页脚按钮“复制链接”“分享文章”，链接“返回顶部 ↑”，普通状态“链接已复制，可以分享给朋友”；不画原生分享窗。2 一段短代码块“const note = 'example';”，右上按钮“已复制”，下方普通状态“代码已复制”。3 相同短代码块，按钮“复制失败”，下方“无法复制，请手动选择代码”。4 页脚仍有复制链接/分享文章/返回顶部，状态“无法复制，请复制地址栏链接”。5 同样页脚三项，状态“暂时无法分享，请复制链接”。不添加账号、社交平台、地址输入、重试或成功toast；普通状态提示不是弹窗。",
+  "prompt": "绘制清晰中文网页局部组件对照板，白底浅灰面、细边框小圆角、字体紧凑，独立场景用留白细线分开。只画指定局部，不画外部主人导航、浏览器或审查文字。局部控件沿博客参考的暗绿#44684f与白底，不用蓝色主人菜单。五行独立片段。1 文章页脚按钮“复制链接”“分享文章”，链接“返回顶部 ↑”，普通状态“链接已复制，可以分享给朋友”；不画原生分享窗。2 一段短代码块“const note = 'example';”，右上按钮“已复制”，下方普通状态“代码已复制”。3 相同短代码块，按钮“复制失败”，下方“无法复制，请手动选择代码”。4 页脚仍有复制链接/分享文章/返回顶部，状态“无法复制，请复制地址栏链接”。5 同样页脚三项，状态“暂时无法分享，请复制链接”。不添加账号、社交平台、地址输入、重试或成功toast；普通状态提示不是弹窗。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-public-reader.png",
+      "role": "Actual matching parent/content baseline only; requested local state source-derived",
+      "sha256": "26be9fdc338467a0d7c2f95a504fa3952e3c359c61be8fed0c15cca6f2e46a30",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; no public/owner role chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-public-reader.png",
+      "role": "Actual matching parent/content baseline only; requested local state source-derived",
+      "sha256": "26be9fdc338467a0d7c2f95a504fa3952e3c359c61be8fed0c15cca6f2e46a30",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; no public/owner role chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制清晰中文网页局部组件对照板，白底浅灰面、细边框小圆角、字体紧凑，独立场景用留白细线分开。只画指定局部，不画外部主人导航、浏览器或审查文字。局部控件沿博客参考的暗绿#44684f与白底，不用蓝色主人菜单。五行独立片段。1 文章页脚按钮“复制链接”“分享文章”，链接“返回顶部 ↑”，普通状态“链接已复制，可以分享给朋友”；不画原生分享窗。2 一段短代码块“const note = 'example';”，右上按钮“已复制”，下方普通状态“代码已复制”。3 相同短代码块，按钮“复制失败”，下方“无法复制，请手动选择代码”。4 页脚仍有复制链接/分享文章/返回顶部，状态“无法复制，请复制地址栏链接”。5 同样页脚三项，状态“暂时无法分享，请复制链接”。不添加账号、社交平台、地址输入、重试或成功toast；普通状态提示不是弹窗。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-public-reader.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制清晰中文网页局部组件对照板，白底浅灰面、细边框小圆角、字体紧凑，独立场景用留白细线分开。只画指定局部，不画外部主人导航、浏览器或审查文字。局部控件沿博客参考的暗绿#44684f与白底，不用蓝色主人菜单。五行独立片段。1 文章页脚按钮“复制链接”“分享文章”，链接“返回顶部 ↑”，普通状态“链接已复制，可以分享给朋友”；不画原生分享窗。2 一段短代码块“const note = 'example';”，右上按钮“已复制”，下方普通状态“代码已复制”。3 相同短代码块，按钮“复制失败”，下方“无法复制，请手动选择代码”。4 页脚仍有复制链接/分享文章/返回顶部，状态“无法复制，请复制地址栏链接”。5 同样页脚三项，状态“暂时无法分享，请复制链接”。不添加账号、社交平台、地址输入、重试或成功toast；普通状态提示不是弹窗。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-public-reader.png",
+          "role": "Actual matching parent/content baseline only; requested local state source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only; no public/owner role chrome authority"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-532b66cc-dd52-43af-a1eb-f18f91c5f3b6.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-055",
+      "title": "公开博客阅读：复制/分享反馈",
+      "kind": "state",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog/:slug",
+        "trigger": "Activate code/link copy or share",
+        "parentId": "PB-054"
+      },
+      "sourceRefs": [
+        "apps/server/blog/reader-script.ts:6",
+        "apps/server/blog/reader-script.ts:21",
+        "apps/server/blog/reader-script.ts:32"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "复制代码 / 复制链接 / 分享文章",
+          "effect": "Perform local browser copy/share and update aria-live status",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "code copied then button resets after2s",
+        "clipboard API unavailable uses execCommand fallback",
+        "copy fails: manual code/address instructions",
+        "navigator.share unavailable: copy-link fallback",
+        "native share AbortError silent; other errors report"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/e2e/blog-public-redesign.spec.ts:330",
+        "tests/e2e/blog-studio.spec.ts:212"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-055",
+      "parentId": "PB-054",
+      "route": "/blog/:slug",
+      "roles": [
+        "anonymous guest"
+      ],
+      "sourceRefs": [
+        "apps/server/blog/reader-script.ts:6",
+        "apps/server/blog/reader-script.ts:21",
+        "apps/server/blog/reader-script.ts:32"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-031.json#MP-S071",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S071",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-532b66cc-dd52-43af-a1eb-f18f91c5f3b6.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S071.png",
+  "sha256": "f544978a2dcd048f076d899424a2e5e52144b57bc5d98ad72b3e561fdd56c6c2",
+  "bytes": 1161104,
+  "dimensions": {
+    "width": 1182,
+    "height": 1330
+  },
+  "generatedAtUtc": "2026-11-05T06:10:25.643883+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: anonymous-blog / reader-script.ts",
+    "sourceIds": [
+      "PB-055"
+    ],
+    "roles": [
+      "anonymous guest",
+      "anonymous-blog"
+    ],
+    "state": "Five public reader-script local specimens: share copy fallback success; copied code report; code copy failure manual guidance; link copy failure address guidance; nonAbort share error. Clipboard fallback hidden textarea adds no UI; AbortError silent per source.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-055",
+      "title": "navigator.share unavailable: copy-link fallback",
+      "renderer": "apps/server/blog/reader-script.ts",
+      "sourceRefs": [
+        "apps/server/blog/reader-script.ts:6",
+        "apps/server/blog/reader-script.ts:21",
+        "apps/server/blog/reader-script.ts:32"
+      ],
+      "guardBindings": [
+        {
+          "label": "复制代码 / 复制链接 / 分享文章",
+          "guard": ""
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "navigator.share unavailable: copy-link fallback",
+          "variant": "navigator.share unavailable: copy-link fallback",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-055"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "PB-055",
+      "title": "reader-script当前代码复制按钮/地址反馈的完整局部状态，无额外分享账号入口",
+      "renderer": "apps/server/blog/reader-script.ts",
+      "sourceRefs": [
+        "apps/server/blog/reader-script.ts:6",
+        "apps/server/blog/reader-script.ts:21",
+        "apps/server/blog/reader-script.ts:32"
+      ],
+      "guardBindings": [
+        {
+          "label": "复制代码 / 复制链接 / 分享文章",
+          "guard": ""
+        }
+      ],
+      "presentation": "完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。",
+      "coveredSourceIds": [
+        "PB-055"
+      ]
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": [
+    {
+      "row": "r1",
+      "navigatorShare": false,
+      "copy": true,
+      "report": "链接已复制，可以分享给朋友"
+    },
+    {
+      "row": "r2",
+      "copyCode": true,
+      "button": "已复制",
+      "report": "代码已复制",
+      "resetAfterMs": 2000
+    },
+    {
+      "row": "r3",
+      "copyCode": false,
+      "button": "复制失败",
+      "report": "无法复制，请手动选择代码",
+      "resetAfterMs": 2000
+    },
+    {
+      "row": "r4",
+      "copyLink": false,
+      "report": "无法复制，请复制地址栏链接"
+    },
+    {
+      "row": "r5",
+      "shareError": "nonAbort",
+      "report": "暂时无法分享，请复制链接"
+    },
+    {
+      "notVisuallyAdded": "navigator.clipboard unavailable execCommand textarea is hidden; native share AbortError produces no new visible state"
+    }
+  ]
+}

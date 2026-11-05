@@ -1,0 +1,16 @@
+{
+  "id": "favorites",
+  "title": "收藏笔记",
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?view=favorites",
+  "file": "1440-favorites.png",
+  "sha256": "252416e381ce9c2ae4f05a3c4cdeb42a4a51c0dc6fb2337efec05c944205e255",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

@@ -1,0 +1,432 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R056",
+  "assetId": "MP-R056",
+  "sourceIds": [
+    "PB-026"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "anonymous guest"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-026",
+      "title": "公开编辑：文档模式390px",
+      "role": "anonymous guest",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three guest public document editor pages390/320/320, actual shared header retained edit capability. A clean56chars save disabled; B same-length fictional local wording change dirty valid save enabled; C blocked404 after failed save retains editable document and modes/return usable, save disabled/reload action. Owner toolbar/uploads absent, document feature flag not applied to public."
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-026",
+      "title": "公开编辑：文档模式320px",
+      "role": "anonymous guest",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three guest public document editor pages390/320/320, actual shared header retained edit capability. A clean56chars save disabled; B same-length fictional local wording change dirty valid save enabled; C blocked404 after failed save retains editable document and modes/return usable, save disabled/reload action. Owner toolbar/uploads absent, document feature flag not applied to public."
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-026",
+      "title": "公开编辑：文档模式320px guard",
+      "role": "anonymous guest",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three guest public document editor pages390/320/320, actual shared header retained edit capability. A clean56chars save disabled; B same-length fictional local wording change dirty valid save enabled; C blocked404 after failed save retains editable document and modes/return usable, save disabled/reload action. Owner toolbar/uploads absent, document feature flag not applied to public."
+    }
+  ],
+  "selectedState": "Three guest public document editor pages390/320/320, actual shared header retained edit capability. A clean56chars save disabled; B same-length fictional local wording change dirty valid save enabled; C blocked404 after failed save retains editable document and modes/return usable, save disabled/reload action. Owner toolbar/uploads absent, document feature flag not applied to public.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制并排三个完整独立公开分享文档编辑窄网页，宽比例390、320、320，白灰蓝平面，第二图是实际结构。三页头蓝书本DooKnow、分享笔记、可编辑徽章，绝不加主人导航。工具区文档编辑蓝选中、Markdown 源码普通，两按钮平分窄页一整行；下一行状态、保存修改、返回阅读。固定说明“编辑这篇笔记后请手动保存。不支持上传附件；引用的白板仅供查看。”。文档白色编辑区只显示标题让知识保持可用、正文用于公开页面盘点的隔离示例，不包含真实用户资料。、小标题记录与回顾、结尾把观察留下，给下一步提供线索。，底部正文字符 56。页脚由DooKnow分享 | 内容随原笔记保存同步更新。左状态已保存，保存修改灰禁用，其余可用。中结尾改“把想法留下，给下一步提供线索。”，同字符56，状态未保存，保存修改蓝可用、模式和返回阅读可用。右保留中页完整文档与未保存状态，顶部说明后红色“分享已到期、取消或链接已重置，无法保存。当前编辑已保留，可复制保存到本地。”，可用按钮重新载入最新内容；保存修改灰禁用，但文档仍可编辑、两个模式和返回阅读仍可用，不把文档变灰只读。文字窄处自然换行、正文独立滚动；不加富文本工具栏、插入、上传、标题输入框或自动保存提示。",
+  "prompt": "绘制并排三个完整独立公开分享文档编辑窄网页，宽比例390、320、320，白灰蓝平面，第二图是实际结构。三页头蓝书本DooKnow、分享笔记、可编辑徽章，绝不加主人导航。工具区文档编辑蓝选中、Markdown 源码普通，两按钮平分窄页一整行；下一行状态、保存修改、返回阅读。固定说明“编辑这篇笔记后请手动保存。不支持上传附件；引用的白板仅供查看。”。文档白色编辑区只显示标题让知识保持可用、正文用于公开页面盘点的隔离示例，不包含真实用户资料。、小标题记录与回顾、结尾把观察留下，给下一步提供线索。，底部正文字符 56。页脚由DooKnow分享 | 内容随原笔记保存同步更新。左状态已保存，保存修改灰禁用，其余可用。中结尾改“把想法留下，给下一步提供线索。”，同字符56，状态未保存，保存修改蓝可用、模式和返回阅读可用。右保留中页完整文档与未保存状态，顶部说明后红色“分享已到期、取消或链接已重置，无法保存。当前编辑已保留，可复制保存到本地。”，可用按钮重新载入最新内容；保存修改灰禁用，但文档仍可编辑、两个模式和返回阅读仍可用，不把文档变灰只读。文字窄处自然换行、正文独立滚动；不加富文本工具栏、插入、上传、标题输入框或自动保存提示。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; guest role",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-editor-document.png",
+      "role": "Actual public document editor full geometry/controls/content, no owner editor toolbar",
+      "sha256": "c9558a08d27a12192c476347f97a01f47ded2b8479b939c635df09f04b1a7cde",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; guest role",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-editor-document.png",
+      "role": "Actual public document editor full geometry/controls/content, no owner editor toolbar",
+      "sha256": "c9558a08d27a12192c476347f97a01f47ded2b8479b939c635df09f04b1a7cde",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制并排三个完整独立公开分享文档编辑窄网页，宽比例390、320、320，白灰蓝平面，第二图是实际结构。三页头蓝书本DooKnow、分享笔记、可编辑徽章，绝不加主人导航。工具区文档编辑蓝选中、Markdown 源码普通，两按钮平分窄页一整行；下一行状态、保存修改、返回阅读。固定说明“编辑这篇笔记后请手动保存。不支持上传附件；引用的白板仅供查看。”。文档白色编辑区只显示标题让知识保持可用、正文用于公开页面盘点的隔离示例，不包含真实用户资料。、小标题记录与回顾、结尾把观察留下，给下一步提供线索。，底部正文字符 56。页脚由DooKnow分享 | 内容随原笔记保存同步更新。左状态已保存，保存修改灰禁用，其余可用。中结尾改“把想法留下，给下一步提供线索。”，同字符56，状态未保存，保存修改蓝可用、模式和返回阅读可用。右保留中页完整文档与未保存状态，顶部说明后红色“分享已到期、取消或链接已重置，无法保存。当前编辑已保留，可复制保存到本地。”，可用按钮重新载入最新内容；保存修改灰禁用，但文档仍可编辑、两个模式和返回阅读仍可用，不把文档变灰只读。文字窄处自然换行、正文独立滚动；不加富文本工具栏、插入、上传、标题输入框或自动保存提示。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-editor-document.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制并排三个完整独立公开分享文档编辑窄网页，宽比例390、320、320，白灰蓝平面，第二图是实际结构。三页头蓝书本DooKnow、分享笔记、可编辑徽章，绝不加主人导航。工具区文档编辑蓝选中、Markdown 源码普通，两按钮平分窄页一整行；下一行状态、保存修改、返回阅读。固定说明“编辑这篇笔记后请手动保存。不支持上传附件；引用的白板仅供查看。”。文档白色编辑区只显示标题让知识保持可用、正文用于公开页面盘点的隔离示例，不包含真实用户资料。、小标题记录与回顾、结尾把观察留下，给下一步提供线索。，底部正文字符 56。页脚由DooKnow分享 | 内容随原笔记保存同步更新。左状态已保存，保存修改灰禁用，其余可用。中结尾改“把想法留下，给下一步提供线索。”，同字符56，状态未保存，保存修改蓝可用、模式和返回阅读可用。右保留中页完整文档与未保存状态，顶部说明后红色“分享已到期、取消或链接已重置，无法保存。当前编辑已保留，可复制保存到本地。”，可用按钮重新载入最新内容；保存修改灰禁用，但文档仍可编辑、两个模式和返回阅读仍可用，不把文档变灰只读。文字窄处自然换行、正文独立滚动；不加富文本工具栏、插入、上传、标题输入框或自动保存提示。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; guest role"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-editor-document.png",
+          "role": "Actual public document editor full geometry/controls/content, no owner editor toolbar"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ee225f3b-2edf-4960-9622-a43127881f6e.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-026",
+      "title": "公开编辑：文档模式",
+      "kind": "page",
+      "module": "public-edit",
+      "entry": {
+        "route": "/s/:token (editing=true)",
+        "trigger": "Editable reader → 编辑笔记",
+        "parentId": "PB-022"
+      },
+      "sourceRefs": [
+        "apps/web/components/PublicShareEditor.vue:17",
+        "apps/web/components/PublicShareEditor.vue:68",
+        "apps/web/components/PublicShareEditor.vue:175",
+        "apps/server/knowledge/web-routes.ts:159",
+        "apps/web/components/PublicShareEditor.vue:20",
+        "apps/web/components/PublicShareEditor.vue:35",
+        "apps/web/components/PublicShareEditor.vue:224",
+        "apps/web/components/NoteEditorHost.vue:161",
+        "apps/web/editor/source-codec.ts:156",
+        "apps/web/editor/compatibility.ts:5",
+        "apps/web/components/NoteEditorHost.vue:266",
+        "apps/web/components/NoteEditorHost.vue:449",
+        "apps/web/components/EditorSearch.vue:24",
+        "packages/core/notes.ts:366",
+        "packages/core/errors.ts:10",
+        "apps/web/components/DocumentEditor.vue:486",
+        "apps/web/components/DocumentEditor.vue:569",
+        "apps/web/components/DocumentEditor.vue:1125",
+        "apps/web/components/DocumentEditor.vue:1233",
+        "apps/web/components/DocumentEditor.vue:1261",
+        "apps/web/components/DocumentEditor.vue:1280",
+        "apps/web/components/DocumentEditor.vue:1296",
+        "apps/web/components/DocumentEditor.vue:1318",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Capability grants edit only of this shared note; referenced whiteboards always view-only.",
+        "Source/write require edit token and supported document; maintenance blocks both. Write requires same Origin, JSON and separate anonymous CSRF; 30 requests/minute token rate.",
+        "Save uses expectedModifiedAt and stable requestId for same pending content/version; no owner private asset API.",
+        "PublicShareEditor initializes kind=document directly. NoteEditorHost calls parseSource with source-codec eligibility enabled=true; do not infer that public rich editing is disabled by the owner VITE_DOCUMENT_EDITOR_ENABLED setting.",
+        "The active public token and source/save restrictions remain authoritative in both modes, including after a rich-eligibility fallback; an empty body is not a validation failure.",
+        "A resolved embedded whiteboard uses the current share board endpoint and board.capabilities.canDownloadSource; only that resolved capability governs source-tab availability. The server includes source content/path only when allowDiagramSource and the underlying resource permit it.",
+        "DiagramPreview canEdit requires !readOnly && !shareToken && resourceEdit; canGenerate additionally requires editable=true. A guest/shareToken can never edit design, edit diagram source, convert to whiteboard or generate portable preview, even when original-source download is allowed."
+      ],
+      "fields": [
+        {
+          "name": "draft",
+          "type": "rich document",
+          "required": false,
+          "constraints": "Markdown source; manual save; existing resource references retained; no new private images/whiteboards/uploads; blank draft is allowed. The save JSON payload must contain a string content property, including an empty string; payload-property presence is separate from UI/nonempty validation. Save eligibility is dirty-state and busy/loading/composing/blocked/expiry based, not nonempty based.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存修改",
+          "effect": "Fetch anonymous CSRF and CAS save current draft",
+          "api": "GET /api/public/shares/:token/csrf; PUT /api/public/shares/:token/source",
+          "guard": "dirty, not busy/loading/composing/blocked/expired"
+        },
+        {
+          "label": "Markdown 源码",
+          "effect": "Flush and switch editor mode",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "返回阅读",
+          "effect": "Flush; ask discard if dirty",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "Ctrl/Cmd+F / Ctrl/Cmd+H",
+          "effect": "Open current shared-note find and replace panel (workspace shared surface WS-045)",
+          "api": "",
+          "guard": "editor keyboard event; Ctrl or Meta; not Alt; not composing"
+        },
+        {
+          "label": "上一个/下一个匹配 / 区分大小写 / 关闭查找",
+          "effect": "Navigate or refine current-note matches; Escape/close restores editor focus",
+          "api": "",
+          "guard": "match navigation requires results"
+        },
+        {
+          "label": "替换当前 / 全部替换",
+          "effect": "Modify current shared-note draft; explicit public save still required",
+          "api": "",
+          "guard": "not readOnly; results exist; replacement handler refuses while composing"
+        },
+        {
+          "label": "预览 / 源码（解析后的白板卡片）",
+          "effect": "Switch resolved board presentation; source panel includes local source download only for returned source bytes",
+          "api": "GET /api/public/shares/:token/whiteboards/:reference",
+          "guard": "Source tab only when resolved board.capabilities.canDownloadSource; capability never grants diagram editing/generation"
+        },
+        {
+          "label": "下载源码（解析后的白板源码面板）",
+          "effect": "Download the local sourceText as diagram.excalidraw/svg/mmd; for Excalidraw sourceText is boardSource || provided scene || fence code, without an extra source.path fetch",
+          "api": "local Blob download; no owner asset API",
+          "guard": "source panel reachable only for current allowed source capability; no invented private source fetch"
+        }
+      ],
+      "importantStates": [
+        "source loading/reloading; read failure",
+        "saved; unsaved; saving",
+        "IME composing disables mode/save",
+        "no upload warning; existing attachments and diagram views retained",
+        "rich-editor fallback to source with warning",
+        "Blank body is valid; a dirty deletion to empty can be saved when the ordinary save guards permit it. An unchanged blank baseline is clean, not invalid.",
+        "Ctrl/Cmd+F or Ctrl/Cmd+H inside either mode opens the shared current-note find/replace panel; zero results disables next/previous and replacement actions. Escape closes it; case-sensitive matching, current replacement and replace-all remain local draft operations.",
+        "Find remains available while host readOnly is true; replacement input/actions are disabled while readOnly (busy/reloading), and replacement is guarded during composition.",
+        "Initial mode is document for a readable edit-capability source. parseSource rejects rich eligibility only when UTF-8 bytes exceed262144, source units exceed5000, nesting depth exceeds32, or cross-paragraph reference-link syntax requires preserving global references; fallback emits warning and switches to Markdown source.",
+        "Guest-reachable document context includes table controls, image description/delete/preview, existing-link edit/remove/open, preserved-source copy/delete confirmation and unsupported-paste choice; these reuse shared editor surfaces without owner publication/upload/navigation permissions.",
+        "Public graph-document and Excalidraw-reference read projections may be ordinary PNG preview images with public explanatory body and no source tab/download control; source-allowed setting does not turn such an image into an editor.",
+        "When an embedded whiteboard is actually resolved into DiagramPreview (including public rich editing), canDownloadSource=false hides the source tab and clears a previously visible source panel; preview/expand/retry remain the appropriate read controls.",
+        "For a resolved board whose capability explicitly permits source, source tab reveals only returned sourceText and its local Download source action. The same card still has no edit/convert/generate controls for a shareToken."
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Toolbar wraps; <=720px mode buttons share full width and article padding decreases (PublicShareEditor.vue:329). Editor behavior at 320 remains unverified."
+      },
+      "testRefs": [
+        "tests/e2e/sharing-permissions.spec.ts:71",
+        "tests/e2e/sharing-permissions.spec.ts:227",
+        "tests/e2e/sharing-permissions.spec.ts:363",
+        "tests/shares-permissions-security.test.ts:111",
+        "tests/editor-source-codec.test.ts:53",
+        "tests/editor-compatibility.test.ts:3",
+        "tests/e2e/diagram-public-reader.spec.ts:8",
+        "tests/diagram-public-projection.test.ts:266"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Shared find/replace layout and detailed controls cross-reference coverage/workspace.json WS-045; public reachability is through NoteEditorHost keyboard handling, not an owner toolbar button.",
+        "PublicShareEditor exposes document/source mode, save and return-reading controls. It does not mount the owner full editor toolbar or handle NoteEditorHost insert-menu events, so do not add an owner insert menu to the public mockup.",
+        "Guest document context cross-references: WS-034 table toolbar, WS-035 image settings, WS-036 contextual link actions, WS-037 edit link, WS-038 image preview/zoom, WS-039 copy preserved original, WS-040 delete preserved content, WS-041 unsupported paste choice. These are shared-component layouts with public-specific guards, not duplicate owner-only pages.",
+        "Image preview resolves through the current share; replacement/upload actions emit the existing public upload-not-supported warning. Editing/deleting image descriptions or links changes the draft only; new private resource references remain rejected at save.",
+        "The public rich-eligibility fallback is distinct from a document chunk-load error: NoteEditorHost shows a preserved-content load-error warning and suggests switching modes; it does not mark the owner feature flag as public eligibility.",
+        "Actual shared component path is apps/web/components/DiagramPreview.vue; there is no PublicDiagramPreview.vue at this baseline.",
+        "Ordinary inline SVG/Mermaid code already present in shared Markdown retains inline rendering; this is distinct from permission to fetch private/native board source. Do not infer original-source access from a source-tab screenshot or from note edit permission alone.",
+        "Download is a local Blob of sourceText: for Excalidraw this is boardSource || provided scene || fence code. The component does not fetch an owner asset or an extra source.path to fill missing source.content; do not depict such a fetch as implemented."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-026",
+      "parentId": "PB-022",
+      "route": "/s/:token (editing=true)",
+      "roles": [
+        "anonymous guest"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PublicShareEditor.vue:17",
+        "apps/web/components/PublicShareEditor.vue:68",
+        "apps/web/components/PublicShareEditor.vue:175",
+        "apps/server/knowledge/web-routes.ts:159",
+        "apps/web/components/PublicShareEditor.vue:20",
+        "apps/web/components/PublicShareEditor.vue:35",
+        "apps/web/components/PublicShareEditor.vue:224",
+        "apps/web/components/NoteEditorHost.vue:161",
+        "apps/web/editor/source-codec.ts:156",
+        "apps/web/editor/compatibility.ts:5",
+        "apps/web/components/NoteEditorHost.vue:266",
+        "apps/web/components/NoteEditorHost.vue:449",
+        "apps/web/components/EditorSearch.vue:24",
+        "packages/core/notes.ts:366",
+        "packages/core/errors.ts:10",
+        "apps/web/components/DocumentEditor.vue:486",
+        "apps/web/components/DocumentEditor.vue:569",
+        "apps/web/components/DocumentEditor.vue:1125",
+        "apps/web/components/DocumentEditor.vue:1233",
+        "apps/web/components/DocumentEditor.vue:1261",
+        "apps/web/components/DocumentEditor.vue:1280",
+        "apps/web/components/DocumentEditor.vue:1296",
+        "apps/web/components/DocumentEditor.vue:1318",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-041.json#MP-R056",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R056",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ee225f3b-2edf-4960-9622-a43127881f6e.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R056.png",
+  "sha256": "56e756dfdb73e19e3142d9f6a0d24267c53b6ab6ffc7ea232dd32b99ed2f8750",
+  "bytes": 1266366,
+  "dimensions": {
+    "width": 2172,
+    "height": 724
+  },
+  "generatedAtUtc": "2026-11-05T08:06:00.737497+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: PublicShareEditor.vue valid-edit document host plus retained-draft error bar",
+    "sourceIds": [
+      "PB-026"
+    ],
+    "roles": [
+      "anonymous guest"
+    ],
+    "state": "Three guest public document editor pages390/320/320, actual shared header retained edit capability. A clean56chars save disabled; B same-length fictional local wording change dirty valid save enabled; C blocked404 after failed save retains editable document and modes/return usable, save disabled/reload action. Owner toolbar/uploads absent, document feature flag not applied to public.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "kind": "document",
+      "dirty": false,
+      "busy": false,
+      "loading": false,
+      "blocked": false,
+      "characters": 56
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "kind": "document",
+      "dirty": true,
+      "busy": false,
+      "loading": false,
+      "blocked": false,
+      "characters": 56,
+      "draftChange": "把观察留下→把想法留下"
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "kind": "document",
+      "dirty": true,
+      "busy": false,
+      "loading": false,
+      "blocked": true,
+      "error": "分享已到期、取消或链接已重置，无法保存。当前编辑已保留，可复制保存到本地。",
+      "editorReadOnly": false,
+      "modesDisabled": false,
+      "saveDisabled": true
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "assetId": "MP-S030",
+  "sourceIds": [
+    "ST-074",
+    "ST-077",
+    "ST-078",
+    "ST-080",
+    "ST-076",
+    "ST-079"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:08:59.453503+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Seven independent Git repo-busy/draft-discard/draft-retention/commit-preview-invalid/unknown-receipt/localsecret excerpts.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Busy repo information and actual Git internal discard confirmations retain source continue/discard actions, no newforce/sync guarantee.",
+    "Connection/credential values retained as synthetic drafts; publicURL and masked token are true source fields, no protocol hashes.",
+    "Changed explanation invalidates preview; commitUnknown locks close/cancel/change but enables same-request reconciliation; no fabricated duplicate commit button or success outcome."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-025.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S030.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/GitRemotePanel.vue:260",
+    "apps/web/components/GitRemotePanel.vue:799",
+    "apps/web/components/GitRemotePanel.vue:1247",
+    "apps/web/components/GitRemotePanel.vue:1310"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "fd525221165414cd234057c31fe45249a617cd874ffd3e28438ed1347156694c",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S030.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "assetId": "WS-D037",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:56:44.235420+00:00",
+  "method": "Actual PNG viewed; complete actual submitted prompt and exact batch source contracts compared with current component/renderer/wrapper templates and matching real baseline where one exists. Source-derived configurations are not runtime captures.",
+  "selectedState": "Source-derived clean loaded large-file fragment with four lines/long fourth line, more content and preview closed",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Compact ordinary large-mode note header keeps bookmark/share/more and navigation, with no full-document history/formatting/save controls that require full editor mode.",
+    "Source horizontal wrapping chapter nav restored, with full-width loaded-fragment range/editor. Four-line range and 128KiB bytes are declared synthetic long-line data; inner horizontal scroll conveys continuation without editable byte/snapshot fields.",
+    "Preview/save/next/reload/download action set and order retained, enabled in this idle/recovery-free/service-ready paged state; exactly128KiB permits previewAllowed<=128KiB. Save button itself is not dirty-gated in source.",
+    "Loaded-only scope/help/line numbers/clean status preserved; no recovery/error/task/metadata-only branch mixed in, and no actual large-file runtime capture claimed."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-008.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D037.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/Workspace.vue:3046",
+    "apps/web/components/LargeFileWorkspace.vue:159",
+    "apps/web/components/LargeFileWorkspace.vue:226",
+    "apps/web/components/LargeFileWorkspace.vue:487",
+    "apps/web/components/NoteOutline.vue:1"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "4a5ba23af3510c89f9ed53b2b866f3379e407655b6626d048fec488cdcd97e6e",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D037.png",
+  "sourceIds": [
+    "WS-049"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

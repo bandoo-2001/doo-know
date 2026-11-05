@@ -1,0 +1,430 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D092-v3",
+  "assetId": "WS-D092",
+  "sourceIds": [
+    "WS-093",
+    "WS-094"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "note",
+      "sourceId": "WS-094",
+      "title": "Desktop graph node/edge inspector",
+      "role": "authenticated owner",
+      "state": "Note inspector: actual open/focus actions, authorized evidence and no entity alias/merge fields.",
+      "reuseSourceIds": [
+        "WS-093"
+      ],
+      "selectedState": "Three independent inspector variants: note with source actions; suggested semantic edge with review; similarity clue with no evidence and no review/entity controls."
+    },
+    {
+      "label": "semantic-edge",
+      "sourceId": "WS-094",
+      "title": "Desktop graph node/edge inspector",
+      "role": "authenticated owner",
+      "state": "Semantic relationship inspector: actual evidence and review decision controls; guard/version semantics retained.",
+      "reuseSourceIds": [
+        "WS-093"
+      ],
+      "selectedState": "Three independent inspector variants: note with source actions; suggested semantic edge with review; similarity clue with no evidence and no review/entity controls."
+    },
+    {
+      "label": "similarity",
+      "sourceId": "WS-094",
+      "title": "Desktop graph node/edge inspector",
+      "role": "authenticated owner",
+      "state": "Similarity inspector explicitly presents a clue, not a factual relation; existing no-evidence message and actual actions only.",
+      "reuseSourceIds": [
+        "WS-093"
+      ],
+      "selectedState": "Three independent inspector variants: note with source actions; suggested semantic edge with review; similarity clue with no evidence and no review/entity controls."
+    }
+  ],
+  "selectedState": "Three independent inspector variants: note with source actions; suggested semantic edge with review; similarity clue with no evidence and no review/entity controls.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅修正这张三卡板左侧“笔记”卡和中间“模型关系”卡各自证据下方的来源控件：现有来源行必须恢复为可点的蓝色文字按钮，按钮精确文字“示例笔记 · L3–4”，用清晰蓝色和轻下划线/可点击样式，不能继续是普通黑灰纯文本，也不要把“来源：”前缀写进按钮。两处按钮下方现有“基础词项分析”“模型提取”仍为普通灰色说明。所有其余证据/文字/输入值关联/单个确认 / 保存按钮/忽略关系/右相似卡/布局完全不变，不新增其他操作。",
+  "prompt": "仅修正这张三卡板左侧“笔记”卡和中间“模型关系”卡各自证据下方的来源控件：现有来源行必须恢复为可点的蓝色文字按钮，按钮精确文字“示例笔记 · L3–4”，用清晰蓝色和轻下划线/可点击样式，不能继续是普通黑灰纯文本，也不要把“来源：”前缀写进按钮。两处按钮下方现有“基础词项分析”“模型提取”仍为普通灰色说明。所有其余证据/文字/输入值关联/单个确认 / 保存按钮/忽略关系/右相似卡/布局完全不变，不新增其他操作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D092-v2.png",
+      "role": "Edit target: restore actual clickable source buttons in note and semantic evidence cards only",
+      "sha256": "398263b76f3c5ef23c50cea2a3ed3bb291d62a9d2aa5dc190ff31ef741dc268f",
+      "dimensions": {
+        "width": 2172,
+        "height": 724
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D092-v2.png",
+      "role": "Edit target: restore actual clickable source buttons in note and semantic evidence cards only",
+      "sha256": "398263b76f3c5ef23c50cea2a3ed3bb291d62a9d2aa5dc190ff31ef741dc268f",
+      "dimensions": {
+        "width": 2172,
+        "height": 724
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅修正这张三卡板左侧“笔记”卡和中间“模型关系”卡各自证据下方的来源控件：现有来源行必须恢复为可点的蓝色文字按钮，按钮精确文字“示例笔记 · L3–4”，用清晰蓝色和轻下划线/可点击样式，不能继续是普通黑灰纯文本，也不要把“来源：”前缀写进按钮。两处按钮下方现有“基础词项分析”“模型提取”仍为普通灰色说明。所有其余证据/文字/输入值关联/单个确认 / 保存按钮/忽略关系/右相似卡/布局完全不变，不新增其他操作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D092-v2.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅修正这张三卡板左侧“笔记”卡和中间“模型关系”卡各自证据下方的来源控件：现有来源行必须恢复为可点的蓝色文字按钮，按钮精确文字“示例笔记 · L3–4”，用清晰蓝色和轻下划线/可点击样式，不能继续是普通黑灰纯文本，也不要把“来源：”前缀写进按钮。两处按钮下方现有“基础词项分析”“模型提取”仍为普通灰色说明。所有其余证据/文字/输入值关联/单个确认 / 保存按钮/忽略关系/右相似卡/布局完全不变，不新增其他操作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D092-v2.png",
+          "role": "Edit target: restore actual clickable source buttons in note and semantic evidence cards only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-a8f92333-ef39-4e40-bc23-9b7c6e51cad7.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-093",
+      "title": "Mobile graph node/edge inspector drawer",
+      "kind": "drawer",
+      "module": "graph",
+      "entry": {
+        "route": "/?view=apps&app=graph",
+        "trigger": "Select graph node/edge at viewport<800px",
+        "parentId": "WS-085"
+      },
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:1373",
+        "apps/web/components/graph/GraphInspector.vue:92",
+        "apps/web/components/graph/GraphOverlay.vue:36",
+        "packages/core/graph/analysis-source.ts:31",
+        "packages/core/graph/knowledge-state.ts:166",
+        "packages/core/graph/knowledge-service.ts:934"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).",
+        "Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target."
+      ],
+      "fields": [
+        {
+          "name": "新增别名",
+          "type": "text",
+          "required": false,
+          "constraints": "UImaxlength100; server trimmed nonblank, <=128chars, no U+0000–001F.",
+          "sensitive": false
+        },
+        {
+          "name": "合并到",
+          "type": "entity-select",
+          "required": false,
+          "constraints": "Other visible non-note node.",
+          "sensitive": false
+        },
+        {
+          "name": "目标",
+          "type": "entity-select",
+          "required": false,
+          "constraints": "Other visible non-note node.",
+          "sensitive": false
+        },
+        {
+          "name": "关系 / 关系名称",
+          "type": "text",
+          "required": false,
+          "constraints": "Manual relation UImaxlength100; semantic edge name has no UImaxlength. Server predicate: trimmed nonblank, <=128 chars, no U+0000–001F.",
+          "sensitive": false
+        },
+        {
+          "name": "原文依据",
+          "type": "note-select",
+          "required": false,
+          "constraints": "Visible note node or source evidence note; required for manual relation.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "打开原文 / 证据",
+          "effect": "Open authorized note and evidence line",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "1跳关系 / 2跳关系",
+          "effect": "Focus graph around selected node",
+          "api": "GET /api/graph/explore",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "保存别名 / 合并实体 / 添加关系",
+          "effect": "Persist manual owner graph edits",
+          "api": "POST /api/graph/commands",
+          "guard": "Non-note entity; required fields and !busy"
+        },
+        {
+          "label": "确认 / 保存 / 忽略关系",
+          "effect": "Review selected semantic edge",
+          "api": "POST /api/graph/commands",
+          "guard": "Only semantic edges; !busy and predicate nonblank"
+        },
+        {
+          "label": "关闭详情",
+          "effect": "Clear selected id",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Note/entity/edge/similarity variant",
+        "No evidence empty state",
+        "Entity management collapsible sections",
+        "Mobile drawer suppressed while another graph panel open"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "testRefs": [
+        "tests/graph-overlay.test.ts",
+        "tests/e2e/knowledge-graph-full.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-094",
+      "title": "Desktop graph node/edge inspector",
+      "kind": "state",
+      "module": "graph",
+      "entry": {
+        "route": "/?view=apps&app=graph",
+        "trigger": "Select graph node/edge at desktop",
+        "parentId": "WS-085"
+      },
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:811",
+        "apps/web/components/graph/GraphInspector.vue:92",
+        "packages/core/graph/analysis-source.ts:31",
+        "packages/core/graph/knowledge-state.ts:166",
+        "packages/core/graph/knowledge-service.ts:934"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).",
+        "Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target."
+      ],
+      "fields": [
+        {
+          "name": "新增别名",
+          "type": "text",
+          "required": false,
+          "constraints": "UImaxlength100; server trimmed nonblank, <=128chars, no U+0000–001F.",
+          "sensitive": false
+        },
+        {
+          "name": "合并到",
+          "type": "entity-select",
+          "required": false,
+          "constraints": "Other visible non-note node.",
+          "sensitive": false
+        },
+        {
+          "name": "目标",
+          "type": "entity-select",
+          "required": false,
+          "constraints": "Other visible non-note node.",
+          "sensitive": false
+        },
+        {
+          "name": "关系 / 关系名称",
+          "type": "text",
+          "required": false,
+          "constraints": "Manual relation UImaxlength100; semantic edge name has no UImaxlength. Server predicate: trimmed nonblank, <=128 chars, no U+0000–001F.",
+          "sensitive": false
+        },
+        {
+          "name": "原文依据",
+          "type": "note-select",
+          "required": false,
+          "constraints": "Visible note node or source evidence note; required for manual relation.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "打开原文 / 证据",
+          "effect": "Open authorized note and evidence line",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "1跳关系 / 2跳关系",
+          "effect": "Focus graph around selected node",
+          "api": "GET /api/graph/explore",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "保存别名 / 合并实体 / 添加关系",
+          "effect": "Persist manual owner graph edits",
+          "api": "POST /api/graph/commands",
+          "guard": "Non-note entity; required fields and !busy"
+        },
+        {
+          "label": "确认 / 保存 / 忽略关系",
+          "effect": "Review selected semantic edge",
+          "api": "POST /api/graph/commands",
+          "guard": "Only semantic edges; !busy and predicate nonblank"
+        },
+        {
+          "label": "关闭详情",
+          "effect": "Clear selected id",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Entity aliases/merge/manual relation forms",
+        "Note open/focus controls",
+        "Semantic edge review",
+        "Similarity explicitly shown as clue, not factual relation",
+        "No evidence"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "testRefs": [
+        "tests/graph-semantic-api.test.ts",
+        "tests/e2e/knowledge-graph-full.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-093",
+      "parentId": "WS-085",
+      "route": "/?view=apps&app=graph",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:1373",
+        "apps/web/components/graph/GraphInspector.vue:92",
+        "apps/web/components/graph/GraphOverlay.vue:36",
+        "packages/core/graph/analysis-source.ts:31",
+        "packages/core/graph/knowledge-state.ts:166",
+        "packages/core/graph/knowledge-service.ts:934"
+      ]
+    },
+    {
+      "sourceId": "WS-094",
+      "parentId": "WS-085",
+      "route": "/?view=apps&app=graph",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:811",
+        "apps/web/components/graph/GraphInspector.vue:92",
+        "packages/core/graph/analysis-source.ts:31",
+        "packages/core/graph/knowledge-state.ts:166",
+        "packages/core/graph/knowledge-service.ts:934"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-017.json#WS-D092",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D092",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-a8f92333-ef39-4e40-bc23-9b7c6e51cad7.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D092-v3.png",
+  "sha256": "0f49c22607e6c275c93a04b7496597db9f05a2b5d38243ba5cb968e6744b4f72",
+  "bytes": 1623325,
+  "dimensions": {
+    "width": 2172,
+    "height": 724
+  },
+  "generatedAtUtc": "2026-11-05T03:56:33.615622+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D092-v2.png",
+    "sha256": "398263b76f3c5ef23c50cea2a3ed3bb291d62a9d2aa5dc190ff31ef741dc268f",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D092-v2-review.json"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Graph inspector note, semantic relation and similarity clue variants",
+    "sourceIds": [
+      "WS-093",
+      "WS-094"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Three independent inspector variants: note with source actions; suggested semantic edge with review; similarity clue with no evidence and no review/entity controls.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "renderedVariants": []
+}

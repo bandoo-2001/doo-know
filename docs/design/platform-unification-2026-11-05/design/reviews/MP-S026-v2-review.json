@@ -1,0 +1,60 @@
+{
+  "assetId": "MP-S026-v2",
+  "sourceIds": [
+    "ST-068",
+    "ST-069",
+    "ST-071",
+    "ST-072"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:05:10.392157+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "API rotation409/reauthorize409/object-removed reload/revoke uncertain snippets, currentv2.",
+  "functionalFindings": [
+    {
+      "id": "MP-S026-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "r1 also claims non409 unknown issuance outcome, but current409 fragment sets conflict=true, disables confirmation and shows reload. Non409 catch instead shows 操作结果尚未确认…refresh/rotate guidance without setting conflict; valid form confirmation is not conflict-disabled and reload form button is absent.",
+      "sourceEvidence": "MCPApiClients submit catch409 setsconflict; else onlygenericerror. canSubmit !conflict and reload v-ifconflict prove distinct guard/action presentation."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Newv2 actually viewed; revoke unknown keeps real refresh plus dangerconfirm/cancel, object disappeared reload can leave prior error while form removed.",
+    "409 field values and disabled-submit/reload controls retained."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-025.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S026-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/MCPApiClients.vue:247",
+    "apps/web/components/MCPApiClients.vue:258",
+    "apps/web/components/MCPApiClients.vue:411"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "MP-S026-F1",
+      "correction": "Represent unknown issuance with exact generic warning/refresh and nonconflict form guards, or root bind composite actual reviewed canonical parts (normal enabled rotation MP-D053 middle + manager refresh/error with precise message/guards). Do not map it to409 disabled/reload state or add a new issuance guarantee."
+    }
+  ],
+  "reviewedImageSha256": "18b47cec09ec9546054a89e563c5f309c77fe5e05f7ca9b7198f55903e5f5048",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S026-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

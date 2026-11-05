@@ -1,0 +1,59 @@
+{
+  "assetId": "MP-S041",
+  "sourceIds": [
+    "PB-009",
+    "PB-010",
+    "PB-017"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:19:08.051205+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Four setup chosen-folder/timezone/error-details/unavailable-state excerpts; directory failure action not represented.",
+  "functionalFindings": [
+    {
+      "id": "MP-S041-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "r1 covers read failure and retry through chosen-folder receipt, but failed initial directory browse has its own explanatory text and 重新选择 button when !browserBusy&&!browser. No shown specimen includes that action.",
+      "sourceEvidence": "SetupWizard.vue folderbrowser v-else hint then AButton v-if=!browserBusy&&!browser @click=browse() 重新选择 is separate from knowledgeRoot receipt."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Visible receipt/UTC autocomplete/invalidtimezone and SOURCE_UNAVAILABLE details/recheck match template, readonlydiagnostic codes are legitimate data."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-027.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S041.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/SetupWizard.vue:91",
+    "apps/web/components/SetupWizard.vue:327",
+    "apps/web/components/SetupWizard.vue:338",
+    "apps/web/components/SetupWizard.vue:452"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "MP-S041-F1",
+      "correction": "Add a compact genuine failed-browse state with exact retryable hint and 重新选择 action, plus actual error binding as source supplies, or root map it to an already reviewed exact renderer/action specimen. Keep chosen-folder receipt separate and preserve browserBusy/currentpath/selection conditions."
+    }
+  ],
+  "reviewedImageSha256": "31ff5c910b33c86b1c2b9d890050c6e319cc9445563e8f48a758ca869429b756",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S041.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

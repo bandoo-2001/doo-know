@@ -1,0 +1,60 @@
+{
+  "assetId": "WS-D029",
+  "sourceIds": [
+    "WS-037"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T03:07:28.195171+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Independent desktop390/320 owner link-editing specimens with valid filled selection, no error; generated full host is also visible.",
+  "functionalFindings": [
+    {
+      "id": "WS-D029-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The 390/320 background formatting rows add an ellipsis overflow-menu button after a subset of formatting controls. Current EditorToolbar has no such overflow action/menu; source narrow handling is a horizontally scrollable toolbar. This is an invented host entry even though the link modal itself is correct.",
+      "sourceEvidence": "EditorToolbar.vue emits only explicit format/insert/upload/whiteboard/search/properties/paste/backlinks/export/print actions; document.css/workbench.css narrow toolbar uses overflow-x:auto, no overflow menu."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "All three genuine modal fields and cancel/save/close controls are retained with valid safe example URL; no invented link dialog action.",
+    "Rendered background host must also retain real entry semantics when shown."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-015.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D029.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/DocumentEditor.vue:1296",
+    "apps/web/components/EditorToolbar.vue:98",
+    "apps/web/components/Workspace.vue:3165",
+    "apps/web/document.css:440",
+    "apps/web/workbench.css:277",
+    "docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-link.png"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "WS-D029-F1",
+      "correction": "Regenerate/correct the board as the three declared local link modals on neutral backing, omitting all parent host chrome as actualPrompt requested. Preserve the three fields/values, close and Cancel/Save in each width. If any host remains drawn, remove the invented toolbar ellipsis and retain genuine source navigation/actions rather than substituting a new menu."
+    }
+  ],
+  "reviewedImageSha256": "f73ea69e23edd25f4cfa51a133decb1981a3191f50980f0ba6e53735909fee10",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D029.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "status": "applied-one-proven-exact-duplicate",
+  "retiredAssetId": "MP-S024",
+  "canonical": "MP-D050 A/B/C",
+  "canonicalSha256": "0f545477da46d66d5546c2d6efceb57ad8e9405dfa4b338efe3166b379a03344",
+  "sourceRecordAndStateEntriesPreserved": true,
+  "partialCandidates": "No deletion/rebinding; unique rows still generated",
+  "responsiveDeletion": 0,
+  "plannedAssets": 387,
+  "productCodeModified": false
+}

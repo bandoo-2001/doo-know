@@ -1,0 +1,52 @@
+{
+  "assetId": "MP-R072",
+  "sourceIds": [
+    "PB-044"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:34:15.355830+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner local three distinct link-group specimens: one site-navigation item, two social links, empty friend links; independent shared renderer families.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG/full submitted prompt and exact manifest source contract read; actual design parent baseline already viewed. Three independent named link groups reuse real renderer without inventing owner navigation or saving/publishing in child.",
+    "Actual names/href editable inputs, item labels/count numbers and add/reorder/delete actions retained. A single row locks both reorder directions; B first-up/last-down disabled with other reorder enabled. Empty C has correct group-specific guidance.",
+    "Sample internal/blog, HTTPS and mailto without query satisfy safe-link rules. No hidden IDs, validation metadata or protocol editable fields. Names optional and href server constraints remain actual source authority.",
+    "Edits stay local design draft until shared studio save/publish, not immediate public navigation changes. Responsive widths/focus not runtime proven."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Implement actual danger class for delete and standard flat token controls; decorative empty icon and approximate dimensions are illustrative, without new actions."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-043.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R072.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/blog/BlogDesignStudio.vue:167",
+    "apps/web/components/blog/BlogDesignLinks.vue:12",
+    "packages/core/blog/studio.ts:26",
+    "docs/design/platform-unification-2026-11-05/baseline/390-blog-design.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "52979f74a5071db7cc3a902fd6ec605afea324d92512259d9d70336952673a41",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R072.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

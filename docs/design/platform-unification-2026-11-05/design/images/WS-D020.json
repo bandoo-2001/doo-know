@@ -1,0 +1,193 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D020",
+  "sourceIds": [
+    "WS-024"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-024",
+      "title": "Rich document note editor",
+      "role": "authenticated owner",
+      "state": "Eligible full rich editor, isolated owner build flag1, saved note, document mode active, outline docked",
+      "presentationInstruction": "Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied."
+    }
+  ],
+  "selectedBaselineState": "Eligible full rich editor, isolated owner build flag1, saved note, document mode active, outline docked",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "Use case: ui-mockup. Full desktop DooKnow owner page, about 1440x1000. Image 1 is the actual content/controls/state/geometry authority. Image 2 supplies only flat palette, compact density and unified DooKnow header/rail hierarchy. Add the horizontal header DooKnow book identity | 笔记 above the note region, without adding actions. Narrow owner rail: O account, 笔记 selected, 最近, 收藏, 应用, bottom 回收站 and 设置. Keep notebook context sidebar exactly: 搜索笔记与目录, 新建 split button, 笔记本 plus/refresh, collapsed 00-Inbox and 30-Knowledge; preserve resize divider. No invented navigation.\nThis is the actual flag-enabled RICH DOCUMENT state from Image 1, not Markdown source. Preserve top note actions: collapse/back/forward, breadcrumb 笔记本 › 00-Inbox › 富文本盘点-adce7089-2d75-4bd5-b96b-f39967bd1f73, 已保存, disabled undo/redo, favorite star, 分享, disabled 保存 Ctrl+S, … . Keep Image 1 formatting toolbar and active 文档编辑 / inactive Markdown 源码 / 阅读 tabs with 章节目录 control.\nBody is rendered editable rich content, no visible Markdown markers: H1 知识与行动; paragraph 用于富文本构建开关运行核验的隔离示例。; H2 记录方法; bullets 收集想法 and 保留下一步; two-column table 项目 | 状态 with row 界面盘点 | 进行中; blue underlined 参考链接. Keep right outline 目录 with 知识与行动 selected and 记录方法 nested. Bottom 正文字符 61. Retain actual table/link content, no added picture, popup or contextual menu. No auto-save claim or public-share status. Use compact flat white/main and pale #f7f8fa sidebar, thin #e6e9f1 dividers, #272b3a text, muted #657084, #4566c6 blue, #edf1ff selected, crisp Chinese sans-serif and small line icons. No gradient/texture or browser chrome. Do not import pilot empty-state content or any task branding. Caption in metadata.",
+  "prompt": "Use case: ui-mockup. Full desktop DooKnow owner page, about 1440x1000. Image 1 is the actual content/controls/state/geometry authority. Image 2 supplies only flat palette, compact density and unified DooKnow header/rail hierarchy. Add the horizontal header DooKnow book identity | 笔记 above the note region, without adding actions. Narrow owner rail: O account, 笔记 selected, 最近, 收藏, 应用, bottom 回收站 and 设置. Keep notebook context sidebar exactly: 搜索笔记与目录, 新建 split button, 笔记本 plus/refresh, collapsed 00-Inbox and 30-Knowledge; preserve resize divider. No invented navigation.\nThis is the actual flag-enabled RICH DOCUMENT state from Image 1, not Markdown source. Preserve top note actions: collapse/back/forward, breadcrumb 笔记本 › 00-Inbox › 富文本盘点-adce7089-2d75-4bd5-b96b-f39967bd1f73, 已保存, disabled undo/redo, favorite star, 分享, disabled 保存 Ctrl+S, … . Keep Image 1 formatting toolbar and active 文档编辑 / inactive Markdown 源码 / 阅读 tabs with 章节目录 control.\nBody is rendered editable rich content, no visible Markdown markers: H1 知识与行动; paragraph 用于富文本构建开关运行核验的隔离示例。; H2 记录方法; bullets 收集想法 and 保留下一步; two-column table 项目 | 状态 with row 界面盘点 | 进行中; blue underlined 参考链接. Keep right outline 目录 with 知识与行动 selected and 记录方法 nested. Bottom 正文字符 61. Retain actual table/link content, no added picture, popup or contextual menu. No auto-save claim or public-share status. Use compact flat white/main and pale #f7f8fa sidebar, thin #e6e9f1 dividers, #272b3a text, muted #657084, #4566c6 blue, #edf1ff selected, crisp Chinese sans-serif and small line icons. No gradient/texture or browser chrome. Do not import pilot empty-state content or any task branding. Caption in metadata.",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+      "role": "Actual owner eligible rich-document baseline, VITE_DOCUMENT_EDITOR_ENABLED=1; content/state/controls authority",
+      "sha256": "51bb8ab79f889c547f472e964f39a1e208dd3e708ed7ca0c7ed4ce307025aa35",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Unified DooKnow palette/density/header/rail hierarchy only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+      "role": "Actual owner eligible rich-document baseline, VITE_DOCUMENT_EDITOR_ENABLED=1; content/state/controls authority",
+      "sha256": "51bb8ab79f889c547f472e964f39a1e208dd3e708ed7ca0c7ed4ce307025aa35",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Unified DooKnow palette/density/header/rail hierarchy only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "sourceReferences": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3046, apps/web/components/Workspace.vue:3270, apps/web/components/NoteEditorHost.vue:443, apps/web/components/DocumentEditor.vue:1125, packages/core/knowledge/limits.ts:1, apps/web/editor/compatibility.ts:1, apps/web/editor/source-codec.ts:1"
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/generation-batch-02.json#WS-D020",
+  "generationCallCount": 1,
+  "generationAttempts": [
+    {
+      "submittedPrompt": "Use case: ui-mockup. Full desktop DooKnow owner page, about 1440x1000. Image 1 is the actual content/controls/state/geometry authority. Image 2 supplies only flat palette, compact density and unified DooKnow header/rail hierarchy. Add the horizontal header DooKnow book identity | 笔记 above the note region, without adding actions. Narrow owner rail: O account, 笔记 selected, 最近, 收藏, 应用, bottom 回收站 and 设置. Keep notebook context sidebar exactly: 搜索笔记与目录, 新建 split button, 笔记本 plus/refresh, collapsed 00-Inbox and 30-Knowledge; preserve resize divider. No invented navigation.\nThis is the actual flag-enabled RICH DOCUMENT state from Image 1, not Markdown source. Preserve top note actions: collapse/back/forward, breadcrumb 笔记本 › 00-Inbox › 富文本盘点-adce7089-2d75-4bd5-b96b-f39967bd1f73, 已保存, disabled undo/redo, favorite star, 分享, disabled 保存 Ctrl+S, … . Keep Image 1 formatting toolbar and active 文档编辑 / inactive Markdown 源码 / 阅读 tabs with 章节目录 control.\nBody is rendered editable rich content, no visible Markdown markers: H1 知识与行动; paragraph 用于富文本构建开关运行核验的隔离示例。; H2 记录方法; bullets 收集想法 and 保留下一步; two-column table 项目 | 状态 with row 界面盘点 | 进行中; blue underlined 参考链接. Keep right outline 目录 with 知识与行动 selected and 记录方法 nested. Bottom 正文字符 61. Retain actual table/link content, no added picture, popup or contextual menu. No auto-save claim or public-share status. Use compact flat white/main and pale #f7f8fa sidebar, thin #e6e9f1 dividers, #272b3a text, muted #657084, #4566c6 blue, #edf1ff selected, crisp Chinese sans-serif and small line icons. No gradient/texture or browser chrome. Do not import pilot empty-state content or any task branding. Caption in metadata.",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+          "role": "Actual owner eligible rich-document baseline, VITE_DOCUMENT_EDITOR_ENABLED=1; content/state/controls authority"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Unified DooKnow palette/density/header/rail hierarchy only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-417ed8f4-3044-4a30-8949-5819252ba5ed.png"
+    }
+  ],
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D020.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-417ed8f4-3044-4a30-8949-5819252ba5ed.png",
+  "sha256": "92233fe058857af291ec456be8275f2d2ab87211ce4fbe90b86a1bef27e0b38d",
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "bytes": 1128187,
+  "generatedAtUtc": "2026-11-05T01:14:23.181170+00:00",
+  "postprocessing": "None. Original PNG copied byte-for-byte from built-in image tool; no pixel editing.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "sourceIds": [
+      "WS-024"
+    ],
+    "title": "Rich document note editor",
+    "role": "authenticated owner",
+    "state": "Eligible full rich editor, isolated owner build flag1, saved note, document mode active, outline docked",
+    "location": "metadata, outside product UI"
+  },
+  "scope": {
+    "presentation": "full-desktop",
+    "hostSourceIds": [
+      "WS-024"
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "baselineConfiguration": {
+    "documentEditorFlag": "1-isolated-fixture",
+    "deploymentFlagVerified": false
+  },
+  "sourceStateAndActionContracts": {
+    "functionalInvariants": [
+      "Every input constraint, action guard and important-state contract below is required. This plan is not a claim that incompatible states coexist or that source-only states ran.",
+      "Owner navigation may use the existing ToDoo two-level hierarchy; public guest and standalone reading may not contain private chrome.",
+      "FIELD WS-024 正文 [rich-document; required]: Lossless Markdown-backed rich editor. Rich eligibility: feature flag VITE_DOCUMENT_EDITOR_ENABLED=1, full server mode, <=262144 UTF-8 bytes, <=5000 units, depth<=32. Server ordinary cutoff1MiB/long-line32768 routes larger files to large mode. Unsupported syntax is preserved, not discarded.",
+      "STATE WS-024: Saved/dirty/saving",
+      "STATE WS-024: Shared status warns saved changes publish",
+      "STATE WS-024: Composition/selection",
+      "STATE WS-024: Recoverable opaque source",
+      "STATE WS-024: Read-only during draft recovery/transfer",
+      "STATE WS-024: Contextual image/link/table tools",
+      "STATE WS-024: Local draft saved timestamp",
+      "POLICY Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+      "POLICY Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).",
+      "POLICY Owner workspace rich editing tabs exist only when VITE_DOCUMENT_EDITOR_ENABLED=1. Actual deployed build flag is unverified. Eligibility additionally caps rich Markdown at262144 UTF-8 bytes,5000 units, depth32; fallback uses existing source editor.",
+      "WS-024: Owner workspace VITE_DOCUMENT_EDITOR_ENABLED gate is not the public guest host configuration; PB-026/PB-027 own guest document/source modes.",
+      "UI structure rather than backend state count determines bitmap jobs. StateCoverage names exact component/bindings/guards and compact matrix rows; shared-pattern is not a claim that incompatible alternatives were visually proven together."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-024",
+        "label": "保存 / Ctrl+S",
+        "effect": "Flush session and save original Markdown with version/requestId",
+        "api": "PUT /api/notes/:id",
+        "guard": "!busy, service available, dirty or pending save"
+      },
+      {
+        "sourceId": "WS-024",
+        "label": "撤销 / 重做",
+        "effect": "Shared session history",
+        "api": "none",
+        "guard": "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627)."
+      },
+      {
+        "sourceId": "WS-024",
+        "label": "收藏 / 分享 / 更多",
+        "effect": "Toggle favorite or open operation windows",
+        "api": "PUT /api/notes/:id/favorite; GET /api/notes/:id/share",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-024",
+        "label": "文档编辑 / Markdown 源码 / 阅读",
+        "effect": "Switch existing views",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      }
+    ],
+    "otherVariantsDrawn": false
+  },
+  "selfInspection": {
+    "method": "Actual native generated preview viewed against the actual matching baseline, source and viewed PILOT-WS-001.",
+    "concerns": [
+      "Bitmap cannot verify owner enforcement, source action execution, busy guards, keyboard/focus, resize or responsive fit.",
+      "Light raster texture and approximate dimensions remain illustrative; eventual code must use flat shared CSS tokens.",
+      "Dense toolbar icons are illustrative; source order, overflow, disabled and conditional behavior remain implementation/review requirements.",
+      "Flag1 rich-document fixture is authoritative for this image; this does not claim the normal deployment enables the rich editor. Current coherent baseline has table/link but no inserted image or active contextual popup."
+    ],
+    "independentReviewStatus": "pending"
+  }
+}

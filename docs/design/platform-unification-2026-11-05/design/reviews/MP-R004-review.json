@@ -1,0 +1,46 @@
+{
+  "assetId": "MP-R004",
+  "sourceIds": [
+    "ST-007"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T06:44:09.353681+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "A390/B320 target complete account/session cards and C390 revoke-other request busy",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed all three narrow target panels/full prompt/contracts and current AccountSettings guards. Full account/password/device cards, synthetic owner/device/timestamps, current-device badge and no individual current-session revoke match real data/field order. No cursor ->no load-more.",
+    "Only sessionBusy=others locks/spins revoke-others button; logout/password/refresh remain available when loading=false. Confirmation already closed during pending request; no false global settings lock or revoke success.",
+    "Long time fields wrap within intended narrow cards and bottom action visible. Local real component crop needs no invented full host;390/320 intent is not exact raster CSS measurement or runtime focus/scroll proof."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-036.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R004.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/AccountSettings.vue:122",
+    "apps/web/components/settings/AccountSettings.vue:105",
+    "apps/web/components/settings/AccountSettings.vue:224",
+    "docs/design/platform-unification-2026-11-05/baseline/390-settings-account.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "a8b4c02bdf0f75f2ae4b36a06cad7c57dffb1f99b62c0d552d1b03cedecf8242",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R004.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

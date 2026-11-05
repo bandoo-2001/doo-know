@@ -1,0 +1,411 @@
+{
+  "id": "WS-M020",
+  "title": "Source-exact collection update, invalid link and large-file error feedback",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-009",
+    "WS-037",
+    "WS-053"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-009",
+      "role": "authenticated owner",
+      "title": "Collection updated strip",
+      "state": "updated=true, loading=false: actual 笔记列表有更新 status and 刷新列表 button; no stale load-more",
+      "sourceComponent": "apps/web/components/CollectionWorkspace.vue:161"
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-037",
+      "role": "authenticated owner",
+      "title": "Invalid link dialog",
+      "state": "Actual full three-field link dialog after rejected ftp URL; same inline error span; Save remains enabled and validates on click",
+      "sourceComponent": "apps/web/components/DocumentEditor.vue:1300"
+    },
+    {
+      "label": "C",
+      "sourceId": "WS-053",
+      "role": "authenticated owner",
+      "title": "Large-file parent save error alert",
+      "state": "Two independent variants of the same existing NAlert: failed save requestId retained -> 核对保存结果; 4xx clears requestId -> error only. Not errors invented inside leave modal.",
+      "rows": [
+        {
+          "label": "row-1",
+          "state": "error truthy, busy false, requestId present",
+          "message": "请求失败",
+          "action": "核对保存结果"
+        },
+        {
+          "label": "row-2",
+          "state": "error truthy, busy false, requestId empty after4xx",
+          "message": "请求失败",
+          "action": null
+        }
+      ],
+      "sourceComponent": "apps/web/components/LargeFileWorkspace.vue:502"
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "WS-009",
+      "title": "Collection loading, empty, stale and failure feedback",
+      "kind": "state",
+      "module": "collections",
+      "entry": {
+        "route": "/?view=recent|favorites",
+        "trigger": "Collection request or source version changes",
+        "parentId": "WS-007"
+      },
+      "sourceRefs": [
+        "apps/web/components/CollectionWorkspace.vue:151",
+        "apps/web/collection-feed.ts:1"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新加载 / 刷新",
+          "effect": "Retry load or replace stale feed",
+          "api": "GET /api/collections",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "新建笔记",
+          "effect": "Create from empty feed",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Skeleton initial load",
+        "Empty collection",
+        "Source version changed banner disables old pagination",
+        "Partial list remains visible on page error",
+        "Load-more busy/end status"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/note-collections.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-037",
+      "title": "Edit document link",
+      "kind": "dialog",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "插入链接 / 编辑链接",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/DocumentEditor.vue:822",
+        "apps/web/components/DocumentEditor.vue:1296",
+        "apps/web/editor/rich-adapter.ts:74"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "显示文字",
+          "type": "text",
+          "required": false,
+          "constraints": "When empty, URL becomes display text.",
+          "sensitive": false
+        },
+        {
+          "name": "链接地址",
+          "type": "text",
+          "required": true,
+          "constraints": "Trimmed nonempty; no backslash or U+0000–0020; no protocol-relative //; allowed explicit schemes http,https,mailto,tel or relative/fragment URLs.",
+          "sensitive": false
+        },
+        {
+          "name": "标题",
+          "type": "text",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存链接",
+          "effect": "Apply link to captured selection",
+          "api": "none",
+          "guard": "Editor writable/unblocked; captured revision still matches; safeEditorUrl required"
+        },
+        {
+          "label": "取消",
+          "effect": "Keep draft unchanged",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Invalid URL inline error",
+        "Document changed since dialog opened",
+        "Editor blocked"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/editor-content-security.test.ts",
+        "tests/e2e/document-editor-controls.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-053",
+      "title": "Unsaved large fragment leave dialog",
+      "kind": "dialog",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Navigate range/note while fragment dirty",
+        "parentId": "WS-049"
+      },
+      "sourceRefs": [
+        "apps/web/components/LargeFileWorkspace.vue:553"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "保存",
+          "effect": "Save then continue",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "放弃",
+          "effect": "Discard fragment then continue",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "取消",
+          "effect": "Continue editing",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Save error keeps fragment"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/web-note-drafts.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "sourceRefs": [
+    "apps/web/components/CollectionWorkspace.vue:161",
+    "apps/web/components/DocumentEditor.vue:822",
+    "apps/web/components/DocumentEditor.vue:1300",
+    "apps/web/editor/rich-adapter.ts:74",
+    "apps/web/components/LargeFileWorkspace.vue:313",
+    "apps/web/components/LargeFileWorkspace.vue:376",
+    "apps/web/components/LargeFileWorkspace.vue:502"
+  ],
+  "referenceInputs": [],
+  "functionalInvariants": [
+    "Actual source fields/actions/guards/role are authoritative; separate A/B/C are not simultaneous app states",
+    "No protocol fields, invented busy locks or parent controls",
+    "Collection refresh disabled only by loading; invalid Link submit is not disabled; large-file requestId is not an input"
+  ],
+  "allowedActions": [
+    {
+      "label": "刷新列表",
+      "guard": "updated; disabled loading",
+      "effect": "Existing feed.refresh"
+    },
+    {
+      "label": "取消 / 保存链接",
+      "guard": "Existing confirmLink checks editor/block/revision/safeEditorUrl on click; no disabled attr on save",
+      "effect": "Existing link action"
+    },
+    {
+      "label": "核对保存结果",
+      "guard": "error and requestId, source check function guard",
+      "effect": "Existing request reconciliation"
+    }
+  ],
+  "forbiddenAdditions": [
+    "No native browser/OS UI",
+    "No source/role/API metadata in product regions",
+    "No false save success",
+    "No new error close control or modal lock"
+  ],
+  "viewportIntent": "At most three readable independent local panels; only C contains two variants of one component. Narrow controls wrap naturally; runtime320/390 not claimed.",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 2
+  },
+  "presentationScope": "exact-local-components-under-separate-source-conditions",
+  "geometryFamily": "Three source-owned local components, each keeps own markup and action guard",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M020.png",
+  "reviewStatus": "pending-independent-review",
+  "prompt": "Use case: ui-mockup. Produce ONE new high-fidelity flat UI board with exactly THREE independent local component panels A, B, C, never one simultaneous app screen. Small A/B/C labels OUTSIDE the product. These existing DooKnow owner-only widgets use normal readable Chinese text, flat white/light-gray surfaces, #272b3a text, #657084 secondary, #e6e9f1 borders, cobalt #4566c6 accents, restrained8px corners. No device/browser shell or app navigation. Keep generous legibility; no gradients, illustrations, marketing copy, code/API/state labels. All UI wording below verbatim.\n\nA: ONLY the actual compact collection-updated status strip. Exact text \"笔记列表有更新\" and one enabled small neutral button \"刷新列表\". A subtle blue-tinted strip is enough. No title, icon, cards, page count, other toolbar or loading button. This is updated=true, not refreshing.\n\nB: Full existing native link-edit card dialog, title \"编辑链接\", actual close X at top right. Three vertically stacked plain text inputs with labels in exact order:\n\"显示文字\" value \"示例链接\";\n\"链接地址\" value \"ftp://example.invalid\";\n\"标题\" EMPTY input with no invented placeholder.\nDirectly underneath the URL input, before the 标题 field, show the actual small plain inline RED error text \"请输入有效的链接地址\". No error icon/boxed alert, no additional help or required stars.\nAt bottom real buttons in order \"取消\" then \"保存链接\". 保存链接 is ENABLED blue primary despite inline error, because this actual source validates on click. Do not gray/disable it. Fields remain editable. Do not add protocol selectors, HEX/color controls, eye/clear icons, preview or extra actions.\n\nC: Two separate small alternatives of the SAME existing large-file parent ERROR alert, one below the other, with tiny1/2 OUTSIDE each to show alternatives. This is not two simultaneous alerts. Use ordinary Naive-style pale red error alert with its error-status icon at LEFT, no dismiss X at right.\nFirst variant: exact message \"请求失败\" followed within the same alert content by one normal enabled neutral button \"核对保存结果\".\nSecond variant: same exact message \"请求失败\" and NO button.\nNo modal/dialog title, no close/save/retry control, no editable request ID or protocol metadata. Preserve natural wrapping and clear button hit area. These are parent alerts, not errors drawn inside the unsaved-fragment leave dialog; do not draw the whole parent page or another confirmation.\n\nKeep A/B/C visually separate and readable. Any external framing is comparison guidance, not a new application card workflow. Each real control is exactly listed above; no invented action, online/success claim or hidden field. This board supplements existing complete page/modal designs, so no repeated notebook/toolbar/whole-window backdrop.",
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "assetId": "WS-M020",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "Use case: ui-mockup. Produce ONE new high-fidelity flat UI board with exactly THREE independent local component panels A, B, C, never one simultaneous app screen. Small A/B/C labels OUTSIDE the product. These existing DooKnow owner-only widgets use normal readable Chinese text, flat white/light-gray surfaces, #272b3a text, #657084 secondary, #e6e9f1 borders, cobalt #4566c6 accents, restrained8px corners. No device/browser shell or app navigation. Keep generous legibility; no gradients, illustrations, marketing copy, code/API/state labels. All UI wording below verbatim.\n\nA: ONLY the actual compact collection-updated status strip. Exact text \"笔记列表有更新\" and one enabled small neutral button \"刷新列表\". A subtle blue-tinted strip is enough. No title, icon, cards, page count, other toolbar or loading button. This is updated=true, not refreshing.\n\nB: Full existing native link-edit card dialog, title \"编辑链接\", actual close X at top right. Three vertically stacked plain text inputs with labels in exact order:\n\"显示文字\" value \"示例链接\";\n\"链接地址\" value \"ftp://example.invalid\";\n\"标题\" EMPTY input with no invented placeholder.\nDirectly underneath the URL input, before the 标题 field, show the actual small plain inline RED error text \"请输入有效的链接地址\". No error icon/boxed alert, no additional help or required stars.\nAt bottom real buttons in order \"取消\" then \"保存链接\". 保存链接 is ENABLED blue primary despite inline error, because this actual source validates on click. Do not gray/disable it. Fields remain editable. Do not add protocol selectors, HEX/color controls, eye/clear icons, preview or extra actions.\n\nC: Two separate small alternatives of the SAME existing large-file parent ERROR alert, one below the other, with tiny1/2 OUTSIDE each to show alternatives. This is not two simultaneous alerts. Use ordinary Naive-style pale red error alert with its error-status icon at LEFT, no dismiss X at right.\nFirst variant: exact message \"请求失败\" followed within the same alert content by one normal enabled neutral button \"核对保存结果\".\nSecond variant: same exact message \"请求失败\" and NO button.\nNo modal/dialog title, no close/save/retry control, no editable request ID or protocol metadata. Preserve natural wrapping and clear button hit area. These are parent alerts, not errors drawn inside the unsaved-fragment leave dialog; do not draw the whole parent page or another confirmation.\n\nKeep A/B/C visually separate and readable. Any external framing is comparison guidance, not a new application card workflow. Each real control is exactly listed above; no invented action, online/success claim or hidden field. This board supplements existing complete page/modal designs, so no repeated notebook/toolbar/whole-window backdrop.",
+  "actualToolArguments": {
+    "prompt": "Use case: ui-mockup. Produce ONE new high-fidelity flat UI board with exactly THREE independent local component panels A, B, C, never one simultaneous app screen. Small A/B/C labels OUTSIDE the product. These existing DooKnow owner-only widgets use normal readable Chinese text, flat white/light-gray surfaces, #272b3a text, #657084 secondary, #e6e9f1 borders, cobalt #4566c6 accents, restrained8px corners. No device/browser shell or app navigation. Keep generous legibility; no gradients, illustrations, marketing copy, code/API/state labels. All UI wording below verbatim.\n\nA: ONLY the actual compact collection-updated status strip. Exact text \"笔记列表有更新\" and one enabled small neutral button \"刷新列表\". A subtle blue-tinted strip is enough. No title, icon, cards, page count, other toolbar or loading button. This is updated=true, not refreshing.\n\nB: Full existing native link-edit card dialog, title \"编辑链接\", actual close X at top right. Three vertically stacked plain text inputs with labels in exact order:\n\"显示文字\" value \"示例链接\";\n\"链接地址\" value \"ftp://example.invalid\";\n\"标题\" EMPTY input with no invented placeholder.\nDirectly underneath the URL input, before the 标题 field, show the actual small plain inline RED error text \"请输入有效的链接地址\". No error icon/boxed alert, no additional help or required stars.\nAt bottom real buttons in order \"取消\" then \"保存链接\". 保存链接 is ENABLED blue primary despite inline error, because this actual source validates on click. Do not gray/disable it. Fields remain editable. Do not add protocol selectors, HEX/color controls, eye/clear icons, preview or extra actions.\n\nC: Two separate small alternatives of the SAME existing large-file parent ERROR alert, one below the other, with tiny1/2 OUTSIDE each to show alternatives. This is not two simultaneous alerts. Use ordinary Naive-style pale red error alert with its error-status icon at LEFT, no dismiss X at right.\nFirst variant: exact message \"请求失败\" followed within the same alert content by one normal enabled neutral button \"核对保存结果\".\nSecond variant: same exact message \"请求失败\" and NO button.\nNo modal/dialog title, no close/save/retry control, no editable request ID or protocol metadata. Preserve natural wrapping and clear button hit area. These are parent alerts, not errors drawn inside the unsaved-fragment leave dialog; do not draw the whole parent page or another confirmation.\n\nKeep A/B/C visually separate and readable. Any external framing is comparison guidance, not a new application card workflow. Each real control is exactly listed above; no invented action, online/success claim or hidden field. This board supplements existing complete page/modal designs, so no repeated notebook/toolbar/whole-window backdrop.",
+    "transparent_background": false
+  },
+  "inputs": [],
+  "inputReferences": [],
+  "actualImageInputOrder": [],
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/CollectionWorkspace.vue",
+      "role": "Actual component/error/URL/receipt guards inspected before generation",
+      "sha256": "958c97c8131e39fbd101753919a272b02226eeaf2a145dbf3abd5a6d0aca07d5",
+      "bytes": 17102
+    },
+    {
+      "path": "apps/web/components/DocumentEditor.vue",
+      "role": "Actual component/error/URL/receipt guards inspected before generation",
+      "sha256": "59f28da8e35a8f806a4c3b3eef20d04332bc4272ddd03518d924183629acd774",
+      "bytes": 48498
+    },
+    {
+      "path": "apps/web/editor/rich-adapter.ts",
+      "role": "Actual component/error/URL/receipt guards inspected before generation",
+      "sha256": "404dab860cdb22b459219fc7bff2a6638115bc6b055ce35c5fa7f24d3fc22d15",
+      "bytes": 13846
+    },
+    {
+      "path": "apps/web/components/LargeFileWorkspace.vue",
+      "role": "Actual component/error/URL/receipt guards inspected before generation",
+      "sha256": "3ffb2de293a67b91689eaffebdf1b89cde8335075553c5bc3a0b680bf310d56c",
+      "bytes": 20049
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-1cb3dc3a-00ec-4a67-89ee-1193940d1dad.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2 as /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-1cb3dc3a-00ec-4a67-89ee-1193940d1dad.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationAttempts": [
+    {
+      "assetId": "WS-M020",
+      "submittedPrompt": "Use case: ui-mockup. Produce ONE new high-fidelity flat UI board with exactly THREE independent local component panels A, B, C, never one simultaneous app screen. Small A/B/C labels OUTSIDE the product. These existing DooKnow owner-only widgets use normal readable Chinese text, flat white/light-gray surfaces, #272b3a text, #657084 secondary, #e6e9f1 borders, cobalt #4566c6 accents, restrained8px corners. No device/browser shell or app navigation. Keep generous legibility; no gradients, illustrations, marketing copy, code/API/state labels. All UI wording below verbatim.\n\nA: ONLY the actual compact collection-updated status strip. Exact text \"笔记列表有更新\" and one enabled small neutral button \"刷新列表\". A subtle blue-tinted strip is enough. No title, icon, cards, page count, other toolbar or loading button. This is updated=true, not refreshing.\n\nB: Full existing native link-edit card dialog, title \"编辑链接\", actual close X at top right. Three vertically stacked plain text inputs with labels in exact order:\n\"显示文字\" value \"示例链接\";\n\"链接地址\" value \"ftp://example.invalid\";\n\"标题\" EMPTY input with no invented placeholder.\nDirectly underneath the URL input, before the 标题 field, show the actual small plain inline RED error text \"请输入有效的链接地址\". No error icon/boxed alert, no additional help or required stars.\nAt bottom real buttons in order \"取消\" then \"保存链接\". 保存链接 is ENABLED blue primary despite inline error, because this actual source validates on click. Do not gray/disable it. Fields remain editable. Do not add protocol selectors, HEX/color controls, eye/clear icons, preview or extra actions.\n\nC: Two separate small alternatives of the SAME existing large-file parent ERROR alert, one below the other, with tiny1/2 OUTSIDE each to show alternatives. This is not two simultaneous alerts. Use ordinary Naive-style pale red error alert with its error-status icon at LEFT, no dismiss X at right.\nFirst variant: exact message \"请求失败\" followed within the same alert content by one normal enabled neutral button \"核对保存结果\".\nSecond variant: same exact message \"请求失败\" and NO button.\nNo modal/dialog title, no close/save/retry control, no editable request ID or protocol metadata. Preserve natural wrapping and clear button hit area. These are parent alerts, not errors drawn inside the unsaved-fragment leave dialog; do not draw the whole parent page or another confirmation.\n\nKeep A/B/C visually separate and readable. Any external framing is comparison guidance, not a new application card workflow. Each real control is exactly listed above; no invented action, online/success claim or hidden field. This board supplements existing complete page/modal designs, so no repeated notebook/toolbar/whole-window backdrop.",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-1cb3dc3a-00ec-4a67-89ee-1193940d1dad.png",
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2 as /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-1cb3dc3a-00ec-4a67-89ee-1193940d1dad.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "startedAtUtc": "2026-11-05T10:31:30.612Z",
+      "completedAtUtc": "2026-11-05T10:31:55.483Z",
+      "actualToolArguments": {
+        "prompt": "Use case: ui-mockup. Produce ONE new high-fidelity flat UI board with exactly THREE independent local component panels A, B, C, never one simultaneous app screen. Small A/B/C labels OUTSIDE the product. These existing DooKnow owner-only widgets use normal readable Chinese text, flat white/light-gray surfaces, #272b3a text, #657084 secondary, #e6e9f1 borders, cobalt #4566c6 accents, restrained8px corners. No device/browser shell or app navigation. Keep generous legibility; no gradients, illustrations, marketing copy, code/API/state labels. All UI wording below verbatim.\n\nA: ONLY the actual compact collection-updated status strip. Exact text \"笔记列表有更新\" and one enabled small neutral button \"刷新列表\". A subtle blue-tinted strip is enough. No title, icon, cards, page count, other toolbar or loading button. This is updated=true, not refreshing.\n\nB: Full existing native link-edit card dialog, title \"编辑链接\", actual close X at top right. Three vertically stacked plain text inputs with labels in exact order:\n\"显示文字\" value \"示例链接\";\n\"链接地址\" value \"ftp://example.invalid\";\n\"标题\" EMPTY input with no invented placeholder.\nDirectly underneath the URL input, before the 标题 field, show the actual small plain inline RED error text \"请输入有效的链接地址\". No error icon/boxed alert, no additional help or required stars.\nAt bottom real buttons in order \"取消\" then \"保存链接\". 保存链接 is ENABLED blue primary despite inline error, because this actual source validates on click. Do not gray/disable it. Fields remain editable. Do not add protocol selectors, HEX/color controls, eye/clear icons, preview or extra actions.\n\nC: Two separate small alternatives of the SAME existing large-file parent ERROR alert, one below the other, with tiny1/2 OUTSIDE each to show alternatives. This is not two simultaneous alerts. Use ordinary Naive-style pale red error alert with its error-status icon at LEFT, no dismiss X at right.\nFirst variant: exact message \"请求失败\" followed within the same alert content by one normal enabled neutral button \"核对保存结果\".\nSecond variant: same exact message \"请求失败\" and NO button.\nNo modal/dialog title, no close/save/retry control, no editable request ID or protocol metadata. Preserve natural wrapping and clear button hit area. These are parent alerts, not errors drawn inside the unsaved-fragment leave dialog; do not draw the whole parent page or another confirmation.\n\nKeep A/B/C visually separate and readable. Any external framing is comparison guidance, not a new application card workflow. Each real control is exactly listed above; no invented action, online/success claim or hidden field. This board supplements existing complete page/modal designs, so no repeated notebook/toolbar/whole-window backdrop.",
+        "transparent_background": false
+      }
+    }
+  ],
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T10:31:55.483Z",
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M020.png",
+  "postprocessing": "Raw native PNG copy only, no pixel edits",
+  "pendingReview": true,
+  "selectedState": [
+    "A updated=true loading=false",
+    "B ftp unsupported protocol after confirm; actual error span and enabled save",
+    "C two separate parent NAlert variants: requestId present versus empty, no simultaneous double-alert claim"
+  ],
+  "selfInspection": {
+    "method": "Actual native PNG visually checked against exact Collection/Link/LargeFile templates and global preflight missing controls",
+    "status": "Self-check passed; independent review pending",
+    "checks": [
+      "A exact status/refresh, no stale footer or invented count",
+      "B three real labels/inputs with inline URL error before title field, no HEX guard; Save enabled",
+      "C parent alert has conditional check action only when requestId exists; no new close/retry/confirmation"
+    ],
+    "implementationNotes": [
+      "Use actual flat palette and source component scales; raster texture/large framing is illustrative",
+      "Naive error status icon must come from existing NAlert, not a custom dismiss control",
+      "Large-file alert is behind the unchanged leave modal in that guarded state; clickability is not asserted through modal scrim"
+    ],
+    "limitations": [
+      "Source-derived state examples only; no runtime/action/focus/scroll verification",
+      "No claim every variant is simultaneously visible or all source states were pictured here"
+    ]
+  },
+  "sha256": "ad365f6d8d6015f253d1cc83898ddf34ed3dbcce1760ff0d2188b19cbdb0ee5d",
+  "bytes": 1144064,
+  "dimensions": {
+    "width": 1220,
+    "height": 1289
+  }
+}

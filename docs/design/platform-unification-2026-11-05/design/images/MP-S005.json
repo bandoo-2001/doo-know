@@ -1,0 +1,576 @@
+{
+  "id": "MP-S005",
+  "title": "Component state matrix: owner-private / BackupSettings.vue",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-032",
+    "ST-033"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-032",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-backup.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-032",
+      "route": "/?view=settings&section=backup",
+      "trigger": "从备份恢复",
+      "parentId": "ST-004",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "加密备份",
+          "type": "file",
+          "required": true,
+          "constraints": "≤128MiB",
+          "sensitive": false
+        },
+        {
+          "name": "恢复私钥",
+          "type": "file",
+          "required": true,
+          "constraints": "≤16KiB；不渲染文件内容",
+          "sensitive": true
+        }
+      ],
+      "importantStates": [
+        "两步进度条",
+        "未选择文件",
+        "超限验证错误",
+        "保留文件选择以重试"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "下载备份恢复完整抽屉第一步：加密备份/恢复私钥选件名大小和各自上限、下一步/取消，不显私钥。"
+      ]
+    },
+    {
+      "sourceId": "ST-033",
+      "route": "/?view=settings&section=backup",
+      "trigger": "ST-032下一步",
+      "parentId": "ST-032",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "备份文件名/大小；密钥文件名/大小",
+          "type": "read-only",
+          "required": false,
+          "constraints": "不展示密钥内容",
+          "sensitive": true
+        }
+      ],
+      "importantStates": [
+        "摘要",
+        "上传中",
+        "拒绝后保留文件/相同requestId",
+        "完成转后台任务",
+        "大文件CLI及部署切换帮助展开"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/web/components/settings/BackupSettings.vue",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-032",
+      "label": "下一步：确认恢复",
+      "effect": "本地验证两文件及大小；进入ST-033",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-032",
+      "label": "取消",
+      "effect": "dirty显示ST-089",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-033",
+      "label": "上一步",
+      "effect": "回到文件选择，保留草稿",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-033",
+      "label": "上传并恢复独立副本",
+      "effect": "multipart上传backup/key/requestId",
+      "api": "POST /api/manage/restores/upload",
+      "guard": "已验证2文件；沿用requestId直到更改选件；busy禁止关闭"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-032",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-033",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排三个互相独立的恢复局部样例，正常清楚字号，细线/留白分开，不加解释标题。\n第一行：两步条“1 选择文件”“2 确认恢复”，第一步当前；字段“加密备份（最多 128 MiB）”文件选择按钮“选择文件”旁“未选择文件”；字段“恢复私钥（最多 16 KiB）”同样未选择；按钮“取消”“下一步：确认恢复”均可用。\n第二行：同样两步条第一步当前，两个文件字段分别显示“example-backup.dooknow”和“recovery.pem”，不显示文件内容；下方红色提示“备份文件最多 128 MiB，恢复密钥最多 16 KiB。”；“取消”“下一步：确认恢复”均可用。不画正在上传或成功。\n第三行：展开“ 大文件与部署切换帮助 ”，正文“超过上传限制时，在服务器使用管理命令恢复到新的空目录：”，下方只读等宽代码块，内容按多行显示“dooknow restore --source /srv/example/backup.dooknow \\\\”换行“  --key-file /srv/example/backup-key.pem --profile /srv/example/new-profile.json \\\\”换行“  --data-root /srv/example/restored-data --knowledge-root /srv/example/restored-knowledge”；下方说明“使用独立端口检查恢复副本，核对原文、附件与历史，再按部署方式更新绑定并切换服务。恢复操作不会替你修改正在生效的部署配置。”。不要将CLI参数做成编辑框或新增运行按钮。不画宿主或完整重复窗口。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S005.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-032",
+      "title": "未选择文件",
+      "renderer": "apps/web/components/settings/BackupSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:161",
+        "apps/web/components/settings/BackupSettings.vue:348"
+      ],
+      "guardBindings": [
+        {
+          "label": "下一步：确认恢复",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "未选择文件",
+          "variant": "未选择文件",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-032"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-032",
+      "title": "超限验证错误",
+      "renderer": "apps/web/components/settings/BackupSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:161",
+        "apps/web/components/settings/BackupSettings.vue:348"
+      ],
+      "guardBindings": [
+        {
+          "label": "下一步：确认恢复",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "超限验证错误",
+          "variant": "超限验证错误",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-032"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-033",
+      "title": "大文件CLI及部署切换帮助展开",
+      "renderer": "apps/web/components/settings/BackupSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:183",
+        "apps/web/components/settings/BackupSettings.vue:387"
+      ],
+      "guardBindings": [
+        {
+          "label": "上一步",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "上传并恢复独立副本",
+          "guard": "已验证2文件；沿用requestId直到更改选件；busy禁止关闭"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "大文件CLI及部署切换帮助展开",
+          "variant": "大文件CLI及部署切换帮助展开",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-033"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-032",
+      "parentId": "ST-004",
+      "route": "/?view=settings&section=backup",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:161",
+        "apps/web/components/settings/BackupSettings.vue:348"
+      ]
+    },
+    {
+      "sourceId": "ST-033",
+      "parentId": "ST-032",
+      "route": "/?view=settings&section=backup",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:183",
+        "apps/web/components/settings/BackupSettings.vue:387"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-032",
+      "title": "从下载备份恢复：选择文件",
+      "kind": "drawer",
+      "module": "settings/restore",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "从备份恢复",
+        "parentId": "ST-004"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:161",
+        "apps/web/components/settings/BackupSettings.vue:348"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "加密备份",
+          "type": "file",
+          "required": true,
+          "constraints": "≤128MiB",
+          "sensitive": false
+        },
+        {
+          "name": "恢复私钥",
+          "type": "file",
+          "required": true,
+          "constraints": "≤16KiB；不渲染文件内容",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "下一步：确认恢复",
+          "effect": "本地验证两文件及大小；进入ST-033",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "effect": "dirty显示ST-089",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "两步进度条",
+        "未选择文件",
+        "超限验证错误",
+        "保留文件选择以重试"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:198"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-033",
+      "title": "从下载备份恢复：确认上传",
+      "kind": "state",
+      "module": "settings/restore",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "ST-032下一步",
+        "parentId": "ST-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:183",
+        "apps/web/components/settings/BackupSettings.vue:387"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "备份文件名/大小；密钥文件名/大小",
+          "type": "read-only",
+          "required": false,
+          "constraints": "不展示密钥内容",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "上一步",
+          "effect": "回到文件选择，保留草稿",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "上传并恢复独立副本",
+          "effect": "multipart上传backup/key/requestId",
+          "api": "POST /api/manage/restores/upload",
+          "guard": "已验证2文件；沿用requestId直到更改选件；busy禁止关闭"
+        }
+      ],
+      "importantStates": [
+        "摘要",
+        "上传中",
+        "拒绝后保留文件/相同requestId",
+        "完成转后台任务",
+        "大文件CLI及部署切换帮助展开"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:198",
+        "tests/e2e/management-features.spec.ts:427"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S005",
+  "roles": [
+    "owner-private"
+  ],
+  "selectedState": [
+    "r1 no files",
+    "r2 size limit error retains file selections",
+    "r3 CLI help expanded with sanitized paths"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排三个互相独立的恢复局部样例，正常清楚字号，细线/留白分开，不加解释标题。\n第一行：两步条“1 选择文件”“2 确认恢复”，第一步当前；字段“加密备份（最多 128 MiB）”文件选择按钮“选择文件”旁“未选择文件”；字段“恢复私钥（最多 16 KiB）”同样未选择；按钮“取消”“下一步：确认恢复”均可用。\n第二行：同样两步条第一步当前，两个文件字段分别显示“example-backup.dooknow”和“recovery.pem”，不显示文件内容；下方红色提示“备份文件最多 128 MiB，恢复密钥最多 16 KiB。”；“取消”“下一步：确认恢复”均可用。不画正在上传或成功。\n第三行：展开“ 大文件与部署切换帮助 ”，正文“超过上传限制时，在服务器使用管理命令恢复到新的空目录：”，下方只读等宽代码块，内容按多行显示“dooknow restore --source /srv/example/backup.dooknow \\\\”换行“  --key-file /srv/example/backup-key.pem --profile /srv/example/new-profile.json \\\\”换行“  --data-root /srv/example/restored-data --knowledge-root /srv/example/restored-knowledge”；下方说明“使用独立端口检查恢复副本，核对原文、附件与历史，再按部署方式更新绑定并切换服务。恢复操作不会替你修改正在生效的部署配置。”。不要将CLI参数做成编辑框或新增运行按钮。不画宿主或完整重复窗口。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S005 Component state matrix: owner-private / BackupSettings.vue\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | ST-032 | 真实组件局部状态矩阵 | role=owner-private | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n下载备份恢复完整抽屉第一步：加密备份/恢复私钥选件名大小和各自上限、下一步/取消，不显私钥。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n局部矩阵（≤7行/卡）：\nr1 | ST-032 | 实际只画代表：未选择文件 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/BackupSettings.vue\nr2 | ST-032 | 实际只画代表：超限验证错误 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/BackupSettings.vue\nr3 | ST-033 | 实际只画代表：大文件CLI及部署切换帮助展开 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/BackupSettings.vue\n\n精确功能/字段/动作guard合同：\nST-032/ST-033权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-032字段顺序：加密备份 [file; 必填]: ≤128MiB | 恢复私钥 [file; 必填]: ≤16KiB；不渲染文件内容；仅合成掩码\nST-033字段顺序：备份文件名/大小；密钥文件名/大小 [read-only; 可选]: 不展示密钥内容；仅合成掩码\nST-032白名单：下一步：确认恢复 => 本地验证两文件及大小；进入ST-033；guard=已登录所有者；请求期间禁用重复操作\nST-032白名单：取消 => dirty显示ST-089；guard=已登录所有者；请求期间禁用重复操作\nST-033白名单：上一步 => 回到文件选择，保留草稿；guard=已登录所有者；请求期间禁用重复操作\nST-033白名单：上传并恢复独立副本 => multipart上传backup/key/requestId；guard=已验证2文件；沿用requestId直到更改选件；busy禁止关闭；接口约束=POST /api/manage/restores/upload\n\n响应式合同：\nSettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。\n1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-backup.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "97d08b85c99d01fa5a1193bd951f58708e31f29566db456b5076ce8f799cc4d0",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 129321
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S005.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-dc787415-3d16-4ec8-8020-d5c0018ee03b.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-dc787415-3d16-4ec8-8020-d5c0018ee03b.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T04:01:10.610Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "File chooser idle/error and separate readonly CLI help; no upload result or CLI run control.",
+    "concerns": []
+  },
+  "sha256": "8ca43cfb64f14df345cde9752b2e05da3d5e59b349227b5bac481710d2fe90cd",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1392134,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/settings/BackupSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+    },
+    {
+      "path": "apps/web/components/settings/BackupSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+    },
+    {
+      "path": "apps/web/components/settings/BackupSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+    },
+    {
+      "path": "apps/web/components/settings/BackupSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived independent component specimens. Synthetic values, no backup/restore/mutation execution; runtime responsive/close/focus guards unverified."
+}

@@ -1,0 +1,15 @@
+{
+  "id": "public-reader",
+  "title": "公开文章阅读",
+  "width": 1440,
+  "audience": "public",
+  "route": "/blog/baseline-a7a0b0a2",
+  "file": "1440-public-reader.png",
+  "sha256": "26be9fdc338467a0d7c2f95a504fa3952e3c359c61be8fed0c15cca6f2e46a30",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "pageErrors": [],
+  "outerOverflow": 0
+}

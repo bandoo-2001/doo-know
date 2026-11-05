@@ -1,0 +1,51 @@
+{
+  "assetId": "MP-D086",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:27:23.283656+00:00",
+  "method": "Actual PNG viewed; actual matching baseline (when available), complete sidecar submitted prompt, batch contract and current component template checked under review-execution-contract.",
+  "selectedState": "Loaded standalone owner OAuth consent; legacy scopes, read-only knowledge scope and nine prefixes selected",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual legacy consent branch retained: client identity, one read scope and nine selected allowed resources, unselected-capability limitation, reject/accept actions and confirmation footer. No trusted-client badge.",
+    "Acceptance is consistent with selected valid resource scope/nonempty directory list and not busy. No policy-domain/offline_access controls forced into a request that does not contain them.",
+    "No owner private chrome or protocol parameters exposed as inputs. Resource choices are existing request prefixes, not a new directory authority."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-005.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D086.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/OAuthConsent.vue:24",
+    "apps/web/components/OAuthConsent.vue:91",
+    "apps/web/components/OAuthConsent.vue:112",
+    "docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "6780ea39624c7c374a76ac3c2f0c79bb9147d61744c4fcd2150f59a75740ed25",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D086.png",
+  "sourceIds": [
+    "PB-018"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

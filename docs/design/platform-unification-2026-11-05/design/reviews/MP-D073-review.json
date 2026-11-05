@@ -1,0 +1,43 @@
+{
+  "assetId": "MP-D073",
+  "sourceIds": [
+    "PB-003"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:39:01.642523+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Three independent compact expired-session login specimens, empty inputs",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Compact source brand/expired title/draft-retained helper, username/password order/eye, disabled empty login and privacy copy retained across widths.",
+    "No X/cancel/story/first-use help/signup/recovery/social control; existing nonclosable modal/backdrop/Escape guard respected, preserved owner background omitted as authorized local crop."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-011.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D073.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/App.vue:389",
+    "apps/web/components/Login.vue:40"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "32bf2f0e1123a0837df8a87669a1dc102c07de041c0f0d52c17b742c70283367",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D073.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

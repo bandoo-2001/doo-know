@@ -1,0 +1,678 @@
+{
+  "id": "WS-R022",
+  "title": "Large-file fragment editor",
+  "kind": "responsive-board",
+  "sourceIds": [
+    "WS-049"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-049",
+      "title": "Large-file fragment editor",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download"
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-049",
+      "title": "Large-file fragment editor",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download"
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/LargeFileWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/LargeFileWorkspace.vue:487, apps/web/components/LargeFileWorkspace.vue:226, packages/core/knowledge/limits.ts:1, apps/server/knowledge/web-routes.ts:63"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-049",
+      "label": "大纲标题 / 下一片段 / 重新读取",
+      "effect": "Read requested range/cursor from versioned snapshot",
+      "api": "GET /api/notes/:id/outline; POST /api/notes/:id/read",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-049",
+      "label": "保存片段",
+      "effect": "Submit bounded edit patch, poll accepted operation",
+      "api": "POST /api/notes/:id/patch",
+      "guard": "Page loaded, no recovery, service available; immutable snapshot/requestId guards"
+    },
+    {
+      "sourceId": "WS-049",
+      "label": "下载完整文件",
+      "effect": "Download original snapshot",
+      "api": "GET /api/notes/:id/download?snapshotId=:id",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R022",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px padding 18px 16px, editor 45dvh; desktop 24px 28px, editor50vh/min220px; action row wraps."
+      },
+      "requiredFieldOrder": [
+        "已加载片段"
+      ],
+      "requiredFields": [
+        {
+          "name": "已加载片段",
+          "type": "code-editor",
+          "required": true,
+          "constraints": "File <=20 MiB, ordinary cutoff 1 MiB/long-line threshold; read chunk max128 KiB; patch JSON max512 KiB; only loaded fragment edits.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "大纲标题 / 下一片段 / 重新读取",
+          "effect": "Read requested range/cursor from versioned snapshot",
+          "api": "GET /api/notes/:id/outline; POST /api/notes/:id/read",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "保存片段",
+          "effect": "Submit bounded edit patch, poll accepted operation",
+          "api": "POST /api/notes/:id/patch",
+          "guard": "Page loaded, no recovery, service available; immutable snapshot/requestId guards"
+        },
+        {
+          "label": "下载完整文件",
+          "effect": "Download original snapshot",
+          "api": "GET /api/notes/:id/download?snapshotId=:id",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-049"
+    }
+  ],
+  "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R022 Large-file fragment editor\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-049\", \"title\": \"Large-file fragment editor\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download\"}, {\"label\": \"B\", \"sourceId\": \"WS-049\", \"title\": \"Large-file fragment editor\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-049\", \"fieldsInOrder\": [{\"name\": \"已加载片段\", \"type\": \"code-editor\", \"required\": true, \"constraints\": \"File <=20 MiB, ordinary cutoff 1 MiB/long-line threshold; read chunk max128 KiB; patch JSON max512 KiB; only loaded fragment edits.\", \"sensitive\": false}], \"actions\": [{\"label\": \"大纲标题 / 下一片段 / 重新读取\", \"effect\": \"Read requested range/cursor from versioned snapshot\", \"api\": \"GET /api/notes/:id/outline; POST /api/notes/:id/read\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"保存片段\", \"effect\": \"Submit bounded edit patch, poll accepted operation\", \"api\": \"POST /api/notes/:id/patch\", \"guard\": \"Page loaded, no recovery, service available; immutable snapshot/requestId guards\"}, {\"label\": \"下载完整文件\", \"effect\": \"Download original snapshot\", \"api\": \"GET /api/notes/:id/download?snapshotId=:id\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading snapshot/operation\", \"Range line+byte counters\", \"Dirty/saved\", \"Recovery blocks editing\", \"Operation uncertain\", \"Error and check-save outcome\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-049\", \"fieldsInOrder\": [{\"name\": \"已加载片段\", \"type\": \"code-editor\", \"required\": true, \"constraints\": \"File <=20 MiB, ordinary cutoff 1 MiB/long-line threshold; read chunk max128 KiB; patch JSON max512 KiB; only loaded fragment edits.\", \"sensitive\": false}], \"actions\": [{\"label\": \"大纲标题 / 下一片段 / 重新读取\", \"effect\": \"Read requested range/cursor from versioned snapshot\", \"api\": \"GET /api/notes/:id/outline; POST /api/notes/:id/read\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"保存片段\", \"effect\": \"Submit bounded edit patch, poll accepted operation\", \"api\": \"POST /api/notes/:id/patch\", \"guard\": \"Page loaded, no recovery, service available; immutable snapshot/requestId guards\"}, {\"label\": \"下载完整文件\", \"effect\": \"Download original snapshot\", \"api\": \"GET /api/notes/:id/download?snapshotId=:id\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading snapshot/operation\", \"Range line+byte counters\", \"Dirty/saved\", \"Recovery blocks editing\", \"Operation uncertain\", \"Error and check-save outcome\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R022.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-049",
+      "title": "Large-file fragment editor",
+      "kind": "page",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Open note with metadata.editorMode=large",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/LargeFileWorkspace.vue:487",
+        "apps/web/components/LargeFileWorkspace.vue:226",
+        "packages/core/knowledge/limits.ts:1",
+        "apps/server/knowledge/web-routes.ts:63"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "已加载片段",
+          "type": "code-editor",
+          "required": true,
+          "constraints": "File <=20 MiB, ordinary cutoff 1 MiB/long-line threshold; read chunk max128 KiB; patch JSON max512 KiB; only loaded fragment edits.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "大纲标题 / 下一片段 / 重新读取",
+          "effect": "Read requested range/cursor from versioned snapshot",
+          "api": "GET /api/notes/:id/outline; POST /api/notes/:id/read",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "保存片段",
+          "effect": "Submit bounded edit patch, poll accepted operation",
+          "api": "POST /api/notes/:id/patch",
+          "guard": "Page loaded, no recovery, service available; immutable snapshot/requestId guards"
+        },
+        {
+          "label": "下载完整文件",
+          "effect": "Download original snapshot",
+          "api": "GET /api/notes/:id/download?snapshotId=:id",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Loading snapshot/operation",
+        "Range line+byte counters",
+        "Dirty/saved",
+        "Recovery blocks editing",
+        "Operation uncertain",
+        "Error and check-save outcome"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px padding 18px 16px, editor 45dvh; desktop 24px 28px, editor50vh/min220px; action row wraps."
+      },
+      "testRefs": [
+        "tests/knowledge/web-large-routes.test.ts",
+        "tests/web-note-drafts.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-049",
+      "parentId": "WS-001",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-049",
+  "stateCoverageRefs": [],
+  "statePatternRefs": [
+    {
+      "sourceId": "WS-049",
+      "assetId": "WS-D037",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-R022",
+  "originalManifest": {
+    "id": "WS-R022",
+    "title": "Large-file fragment editor",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-049"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-049",
+        "title": "Large-file fragment editor",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download"
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-049",
+        "title": "Large-file fragment editor",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download"
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "apps/web/components/LargeFileWorkspace.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/LargeFileWorkspace.vue:487, apps/web/components/LargeFileWorkspace.vue:226, packages/core/knowledge/limits.ts:1, apps/server/knowledge/web-routes.ts:63"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-049",
+        "label": "大纲标题 / 下一片段 / 重新读取",
+        "effect": "Read requested range/cursor from versioned snapshot",
+        "api": "GET /api/notes/:id/outline; POST /api/notes/:id/read",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-049",
+        "label": "保存片段",
+        "effect": "Submit bounded edit patch, poll accepted operation",
+        "api": "POST /api/notes/:id/patch",
+        "guard": "Page loaded, no recovery, service available; immutable snapshot/requestId guards"
+      },
+      {
+        "sourceId": "WS-049",
+        "label": "下载完整文件",
+        "effect": "Download original snapshot",
+        "api": "GET /api/notes/:id/download?snapshotId=:id",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-R022",
+        "representation": "direct",
+        "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "<=720px padding 18px 16px, editor 45dvh; desktop 24px 28px, editor50vh/min220px; action row wraps."
+        },
+        "requiredFieldOrder": [
+          "已加载片段"
+        ],
+        "requiredFields": [
+          {
+            "name": "已加载片段",
+            "type": "code-editor",
+            "required": true,
+            "constraints": "File <=20 MiB, ordinary cutoff 1 MiB/long-line threshold; read chunk max128 KiB; patch JSON max512 KiB; only loaded fragment edits.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "大纲标题 / 下一片段 / 重新读取",
+            "effect": "Read requested range/cursor from versioned snapshot",
+            "api": "GET /api/notes/:id/outline; POST /api/notes/:id/read",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "保存片段",
+            "effect": "Submit bounded edit patch, poll accepted operation",
+            "api": "POST /api/notes/:id/patch",
+            "guard": "Page loaded, no recovery, service available; immutable snapshot/requestId guards"
+          },
+          {
+            "label": "下载完整文件",
+            "effect": "Download original snapshot",
+            "api": "GET /api/notes/:id/download?snapshotId=:id",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-049"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R022 Large-file fragment editor\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-049\", \"title\": \"Large-file fragment editor\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download\"}, {\"label\": \"B\", \"sourceId\": \"WS-049\", \"title\": \"Large-file fragment editor\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. bounded fragment/range/outline/source then next/save/download\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-049\", \"fieldsInOrder\": [{\"name\": \"已加载片段\", \"type\": \"code-editor\", \"required\": true, \"constraints\": \"File <=20 MiB, ordinary cutoff 1 MiB/long-line threshold; read chunk max128 KiB; patch JSON max512 KiB; only loaded fragment edits.\", \"sensitive\": false}], \"actions\": [{\"label\": \"大纲标题 / 下一片段 / 重新读取\", \"effect\": \"Read requested range/cursor from versioned snapshot\", \"api\": \"GET /api/notes/:id/outline; POST /api/notes/:id/read\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"保存片段\", \"effect\": \"Submit bounded edit patch, poll accepted operation\", \"api\": \"POST /api/notes/:id/patch\", \"guard\": \"Page loaded, no recovery, service available; immutable snapshot/requestId guards\"}, {\"label\": \"下载完整文件\", \"effect\": \"Download original snapshot\", \"api\": \"GET /api/notes/:id/download?snapshotId=:id\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading snapshot/operation\", \"Range line+byte counters\", \"Dirty/saved\", \"Recovery blocks editing\", \"Operation uncertain\", \"Error and check-save outcome\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-049\", \"fieldsInOrder\": [{\"name\": \"已加载片段\", \"type\": \"code-editor\", \"required\": true, \"constraints\": \"File <=20 MiB, ordinary cutoff 1 MiB/long-line threshold; read chunk max128 KiB; patch JSON max512 KiB; only loaded fragment edits.\", \"sensitive\": false}], \"actions\": [{\"label\": \"大纲标题 / 下一片段 / 重新读取\", \"effect\": \"Read requested range/cursor from versioned snapshot\", \"api\": \"GET /api/notes/:id/outline; POST /api/notes/:id/read\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"保存片段\", \"effect\": \"Submit bounded edit patch, poll accepted operation\", \"api\": \"POST /api/notes/:id/patch\", \"guard\": \"Page loaded, no recovery, service available; immutable snapshot/requestId guards\"}, {\"label\": \"下载完整文件\", \"effect\": \"Download original snapshot\", \"api\": \"GET /api/notes/:id/download?snapshotId=:id\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading snapshot/operation\", \"Range line+byte counters\", \"Dirty/saved\", \"Recovery blocks editing\", \"Operation uncertain\", \"Error and check-save outcome\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R022.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-049",
+        "title": "Large-file fragment editor",
+        "kind": "page",
+        "module": "editor",
+        "entry": {
+          "route": "/?note=:id",
+          "trigger": "Open note with metadata.editorMode=large",
+          "parentId": "WS-001"
+        },
+        "sourceRefs": [
+          "apps/web/components/LargeFileWorkspace.vue:487",
+          "apps/web/components/LargeFileWorkspace.vue:226",
+          "packages/core/knowledge/limits.ts:1",
+          "apps/server/knowledge/web-routes.ts:63"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "fields": [
+          {
+            "name": "已加载片段",
+            "type": "code-editor",
+            "required": true,
+            "constraints": "File <=20 MiB, ordinary cutoff 1 MiB/long-line threshold; read chunk max128 KiB; patch JSON max512 KiB; only loaded fragment edits.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "大纲标题 / 下一片段 / 重新读取",
+            "effect": "Read requested range/cursor from versioned snapshot",
+            "api": "GET /api/notes/:id/outline; POST /api/notes/:id/read",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "保存片段",
+            "effect": "Submit bounded edit patch, poll accepted operation",
+            "api": "POST /api/notes/:id/patch",
+            "guard": "Page loaded, no recovery, service available; immutable snapshot/requestId guards"
+          },
+          {
+            "label": "下载完整文件",
+            "effect": "Download original snapshot",
+            "api": "GET /api/notes/:id/download?snapshotId=:id",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Loading snapshot/operation",
+          "Range line+byte counters",
+          "Dirty/saved",
+          "Recovery blocks editing",
+          "Operation uncertain",
+          "Error and check-save outcome"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "<=720px padding 18px 16px, editor 45dvh; desktop 24px 28px, editor50vh/min220px; action row wraps."
+        },
+        "testRefs": [
+          "tests/knowledge/web-large-routes.test.ts",
+          "tests/web-note-drafts.test.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-049",
+        "parentId": "WS-001",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-049",
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "WS-049",
+        "assetId": "WS-D037",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作两个中文DooKnow手机大文件片段编辑页面并排，外部仅A/B，A390、B320窄屏比例，正常字号，不画手机壳。白底浅灰细线蓝色主动作，手机左侧目录关闭、无桌面左轨。顶部手机栏菜单、DooKnow、私人笔记；笔记页头书本根图标、…路径溢出、笔记名“隔离示例长文”；右侧或下一行只有星标、分享图标、更多…（不是full-mode，不画全局保存/撤销/格式/模式工具栏）。宿主底部导航笔记/最近/收藏/应用/更多，笔记选中。正文是可独立纵向滚动的“大文件模式”：A展示顶部浅蓝信息条“大文件模式”，说明“仅编辑已加载片段。正文上限 20 MiB，每次加载最多 128 KiB。”；章节块“章节”及按钮“记录与回顾”“整理方法”；范围文案“第 1–4 行 · 0–131072 字节 · 已保存”；下面约45vh高的源码编辑区有真实1至4行号，行1“# 记录与回顾”，行2“用于大文件片段设计的隔离示例。”，行3“## 整理方法”，行4为不换行的长文本“保留观察，按主题记录。”重复，编辑区内部水平滚动，不造成页面横向溢出。A操作区在正文下方可滚动到。B为同一布局在320宽下、正文已向下滚动的位置，顶部宿主页头/底导航仍在，正文露出源码编辑器下半部和水平滚动条，然后真实动作自动换行完整可达，顺序是“预览当前片段”、蓝色“保存片段”、“下一片段”、“重新读取”、链接“下载完整文件”。当前片段已加载且还有下一页，无busy/错误/恢复弹窗；没有普通保存、发布、导出全站或后台协议字段。不压缩编辑区高度来塞所有内容。",
+  "actualToolArguments": {
+    "prompt": "制作两个中文DooKnow手机大文件片段编辑页面并排，外部仅A/B，A390、B320窄屏比例，正常字号，不画手机壳。白底浅灰细线蓝色主动作，手机左侧目录关闭、无桌面左轨。顶部手机栏菜单、DooKnow、私人笔记；笔记页头书本根图标、…路径溢出、笔记名“隔离示例长文”；右侧或下一行只有星标、分享图标、更多…（不是full-mode，不画全局保存/撤销/格式/模式工具栏）。宿主底部导航笔记/最近/收藏/应用/更多，笔记选中。正文是可独立纵向滚动的“大文件模式”：A展示顶部浅蓝信息条“大文件模式”，说明“仅编辑已加载片段。正文上限 20 MiB，每次加载最多 128 KiB。”；章节块“章节”及按钮“记录与回顾”“整理方法”；范围文案“第 1–4 行 · 0–131072 字节 · 已保存”；下面约45vh高的源码编辑区有真实1至4行号，行1“# 记录与回顾”，行2“用于大文件片段设计的隔离示例。”，行3“## 整理方法”，行4为不换行的长文本“保留观察，按主题记录。”重复，编辑区内部水平滚动，不造成页面横向溢出。A操作区在正文下方可滚动到。B为同一布局在320宽下、正文已向下滚动的位置，顶部宿主页头/底导航仍在，正文露出源码编辑器下半部和水平滚动条，然后真实动作自动换行完整可达，顺序是“预览当前片段”、蓝色“保存片段”、“下一片段”、“重新读取”、链接“下载完整文件”。当前片段已加载且还有下一页，无busy/错误/恢复弹窗；没有普通保存、发布、导出全站或后台协议字段。不压缩编辑区高度来塞所有内容。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D037.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D037.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D037.png",
+      "order": 1,
+      "role": "complete owner large-file fragment editor content/control authority",
+      "sha256": "4a5ba23af3510c89f9ed53b2b866f3379e407655b6626d048fec488cdcd97e6e",
+      "bytes": 1545771,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/LargeFileWorkspace.vue",
+      "sha256": "3ffb2de293a67b91689eaffebdf1b89cde8335075553c5bc3a0b680bf310d56c",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "packages/core/knowledge/limits.ts",
+      "sha256": "66fbf96c8c338c5524377068598cb53201a000e584beeeb8ed53033f1d97274e",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/server/knowledge/web-routes.ts",
+      "sha256": "c79f2fe3f0efdafae64d37e69f1e64665cf35896158783771481846d1c2810a9",
+      "role": "actual source template/behavior authority; read before generation"
+    }
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "fallbackUsed": false,
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "url": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "verifiedModel": "gpt-image-2",
+      "scope": "Codex built-in image generation",
+      "date": "2026-11-05",
+      "apiReference": "https://developers.openai.com/api/reference/resources/images/methods/generate",
+      "apiModelSupported": true,
+      "apiReferenceDoesNotProveBuiltinRouteAlone": true
+    }
+  },
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-90629f1e-39d5-4f0e-86fd-c904455a9288.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-90629f1e-39d5-4f0e-86fd-c904455a9288.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generatedAtUtc": "2026-11-05T08:59:16.215Z",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R022.png",
+  "generationCalls": [
+    {
+      "status": "completed-with-tool-receipt",
+      "actualToolArguments": {
+        "prompt": "制作两个中文DooKnow手机大文件片段编辑页面并排，外部仅A/B，A390、B320窄屏比例，正常字号，不画手机壳。白底浅灰细线蓝色主动作，手机左侧目录关闭、无桌面左轨。顶部手机栏菜单、DooKnow、私人笔记；笔记页头书本根图标、…路径溢出、笔记名“隔离示例长文”；右侧或下一行只有星标、分享图标、更多…（不是full-mode，不画全局保存/撤销/格式/模式工具栏）。宿主底部导航笔记/最近/收藏/应用/更多，笔记选中。正文是可独立纵向滚动的“大文件模式”：A展示顶部浅蓝信息条“大文件模式”，说明“仅编辑已加载片段。正文上限 20 MiB，每次加载最多 128 KiB。”；章节块“章节”及按钮“记录与回顾”“整理方法”；范围文案“第 1–4 行 · 0–131072 字节 · 已保存”；下面约45vh高的源码编辑区有真实1至4行号，行1“# 记录与回顾”，行2“用于大文件片段设计的隔离示例。”，行3“## 整理方法”，行4为不换行的长文本“保留观察，按主题记录。”重复，编辑区内部水平滚动，不造成页面横向溢出。A操作区在正文下方可滚动到。B为同一布局在320宽下、正文已向下滚动的位置，顶部宿主页头/底导航仍在，正文露出源码编辑器下半部和水平滚动条，然后真实动作自动换行完整可达，顺序是“预览当前片段”、蓝色“保存片段”、“下一片段”、“重新读取”、链接“下载完整文件”。当前片段已加载且还有下一页，无busy/错误/恢复弹窗；没有普通保存、发布、导出全站或后台协议字段。不压缩编辑区高度来塞所有内容。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D037.png",
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-90629f1e-39d5-4f0e-86fd-c904455a9288.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    }
+  ],
+  "generationCallCount": 1,
+  "selfInspection": {
+    "status": "pending-independent-review",
+    "method": "Native PNG inspected against actual component template and selected scroll state",
+    "concerns": [
+      "Tool added OS status bar and exterior size labels; product semantics unaffected but targeted cleanup pending."
+    ]
+  },
+  "sha256": "cb37f9aa7f1fb2dc6061faeee5ab2cfe46ecf1dc0c9710556a6ed27bdb8300ed",
+  "bytes": 1364279,
+  "dimensions": {
+    "width": 1402,
+    "height": 1122
+  },
+  "selectedState": [
+    "390 bounded loaded fragment initial scroll; hasMore; idle",
+    "320 same fragment lower scroll with true action order visible"
+  ],
+  "unscreenedControlsBinding": {
+    "assetId": "WS-D037",
+    "fieldOrder": [
+      "mode notice",
+      "limits explanation",
+      "outline",
+      "range",
+      "incremental source editor",
+      "preview",
+      "save",
+      "next",
+      "reload",
+      "download"
+    ],
+    "sha256": "4a5ba23af3510c89f9ed53b2b866f3379e407655b6626d048fec488cdcd97e6e",
+    "path": "docs/design/platform-unification-2026-11-05/design/images/WS-D037.png"
+  },
+  "runtimeResponsiveVerified": false,
+  "responsiveTargetCssWidths": [
+    390,
+    320
+  ],
+  "currentGenerationReceipt": {
+    "toolResultReceiptObserved": true,
+    "receiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-4.json",
+    "actualToolArguments": {
+      "prompt": "制作两个中文DooKnow手机大文件片段编辑页面并排，外部仅A/B，A390、B320窄屏比例，正常字号，不画手机壳。白底浅灰细线蓝色主动作，手机左侧目录关闭、无桌面左轨。顶部手机栏菜单、DooKnow、私人笔记；笔记页头书本根图标、…路径溢出、笔记名“隔离示例长文”；右侧或下一行只有星标、分享图标、更多…（不是full-mode，不画全局保存/撤销/格式/模式工具栏）。宿主底部导航笔记/最近/收藏/应用/更多，笔记选中。正文是可独立纵向滚动的“大文件模式”：A展示顶部浅蓝信息条“大文件模式”，说明“仅编辑已加载片段。正文上限 20 MiB，每次加载最多 128 KiB。”；章节块“章节”及按钮“记录与回顾”“整理方法”；范围文案“第 1–4 行 · 0–131072 字节 · 已保存”；下面约45vh高的源码编辑区有真实1至4行号，行1“# 记录与回顾”，行2“用于大文件片段设计的隔离示例。”，行3“## 整理方法”，行4为不换行的长文本“保留观察，按主题记录。”重复，编辑区内部水平滚动，不造成页面横向溢出。A操作区在正文下方可滚动到。B为同一布局在320宽下、正文已向下滚动的位置，顶部宿主页头/底导航仍在，正文露出源码编辑器下半部和水平滚动条，然后真实动作自动换行完整可达，顺序是“预览当前片段”、蓝色“保存片段”、“下一片段”、“重新读取”、链接“下载完整文件”。当前片段已加载且还有下一页，无busy/错误/恢复弹窗；没有普通保存、发布、导出全站或后台协议字段。不压缩编辑区高度来塞所有内容。",
+      "referenced_image_paths": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D037.png",
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "transparent_background": false
+    },
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-90629f1e-39d5-4f0e-86fd-c904455a9288.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-90629f1e-39d5-4f0e-86fd-c904455a9288.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "completionObservedAtUtc": "2026-11-05T08:59:16.215Z",
+    "exactToolServerCompletionTimestampExposed": false
+  },
+  "generatedAtUtcBasis": "Local observation after awaited callback; tool does not expose exact server completion timestamp.",
+  "sourceImageSha256": "cb37f9aa7f1fb2dc6061faeee5ab2cfe46ecf1dc0c9710556a6ed27bdb8300ed",
+  "metadataAmendments": [
+    {
+      "atUtc": "2026-11-05T09:18:09.836367+00:00",
+      "reason": "Attach observed current receipt, source byte verification and full prior revision chain without changing PNG or rewriting historical no-receipt status."
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "assetId": "WS-D091-v2",
+  "sourceIds": [
+    "WS-067"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T03:50:20.930093+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Same restore-confirmation and busy pending-check windows; complete-original status corrected, left baseline context still absent.",
+  "functionalFindings": [
+    {
+      "id": "WS-D091-F2",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Left selected-revision restore-confirmation window still omits historical-version versus current-saved-version reference row; right includes it. Source always renders this selected-revision heading before dirty warning.",
+      "sourceEvidence": "NoteHistoryDialog.vue:640 selected detail heading has no !dirty/!confirmRestore condition."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "New PNG viewed; 完整原文 now correctly readonly text and copy remains sole source-tools action.",
+    "Distinct restore confirmation versus locked busy pending verification footers retained."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-017.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D091-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/NoteHistoryDialog.vue:640",
+    "apps/web/components/NoteHistoryDialog.vue:733",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D091-review.json"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "WS-D091-F2",
+      "correction": "Add left readonly 历史版本11/4 10:00 → 当前已保存版本11/5 12:00 before dirty warning. Preserve corrected plain 完整原文 and both window states."
+    }
+  ],
+  "reviewedImageSha256": "155207e9097baba36da00a042477063403e98a6b035801008635882c27862bcd",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D091-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

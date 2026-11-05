@@ -1,0 +1,464 @@
+{
+  "assetId": "WS-R010",
+  "sourceIds": [
+    "WS-023"
+  ],
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "responsive-board",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-023",
+      "title": "Canonical shared directory tree selector popup",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-023",
+      "title": "Canonical shared directory tree selector popup",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints."
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "Use case:ui-mockup. 两个独立移动端局部组件A390px/B320px，高清中文正常字号、白底浅灰面、蓝色#4566c6、细线8px圆角，样式只参照输入图。无设备外壳，不重画宿主导航。模态内容可内部纵向滚动、页脚与关闭可达，不能缩小控件。目录树选择控件弹出状态，只有真实搜索型树下拉，无模态标题栏或确认取消按钮。A390显示调用方label所在目录、当前选中值30-Knowledge/方法，展开popup搜索输入空，树知识库根目录展开、00-Inbox、30-Knowledge展开子项方法选中、参考资料；选中祖先展开，树线与折叠箭头。B320同控件label导入到、当前40-Resources，展开popup搜索值“无匹配示例”，仅提示“没有匹配的目录”。弹出框距屏幕两侧有余量、内部限高滚动、选中不会提交业务。不可新增新建目录按钮或任何任务字段。",
+  "sourceContracts": [
+    {
+      "id": "WS-023",
+      "title": "Canonical shared directory tree selector popup",
+      "kind": "popover",
+      "module": "files",
+      "entry": {
+        "route": "Shared owner hosts: search/create/move/copy/import/graph; settings ST-015 host contexts",
+        "trigger": "Open a DirectoryTreeSelect",
+        "parentId": "WS-011"
+      },
+      "sourceRefs": [
+        "apps/web/components/DirectoryTreeSelect.vue:1",
+        "apps/web/components/DirectoryTreeSelect.vue:126",
+        "apps/web/components/Workspace.vue:2828",
+        "apps/web/components/NoteMoveDialog.vue:130",
+        "apps/web/components/NoteCopyDialog.vue:105",
+        "apps/web/components/settings/TransferPanel.vue:520",
+        "apps/web/components/GraphWorkspace.vue:844"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "This row is the canonical shared DirectoryTreeSelect visual. Settings ST-015 references this image instead of duplicating the same widget. Each host supplies its own folders/root label/value/disabled state and retains its own selection/submit permission policy; the shared widget grants no additional directory authority."
+      ],
+      "fields": [
+        {
+          "name": "搜索目录",
+          "type": "search",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "目录选择",
+          "type": "tree-select",
+          "required": true,
+          "constraints": "Root + supplied folder hierarchy; selecting a string emits new value.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "选择目录",
+          "effect": "Change only caller target folder",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "展开 / 搜索 / Escape",
+          "effect": "Browse/filter or close popup",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Expanded ancestors of selection",
+        "Search expands all folders",
+        "Disabled while caller busy"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Measures space above/below; list height clamps 24–260px, portal layer in body, remeasures resize/scroll/transition. Exact 320/390 fit unverified."
+      },
+      "testRefs": [],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Canonical visual owner WS-023; ST-015 is a host-context reference. Keep per-host valid root choices, existing-directory lists and busy guards distinct."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "originalManifestContract": {
+    "id": "WS-R010",
+    "title": "Canonical shared directory tree selector popup",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-023"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-023",
+        "title": "Canonical shared directory tree selector popup",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints."
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-023",
+        "title": "Canonical shared directory tree selector popup",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints."
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "apps/web/components/DirectoryTreeSelect.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/DirectoryTreeSelect.vue:1, apps/web/components/DirectoryTreeSelect.vue:126, apps/web/components/Workspace.vue:2828, apps/web/components/NoteMoveDialog.vue:130, apps/web/components/NoteCopyDialog.vue:105, apps/web/components/settings/TransferPanel.vue:520, apps/web/components/GraphWorkspace.vue:844"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-023",
+        "label": "选择目录",
+        "effect": "Change only caller target folder",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-023",
+        "label": "展开 / 搜索 / Escape",
+        "effect": "Browse/filter or close popup",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-R010",
+        "representation": "direct",
+        "reason": "Bounded owner hierarchical selection/tree popup. Directory search/selected tree is the longest exemplar at390/320; outline and ancestor list omit search or tree toggles according to source and retain their actual trigger/focus/path-change/selection guards. Desktop docked outline changes to the source-defined popup when narrow.",
+        "reuseSourceId": "WS-023",
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Measures space above/below; list height clamps 24–260px, portal layer in body, remeasures resize/scroll/transition. Exact 320/390 fit unverified."
+        },
+        "requiredFieldOrder": [
+          "搜索目录",
+          "目录选择"
+        ],
+        "requiredFields": [
+          {
+            "name": "搜索目录",
+            "type": "search",
+            "required": false,
+            "constraints": "No additional client constraint found; server validation not otherwise verified.",
+            "sensitive": false
+          },
+          {
+            "name": "目录选择",
+            "type": "tree-select",
+            "required": true,
+            "constraints": "Root + supplied folder hierarchy; selecting a string emits new value.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "选择目录",
+            "effect": "Change only caller target folder",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "展开 / 搜索 / Escape",
+            "effect": "Browse/filter or close popup",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "This row is the canonical shared DirectoryTreeSelect visual. Settings ST-015 references this image instead of duplicating the same widget. Each host supplies its own folders/root label/value/disabled state and retains its own selection/submit permission policy; the shared widget grants no additional directory authority."
+        ],
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-023"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R010 Canonical shared directory tree selector popup\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-023\", \"title\": \"Canonical shared directory tree selector popup\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.\"}, {\"label\": \"B\", \"sourceId\": \"WS-023\", \"title\": \"Canonical shared directory tree selector popup\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-023\", \"fieldsInOrder\": [{\"name\": \"搜索目录\", \"type\": \"search\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"目录选择\", \"type\": \"tree-select\", \"required\": true, \"constraints\": \"Root + supplied folder hierarchy; selecting a string emits new value.\", \"sensitive\": false}], \"actions\": [{\"label\": \"选择目录\", \"effect\": \"Change only caller target folder\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"展开 / 搜索 / Escape\", \"effect\": \"Browse/filter or close popup\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Expanded ancestors of selection\", \"Search expands all folders\", \"Disabled while caller busy\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"This row is the canonical shared DirectoryTreeSelect visual. Settings ST-015 references this image instead of duplicating the same widget. Each host supplies its own folders/root label/value/disabled state and retains its own selection/submit permission policy; the shared widget grants no additional directory authority.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-023\", \"fieldsInOrder\": [{\"name\": \"搜索目录\", \"type\": \"search\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"目录选择\", \"type\": \"tree-select\", \"required\": true, \"constraints\": \"Root + supplied folder hierarchy; selecting a string emits new value.\", \"sensitive\": false}], \"actions\": [{\"label\": \"选择目录\", \"effect\": \"Change only caller target folder\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"展开 / 搜索 / Escape\", \"effect\": \"Browse/filter or close popup\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Expanded ancestors of selection\", \"Search expands all folders\", \"Disabled while caller busy\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"This row is the canonical shared DirectoryTreeSelect visual. Settings ST-015 references this image instead of duplicating the same widget. Each host supplies its own folders/root label/value/disabled state and retains its own selection/submit permission policy; the shared widget grants no additional directory authority.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R010.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-023",
+        "title": "Canonical shared directory tree selector popup",
+        "kind": "popover",
+        "module": "files",
+        "entry": {
+          "route": "Shared owner hosts: search/create/move/copy/import/graph; settings ST-015 host contexts",
+          "trigger": "Open a DirectoryTreeSelect",
+          "parentId": "WS-011"
+        },
+        "sourceRefs": [
+          "apps/web/components/DirectoryTreeSelect.vue:1",
+          "apps/web/components/DirectoryTreeSelect.vue:126",
+          "apps/web/components/Workspace.vue:2828",
+          "apps/web/components/NoteMoveDialog.vue:130",
+          "apps/web/components/NoteCopyDialog.vue:105",
+          "apps/web/components/settings/TransferPanel.vue:520",
+          "apps/web/components/GraphWorkspace.vue:844"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "This row is the canonical shared DirectoryTreeSelect visual. Settings ST-015 references this image instead of duplicating the same widget. Each host supplies its own folders/root label/value/disabled state and retains its own selection/submit permission policy; the shared widget grants no additional directory authority."
+        ],
+        "fields": [
+          {
+            "name": "搜索目录",
+            "type": "search",
+            "required": false,
+            "constraints": "No additional client constraint found; server validation not otherwise verified.",
+            "sensitive": false
+          },
+          {
+            "name": "目录选择",
+            "type": "tree-select",
+            "required": true,
+            "constraints": "Root + supplied folder hierarchy; selecting a string emits new value.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "选择目录",
+            "effect": "Change only caller target folder",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "展开 / 搜索 / Escape",
+            "effect": "Browse/filter or close popup",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Expanded ancestors of selection",
+          "Search expands all folders",
+          "Disabled while caller busy"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Measures space above/below; list height clamps 24–260px, portal layer in body, remeasures resize/scroll/transition. Exact 320/390 fit unverified."
+        },
+        "testRefs": [],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted.",
+          "Canonical visual owner WS-023; ST-015 is a host-context reference. Keep per-host valid root choices, existing-directory lists and busy guards distinct."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-023",
+        "parentId": "WS-011",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-023",
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "WS-023",
+        "assetId": "WS-D019",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "manifestReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-045.json",
+  "sourceDerived": true,
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "Use case:ui-mockup. 两个独立移动端局部组件A390px/B320px，高清中文正常字号、白底浅灰面、蓝色#4566c6、细线8px圆角，样式只参照输入图。无设备外壳，不重画宿主导航。模态内容可内部纵向滚动、页脚与关闭可达，不能缩小控件。目录树选择控件弹出状态，只有真实搜索型树下拉，无模态标题栏或确认取消按钮。A390显示调用方label所在目录、当前选中值30-Knowledge/方法，展开popup搜索输入空，树知识库根目录展开、00-Inbox、30-Knowledge展开子项方法选中、参考资料；选中祖先展开，树线与折叠箭头。B320同控件label导入到、当前40-Resources，展开popup搜索值“无匹配示例”，仅提示“没有匹配的目录”。弹出框距屏幕两侧有余量、内部限高滚动、选中不会提交业务。不可新增新建目录按钮或任何任务字段。",
+  "actualToolArguments": {
+    "prompt": "Use case:ui-mockup. 两个独立移动端局部组件A390px/B320px，高清中文正常字号、白底浅灰面、蓝色#4566c6、细线8px圆角，样式只参照输入图。无设备外壳，不重画宿主导航。模态内容可内部纵向滚动、页脚与关闭可达，不能缩小控件。目录树选择控件弹出状态，只有真实搜索型树下拉，无模态标题栏或确认取消按钮。A390显示调用方label所在目录、当前选中值30-Knowledge/方法，展开popup搜索输入空，树知识库根目录展开、00-Inbox、30-Knowledge展开子项方法选中、参考资料；选中祖先展开，树线与折叠箭头。B320同控件label导入到、当前40-Resources，展开popup搜索值“无匹配示例”，仅提示“没有匹配的目录”。弹出框距屏幕两侧有余量、内部限高滚动、选中不会提交业务。不可新增新建目录按钮或任何任务字段。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "inputs": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "inputReferences": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-b5eddbee-292f-4542-98d2-9ffaa4ea56d3.png",
+  "toolDefaultOutputSource": "$CODEX_HOME/generated_images (actual path in toolOutputFile)",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R010.png",
+  "sha256": "ca7bdce29b20ecc2040d4bc45cf492de6cd81c111473032bd538de2fd0362ee6",
+  "bytes": 1024193,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T08:43:10.586838+00:00",
+  "revisionOf": null,
+  "generationAttempts": [
+    {
+      "actualToolArguments": {
+        "prompt": "Use case:ui-mockup. 两个独立移动端局部组件A390px/B320px，高清中文正常字号、白底浅灰面、蓝色#4566c6、细线8px圆角，样式只参照输入图。无设备外壳，不重画宿主导航。模态内容可内部纵向滚动、页脚与关闭可达，不能缩小控件。目录树选择控件弹出状态，只有真实搜索型树下拉，无模态标题栏或确认取消按钮。A390显示调用方label所在目录、当前选中值30-Knowledge/方法，展开popup搜索输入空，树知识库根目录展开、00-Inbox、30-Knowledge展开子项方法选中、参考资料；选中祖先展开，树线与折叠箭头。B320同控件label导入到、当前40-Resources，展开popup搜索值“无匹配示例”，仅提示“没有匹配的目录”。弹出框距屏幕两侧有余量、内部限高滚动、选中不会提交业务。不可新增新建目录按钮或任何任务字段。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-b5eddbee-292f-4542-98d2-9ffaa4ea56d3.png",
+      "status": "saved"
+    }
+  ],
+  "postprocessing": "original PNG copied without pixel modification",
+  "selfInspection": {
+    "method": "Viewed actual inputs and generated native preview; compared selected state to source contracts",
+    "concerns": [
+      "Static design target; native file selection and popup positioning not runtime verified."
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "reviewStatus": "pending-independent-review",
+  "pendingReview": true
+}

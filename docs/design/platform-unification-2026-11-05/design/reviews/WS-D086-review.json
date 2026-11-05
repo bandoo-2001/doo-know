@@ -1,0 +1,55 @@
+{
+  "assetId": "WS-D086",
+  "sourceIds": [
+    "WS-114",
+    "WS-115",
+    "WS-116",
+    "WS-117",
+    "WS-118",
+    "WS-119",
+    "WS-120"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:45:19.182944+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Seven separate private/active/expired/revoked/custom-validation/unsupported-edit/supported-edit share fragments",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed all seven independent snippets/full prompt. Actual badges/explanatory copy and status-enabled action sets retained; only active exposes absolute read-only URL/copy/reset/revoke/save. Expired/revoked hide old URL, not a public auth gate.",
+    "Custom past local date invokes exact inline validation and retains enabled create/done because source validates in submit handler; no fake ISO/timezone/protocol input.",
+    "Unsupported primary diagram edit option disabled with exact server reason; separate optional original-source checkbox remains editable. Supported ordinary Markdown edit explicitly manual-save/no attachments/no editing referenced boards. Latest-saved publication remains separate from unsaved owner draft. Busy locks actual controls/action buttons, but source does not add a blanket modal-dismiss or copy lock."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-032.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D086.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/ShareDialog.vue:29",
+    "apps/web/components/ShareDialog.vue:57",
+    "apps/web/components/ShareDialog.vue:112",
+    "apps/web/components/ShareDialog.vue:151",
+    "apps/web/components/Workspace.vue:1543",
+    "packages/core/shares.ts:10",
+    "packages/core/share-policy.ts:17"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "f6963f7e7b71547eef9963372ef786adc9e47b162981788e383c362d171026bc",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D086.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

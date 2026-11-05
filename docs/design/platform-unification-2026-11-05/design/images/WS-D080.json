@@ -1,0 +1,241 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D080",
+  "assetId": "WS-D080",
+  "sourceIds": [
+    "WS-106"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-106",
+      "title": "Note reference graph mode",
+      "role": "authenticated owner",
+      "state": "Source-derived notes projection, synthetic no-match query, zero nodes/edges, canvas display and no selected inspector",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host."
+    }
+  ],
+  "selectedState": "Source-derived notes projection, synthetic no-match query, zero nodes/edges, canvas display and no selected inspector",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作source-derived笔记关系图整页。完整主人知识图谱桌面页，约1440×1000。实际图1决定图谱宿主，图2只给共享平面配色密度，绝不借笔记owner rail/目录树。窄专属图谱rail顶部返回、知识图谱/笔记图谱/关系审核/后台分析/图谱问答/视图与导出，底部模型设置；页头现有返回、知识图谱、让资料中的联系清晰可见、分析模式badge、右侧后台分析状态入口。工具栏按序知识/笔记分段、搜索图谱输入placeholder搜索概念、实体或笔记及搜索图标、筛选、画布/列表分段。现有图谱问答只是入口，不画聊天窗口，不新增自动分析/自动配置模型。rail笔记图谱选中；页头仍源码标题知识图谱，模式基础分析，状态基础分析就绪。类型笔记选中、画布选中，搜索输入当前“不存在的笔记”，有既有清除图标与搜索图标。该查询无匹配，摘要0个节点、0条关系与刷新。大白画布没有任何节点/关系，中间准确空提示“暂无匹配内容，可调整搜索或筛选条件。”；画布底部保留+/−/适应画布及原图例笔记/概念/人物/组织/地点/事件/技术、虚线表示候选或相似线索。未选中笔记，无详情/1跳2跳/打开原文按钮，这些只在真实选中态出现；不新增关系、不混进知识实体数据或任务/问答/模型弹窗。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。synthetic query/source-derived/未runtime状态仅metadata。",
+  "prompt": "制作source-derived笔记关系图整页。完整主人知识图谱桌面页，约1440×1000。实际图1决定图谱宿主，图2只给共享平面配色密度，绝不借笔记owner rail/目录树。窄专属图谱rail顶部返回、知识图谱/笔记图谱/关系审核/后台分析/图谱问答/视图与导出，底部模型设置；页头现有返回、知识图谱、让资料中的联系清晰可见、分析模式badge、右侧后台分析状态入口。工具栏按序知识/笔记分段、搜索图谱输入placeholder搜索概念、实体或笔记及搜索图标、筛选、画布/列表分段。现有图谱问答只是入口，不画聊天窗口，不新增自动分析/自动配置模型。rail笔记图谱选中；页头仍源码标题知识图谱，模式基础分析，状态基础分析就绪。类型笔记选中、画布选中，搜索输入当前“不存在的笔记”，有既有清除图标与搜索图标。该查询无匹配，摘要0个节点、0条关系与刷新。大白画布没有任何节点/关系，中间准确空提示“暂无匹配内容，可调整搜索或筛选条件。”；画布底部保留+/−/适应画布及原图例笔记/概念/人物/组织/地点/事件/技术、虚线表示候选或相似线索。未选中笔记，无详情/1跳2跳/打开原文按钮，这些只在真实选中态出现；不新增关系、不混进知识实体数据或任务/问答/模型弹窗。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。synthetic query/source-derived/未runtime状态仅metadata。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-graph.png",
+      "role": "Actual graph host only; notes-query no-match state is source-derived",
+      "sha256": "b12c6d9f125032b6cd0f4c74d3badc16f098543f05d3baffa96f272df1a64cae",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Shared flat palette and density only; actual role-specific host takes precedence",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-graph.png",
+      "role": "Actual graph host only; notes-query no-match state is source-derived",
+      "sha256": "b12c6d9f125032b6cd0f4c74d3badc16f098543f05d3baffa96f272df1a64cae",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Shared flat palette and density only; actual role-specific host takes precedence",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作source-derived笔记关系图整页。完整主人知识图谱桌面页，约1440×1000。实际图1决定图谱宿主，图2只给共享平面配色密度，绝不借笔记owner rail/目录树。窄专属图谱rail顶部返回、知识图谱/笔记图谱/关系审核/后台分析/图谱问答/视图与导出，底部模型设置；页头现有返回、知识图谱、让资料中的联系清晰可见、分析模式badge、右侧后台分析状态入口。工具栏按序知识/笔记分段、搜索图谱输入placeholder搜索概念、实体或笔记及搜索图标、筛选、画布/列表分段。现有图谱问答只是入口，不画聊天窗口，不新增自动分析/自动配置模型。rail笔记图谱选中；页头仍源码标题知识图谱，模式基础分析，状态基础分析就绪。类型笔记选中、画布选中，搜索输入当前“不存在的笔记”，有既有清除图标与搜索图标。该查询无匹配，摘要0个节点、0条关系与刷新。大白画布没有任何节点/关系，中间准确空提示“暂无匹配内容，可调整搜索或筛选条件。”；画布底部保留+/−/适应画布及原图例笔记/概念/人物/组织/地点/事件/技术、虚线表示候选或相似线索。未选中笔记，无详情/1跳2跳/打开原文按钮，这些只在真实选中态出现；不新增关系、不混进知识实体数据或任务/问答/模型弹窗。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。synthetic query/source-derived/未runtime状态仅metadata。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-graph.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作source-derived笔记关系图整页。完整主人知识图谱桌面页，约1440×1000。实际图1决定图谱宿主，图2只给共享平面配色密度，绝不借笔记owner rail/目录树。窄专属图谱rail顶部返回、知识图谱/笔记图谱/关系审核/后台分析/图谱问答/视图与导出，底部模型设置；页头现有返回、知识图谱、让资料中的联系清晰可见、分析模式badge、右侧后台分析状态入口。工具栏按序知识/笔记分段、搜索图谱输入placeholder搜索概念、实体或笔记及搜索图标、筛选、画布/列表分段。现有图谱问答只是入口，不画聊天窗口，不新增自动分析/自动配置模型。rail笔记图谱选中；页头仍源码标题知识图谱，模式基础分析，状态基础分析就绪。类型笔记选中、画布选中，搜索输入当前“不存在的笔记”，有既有清除图标与搜索图标。该查询无匹配，摘要0个节点、0条关系与刷新。大白画布没有任何节点/关系，中间准确空提示“暂无匹配内容，可调整搜索或筛选条件。”；画布底部保留+/−/适应画布及原图例笔记/概念/人物/组织/地点/事件/技术、虚线表示候选或相似线索。未选中笔记，无详情/1跳2跳/打开原文按钮，这些只在真实选中态出现；不新增关系、不混进知识实体数据或任务/问答/模型弹窗。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。synthetic query/source-derived/未runtime状态仅metadata。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-graph.png",
+          "role": "Actual graph host only; notes-query no-match state is source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Shared flat palette and density only; actual role-specific host takes precedence"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-4fda4183-fd84-4c07-a619-4e379df677c1.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-106",
+      "title": "Note reference graph mode",
+      "kind": "state",
+      "module": "graph",
+      "entry": {
+        "route": "/?view=apps&app=graph",
+        "trigger": "笔记 graph-type segment or hosted 笔记图谱 navigation",
+        "parentId": "WS-085"
+      },
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:130",
+        "apps/web/components/GraphWorkspace.vue:605",
+        "apps/server/graph/semantic-routes.ts:62",
+        "packages/core/graph/knowledge-service.ts:645"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Explore uses webPrincipal plus authenticated ownerId; knowledge/graph service filters authorized current source evidence. Export is limited to current visible result.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31)."
+      ],
+      "fields": [
+        {
+          "name": "图谱类型",
+          "type": "segmented",
+          "required": true,
+          "constraints": "Existing notes view of graph; returns to knowledge view with other segment.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "笔记 / 知识",
+          "effect": "Change current graph query view and refresh authorized graph.",
+          "api": "GET /api/graph/explore?view=notes or view=knowledge",
+          "guard": "Current graph request/navigation and busy guards apply."
+        },
+        {
+          "label": "选择笔记 / 1跳 / 2跳 / 打开原文",
+          "effect": "Inspect note reference relationships, focus neighborhood or open note.",
+          "api": "GET /api/graph/explore; workspace note navigation",
+          "guard": "Current authorized result only."
+        }
+      ],
+      "importantStates": [
+        "Notes versus knowledge data projection",
+        "Same canvas/list display choice",
+        "No matching notes",
+        "Selected note inspector",
+        "Filtered local graph and truncation"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "testRefs": [
+        "tests/e2e/knowledge-graph-full.spec.ts",
+        "tests/e2e/graph-hosted-navigation.spec.ts",
+        "tests/graph-workbench.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Same graph page and route; this state is not counted as an extra page."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-106",
+      "parentId": "WS-085",
+      "route": "/?view=apps&app=graph",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:130",
+        "apps/web/components/GraphWorkspace.vue:605",
+        "apps/server/graph/semantic-routes.ts:62",
+        "packages/core/graph/knowledge-service.ts:645"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-009.json#WS-D080",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D080",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-4fda4183-fd84-4c07-a619-4e379df677c1.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D080.png",
+  "sha256": "847607888a5aa810304797c139615c5f1ed58e855aa5503aa3327a5f87411c4c",
+  "bytes": 1069977,
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "generatedAtUtc": "2026-11-05T02:15:34.258654+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Note reference graph mode",
+    "sourceIds": [
+      "WS-106"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Source-derived notes projection, synthetic no-match query, zero nodes/edges, canvas display and no selected inspector",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present.",
+      "Synthetic no-match note query intentionally avoids fabricated reference edges; selected inspector/open-source/hop actions are conditional and absent."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

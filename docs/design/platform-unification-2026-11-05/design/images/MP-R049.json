@@ -1,0 +1,352 @@
+{
+  "id": "MP-R049",
+  "title": "Responsive family: SetupFeatures.vue optional-feature cards",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-012"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-012",
+      "title": "首次设置：选择可选功能390px",
+      "role": "authenticated owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-012",
+      "title": "首次设置：选择可选功能320px",
+      "role": "authenticated owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-012",
+      "title": "首次设置：选择可选功能320px guard",
+      "role": "authenticated owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "viewportIntent": "390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-012",
+      "route": "/ (phase ready; onboarding required; step2)",
+      "trigger": "Library binding reaches ready",
+      "parentId": "PB-008",
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "importantStates": [
+        "not added; added but needs configuration; enabled",
+        "installation pending/succeeded/result needs reconciliation",
+        "catalog unavailable; read/install error with skip guidance",
+        "expanded MCP/Git configuration; expanded content-search setup"
+      ],
+      "notes": [
+        "PluginManager/MCP/Git/SearchRuntimeSettings interiors belong to settings/plugin inventory; this record owns onboarding cards and expanded-entry composition."
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "首启可选功能完整页：连接设置、版本记录、内容搜索卡片，添加/查看/配置/暂时跳过/继续；没有强制开户或购买。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "已验证主人会话的首启壳，仅首启步骤与允许入口，无主人私有文件树。PB-016可达性待核，不增浏览器主人创建。"
+    },
+    {
+      "type": "responsive-family-reuse",
+      "renderer": "SetupFeatures.vue optional-feature cards",
+      "allSourceIds": [
+        "PB-012"
+      ],
+      "rule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-012",
+      "label": "添加连接设置 / 添加版本记录 / 查看",
+      "effect": "Install plugin if needed and open shared configuration",
+      "api": "/api/platform/plugin-installations; shared plugin APIs",
+      "guard": "not busy"
+    },
+    {
+      "sourceId": "PB-012",
+      "label": "设置内容搜索",
+      "effect": "Expand SearchRuntimeSettings onboarding",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-012",
+      "label": "暂时跳过 / 继续",
+      "effect": "Advance to step3",
+      "api": "",
+      "guard": ""
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-012",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI设计图，白/浅灰平面、深色文字、细边线、蓝色主动作、小圆角、紧凑清楚字号。只显示指定真实UI文案，不写组件名、审查术语或额外说明。三个独立并排窄屏面板，外部仅A/B/C；A按390宽、B和C按320宽的相同比例，窄屏自然换行、页面可纵向延长，不缩成缩略图；不画手机壳或宽度数字。\n每个面板都是独立完整首次设置页：上方书图标与“DooKnow”、右侧“欢迎使用”，主卡内三步进度；页尾“你的资料，由你掌握。”在整个白色主卡和页脚之外最下方。不画主人文件树、设置导航或浏览器外壳。三步“✓ 准备知识库”“2 选择功能”“3 开始使用”，仅第2步蓝色选中。小字“按自己的需要选择”、标题“选择需要的功能”，说明“知识库已经可以使用。这些功能都可以跳过，以后在设置中添加。”。完整三个单列功能卡：①分享图标、标题“让 ChatGPT 使用你的资料”，说明“连接后，可在你授权的范围内查找和阅读资料。”，状态“可选 · 随时添加”；详情“需要完成 ChatGPT 连接设置。只有你同意后，它才能访问资料。”；按钮“添加连接设置”；折叠“了解更多”。②时钟图标、标题“记录文件版本”，说明“查看修改记录，在需要时恢复以前的内容。”，状态“可选 · 随时添加”；详情“版本记录保存在本机，不能代替独立备份。添加后可设置署名，也可关联 GitHub／Gitee 手动同步。”；按钮“添加版本记录”；折叠“了解更多”。③搜索图标、标题“搜索资料内容”，说明“输入关键词或描述，查找知识库里的相关内容。”，状态“可选 · 需要下载搜索组件”；详情“下载和准备期间仍可写笔记。可以查看进度，也可以稍后再准备。”；按钮“设置内容搜索”。主卡页脚依次“暂时跳过”“继续”。A/B所有按钮可用，没有展开配置、安装进度、错误或未提供提示。\nC相同完整页面和卡片值，在三个卡片之前加真实状态文字“下载插件 · 任务在服务器上继续，可以稍后回来查看。”；添加连接设置灰色禁用；添加版本记录灰色禁用且带加载转圈；设置内容搜索、暂时跳过、继续仍可用。三卡都不展开。不要百分比、自动启用/已安装或成功数量。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R049.png",
+  "reviewStatus": "pending-independent-review",
+  "responsiveFamily": {
+    "id": "MP-RF049",
+    "actualComponent": "SetupFeatures.vue optional-feature cards",
+    "sourceIds": [
+      "PB-012"
+    ],
+    "roleBoundary": "owner-setup",
+    "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-012",
+      "parentId": "PB-008",
+      "route": "/ (phase ready; onboarding required; step2)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:402",
+        "apps/web/components/SetupFeatures.vue:26",
+        "apps/web/components/SetupFeatures.vue:101",
+        "apps/web/components/SetupFeatures.vue:148"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-012",
+      "title": "首次设置：选择可选功能",
+      "kind": "page",
+      "module": "setup",
+      "entry": {
+        "route": "/ (phase ready; onboarding required; step2)",
+        "trigger": "Library binding reaches ready",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:402",
+        "apps/web/components/SetupFeatures.vue:26",
+        "apps/web/components/SetupFeatures.vue:101",
+        "apps/web/components/SetupFeatures.vue:148"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "添加连接设置 / 添加版本记录 / 查看",
+          "effect": "Install plugin if needed and open shared configuration",
+          "api": "/api/platform/plugin-installations; shared plugin APIs",
+          "guard": "not busy"
+        },
+        {
+          "label": "设置内容搜索",
+          "effect": "Expand SearchRuntimeSettings onboarding",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "暂时跳过 / 继续",
+          "effect": "Advance to step3",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "not added; added but needs configuration; enabled",
+        "installation pending/succeeded/result needs reconciliation",
+        "catalog unavailable; read/install error with skip guidance",
+        "expanded MCP/Git configuration; expanded content-search setup"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/search-runtime-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "PluginManager/MCP/Git/SearchRuntimeSettings interiors belong to settings/plugin inventory; this record owns onboarding cards and expanded-entry composition."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-R049",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "ready onboarding step2; catalog mcp/git present; neither installed; all expanded closed",
+    "same target320",
+    "same uninstalled cards; Git installation running/downloading with busy git; search closed; parent busy false"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI设计图，白/浅灰平面、深色文字、细边线、蓝色主动作、小圆角、紧凑清楚字号。只显示指定真实UI文案，不写组件名、审查术语或额外说明。三个独立并排窄屏面板，外部仅A/B/C；A按390宽、B和C按320宽的相同比例，窄屏自然换行、页面可纵向延长，不缩成缩略图；不画手机壳或宽度数字。\n每个面板都是独立完整首次设置页：上方书图标与“DooKnow”、右侧“欢迎使用”，主卡内三步进度；页尾“你的资料，由你掌握。”在整个白色主卡和页脚之外最下方。不画主人文件树、设置导航或浏览器外壳。三步“✓ 准备知识库”“2 选择功能”“3 开始使用”，仅第2步蓝色选中。小字“按自己的需要选择”、标题“选择需要的功能”，说明“知识库已经可以使用。这些功能都可以跳过，以后在设置中添加。”。完整三个单列功能卡：①分享图标、标题“让 ChatGPT 使用你的资料”，说明“连接后，可在你授权的范围内查找和阅读资料。”，状态“可选 · 随时添加”；详情“需要完成 ChatGPT 连接设置。只有你同意后，它才能访问资料。”；按钮“添加连接设置”；折叠“了解更多”。②时钟图标、标题“记录文件版本”，说明“查看修改记录，在需要时恢复以前的内容。”，状态“可选 · 随时添加”；详情“版本记录保存在本机，不能代替独立备份。添加后可设置署名，也可关联 GitHub／Gitee 手动同步。”；按钮“添加版本记录”；折叠“了解更多”。③搜索图标、标题“搜索资料内容”，说明“输入关键词或描述，查找知识库里的相关内容。”，状态“可选 · 需要下载搜索组件”；详情“下载和准备期间仍可写笔记。可以查看进度，也可以稍后再准备。”；按钮“设置内容搜索”。主卡页脚依次“暂时跳过”“继续”。A/B所有按钮可用，没有展开配置、安装进度、错误或未提供提示。\nC相同完整页面和卡片值，在三个卡片之前加真实状态文字“下载插件 · 任务在服务器上继续，可以稍后回来查看。”；添加连接设置灰色禁用；添加版本记录灰色禁用且带加载转圈；设置内容搜索、暂时跳过、继续仍可用。三卡都不展开。不要百分比、自动启用/已安装或成功数量。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-R049 Responsive family: SetupFeatures.vue optional-feature cards\n\n390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。\n\n角色壳：已验证主人会话的首启壳，仅首启步骤与允许入口，无主人私有文件树。PB-016可达性待核，不增浏览器主人创建。\n\n独立场景：\nA | PB-012 | 首次设置：选择可选功能390px | role=authenticated owner | 390px完整可读代表：字段按登记顺序，动作保持源guard\nB | PB-012 | 首次设置：选择可选功能320px | role=authenticated owner | 320px字段/长值/内层滚动与操作可达\nC | PB-012 | 首次设置：选择可选功能320px guard | role=authenticated owner | 同源关键禁用/错误/长标签状态，使用已有组件且保留输入\n\n完整构图：\n首启可选功能完整页：连接设置、版本记录、内容搜索卡片，添加/查看/配置/暂时跳过/继续；没有强制开户或购买。\n\n精确功能/字段/动作guard合同：\nPB-012权限：Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression.\nPB-012字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nPB-012白名单：添加连接设置 / 添加版本记录 / 查看 => Install plugin if needed and open shared configuration；guard=not busy；接口约束=/api/platform/plugin-installations; shared plugin APIs\nPB-012白名单：设置内容搜索 => Expand SearchRuntimeSettings onboarding；guard=既有上下文\nPB-012白名单：暂时跳过 / 继续 => Advance to step3；guard=既有上下文\n\n响应式合同：\n<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R049.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-02462389-c74e-4ae7-92d6-08c7ed94bdb1.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-02462389-c74e-4ae7-92d6-08c7ed94bdb1.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T07:35:03.360Z",
+  "selfInspection": {
+    "method": "Native generated PNG inspected in child against SetupFeatures and parent SetupWizard guards",
+    "status": "pending-independent-review",
+    "pageSpecific": "Three complete optional-feature cards with genuine descriptions/closed details. C Git installation downloading blocks MCP/Git install actions only, while content search and parent skip/continue stay available. No invented installing success or progress percent.",
+    "concerns": []
+  },
+  "sha256": "6cf39ca4d06ce9a52a81425f6b9cf86be1374a35478231e1cdd08736897b9300",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1499412,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/SetupWizard.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "12cf67b88737b8af2fd285494e578904487a2a3b20e2573674b36f4c5b930cce"
+    },
+    {
+      "path": "apps/web/components/SetupFeatures.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "71fc54d8153649c92e155000badfb2b64eb2b4ed142cf086bd191c41a8c793cd"
+    },
+    {
+      "path": "apps/web/components/SetupFeatures.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "71fc54d8153649c92e155000badfb2b64eb2b4ed142cf086bd191c41a8c793cd"
+    },
+    {
+      "path": "apps/web/components/SetupFeatures.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "71fc54d8153649c92e155000badfb2b64eb2b4ed142cf086bd191c41a8c793cd"
+    }
+  ],
+  "responsiveTargetCssWidths": [
+    390,
+    320,
+    320
+  ],
+  "runtimeResponsiveVerified": false,
+  "baselineStatus": "source-derived; no matching capture supplied",
+  "sourceDerivedUnverifiedScope": "Selected feature/installation fixtures derived from source, no install/catalog request or functional/runtime responsiveness verified."
+}

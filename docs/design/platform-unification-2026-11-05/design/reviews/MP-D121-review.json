@@ -1,0 +1,50 @@
+{
+  "assetId": "MP-D121",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:44:02.490359+00:00",
+  "method": "Actual PNG and matching real baseline viewed; complete actual sidecar prompt, GEN-007 source contracts, current public server renderer/routes and template CSS checked.",
+  "selectedState": "Anonymous public about, actual single fallback-description body",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual heading and single sanitized/fallback description retained with whitespace; no invented biography/avatar/contact/action or empty-state prompt.",
+    "Configured brand/subtitle/author/green, actual about-active navigation and footer/RSS preserved without private controls or platform rebranding."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Preserve configured user green accent/template-specific hierarchy alongside shared flat surfaces, typography/borders and spacing. Raster shading/approximate dimensions are illustrative; no exact CSS, dynamic theme or responsive fit claim."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-007.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D121.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/blog/routes.ts:237",
+    "apps/server/blog/render.ts:37",
+    "apps/server/blog/render.ts:202",
+    "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-about.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "6802fecbbac37eff33075313c04dd9554a9927f306c30d255676a652171e47a7",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D121.png",
+  "sourceIds": [
+    "PB-056"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

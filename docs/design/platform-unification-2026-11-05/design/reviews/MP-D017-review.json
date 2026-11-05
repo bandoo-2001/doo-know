@@ -1,0 +1,52 @@
+{
+  "assetId": "MP-D017",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:09:50.185427+00:00",
+  "method": "Actual PNG viewed; full sidecar actual prompt and GEN-010 contract checked against current TransferPanel and SettingsOverlay templates/handlers. Parent baseline is only context; selected local window is explicitly source-derived and not runtime captured.",
+  "selectedState": "Owner local portable import modal, initial no-file/no-directory idle state",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Both alternative source native file controls remain in exact order with manifest-containing directory label, archive input and existing 00-Inbox text destination. No invented radio/format/key/password inputs or picker window.",
+    "Neither source selected: import disabled, close/X enabled. No resume/result/quotas/progress/error state mixed into initial modal. Choosing one source clears the other through source handlers.",
+    "Standalone actual owner component mapped to library parent in metadata; no invented host shell. Busy close lock and file-selected dirty confirmation remain wrapper contracts, not extra initially displayed controls."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-010.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D017.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/TransferPanel.vue:58",
+    "apps/web/components/settings/TransferPanel.vue:89",
+    "apps/web/components/settings/TransferPanel.vue:412",
+    "apps/web/components/settings/SettingsOverlay.vue:40",
+    "shared/portable-resource-limits.ts:4"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "d528b25da2dacca24737147d14c7496dbd4b3772d9f58ae16c4143139af4db15",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D017.png",
+  "sourceIds": [
+    "ST-022"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

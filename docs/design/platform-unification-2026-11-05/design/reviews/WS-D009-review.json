@@ -1,0 +1,78 @@
+{
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-04T17:41:59.974399+00:00",
+  "method": "Actual generated PNG viewed in independent child context, checked against current source components, exact batch job, coverage/workspace.json, style contract and actual ToDoo style reference.",
+  "limitations": [
+    "Raster does not prove executed actions, input filtering, guards, keyboard behavior, focus, responsive fit or permissions.",
+    "Only the chosen compatible visible state was reviewed; incompatible busy/loading/empty/stale variants need separate state coverage."
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-tool-contract",
+    "required": "gpt-image-2",
+    "perCallModelIdentityReceiptExposed": false
+  },
+  "assetId": "WS-D009",
+  "verdict": "needs-revision",
+  "functionalFindings": [
+    {
+      "id": "WS-D009-F01",
+      "severity": "P1",
+      "blocking": true,
+      "finding": "The app host replaces existing owner navigation/context with unsupported 首页, 我的清单 plus-control and 通知, adds header notification/more controls, and omits account trigger, 应用, 回收站, source search/new split control and collection context sidebar. These are invented/missing navigation or action capabilities, beyond permitted rearrangement of existing actions.",
+      "evidence": [
+        "apps/web/components/WorkspaceFooter.vue:31",
+        "apps/web/components/WorkspaceFooter.vue:113",
+        "apps/web/components/Workspace.vue:2732",
+        "apps/web/components/Workspace.vue:2790",
+        "apps/web/components/Workspace.vue:2904"
+      ]
+    }
+  ],
+  "styleFindings": [
+    {
+      "id": "WS-D009-S01",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The design copies ToDoo-style checkmark identity and broad navigation rather than DooKnow book identity plus narrow primary rail/context hierarchy. A horizontal header is present, but brand/chrome consolidation violates the agreed source-owned hierarchy.",
+      "evidence": [
+        "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+        "apps/web/components/Workspace.vue:2710",
+        "docs/design/platform-unification-2026-11-05/baseline/1440-recent.png"
+      ]
+    },
+    {
+      "id": "WS-D009-S02",
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Source collection title hierarchy is altered (我的笔记 becomes main title; 最近 moves to subtitle), and the wide view uses full-width stacked cards. Consolidate with the collection family after restoring real owner chrome. Raster shading and approximate proportions are not measured CSS requirements."
+    },
+    {
+      "id": "WS-D009-S03",
+      "severity": "observation",
+      "blocking": false,
+      "finding": "Selected partial-next-page-error state is coherent: three retained cards with title/summary/folder/time/star/more, total 8, retry enabled, load-more disabled and loaded 3/8 footer. No incompatible empty/skeleton/stale/end claim appears; fictional legal examples are allowed. External source/role/state caption is present."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/workspace-batch-01.json#WS-D009",
+    "docs/design/platform-unification-2026-11-05/coverage/workspace.json#WS-009",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-01-overview.png",
+    "apps/web/components/CollectionWorkspace.vue:132",
+    "apps/web/components/CollectionWorkspace.vue:151",
+    "apps/web/components/CollectionWorkspace.vue:271",
+    "apps/web/collection-feed.ts:76",
+    "apps/web/components/WorkspaceFooter.vue:31",
+    "apps/web/components/WorkspaceFooter.vue:113",
+    "apps/web/components/Workspace.vue:2732",
+    "apps/web/components/Workspace.vue:2904",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-recent.png"
+  ],
+  "requiredCorrections": [
+    "Restore the existing owner account and navigation action set (笔记/最近/收藏/应用, 回收站/设置) plus existing collection search/create/context controls. Remove unsupported home/list-management/notification and other fabricated header actions.",
+    "Use DooKnow book identity and agreed primary-rail/context-sidebar/global-header hierarchy; preserve the correct retained-list error/retry/disabled-pagination state."
+  ],
+  "reviewedImageSha256": "37fb337f1d15f6cd7d8628672e6f3fa401b0f66dbae8ade48fcd60880b55f829",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D009.png",
+  "metadataExists": true
+}

@@ -1,0 +1,53 @@
+{
+  "assetId": "WS-D074-v2",
+  "sourceIds": [
+    "WS-098"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:53:32.220900+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner local compact more menu: A default DooKnow with pinned graph active; B hosted graph menu views/export active, review badge2/analysis badge1, idle.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual current PNG plus full original and targeted edit prompts compared with real default/hosted menu definitions and compact wrapper. Unsupported email removed; actualusername-only account trigger remains. Model settings label restored.",
+    "A full true menu/default first4 bottomtabs/pinned graph/utility actions and selected overflow retained; B return identity versus account distinct, real hosted items/utility and badge totals visible. No private account fields/organization or new permission role.",
+    "Actual more/close/scrim/Escape/navigation selection/focus cycle and exact media query transitions remain source behavior. No claim static image proves mobile/tablet conditions or route actions.",
+    "Pictographic shape and identity initial are illustrative; CSS implementation must bind actual username.slice(0,1), overflowSelection.icon and source nav definitions instead of hardcoded example initials/dots."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Use actual derived avatar initial (示 for this示例用户 fixture), selected overflow icon from definition, exact source icons and non-draggable source wrapper. Decorative top line is not authorization to add drag-dismiss. No exact raster proportion claim."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-045.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D074-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/WorkspaceMainMenu.vue:106",
+    "apps/web/components/WorkspaceFooter.vue:31",
+    "apps/web/workspace-tabbar.css:37",
+    "apps/web/components/GraphWorkspace.vue:134",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D074.json"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "6dc9bd5473fb0529272fe08e01db9f732019c6c0537d534d72400e3967cd01da",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D074-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

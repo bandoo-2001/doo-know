@@ -1,0 +1,109 @@
+{
+  "assetId": "WS-R040",
+  "sourceIds": [
+    "WS-092"
+  ],
+  "reviewer": "independent platform_review_gen048 child agent, exclusively assigned eight GEN048 responsive assets",
+  "reviewedAtUtc": "2026-11-05T09:25:24.930457+00:00",
+  "verdict": "pass",
+  "method": "Actual current PNG viewed using tools.view_image in this independent context; complete actual submittedPrompt and GEN048 source contracts compared with actual input mother/baseline images, matching existing mother SHA reviews, current Vue templates/handlers/CSS and server/API policy sources. Static content review only; no generation or runtime tests.",
+  "actualViewMethod": {
+    "tool": "tools.view_image",
+    "image": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R040.png",
+    "detail": "high",
+    "boardPanelsActuallyViewed": [
+      "A",
+      "B"
+    ]
+  },
+  "reviewedImageSha256": "b24fa5b0cbd03d757322ff0269e4f23621621d3af7a9e6a3a8e152c030ff446c",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-R040.png",
+  "reviewedSidecarSha256": "bd2739672c642604727dd51124dafb822e595195505a44910f04cccea861891c",
+  "reviewedManifestSha256": "7f3fc0492e62f25af38e6dc0c0135db54d73fed95d3c1554e71f632cfb9a2474",
+  "submissionReview": {
+    "completeSubmittedPromptRead": true,
+    "submittedPromptSha256": "f82b46f38c914d357986f1dda971bc0983027d810c31895a4af19bce554abe03",
+    "actualToolArgumentsPromptMatchesReceipt": true,
+    "observedReceiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-7.json",
+    "receiptOutputBytesMatchReviewedPng": true
+  },
+  "inputImageChecks": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D068.png",
+      "order": 1,
+      "role": "existing evidence-grounded fictional answer and real citation renderer",
+      "sha256": "119f5db72db101d58f29eaaa6ae75ad87820ed2d74941ff9ec7c1bd58328c44a",
+      "bytes": 1080842,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "actualSha256": "119f5db72db101d58f29eaaa6ae75ad87820ed2d74941ff9ec7c1bd58328c44a",
+      "actuallyViewed": true,
+      "roleChecked": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "actualSha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "actuallyViewed": true,
+      "roleChecked": true
+    }
+  ],
+  "selectedState": [
+    "390 configured model, evidence-grounded approved fictional answer",
+    "320 same answer and cited evidence, no unavailable model branch"
+  ],
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "A/B preserve configured-model, selected-node context information, question textarea, exact eight-character sample and8/2000 count, enabled idle ask action, answer, citation marker and only cited source quote/link.",
+    "Question context node is selected while another panel is open, correctly suppressing the mobile detail drawer. Ask sends selected nodeId internally; no editable identity field introduced.",
+    "Complete same-renderer reference WS-D068 SHA119f5db72db101d58f29eaaa6ae75ad87820ed2d74941ff9ec7c1bd58328c44a was visually inspected. Fictional answer paraphrase is supported by its displayed evidence and only cited evidence appears. No conversation/share/copy/feedback action invented.",
+    "Current provider/nonempty-question guards and2000-character limit preserved; unavailable-model warning/config button, busy and model/remote-permission errors remain separate source branches. No live model execution inferred."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster shading, slight texture, rounded proportions and intended390/320 geometry are approximate. Implement flat shared CSS colors/borders/8px corners and readable source-sized text; do not reproduce raster gradients or infer exact responsive fit from this board."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-048.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R040.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/app.ts:141",
+    "apps/web/components/GraphWorkspace.vue:1310",
+    "apps/server/graph/semantic-routes.ts:194",
+    "packages/core/graph/analysis-source.ts:31",
+    "apps/web/graph-workbench.ts:244",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D068-review.json"
+  ],
+  "currentSourceSha256": {
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    "apps/server/graph/semantic-routes.ts": "0f4d81250bee2aa5d27fdfd65bb5209f52525fdec1275f8ac680e17f7ea8f12a",
+    "apps/web/components/GraphWorkspace.vue": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e",
+    "apps/web/graph-workbench.ts": "68fd8a24051f471a3f7a02dd4609ab3c6963be12e9c3ade2679c609745e26c44",
+    "packages/core/graph/analysis-source.ts": "c87083ae267c60d4d876a82ca93d7f51d87cb6156f7f325c778fe3e77362eca1"
+  },
+  "requiredCorrections": [],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false,
+    "limitations": "The tool does not expose a per-call physical model identity receipt; none is claimed."
+  },
+  "limitations": [
+    "Only these actual image bytes and their declared compatible selected state received static content review. Source-derived data are examples, not captured API/model outcomes.",
+    "A static PNG cannot prove physical320/390 scrolling or safe viewport, source focus trapping/return, keyboard/Escape, busy/dirty/version guards, action execution, persistence, permissions enforcement, live model/clipboard behavior or exact canvas topology.",
+    "Unshown alternative loading/error/unavailable/conflict/role variants retain their individual source contracts and mother mappings; this verdict does not claim their simultaneous presence.",
+    "Per-image content verdict does not pass platform-wide consistency/coverage/provenance gates or authorize product implementation."
+  ]
+}

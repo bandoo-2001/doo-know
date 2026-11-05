@@ -1,0 +1,316 @@
+{
+  "kind": "generated-design",
+  "id": "WS-M004",
+  "assetId": "WS-M004",
+  "sourceIds": [
+    "WS-052"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-052",
+      "title": "File operation progress and reconciliation — compact component state matrix",
+      "role": "authenticated owner",
+      "state": "OperationStatus.vue existing operation status strip; seven compact rows only.",
+      "presentation": "ONE compact component matrix, not multiple simultaneously open full windows",
+      "rows": [
+        {
+          "label": "row-1",
+          "sourceId": "WS-052",
+          "title": "File operation progress and reconciliation",
+          "role": "authenticated owner",
+          "state": "queued",
+          "actionPresentation": "EXACT TEMPLATE: label uses labels[operation.status]; 取消任务 appears ONLY for queued/running; 核对保存结果 appears ONLY needs_reconciliation; committing/succeeded/failed/cancelled have neither action. No editable operation ID.",
+          "sourceComponent": "apps/web/components/OperationStatus.vue"
+        },
+        {
+          "label": "row-2",
+          "sourceId": "WS-052",
+          "title": "File operation progress and reconciliation",
+          "role": "authenticated owner",
+          "state": "running",
+          "actionPresentation": "EXACT TEMPLATE: label uses labels[operation.status]; 取消任务 appears ONLY for queued/running; 核对保存结果 appears ONLY needs_reconciliation; committing/succeeded/failed/cancelled have neither action. No editable operation ID.",
+          "sourceComponent": "apps/web/components/OperationStatus.vue"
+        },
+        {
+          "label": "row-3",
+          "sourceId": "WS-052",
+          "title": "File operation progress and reconciliation",
+          "role": "authenticated owner",
+          "state": "committing",
+          "actionPresentation": "EXACT TEMPLATE: label uses labels[operation.status]; 取消任务 appears ONLY for queued/running; 核对保存结果 appears ONLY needs_reconciliation; committing/succeeded/failed/cancelled have neither action. No editable operation ID.",
+          "sourceComponent": "apps/web/components/OperationStatus.vue"
+        },
+        {
+          "label": "row-4",
+          "sourceId": "WS-052",
+          "title": "File operation progress and reconciliation",
+          "role": "authenticated owner",
+          "state": "succeeded",
+          "actionPresentation": "EXACT TEMPLATE: label uses labels[operation.status]; 取消任务 appears ONLY for queued/running; 核对保存结果 appears ONLY needs_reconciliation; committing/succeeded/failed/cancelled have neither action. No editable operation ID.",
+          "sourceComponent": "apps/web/components/OperationStatus.vue"
+        },
+        {
+          "label": "row-5",
+          "sourceId": "WS-052",
+          "title": "File operation progress and reconciliation",
+          "role": "authenticated owner",
+          "state": "failed",
+          "actionPresentation": "EXACT TEMPLATE: label uses labels[operation.status]; 取消任务 appears ONLY for queued/running; 核对保存结果 appears ONLY needs_reconciliation; committing/succeeded/failed/cancelled have neither action. No editable operation ID.",
+          "sourceComponent": "apps/web/components/OperationStatus.vue"
+        },
+        {
+          "label": "row-6",
+          "sourceId": "WS-052",
+          "title": "File operation progress and reconciliation",
+          "role": "authenticated owner",
+          "state": "cancelled",
+          "actionPresentation": "EXACT TEMPLATE: label uses labels[operation.status]; 取消任务 appears ONLY for queued/running; 核对保存结果 appears ONLY needs_reconciliation; committing/succeeded/failed/cancelled have neither action. No editable operation ID.",
+          "sourceComponent": "apps/web/components/OperationStatus.vue"
+        },
+        {
+          "label": "row-7",
+          "sourceId": "WS-052",
+          "title": "File operation progress and reconciliation",
+          "role": "authenticated owner",
+          "state": "needs_reconciliation",
+          "actionPresentation": "EXACT TEMPLATE: label uses labels[operation.status]; 取消任务 appears ONLY for queued/running; 核对保存结果 appears ONLY needs_reconciliation; committing/succeeded/failed/cancelled have neither action. No editable operation ID.",
+          "sourceComponent": "apps/web/components/OperationStatus.vue"
+        }
+      ],
+      "selectedState": "Seven exact OperationStatus strips; cancel only queued/running; reconcile only needs_reconciliation; all other states actionless. No operation ID input or invented retry."
+    }
+  ],
+  "selectedState": "Seven exact OperationStatus strips; cancel only queued/running; reconcile only needs_reconciliation; all other states actionless. No operation ID input or invented retry.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。每行独立以留白细线分开，只画真实局部，不画外部主人导航、浏览器、审查编号或注释。七个纵向紧凑操作状态条，每条只有状态小圆点、精确文字和指定现有按钮。第一条“排队中”，按钮“取消任务”；第二条“处理中”，按钮“取消任务”；第三条“正在提交”，没有按钮；第四条“已完成”，没有按钮；第五条“处理失败”，没有按钮；第六条“已取消”，没有按钮；第七条“需要核对保存结果”，按钮“核对保存结果”。普通状态圆点蓝色，失败/需要核对圆点棕色，已取消圆点灰色。不要进度百分比、重试、完成关闭、强制保存、操作编号或任何其他内容。",
+  "prompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。每行独立以留白细线分开，只画真实局部，不画外部主人导航、浏览器、审查编号或注释。七个纵向紧凑操作状态条，每条只有状态小圆点、精确文字和指定现有按钮。第一条“排队中”，按钮“取消任务”；第二条“处理中”，按钮“取消任务”；第三条“正在提交”，没有按钮；第四条“已完成”，没有按钮；第五条“处理失败”，没有按钮；第六条“已取消”，没有按钮；第七条“需要核对保存结果”，按钮“核对保存结果”。普通状态圆点蓝色，失败/需要核对圆点棕色，已取消圆点灰色。不要进度百分比、重试、完成关闭、强制保存、操作编号或任何其他内容。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; not field/action/state authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; not field/action/state authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。每行独立以留白细线分开，只画真实局部，不画外部主人导航、浏览器、审查编号或注释。七个纵向紧凑操作状态条，每条只有状态小圆点、精确文字和指定现有按钮。第一条“排队中”，按钮“取消任务”；第二条“处理中”，按钮“取消任务”；第三条“正在提交”，没有按钮；第四条“已完成”，没有按钮；第五条“处理失败”，没有按钮；第六条“已取消”，没有按钮；第七条“需要核对保存结果”，按钮“核对保存结果”。普通状态圆点蓝色，失败/需要核对圆点棕色，已取消圆点灰色。不要进度百分比、重试、完成关闭、强制保存、操作编号或任何其他内容。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。每行独立以留白细线分开，只画真实局部，不画外部主人导航、浏览器、审查编号或注释。七个纵向紧凑操作状态条，每条只有状态小圆点、精确文字和指定现有按钮。第一条“排队中”，按钮“取消任务”；第二条“处理中”，按钮“取消任务”；第三条“正在提交”，没有按钮；第四条“已完成”，没有按钮；第五条“处理失败”，没有按钮；第六条“已取消”，没有按钮；第七条“需要核对保存结果”，按钮“核对保存结果”。普通状态圆点蓝色，失败/需要核对圆点棕色，已取消圆点灰色。不要进度百分比、重试、完成关闭、强制保存、操作编号或任何其他内容。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only; not field/action/state authority"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-363173e3-2d9e-4c2b-82a2-4288502fbeea.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-052",
+      "title": "File operation progress and reconciliation",
+      "kind": "state",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Read/save/restore returns accepted operation",
+        "parentId": "WS-049"
+      },
+      "sourceRefs": [
+        "apps/web/components/OperationStatus.vue:1",
+        "apps/web/components/LargeFileWorkspace.vue:209",
+        "apps/server/knowledge/web-routes.ts:88"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "取消任务",
+          "effect": "Cancel queued/running operation",
+          "api": "POST /api/operations/:id/cancel",
+          "guard": "Only queued/running"
+        },
+        {
+          "label": "核对保存结果",
+          "effect": "Read operation receipt",
+          "api": "GET /api/operations/:id or ?requestId=:id",
+          "guard": "needs_reconciliation or pending request"
+        }
+      ],
+      "importantStates": [
+        "queued",
+        "running",
+        "committing",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "needs_reconciliation"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/workspace-save-recovery.test.ts",
+        "tests/knowledge/web-large-routes.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-052",
+      "parentId": "WS-049",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/OperationStatus.vue:1",
+        "apps/web/components/LargeFileWorkspace.vue:209",
+        "apps/server/knowledge/web-routes.ts:88"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-033.json#WS-M004",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-M004",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-363173e3-2d9e-4c2b-82a2-4288502fbeea.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M004.png",
+  "sha256": "f437b7ac2a9cab9668a9faf48e48518d98c2eb650cce3b1cbf863d714a5481fa",
+  "bytes": 1102445,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T06:34:54.908951+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "File operation progress and reconciliation — compact component state matrix",
+    "sourceIds": [
+      "WS-052"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Seven exact OperationStatus strips; cancel only queued/running; reconcile only needs_reconciliation; all other states actionless. No operation ID input or invented retry.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "state": "queued",
+      "label": "排队中",
+      "actions": [
+        "取消任务"
+      ]
+    },
+    {
+      "state": "running",
+      "label": "处理中",
+      "actions": [
+        "取消任务"
+      ]
+    },
+    {
+      "state": "committing",
+      "label": "正在提交",
+      "actions": []
+    },
+    {
+      "state": "succeeded",
+      "label": "已完成",
+      "actions": []
+    },
+    {
+      "state": "failed",
+      "label": "处理失败",
+      "actions": []
+    },
+    {
+      "state": "cancelled",
+      "label": "已取消",
+      "actions": []
+    },
+    {
+      "state": "needs_reconciliation",
+      "label": "需要核对保存结果",
+      "actions": [
+        "核对保存结果"
+      ]
+    }
+  ]
+}

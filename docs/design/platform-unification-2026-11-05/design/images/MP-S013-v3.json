@@ -1,0 +1,640 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S013-v3",
+  "assetId": "MP-S013",
+  "sourceIds": [
+    "ST-025",
+    "ST-026",
+    "ST-027"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-025",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Seven task slices: r2 read error preserved, r6 actual compact list running before failed with completed/cancelled history collapsed count2 toggle; r7 full restore receipt retains exact deactivation prose"
+    }
+  ],
+  "selectedState": "Seven task slices: r2 read error preserved, r6 actual compact list running before failed with completed/cancelled history collapsed count2 toggle; r7 full restore receipt retains exact deactivation prose",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅将第六个局部区（目前只有“副本已退出旧会话…”说明）替换成一个紧凑任务列表样例。新第六区标题“任务与结果”，说明“离开此页后，任务仍会继续。”。第一个任务行“导入”标签“进行中”，时间2026/11/5 12:00、1 / 2、半长蓝色进度条，按钮“取消任务”；第二个任务行“导出”标签“未完成”，时间2026/11/5 11:00，按钮“重试任务”。两条下方必须有可点文字按钮精确“查看已完成与已取消（2）”，历史保持折叠，不显示那两条已完成/取消记录。第六区不加刷新任务按钮。保持第一至第五区全部不变；第七区完整恢复回执、四个只读路径、底部撤会话/共享/插件说明全部保持不变。只允许增高第六区容纳真实列表和切换按钮。",
+  "prompt": "仅将第六个局部区（目前只有“副本已退出旧会话…”说明）替换成一个紧凑任务列表样例。新第六区标题“任务与结果”，说明“离开此页后，任务仍会继续。”。第一个任务行“导入”标签“进行中”，时间2026/11/5 12:00、1 / 2、半长蓝色进度条，按钮“取消任务”；第二个任务行“导出”标签“未完成”，时间2026/11/5 11:00，按钮“重试任务”。两条下方必须有可点文字按钮精确“查看已完成与已取消（2）”，历史保持折叠，不显示那两条已完成/取消记录。第六区不加刷新任务按钮。保持第一至第五区全部不变；第七区完整恢复回执、四个只读路径、底部撤会话/共享/插件说明全部保持不变。只允许增高第六区容纳真实列表和切换按钮。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S013-v2.png",
+      "role": "Edit target; replace redundant sixth prose-only row with actual compact task ordering and collapsed history toggle; exact same prose remains in seventh receipt",
+      "sha256": "bd0eb2491b8124475397ae6826930566025fcb5394c8e298d3817465c1a89a14",
+      "dimensions": {
+        "width": 1199,
+        "height": 1312
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S013-v2.png",
+      "role": "Edit target; replace redundant sixth prose-only row with actual compact task ordering and collapsed history toggle; exact same prose remains in seventh receipt",
+      "sha256": "bd0eb2491b8124475397ae6826930566025fcb5394c8e298d3817465c1a89a14",
+      "dimensions": {
+        "width": 1199,
+        "height": 1312
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅将第六个局部区（目前只有“副本已退出旧会话…”说明）替换成一个紧凑任务列表样例。新第六区标题“任务与结果”，说明“离开此页后，任务仍会继续。”。第一个任务行“导入”标签“进行中”，时间2026/11/5 12:00、1 / 2、半长蓝色进度条，按钮“取消任务”；第二个任务行“导出”标签“未完成”，时间2026/11/5 11:00，按钮“重试任务”。两条下方必须有可点文字按钮精确“查看已完成与已取消（2）”，历史保持折叠，不显示那两条已完成/取消记录。第六区不加刷新任务按钮。保持第一至第五区全部不变；第七区完整恢复回执、四个只读路径、底部撤会话/共享/插件说明全部保持不变。只允许增高第六区容纳真实列表和切换按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S013-v2.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅将第六个局部区（目前只有“副本已退出旧会话…”说明）替换成一个紧凑任务列表样例。新第六区标题“任务与结果”，说明“离开此页后，任务仍会继续。”。第一个任务行“导入”标签“进行中”，时间2026/11/5 12:00、1 / 2、半长蓝色进度条，按钮“取消任务”；第二个任务行“导出”标签“未完成”，时间2026/11/5 11:00，按钮“重试任务”。两条下方必须有可点文字按钮精确“查看已完成与已取消（2）”，历史保持折叠，不显示那两条已完成/取消记录。第六区不加刷新任务按钮。保持第一至第五区全部不变；第七区完整恢复回执、四个只读路径、底部撤会话/共享/插件说明全部保持不变。只允许增高第六区容纳真实列表和切换按钮。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S013-v2.png",
+          "role": "Edit target; replace redundant sixth prose-only row with actual compact task ordering and collapsed history toggle; exact same prose remains in seventh receipt"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-cee223c7-d475-4be0-90a2-9d157a0dca87.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-025",
+      "title": "传输任务与结果",
+      "kind": "state",
+      "module": "settings/jobs",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=backup | /?view=settings&section=status",
+        "trigger": "各页常驻TransferTasks",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:17",
+        "apps/web/components/settings/TransferTasks.vue:147",
+        "apps/server/platform/transfers.ts:763"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新任务 / 加载更多任务",
+          "effect": "保留分页窗口并更新",
+          "api": "GET /api/manage/tasks",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消任务",
+          "effect": "请求取消",
+          "api": "POST /api/manage/tasks/:id/cancel",
+          "guard": "cancellable且queued/running"
+        },
+        {
+          "label": "下载结果",
+          "effect": "下载已生成归档",
+          "api": "GET /api/manage/tasks/:id/download",
+          "guard": "downloadAvailable"
+        },
+        {
+          "label": "查看已完成与已取消",
+          "effect": "compact模式展开历史",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "加载/暂无任务/读取错误",
+        "queued/running/succeeded/failed/cancelled/interrupted",
+        "运行进度",
+        "compact排序：运行→失败中断→折叠历史",
+        "任务编号details"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/status-settings.spec.ts:95",
+        "tests/e2e/status-settings.spec.ts:172",
+        "tests/settings-transfer-regressions.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "library传输过滤import/export；backup过滤backup/restore；status compact显示所有类型。非路由。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-026",
+      "title": "任务部分成功、失败与重试",
+      "kind": "state",
+      "module": "settings/jobs",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=backup",
+        "trigger": "展开逐项结果/错误详情",
+        "parentId": "ST-025"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:111",
+        "apps/web/components/settings/TransferTasks.vue:229",
+        "apps/web/components/settings/TransferTasks.vue:266",
+        "apps/server/platform/transfers.ts:791"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重试未完成项目 / 重试任务",
+          "effect": "保留成功项目；重试未完成或新打包任务",
+          "api": "POST /api/manage/tasks/:id/retry",
+          "guard": "UI仅非restore且failed/interrupted/cancelled"
+        },
+        {
+          "label": "打开笔记",
+          "effect": "打开成功项目的noteId",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "逐项pending/succeeded/skipped/failed",
+        "错误详情",
+        "任务级失败",
+        "中断",
+        "取消",
+        "重试请求busy",
+        "不可取消的一致性阶段返回409"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/transfers.test.ts:1",
+        "tests/settings-transfer-regressions.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "恢复任务UI不提供重试；外部恢复服务器要求重新上传密钥。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-027",
+      "title": "独立恢复校验成功回执",
+      "kind": "state",
+      "module": "settings/restore",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "任务结果verification出现",
+        "parentId": "ST-025"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:240"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "原文目录 / 数据目录 / 配置文件 / 校验回执",
+          "type": "read-only",
+          "required": false,
+          "constraints": "位置details；仅作为恢复副本信息，设计用占位路径",
+          "sensitive": false
+        }
+      ],
+      "actions": [],
+      "importantStates": [
+        "校验成功alert",
+        "笔记/附件数",
+        "部署切换guidance",
+        "副本已撤旧会话/共享及停用插件说明"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:427"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "实际部署切换需独立操作；网页不直接切换服务。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-025",
+      "parentId": "ST-002",
+      "route": "/?view=settings&section=library | /?view=settings&section=backup | /?view=settings&section=status",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:17",
+        "apps/web/components/settings/TransferTasks.vue:147",
+        "apps/server/platform/transfers.ts:763"
+      ]
+    },
+    {
+      "sourceId": "ST-026",
+      "parentId": "ST-025",
+      "route": "/?view=settings&section=library | /?view=settings&section=backup",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:111",
+        "apps/web/components/settings/TransferTasks.vue:229",
+        "apps/web/components/settings/TransferTasks.vue:266",
+        "apps/server/platform/transfers.ts:791"
+      ]
+    },
+    {
+      "sourceId": "ST-027",
+      "parentId": "ST-025",
+      "route": "/?view=settings&section=backup",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:240"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-023.json#MP-S013",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S013",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-cee223c7-d475-4be0-90a2-9d157a0dca87.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S013-v3.png",
+  "sha256": "1dfb8c2f76e94d72dc26a06edc6f3195cd6c6a4beba178d6d8250ef8e25fd249",
+  "bytes": 1537229,
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  },
+  "generatedAtUtc": "2026-11-05T04:53:54.176337+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S013-v2.png",
+    "sha256": "bd0eb2491b8124475397ae6826930566025fcb5394c8e298d3817465c1a89a14",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/MP-S013-v2-review.json"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / TransferTasks.vue",
+    "sourceIds": [
+      "ST-025",
+      "ST-026",
+      "ST-027"
+    ],
+    "roles": [
+      "authenticated-owner",
+      "owner-private"
+    ],
+    "state": "Seven task slices: r2 read error preserved, r6 actual compact list running before failed with completed/cancelled history collapsed count2 toggle; r7 full restore receipt retains exact deactivation prose",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-025",
+      "title": "暂无任务",
+      "renderer": "apps/web/components/settings/TransferTasks.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:17",
+        "apps/web/components/settings/TransferTasks.vue:147",
+        "apps/server/platform/transfers.ts:763"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新任务 / 加载更多任务",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消任务",
+          "guard": "cancellable且queued/running"
+        },
+        {
+          "label": "下载结果",
+          "guard": "downloadAvailable"
+        },
+        {
+          "label": "查看已完成与已取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "加载/暂无任务/读取错误",
+          "variant": "暂无任务",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-025"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-025",
+      "title": "读取错误",
+      "renderer": "apps/web/components/settings/TransferTasks.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:17",
+        "apps/web/components/settings/TransferTasks.vue:147",
+        "apps/server/platform/transfers.ts:763"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新任务 / 加载更多任务",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消任务",
+          "guard": "cancellable且queued/running"
+        },
+        {
+          "label": "下载结果",
+          "guard": "downloadAvailable"
+        },
+        {
+          "label": "查看已完成与已取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "加载/暂无任务/读取错误",
+          "variant": "读取错误",
+          "representation": "visible"
+        },
+        {
+          "state": "compact排序：运行→失败中断→折叠历史",
+          "variant": "compact排序：运行→失败中断→折叠历史",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-025",
+        "ST-026"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-025",
+      "title": "queued/running/succeeded/failed/cancelled/interrupted",
+      "renderer": "apps/web/components/settings/TransferTasks.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:17",
+        "apps/web/components/settings/TransferTasks.vue:147",
+        "apps/server/platform/transfers.ts:763"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新任务 / 加载更多任务",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消任务",
+          "guard": "cancellable且queued/running"
+        },
+        {
+          "label": "下载结果",
+          "guard": "downloadAvailable"
+        },
+        {
+          "label": "查看已完成与已取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "queued/running/succeeded/failed/cancelled/interrupted",
+          "variant": "queued/running/succeeded/failed/cancelled/interrupted",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-025",
+        "ST-026"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "ST-025",
+      "title": "任务编号details",
+      "renderer": "apps/web/components/settings/TransferTasks.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:17",
+        "apps/web/components/settings/TransferTasks.vue:147",
+        "apps/server/platform/transfers.ts:763"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新任务 / 加载更多任务",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消任务",
+          "guard": "cancellable且queued/running"
+        },
+        {
+          "label": "下载结果",
+          "guard": "downloadAvailable"
+        },
+        {
+          "label": "查看已完成与已取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "任务编号details",
+          "variant": "任务编号details",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-025"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "ST-026",
+      "title": "不可取消的一致性阶段返回409",
+      "renderer": "apps/web/components/settings/TransferTasks.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:111",
+        "apps/web/components/settings/TransferTasks.vue:229",
+        "apps/web/components/settings/TransferTasks.vue:266",
+        "apps/server/platform/transfers.ts:791"
+      ],
+      "guardBindings": [
+        {
+          "label": "重试未完成项目 / 重试任务",
+          "guard": "UI仅非restore且failed/interrupted/cancelled"
+        },
+        {
+          "label": "打开笔记",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "不可取消的一致性阶段返回409",
+          "variant": "不可取消的一致性阶段返回409",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-026"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r6",
+      "sourceId": "ST-027",
+      "title": "副本已撤旧会话/共享及停用插件说明",
+      "renderer": "apps/web/components/settings/TransferTasks.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:240"
+      ],
+      "guardBindings": [],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "副本已撤旧会话/共享及停用插件说明",
+          "variant": "副本已撤旧会话/共享及停用插件说明",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-027"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r7",
+      "sourceId": "ST-027",
+      "title": "独立恢复成功回执完整只读位置/校验/切换说明卡，路径全为合成占位",
+      "renderer": "apps/web/components/settings/TransferTasks.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:240"
+      ],
+      "guardBindings": [],
+      "presentation": "完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。",
+      "coveredSourceIds": [
+        "ST-027"
+      ]
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": [
+    {
+      "row": "r6",
+      "sourceId": "ST-025",
+      "selectedState": "compact=true showHistory=false; running import then failed export shown, two succeeded/cancelled records hidden; history toggle visible."
+    },
+    {
+      "row": "r7",
+      "sourceId": "ST-027",
+      "selectedState": "Full source-derived restoration receipt contains same deactivation guidance previously duplicated by r6; no live deployment action."
+    }
+  ]
+}

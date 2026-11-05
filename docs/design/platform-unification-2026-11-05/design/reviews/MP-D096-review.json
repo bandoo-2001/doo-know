@@ -1,0 +1,53 @@
+{
+  "assetId": "MP-D096",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:29:45.980536+00:00",
+  "method": "Actual PNG viewed; actual matching baseline (when available), complete sidecar submitted prompt, batch contract and current component template checked under review-execution-contract.",
+  "selectedState": "Owner blog overview, site disabled and empty posts",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual blog-specific return/module rail and blog header preserved without transferring unrelated owner-note navigation; overview selected, source picker entry available.",
+    "Disabled-site badge/banner and settings action retained; public visit action correctly absent. No fabricated public/site-on state or phantom post.",
+    "All welcome/picker/design/settings actions, four coherent zero fixture statistics, recent-empty message and choose-note action retained.",
+    "Note save, metadata save, article publication snapshot and separately saved site-enabled state remain distinct; no implicit publish/autosave claim or extra feature."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-005.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D096.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/AppsWorkspace.vue:86",
+    "apps/web/components/BlogWorkspace.vue:287",
+    "apps/web/components/BlogWorkspace.vue:354",
+    "apps/web/components/BlogWorkspace.vue:397",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-blog-overview.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "f3b901f3127770b7bc256bba72b66e3411a344645ad99924e5020bd73f51352f",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D096.png",
+  "sourceIds": [
+    "PB-030"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

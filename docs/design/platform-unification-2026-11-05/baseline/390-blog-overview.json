@@ -1,0 +1,16 @@
+{
+  "id": "blog-overview",
+  "title": "博客管理 overview",
+  "width": 390,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?view=apps&app=blog&appSection=overview",
+  "file": "390-blog-overview.png",
+  "sha256": "a2e5c9315253831bd1e5a2361643245e6b9d1e3fb59bb60bb5cb2557213456ce",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

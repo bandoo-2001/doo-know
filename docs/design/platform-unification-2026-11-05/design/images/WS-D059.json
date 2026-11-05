@@ -1,0 +1,217 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D059",
+  "assetId": "WS-D059",
+  "sourceIds": [
+    "WS-083"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-083",
+      "title": "Rich editor code-block controls and copy fallback",
+      "role": "authenticated owner",
+      "state": "Virtual",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.",
+      "selectedState": "Virtual/lazy code block preview, owner editable, language javascript, numbered/wrapped controls pressed, not active CodeMirror/folded/copy-fallback"
+    }
+  ],
+  "selectedState": "Virtual/lazy code block preview, owner editable, language javascript, numbered/wrapped controls pressed, not active CodeMirror/folded/copy-fallback",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作真实rich-editor代码块局部组件，意图宽900px，不加弹窗标题或关闭X。只画局部组件，不画父页/owner导航/浏览器壳。平面白/浅灰、#272b3a文字、#657084次级、#e6e9f1细线、#4566c6蓝色、小圆角、清晰紧凑中文；长表单可延长纵向且主要动作可达。无纹理渐变或协议字段输入。source-derived与角色/parent仅metadata。准确header左侧代码语言文本输入值“javascript”（支持datalist但未展开，不画新语言选择弹窗），右侧4个按钮“行号”“折行”“折叠”“复制代码”；行号和折行处于pressed，折叠未选中。当前为virtual/lazy预览，非激活CodeMirror：主体pre/code显示完整两行“const value = 1;”“console.log(value);”，克制语法色，无编辑光标/工具条/行号gutter（虚拟pre尚未挂载CM）。不要已复制状态、只读复制fallback textarea或折叠代码分支，不额外加复制全文/运行/下载/保存按钮。",
+  "prompt": "制作真实rich-editor代码块局部组件，意图宽900px，不加弹窗标题或关闭X。只画局部组件，不画父页/owner导航/浏览器壳。平面白/浅灰、#272b3a文字、#657084次级、#e6e9f1细线、#4566c6蓝色、小圆角、清晰紧凑中文；长表单可延长纵向且主要动作可达。无纹理渐变或协议字段输入。source-derived与角色/parent仅metadata。准确header左侧代码语言文本输入值“javascript”（支持datalist但未展开，不画新语言选择弹窗），右侧4个按钮“行号”“折行”“折叠”“复制代码”；行号和折行处于pressed，折叠未选中。当前为virtual/lazy预览，非激活CodeMirror：主体pre/code显示完整两行“const value = 1;”“console.log(value);”，克制语法色，无编辑光标/工具条/行号gutter（虚拟pre尚未挂载CM）。不要已复制状态、只读复制fallback textarea或折叠代码分支，不额外加复制全文/运行/下载/保存按钮。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exact source defines isolated local component, no matching runtime window capture",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exact source defines isolated local component, no matching runtime window capture",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作真实rich-editor代码块局部组件，意图宽900px，不加弹窗标题或关闭X。只画局部组件，不画父页/owner导航/浏览器壳。平面白/浅灰、#272b3a文字、#657084次级、#e6e9f1细线、#4566c6蓝色、小圆角、清晰紧凑中文；长表单可延长纵向且主要动作可达。无纹理渐变或协议字段输入。source-derived与角色/parent仅metadata。准确header左侧代码语言文本输入值“javascript”（支持datalist但未展开，不画新语言选择弹窗），右侧4个按钮“行号”“折行”“折叠”“复制代码”；行号和折行处于pressed，折叠未选中。当前为virtual/lazy预览，非激活CodeMirror：主体pre/code显示完整两行“const value = 1;”“console.log(value);”，克制语法色，无编辑光标/工具条/行号gutter（虚拟pre尚未挂载CM）。不要已复制状态、只读复制fallback textarea或折叠代码分支，不额外加复制全文/运行/下载/保存按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作真实rich-editor代码块局部组件，意图宽900px，不加弹窗标题或关闭X。只画局部组件，不画父页/owner导航/浏览器壳。平面白/浅灰、#272b3a文字、#657084次级、#e6e9f1细线、#4566c6蓝色、小圆角、清晰紧凑中文；长表单可延长纵向且主要动作可达。无纹理渐变或协议字段输入。source-derived与角色/parent仅metadata。准确header左侧代码语言文本输入值“javascript”（支持datalist但未展开，不画新语言选择弹窗），右侧4个按钮“行号”“折行”“折叠”“复制代码”；行号和折行处于pressed，折叠未选中。当前为virtual/lazy预览，非激活CodeMirror：主体pre/code显示完整两行“const value = 1;”“console.log(value);”，克制语法色，无编辑光标/工具条/行号gutter（虚拟pre尚未挂载CM）。不要已复制状态、只读复制fallback textarea或折叠代码分支，不额外加复制全文/运行/下载/保存按钮。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; exact source defines isolated local component, no matching runtime window capture"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-bfb1b579-143a-449c-9c28-149f9f301b49.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-083",
+      "title": "Rich editor code-block controls and copy fallback",
+      "kind": "state",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Focus/render fenced code block",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/editor/code-block-view.ts:74",
+        "apps/web/editor/code-block-view.ts:222"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "代码语言",
+          "type": "text",
+          "required": false,
+          "constraints": "Datalist of supported languages; source attr preserved.",
+          "sensitive": false
+        },
+        {
+          "name": "代码内容",
+          "type": "code-editor",
+          "required": true,
+          "constraints": "Local code block text; editor read-only guards inherited.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "行号 / 折行 / 折叠",
+          "effect": "Toggle code presentation",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "复制代码",
+          "effect": "Copy current code; show readonly fallback textarea on denied clipboard",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Virtual/lazy syntax preview",
+        "Active CodeMirror editor",
+        "Folded code",
+        "Clipboard success/fallback",
+        "Readonly"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/editor-code-block-view.test.ts",
+        "tests/e2e/code-block-editor.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-083",
+      "parentId": "WS-024",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/editor/code-block-view.ts:74",
+        "apps/web/editor/code-block-view.ts:222"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-013.json#WS-D059",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D059",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-bfb1b579-143a-449c-9c28-149f9f301b49.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D059.png",
+  "sha256": "d0292eafdab76c5b923608c88f98ed23fb07f158d95a2107388e87156c8e094f",
+  "bytes": 1007392,
+  "dimensions": {
+    "width": 1663,
+    "height": 946
+  },
+  "generatedAtUtc": "2026-11-05T02:42:28.100512+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Rich editor code-block controls and copy fallback",
+    "sourceIds": [
+      "WS-083"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Virtual/lazy code block preview, owner editable, language javascript, numbered/wrapped controls pressed, not active CodeMirror/folded/copy-fallback",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

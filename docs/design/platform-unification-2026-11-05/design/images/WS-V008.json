@@ -1,0 +1,359 @@
+{
+  "kind": "generated-design",
+  "id": "WS-V008",
+  "assetId": "WS-V008",
+  "sourceIds": [
+    "RTD-014",
+    "RTD-017",
+    "RTD-020"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "rectangle",
+      "sourceId": "RTD-014",
+      "title": "Rectangle shape properties; mobile Edit sheet",
+      "role": "authenticated owner",
+      "state": "Full actual rectangle property region, all visible groups and opacity/layers.",
+      "selectedState": "Three independent complete desktop tool property panels, rectangle transparent background (no fill-style icons), arrow curved type, text hand-drawn M left-aligned. No selected scene elements so no selection-only action group."
+    },
+    {
+      "label": "arrow",
+      "sourceId": "RTD-017",
+      "title": "Arrow tool properties",
+      "role": "authenticated owner",
+      "state": "Full actual arrow property region including arrow type and start/end controls; retain common groups in actual source order.",
+      "selectedState": "Three independent complete desktop tool property panels, rectangle transparent background (no fill-style icons), arrow curved type, text hand-drawn M left-aligned. No selected scene elements so no selection-only action group."
+    },
+    {
+      "label": "text",
+      "sourceId": "RTD-020",
+      "title": "Text tool properties",
+      "role": "authenticated owner",
+      "state": "Full actual text property region including font/size/alignment; retain common groups in actual source order.",
+      "selectedState": "Three independent complete desktop tool property panels, rectangle transparent background (no fill-style icons), arrow curved type, text hand-drawn M left-aligned. No selected scene elements so no selection-only action group."
+    }
+  ],
+  "selectedState": "Three independent complete desktop tool property panels, rectangle transparent background (no fill-style icons), arrow curved type, text hand-drawn M left-aligned. No selected scene elements so no selection-only action group.",
+  "sourceDerived": false,
+  "baselineStatus": "actual-matching-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制三列彼此独立的完整网页工具属性面板，不画画布、导航或新标题。第一参考仅白灰平面与蓝选中色，后面三图分别照实际属性区域，所有图标选项数量、次序、颜色与选中项保持。左列矩形工具：描边五个快速色+当前黑色按钮；背景五个快速色+当前透明按钮；描边宽度三项中间选中；边框样式三项实线选中；线条风格三项中间选中；边角两项右侧圆角选中；透明度滑杆100、刻度0与100；图层四个图标。中列箭头：描边、描边宽度、边框样式、线条风格同参考；Arrow type三项中间曲线选中；端点两个图标按钮，左无箭头右箭头；透明度100；图层四项。右列文字：描边；字体四个图标，手绘笔选中；字体大小S M L XL且M选中；文本对齐三项左对齐选中；透明度100；图层四项。背景透明时不加填充样式；不加删除、分组、链接、裁剪、保存或确认按钮。",
+  "prompt": "绘制三列彼此独立的完整网页工具属性面板，不画画布、导航或新标题。第一参考仅白灰平面与蓝选中色，后面三图分别照实际属性区域，所有图标选项数量、次序、颜色与选中项保持。左列矩形工具：描边五个快速色+当前黑色按钮；背景五个快速色+当前透明按钮；描边宽度三项中间选中；边框样式三项实线选中；线条风格三项中间选中；边角两项右侧圆角选中；透明度滑杆100、刻度0与100；图层四个图标。中列箭头：描边、描边宽度、边框样式、线条风格同参考；Arrow type三项中间曲线选中；端点两个图标按钮，左无箭头右箭头；透明度100；图层四项。右列文字：描边；字体四个图标，手绘笔选中；字体大小S M L XL且M选中；文本对齐三项左对齐选中；透明度100；图层四项。背景透明时不加填充样式；不加删除、分组、链接、裁剪、保存或确认按钮。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-shape-properties-panel.png",
+      "role": "Actual rectangle tool full property content/order/choices",
+      "sha256": "6f34617db07a5ed33de101e242309e5a1f0ab4ec519f058d166a48b5084d2ad8",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-arrow-properties-panel.png",
+      "role": "Actual arrow tool full property content/order/choices",
+      "sha256": "03449dff0bc919e9176e669cb87ce1593593a598752055fbf0d2c44c883011ed",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-text-properties-panel.png",
+      "role": "Actual text tool full property content/order/choices",
+      "sha256": "e5bb09d49db9bc420d8dcb581ba28b90636ac7da737033a4fd4701435d92897f",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-shape-properties-panel.png",
+      "role": "Actual rectangle tool full property content/order/choices",
+      "sha256": "6f34617db07a5ed33de101e242309e5a1f0ab4ec519f058d166a48b5084d2ad8",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-arrow-properties-panel.png",
+      "role": "Actual arrow tool full property content/order/choices",
+      "sha256": "03449dff0bc919e9176e669cb87ce1593593a598752055fbf0d2c44c883011ed",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-text-properties-panel.png",
+      "role": "Actual text tool full property content/order/choices",
+      "sha256": "e5bb09d49db9bc420d8dcb581ba28b90636ac7da737033a4fd4701435d92897f",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制三列彼此独立的完整网页工具属性面板，不画画布、导航或新标题。第一参考仅白灰平面与蓝选中色，后面三图分别照实际属性区域，所有图标选项数量、次序、颜色与选中项保持。左列矩形工具：描边五个快速色+当前黑色按钮；背景五个快速色+当前透明按钮；描边宽度三项中间选中；边框样式三项实线选中；线条风格三项中间选中；边角两项右侧圆角选中；透明度滑杆100、刻度0与100；图层四个图标。中列箭头：描边、描边宽度、边框样式、线条风格同参考；Arrow type三项中间曲线选中；端点两个图标按钮，左无箭头右箭头；透明度100；图层四项。右列文字：描边；字体四个图标，手绘笔选中；字体大小S M L XL且M选中；文本对齐三项左对齐选中；透明度100；图层四项。背景透明时不加填充样式；不加删除、分组、链接、裁剪、保存或确认按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-shape-properties-panel.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-arrow-properties-panel.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-text-properties-panel.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制三列彼此独立的完整网页工具属性面板，不画画布、导航或新标题。第一参考仅白灰平面与蓝选中色，后面三图分别照实际属性区域，所有图标选项数量、次序、颜色与选中项保持。左列矩形工具：描边五个快速色+当前黑色按钮；背景五个快速色+当前透明按钮；描边宽度三项中间选中；边框样式三项实线选中；线条风格三项中间选中；边角两项右侧圆角选中；透明度滑杆100、刻度0与100；图层四个图标。中列箭头：描边、描边宽度、边框样式、线条风格同参考；Arrow type三项中间曲线选中；端点两个图标按钮，左无箭头右箭头；透明度100；图层四项。右列文字：描边；字体四个图标，手绘笔选中；字体大小S M L XL且M选中；文本对齐三项左对齐选中；透明度100；图层四项。背景透明时不加填充样式；不加删除、分组、链接、裁剪、保存或确认按钮。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-shape-properties-panel.png",
+          "role": "Actual rectangle tool full property content/order/choices"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-arrow-properties-panel.png",
+          "role": "Actual arrow tool full property content/order/choices"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-text-properties-panel.png",
+          "role": "Actual text tool full property content/order/choices"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-6b5a7e96-8318-4e96-b4e6-94fbe9e24bb1.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "RTD-014",
+      "runtimeKey": "vendor-shape-properties-panel",
+      "title": "Rectangle shape properties; mobile Edit sheet",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "选定形状操作",
+        "描边",
+        "背景",
+        "描边宽度",
+        "边框样式",
+        "线条风格",
+        "边角",
+        "透明度 100 0",
+        "图层",
+        "编辑"
+      ],
+      "roleEvidence": {
+        "region:选定形状操作": 1,
+        "group:描边宽度": 1,
+        "group:边框样式": 1,
+        "group:线条风格": 1,
+        "group:边角": 1,
+        "slider:透明度 100 0": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:15454"
+      ],
+      "evidence": [
+        "1440-vendor-shape-properties-panel.json",
+        "390-vendor-mobile-shape-properties-sheet.json",
+        "390-vendor-shape-properties-panel.json"
+      ],
+      "constraints": "Rectangle selected without drawing. At 390 properties require bottom Edit trigger; the sheet overlays tool targets until Edit closes it. Property option radio controls have no accessible names in the actual tree."
+    },
+    {
+      "id": "RTD-017",
+      "runtimeKey": "vendor-arrow-properties-panel",
+      "title": "Arrow tool properties",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "Arrow type",
+        "端点",
+        "arrowhead_start",
+        "arrowhead_end"
+      ],
+      "roleEvidence": {
+        "group:Arrow type": 1,
+        "group:端点": 1,
+        "button:arrowhead_start": 1,
+        "button:arrowhead_end": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5460"
+      ],
+      "evidence": [
+        "1440-vendor-arrow-properties-panel.json",
+        "390-vendor-arrow-properties-panel.json"
+      ],
+      "constraints": "Arrow selected without drawing; same mobile Edit sheet pattern."
+    },
+    {
+      "id": "RTD-020",
+      "runtimeKey": "vendor-text-properties-panel",
+      "title": "Text tool properties",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "字体",
+        "Hand-drawn",
+        "Normal",
+        "Code",
+        "Show font picker",
+        "字体大小",
+        "文本对齐"
+      ],
+      "roleEvidence": {
+        "group:字体": 1,
+        "group:字体大小": 1,
+        "group:文本对齐": 1,
+        "button:Show font picker": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5017"
+      ],
+      "evidence": [
+        "1440-vendor-text-properties-panel.json",
+        "390-vendor-text-properties-panel.json"
+      ],
+      "constraints": "Text tool selected without creating text; same mobile Edit sheet pattern."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "RTD-014",
+      "parentId": null,
+      "route": null,
+      "roles": [],
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:15454"
+      ]
+    },
+    {
+      "sourceId": "RTD-017",
+      "parentId": null,
+      "route": null,
+      "roles": [],
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5460"
+      ]
+    },
+    {
+      "sourceId": "RTD-020",
+      "parentId": null,
+      "route": null,
+      "roles": [],
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5017"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-035.json#WS-V008",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-V008",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-6b5a7e96-8318-4e96-b4e6-94fbe9e24bb1.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-V008.png",
+  "sha256": "10ae1a6b40f7254642b350e777594b11a2c3d88879ff0103bb15bfd5aed4613b",
+  "bytes": 1292719,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:13:12.255902+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Excalidraw rectangle, arrow and text property sections",
+    "sourceIds": [
+      "RTD-014",
+      "RTD-017",
+      "RTD-020"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Three independent complete desktop tool property panels, rectangle transparent background (no fill-style icons), arrow curved type, text hand-drawn M left-aligned. No selected scene elements so no selection-only action group.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": []
+}

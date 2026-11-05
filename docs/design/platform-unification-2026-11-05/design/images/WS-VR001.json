@@ -1,0 +1,609 @@
+{
+  "assetId": "WS-VR001",
+  "sourceIds": [
+    "RTD-003",
+    "RTD-004",
+    "RTD-008"
+  ],
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "responsive-board",
+  "panels": [
+    {
+      "label": "phone-390",
+      "sourceId": "RTD-003",
+      "title": "Packaged Excalidraw main menu",
+      "role": "authenticated owner",
+      "state": "Actual main menu at390 with source-allowed actions only; no native load/save/export/theme.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reuseSourceIds": [
+        "RTD-008"
+      ]
+    },
+    {
+      "label": "phone-320",
+      "sourceId": "RTD-003",
+      "title": "Packaged Excalidraw main menu",
+      "role": "authenticated owner",
+      "state": "Same actual bounded vendor menu at320; extra tools use exact independent labels and embedding restriction.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "reuseSourceIds": [
+        "RTD-008"
+      ]
+    },
+    {
+      "label": "background-hex",
+      "sourceId": "RTD-004",
+      "title": "Canvas background hex-color popup",
+      "role": "authenticated owner",
+      "state": "Actual local canvas background HEX popup, labeled320 viewport intent; no invented stroke/fill palette.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      }
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "Use case:ui-mockup. 三个独立局部手机窗口A390/B320/C320，高清可读正常字号、白底浅灰、细边框、小8px圆角蓝色选择；只画局部菜单，不出现应用宿主、DooKnow、笔记侧栏或设备壳。输入图1只作主菜单/色框内容参照，图2仅更多工具菜单。A真实Excalidraw主菜单：Find on canvas (Ctrl+F)、帮助、重置画布；分隔后只读标题Excalidraw links、GitHub、Follow us、Discord chat；下方画布背景与白/浅灰/浅蓝/浅黄/浅粉及自定义色块，白色选中。B更多工具菜单独立：画框工具 F、嵌入网页、激光笔 K、只读组标题Generate、Mermaid 至 Excalidraw。嵌入网页只保留现有菜单项，不能画已嵌入的网页或远程内容，不新增AI生成/协作入口。C只有局部画布背景的hex小popover：标题十六进制值、#前缀、text输入ffffff、吸管图标；不能加描边/填充/透明度/保存取消控件。A绝不出现native载入、保存、导出、save-as-image或主题切换。所有菜单在手机视口内可达，不复制baseline屏外位置。",
+  "sourceContracts": [
+    {
+      "id": "RTD-003",
+      "runtimeKey": "vendor-main-menu",
+      "title": "Packaged Excalidraw main menu",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390,
+        320
+      ],
+      "actualDOMLabels": [
+        "Find on canvas",
+        "帮助",
+        "重置画布",
+        "画布背景",
+        "GitHub",
+        "X",
+        "Discord"
+      ],
+      "roleEvidence": {
+        "button:Find on canvas": 1,
+        "button:重置画布": 1,
+        "link:GitHub": 1,
+        "dialog:unnamed-color-presets": 1
+      },
+      "sourceRefs": [
+        "apps/web/whiteboards/canvas.ts:64",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:21056",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:17559"
+      ],
+      "evidence": [
+        "1440-vendor-main-menu.json",
+        "320-vendor-main-menu.json",
+        "390-vendor-main-menu.json"
+      ],
+      "constraints": "Vendor external links were only enumerated. Native file/export/image entries absent. UIOptions disables loadScene, saveToActiveFile, export, saveAsImage. Theme is supplied by application, so no standalone theme control observed.",
+      "roles": [
+        "authenticated owner"
+      ]
+    },
+    {
+      "id": "RTD-004",
+      "runtimeKey": "vendor-canvas-background-color",
+      "title": "Canvas background hex-color popup",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "画布背景",
+        "十六进制值",
+        "ffffff"
+      ],
+      "roleEvidence": {
+        "textbox:画布背景": 1,
+        "dialog:unnamed-page-total": 2
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3296",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3406",
+        "apps/web/whiteboards/canvas.ts:36"
+      ],
+      "evidence": [
+        "1440-vendor-canvas-background-color.json",
+        "390-vendor-canvas-background-color.json"
+      ],
+      "constraints": "Opened without editing background; board stays empty.",
+      "roles": [
+        "authenticated owner"
+      ]
+    },
+    {
+      "id": "RTD-008",
+      "runtimeKey": "vendor-extra-tools",
+      "title": "More tools menu",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "画框工具",
+        "嵌入网页",
+        "激光笔",
+        "Generate",
+        "Mermaid 至 Excalidraw"
+      ],
+      "roleEvidence": {
+        "button:Mermaid 至 Excalidraw": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12463",
+        "apps/web/whiteboards/canvas.ts:63"
+      ],
+      "evidence": [
+        "1440-vendor-extra-tools.json",
+        "390-vendor-extra-tools.json"
+      ],
+      "constraints": "Embeddable validation always returns false. Neither web embedding nor external content insertion was attempted.",
+      "roles": [
+        "authenticated owner"
+      ]
+    }
+  ],
+  "originalManifestContract": {
+    "id": "WS-VR001",
+    "title": "Excalidraw mobile main/extra menu and background HEX",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "RTD-003",
+      "RTD-004",
+      "RTD-008"
+    ],
+    "panels": [
+      {
+        "label": "phone-390",
+        "sourceId": "RTD-003",
+        "title": "Packaged Excalidraw main menu",
+        "role": "authenticated owner",
+        "state": "Actual main menu at390 with source-allowed actions only; no native load/save/export/theme.",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "reuseSourceIds": [
+          "RTD-008"
+        ]
+      },
+      {
+        "label": "phone-320",
+        "sourceId": "RTD-003",
+        "title": "Packaged Excalidraw main menu",
+        "role": "authenticated owner",
+        "state": "Same actual bounded vendor menu at320; extra tools use exact independent labels and embedding restriction.",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "reuseSourceIds": [
+          "RTD-008"
+        ]
+      },
+      {
+        "label": "background-hex",
+        "sourceId": "RTD-004",
+        "title": "Canvas background hex-color popup",
+        "role": "authenticated owner",
+        "state": "Actual local canvas background HEX popup, labeled320 viewport intent; no invented stroke/fill palette.",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        }
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-main-menu.png",
+        "role": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion."
+      },
+      {
+        "path": "apps/web/whiteboards/canvas.ts",
+        "role": "AUTHORITATIVE VENDOR SOURCE: apps/web/whiteboards/canvas.ts:64, node_modules/@excalidraw/excalidraw/dist/dev/index.js:21056, node_modules/@excalidraw/excalidraw/dist/dev/index.js:17559"
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-canvas-background-color.png",
+        "role": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion."
+      },
+      {
+        "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+        "role": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:3296, node_modules/@excalidraw/excalidraw/dist/dev/index.js:3406, apps/web/whiteboards/canvas.ts:36"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI.",
+      "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+      "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-VR001",
+        "representation": "direct",
+        "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+        "sourceConstraint": "Vendor external links were only enumerated. Native file/export/image entries absent. UIOptions disables loadScene, saveToActiveFile, export, saveAsImage. Theme is supplied by application, so no standalone theme control observed.",
+        "requiredVisibleLabels": [
+          "Find on canvas",
+          "帮助",
+          "重置画布",
+          "画布背景",
+          "GitHub",
+          "X",
+          "Discord"
+        ],
+        "observedVisibleWidths": [
+          1440,
+          390,
+          320
+        ],
+        "role": "authenticated owner",
+        "scrollContract": "Keep actual vendor panel scroll/viewport anchor and real close/Edit trigger reachable. Do not introduce native OS/browser windows.",
+        "focusContract": "Retain actual vendor focus/keyboard limitations; advertised unobserved command palette and absent mobile statistics are not invented.",
+        "requiresActualFitReview": true,
+        "sourceId": "RTD-003"
+      },
+      {
+        "assetId": "WS-VR001",
+        "representation": "direct",
+        "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+        "sourceConstraint": "Opened without editing background; board stays empty.",
+        "requiredVisibleLabels": [
+          "画布背景",
+          "十六进制值",
+          "ffffff"
+        ],
+        "observedVisibleWidths": [
+          1440,
+          390
+        ],
+        "role": "authenticated owner",
+        "scrollContract": "Keep actual vendor panel scroll/viewport anchor and real close/Edit trigger reachable. Do not introduce native OS/browser windows.",
+        "focusContract": "Retain actual vendor focus/keyboard limitations; advertised unobserved command palette and absent mobile statistics are not invented.",
+        "requiresActualFitReview": true,
+        "sourceId": "RTD-004"
+      },
+      {
+        "assetId": "WS-VR001",
+        "representation": "shared-pattern",
+        "reason": "GEOMETRY ONLY: viewport-bound anchored vendor menu, exact extra-tool labels; denied embedding/unknown Generate remain restricted.",
+        "sourceConstraint": "Embeddable validation always returns false. Neither web embedding nor external content insertion was attempted.",
+        "requiredVisibleLabels": [
+          "画框工具",
+          "嵌入网页",
+          "激光笔",
+          "Generate",
+          "Mermaid 至 Excalidraw"
+        ],
+        "observedVisibleWidths": [
+          1440,
+          390
+        ],
+        "role": "authenticated owner",
+        "scrollContract": "Keep actual vendor panel scroll/viewport anchor and real close/Edit trigger reachable. Do not introduce native OS/browser windows.",
+        "focusContract": "Retain actual vendor focus/keyboard limitations; advertised unobserved command palette and absent mobile statistics are not invented.",
+        "requiresActualFitReview": true,
+        "sourceId": "RTD-008"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-VR001 Excalidraw mobile main/extra menu and background HEX\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"phone-390\", \"sourceId\": \"RTD-003\", \"title\": \"Packaged Excalidraw main menu\", \"role\": \"authenticated owner\", \"state\": \"Actual main menu at390 with source-allowed actions only; no native load/save/export/theme.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"reuseSourceIds\": [\"RTD-008\"]}, {\"label\": \"phone-320\", \"sourceId\": \"RTD-003\", \"title\": \"Packaged Excalidraw main menu\", \"role\": \"authenticated owner\", \"state\": \"Same actual bounded vendor menu at320; extra tools use exact independent labels and embedding restriction.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"reuseSourceIds\": [\"RTD-008\"]}, {\"label\": \"background-hex\", \"sourceId\": \"RTD-004\", \"title\": \"Canvas background hex-color popup\", \"role\": \"authenticated owner\", \"state\": \"Actual local canvas background HEX popup, labeled320 viewport intent; no invented stroke/fill palette.\", \"viewport\": {\"width\": 320, \"height\": 844}}]\nVISIBLE CONTRACTS [{\"panel\": \"phone-390\", \"sourceId\": \"RTD-003\", \"visibleLabels\": [\"Find on canvas\", \"帮助\", \"重置画布\", \"画布背景\", \"GitHub\", \"X\", \"Discord\"], \"constraints\": \"Vendor external links were only enumerated. Native file/export/image entries absent. UIOptions disables loadScene, saveToActiveFile, export, saveAsImage. Theme is supplied by application, so no standalone theme control observed.\"}, {\"panel\": \"phone-320\", \"sourceId\": \"RTD-003\", \"visibleLabels\": [\"Find on canvas\", \"帮助\", \"重置画布\", \"画布背景\", \"GitHub\", \"X\", \"Discord\"], \"constraints\": \"Vendor external links were only enumerated. Native file/export/image entries absent. UIOptions disables loadScene, saveToActiveFile, export, saveAsImage. Theme is supplied by application, so no standalone theme control observed.\"}, {\"panel\": \"background-hex\", \"sourceId\": \"RTD-004\", \"visibleLabels\": [\"画布背景\", \"十六进制值\", \"ffffff\"], \"constraints\": \"Opened without editing background; board stays empty.\"}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-VR001.png",
+    "reviewStatus": "pending-generation",
+    "geometryFamily": "Excalidraw anchored menu and background HEX control; exact local children",
+    "sourceContracts": [
+      {
+        "id": "RTD-003",
+        "runtimeKey": "vendor-main-menu",
+        "title": "Packaged Excalidraw main menu",
+        "canonicalRefs": [
+          "WS-068"
+        ],
+        "observedVisibleWidths": [
+          1440,
+          390,
+          320
+        ],
+        "actualDOMLabels": [
+          "Find on canvas",
+          "帮助",
+          "重置画布",
+          "画布背景",
+          "GitHub",
+          "X",
+          "Discord"
+        ],
+        "roleEvidence": {
+          "button:Find on canvas": 1,
+          "button:重置画布": 1,
+          "link:GitHub": 1,
+          "dialog:unnamed-color-presets": 1
+        },
+        "sourceRefs": [
+          "apps/web/whiteboards/canvas.ts:64",
+          "node_modules/@excalidraw/excalidraw/dist/dev/index.js:21056",
+          "node_modules/@excalidraw/excalidraw/dist/dev/index.js:17559"
+        ],
+        "evidence": [
+          "1440-vendor-main-menu.json",
+          "320-vendor-main-menu.json",
+          "390-vendor-main-menu.json"
+        ],
+        "constraints": "Vendor external links were only enumerated. Native file/export/image entries absent. UIOptions disables loadScene, saveToActiveFile, export, saveAsImage. Theme is supplied by application, so no standalone theme control observed."
+      },
+      {
+        "id": "RTD-004",
+        "runtimeKey": "vendor-canvas-background-color",
+        "title": "Canvas background hex-color popup",
+        "canonicalRefs": [
+          "WS-068"
+        ],
+        "observedVisibleWidths": [
+          1440,
+          390
+        ],
+        "actualDOMLabels": [
+          "画布背景",
+          "十六进制值",
+          "ffffff"
+        ],
+        "roleEvidence": {
+          "textbox:画布背景": 1,
+          "dialog:unnamed-page-total": 2
+        },
+        "sourceRefs": [
+          "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3296",
+          "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3406",
+          "apps/web/whiteboards/canvas.ts:36"
+        ],
+        "evidence": [
+          "1440-vendor-canvas-background-color.json",
+          "390-vendor-canvas-background-color.json"
+        ],
+        "constraints": "Opened without editing background; board stays empty."
+      },
+      {
+        "id": "RTD-008",
+        "runtimeKey": "vendor-extra-tools",
+        "title": "More tools menu",
+        "canonicalRefs": [
+          "WS-068"
+        ],
+        "observedVisibleWidths": [
+          1440,
+          390
+        ],
+        "actualDOMLabels": [
+          "画框工具",
+          "嵌入网页",
+          "激光笔",
+          "Generate",
+          "Mermaid 至 Excalidraw"
+        ],
+        "roleEvidence": {
+          "button:Mermaid 至 Excalidraw": 1
+        },
+        "sourceRefs": [
+          "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12463",
+          "apps/web/whiteboards/canvas.ts:63"
+        ],
+        "evidence": [
+          "1440-vendor-extra-tools.json",
+          "390-vendor-extra-tools.json"
+        ],
+        "constraints": "Embeddable validation always returns false. Neither web embedding nor external content insertion was attempted."
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "RTD-003",
+        "parentIds": [
+          "WS-068"
+        ],
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Excalidraw child UI inside the actual owner whiteboard; no private page/navigation controls invented."
+      },
+      {
+        "sourceId": "RTD-004",
+        "parentIds": [
+          "WS-068"
+        ],
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Excalidraw child UI inside the actual owner whiteboard; no private page/navigation controls invented."
+      },
+      {
+        "sourceId": "RTD-008",
+        "parentIds": [
+          "WS-068"
+        ],
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Excalidraw child UI inside the actual owner whiteboard; no private page/navigation controls invented."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "RTD-003",
+        "assetId": "WS-V001",
+        "representation": "nonvisual-data-rule"
+      },
+      {
+        "sourceId": "RTD-004",
+        "assetId": "WS-V001",
+        "representation": "nonvisual-data-rule"
+      },
+      {
+        "sourceId": "RTD-008",
+        "assetId": "WS-V004",
+        "representation": "nonvisual-data-rule"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "manifestReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-049.json",
+  "sourceDerived": true,
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "Use case:ui-mockup. 三个独立局部手机窗口A390/B320/C320，高清可读正常字号、白底浅灰、细边框、小8px圆角蓝色选择；只画局部菜单，不出现应用宿主、DooKnow、笔记侧栏或设备壳。输入图1只作主菜单/色框内容参照，图2仅更多工具菜单。A真实Excalidraw主菜单：Find on canvas (Ctrl+F)、帮助、重置画布；分隔后只读标题Excalidraw links、GitHub、Follow us、Discord chat；下方画布背景与白/浅灰/浅蓝/浅黄/浅粉及自定义色块，白色选中。B更多工具菜单独立：画框工具 F、嵌入网页、激光笔 K、只读组标题Generate、Mermaid 至 Excalidraw。嵌入网页只保留现有菜单项，不能画已嵌入的网页或远程内容，不新增AI生成/协作入口。C只有局部画布背景的hex小popover：标题十六进制值、#前缀、text输入ffffff、吸管图标；不能加描边/填充/透明度/保存取消控件。A绝不出现native载入、保存、导出、save-as-image或主题切换。所有菜单在手机视口内可达，不复制baseline屏外位置。",
+  "actualToolArguments": {
+    "prompt": "Use case:ui-mockup. 三个独立局部手机窗口A390/B320/C320，高清可读正常字号、白底浅灰、细边框、小8px圆角蓝色选择；只画局部菜单，不出现应用宿主、DooKnow、笔记侧栏或设备壳。输入图1只作主菜单/色框内容参照，图2仅更多工具菜单。A真实Excalidraw主菜单：Find on canvas (Ctrl+F)、帮助、重置画布；分隔后只读标题Excalidraw links、GitHub、Follow us、Discord chat；下方画布背景与白/浅灰/浅蓝/浅黄/浅粉及自定义色块，白色选中。B更多工具菜单独立：画框工具 F、嵌入网页、激光笔 K、只读组标题Generate、Mermaid 至 Excalidraw。嵌入网页只保留现有菜单项，不能画已嵌入的网页或远程内容，不新增AI生成/协作入口。C只有局部画布背景的hex小popover：标题十六进制值、#前缀、text输入ffffff、吸管图标；不能加描边/填充/透明度/保存取消控件。A绝不出现native载入、保存、导出、save-as-image或主题切换。所有菜单在手机视口内可达，不复制baseline屏外位置。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V004.png"
+    ],
+    "transparent_background": false
+  },
+  "inputs": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V001.png",
+      "role": "supporting reference",
+      "sha256": "935451d77039987a94d5c4abbb46ef7f28dada489308c298f38fae18463ac1c8",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    },
+    {
+      "order": 2,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V004.png",
+      "role": "supporting reference",
+      "sha256": "4c5742037d65d333cfdd5649d18e0d9301b27def1e0d5335c17f63a8af26b495",
+      "dimensions": {
+        "width": 1774,
+        "height": 887
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "inputReferences": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V001.png",
+      "role": "supporting reference",
+      "sha256": "935451d77039987a94d5c4abbb46ef7f28dada489308c298f38fae18463ac1c8",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    },
+    {
+      "order": 2,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V004.png",
+      "role": "supporting reference",
+      "sha256": "4c5742037d65d333cfdd5649d18e0d9301b27def1e0d5335c17f63a8af26b495",
+      "dimensions": {
+        "width": 1774,
+        "height": 887
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-c667332f-c952-4704-a458-fc162e684a84.png",
+  "toolDefaultOutputSource": "$CODEX_HOME/generated_images (actual path in toolOutputFile)",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-VR001.png",
+  "sha256": "36af1d26d647a8088d58115f856d68e617de88e5095dc0e83ddcc61d17f4ae2a",
+  "bytes": 1029870,
+  "dimensions": {
+    "width": 1721,
+    "height": 914
+  },
+  "generatedAtUtc": "2026-11-05T09:13:28.038272+00:00",
+  "revisionOf": null,
+  "generationAttempts": [
+    {
+      "actualToolArguments": {
+        "prompt": "Use case:ui-mockup. 三个独立局部手机窗口A390/B320/C320，高清可读正常字号、白底浅灰、细边框、小8px圆角蓝色选择；只画局部菜单，不出现应用宿主、DooKnow、笔记侧栏或设备壳。输入图1只作主菜单/色框内容参照，图2仅更多工具菜单。A真实Excalidraw主菜单：Find on canvas (Ctrl+F)、帮助、重置画布；分隔后只读标题Excalidraw links、GitHub、Follow us、Discord chat；下方画布背景与白/浅灰/浅蓝/浅黄/浅粉及自定义色块，白色选中。B更多工具菜单独立：画框工具 F、嵌入网页、激光笔 K、只读组标题Generate、Mermaid 至 Excalidraw。嵌入网页只保留现有菜单项，不能画已嵌入的网页或远程内容，不新增AI生成/协作入口。C只有局部画布背景的hex小popover：标题十六进制值、#前缀、text输入ffffff、吸管图标；不能加描边/填充/透明度/保存取消控件。A绝不出现native载入、保存、导出、save-as-image或主题切换。所有菜单在手机视口内可达，不复制baseline屏外位置。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V001.png",
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V004.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-c667332f-c952-4704-a458-fc162e684a84.png",
+      "status": "saved"
+    }
+  ],
+  "postprocessing": "original PNG copied without pixel modification",
+  "selfInspection": {
+    "method": "Viewed actual inputs and generated native preview; compared selected state to source contracts",
+    "concerns": [
+      "Static mobile layout intent corrects prior offscreen components; does not prove sidebar fix, external interactions or insert execution."
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "reviewStatus": "pending-independent-review",
+  "pendingReview": true
+}

@@ -1,0 +1,58 @@
+{
+  "assetId": "MP-D106",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:50:08.674067+00:00",
+  "method": "Actual final PNG viewed; real appearance baseline, initial/correction prompts when present, exact GEN-006 source contracts and all selected Studio/Appearance/Modules template controls/guards checked. Alternate tabs and lower source-derived layout are not runtime captures.",
+  "selectedState": "Owner clean saved default journal appearance tab; media empty and no preview HTML",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual studio shell/tabs, saved-online-matched state, disabled save/publish, history zero/collapsed, preview size/live/refresh/fallback generation and private-preview meaning retained. No implicit draft publication or enabled-site claim.",
+    "Three template choices and selected journal, configurable #44684f color+text, font/width/card style, name/tagline/bio and both media labels/selection controls retained. Missing-image source placeholders restored; no false selected image/remove/crop popup.",
+    "Original screenshot host/top values and source-completed lower fields are distinct from runtime evidence; current owner controls remain blue while configured design color remains green."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Preview note retains a raster prefix 下方 while actual source says 预览仅自己可见。发布主页后访客才能看到更改。 Privacy/publication meaning remains correct; use exact source wording without a direction prefix in implementation. No new bitmap iteration required for this minor copy alone."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-006.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D106.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/blog/BlogDesignStudio.vue:94",
+    "apps/web/components/blog/BlogDesignStudio.vue:177",
+    "apps/web/components/blog/BlogDesignStudio.vue:238",
+    "apps/web/components/blog/BlogDesignAppearance.vue:11",
+    "apps/web/components/blog/BlogImageEditor.vue:109",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-blog-design.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "79bb05eac1df3c11fb9dc23e6a093b110e283efd011fae534ccbe97237b7d1e1",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D106.png",
+  "sourceIds": [
+    "PB-041"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

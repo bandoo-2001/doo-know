@@ -1,0 +1,418 @@
+{
+  "id": "WS-M010",
+  "title": "Primary diagram recovery, resource-readonly and failed save — compact component state matrix",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-076"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-076",
+      "title": "Primary diagram recovery, resource-readonly and failed save — compact component state matrix",
+      "role": "authenticated owner",
+      "state": "DiagramDocumentWorkspace.vue resource/error/recovery region.",
+      "presentation": "ONE compact component matrix, not multiple simultaneously open full windows",
+      "rows": [
+        {
+          "label": "row-1",
+          "sourceId": "WS-076",
+          "title": "Primary diagram recovery, resource-readonly and failed save",
+          "role": "authenticated owner",
+          "state": "Save error keeps source and last complete preview",
+          "actionPresentation": "Only actual retry/re-read/download-draft/recover/discard. canEdit/canDownloadSource are independent server capabilities; do not fabricate editing or native-original access.",
+          "sourceComponent": "apps/web/components/DiagramDocumentWorkspace.vue"
+        },
+        {
+          "label": "row-2",
+          "sourceId": "WS-076",
+          "title": "Primary diagram recovery, resource-readonly and failed save",
+          "role": "authenticated owner",
+          "state": "Recovery offer makes body inert",
+          "actionPresentation": "Only actual retry/re-read/download-draft/recover/discard. canEdit/canDownloadSource are independent server capabilities; do not fabricate editing or native-original access.",
+          "sourceComponent": "apps/web/components/DiagramDocumentWorkspace.vue"
+        },
+        {
+          "label": "row-3",
+          "sourceId": "WS-076",
+          "title": "Primary diagram recovery, resource-readonly and failed save",
+          "role": "authenticated owner",
+          "state": "Version/source mismatch",
+          "actionPresentation": "Only actual retry/re-read/download-draft/recover/discard. canEdit/canDownloadSource are independent server capabilities; do not fabricate editing or native-original access.",
+          "sourceComponent": "apps/web/components/DiagramDocumentWorkspace.vue"
+        },
+        {
+          "label": "row-4",
+          "sourceId": "WS-076",
+          "title": "Primary diagram recovery, resource-readonly and failed save",
+          "role": "authenticated owner",
+          "state": "Unavailable source with canEdit=false",
+          "actionPresentation": "Only actual retry/re-read/download-draft/recover/discard. canEdit/canDownloadSource are independent server capabilities; do not fabricate editing or native-original access.",
+          "sourceComponent": "apps/web/components/DiagramDocumentWorkspace.vue"
+        },
+        {
+          "label": "row-5",
+          "sourceId": "WS-076",
+          "title": "Primary diagram recovery, resource-readonly and failed save",
+          "role": "authenticated owner",
+          "state": "No replacement blank canvas",
+          "actionPresentation": "Only actual retry/re-read/download-draft/recover/discard. canEdit/canDownloadSource are independent server capabilities; do not fabricate editing or native-original access.",
+          "sourceComponent": "apps/web/components/DiagramDocumentWorkspace.vue"
+        }
+      ]
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-more-actions.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:651, apps/web/diagrams/portable-download.ts:4"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:792, apps/web/components/DiagramDocumentWorkspace.vue:798, apps/web/components/DiagramDocumentWorkspace.vue:83"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:850"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-076",
+      "label": "重试 / 重新读取",
+      "effect": "Retry save or reload coherent resource",
+      "api": "GET /api/notes/:id/diagram; POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-076",
+      "label": "下载草稿",
+      "effect": "Preserve held diagram draft",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-076",
+      "label": "恢复 / 丢弃草稿",
+      "effect": "Resolve browser recovery offer",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+    "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R024",
+      "reuseSourceId": "WS-068",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "重试 / 重新读取",
+          "effect": "Retry save or reload coherent resource",
+          "api": "GET /api/notes/:id/diagram; POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "下载草稿",
+          "effect": "Preserve held diagram draft",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "恢复 / 丢弃草稿",
+          "effect": "Resolve browser recovery offer",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-076"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排五个独立图形恢复/错误局部样例，清楚中文字号，留白与细线分开，不画新空白画布或宿主导航。\n第一行：红色错误条“请求失败”，真实按钮“重试”“重新读取”“下载草稿”均可用；下面只保留最后完成的图形预览，灰色框“记录”箭头至绿色框“回顾”，小字“显示最后完整保存的预览”。\n第二行：蓝灰提示标题“发现未保存的本地草稿”，正文“保存在此浏览器 · 2026/11/5 10:00:00”“原文基准未变化。恢复只放入编辑区，手动保存后才会写入原文。”；可用“恢复本地草稿”“复制恢复文本”“丢弃本地草稿”。下面既有预览区域为暂不可交互的灰色样式，仍显示记录/回顾图形，不开复制文本框或空画布。\n第三行：红色错误“白板原件链接已变化，请保留源码并重新读取对应原件”，可用“重试”“重新读取”“下载草稿”；下面保留只读图形预览，不补覆盖或强制保存按钮。\n第四行：红色错误“图形源不可编辑，已保留现有预览与 Markdown 原文。”，可用“重试”“重新读取”“下载草稿”；视图tabs“白板”灰色禁用、“Markdown 源码”“阅读”“PNG 预览”可用，PNG预览当前；下面保留记录/回顾图形，无编辑原件或新建空白按钮。\n第五行：仅现有预览未取得时的普通文字“预览暂不可用，原文已保留。”，不显示空白画布、开始设计或新建按钮。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M010.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-076",
+      "title": "Primary diagram recovery, resource-readonly and failed save",
+      "kind": "state",
+      "module": "diagrams",
+      "entry": {
+        "route": "/?note=:primaryDiagramId",
+        "trigger": "Draft recovery or read/prepare/commit failure",
+        "parentId": "WS-068"
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramDocumentWorkspace.vue:792",
+        "apps/web/components/DiagramDocumentWorkspace.vue:798",
+        "apps/web/components/DiagramDocumentWorkspace.vue:83"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重试 / 重新读取",
+          "effect": "Retry save or reload coherent resource",
+          "api": "GET /api/notes/:id/diagram; POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "下载草稿",
+          "effect": "Preserve held diagram draft",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "恢复 / 丢弃草稿",
+          "effect": "Resolve browser recovery offer",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Error retains source and last saved preview",
+        "Recovery makes body inert",
+        "Version/source mismatch",
+        "Source unavailable canEdit false",
+        "No replacement blank canvas"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/diagram-document-session.test.ts",
+        "tests/diagram-draft-envelope.test.ts",
+        "tests/e2e/diagram-editor-offline-export.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-076",
+      "parentId": "WS-068",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-076",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-076",
+      "state": "Error retains source and last saved preview",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-076",
+      "state": "Recovery makes body inert",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-076",
+      "state": "Version/source mismatch",
+      "representation": "visible"
+    },
+    {
+      "sourceId": "WS-076",
+      "state": "Source unavailable canEdit false",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-076",
+      "state": "No replacement blank canvas",
+      "representation": "visible"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-M010",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "save error retains last complete preview",
+    "browser recovery offer, body inert",
+    "whiteboard reference mismatch actual message",
+    "canEdit=false forces preview and disabled design",
+    "no preview fallback preserves original"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排五个独立图形恢复/错误局部样例，清楚中文字号，留白与细线分开，不画新空白画布或宿主导航。\n第一行：红色错误条“请求失败”，真实按钮“重试”“重新读取”“下载草稿”均可用；下面只保留最后完成的图形预览，灰色框“记录”箭头至绿色框“回顾”，小字“显示最后完整保存的预览”。\n第二行：蓝灰提示标题“发现未保存的本地草稿”，正文“保存在此浏览器 · 2026/11/5 10:00:00”“原文基准未变化。恢复只放入编辑区，手动保存后才会写入原文。”；可用“恢复本地草稿”“复制恢复文本”“丢弃本地草稿”。下面既有预览区域为暂不可交互的灰色样式，仍显示记录/回顾图形，不开复制文本框或空画布。\n第三行：红色错误“白板原件链接已变化，请保留源码并重新读取对应原件”，可用“重试”“重新读取”“下载草稿”；下面保留只读图形预览，不补覆盖或强制保存按钮。\n第四行：红色错误“图形源不可编辑，已保留现有预览与 Markdown 原文。”，可用“重试”“重新读取”“下载草稿”；视图tabs“白板”灰色禁用、“Markdown 源码”“阅读”“PNG 预览”可用，PNG预览当前；下面保留记录/回顾图形，无编辑原件或新建空白按钮。\n第五行：仅现有预览未取得时的普通文字“预览暂不可用，原文已保留。”，不显示空白画布、开始设计或新建按钮。",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-M010 Primary diagram recovery, resource-readonly and failed save — compact component state matrix\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-076\", \"title\": \"Primary diagram recovery, resource-readonly and failed save — compact component state matrix\", \"role\": \"authenticated owner\", \"state\": \"DiagramDocumentWorkspace.vue resource/error/recovery region.\", \"presentation\": \"ONE compact component matrix, not multiple simultaneously open full windows\", \"rows\": [{\"label\": \"row-1\", \"sourceId\": \"WS-076\", \"title\": \"Primary diagram recovery, resource-readonly and failed save\", \"role\": \"authenticated owner\", \"state\": \"Save error keeps source and last complete preview\", \"actionPresentation\": \"Only actual retry/re-read/download-draft/recover/discard. canEdit/canDownloadSource are independent server capabilities; do not fabricate editing or native-original access.\", \"sourceComponent\": \"apps/web/components/DiagramDocumentWorkspace.vue\"}, {\"label\": \"row-2\", \"sourceId\": \"WS-076\", \"title\": \"Primary diagram recovery, resource-readonly and failed save\", \"role\": \"authenticated owner\", \"state\": \"Recovery offer makes body inert\", \"actionPresentation\": \"Only actual retry/re-read/download-draft/recover/discard. canEdit/canDownloadSource are independent server capabilities; do not fabricate editing or native-original access.\", \"sourceComponent\": \"apps/web/components/DiagramDocumentWorkspace.vue\"}, {\"label\": \"row-3\", \"sourceId\": \"WS-076\", \"title\": \"Primary diagram recovery, resource-readonly and failed save\", \"role\": \"authenticated owner\", \"state\": \"Version/source mismatch\", \"actionPresentation\": \"Only actual retry/re-read/download-draft/recover/discard. canEdit/canDownloadSource are independent server capabilities; do not fabricate editing or native-original access.\", \"sourceComponent\": \"apps/web/components/DiagramDocumentWorkspace.vue\"}, {\"label\": \"row-4\", \"sourceId\": \"WS-076\", \"title\": \"Primary diagram recovery, resource-readonly and failed save\", \"role\": \"authenticated owner\", \"state\": \"Unavailable source with canEdit=false\", \"actionPresentation\": \"Only actual retry/re-read/download-draft/recover/discard. canEdit/canDownloadSource are independent server capabilities; do not fabricate editing or native-original access.\", \"sourceComponent\": \"apps/web/components/DiagramDocumentWorkspace.vue\"}, {\"label\": \"row-5\", \"sourceId\": \"WS-076\", \"title\": \"Primary diagram recovery, resource-readonly and failed save\", \"role\": \"authenticated owner\", \"state\": \"No replacement blank canvas\", \"actionPresentation\": \"Only actual retry/re-read/download-draft/recover/discard. canEdit/canDownloadSource are independent server capabilities; do not fabricate editing or native-original access.\", \"sourceComponent\": \"apps/web/components/DiagramDocumentWorkspace.vue\"}]}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-076\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"重试 / 重新读取\", \"effect\": \"Retry save or reload coherent resource\", \"api\": \"GET /api/notes/:id/diagram; POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"下载草稿\", \"effect\": \"Preserve held diagram draft\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"恢复 / 丢弃草稿\", \"effect\": \"Resolve browser recovery offer\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Error retains source and last saved preview\", \"Recovery makes body inert\", \"Version/source mismatch\", \"Source unavailable canEdit false\", \"No replacement blank canvas\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-more-actions.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state.",
+      "responsibility": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state.",
+      "sha256": "7d2bea222e2b75784af61a7280b95dd96cd3a9c192a88dfdba7302cb49352a7c",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 71535
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:651, apps/web/diagrams/portable-download.ts:4",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:651, apps/web/diagrams/portable-download.ts:4",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:792, apps/web/components/DiagramDocumentWorkspace.vue:798, apps/web/components/DiagramDocumentWorkspace.vue:83",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:792, apps/web/components/DiagramDocumentWorkspace.vue:798, apps/web/components/DiagramDocumentWorkspace.vue:83",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:850",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:850",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M010.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-6efc1208-114c-4925-9465-38d49be3b6a5.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-6efc1208-114c-4925-9465-38d49be3b6a5.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T05:48:41.209Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Five independent source error/recovery/readonly/no-preview specimens; no blank replacement or fabricated editing capability.",
+    "concerns": []
+  },
+  "sha256": "b368997a6e90a842c58deca201ead0b672707239c9bfde3ff0261748e98c93cf",
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  },
+  "bytes": 1283323,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived exact error/recovery examples; no save/commit/recovery or browser inert runtime tested."
+}

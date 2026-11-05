@@ -1,0 +1,29 @@
+{
+  "id": "note-history",
+  "title": "note-history",
+  "sourceIds": [
+    "WS-064"
+  ],
+  "width": 390,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "390-note-history.png",
+  "sha256": "f01aa5ae53097c868e4afc4d26102d940ad207edb7d797ae154872862ea06f31",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "buildFlags": {
+    "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+  },
+  "status": "captured",
+  "pageErrors": [],
+  "targetBounds": {
+    "x": 6,
+    "y": 6,
+    "width": 378,
+    "height": 832
+  },
+  "targetWithinViewport": true,
+  "outerOverflow": 0
+}

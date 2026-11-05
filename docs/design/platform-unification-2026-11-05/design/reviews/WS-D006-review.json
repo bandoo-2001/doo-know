@@ -1,0 +1,67 @@
+{
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-04T17:38:43.892541+00:00",
+  "method": "Actual generated PNG viewed in independent child context, compared to current component source, coverage/workspace.json, exact batch job, actual ToDoo screenshot and applicable baseline. No runtime behavior or absolute CSS precision asserted.",
+  "limitations": [
+    "Static raster cannot verify action execution, focus, keyboard behavior, accessible names, busy guards or actual role enforcement.",
+    "Only the selected coherent state is represented; linked state matrices cover incompatible variants."
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-tool-contract",
+    "required": "gpt-image-2",
+    "perCallModelIdentityReceiptExposed": false
+  },
+  "assetId": "WS-D006",
+  "verdict": "needs-revision",
+  "functionalFindings": [],
+  "styleFindings": [
+    {
+      "id": "WS-D006-S01",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The full desktop concept omits the shared horizontal global header altogether and retains the old brand-at-sidebar-top structure. This is a missing hierarchy region against the agreed ToDoo header/two-level contract, independent of exact pixel proportions.",
+      "evidence": [
+        "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+        "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-01-overview.png"
+      ]
+    },
+    {
+      "id": "WS-D006-S02",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Required source ID/title/owner role/selected-state caption outside product UI is absent from the delivered full page. Metadata does not make this visibly documented artifact requirement present.",
+      "evidence": [
+        ".superpowers/sdd/2026-11-05-platform-ui-unification/workspace-batch-01.json#WS-D006"
+      ]
+    },
+    {
+      "id": "WS-D006-S03",
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Slight raster texture and blue shading should not become implementation styling. Geometry and colors here are illustrative, not precise CSS measurements."
+    },
+    {
+      "id": "WS-D006-S04",
+      "severity": "observation",
+      "blocking": false,
+      "finding": "Functional content is preserved for this populated state: breadcrumb, folder/note counts, name/type/modified columns, per-row more controls, new-note/new-folder/import actions, table helper, existing owner rail and contextual tree. Fictional rows and dates are acceptable data variations."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/workspace-batch-01.json#WS-D006",
+    "docs/design/platform-unification-2026-11-05/coverage/workspace.json#WS-006",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/Workspace.vue:3394",
+    "apps/web/components/Workspace.vue:3440",
+    "apps/web/components/WorkspaceFooter.vue:31",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-folder.png",
+    "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-01-overview.png"
+  ],
+  "requiredCorrections": [
+    "Adopt the shared horizontal global header with DooKnow identity and existing context, preserving all existing owner navigation/actions.",
+    "Add the required concise source/title/owner/selected-state caption in a separate outer margin."
+  ],
+  "reviewedImageSha256": "bee531cf7da65bb6e90ed24a378f44fd1625015c7755226c57c2e1ccd7006332",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D006.png",
+  "metadataExists": true
+}

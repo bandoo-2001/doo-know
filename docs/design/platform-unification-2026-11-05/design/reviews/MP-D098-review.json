@@ -1,0 +1,63 @@
+{
+  "assetId": "MP-D098",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:35:25.722465+00:00",
+  "method": "Actual final PNG viewed and compared to real empty blog baseline, complete submitted prompt/history, GEN-005 contract and current templates/models/service guards. Source-derived selected detail is not treated as runtime evidence.",
+  "selectedState": "Source-derived owner one selected never-published clean draft; site disabled; secondary fields expanded, preview closed",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "One selected synthetic draft matches left count/title/summary/taxonomy and right linked source/title/badge. Actual baseline is empty host reference only; selected form declared source-derived rather than runtime captured.",
+    "Clean metadata status, disabled save, enabled private in-page preview (eye corrected), explicit publish and forward edit-original action consistent. No publish-update/withdraw or preview content in closed never-published draft state.",
+    "All seven metadata bindings retained: title, summary, category, tags, cover, pinned and slug. Expanded cover subsection also retains actual image-choice/upload/crop entry and source-attachment-choice action, without opening hidden crop/file/asset dialogs.",
+    "Never-published slug remains editable; copy disabled for null post.url agrees with service.describe requiring published and enabled before returning public URL. No hidden CAS/version/hash input.",
+    "Site-off publication note, graph-preview timing, remove-draft and never-published status retained. Metadata save, note save, explicit publish snapshot and site-enable remain independent source behavior."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Native long image is 948×1660; all fields and bottom actions were readable in this review. It is not measured evidence of 1440-CSS-pixel desktop density/fit. Keep real source responsive, scrolling and shared CSS token behavior when implemented."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-005.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D098.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/BlogWorkspace.vue:508",
+    "apps/web/components/BlogWorkspace.vue:551",
+    "apps/web/components/BlogWorkspace.vue:588",
+    "apps/web/components/BlogWorkspace.vue:635",
+    "apps/web/components/blog/BlogArticleCover.vue:55",
+    "apps/web/components/blog/BlogImageEditor.vue:109",
+    "apps/web/blog-workbench.ts:226",
+    "packages/core/blog/service.ts:225",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "f09a229f4601bf547bebabd6d436f9447cfe3a024c3644882a0b4104e3398e6e",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D098.png",
+  "sourceIds": [
+    "PB-032"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

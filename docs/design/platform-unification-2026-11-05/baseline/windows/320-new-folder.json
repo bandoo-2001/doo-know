@@ -1,0 +1,29 @@
+{
+  "id": "new-folder",
+  "title": "new-folder",
+  "sourceIds": [
+    "WS-012"
+  ],
+  "width": 320,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "320-new-folder.png",
+  "sha256": "c457e17264142205110f0be82e8424869b80f775cdeeeef6eb6e2bf39f4f6785",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "buildFlags": {
+    "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+  },
+  "status": "captured",
+  "pageErrors": [],
+  "targetBounds": {
+    "x": 14,
+    "y": 249.015625,
+    "width": 292,
+    "height": 345.953125
+  },
+  "targetWithinViewport": true,
+  "outerOverflow": 0
+}

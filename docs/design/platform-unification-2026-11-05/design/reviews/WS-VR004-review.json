@@ -1,0 +1,132 @@
+{
+  "assetId": "WS-VR004",
+  "sourceIds": [
+    "RTD-009"
+  ],
+  "reviewer": "independent platform_review_gen048, exclusively assigned GEN049 WS-VR001..004",
+  "reviewedAtUtc": "2026-11-05T10:05:06.537941+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed through tools.view_image; full actual submittedPrompt and exact input duties read, all actual input mothers viewed and SHA-matched to their existing reviews; actual selected runtime baselines viewed; current locked Excalidraw0.18.1 compiled source, platform mount, owner editability and previous targeted vendor-resolution evidence compared. Static content/design review only; no new runtime interaction/tests.",
+  "actualViewMethod": {
+    "tool": "tools.view_image",
+    "image": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-VR004.png",
+    "detail": "high",
+    "boardPanelsActuallyViewed": [
+      "A",
+      "B"
+    ]
+  },
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-VR004.png",
+  "reviewedImageSha256": "7d2f68717a2db1ba12ee5906cabde0d3f248a7a03a150f748e62b29bf355ae4d",
+  "reviewedSidecarSha256": "2f0aa3dec73a030e44e7a2784a68247c6f7cd427336985a5dd6f95a0096b9280",
+  "reviewedManifestSha256": "c858cdc33ed20c9bfa0574bd71a76a8e7d84dd1607baca580c20a4ff366e5490",
+  "submissionReview": {
+    "completeSubmittedPromptRead": true,
+    "submittedPromptSha256": "980538dd38757dba8e6244f7511277d6e92a1c7c7ecefe9ac34f5fd45c06acd5",
+    "actualToolArgumentsAndAttemptPromptMatch": true,
+    "defaultToolOutputPathRecorded": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-b9b3f45c-cef6-416f-8875-8c3e9354d778.png",
+    "nativeToolOutputBytesMatchReviewedPng": true
+  },
+  "inputImageChecks": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V005.png",
+      "role": "supporting reference",
+      "sha256": "0afd71fcff43873851b61e9d2b950ab7899b90b7e6a1f4bdea5ad2ee9582f630",
+      "dimensions": {
+        "width": 1505,
+        "height": 1045
+      },
+      "viewedBeforeSubmission": true,
+      "actualSha256": "0afd71fcff43873851b61e9d2b950ab7899b90b7e6a1f4bdea5ad2ee9582f630",
+      "actuallyViewedByReviewer": true,
+      "matchingPriorReview": {
+        "path": "docs/design/platform-unification-2026-11-05/design/reviews/WS-V005-review.json",
+        "sha256": "8dfc91beffe46175a7bdb1ea8cf7200bf5ec98d0c02df0438593be2e94475e3a",
+        "verdict": "pass"
+      }
+    },
+    {
+      "order": 2,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-mermaid-insert-dialog.png",
+      "role": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion.",
+      "sha256": "d64dd88002b3fd61a8c2a2b5487f716efa94ae0a6bf227fa3e87270c60f5910a",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "viewedBeforeSubmission": true,
+      "actualSha256": "d64dd88002b3fd61a8c2a2b5487f716efa94ae0a6bf227fa3e87270c60f5910a",
+      "actuallyViewedByReviewer": true
+    }
+  ],
+  "baselineChecks": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-mermaid-insert-dialog.png",
+      "sha256": "d64dd88002b3fd61a8c2a2b5487f716efa94ae0a6bf227fa3e87270c60f5910a",
+      "actuallyViewed": true,
+      "role": "actual before-unification behavior/content/selected-state evidence; not target style or new runtime acceptance"
+    }
+  ],
+  "selectedState": "Use case:ui-mockup. 两个独立手机局部“Mermaid 至 Excalidraw”对话框A390/B320，高保真中文、白底浅灰细线8px圆角蓝色，普通字号；依据输入图1真实完整组件和图2当前手机baseline。顶部标题与右上×关闭固定可达。说明“目前仅支持流程图、序列图和类图。其他类型在 Excalidraw 中将以图像呈现。”其中流程图/序列图/类图真实蓝色文档链接。内容从上到下堆叠：label Mermaid 语法，textarea内实际vendor默认六行：flowchart TD\\n A[Christmas] -->|Get money| B(Go shopping)\\n B --> C{Let me think}\\n C -->|One| D[Laptop]\\n C -->|Two| E[iPhone]\\n C -->|Three| F[Car]。长代码只在textarea内部横向滚动，不压字号、不删字。其下label预览，棋盘格预览区有加载spinner（保持打开时尚在生成的真实状态）。预览区下方蓝色“插入 →”可达，旁Ctrl Enter快捷键。手机模态内部纵向滚动而关闭与底部插入可达，不显示外部宿主/底部应用导航/设备框，不画转换已完成或已插入。无新增清空/导入文件/选择模板按钮。",
+  "fieldActionRoleStateChecks": [
+    "A/B retain local Mermaid-to-Excalidraw title/close, exact support description with3 documentation links, Mermaid syntax label and actual vendor six-line default flowchart. Narrow textarea soft wrapping/clipping retains the input value; use actual source font/textarea overflow without shrinking code.",
+    "Then preview with loader/checkerboard, and reachable insert-arrow/Ctrl Enter action in source order. This is the default opened-but-not-converted fixture, not a rendered/inserted canvas result. No clear/template/import-file controls or external host added.",
+    "Current TTDDialogPanel defaults panelActionDisabled=false and MermaidToExcalidraw supplies no loading disable, so a blue Insert alongside library-loading spinner is source-consistent. insertToEditor is a no-op while its data has no elements; do not infer conversion success from enabled styling.",
+    "Default example and initial loading state matched with actual390 baseline, reviewed WS-V005 full mother and locked MermaidToExcalidraw/TTDDialogInput/Output/Panel. Documentation links not followed; Insert never invoked. No hidden protocol/API field or new editing permission is introduced."
+  ],
+  "functionalFindings": [],
+  "requiredCorrections": [],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster shading/texture/approximate geometry are illustrative. Implement shared flat CSS palette, thin borders and8px corners; use actual source focus/dismissal/keyboard/conditional guards. Normal text is readable on this design board, which does not measure physical320/390 layout or interaction."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-049.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-VR004.json",
+    "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/whiteboards/canvas.ts:36",
+    "apps/web/components/DiagramDocumentWorkspace.vue:185",
+    "docs/design/platform-unification-2026-11-05/reviews/vendor-attempt-resolution.md",
+    "docs/design/platform-unification-2026-11-05/reviews/vendor-attempt-resolution.json",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:18580",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:18443",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:18494",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:18539",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:18408"
+  ],
+  "currentSourceSha256": {
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js": "e10e24df153077770849c7d68f9a8f5db3bb1eb1576d909d1e3c9a5b024d1882",
+    "node_modules/@excalidraw/excalidraw/dist/prod/index.js": "7f651063487849c79a8cdedc3aa6bd04c6b0c717ee63959116f1f12dbc0a51b8",
+    "node_modules/@excalidraw/excalidraw/package.json": "402f54fc7de128b25d22bd4d905fb46dbcdbe2ce6efee567d4da0fc79a29aab1",
+    "package-lock.json": "e224c40bae0c0b2519d0ef5ef956d7fd39e029fb88f27f7bfa7a344462e8d20f",
+    "apps/web/whiteboards/canvas.ts": "421649c508e3da5a25da20249dcbf1fdb889f8efa9f2a3b6adf30440377ab352",
+    "apps/web/components/DiagramDocumentWorkspace.vue": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+  },
+  "vendorRuntimeResolution": {
+    "lockedPackageVersion": "0.18.1",
+    "matchesPriorResolutionSourceHashes": true,
+    "commandPalette": "not mounted by current integration; help may advertise the read-only shortcut",
+    "mobileStats": "not rendered in mobile branch; no phone stats panel authorized",
+    "mobileSidebarGap": "RTD-G01 remains an implementation/runtime issue; bounded artwork does not close it"
+  },
+  "permissionAndPersistenceChecks": [
+    "These are local controls inside the authenticated-owner whiteboard design editor. DiagramDocumentWorkspace mounts only design mode with resource.capabilities.canEdit and no recovered draft; vendor changes call parent editSource through the active epoch guard. No separate admin/member role or public editing capability is introduced.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage are disabled by canvas.ts. App-owned commit/export flows stay separate and are not declared executed by these local menus.",
+    "External links, OS library file picker, embedding, insertion, keyboard commands and persistence were not invoked. No real library callback token, live note content or secret is displayed."
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static PNG and source inspection do not prove physical phone fit/scrolling, focus/keyboard/dismissal behavior, successful actions/conversion, resource permissions enforcement or server/API outcomes.",
+    "Current per-image content verdict does not pass platform-wide coverage/style/provenance gates or authorize implementation.",
+    "Original runtime unsuccessful/offscreen observations remain unchanged; no new browser run or test was performed."
+  ]
+}

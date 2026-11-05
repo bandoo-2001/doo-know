@@ -1,0 +1,398 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D105",
+  "assetId": "MP-D105",
+  "sourceIds": [
+    "PB-040"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-040",
+      "title": "博客管理：站点设置",
+      "role": "authenticated owner",
+      "state": "Actual saved site-off settings baseline, toggle off, default empty fields and light theme, about section fully revealed by longer design canvas"
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "Actual saved site-off settings baseline, toggle off, default empty fields and light theme, about section fully revealed by longer design canvas",
+  "sourceDerived": false,
+  "baselineStatus": "actual-captured-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作完整中文博客站点设置长页，约1440×1400，必须显示底部关于字段及保存栏，不能照抄基线被页脚挡住的下部。完整DooKnow博客主人桌面页，约1440px宽，可延长画布保全字段。图1为真实博客内容/宿主/状态参考，图2仅配色密度，不借笔记界面的导航。实际窄博客rail仅顶部返回、概览、文章、装修主页、分类与标签，底部站点设置；不画账户O、笔记/最近/收藏、回收站、目录树。全局横页头保留现有书本博客、从笔记选稿，整理文章与自己的站点。、站点未开启badge、蓝色选择笔记。下方黄色站点尚未开启。你可以先准备文章，开启后已发布内容才会公开。与前往设置→，不画访问站点。站点设置rail选中。主标题站点设置、副文给你的文字，一个自己的家。公开访问卡：站点未开启badge、关闭toggle，说明保存后将关闭站点，访客无法访问博客。无未保存提示。\n下方按模板完整保留：基本信息卡，站点名称输入我的博客、站点简介空textarea placeholder这里记录了什么？、作者空输入placeholder你的名字；访问与外观卡，公开站点地址空输入placeholder https://example.com，提示用于订阅与站点地图中的绝对链接。，外观select当前浅色（只有跟随系统/浅色两项，不展开），主页布局、导航与展示模块可在「装修主页」中调整。及前往装修主页→。下面关于站点卡、向读者介绍你自己，以及这个博客的故事。、关于空textarea placeholder向读者介绍你自己和这个博客…。底部已保存状态站点设置已保存和正常可用保存站点设置。没有错误因此不画重新核对设置，无站点发布按钮，不加深色选项。平面白/浅灰表面，#272b3a正文、#657084次级、#e6e9f1细线、#4566c6主人主动作、#edf1ff选中、小圆角、清晰紧凑中文无衬线。保持实际主题色#44684f配置；无纹理渐变、浏览器外壳或开发注解。caption仅metadata。",
+  "prompt": "制作完整中文博客站点设置长页，约1440×1400，必须显示底部关于字段及保存栏，不能照抄基线被页脚挡住的下部。完整DooKnow博客主人桌面页，约1440px宽，可延长画布保全字段。图1为真实博客内容/宿主/状态参考，图2仅配色密度，不借笔记界面的导航。实际窄博客rail仅顶部返回、概览、文章、装修主页、分类与标签，底部站点设置；不画账户O、笔记/最近/收藏、回收站、目录树。全局横页头保留现有书本博客、从笔记选稿，整理文章与自己的站点。、站点未开启badge、蓝色选择笔记。下方黄色站点尚未开启。你可以先准备文章，开启后已发布内容才会公开。与前往设置→，不画访问站点。站点设置rail选中。主标题站点设置、副文给你的文字，一个自己的家。公开访问卡：站点未开启badge、关闭toggle，说明保存后将关闭站点，访客无法访问博客。无未保存提示。\n下方按模板完整保留：基本信息卡，站点名称输入我的博客、站点简介空textarea placeholder这里记录了什么？、作者空输入placeholder你的名字；访问与外观卡，公开站点地址空输入placeholder https://example.com，提示用于订阅与站点地图中的绝对链接。，外观select当前浅色（只有跟随系统/浅色两项，不展开），主页布局、导航与展示模块可在「装修主页」中调整。及前往装修主页→。下面关于站点卡、向读者介绍你自己，以及这个博客的故事。、关于空textarea placeholder向读者介绍你自己和这个博客…。底部已保存状态站点设置已保存和正常可用保存站点设置。没有错误因此不画重新核对设置，无站点发布按钮，不加深色选项。平面白/浅灰表面，#272b3a正文、#657084次级、#e6e9f1细线、#4566c6主人主动作、#edf1ff选中、小圆角、清晰紧凑中文无衬线。保持实际主题色#44684f配置；无纹理渐变、浏览器外壳或开发注解。caption仅metadata。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-settings.png",
+      "role": "Actual matching baseline: content/role/host geometry authority; selected tab continuation source-derived when explicitly declared",
+      "sha256": "eccd7d09c3724a2577a6bbdc69b5314a8bee7880ff21584827f52139e7307f70",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Shared palette/density only; actual blog role-specific shell and configured accent take precedence",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-settings.png",
+      "role": "Actual matching baseline: content/role/host geometry authority; selected tab continuation source-derived when explicitly declared",
+      "sha256": "eccd7d09c3724a2577a6bbdc69b5314a8bee7880ff21584827f52139e7307f70",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Shared palette/density only; actual blog role-specific shell and configured accent take precedence",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作完整中文博客站点设置长页，约1440×1400，必须显示底部关于字段及保存栏，不能照抄基线被页脚挡住的下部。完整DooKnow博客主人桌面页，约1440px宽，可延长画布保全字段。图1为真实博客内容/宿主/状态参考，图2仅配色密度，不借笔记界面的导航。实际窄博客rail仅顶部返回、概览、文章、装修主页、分类与标签，底部站点设置；不画账户O、笔记/最近/收藏、回收站、目录树。全局横页头保留现有书本博客、从笔记选稿，整理文章与自己的站点。、站点未开启badge、蓝色选择笔记。下方黄色站点尚未开启。你可以先准备文章，开启后已发布内容才会公开。与前往设置→，不画访问站点。站点设置rail选中。主标题站点设置、副文给你的文字，一个自己的家。公开访问卡：站点未开启badge、关闭toggle，说明保存后将关闭站点，访客无法访问博客。无未保存提示。\n下方按模板完整保留：基本信息卡，站点名称输入我的博客、站点简介空textarea placeholder这里记录了什么？、作者空输入placeholder你的名字；访问与外观卡，公开站点地址空输入placeholder https://example.com，提示用于订阅与站点地图中的绝对链接。，外观select当前浅色（只有跟随系统/浅色两项，不展开），主页布局、导航与展示模块可在「装修主页」中调整。及前往装修主页→。下面关于站点卡、向读者介绍你自己，以及这个博客的故事。、关于空textarea placeholder向读者介绍你自己和这个博客…。底部已保存状态站点设置已保存和正常可用保存站点设置。没有错误因此不画重新核对设置，无站点发布按钮，不加深色选项。平面白/浅灰表面，#272b3a正文、#657084次级、#e6e9f1细线、#4566c6主人主动作、#edf1ff选中、小圆角、清晰紧凑中文无衬线。保持实际主题色#44684f配置；无纹理渐变、浏览器外壳或开发注解。caption仅metadata。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-settings.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-006.json#MP-D105",
+  "sourceReferences": [
+    {
+      "sourceId": "PB-040",
+      "parentId": "PB-030",
+      "route": "/?view=apps&app=blog&appSection=settings",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:897",
+        "apps/web/blog-workbench.ts:324",
+        "packages/core/blog/service.ts:568"
+      ]
+    }
+  ],
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D105",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "generationCallCount": 1,
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-b549d2a0-3a55-43aa-bfe6-f5c879d217b9.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D105.png",
+  "sha256": "963aae4ee08561e0bf3b1258104d108305f4eeeadb40347092801ba77d6a2d49",
+  "dimensions": {
+    "width": 1073,
+    "height": 1466
+  },
+  "bytes": 1203797,
+  "generatedAtUtc": "2026-11-05T01:46:52.406978+00:00",
+  "postprocessing": "Original built-in tool PNG copied byte-for-byte; no pixel editing.",
+  "revisionOf": null,
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "博客管理：站点设置",
+    "sourceIds": [
+      "PB-040"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Actual saved site-off settings baseline, toggle off, default empty fields and light theme, about section fully revealed by longer design canvas",
+    "location": "metadata, outside product UI"
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-040",
+      "parentId": "PB-030",
+      "route": "/?view=apps&app=blog&appSection=settings",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:897",
+        "apps/web/blog-workbench.ts:324",
+        "packages/core/blog/service.ts:568"
+      ]
+    }
+  ],
+  "sourceStateAndActionContracts": {
+    "functionalInvariants": [
+      {
+        "sourceId": "PB-040",
+        "route": "/?view=apps&app=blog&appSection=settings",
+        "trigger": "Blog navigation or site-off banner",
+        "parentId": "PB-030",
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+        ],
+        "fields": [
+          {
+            "name": "enabled",
+            "type": "checkbox",
+            "required": true,
+            "constraints": "takes effect on save; closes all public blog pages when false",
+            "sensitive": false
+          },
+          {
+            "name": "title",
+            "type": "text",
+            "required": true,
+            "constraints": "UI<=120; API<=256",
+            "sensitive": false
+          },
+          {
+            "name": "description",
+            "type": "textarea",
+            "required": false,
+            "constraints": "UI<=500; API<=2000",
+            "sensitive": false
+          },
+          {
+            "name": "author",
+            "type": "text",
+            "required": false,
+            "constraints": "UI<=120; API<=256",
+            "sensitive": false
+          },
+          {
+            "name": "baseUrl",
+            "type": "url",
+            "required": false,
+            "constraints": "API<=2048; HTTP(S) origin only; no credentials/path/query/hash",
+            "sensitive": false
+          },
+          {
+            "name": "theme",
+            "type": "select",
+            "required": true,
+            "constraints": "system or light only",
+            "sensitive": false
+          },
+          {
+            "name": "about",
+            "type": "textarea",
+            "required": false,
+            "constraints": "UI<=10000; API<=50000; sanitized Markdown for public about",
+            "sensitive": false
+          }
+        ],
+        "importantStates": [
+          "saved enabled badge and independently edited toggle",
+          "dirty status; saving; successful enabled/disabled receipt",
+          "version conflict/error; review latest preserves local changes"
+        ],
+        "notes": [
+          "Blog site settings are separate from platform/account settings. No unsupported explicit dark option: system can follow OS dark."
+        ]
+      },
+      {
+        "type": "composition",
+        "details": [
+          "主人站点设置完整长页：enabled、title、description、author、baseUrl、system/light、about Markdown，保存/重新核对/去装修。草稿toggle不是已保存启用。"
+        ]
+      },
+      {
+        "type": "role-shell",
+        "rule": "所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。"
+      }
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "PB-040",
+        "label": "保存站点设置",
+        "effect": "CAS save full settings",
+        "api": "PATCH /api/blog/settings",
+        "guard": "not settingsBusy; version matches"
+      },
+      {
+        "sourceId": "PB-040",
+        "label": "重新核对设置",
+        "effect": "Reload latest and merge retained draft",
+        "api": "GET /api/blog/settings",
+        "guard": "not settingsBusy"
+      },
+      {
+        "sourceId": "PB-040",
+        "label": "前往装修主页",
+        "effect": "Navigate design section",
+        "api": "",
+        "guard": ""
+      }
+    ],
+    "responsiveContract": [
+      {
+        "sourceId": "PB-040",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified.",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      }
+    ],
+    "otherVariantsDrawn": false
+  },
+  "selfInspection": {
+    "method": "Native generated PNG actually viewed in generation child context against all submitted image inputs and actual component templates.",
+    "concerns": [
+      "Static raster does not establish source/API execution, role enforcement, conditional guards, keyboard/focus, responsive fit or actual action outcomes.",
+      "Light raster shading/texture and approximate proportions are illustrative CSS guidance, not exact measured compliance.",
+      "Saved site-off badge and local off toggle remain coherent; about section below original captured viewport is completed from actual template. Save remains available because only busy disables it."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "sourceContracts": [
+    {
+      "id": "PB-040",
+      "title": "博客管理：站点设置",
+      "kind": "page",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=settings",
+        "trigger": "Blog navigation or site-off banner",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:897",
+        "apps/web/blog-workbench.ts:324",
+        "packages/core/blog/service.ts:568"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "enabled",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "takes effect on save; closes all public blog pages when false",
+          "sensitive": false
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "required": true,
+          "constraints": "UI<=120; API<=256",
+          "sensitive": false
+        },
+        {
+          "name": "description",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=500; API<=2000",
+          "sensitive": false
+        },
+        {
+          "name": "author",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; API<=256",
+          "sensitive": false
+        },
+        {
+          "name": "baseUrl",
+          "type": "url",
+          "required": false,
+          "constraints": "API<=2048; HTTP(S) origin only; no credentials/path/query/hash",
+          "sensitive": false
+        },
+        {
+          "name": "theme",
+          "type": "select",
+          "required": true,
+          "constraints": "system or light only",
+          "sensitive": false
+        },
+        {
+          "name": "about",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=10000; API<=50000; sanitized Markdown for public about",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存站点设置",
+          "effect": "CAS save full settings",
+          "api": "PATCH /api/blog/settings",
+          "guard": "not settingsBusy; version matches"
+        },
+        {
+          "label": "重新核对设置",
+          "effect": "Reload latest and merge retained draft",
+          "api": "GET /api/blog/settings",
+          "guard": "not settingsBusy"
+        },
+        {
+          "label": "前往装修主页",
+          "effect": "Navigate design section",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "saved enabled badge and independently edited toggle",
+        "dirty status; saving; successful enabled/disabled receipt",
+        "version conflict/error; review latest preserves local changes"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-admin-visual.spec.ts:6",
+        "tests/blog-workbench.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Blog site settings are separate from platform/account settings. No unsupported explicit dark option: system can follow OS dark."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "baselineScope": "Selected full matching capture"
+}

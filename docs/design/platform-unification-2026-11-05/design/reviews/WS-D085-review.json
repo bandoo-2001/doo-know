@@ -1,0 +1,50 @@
+{
+  "assetId": "WS-D085",
+  "sourceIds": [
+    "WS-113"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:46:13.713691+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner deep ancestry popup open for30-Knowledge/学习/主题/示例笔记.md; first ancestor focused.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual breadcrumb cue maps root/ellipsis/current parent/current basename correctly.",
+    "Exactly three existing ancestors appear root-to-deep with basename and full path; first has focus outline, no current-file extra row/copy/add/path-edit control.",
+    "Source Escape/focus-return/relativePath close/navigation leave guards remain implementation contracts."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Illustrative raster has a small popover pointer although source explicitly sets show-arrow=false. Keep the source arrowless popover when implementing; this does not change fields/actions/role and does not justify another raster iteration."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-014.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D085.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/DocumentBreadcrumb.vue:11",
+    "apps/web/components/DocumentBreadcrumb.vue:54",
+    "apps/web/components/DocumentBreadcrumb.vue:76"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "49b395bb99ba3105357d09ad5404b1857fc93321937b5ac22ced112301fb0602",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D085.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

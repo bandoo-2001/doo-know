@@ -1,0 +1,107 @@
+{
+  "assetId": "WS-R035",
+  "sourceIds": [
+    "WS-087"
+  ],
+  "reviewer": "independent platform_review_gen048 child agent, exclusively assigned eight GEN048 responsive assets",
+  "reviewedAtUtc": "2026-11-05T09:25:24.930457+00:00",
+  "verdict": "pass",
+  "method": "Actual current PNG viewed using tools.view_image in this independent context; complete actual submittedPrompt and GEN048 source contracts compared with actual input mother/baseline images, matching existing mother SHA reviews, current Vue templates/handlers/CSS and server/API policy sources. Static content review only; no generation or runtime tests.",
+  "actualViewMethod": {
+    "tool": "tools.view_image",
+    "image": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R035.png",
+    "detail": "high",
+    "boardPanelsActuallyViewed": [
+      "A",
+      "B"
+    ]
+  },
+  "reviewedImageSha256": "13e9dbe362ed74bd3a7041fd8a3cd564d4ddeaf80e170b496289615a5224fbaf",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-R035.png",
+  "reviewedSidecarSha256": "b4bc8f536bd0fbdbc6ff3805ba2e4f264bb81e449d0708f6354dbbabc95e04ae",
+  "reviewedManifestSha256": "7f3fc0492e62f25af38e6dc0c0135db54d73fed95d3c1554e71f632cfb9a2474",
+  "submissionReview": {
+    "completeSubmittedPromptRead": true,
+    "submittedPromptSha256": "47aecad26a20c8e45718d45281d7f40ced2612c90221f3fe638abf07c29c1287",
+    "actualToolArgumentsPromptMatchesReceipt": true,
+    "observedReceiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-6.json",
+    "receiptOutputBytesMatchReviewedPng": true
+  },
+  "inputImageChecks": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D063.png",
+      "order": 1,
+      "role": "complete approved exact filter/path fields and order",
+      "sha256": "f01f8afb5c2c0019668297f75eaf515ea5f78174b08c364bb36f8d5d4da4e140",
+      "bytes": 1127786,
+      "dimensions": {
+        "width": 1089,
+        "height": 1444
+      },
+      "actualSha256": "f01f8afb5c2c0019668297f75eaf515ea5f78174b08c364bb36f8d5d4da4e140",
+      "actuallyViewed": true,
+      "roleChecked": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "actualSha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "actuallyViewed": true,
+      "roleChecked": true
+    }
+  ],
+  "selectedState": [
+    "390 filters upper scroll including similarity true",
+    "320 same expanded path/range lower scroll"
+  ],
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "A upper body preserves directory, node-kind multi-select, edge-kind multi-select, three relationship checkboxes in source order, conditional similarity=true threshold 0.65 and exact explanatory text.",
+    "B lower body continues with confidence 0%, expanded path/range, color by type, source/target selects, integer limit80 and find-path action. Internal scrollbar/continued positions and close controls are clear; fields are not removed to fit.",
+    "Complete unseen counterpart fields bind to reviewed WS-D063 SHA f01f8afb5c2c0019668297f75eaf515ea5f78174b08c364bb36f8d5d4da4e140, visually inspected. 0.65 and 0% are read-only ATag outputs of sliders, not extra editable numeric inputs; only limit is the number field.",
+    "Filter changes and find-path use GET /api/graph/explore; server query kinds/depth/limit/confidence validation retained. No apply/reset/cancel action added."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster shading, slight texture, rounded proportions and intended390/320 geometry are approximate. Implement flat shared CSS colors/borders/8px corners and readable source-sized text; do not reproduce raster gradients or infer exact responsive fit from this board."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-048.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R035.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/app.ts:141",
+    "apps/web/components/GraphWorkspace.vue:836",
+    "apps/server/graph/semantic-routes.ts:62",
+    "apps/web/components/graph/GraphOverlay.vue:36",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D063-review.json"
+  ],
+  "currentSourceSha256": {
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    "apps/server/graph/semantic-routes.ts": "0f4d81250bee2aa5d27fdfd65bb5209f52525fdec1275f8ac680e17f7ea8f12a",
+    "apps/web/components/GraphWorkspace.vue": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e",
+    "apps/web/components/graph/GraphOverlay.vue": "0261e8d7dfde8c21c24a5793144b7ce2cb00fbbec49c05ec70d25d8af57439cd"
+  },
+  "requiredCorrections": [],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false,
+    "limitations": "The tool does not expose a per-call physical model identity receipt; none is claimed."
+  },
+  "limitations": [
+    "Only these actual image bytes and their declared compatible selected state received static content review. Source-derived data are examples, not captured API/model outcomes.",
+    "A static PNG cannot prove physical320/390 scrolling or safe viewport, source focus trapping/return, keyboard/Escape, busy/dirty/version guards, action execution, persistence, permissions enforcement, live model/clipboard behavior or exact canvas topology.",
+    "Unshown alternative loading/error/unavailable/conflict/role variants retain their individual source contracts and mother mappings; this verdict does not claim their simultaneous presence.",
+    "Per-image content verdict does not pass platform-wide consistency/coverage/provenance gates or authorize product implementation."
+  ]
+}

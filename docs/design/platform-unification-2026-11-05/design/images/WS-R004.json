@@ -1,0 +1,803 @@
+{
+  "assetId": "WS-R004",
+  "sourceIds": [
+    "WS-007",
+    "WS-008"
+  ],
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "responsive-board",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-007",
+      "title": "Recent notes collection",
+      "role": "authenticated owner",
+      "state": "Same full CollectionWorkspace feed at this labeled width: virtualized card grid, exact create/refresh/card/context/load-more controls. Favorites substitutes title/data/empty text only.",
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reuseSourceIds": [
+        "WS-008"
+      ]
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-007",
+      "title": "Recent notes collection",
+      "role": "authenticated owner",
+      "state": "Same full CollectionWorkspace feed at this labeled width: virtualized card grid, exact create/refresh/card/context/load-more controls. Favorites substitutes title/data/empty text only.",
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "reuseSourceIds": [
+        "WS-008"
+      ]
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "Use case:ui-mockup. 两个独立完整中文手机页面，A390px B320px，普通可读字号，真实正文纵向滚动与底部固定导航，不用手机外壳。样式参考1仅扁平白底、浅灰面、蓝色#4566c6、细边框、小8px圆角。保持DooKnow所有者宿主顶部汉堡/DooKnow/私人笔记，底部笔记/最近/收藏/应用/更多各自真实选中。图2起是现有内容参考。A390展示最近列表，有我的笔记/最近、刷新icon、新建笔记，3篇笔记·按最近修改排序；两张真实可打开卡片“知识与行动”“搭建自己的知识库”，摘要合成“用于平台界面盘点的隔离示例，不含用户资料。”卡片底部目录00-Inbox、时间11/4 16:35、空星收藏按钮、⋯更多按钮；列表内滚动，底部已加载2/3篇和加载更多笔记按钮。最近tab选中。B320展示收藏空列表，标题我的笔记/收藏，刷新icon和新建笔记，0篇笔记·按最近修改排序；星图标，空态“把值得回看的笔记收藏在这里”“在笔记或卡片上点击星标，就能在这里快速找到。”收藏tab选中。不要把sidebar列表的查看全部按钮移入CollectionWorkspace。",
+  "sourceContracts": [
+    {
+      "id": "WS-007",
+      "title": "Recent notes collection",
+      "kind": "page",
+      "module": "collections",
+      "entry": {
+        "route": "/?view=recent",
+        "trigger": "Main navigation recent",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/CollectionWorkspace.vue:132",
+        "apps/web/components/NoteCollection.vue:1",
+        "apps/web/collection-window.ts:1",
+        "apps/server/app.ts:234"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新",
+          "effect": "Refresh collection feed",
+          "api": "GET /api/collections/status; GET /api/collections",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "新建笔记",
+          "effect": "Open note creation",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "打开 / 收藏 / 更多",
+          "effect": "Open note, toggle favorite or context menu",
+          "api": "PUT /api/notes/:id/favorite",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "加载更多笔记",
+          "effect": "Paginate collection feed",
+          "api": "GET /api/collections",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Initial loading",
+        "Empty recent/favorite tailored message",
+        "Summary ready/pending/unavailable",
+        "Virtualized cards",
+        "Feed updated banner",
+        "Load error/retry",
+        "End of list"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "ResizeObserver computes 1–5 columns floor((contentWidth+16)/240); cards are 252px tall with overscan. <=600px heading/scroll paddings shrink; runtime target widths unverified."
+      },
+      "testRefs": [
+        "tests/note-collections.test.ts",
+        "tests/e2e/note-collections.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-008",
+      "title": "Favorite notes collection",
+      "kind": "page",
+      "module": "collections",
+      "entry": {
+        "route": "/?view=favorites",
+        "trigger": "Main navigation favorites",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/CollectionWorkspace.vue:132",
+        "apps/web/components/NoteCollection.vue:1",
+        "apps/web/collection-window.ts:1",
+        "apps/server/app.ts:234"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新",
+          "effect": "Refresh collection feed",
+          "api": "GET /api/collections/status; GET /api/collections",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "新建笔记",
+          "effect": "Open note creation",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "打开 / 收藏 / 更多",
+          "effect": "Open note, toggle favorite or context menu",
+          "api": "PUT /api/notes/:id/favorite",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "加载更多笔记",
+          "effect": "Paginate collection feed",
+          "api": "GET /api/collections",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Initial loading",
+        "Empty recent/favorite tailored message",
+        "Summary ready/pending/unavailable",
+        "Virtualized cards",
+        "Feed updated banner",
+        "Load error/retry",
+        "End of list"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "ResizeObserver computes 1–5 columns floor((contentWidth+16)/240); cards are 252px tall with overscan. <=600px heading/scroll paddings shrink; runtime target widths unverified."
+      },
+      "testRefs": [
+        "tests/note-collections.test.ts",
+        "tests/e2e/note-collections.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "originalManifestContract": {
+    "id": "WS-R004",
+    "title": "Recent notes collection / Favorite notes collection",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-007",
+      "WS-008"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-007",
+        "title": "Recent notes collection",
+        "role": "authenticated owner",
+        "state": "Same full CollectionWorkspace feed at this labeled width: virtualized card grid, exact create/refresh/card/context/load-more controls. Favorites substitutes title/data/empty text only.",
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "reuseSourceIds": [
+          "WS-008"
+        ]
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-007",
+        "title": "Recent notes collection",
+        "role": "authenticated owner",
+        "state": "Same full CollectionWorkspace feed at this labeled width: virtualized card grid, exact create/refresh/card/context/load-more controls. Favorites substitutes title/data/empty text only.",
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "reuseSourceIds": [
+          "WS-008"
+        ]
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/390-recent.png",
+        "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+      },
+      {
+        "path": "apps/web/components/CollectionWorkspace.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/CollectionWorkspace.vue:132, apps/web/components/NoteCollection.vue:1, apps/web/collection-window.ts:1, apps/server/app.ts:234"
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/390-favorites.png",
+        "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-007",
+        "label": "刷新",
+        "effect": "Refresh collection feed",
+        "api": "GET /api/collections/status; GET /api/collections",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-007",
+        "label": "新建笔记",
+        "effect": "Open note creation",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-007",
+        "label": "打开 / 收藏 / 更多",
+        "effect": "Open note, toggle favorite or context menu",
+        "api": "PUT /api/notes/:id/favorite",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-007",
+        "label": "加载更多笔记",
+        "effect": "Paginate collection feed",
+        "api": "GET /api/collections",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-008",
+        "label": "刷新",
+        "effect": "Refresh collection feed",
+        "api": "GET /api/collections/status; GET /api/collections",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-008",
+        "label": "新建笔记",
+        "effect": "Open note creation",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-008",
+        "label": "打开 / 收藏 / 更多",
+        "effect": "Open note, toggle favorite or context menu",
+        "api": "PUT /api/notes/:id/favorite",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-008",
+        "label": "加载更多笔记",
+        "effect": "Paginate collection feed",
+        "api": "GET /api/collections",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-R004",
+        "representation": "direct",
+        "reason": "Actual CollectionWorkspace feed geometry at390/320: cards, virtualized grid, feedback strip, action/pagination placement. Recent/favorite title/data/empty text and stale/error guards remain per-source.",
+        "reuseSourceId": "WS-007",
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "ResizeObserver computes 1–5 columns floor((contentWidth+16)/240); cards are 252px tall with overscan. <=600px heading/scroll paddings shrink; runtime target widths unverified."
+        },
+        "requiredFieldOrder": [],
+        "requiredFields": [],
+        "requiredActions": [
+          {
+            "label": "刷新",
+            "effect": "Refresh collection feed",
+            "api": "GET /api/collections/status; GET /api/collections",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "新建笔记",
+            "effect": "Open note creation",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "打开 / 收藏 / 更多",
+            "effect": "Open note, toggle favorite or context menu",
+            "api": "PUT /api/notes/:id/favorite",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "加载更多笔记",
+            "effect": "Paginate collection feed",
+            "api": "GET /api/collections",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-007"
+      },
+      {
+        "assetId": "WS-R004",
+        "representation": "shared-geometry",
+        "reason": "Actual CollectionWorkspace feed geometry at390/320: cards, virtualized grid, feedback strip, action/pagination placement. Recent/favorite title/data/empty text and stale/error guards remain per-source.",
+        "reuseSourceId": "WS-007",
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "ResizeObserver computes 1–5 columns floor((contentWidth+16)/240); cards are 252px tall with overscan. <=600px heading/scroll paddings shrink; runtime target widths unverified."
+        },
+        "requiredFieldOrder": [],
+        "requiredFields": [],
+        "requiredActions": [
+          {
+            "label": "刷新",
+            "effect": "Refresh collection feed",
+            "api": "GET /api/collections/status; GET /api/collections",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "新建笔记",
+            "effect": "Open note creation",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "打开 / 收藏 / 更多",
+            "effect": "Open note, toggle favorite or context menu",
+            "api": "PUT /api/notes/:id/favorite",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "加载更多笔记",
+            "effect": "Paginate collection feed",
+            "api": "GET /api/collections",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-008"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R004 Recent notes collection / Favorite notes collection\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-007\", \"title\": \"Recent notes collection\", \"role\": \"authenticated owner\", \"state\": \"Same full CollectionWorkspace feed at this labeled width: virtualized card grid, exact create/refresh/card/context/load-more controls. Favorites substitutes title/data/empty text only.\", \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. \", \"viewport\": {\"width\": 390, \"height\": 844}, \"reuseSourceIds\": [\"WS-008\"]}, {\"label\": \"B\", \"sourceId\": \"WS-007\", \"title\": \"Recent notes collection\", \"role\": \"authenticated owner\", \"state\": \"Same full CollectionWorkspace feed at this labeled width: virtualized card grid, exact create/refresh/card/context/load-more controls. Favorites substitutes title/data/empty text only.\", \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. \", \"viewport\": {\"width\": 320, \"height\": 844}, \"reuseSourceIds\": [\"WS-008\"]}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-007\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"刷新\", \"effect\": \"Refresh collection feed\", \"api\": \"GET /api/collections/status; GET /api/collections\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"新建笔记\", \"effect\": \"Open note creation\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"打开 / 收藏 / 更多\", \"effect\": \"Open note, toggle favorite or context menu\", \"api\": \"PUT /api/notes/:id/favorite\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"加载更多笔记\", \"effect\": \"Paginate collection feed\", \"api\": \"GET /api/collections\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Initial loading\", \"Empty recent/favorite tailored message\", \"Summary ready/pending/unavailable\", \"Virtualized cards\", \"Feed updated banner\", \"Load error/retry\", \"End of list\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-007\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"刷新\", \"effect\": \"Refresh collection feed\", \"api\": \"GET /api/collections/status; GET /api/collections\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"新建笔记\", \"effect\": \"Open note creation\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"打开 / 收藏 / 更多\", \"effect\": \"Open note, toggle favorite or context menu\", \"api\": \"PUT /api/notes/:id/favorite\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"加载更多笔记\", \"effect\": \"Paginate collection feed\", \"api\": \"GET /api/collections\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Initial loading\", \"Empty recent/favorite tailored message\", \"Summary ready/pending/unavailable\", \"Virtualized cards\", \"Feed updated banner\", \"Load error/retry\", \"End of list\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R004.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-007",
+        "title": "Recent notes collection",
+        "kind": "page",
+        "module": "collections",
+        "entry": {
+          "route": "/?view=recent",
+          "trigger": "Main navigation recent",
+          "parentId": "WS-001"
+        },
+        "sourceRefs": [
+          "apps/web/components/CollectionWorkspace.vue:132",
+          "apps/web/components/NoteCollection.vue:1",
+          "apps/web/collection-window.ts:1",
+          "apps/server/app.ts:234"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "fields": [],
+        "actions": [
+          {
+            "label": "刷新",
+            "effect": "Refresh collection feed",
+            "api": "GET /api/collections/status; GET /api/collections",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "新建笔记",
+            "effect": "Open note creation",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "打开 / 收藏 / 更多",
+            "effect": "Open note, toggle favorite or context menu",
+            "api": "PUT /api/notes/:id/favorite",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "加载更多笔记",
+            "effect": "Paginate collection feed",
+            "api": "GET /api/collections",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Initial loading",
+          "Empty recent/favorite tailored message",
+          "Summary ready/pending/unavailable",
+          "Virtualized cards",
+          "Feed updated banner",
+          "Load error/retry",
+          "End of list"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "ResizeObserver computes 1–5 columns floor((contentWidth+16)/240); cards are 252px tall with overscan. <=600px heading/scroll paddings shrink; runtime target widths unverified."
+        },
+        "testRefs": [
+          "tests/note-collections.test.ts",
+          "tests/e2e/note-collections.spec.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      },
+      {
+        "id": "WS-008",
+        "title": "Favorite notes collection",
+        "kind": "page",
+        "module": "collections",
+        "entry": {
+          "route": "/?view=favorites",
+          "trigger": "Main navigation favorites",
+          "parentId": "WS-001"
+        },
+        "sourceRefs": [
+          "apps/web/components/CollectionWorkspace.vue:132",
+          "apps/web/components/NoteCollection.vue:1",
+          "apps/web/collection-window.ts:1",
+          "apps/server/app.ts:234"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "fields": [],
+        "actions": [
+          {
+            "label": "刷新",
+            "effect": "Refresh collection feed",
+            "api": "GET /api/collections/status; GET /api/collections",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "新建笔记",
+            "effect": "Open note creation",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "打开 / 收藏 / 更多",
+            "effect": "Open note, toggle favorite or context menu",
+            "api": "PUT /api/notes/:id/favorite",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "加载更多笔记",
+            "effect": "Paginate collection feed",
+            "api": "GET /api/collections",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Initial loading",
+          "Empty recent/favorite tailored message",
+          "Summary ready/pending/unavailable",
+          "Virtualized cards",
+          "Feed updated banner",
+          "Load error/retry",
+          "End of list"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "ResizeObserver computes 1–5 columns floor((contentWidth+16)/240); cards are 252px tall with overscan. <=600px heading/scroll paddings shrink; runtime target widths unverified."
+        },
+        "testRefs": [
+          "tests/note-collections.test.ts",
+          "tests/e2e/note-collections.spec.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-007",
+        "parentId": "WS-001",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      },
+      {
+        "sourceId": "WS-008",
+        "parentId": "WS-001",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-007,WS-008",
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "WS-007",
+        "assetId": "WS-D007",
+        "representation": "visible"
+      },
+      {
+        "sourceId": "WS-007",
+        "assetId": "WS-D007",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-008",
+        "assetId": "WS-D008",
+        "representation": "visible"
+      },
+      {
+        "sourceId": "WS-008",
+        "assetId": "WS-D008",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "manifestReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-045.json",
+  "sourceDerived": true,
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "Use case:ui-mockup. 两个独立完整中文手机页面，A390px B320px，普通可读字号，真实正文纵向滚动与底部固定导航，不用手机外壳。样式参考1仅扁平白底、浅灰面、蓝色#4566c6、细边框、小8px圆角。保持DooKnow所有者宿主顶部汉堡/DooKnow/私人笔记，底部笔记/最近/收藏/应用/更多各自真实选中。图2起是现有内容参考。A390展示最近列表，有我的笔记/最近、刷新icon、新建笔记，3篇笔记·按最近修改排序；两张真实可打开卡片“知识与行动”“搭建自己的知识库”，摘要合成“用于平台界面盘点的隔离示例，不含用户资料。”卡片底部目录00-Inbox、时间11/4 16:35、空星收藏按钮、⋯更多按钮；列表内滚动，底部已加载2/3篇和加载更多笔记按钮。最近tab选中。B320展示收藏空列表，标题我的笔记/收藏，刷新icon和新建笔记，0篇笔记·按最近修改排序；星图标，空态“把值得回看的笔记收藏在这里”“在笔记或卡片上点击星标，就能在这里快速找到。”收藏tab选中。不要把sidebar列表的查看全部按钮移入CollectionWorkspace。",
+  "actualToolArguments": {
+    "prompt": "Use case:ui-mockup. 两个独立完整中文手机页面，A390px B320px，普通可读字号，真实正文纵向滚动与底部固定导航，不用手机外壳。样式参考1仅扁平白底、浅灰面、蓝色#4566c6、细边框、小8px圆角。保持DooKnow所有者宿主顶部汉堡/DooKnow/私人笔记，底部笔记/最近/收藏/应用/更多各自真实选中。图2起是现有内容参考。A390展示最近列表，有我的笔记/最近、刷新icon、新建笔记，3篇笔记·按最近修改排序；两张真实可打开卡片“知识与行动”“搭建自己的知识库”，摘要合成“用于平台界面盘点的隔离示例，不含用户资料。”卡片底部目录00-Inbox、时间11/4 16:35、空星收藏按钮、⋯更多按钮；列表内滚动，底部已加载2/3篇和加载更多笔记按钮。最近tab选中。B320展示收藏空列表，标题我的笔记/收藏，刷新icon和新建笔记，0篇笔记·按最近修改排序；星图标，空态“把值得回看的笔记收藏在这里”“在笔记或卡片上点击星标，就能在这里快速找到。”收藏tab选中。不要把sidebar列表的查看全部按钮移入CollectionWorkspace。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-recent.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-favorites.png"
+    ],
+    "transparent_background": false
+  },
+  "inputs": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    },
+    {
+      "order": 2,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-recent.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state.",
+      "sha256": "dea2092b73ed6208af9325b4c43d0003c14997cb72d24f1c0f9f2e39d3db7615",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "viewedBeforeSubmission": true
+    },
+    {
+      "order": 3,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-favorites.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state.",
+      "sha256": "f46d57dbb8935509be23e89cef70c45cddf3ec56257d2d4d3f4bc860be41d9db",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "inputReferences": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    },
+    {
+      "order": 2,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-recent.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state.",
+      "sha256": "dea2092b73ed6208af9325b4c43d0003c14997cb72d24f1c0f9f2e39d3db7615",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "viewedBeforeSubmission": true
+    },
+    {
+      "order": 3,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-favorites.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state.",
+      "sha256": "f46d57dbb8935509be23e89cef70c45cddf3ec56257d2d4d3f4bc860be41d9db",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-803d662e-6dcf-4c65-b398-eb7ce8c8a8a9.png",
+  "toolDefaultOutputSource": "$CODEX_HOME/generated_images (actual path in toolOutputFile)",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R004.png",
+  "sha256": "ccc840f95125a2b8068b82e39c6ea478a0af23860f3b015d158978341b2c3204",
+  "bytes": 1157914,
+  "dimensions": {
+    "width": 1430,
+    "height": 1100
+  },
+  "generatedAtUtc": "2026-11-05T08:41:04.425722+00:00",
+  "revisionOf": null,
+  "generationAttempts": [
+    {
+      "actualToolArguments": {
+        "prompt": "Use case:ui-mockup. 两个独立完整中文手机页面，A390px B320px，普通可读字号，真实正文纵向滚动与底部固定导航，不用手机外壳。样式参考1仅扁平白底、浅灰面、蓝色#4566c6、细边框、小8px圆角。保持DooKnow所有者宿主顶部汉堡/DooKnow/私人笔记，底部笔记/最近/收藏/应用/更多各自真实选中。图2起是现有内容参考。A390展示最近列表，有我的笔记/最近、刷新icon、新建笔记，3篇笔记·按最近修改排序；两张真实可打开卡片“知识与行动”“搭建自己的知识库”，摘要合成“用于平台界面盘点的隔离示例，不含用户资料。”卡片底部目录00-Inbox、时间11/4 16:35、空星收藏按钮、⋯更多按钮；列表内滚动，底部已加载2/3篇和加载更多笔记按钮。最近tab选中。B320展示收藏空列表，标题我的笔记/收藏，刷新icon和新建笔记，0篇笔记·按最近修改排序；星图标，空态“把值得回看的笔记收藏在这里”“在笔记或卡片上点击星标，就能在这里快速找到。”收藏tab选中。不要把sidebar列表的查看全部按钮移入CollectionWorkspace。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-recent.png",
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-favorites.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-803d662e-6dcf-4c65-b398-eb7ce8c8a8a9.png",
+      "status": "saved"
+    }
+  ],
+  "postprocessing": "original PNG copied without pixel modification",
+  "selfInspection": {
+    "method": "Viewed actual inputs and generated native preview; compared selected state to source contracts",
+    "concerns": [
+      "Static target only; actual scroll, focus, permissions and data calls unverified."
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "reviewStatus": "pending-independent-review",
+  "pendingReview": true
+}

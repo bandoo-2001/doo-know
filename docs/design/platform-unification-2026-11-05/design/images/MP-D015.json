@@ -1,0 +1,444 @@
+{
+  "id": "MP-D015",
+  "title": "批量导入：选择资料",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-018"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-018",
+      "title": "批量导入：选择资料",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    }
+  ],
+  "viewportIntent": "1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-018",
+      "route": "/?view=settings&section=library",
+      "trigger": "批量导入；工作区Markdown导入入口复用inline内容",
+      "parentId": "ST-002",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "选择文件 / 选择目录",
+          "type": "file[]",
+          "required": true,
+          "constraints": "每批≤200文件且≤20MiB；Markdown≤1MiB、Excalidraw≤8MiB、附件≤10MiB；目录保留内部结构",
+          "sensitive": false
+        },
+        {
+          "name": "选择已有目录",
+          "type": "tree-select",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "导入到知识库目录",
+          "type": "text",
+          "required": false,
+          "constraints": "相对目录最长2000；不可绝对路径、反斜杠、%或非法名称段；可新建；留空保留完整分类路径；拒绝链接祖先",
+          "sensitive": false
+        },
+        {
+          "name": "遇到同名文件",
+          "type": "select",
+          "required": true,
+          "constraints": "skip/rename",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "未选文件",
+        "文件超限/读取失败",
+        "目录读取中/失败可重试",
+        "已选文件展开列表"
+      ],
+      "notes": [
+        "抽屉请求宽840px；同一内页以inline方式供Workspace外层窗口复用。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "批量导入完整抽屉：文件/目录选件清单、已有目录/目标相对目录、skip/rename、三步进度和预览/取消。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。"
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-018",
+      "label": "预览导入",
+      "effect": "服务器生成预览；不提交任务",
+      "api": "POST /api/manage/import/preview",
+      "guard": "文件非空且不busy"
+    },
+    {
+      "sourceId": "ST-018",
+      "label": "清除选择",
+      "effect": "清除文件并废弃旧预览",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-018",
+      "label": "取消",
+      "effect": "dirty显示ST-089",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-018",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "Use case: ui-mockup targeted source window-frame correction. Preserve all exact fields, source-selected step1, one 示例记录.md file, 00-Inbox values, skip collision, collapsed1file/1.0KiB summary, enabled 取消/清除选择/预览导入 footer, typography and existing controls in this image. Make only these corrections: (1) The source component is a right-side DRAWER (SettingsOverlay kind=drawer), not a floating rounded modal. Make its white frame extend fully to the TOP and BOTTOM of this canvas, flat straight top/bottom edges, one fine left border and small quiet neutral gutter to left. Remove surrounding top/bottom margins and all-around rounded floating-card treatment. Keep header and footer fixed, the full body readable/scrollable and all existing fields/actions visible. Do not draw any parent page/rail/tree or add host navigation. (2) The native 选择文件 control should display only filename “示例记录.md”, remove the invented appended “(1.0 KiB)” there; the existing collapsed selected-files summary retains “已选择 1 个文件 · 1.0 KiB”. All other content/state unchanged. No preview table/result/confirmation/error/new controls. One complete source drawer only.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D015.png",
+  "reviewStatus": "pending-independent-review",
+  "parentBindings": [
+    {
+      "sourceId": "ST-018",
+      "parentId": "ST-002",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:215",
+        "apps/web/components/settings/TransferPanel.vue:356",
+        "apps/web/components/settings/TransferPanel.vue:507",
+        "apps/server/platform/transfer-import.ts:29",
+        "apps/server/platform/transfer-import.ts:94"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-018",
+      "title": "批量导入：选择资料",
+      "kind": "drawer",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "批量导入；工作区Markdown导入入口复用inline内容",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:215",
+        "apps/web/components/settings/TransferPanel.vue:356",
+        "apps/web/components/settings/TransferPanel.vue:507",
+        "apps/server/platform/transfer-import.ts:29",
+        "apps/server/platform/transfer-import.ts:94"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "选择文件 / 选择目录",
+          "type": "file[]",
+          "required": true,
+          "constraints": "每批≤200文件且≤20MiB；Markdown≤1MiB、Excalidraw≤8MiB、附件≤10MiB；目录保留内部结构",
+          "sensitive": false
+        },
+        {
+          "name": "选择已有目录",
+          "type": "tree-select",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "导入到知识库目录",
+          "type": "text",
+          "required": false,
+          "constraints": "相对目录最长2000；不可绝对路径、反斜杠、%或非法名称段；可新建；留空保留完整分类路径；拒绝链接祖先",
+          "sensitive": false
+        },
+        {
+          "name": "遇到同名文件",
+          "type": "select",
+          "required": true,
+          "constraints": "skip/rename",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "预览导入",
+          "effect": "服务器生成预览；不提交任务",
+          "api": "POST /api/manage/import/preview",
+          "guard": "文件非空且不busy"
+        },
+        {
+          "label": "清除选择",
+          "effect": "清除文件并废弃旧预览",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "effect": "dirty显示ST-089",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "未选文件",
+        "文件超限/读取失败",
+        "目录读取中/失败可重试",
+        "已选文件展开列表"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:41",
+        "tests/e2e/settings-overlays.spec.ts:141",
+        "tests/settings-transfer-files.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "抽屉请求宽840px；同一内页以inline方式供Workspace外层窗口复用。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-D015",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "selectedState": [
+    "source-derived step1, one1KiB Markdown file, folder00-Inbox, skipsame, nobusy/noerror/previewclosed"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup targeted source window-frame correction. Preserve all exact fields, source-selected step1, one 示例记录.md file, 00-Inbox values, skip collision, collapsed1file/1.0KiB summary, enabled 取消/清除选择/预览导入 footer, typography and existing controls in this image. Make only these corrections: (1) The source component is a right-side DRAWER (SettingsOverlay kind=drawer), not a floating rounded modal. Make its white frame extend fully to the TOP and BOTTOM of this canvas, flat straight top/bottom edges, one fine left border and small quiet neutral gutter to left. Remove surrounding top/bottom margins and all-around rounded floating-card treatment. Keep header and footer fixed, the full body readable/scrollable and all existing fields/actions visible. Do not draw any parent page/rail/tree or add host navigation. (2) The native 选择文件 control should display only filename “示例记录.md”, remove the invented appended “(1.0 KiB)” there; the existing collapsed selected-files summary retains “已选择 1 个文件 · 1.0 KiB”. All other content/state unchanged. No preview table/result/confirmation/error/new controls. One complete source drawer only.",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-D015 批量导入：选择资料\n\n1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。\n\n角色壳：所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。\n\n独立场景：\nA | ST-018 | 批量导入：选择资料 | role=authenticated-owner | 实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\n\n完整构图：\n批量导入完整抽屉：文件/目录选件清单、已有目录/目标相对目录、skip/rename、三步进度和预览/取消。\n\n精确功能/字段/动作guard合同：\nST-018权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-018字段顺序：选择文件 / 选择目录 [file[]; 必填]: 每批≤200文件且≤20MiB；Markdown≤1MiB、Excalidraw≤8MiB、附件≤10MiB；目录保留内部结构 | 选择已有目录 [tree-select; 可选]: 既有控件 | 导入到知识库目录 [text; 可选]: 相对目录最长2000；不可绝对路径、反斜杠、%或非法名称段；可新建；留空保留完整分类路径；拒绝链接祖先 | 遇到同名文件 [select; 必填]: skip/rename\nST-018白名单：预览导入 => 服务器生成预览；不提交任务；guard=文件非空且不busy；接口约束=POST /api/manage/import/preview\nST-018白名单：清除选择 => 清除文件并废弃旧预览；guard=已登录所有者；请求期间禁用重复操作\nST-018白名单：取消 => dirty显示ST-089；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\nSettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 120942
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-de496c34-347f-4d23-a0b2-e13e6412583e.png",
+      "role": "final-call edit target",
+      "responsibility": "Restore full-height drawer frame and native filename-only display; preserve all source fields/actions",
+      "sha256": "ec7a4e170187b5afd99a8e2a865dc923e26ab21d7abfa06242c49d2abc502ff9",
+      "dimensions": {
+        "width": 1199,
+        "height": 1312
+      },
+      "bytes": 1228074
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-de496c34-347f-4d23-a0b2-e13e6412583e.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D015.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-e2b11621-dae4-4210-bc43-3a56048a749c.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-e2b11621-dae4-4210-bc43-3a56048a749c.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T02:10:47.801Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Source-derived step1 one-file batch import retains every actual input/three-step indicator and preview/clear/cancel guards. Targeted correction restored full-height drawer frame and native filename-only display.",
+    "concerns": [
+      "Component state is source-derived, not matching runtime capture. Synthetic filename/receipt/password masking is illustrative only.",
+      "Static raster cannot verify busy/dirty close guards, file/server validation, focus or responsive fit; geometry/texture approximate."
+    ]
+  },
+  "sha256": "f88fcffa583a47b704f76f741e0eb8119e6609f56325e5dcf016a1119b4599be",
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  },
+  "bytes": 1485244,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/settings/TransferPanel.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "de54810859e5243fa4db2ac8bafeae0b887ad7900bac346cd623cdad95e5a4f0"
+    },
+    {
+      "path": "apps/web/components/settings/TransferPanel.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "de54810859e5243fa4db2ac8bafeae0b887ad7900bac346cd623cdad95e5a4f0"
+    },
+    {
+      "path": "apps/web/components/settings/TransferPanel.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "de54810859e5243fa4db2ac8bafeae0b887ad7900bac346cd623cdad95e5a4f0"
+    },
+    {
+      "path": "apps/server/platform/transfer-import.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "50248562cd2c175697c377e5eb174a7c5599edcca29de9a821072ea712eac665"
+    },
+    {
+      "path": "apps/server/platform/transfer-import.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "50248562cd2c175697c377e5eb174a7c5599edcca29de9a821072ea712eac665"
+    },
+    {
+      "path": "apps/web/components/settings/SettingsOverlay.vue",
+      "role": "actual window width/body/footer/close/focus guards authority",
+      "sha256": "1642d0324aaad3921e52fe60d086622981d2203e05b08e215e231dd406da657d"
+    },
+    {
+      "path": "apps/web/components/settings/settings-overlay.css",
+      "role": "actual window width/body/footer/close/focus guards authority",
+      "sha256": "55edaa352854eb6c491907e7c8b28b5500dd9aec1b9c98c866ac44bf710be647"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Viewed parent baseline is context only. Exact component unavailable as runtime baseline; actual source template governs selected fields, visibility, actions and guards.",
+  "actualInitialImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "generationHistory": [
+    {
+      "call": 1,
+      "submittedPrompt": "Use case: ui-mockup. Generate exactly ONE high-fidelity Simplified Chinese EXISTING DooKnow LOCAL SETTINGS WINDOW component for design review. Draw only the complete real modal/drawer on a quiet neutral light-gray backdrop, naturally readable desktop scale; no browser/device chrome, no invented parent workspace or presentation captions. The supplied PILOT-WS-001 is STYLE ONLY: flat white/#f7f8fa, text #272b3a/#657084, #e6e9f1 thin lines, #4566c6 primary/#edf1ff selection, clear compact typography, aligned fields, small8px radii and restrained shadow. Do NOT copy PILOT owner rail/header/tree/search/create/empty note into this local component.\nContent/role/control authority is the real source template, not generic API summaries. Selected component states below are source-derived isolated examples where the parent baseline does not capture this window; no runtime verification or business success is implied. Preserve title/icon/close, full field order, genuine labels/descriptions/conditional controls, body scroll and reachable fixed footer. This is authenticated OWNER management, not public guest.\nOnly one coherent selected state. No mixed preview/result/error/recovery/busy states unless specified; no additional nav, invented inputs/features, ToDoo tasks, AI/team/social/password gate. Backend requestId/version/hash/cursor/CSRF/nonce are NOT product inputs. Existing read-only backup/path/time identifiers may appear as source allows, with synthetic placeholders only. Secrets must be EMPTY or masked, never actual key/password contents. Native file-input buttons are allowed, but no OS/browser file-picker window. Do not convert source validation rules into extra fields or automatic disabled rules; actual template guards win.\nSELECTED COMPONENT:\nLOCAL BATCH IMPORT DRAWER. Natural840px source component width, tall enough for full contents; only this drawer frame, no underlying settings page. Header folder icon, title 批量导入, description 先选择资料，再检查预览，最后确认导入。, close X enabled. Selected step1, one chosen synthetic Markdown file 示例记录.md exactly1.0KiB, no directory-selected files, busy=false/foldersLoading=false/noerror/no notice; import not submitted. Three-step progress row: 1 选择资料 active, 2 检查预览 inactive, 3 确认导入 inactive.\nBody heading 选择资料与导入位置. Exact helper 选择 Markdown、Excalidraw 白板与附件，或选择整个目录保留目录内结构。每批最多 200 个文件、合计 20 MiB。选择后先预览。 Fields in source order: 选择文件 native multiple file input showing chosen 示例记录.md; 选择目录（保留目录内结构） native directory input no selection; 选择已有目录（可选） closed tree-select value00-Inbox; 导入到知识库目录 text input value00-Inbox; helper 可选择已有目录，也可填写新的相对目录。留空适用于从完整导出恢复目录结构。; 遇到同名文件 closed select 跳过已有文件. Keep selected-files native details COLLAPSED with summary 已选择 1 个文件 · 1.0 KiB. Footer exact enabled 取消, 清除选择, eye-icon primary 预览导入. Do not show preview table, confirmation summary, server tasks/results, drag-drop upload area, target absolute path, result count or rename state together. Dirty-close discard protection is behavior on close, not an already-open second modal. Text/buttons fully visible with source body scrolling if needed.",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-de496c34-347f-4d23-a0b2-e13e6412583e.png",
+      "selected": false,
+      "reason": "Floating modal frame did not match source drawer; extra native filename size suffix",
+      "inputOrder": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "sha256": "ec7a4e170187b5afd99a8e2a865dc923e26ab21d7abfa06242c49d2abc502ff9",
+      "dimensions": {
+        "width": 1199,
+        "height": 1312
+      },
+      "bytes": 1228074
+    },
+    {
+      "call": 2,
+      "submittedPrompt": "Use case: ui-mockup targeted source window-frame correction. Preserve all exact fields, source-selected step1, one 示例记录.md file, 00-Inbox values, skip collision, collapsed1file/1.0KiB summary, enabled 取消/清除选择/预览导入 footer, typography and existing controls in this image. Make only these corrections: (1) The source component is a right-side DRAWER (SettingsOverlay kind=drawer), not a floating rounded modal. Make its white frame extend fully to the TOP and BOTTOM of this canvas, flat straight top/bottom edges, one fine left border and small quiet neutral gutter to left. Remove surrounding top/bottom margins and all-around rounded floating-card treatment. Keep header and footer fixed, the full body readable/scrollable and all existing fields/actions visible. Do not draw any parent page/rail/tree or add host navigation. (2) The native 选择文件 control should display only filename “示例记录.md”, remove the invented appended “(1.0 KiB)” there; the existing collapsed selected-files summary retains “已选择 1 个文件 · 1.0 KiB”. All other content/state unchanged. No preview table/result/confirmation/error/new controls. One complete source drawer only.",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-e2b11621-dae4-4210-bc43-3a56048a749c.png",
+      "selected": true,
+      "inputOrder": [
+        "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-de496c34-347f-4d23-a0b2-e13e6412583e.png"
+      ],
+      "sha256": "f88fcffa583a47b704f76f741e0eb8119e6609f56325e5dcf016a1119b4599be",
+      "dimensions": {
+        "width": 1199,
+        "height": 1312
+      },
+      "bytes": 1485244
+    }
+  ]
+}

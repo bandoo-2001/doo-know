@@ -1,0 +1,73 @@
+{
+  "kind": "generated-design",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "reviewStatus": "pending-independent-review",
+  "generationCallCount": 1,
+  "postprocessing": "None. Tool-generated original copied exclusively with no pixel manipulation.",
+  "id": "WS-D006",
+  "sourceIds": [
+    "WS-006"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-006",
+      "title": "Directory contents page",
+      "role": "authenticated owner",
+      "state": "Populated table with type and modified time",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host."
+    }
+  ],
+  "prompt": "Create an exact GPT Image 2 design mockup for existing DooKnow UI. Render a complete desktop full page. Never pretend independent panels are simultaneously open. Captions outside app UI state source ID/title/role/state.\nASSET WS-D006 Directory contents page\nVIEWPORT 1440×1000 full desktop page.\nPANELS [{\"label\":\"full\",\"sourceId\":\"WS-006\",\"title\":\"Directory contents page\",\"role\":\"authenticated owner\",\"state\":\"Populated table with type and modified time\",\"presentationInstruction\":\"Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\"}]\nFOCUS Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\nActual ToDoo screenshot is STYLE ONLY (hierarchy, palette, typography, spacing, density); brand DooKnow. Actual platform screenshot is CONTENT/ROLE reference, not target style. Fictional legal examples only; masked secrets and example.invalid URLs.\nCOMPLETE FIELDS IN SOURCE ORDER:\nNo extra input fields.\nIMPLEMENTED ACTION WHITELIST:\nWS-006 打开条目: Open nested folder or note; guard: Owner session; control-specific guards described in permissionRules.\nWS-006 新建笔记 / 文件夹 / 导入: Open operation windows; guard: Owner session; control-specific guards described in permissionRules.\nWS-006 更多操作: Open context menu; guard: Owner session; control-specific guards described in permissionRules.\nPERMISSIONS:\nAuthenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\nALL IMPORTANT STATES (stateCoverage maps visible/shared-pattern/nonvisual rules; never depict incompatible alternatives together):\nWS-006: Populated table with type and modified time\nWS-006: Empty directory create CTA\nWS-006: Keyboard row menu\nSOURCE NOTES:\n\nRESPONSIVE Linked390/320 jobs handle compact field order/drawer/stacking and safe scrolling. \nFORBIDDEN:\nBrand is DooKnow; ToDoo is an existing app and style reference only.\nNo invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\nNo real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\nNever render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\nNo native OS/browser picker or print-dialog chrome.\nNo owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\nNo developer/source/API path or review-note text inside product UI.\nAll mockups and per-image/global functional reviews must pass before product development. Do not draw protocol metadata as form controls.\nEXECUTION CLARIFICATIONS FROM EXISTING SOURCE: Show one populated directory table only. Use breadcrumb 30-Knowledge / 方法, title 方法, count 1 个文件夹 · 2 篇笔记. Keep source columns 名称 / 类型 / 修改时间 and trailing row 更多操作 icon. Three fictional rows 学习资料 (文件夹), 阅读方法.md (Markdown), 整理记录.md (Markdown). Buttons 新建笔记 / 新建文件夹 / 导入 Markdown. Under table preserve source neutral helper 选择文件即可打开编辑. No extra input, sort menu, checkbox or automatic-save status.\nFLAT VISUAL CONTRACT: Match the actual ToDoo reference solely for style. Brand DooKnow and source-owned knowledge controls only. Flat solid #ffffff main/header, #f7f8fa sidebar, #272b3a text, #657084 secondary, #e6e9f1 thin borders, #4566c6 primary, #edf1ff selected. Crisp sans-serif Chinese, thin line icons, 8px radii, restrained shadows. No gradient, texture, grain, glow, bevel or illustration. Desktop primary rail approximately 64px, global header 56px, existing knowledge sidebar approximately 260px with resize divider retained; width is a visual suggestion only, not removal of resizing. Full desktop app host and no browser/device chrome. Source existing owner rail only: O account avatar; 笔记 / 最近 / 收藏 / 应用, bottom 回收站 / 设置. Existing sidebar has 搜索笔记与目录, 新建 split control, heading and add-folder/refresh controls unless source active state suppresses them. Do not transfer ToDoo tasks, goal fields, calendar, notifications or extra navigation. Caption source ID, title, authenticated owner, and the selected visible state only in a separate narrow outer margin.",
+  "originalJobPrompt": "Create an exact GPT Image 2 design mockup for existing DooKnow UI. Render a complete desktop full page. Never pretend independent panels are simultaneously open. Captions outside app UI state source ID/title/role/state.\nASSET WS-D006 Directory contents page\nVIEWPORT 1440×1000 full desktop page.\nPANELS [{\"label\":\"full\",\"sourceId\":\"WS-006\",\"title\":\"Directory contents page\",\"role\":\"authenticated owner\",\"state\":\"Populated table with type and modified time\",\"presentationInstruction\":\"Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\"}]\nFOCUS Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\nActual ToDoo screenshot is STYLE ONLY (hierarchy, palette, typography, spacing, density); brand DooKnow. Actual platform screenshot is CONTENT/ROLE reference, not target style. Fictional legal examples only; masked secrets and example.invalid URLs.\nCOMPLETE FIELDS IN SOURCE ORDER:\nNo extra input fields.\nIMPLEMENTED ACTION WHITELIST:\nWS-006 打开条目: Open nested folder or note; guard: Owner session; control-specific guards described in permissionRules.\nWS-006 新建笔记 / 文件夹 / 导入: Open operation windows; guard: Owner session; control-specific guards described in permissionRules.\nWS-006 更多操作: Open context menu; guard: Owner session; control-specific guards described in permissionRules.\nPERMISSIONS:\nAuthenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\nALL IMPORTANT STATES (stateCoverage maps visible/shared-pattern/nonvisual rules; never depict incompatible alternatives together):\nWS-006: Populated table with type and modified time\nWS-006: Empty directory create CTA\nWS-006: Keyboard row menu\nSOURCE NOTES:\n\nRESPONSIVE Linked390/320 jobs handle compact field order/drawer/stacking and safe scrolling. \nFORBIDDEN:\nBrand is DooKnow; ToDoo is an existing app and style reference only.\nNo invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\nNo real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\nNever render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\nNo native OS/browser picker or print-dialog chrome.\nNo owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\nNo developer/source/API path or review-note text inside product UI.\nAll mockups and per-image/global functional reviews must pass before product development. Do not draw protocol metadata as form controls.",
+  "inputReferences": [
+    {
+      "path": "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-01-overview.png",
+      "role": "STYLE ONLY: actual implemented ToDoo hierarchy/palette/spacing/type density/theme. No task fields/actions or platform rebranding."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-folder.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3394, apps/web/components/Workspace.vue:3440, apps/web/workbench.css:565"
+    }
+  ],
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D006.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a79f-db6d-7281-a29c-1887bb1f4ac3/exec-b95961f4-60f5-4028-96ef-4fe6cba3e830.png",
+  "sha256": "bee531cf7da65bb6e90ed24a378f44fd1625015c7755226c57c2e1ccd7006332",
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "bytes": 1120754,
+  "generatedAtUtc": "2026-11-04T17:36:21.086Z",
+  "selfInspection": {
+    "method": "Native generated preview inspected in child context against source and style reference.",
+    "behaviorVerified": false,
+    "independentReviewStatus": "pending",
+    "notes": [
+      "Populated source table includes names/types/modified timestamps/row-more and top create-note/create-folder/import actions.",
+      "Required separate source/role/state caption was omitted by generator.",
+      "Global 56px header treatment was not adopted; baseline-like brand/sidebar arrangement retained; geometry is approximate.",
+      "Subtle raster texture/uneven fill remains. Empty-folder/keyboard variants were not rendered or behavior-verified."
+    ]
+  }
+}

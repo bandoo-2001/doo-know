@@ -1,0 +1,4781 @@
+{
+  "schema": 1,
+  "createdAt": "2026-11-05T01:16:44.140Z",
+  "contract": "generation-execution-contract.md",
+  "planFiles": [
+    "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json"
+  ],
+  "activeClaims": [
+    "WS-D020",
+    "WS-D021",
+    "WS-D022",
+    "WS-D023",
+    "WS-D060",
+    "MP-D001",
+    "MP-D002",
+    "MP-D003",
+    "MP-D004",
+    "MP-D005",
+    "MP-D006"
+  ],
+  "batches": [
+    {
+      "id": "GEN-004",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-D007",
+          "title": "账号与安全",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "ST-007"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D008",
+          "title": "关于与诊断",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "ST-008"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D071",
+          "title": "登录 DooKnow",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-001"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D078",
+          "title": "首次设置：创建知识库",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-008"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D079",
+          "title": "首次设置：已有资料目录浏览",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-009"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D081",
+          "title": "首次设置：从 GitHub/Gitee 导入",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-011"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D082",
+          "title": "首次设置：选择可选功能",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-012"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D083",
+          "title": "首次设置：准备完成",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-013"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T01:17:38.378Z"
+    },
+    {
+      "id": "GEN-005",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-D086",
+          "title": "OAuth 连接授权：业务与资源策略",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-018"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D089",
+          "title": "公开分享阅读：普通笔记",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-022"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D090",
+          "title": "公开分享阅读：大文件片段",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-023"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D092",
+          "title": "公开编辑：文档模式",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-026"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D093",
+          "title": "公开编辑：Markdown 源码",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-027"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D096",
+          "title": "博客管理：概览",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-030"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D097",
+          "title": "博客管理：文章列表与筛选",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-031"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D098",
+          "title": "博客管理：文章发布信息",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-032"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T01:20:19.106Z"
+    },
+    {
+      "id": "GEN-006",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-D104",
+          "title": "博客管理：分类与标签",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-039"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D105",
+          "title": "博客管理：站点设置",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-040"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D106",
+          "title": "博客装修：主题与个人资料",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-041"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D107",
+          "title": "博客装修：首页模块",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-042"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D108",
+          "title": "博客装修：专题合集",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-043"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D109",
+          "title": "博客装修：导航、社交与友情链接",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-044"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D110",
+          "title": "博客装修：项目作品",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-045"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D115",
+          "title": "公开博客：文字博客主页",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-050"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T01:30:48.928Z"
+    },
+    {
+      "id": "GEN-007",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-D116",
+          "title": "公开博客：卡片杂志主页",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-051"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D117",
+          "title": "公开博客：个人主页",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-052"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D118",
+          "title": "公开博客：文章索引、搜索与筛选",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-053"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D119",
+          "title": "公开博客：文章阅读",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-054"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D121",
+          "title": "公开博客：关于",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-056"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D122",
+          "title": "公开博客：专题合集索引",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-057"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D123",
+          "title": "公开博客：专题阅读路线",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-058"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D124",
+          "title": "公开博客：文章归档",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-059"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T01:30:49.084Z"
+    },
+    {
+      "id": "GEN-008",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-D126",
+          "title": "PB-046 · authenticated GET standalone private homepage HTML",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "PB-046"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D037",
+          "title": "Large-file fragment editor",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "WS-049"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D048",
+          "title": "Primary whiteboard editor",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "WS-068"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D049",
+          "title": "Primary mind map editor",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "WS-069"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D050",
+          "title": "Primary Mermaid flowchart editor",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "WS-070"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D051",
+          "title": "Embedded primary whiteboard editing overlay",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "WS-071"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D052",
+          "title": "Primary diagram Markdown source view",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "WS-072"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D053",
+          "title": "Primary diagram PNG preview view",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "WS-073"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T01:41:49.484Z"
+    },
+    {
+      "id": "GEN-009",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-D054",
+          "title": "Primary diagram reading view",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "WS-074"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D061",
+          "title": "Knowledge graph canvas page",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "WS-085"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D062",
+          "title": "Graph accessible node and relationship list",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "WS-086"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D080",
+          "title": "Note reference graph mode",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "WS-106"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D081",
+          "title": "Trash workspace page",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "WS-107"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D090",
+          "title": "Standalone exported reading HTML / app-owned print document",
+          "kind": "desktop-page",
+          "sourceIds": [
+            "WS-124"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D009",
+          "title": "键盘操作",
+          "kind": "window",
+          "sourceIds": [
+            "ST-009"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D014",
+          "title": "Owner APopconfirm: exact source action/message bindings",
+          "kind": "window",
+          "sourceIds": [
+            "ST-017",
+            "ST-045",
+            "ST-046",
+            "ST-052"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T01:49:03.043Z"
+    },
+    {
+      "id": "GEN-010",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-D015",
+          "title": "批量导入：选择资料",
+          "kind": "window",
+          "sourceIds": [
+            "ST-018"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D017",
+          "title": "导入便携包",
+          "kind": "window",
+          "sourceIds": [
+            "ST-022"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D019",
+          "title": "导出资料",
+          "kind": "window",
+          "sourceIds": [
+            "ST-024"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D024",
+          "title": "验证密码下载恢复密钥",
+          "kind": "window",
+          "sourceIds": [
+            "ST-030"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D025",
+          "title": "从服务器记录恢复到独立副本",
+          "kind": "window",
+          "sourceIds": [
+            "ST-031"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D026",
+          "title": "从下载备份恢复：选择文件",
+          "kind": "window",
+          "sourceIds": [
+            "ST-032"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D028",
+          "title": "采用当前磁盘版本确认",
+          "kind": "window",
+          "sourceIds": [
+            "ST-035"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D034",
+          "title": "修改密码",
+          "kind": "window",
+          "sourceIds": [
+            "ST-043"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T01:49:03.205Z"
+    },
+    {
+      "id": "GEN-011",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-D042",
+          "title": "卸载插件确认",
+          "kind": "window",
+          "sourceIds": [
+            "ST-053"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D050",
+          "title": "知识库权限资源树浮层",
+          "kind": "window",
+          "sourceIds": [
+            "ST-063"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D057",
+          "title": "MCP实际插件连接与调用面板",
+          "kind": "window",
+          "sourceIds": [
+            "ST-073"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D059",
+          "title": "管理云端同步",
+          "kind": "window",
+          "sourceIds": [
+            "ST-075"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D060",
+          "title": "添加/更换HTTPS仓库凭据",
+          "kind": "window",
+          "sourceIds": [
+            "ST-076"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D062",
+          "title": "确认本次提交内容并推送",
+          "kind": "window",
+          "sourceIds": [
+            "ST-078"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D067",
+          "title": "Git实际插件：提交全部变更",
+          "kind": "window",
+          "sourceIds": [
+            "ST-083",
+            "ST-084"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D073",
+          "title": "会话失效重新登录",
+          "kind": "window",
+          "sourceIds": [
+            "PB-003"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:04:05.889Z"
+    },
+    {
+      "id": "GEN-012",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-D095",
+          "title": "公开编辑：未保存离开/重新加载确认",
+          "kind": "window",
+          "sourceIds": [
+            "PB-029"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D099",
+          "title": "博客管理：选择 Markdown 笔记",
+          "kind": "window",
+          "sourceIds": [
+            "PB-033"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D112",
+          "title": "博客装修：放大主页预览",
+          "kind": "window",
+          "sourceIds": [
+            "PB-047"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D014",
+          "title": "Unfinished primary diagram creation recovery",
+          "kind": "window",
+          "sourceIds": [
+            "WS-016"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D018",
+          "title": "Import Markdown entry modal",
+          "kind": "window",
+          "sourceIds": [
+            "WS-022"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D025",
+          "title": "Document formatting toolbar",
+          "kind": "window",
+          "sourceIds": [
+            "WS-029"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D033",
+          "title": "YAML document properties",
+          "kind": "window",
+          "sourceIds": [
+            "WS-043"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D046",
+          "title": "Saved note history and diff modal",
+          "kind": "window",
+          "sourceIds": [
+            "WS-064"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:04:06.066Z"
+    },
+    {
+      "id": "GEN-013",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-D047",
+          "title": "Unified history Git source and historical raw/fragment view",
+          "kind": "window",
+          "sourceIds": [
+            "WS-065",
+            "WS-066"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D056",
+          "title": "Inline SVG / Mermaid / whiteboard diagram card",
+          "kind": "window",
+          "sourceIds": [
+            "WS-078"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D059",
+          "title": "Rich editor code-block controls and copy fallback",
+          "kind": "window",
+          "sourceIds": [
+            "WS-083"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D063",
+          "title": "Graph filters and path/range modal",
+          "kind": "window",
+          "sourceIds": [
+            "WS-087"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D065",
+          "title": "Graph model configuration modal",
+          "kind": "window",
+          "sourceIds": [
+            "WS-089",
+            "WS-095"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D066",
+          "title": "Graph relationship review modal",
+          "kind": "window",
+          "sourceIds": [
+            "WS-090"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D068",
+          "title": "Evidence-based graph question modal",
+          "kind": "window",
+          "sourceIds": [
+            "WS-092"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D070",
+          "title": "Desktop graph node/edge inspector",
+          "kind": "window",
+          "sourceIds": [
+            "WS-094"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:22.493Z"
+    },
+    {
+      "id": "GEN-014",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-D075",
+          "title": "Owner share create/edit/reset/revoke form",
+          "kind": "window",
+          "sourceIds": [
+            "WS-099"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D078",
+          "title": "Insert existing or new whiteboard picker",
+          "kind": "window",
+          "sourceIds": [
+            "WS-102"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D082",
+          "title": "Permanent removal of selected trash files confirmation",
+          "kind": "window",
+          "sourceIds": [
+            "WS-108"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D084",
+          "title": "Trash restore/purge per-item result and retry panel",
+          "kind": "window",
+          "sourceIds": [
+            "WS-112"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D085",
+          "title": "Full document ancestry path popup",
+          "kind": "window",
+          "sourceIds": [
+            "WS-113"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-V003",
+          "title": "Excalidraw help and keyboard shortcuts",
+          "kind": "window",
+          "sourceIds": [
+            "RTD-006"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-V005",
+          "title": "Mermaid to Excalidraw dialog",
+          "kind": "window",
+          "sourceIds": [
+            "RTD-009"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D004",
+          "title": "Owner create/import, row context and account menus",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-004",
+            "WS-005",
+            "WS-097"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:22.617Z"
+    },
+    {
+      "id": "GEN-015",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-D011",
+          "title": "Short creation forms: Markdown, category/folder and primary diagram",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-011",
+            "WS-012",
+            "WS-013",
+            "WS-014",
+            "WS-015"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D015",
+          "title": "Move or rename note / Create saved document copy",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-017",
+            "WS-019",
+            "WS-018"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D029",
+          "title": "Edit document link",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-037"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D030",
+          "title": "Image preview and zoom",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-038"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D032",
+          "title": "Quick insert content chooser",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-042"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D034",
+          "title": "Paste as Markdown modal",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-044"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D035",
+          "title": "Shared owner/guest current-note find and replace",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-045"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D036",
+          "title": "Backlinks modal",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-046"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:22.729Z"
+    },
+    {
+      "id": "GEN-016",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-D039",
+          "title": "Fragment leave, saved-version conflict and note leave confirmations",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-053",
+            "WS-056",
+            "WS-058"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D041",
+          "title": "Readonly draft recovery copy and latest saved source",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-055",
+            "WS-057"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D044",
+          "title": "Portable-media persistence and diagram-preview save prerequisites",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-062",
+            "WS-063"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D064",
+          "title": "Graph analysis task progress modal",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-088"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D067",
+          "title": "Graph saved views and export modal",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-091"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D076",
+          "title": "Workspace cloud-sync drawer entry",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-100"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D077",
+          "title": "Create task linked from current note",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-101"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D089",
+          "title": "Global reminder overlay host outside ToDoo",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-123"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:22.842Z"
+    },
+    {
+      "id": "GEN-017",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-D091",
+          "title": "History restore warning and uncertain receipt states",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-067"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D092",
+          "title": "Graph inspector note, semantic relation and similarity clue variants",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-093",
+            "WS-094"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-G001",
+          "title": "Shared owner/guest current-note find and replace",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-045"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-V013",
+          "title": "Font search popup",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "RTD-021"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D012",
+          "title": "批量整理与继续/撤销记录",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-014"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D013",
+          "title": "共享链接总览与筛选",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-016"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D016",
+          "title": "批量导入：检查预览 / 批量导入：确认提交 / 导入预览失效、冲突与错误",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-019",
+            "ST-020",
+            "ST-021"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D018",
+          "title": "便携导入结果与原资料续传",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-023"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:22.975Z"
+    },
+    {
+      "id": "GEN-018",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-D020",
+          "title": "传输任务与结果",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-025"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D022",
+          "title": "便携任务与预览恢复",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-028"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D027",
+          "title": "从下载备份恢复：确认上传",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-033"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D038",
+          "title": "MCP插件配置内页",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-049"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D039",
+          "title": "Git插件配置内页",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-050"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D040",
+          "title": "插件草稿远端冲突、校验与不确定结果 / MCP OAuth接入指南",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-051",
+            "ST-057"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D043",
+          "title": "插件加载/渲染失败边界 / MCP导航贡献桥接窗口",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-055",
+            "ST-091",
+            "ST-056"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D045",
+          "title": "MCP API Key接入指南",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-058"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:23.099Z"
+    },
+    {
+      "id": "GEN-019",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-D046",
+          "title": "OAuth授权清单与停用卸载后保留授权",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-059"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D047",
+          "title": "收窄OAuth连接权限表单",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-060"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D049",
+          "title": "分域权限编辑器",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-062"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D051",
+          "title": "API Key客户端管理清单",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-064"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D052",
+          "title": "创建API客户端表单",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-065"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D053",
+          "title": "修改API客户端名称 / 轮换API Key表单 / 撤销API连接行内确认",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-066",
+            "ST-068",
+            "ST-072"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D054",
+          "title": "编辑API客户端权限",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-067"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D055",
+          "title": "API客户端重新授权并签发",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-069"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:23.216Z"
+    },
+    {
+      "id": "GEN-020",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-D056",
+          "title": "新API Key一次性展示 / API客户端版本冲突与结果未确认",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-070",
+            "ST-071"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D058",
+          "title": "云端同步概览",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-074"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D061",
+          "title": "SSH凭据与主机指纹确认",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-077"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D065",
+          "title": "Git仓库导入复用内页",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-081"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D074",
+          "title": "启动与异步页面加载",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-004"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D075",
+          "title": "无法确认登录状态",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-005"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D077",
+          "title": "页面模块无法加载",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-007"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D085",
+          "title": "首次设置：初始化中 / 首次设置：尚无主人账号 / 首次设置：目录不可用或配置冲突",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-015",
+            "PB-016",
+            "PB-017"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:23.335Z"
+    },
+    {
+      "id": "GEN-021",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-D087",
+          "title": "OAuth 连接授权：兼容目录与操作列表",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-019"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D088",
+          "title": "OAuth 无效/过期与提交失败 / OAuth 登录后继续授权",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-020",
+            "PB-021"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D091",
+          "title": "公开分享：不存在/过期/撤销/轮换 / 公开分享：临时读取失败",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-024",
+            "PB-025"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D100",
+          "title": "博客文章：附件封面选择",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-034"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D101",
+          "title": "博客图片：裁切与上传",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-035"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D102",
+          "title": "博客文章：私有预览与发布前核对",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-036"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D103",
+          "title": "博客文章：下架确认 / 博客文章：移除选稿确认",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-037",
+            "PB-038"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-D111",
+          "title": "博客装修：实时私有预览",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-046"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:23.450Z"
+    },
+    {
+      "id": "GEN-022",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-D113",
+          "title": "博客装修：发布历史与恢复",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-048"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-N001",
+          "title": "Compact component comparison: 加密备份记录与外部备份",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-029"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S001",
+          "title": "Component state matrix: owner-private / EditorSettings.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-001",
+            "ST-009",
+            "ST-010",
+            "ST-011"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S002",
+          "title": "Component state matrix: owner-private / LibrarySettings.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-002",
+            "ST-012"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S003",
+          "title": "Component state matrix: owner-private / SearchRuntimeSettings.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-003",
+            "ST-040",
+            "ST-038",
+            "ST-039"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S004",
+          "title": "Component state matrix: owner-private / BackupSettings.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-004",
+            "ST-029",
+            "ST-030",
+            "ST-031"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S005",
+          "title": "Component state matrix: owner-private / BackupSettings.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-032",
+            "ST-033"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S006",
+          "title": "Component state matrix: owner-private / StatusSettings.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-005",
+            "ST-041"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:23.567Z"
+    },
+    {
+      "id": "GEN-023",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-S007",
+          "title": "Component state matrix: owner-private / AccountSettings.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-007",
+            "ST-043",
+            "ST-044",
+            "ST-045",
+            "ST-046"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S008",
+          "title": "Component state matrix: owner-private / AboutSettings.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-008"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S009",
+          "title": "Component state matrix: owner-private / StorageSettings.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-013"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S010",
+          "title": "Component state matrix: owner-private / OrganizationOperations.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-014"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S011",
+          "title": "Component state matrix: owner-private / ShareManagement.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-016",
+            "ST-017"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S012",
+          "title": "Component state matrix: owner-private / TransferPanel.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-018",
+            "ST-020",
+            "ST-022",
+            "ST-024",
+            "ST-019",
+            "ST-021",
+            "ST-023"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S013",
+          "title": "Component state matrix: owner-private / TransferTasks.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-025",
+            "ST-026",
+            "ST-027"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S014",
+          "title": "Component state matrix: owner-private / PortableJobs.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-028"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:23.683Z"
+    },
+    {
+      "id": "GEN-024",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-S015",
+          "title": "Component state matrix: owner-private / MaintenanceSettings.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-034",
+            "ST-035",
+            "ST-036"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S016",
+          "title": "Component state matrix: owner-private / OrganizationRetentionSettings.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-037"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S017",
+          "title": "Component state matrix: owner-private / PluginManager.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-047",
+            "ST-051",
+            "ST-052",
+            "ST-053",
+            "ST-054",
+            "ST-048",
+            "ST-049"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S018",
+          "title": "Component state matrix: owner-private / PluginManager.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-051",
+            "ST-053",
+            "ST-054"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S019",
+          "title": "Component state matrix: owner-private / PluginBoundary.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-055",
+            "ST-056"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S020",
+          "title": "Component state matrix: owner-private / MCPConnectionGuide.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-057",
+            "ST-058"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S021",
+          "title": "Component state matrix: owner-private / MCPAuthorizationManager.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-059",
+            "ST-061"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S022",
+          "title": "Component state matrix: owner-private / MCPClientPermissions.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-060"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:23.799Z"
+    },
+    {
+      "id": "GEN-025",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-S023",
+          "title": "Component state matrix: owner-private / MCPDomainPermissions.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-062"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S025",
+          "title": "Component state matrix: owner-private / MCPApiClients.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-064",
+            "ST-065",
+            "ST-066",
+            "ST-067",
+            "ST-068",
+            "ST-072",
+            "ST-070",
+            "ST-071"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S026",
+          "title": "Component state matrix: owner-private / MCPApiClients.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-068",
+            "ST-069",
+            "ST-071",
+            "ST-072"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S027",
+          "title": "Component state matrix: owner-private / index.ts",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-073"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S028",
+          "title": "Component state matrix: owner-private / GitRemotePanel.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-074"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S029",
+          "title": "Component state matrix: owner-private / GitRemotePanel.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-074",
+            "ST-075",
+            "ST-076",
+            "ST-077",
+            "ST-078",
+            "ST-080"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S030",
+          "title": "Component state matrix: owner-private / GitRemotePanel.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-074",
+            "ST-077",
+            "ST-078",
+            "ST-080",
+            "ST-076",
+            "ST-079"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:23.914Z"
+    },
+    {
+      "id": "GEN-026",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-S031",
+          "title": "Component state matrix: owner-private / GitRemotePanel.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-080"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S032",
+          "title": "Component state matrix: owner-private / GitRepositoryImport.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-081"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S033",
+          "title": "Component state matrix: owner-private / index.ts",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-082",
+            "ST-083",
+            "ST-084"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S034",
+          "title": "Component state matrix: owner-private / SettingsOverlay.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-089"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S035",
+          "title": "Component state matrix: owner-private / api.ts",
+          "kind": "state-board",
+          "sourceIds": [
+            "ST-090"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S036",
+          "title": "Component state matrix: visitor-login / Login.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-001",
+            "PB-002"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S037",
+          "title": "Component state matrix: owner-reauth / Login.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-003"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S038",
+          "title": "Component state matrix: unknown-session-bootstrap / App.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-004",
+            "PB-005",
+            "PB-007"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:24.034Z"
+    },
+    {
+      "id": "GEN-027",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-S039",
+          "title": "Component state matrix: owner-bootstrap / App.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-006"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S040",
+          "title": "Component state matrix: owner-setup / SetupWizard.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-008",
+            "PB-009",
+            "PB-013",
+            "PB-015"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S041",
+          "title": "Component state matrix: owner-setup / SetupWizard.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-009",
+            "PB-010",
+            "PB-017"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S042",
+          "title": "Component state matrix: owner-setup / GitRepositoryImport.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-011"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S043",
+          "title": "Component state matrix: owner-setup / SetupFeatures.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-012"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S044",
+          "title": "Component state matrix: owner-setup / SetupImport.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-014"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S045",
+          "title": "Component state matrix: owner-oauth / OAuthConsent.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-018",
+            "PB-019"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S046",
+          "title": "Component state matrix: owner-oauth / App.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-021"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:24.151Z"
+    },
+    {
+      "id": "GEN-028",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-S047",
+          "title": "Component state matrix: anonymous-share-reader / ShareReader.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-022",
+            "PB-023",
+            "PB-025"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S048",
+          "title": "Component state matrix: anonymous-share-reader / ShareReader.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-022"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S049",
+          "title": "Component state matrix: valid-edit-guest / PublicShareEditor.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-026",
+            "PB-027"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S050",
+          "title": "Component state matrix: valid-edit-guest / PublicShareEditor.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-026",
+            "PB-027",
+            "PB-028"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S051",
+          "title": "Component state matrix: valid-edit-guest / PublicShareEditor.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-026",
+            "PB-027"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S052",
+          "title": "Component state matrix: valid-edit-guest / PublicShareEditor.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-026"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S053",
+          "title": "Component state matrix: valid-edit-guest / PublicShareEditor.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-027",
+            "PB-028"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S054",
+          "title": "Component state matrix: owner-private / BlogWorkspace.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-030",
+            "PB-032",
+            "PB-037",
+            "PB-040"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:24.270Z"
+    },
+    {
+      "id": "GEN-029",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-S055",
+          "title": "Component state matrix: owner-private / BlogWorkspace.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-030",
+            "PB-031",
+            "PB-033",
+            "PB-049",
+            "PB-032",
+            "PB-037"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S056",
+          "title": "Component state matrix: owner-private / BlogWorkspace.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-037",
+            "PB-038",
+            "PB-039",
+            "PB-040",
+            "PB-049"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S057",
+          "title": "Component state matrix: owner-private / BlogWorkspace.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-049"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S058",
+          "title": "Component state matrix: owner-private / BlogArticleCover.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-034"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S059",
+          "title": "Component state matrix: owner-private / BlogImageEditor.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-035"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S060",
+          "title": "Component state matrix: owner-private / BlogPublicationReview.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-036"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S061",
+          "title": "Component state matrix: owner-private / BlogDesignAppearance.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-041"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S062",
+          "title": "Component state matrix: owner-private / BlogDesignModules.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-042"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:24.388Z"
+    },
+    {
+      "id": "GEN-030",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-S063",
+          "title": "Component state matrix: owner-private / BlogDesignCollections.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-043"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S064",
+          "title": "Component state matrix: owner-private / BlogDesignLinks.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-044"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S065",
+          "title": "Component state matrix: owner-private / BlogDesignProjects.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-045"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S066",
+          "title": "Component state matrix: owner-private / BlogPreviewViewport.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-046"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S067",
+          "title": "Component state matrix: owner-private / BlogDesignStudio.vue",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-047",
+            "PB-048"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S068",
+          "title": "Component state matrix: anonymous-blog / render.ts",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-050",
+            "PB-051",
+            "PB-052",
+            "PB-053"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S069",
+          "title": "Component state matrix: anonymous-blog / render.ts",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-054",
+            "PB-056",
+            "PB-057"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-S070",
+          "title": "Component state matrix: anonymous-blog / render.ts",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-058",
+            "PB-059"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:24.508Z"
+    },
+    {
+      "id": "GEN-031",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-S071",
+          "title": "Component state matrix: anonymous-blog / reader-script.ts",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-055"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-SX002",
+          "title": "Component state matrix: owner-private / BlogWorkspace.vue · concrete variant supplement",
+          "kind": "state-board",
+          "sourceIds": [
+            "PB-037",
+            "PB-038",
+            "PB-039",
+            "PB-040",
+            "PB-049"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D010",
+          "title": "Notebook tree, resize and mounted Git decorations",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-103"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D017",
+          "title": "Move note into trash confirmation / Move entire folder into trash confirmation",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-020",
+            "WS-021"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D024",
+          "title": "Note more-actions menu / Document outline popup / Docked document outline",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-028",
+            "WS-047",
+            "WS-048"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D026",
+          "title": "Paragraph and heading picker / Table insertion picker / Text color palette",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-030",
+            "WS-031",
+            "WS-032",
+            "WS-033"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D028",
+          "title": "Contextual table toolbar / Contextual image settings / Contextual link actions",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-034",
+            "WS-035",
+            "WS-036"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:24.644Z"
+    },
+    {
+      "id": "GEN-032",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-D031",
+          "title": "Copy preserved original source / Delete preserved content confirmation / Unsupported paste choice",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-039",
+            "WS-040",
+            "WS-041"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D038",
+          "title": "Metadata-only large note and current-fragment reading preview",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-050",
+            "WS-051"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D055",
+          "title": "Primary diagram action menu and unsaved-close prompt",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-075",
+            "WS-077"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D057",
+          "title": "Expanded inline diagram presentation / Inline diagram source and download view",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-079",
+            "WS-080"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D058",
+          "title": "Mind map node operation menu / Mind map shortcut help popup",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-081",
+            "WS-082"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D079",
+          "title": "Preserved unsupported Markdown and knowledge preview card / Owner rich-editor eligibility fallback / source-only configuration",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-104",
+            "WS-105"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D083",
+          "title": "Trash inline restore rename and pending-request banner",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-109",
+            "WS-111"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D086",
+          "title": "Share lifecycle and conditional-field specimens",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-114",
+            "WS-115",
+            "WS-116",
+            "WS-117",
+            "WS-118",
+            "WS-119",
+            "WS-120"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:24.764Z"
+    },
+    {
+      "id": "GEN-033",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-D088",
+          "title": "Share busy, retained error and copy feedback specimens",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-121",
+            "WS-122"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-M003",
+          "title": "Workspace startup and global availability feedback — compact component state matrix",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-010"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-M004",
+          "title": "File operation progress and reconciliation — compact component state matrix",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-052"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-M005",
+          "title": "Local draft recovery prompt — compact component state matrix",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-054"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-M006",
+          "title": "Save pending, dirty, draft and service status — compact component state matrix",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-059"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-M007",
+          "title": "Editor async loading and failed bundle state — compact component state matrix",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-060"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-M008",
+          "title": "Attachment upload queue and recovery panel — compact component state matrix",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-061"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-M009",
+          "title": "Saved note history and diff modal — compact component state matrix",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-064"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:24.878Z"
+    },
+    {
+      "id": "GEN-034",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-M010",
+          "title": "Primary diagram recovery, resource-readonly and failed save — compact component state matrix",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-076"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-M011",
+          "title": "Graph analysis task progress modal — compact component state matrix",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-088"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-M012",
+          "title": "Graph model configuration modal — compact component state matrix",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-089"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-M013",
+          "title": "Graph empty/error/limited/similarity feedback — compact component state matrix",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-096"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-M014",
+          "title": "Trash loading, empty, unreadable and list-error variants — compact component state matrix",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-110"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-V001",
+          "title": "Packaged Excalidraw main menu / Canvas background hex-color popup",
+          "kind": "vendor-board",
+          "sourceIds": [
+            "RTD-003",
+            "RTD-004"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-V002",
+          "title": "Excalidraw find and library sidebars with local library menu",
+          "kind": "vendor-board",
+          "sourceIds": [
+            "RTD-005",
+            "RTD-010",
+            "RTD-011"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-V004",
+          "title": "Clear canvas confirmation / More tools menu",
+          "kind": "vendor-board",
+          "sourceIds": [
+            "RTD-007",
+            "RTD-008"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:24.992Z"
+    },
+    {
+      "id": "GEN-035",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-V007",
+          "title": "Empty canvas context menu / Canvas statistics panel",
+          "kind": "vendor-board",
+          "sourceIds": [
+            "RTD-012",
+            "RTD-013"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-V008",
+          "title": "Excalidraw rectangle, arrow and text property sections",
+          "kind": "vendor-board",
+          "sourceIds": [
+            "RTD-014",
+            "RTD-017",
+            "RTD-020"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-V009",
+          "title": "Excalidraw stroke/fill color picker atdesktop/390/320",
+          "kind": "vendor-board",
+          "sourceIds": [
+            "RTD-015",
+            "RTD-016"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-V011",
+          "title": "Excalidraw start/end arrowhead picker and expanded options",
+          "kind": "vendor-board",
+          "sourceIds": [
+            "RTD-018",
+            "RTD-019"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R-GET046",
+          "title": "PB-046 · authenticated GET standalone private homepage HTML · responsive 390/320",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-046"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R001",
+          "title": "Responsive family: EditorSettings.vue .settings-row / sticky preference actions",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-001"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R002",
+          "title": "Responsive family: EditorSettings.vue .editor-preview / two-pane preview",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-010"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R003",
+          "title": "Responsive family: SettingsWorkspace/settings-workspace .settings-stack .settings-card: long card sections, inner table/details containment",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-002"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:25.127Z"
+    },
+    {
+      "id": "GEN-036",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-R004",
+          "title": "Responsive family: AccountSettings.vue device list and current-owner card",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-007"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R006",
+          "title": "Responsive family: OrganizationOperations.vue directory/multi-selection form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-014"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R007",
+          "title": "Responsive family: ShareManagement.vue filter plus share rows",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-016"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R009",
+          "title": "Responsive family: SettingsOverlay + TransferPanel batch-file/path/options dense form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-018"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R010",
+          "title": "Responsive family: SettingsOverlay + TransferPanel stepper/table/summary/error stage regions",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-019"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R011",
+          "title": "Responsive family: SettingsOverlay + TransferPanel portable file-source/result region",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-022"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R012",
+          "title": "Responsive family: SettingsOverlay + TransferPanel export scope/tree compact form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-024"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R013",
+          "title": "Responsive family: TransferTasks.vue task rows, item results and restored-copy details",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-025"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:25.251Z"
+    },
+    {
+      "id": "GEN-037",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-R014",
+          "title": "Responsive family: PortableJobs.vue preview/source-resume task rows",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-028"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R015",
+          "title": "Responsive family: SettingsOverlay .settings-form .settings-field password inputs and validation",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-030"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R016",
+          "title": "Responsive family: SettingsOverlay summary/impact/confirmation with scroll body and footer",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-031"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R019",
+          "title": "Responsive family: PluginManager.vue installed/catalog plugin cards and lifecycle bindings",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-006"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R020",
+          "title": "Responsive family: PluginManager.vue MCP full config with conflict banner",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-049"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R021",
+          "title": "Responsive family: PluginManager.vue Git author/email compact config",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-050"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R023",
+          "title": "Responsive family: PluginPanel/PluginBoundary.vue shared host, bridge button or actual boundary alert",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-055"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R024",
+          "title": "Responsive family: MCPConnectionGuide.vue OAuth/API guide address and command layout",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-057"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:25.368Z"
+    },
+    {
+      "id": "GEN-038",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-R025",
+          "title": "Responsive family: MCPAuthorizationManager.vue OAuth rows and inline revoke confirmation",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-059"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R026",
+          "title": "Responsive family: MCPDomainPermissions.vue nested domain/action/resource policy form under current host ceiling",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-060"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R028",
+          "title": "Responsive family: MCPApiClients.vue client rows/status and existing conflict/revoke regions",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-064"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R029",
+          "title": "Responsive family: MCPApiClients.vue .client-form name/expiry/policy dense issuance form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-065"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R030",
+          "title": "Responsive family: MCPApiClients.vue .client-form compact name or expiry form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-066"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R031",
+          "title": "Responsive family: MCPApiClients.vue .one-time-secret region",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-070"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R032",
+          "title": "Responsive family: plugins/mcp/web/index.ts Naive connection/call list",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-073"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R033",
+          "title": "Responsive family: GitRemotePanel.vue sync status/task/reconciliation regions",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-074"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:25.486Z"
+    },
+    {
+      "id": "GEN-039",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-R035",
+          "title": "Responsive family: GitRemotePanel + SettingsOverlay HTTPS credential dense form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-076"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R036",
+          "title": "Responsive family: GitRemotePanel SSH key/known-hosts/trust dense form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-077"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R037",
+          "title": "Responsive family: GitRemotePanel commit-and-push author/message/diff form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-078"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R038",
+          "title": "Responsive family: GitRepositoryImport.vue clone target/credential form in owner host",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-081"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R039",
+          "title": "Responsive family: plugins/git/web/index.ts repository/status acknowledgement region",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-082"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R040",
+          "title": "Responsive family: plugins/git/web/index.ts commit message/current-preview/result region",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-083"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R041",
+          "title": "Responsive family: SettingsOverlay.vue discard footer and source-trigger focus",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "ST-089"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R042",
+          "title": "Responsive family: Login.vue standalone visitor login/help card",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-001"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:25.605Z"
+    },
+    {
+      "id": "GEN-040",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-R044",
+          "title": "Responsive family: App.vue neutral unknown-session loading/module/error shell, no private data",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-004"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R046",
+          "title": "Responsive family: SetupWizard.vue creation/advanced/initializing/deployment-status step shell",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-008"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R047",
+          "title": "Responsive family: SetupWizard.vue existing-directory browser",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-009"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R048",
+          "title": "Responsive family: SetupWizard + GitRepositoryImport.vue bootstrap clone form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-011"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R049",
+          "title": "Responsive family: SetupFeatures.vue optional-feature cards",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-012"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R050",
+          "title": "Responsive family: SetupWizard complete-step + embedded SetupImport.vue single-Markdown region",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-013"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R051",
+          "title": "Responsive family: OAuthConsent.vue requested-domain policy-ceiling form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-018"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R052",
+          "title": "Responsive family: OAuthConsent.vue legacy scopes/directory form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-019"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:25.725Z"
+    },
+    {
+      "id": "GEN-041",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-R053",
+          "title": "Responsive family: App/OAuthConsent standalone consent-error/continuation shell",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-020"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R054",
+          "title": "Responsive family: ShareReader.vue capability article/fragment reader and TOC containment",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-022"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R055",
+          "title": "Responsive family: ShareReader.vue generic capability404 or temporary-read error card",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-024"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R056",
+          "title": "Responsive family: PublicShareEditor.vue valid-edit document host plus retained-draft error bar",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-026"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R057",
+          "title": "Responsive family: PublicShareEditor/NoteEditorHost source-code editor host",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-027"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R059",
+          "title": "Responsive family: BlogWorkspace.vue overview status/stat/recent rows",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-030"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R060",
+          "title": "Responsive family: BlogWorkspace.vue article filter/list rows",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-031"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R061",
+          "title": "Responsive family: BlogWorkspace.vue article metadata/publish full form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-032"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_regenerate_first_six",
+      "claimedAt": "2026-11-05T02:09:25.842Z"
+    },
+    {
+      "id": "GEN-042",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-R062",
+          "title": "Responsive family: BlogWorkspace.vue Markdown-note selection dialog",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-033"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R063",
+          "title": "Responsive family: BlogArticleCover.vue attachment thumbnail picker",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-034"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R064",
+          "title": "Responsive family: BlogImageEditor.vue image crop/position form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-035"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R065",
+          "title": "Responsive family: BlogPublicationReview.vue private preview/reference checks",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-036"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R066",
+          "title": "Responsive family: BlogWorkspace.vue inline article alertdialog confirmation",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-037"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R067",
+          "title": "Responsive family: BlogWorkspace.vue taxonomy search/count rows",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-039"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R068",
+          "title": "Responsive family: BlogWorkspace.vue saved-site settings full form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-040"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R069",
+          "title": "Responsive family: BlogDesignAppearance.vue template/profile/media full form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-041"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T02:09:25.961Z"
+    },
+    {
+      "id": "GEN-043",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-R070",
+          "title": "Responsive family: BlogDesignModules.vue editable module rows",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-042"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R071",
+          "title": "Responsive family: BlogDesignCollections.vue collection and member-order/picker rows",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-043"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R072",
+          "title": "Responsive family: BlogDesignLinks/Projects.vue shared .blog-edit-list-item .blog-form-row .blog-row-actions compact ordered-item form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-044"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R073",
+          "title": "Responsive family: BlogPreviewViewport.vue internal1100/375 viewport scaling; inline/modal host focus remains separately bound",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-046"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R074",
+          "title": "Responsive family: BlogDesignStudio.vue revision history rows",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-048"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R075",
+          "title": "Responsive family: BlogWorkspace/BlogDesignStudio existing version-conflict banner; exact host input retention bindings",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-049"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R076",
+          "title": "Responsive family: render.ts journal public homepage template",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-050"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R077",
+          "title": "Responsive family: render.ts magazine public homepage template",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-051"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_remaining_odd",
+      "claimedAt": "2026-11-05T02:09:26.079Z",
+      "transferHistory": [
+        {
+          "atUtc": "2026-11-05T08:24:15.340Z",
+          "from": "platform_regenerate_first_six",
+          "to": "platform_generate_remaining_odd",
+          "reason": "Scoped fresh-context recovery after repeated turn Bad Request; completed artifacts preserved."
+        }
+      ]
+    },
+    {
+      "id": "GEN-044",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "MP-R078",
+          "title": "Responsive family: render.ts profile public homepage template",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-052"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R079",
+          "title": "Responsive family: render.ts public article search/filter/paging",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-053"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R080",
+          "title": "Responsive family: render.ts/reader-script.ts public article/TOC/code-copy/share feedback",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-054"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R081",
+          "title": "Responsive family: render.ts public sanitized about body",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-056"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R082",
+          "title": "Responsive family: render.ts public collection index cards",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-057"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R083",
+          "title": "Responsive family: render.ts public ordered collection-detail post cards",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-058"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "MP-R084",
+          "title": "Responsive family: render.ts public month/year archive rows",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "PB-059"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D002",
+          "title": "Mobile notebook navigation drawer",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-002",
+            "WS-003",
+            "WS-103"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_remaining_even",
+      "claimedAt": "2026-11-05T02:09:26.209Z",
+      "transferHistory": [
+        {
+          "atUtc": "2026-11-05T08:48:23.013Z",
+          "from": "platform_generate_settings01",
+          "to": "platform_generate_remaining_even",
+          "reason": "Fresh scoped recovery after generic turn Bad Request; only remaining targets, completed artifacts preserved."
+        }
+      ]
+    },
+    {
+      "id": "GEN-045",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-D069",
+          "title": "Mobile graph node/edge inspector drawer",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-093"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-D074",
+          "title": "Compact more-navigation sheet",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-098"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R001",
+          "title": "Notebook workspace / root landing",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-001"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R003",
+          "title": "Directory contents page",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-006"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R004",
+          "title": "Recent notes collection / Favorite notes collection",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-007",
+            "WS-008"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R005",
+          "title": "New Markdown note",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-011"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R009",
+          "title": "Import Markdown entry modal",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-022"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R010",
+          "title": "Canonical shared directory tree selector popup",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-023"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_remaining_odd",
+      "claimedAt": "2026-11-05T02:09:26.331Z",
+      "transferHistory": [
+        {
+          "atUtc": "2026-11-05T08:24:15.340Z",
+          "from": "platform_regenerate_first_six",
+          "to": "platform_generate_remaining_odd",
+          "reason": "Scoped fresh-context recovery after repeated turn Bad Request; completed artifacts preserved."
+        }
+      ]
+    },
+    {
+      "id": "GEN-046",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-R011",
+          "title": "Rich document note editor",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-024"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R012",
+          "title": "Owner CodeMirror source page at390/320",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-025",
+            "WS-072"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R013",
+          "title": "Markdown source with live preview",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-026"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R014",
+          "title": "Document formatting toolbar",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-029"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R015",
+          "title": "Contextual image settings",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-035"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R019",
+          "title": "YAML document properties",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-043"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R022",
+          "title": "Large-file fragment editor",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-049"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R023",
+          "title": "Saved note history and diff modal",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-064"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_remaining_even",
+      "claimedAt": "2026-11-05T02:09:26.445Z",
+      "transferHistory": [
+        {
+          "atUtc": "2026-11-05T08:48:23.013Z",
+          "from": "platform_generate_settings01",
+          "to": "platform_generate_remaining_even",
+          "reason": "Fresh scoped recovery after generic turn Bad Request; only remaining targets, completed artifacts preserved."
+        }
+      ]
+    },
+    {
+      "id": "GEN-047",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-R024",
+          "title": "Primary whiteboard editor",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-068"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R025",
+          "title": "Primary mind map editor",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-069"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R026",
+          "title": "Primary Mermaid flowchart editor",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-070"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R027",
+          "title": "Embedded primary whiteboard editing overlay",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-071"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R028",
+          "title": "Primary diagram saved PNG page at390/320",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-073"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R029",
+          "title": "Unsaved diagram close prompt",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-077"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R030",
+          "title": "Inline SVG / Mermaid / whiteboard diagram card",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-078"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R031",
+          "title": "Rich editor code-block controls and copy fallback",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-083"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_remaining_odd",
+      "claimedAt": "2026-11-05T02:09:26.559Z",
+      "transferHistory": [
+        {
+          "atUtc": "2026-11-05T08:24:15.340Z",
+          "from": "platform_regenerate_first_six",
+          "to": "platform_generate_remaining_odd",
+          "reason": "Scoped fresh-context recovery after repeated turn Bad Request; completed artifacts preserved."
+        }
+      ]
+    },
+    {
+      "id": "GEN-048",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-R032",
+          "title": "Native applications home",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-084"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R033",
+          "title": "Knowledge graph canvas page",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-085"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R034",
+          "title": "Graph accessible node and relationship list / Note reference graph mode",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-086",
+            "WS-106"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R035",
+          "title": "Graph filters and path/range modal",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-087"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R037",
+          "title": "Graph model configuration modal",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-089"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R038",
+          "title": "Graph relationship review modal",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-090"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R040",
+          "title": "Evidence-based graph question modal",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-092"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R041",
+          "title": "Owner share create/edit/reset/revoke form",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-099"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_remaining_even",
+      "claimedAt": "2026-11-05T02:09:26.676Z",
+      "transferHistory": [
+        {
+          "atUtc": "2026-11-05T08:48:23.013Z",
+          "from": "platform_generate_settings01",
+          "to": "platform_generate_remaining_even",
+          "reason": "Fresh scoped recovery after generic turn Bad Request; only remaining targets, completed artifacts preserved."
+        }
+      ]
+    },
+    {
+      "id": "GEN-049",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-R044",
+          "title": "Trash workspace page",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-107",
+            "WS-109"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R045",
+          "title": "Permanent removal of selected trash files confirmation",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-108"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R049",
+          "title": "Standalone exported reading HTML / app-owned print document",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-124"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-R050",
+          "title": "Owner reading article at390/320",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "WS-027",
+            "WS-074"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-VR001",
+          "title": "Excalidraw mobile main/extra menu and background HEX",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "RTD-003",
+            "RTD-004",
+            "RTD-008"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-VR002",
+          "title": "Excalidraw mobile Sidebar family at390/320",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "RTD-005",
+            "RTD-010",
+            "RTD-011"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-VR003",
+          "title": "Excalidraw help and keyboard shortcuts",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "RTD-006"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-VR004",
+          "title": "Mermaid to Excalidraw dialog",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "RTD-009"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "platform_generate_remaining_odd",
+      "claimedAt": "2026-11-05T02:09:26.791Z",
+      "transferHistory": [
+        {
+          "atUtc": "2026-11-05T08:24:15.340Z",
+          "from": "platform_regenerate_first_six",
+          "to": "platform_generate_remaining_odd",
+          "reason": "Scoped fresh-context recovery after repeated turn Bad Request; completed artifacts preserved."
+        }
+      ]
+    },
+    {
+      "id": "GEN-050",
+      "state": "reviewed-pass",
+      "assets": [
+        {
+          "id": "WS-VR005",
+          "title": "Empty canvas context menu",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "RTD-012"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        },
+        {
+          "id": "WS-VR006",
+          "title": "Excalidraw mobile Edit property-sheet family at390/320",
+          "kind": "responsive-board",
+          "sourceIds": [
+            "RTD-014",
+            "RTD-017",
+            "RTD-020"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": false
+        }
+      ],
+      "agent": "root",
+      "claimedAt": "2026-11-05T02:09:26.904Z",
+      "transferHistory": [
+        {
+          "atUtc": "2026-11-05T08:13:44.916Z",
+          "from": "platform_generate_settings01",
+          "to": "root",
+          "reason": "Explicit handoff acknowledged before any GEN050 calls or outputs; root parallel assistance."
+        }
+      ]
+    },
+    {
+      "id": "GEN-051",
+      "state": "reviewed-pass",
+      "agent": "platform_generate_settings01",
+      "claimedAt": "2026-11-05T06:01:03.894Z",
+      "assets": [
+        {
+          "id": "WS-M017",
+          "title": "GraphOverlay shared unsaved-close guard",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-089"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": true
+        }
+      ]
+    },
+    {
+      "id": "GEN-052",
+      "state": "reviewed-pass",
+      "agent": "root",
+      "claimedAt": "2026-11-05T08:46:44.836Z",
+      "assets": [
+        {
+          "id": "WS-M018",
+          "title": "Exact notebook search feedback and sidebar directory error",
+          "kind": "state-board",
+          "sourceIds": [
+            "WS-003",
+            "WS-002"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": true
+        }
+      ]
+    },
+    {
+      "id": "GEN-053",
+      "state": "reviewed-pass",
+      "agent": "root",
+      "claimedAt": "2026-11-05T09:42:46.700Z",
+      "assets": [
+        {
+          "id": "WS-M019",
+          "title": "Loaded structured diff layout and narrow fallback geometry",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-064",
+            "WS-066"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": true
+        }
+      ]
+    },
+    {
+      "id": "GEN-054",
+      "state": "reviewed-pass",
+      "agent": "root",
+      "claimedAt": "2026-11-05T10:27:00.435Z",
+      "assets": [
+        {
+          "id": "WS-M020",
+          "title": "Source-exact collection update, invalid link and large-file error feedback",
+          "kind": "component-comparison",
+          "sourceIds": [
+            "WS-009",
+            "WS-037",
+            "WS-053"
+          ],
+          "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+          "currentStatus": "missing",
+          "activeClaim": true
+        }
+      ]
+    }
+  ],
+  "updatedAt": "2026-11-05T10:35:34.657Z",
+  "exactRetirements": [
+    {
+      "assetId": "MP-S024",
+      "reuse": "MP-D050/A,B,C",
+      "reason": "The only requested state is exactly the checked-parent/inherited-child state already visibly drawn in the same KnowledgeResourceTreeSelect at desktop/390/320. This is not reuse based on a generic parent form."
+    },
+    {
+      "assetId": "MP-SX001",
+      "reuse": "MP-S012/A/r1,r3",
+      "audit": "design/reviews/remaining-transfer-directory-reuse-review.json"
+    }
+  ]
+}

@@ -1,0 +1,959 @@
+[
+  {
+    "id": "create-menu",
+    "title": "create-menu",
+    "sourceIds": [
+      "WS-004"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-create-menu.png",
+    "sha256": "8c8af09025d22457d3bd6f56c2202d5c22eceaad15ddfbd379cf98963a571639",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 111,
+      "y": 169,
+      "width": 180,
+      "height": 246
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-note",
+    "title": "new-note",
+    "sourceIds": [
+      "WS-011"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-new-note.png",
+    "sha256": "6b0be94c7c78affb68d8a299f238934f46b3f8bac35bdc8acc74760ac563db01",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 445,
+      "y": 305.015625,
+      "width": 550,
+      "height": 389.953125
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-whiteboard",
+    "title": "new-whiteboard",
+    "sourceIds": [
+      "WS-013"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-new-whiteboard.png",
+    "sha256": "7950f183cdc52fde2f7d3b482d13f86b88c59d32314c43ecd3aac6eecd203643",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 445,
+      "y": 304.828125,
+      "width": 550,
+      "height": 390.34375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-mindmap",
+    "title": "new-mindmap",
+    "sourceIds": [
+      "WS-014"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-new-mindmap.png",
+    "sha256": "5f03402b37888eee5a237abf0e50959fdc0241862816e7804e598a373b925ad8",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 445,
+      "y": 304.828125,
+      "width": 550,
+      "height": 390.34375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-flowchart",
+    "title": "new-flowchart",
+    "sourceIds": [
+      "WS-015"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-new-flowchart.png",
+    "sha256": "79f524ffcb2793507b1476fa2a678b350230f68cb96e427beecb7b7ead093459",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 445,
+      "y": 304.828125,
+      "width": 550,
+      "height": 390.34375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "import-markdown",
+    "title": "import-markdown",
+    "sourceIds": [
+      "WS-022"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-import-markdown.png",
+    "sha256": "be08e92598bc76d5f3c78f22c80b7db73def1c55b60a92e9c8e74aa05b90f102",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 445,
+      "y": 209.28125,
+      "width": 550,
+      "height": 581.421875
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "note-move",
+    "title": "note-move",
+    "sourceIds": [
+      "WS-017"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-note-move.png",
+    "sha256": "b6a1867ee801fd267a4a8f6eddac23475a9fc2bca960ce8952a015fafff2e292",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 445,
+      "y": 311.828125,
+      "width": 550,
+      "height": 376.34375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "note-share",
+    "title": "note-share",
+    "sourceIds": [
+      "WS-099"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-note-share.png",
+    "sha256": "d762514a30e4eb00193ad723b949ba72cda057c4d1f00801fb59a6bf68a0dbbc",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 445,
+      "y": 232.125,
+      "width": 550,
+      "height": 535.75
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "note-history",
+    "title": "note-history",
+    "sourceIds": [
+      "WS-064"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-note-history.png",
+    "sha256": "381b48652b6513c5b734446594da0fea01ed3a4afa2ccbf7c101fba73eb8dd4c",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 16,
+      "y": 16,
+      "width": 1408,
+      "height": 968
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "create-menu",
+    "title": "create-menu",
+    "sourceIds": [
+      "WS-004"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-create-menu.png",
+    "sha256": "d71fb0b22f7e16f3bc85551504337fae5835c2f0cdbd5e5612b7bed67451ec95",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 128.6328582763672,
+      "y": 173.4285430908203,
+      "width": 163.4691925048828,
+      "height": 223.4078826904297
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-note",
+    "title": "new-note",
+    "sourceIds": [
+      "WS-011"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-new-note.png",
+    "sha256": "e0304915f0dc1c7b5176ecbefa1948e4809b4b031255f71e3c5e7953124d00ae",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 231.015625,
+      "width": 362,
+      "height": 381.953125
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-whiteboard",
+    "title": "new-whiteboard",
+    "sourceIds": [
+      "WS-013"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-new-whiteboard.png",
+    "sha256": "caf427f442ee86174e8a3817493fcadf7d5e2beaedec5168ab8840342dc76f13",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 219.625,
+      "width": 362,
+      "height": 404.734375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-mindmap",
+    "title": "new-mindmap",
+    "sourceIds": [
+      "WS-014"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-new-mindmap.png",
+    "sha256": "bfeb231261d8570c23ca277d480ed227610f2bdf16493bbc9c5e4b60d588ee2b",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 219.625,
+      "width": 362,
+      "height": 404.734375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-flowchart",
+    "title": "new-flowchart",
+    "sourceIds": [
+      "WS-015"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-new-flowchart.png",
+    "sha256": "21f59681b91af9d7ff54ee78a0d2710121c58063c0dcc8158ce97398005a91b8",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 219.625,
+      "width": 362,
+      "height": 404.734375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "import-markdown",
+    "title": "import-markdown",
+    "sourceIds": [
+      "WS-022"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-import-markdown.png",
+    "sha256": "42910e1b507e38a8ac74389df0063f8d9e7e80b2a591ca3b1b471966bd7f3c62",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 127.1875,
+      "width": 362,
+      "height": 589.609375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "note-move",
+    "title": "note-move",
+    "sourceIds": [
+      "WS-017"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-note-move.png",
+    "sha256": "b870e69f9ce88fe72e68903776994895b3079131afae1bf7ed1367c69818a1c5",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 237.828125,
+      "width": 362,
+      "height": 368.34375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "note-share",
+    "title": "note-share",
+    "sourceIds": [
+      "WS-099"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-note-share.png",
+    "sha256": "bfe13db55735e5ac1ea899e1f4cea6cdf232ef8b4bb9cdda28b84d1297123cfa",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 89.078125,
+      "width": 362,
+      "height": 665.84375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "note-history",
+    "title": "note-history",
+    "sourceIds": [
+      "WS-064"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-note-history.png",
+    "sha256": "f01aa5ae53097c868e4afc4d26102d940ad207edb7d797ae154872862ea06f31",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 6,
+      "y": 6,
+      "width": 378,
+      "height": 832
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "create-menu",
+    "title": "create-menu",
+    "sourceIds": [
+      "WS-004"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-create-menu.png",
+    "sha256": "c59f3e2f24f7a28c84aa7db1303a7238a45296d451fd4f556d542473dba21d85",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 80.61707305908203,
+      "y": 173.43084716796875,
+      "width": 163.48400115966797,
+      "height": 223.42813110351562
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-note",
+    "title": "new-note",
+    "sourceIds": [
+      "WS-011"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-new-note.png",
+    "sha256": "235a2e9a5260da0c7b6a260b0131cceefdf740c4f885e88d55f89c6fe3f99c05",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 219.828125,
+      "width": 292,
+      "height": 404.34375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-whiteboard",
+    "title": "new-whiteboard",
+    "sourceIds": [
+      "WS-013"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-new-whiteboard.png",
+    "sha256": "11577e7360f8ad8c902a980700f52026a4831408df99e5a5dbc521090433f073",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 219.625,
+      "width": 292,
+      "height": 404.734375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-mindmap",
+    "title": "new-mindmap",
+    "sourceIds": [
+      "WS-014"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-new-mindmap.png",
+    "sha256": "be114589c4edadc35a56bddd79c138d12db2114c2a08d6f70db39e3baf3b80af",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 219.625,
+      "width": 292,
+      "height": 404.734375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-flowchart",
+    "title": "new-flowchart",
+    "sourceIds": [
+      "WS-015"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-new-flowchart.png",
+    "sha256": "6fdc77f91fc25dc99de1fbcb6c01b195e9251e64bfaceaa1efb2441ead9aaace",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 219.625,
+      "width": 292,
+      "height": 404.734375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "import-markdown",
+    "title": "import-markdown",
+    "sourceIds": [
+      "WS-022"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-import-markdown.png",
+    "sha256": "31b9cef619314d0ae27e5d955230bccb939e26971ee8d2973b4eeb2549921f1f",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 115.171875,
+      "width": 292,
+      "height": 613.65625
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "note-move",
+    "title": "note-move",
+    "sourceIds": [
+      "WS-017"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-note-move.png",
+    "sha256": "7052a6ae9ce1bca00927b2dc0b891905cb8d0cb4d31787246159081366f9255d",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 226.625,
+      "width": 292,
+      "height": 390.734375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "note-share",
+    "title": "note-share",
+    "sourceIds": [
+      "WS-099"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-note-share.png",
+    "sha256": "7bf50d83e6fa10fd40e97fe9cd8f5816568fce789f1480235831982d9c79292b",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 89.078125,
+      "width": 292,
+      "height": 665.84375
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "note-history",
+    "title": "note-history",
+    "sourceIds": [
+      "WS-064"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-note-history.png",
+    "sha256": "3e37551b74ef425a1dbac845f6551b908160829d3eca4da65aa78ab956c50f22",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 6,
+      "y": 6,
+      "width": 308,
+      "height": 832
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-folder",
+    "title": "new-folder",
+    "sourceIds": [
+      "WS-012"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-new-folder.png",
+    "sha256": "fbdb2e4ffa585c8b8275fd78f8c6279c6116e34d55a0a466d6c878feb21eb3e8",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 445,
+      "y": 323.015625,
+      "width": 550,
+      "height": 353.953125
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "note-more",
+    "title": "note-more",
+    "sourceIds": [
+      "WS-028"
+    ],
+    "width": 1440,
+    "height": 1000,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "1440-note-more.png",
+    "sha256": "37fb6a3376e39ef2488b58aa099e717b89360a2324f68aa698d01c94c919d7ed",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 1188,
+      "y": 53,
+      "width": 216,
+      "height": 314
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-folder",
+    "title": "new-folder",
+    "sourceIds": [
+      "WS-012"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-new-folder.png",
+    "sha256": "d5b61b7ac68fa33045f86f804ecd6b9af5a17363f42c21177e0b1b7ae7d0e6e4",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 249.015625,
+      "width": 362,
+      "height": 345.953125
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "note-more",
+    "title": "note-more",
+    "sourceIds": [
+      "WS-028"
+    ],
+    "width": 390,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "390-note-more.png",
+    "sha256": "c27b9468c98470d6a9a1522520f0f2342ffa1a411bff48f4d8ea034235d2fced",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 146,
+      "y": 130,
+      "width": 216,
+      "height": 314
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "new-folder",
+    "title": "new-folder",
+    "sourceIds": [
+      "WS-012"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-new-folder.png",
+    "sha256": "c457e17264142205110f0be82e8424869b80f775cdeeeef6eb6e2bf39f4f6785",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 14,
+      "y": 249.015625,
+      "width": 292,
+      "height": 345.953125
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  },
+  {
+    "id": "note-more",
+    "title": "note-more",
+    "sourceIds": [
+      "WS-028"
+    ],
+    "width": 320,
+    "height": 844,
+    "audience": "owner",
+    "route": "/?note=<fixture-note-id>",
+    "file": "320-note-more.png",
+    "sha256": "8b3871eb3e594c616a85403db9fb9e577c66ef90fb1dbff954d1c07968a9a10c",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "kind": "actual-before-ui-unification",
+    "isolatedFixture": true,
+    "buildFlags": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "status": "captured",
+    "pageErrors": [],
+    "targetBounds": {
+      "x": 76,
+      "y": 130,
+      "width": 216,
+      "height": 314
+    },
+    "targetWithinViewport": true,
+    "outerOverflow": 0
+  }
+]

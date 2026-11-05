@@ -1,0 +1,427 @@
+{
+  "id": "WS-D041",
+  "title": "Readonly draft recovery copy and latest saved source",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-055",
+    "WS-057"
+  ],
+  "panels": [
+    {
+      "label": "draft-copy",
+      "sourceId": "WS-055",
+      "title": "Draft recovery copy fallback",
+      "role": "authenticated owner",
+      "state": "Actual local draft readonly/manual-copy fallback, clipboard success/failure."
+    },
+    {
+      "label": "latest-source",
+      "sourceId": "WS-057",
+      "title": "Latest saved source viewer",
+      "role": "authenticated owner",
+      "state": "Actual latest saved source viewer with readonly scrollable text and existing error reporting."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/DraftRecovery.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DraftRecovery.vue:22, apps/web/components/DraftRecovery.vue:61"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-055",
+      "label": "复制 / 手动选择",
+      "effect": "Retain recovery text outside app",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-057",
+      "label": "关闭",
+      "effect": "Return to conflict/editor",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R011",
+      "reuseSourceId": "WS-024",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [
+        "本地草稿恢复文本"
+      ],
+      "requiredActions": [
+        {
+          "label": "复制 / 手动选择",
+          "effect": "Retain recovery text outside app",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [
+        {
+          "name": "本地草稿恢复文本",
+          "type": "textarea",
+          "required": false,
+          "constraints": "Read-only draft content; select on focus.",
+          "sensitive": false
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-055"
+    },
+    {
+      "assetId": "WS-R011",
+      "reuseSourceId": "WS-024",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "requiredFieldOrder": [
+        "最新已保存原文"
+      ],
+      "requiredActions": [
+        {
+          "label": "关闭",
+          "effect": "Return to conflict/editor",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [
+        {
+          "name": "最新已保存原文",
+          "type": "preformatted",
+          "required": false,
+          "constraints": "Read-only latest Markdown.",
+          "sensitive": false
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-057"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. ONE clearly labeled DESIGN BOARD of the declared independent REAL DooKnow local components; never pretend these mutually exclusive windows are open in one app. Only external DESIGN BOARD/A/B/C labels, no added product logo or host/rail/tree. PILOT is STYLE ONLY: flat white/light-gray, dark/muted text, thin borders, blue primary where actual source primary, restrained8px corners, readable natural-size Chinese. Source templates determine all fields, copy, conditional actions, actual disabled/close guards. No requestId/hash/version/cursor/CSRF inputs or fake production success, new features/AI/ToDoo app pages. No OS/browser chrome. Each component complete with source header/close/body-scroll/actions, but inline sections must NOT acquire dialog header/close controls. Source-derived sample paths/times/text only, no real private data.\nExactly2 independent owner components around1536×1024, not one joined app flow. A本地恢复文本: COMPLETE inline DraftRecovery ALERT, not modal, NO closeX/brand/header/footer invented. Warning state baseChanged=true,fragment=true,busy=false,copyOpen=true, clipboard unavailable. Heading发现未保存的本地草稿. Exact lines 保存在此浏览器 · 2026/11/5 00:00:00; 片段：第 1–4 行。; 原文基准已变化。为避免错位覆盖，此片段只能复制恢复文本。 Actual buttons 恢复本地草稿 DISABLED, 复制恢复文本 enabled, 丢弃本地草稿 enabled. Actual copy status 请在下方文本框中选择并复制恢复文本。 and READONLY textarea5rows containing isolated Markdown “# 隔离草稿\\n\\n保留这段未保存的记录。\\n”, focus selects text. No 已复制 success at same time or editable recovery text.\nB最新原文: actual NModal title 最新已保存原文, existing closeX and ONLY readonly scrollable preformatted Markdown “# 最新原文\\n\\n这是一段已保存的隔离示例。\\n”. No Copy/Save/Apply/Restore/footer button since source viewer onlypre+nativeclose. No server timestamp/version field or global read-error shown in this ready viewer. Preserve A retained-draft boundary and B saved-original boundary; no inferred overwrite or public role.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D041.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-055",
+      "title": "Draft recovery copy fallback",
+      "kind": "state",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "复制恢复文本",
+        "parentId": "WS-054"
+      },
+      "sourceRefs": [
+        "apps/web/components/DraftRecovery.vue:22",
+        "apps/web/components/DraftRecovery.vue:61"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "本地草稿恢复文本",
+          "type": "textarea",
+          "required": false,
+          "constraints": "Read-only draft content; select on focus.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "复制 / 手动选择",
+          "effect": "Retain recovery text outside app",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Clipboard success",
+        "Clipboard unavailable manual copy"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/web-note-drafts.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-057",
+      "title": "Latest saved source viewer",
+      "kind": "dialog",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "查看最新版本 from conflict",
+        "parentId": "WS-056"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3614"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "最新已保存原文",
+          "type": "preformatted",
+          "required": false,
+          "constraints": "Read-only latest Markdown.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "关闭",
+          "effect": "Return to conflict/editor",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Read failure surfaced through existing dialog/global errors"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/workspace-save-recovery.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-055",
+      "parentId": "WS-054",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-057",
+      "parentId": "WS-056",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-055,WS-057",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-055",
+      "state": "Clipboard success",
+      "representation": "visible"
+    },
+    {
+      "sourceId": "WS-055",
+      "state": "Clipboard unavailable manual copy",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-057",
+      "state": "Read failure surfaced through existing dialog/global errors",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D041",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "source-derived fragment/baseChanged clipboardfailure recovery plus separate latest-ready sourceviewer"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. ONE clearly labeled DESIGN BOARD of the declared independent REAL DooKnow local components; never pretend these mutually exclusive windows are open in one app. Only external DESIGN BOARD/A/B/C labels, no added product logo or host/rail/tree. PILOT is STYLE ONLY: flat white/light-gray, dark/muted text, thin borders, blue primary where actual source primary, restrained8px corners, readable natural-size Chinese. Source templates determine all fields, copy, conditional actions, actual disabled/close guards. No requestId/hash/version/cursor/CSRF inputs or fake production success, new features/AI/ToDoo app pages. No OS/browser chrome. Each component complete with source header/close/body-scroll/actions, but inline sections must NOT acquire dialog header/close controls. Source-derived sample paths/times/text only, no real private data.\nExactly2 independent owner components around1536×1024, not one joined app flow. A本地恢复文本: COMPLETE inline DraftRecovery ALERT, not modal, NO closeX/brand/header/footer invented. Warning state baseChanged=true,fragment=true,busy=false,copyOpen=true, clipboard unavailable. Heading发现未保存的本地草稿. Exact lines 保存在此浏览器 · 2026/11/5 00:00:00; 片段：第 1–4 行。; 原文基准已变化。为避免错位覆盖，此片段只能复制恢复文本。 Actual buttons 恢复本地草稿 DISABLED, 复制恢复文本 enabled, 丢弃本地草稿 enabled. Actual copy status 请在下方文本框中选择并复制恢复文本。 and READONLY textarea5rows containing isolated Markdown “# 隔离草稿\\n\\n保留这段未保存的记录。\\n”, focus selects text. No 已复制 success at same time or editable recovery text.\nB最新原文: actual NModal title 最新已保存原文, existing closeX and ONLY readonly scrollable preformatted Markdown “# 最新原文\\n\\n这是一段已保存的隔离示例。\\n”. No Copy/Save/Apply/Restore/footer button since source viewer onlypre+nativeclose. No server timestamp/version field or global read-error shown in this ready viewer. Preserve A retained-draft boundary and B saved-original boundary; no inferred overwrite or public role.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D041 Readonly draft recovery copy and latest saved source\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"draft-copy\", \"sourceId\": \"WS-055\", \"title\": \"Draft recovery copy fallback\", \"role\": \"authenticated owner\", \"state\": \"Actual local draft readonly/manual-copy fallback, clipboard success/failure.\"}, {\"label\": \"latest-source\", \"sourceId\": \"WS-057\", \"title\": \"Latest saved source viewer\", \"role\": \"authenticated owner\", \"state\": \"Actual latest saved source viewer with readonly scrollable text and existing error reporting.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"draft-copy\", \"sourceId\": \"WS-055\", \"fieldsInOrder\": [{\"name\": \"本地草稿恢复文本\", \"type\": \"textarea\", \"required\": false, \"constraints\": \"Read-only draft content; select on focus.\", \"sensitive\": false}], \"actions\": [{\"label\": \"复制 / 手动选择\", \"effect\": \"Retain recovery text outside app\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Clipboard success\", \"Clipboard unavailable manual copy\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"latest-source\", \"sourceId\": \"WS-057\", \"fieldsInOrder\": [{\"name\": \"最新已保存原文\", \"type\": \"preformatted\", \"required\": false, \"constraints\": \"Read-only latest Markdown.\", \"sensitive\": false}], \"actions\": [{\"label\": \"关闭\", \"effect\": \"Return to conflict/editor\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Read failure surfaced through existing dialog/global errors\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/DraftRecovery.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DraftRecovery.vue:22, apps/web/components/DraftRecovery.vue:61",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DraftRecovery.vue:22, apps/web/components/DraftRecovery.vue:61",
+      "sha256": "36346f36e082d4ca94fe9f9095e6ab54d89d8eb3f06a1dfe3e666097e7985849"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D041.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-033a1218-6fa2-4ff6-b662-be3e81556d1a.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-033a1218-6fa2-4ff6-b662-be3e81556d1a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T03:02:11.526Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Independent full inline recovery-copy fallback preserves disabled unsafe fragment restore, readonly selected text and existing actions; latest-saved viewer remains readonlypre+close only.",
+    "concerns": [
+      "All selected variants are source-derived; sample times/text/needs do not assert runtime outcomes.",
+      "Static component boards do not verify focus/close/navigation/save-error/busy guards, responsive fit or actual clipboard/media behavior."
+    ]
+  },
+  "sha256": "3ac5968457c283d33c50e76efdc4cd95623db6bbd4df80df178467d424c00493",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1180360,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/DraftRecovery.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "36346f36e082d4ca94fe9f9095e6ab54d89d8eb3f06a1dfe3e666097e7985849"
+    },
+    {
+      "path": "apps/web/components/DraftRecovery.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "36346f36e082d4ca94fe9f9095e6ab54d89d8eb3f06a1dfe3e666097e7985849"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "No exact matching runtime captures; current component templates and sourceContracts govern independent coherent specimens."
+}

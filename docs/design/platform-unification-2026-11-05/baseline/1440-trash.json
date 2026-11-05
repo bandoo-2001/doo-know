@@ -1,0 +1,16 @@
+{
+  "id": "trash",
+  "title": "回收站",
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?view=trash",
+  "file": "1440-trash.png",
+  "sha256": "6297ff8cbdc72ca786783b2bbf1f2394444026e7eb95a680e11ce2246b9ee061",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

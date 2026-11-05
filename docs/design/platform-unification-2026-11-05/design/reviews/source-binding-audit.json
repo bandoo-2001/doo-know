@@ -1,0 +1,293 @@
+{
+  "scope": "Two bounded design/source bindings. No product change, generation, formal approval, runtime or global gate decision.",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "timestampUtc": "2026-11-05T09:34:18.580342+00:00",
+  "catalogSnapshot": {
+    "path": "docs/design/platform-unification-2026-11-05/design/catalog.json",
+    "updatedAt": "2026-11-05T09:34:01.072Z",
+    "sha256": "a475c4ba21f6daecf314ae3972223b134e2bcdbaf9d1a429ed8b2c9a2946119e"
+  },
+  "method": "Actual view_image for every listed PNG. Compared complete submittedPrompt and edit chain, current source, CSS, inventories, status and matched review SHA. Searched current catalog and sidecar prompts for ready diff controls. No API request or product test.",
+  "authorities": [
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/coverage/workspace.json",
+    "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+    "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json"
+  ],
+  "viewedImages": {
+    "WS-R012-v4": {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/WS-R012-v4.png",
+      "sha256": "6e8ecedb02f6ba019d888a09e36a3113c69a61db146345088ba665fbb5962cf1",
+      "catalogStatus": "passed",
+      "matchingReview": "docs/design/platform-unification-2026-11-05/design/reviews/WS-R012-v4-review.json",
+      "reviewVerdict": "pass",
+      "submittedPromptUtf8Sha256BySidecar": {
+        "docs/design/platform-unification-2026-11-05/design/images/WS-R012.json": "fa951df80e214bd9d4740fdfbfe1aa6fc556d20a69aa48b605512d33fdf2fe7f",
+        "docs/design/platform-unification-2026-11-05/design/images/WS-R012-v2.json": "637ef7f550dfb47c6ca5cd07c197fa05ce56ce1436fd929237527275d4aa5aae",
+        "docs/design/platform-unification-2026-11-05/design/images/WS-R012-v3.json": "da6021d63fc624a17f8cc181b5ed2d3c90a9b06bb72f51330b1c1c7622f4162b",
+        "docs/design/platform-unification-2026-11-05/design/images/WS-R012-v4.json": "4005d6c9a2f80dd77e1bcbca5ec49200aa9b28312b3695d16e748911445a4475"
+      }
+    },
+    "WS-D052": {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/WS-D052.png",
+      "sha256": "3574a2aaea636ddcc23720db6526ef9147846e55f539464cd4bc22b6816751f3",
+      "catalogStatus": "passed",
+      "matchingReview": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D052-review.json",
+      "reviewVerdict": "pass",
+      "submittedPromptUtf8Sha256BySidecar": {
+        "docs/design/platform-unification-2026-11-05/design/images/WS-D052.json": "a16b52cda9f533d991bba179a89271fc6f2390ae159dd98f2ced4ffd7105b666"
+      }
+    },
+    "WS-R028-v2": {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/WS-R028-v2.png",
+      "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03",
+      "catalogStatus": "pending-review",
+      "matchingReview": null,
+      "reviewVerdict": null,
+      "submittedPromptUtf8Sha256BySidecar": {
+        "docs/design/platform-unification-2026-11-05/design/images/WS-R028.json": "7053a17414c8f8153fbb15c49693032c6424d0c58893ecb3c7dcf039cacac26b",
+        "docs/design/platform-unification-2026-11-05/design/images/WS-R028-v2.json": "532efd9648d2535d77928520aca48ab98a99a44b446cd34b83a8231dff2a795e"
+      }
+    },
+    "WS-R026-v2": {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/WS-R026-v2.png",
+      "sha256": "13b097f4ceaf92a26eaeae8caf06edb5a23925acd97754de7b963ac4b753b11a",
+      "catalogStatus": "passed",
+      "matchingReview": "docs/design/platform-unification-2026-11-05/design/reviews/WS-R026-v2-review.json",
+      "reviewVerdict": "pass",
+      "submittedPromptUtf8Sha256BySidecar": {
+        "docs/design/platform-unification-2026-11-05/design/images/WS-R026.json": "de336751c8ff49780fccc9395d71eb4c0138628072c55ee493d2fa544edad164",
+        "docs/design/platform-unification-2026-11-05/design/images/WS-R026-v2.json": "110dce69b1004379735dbdc1deafbf7d9002d91152603444c87ede6a39822c1c"
+      }
+    },
+    "WS-R024": {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/WS-R024.png",
+      "sha256": "9baad8528845692212f0a27c27bf483db0a3f7889ac29625b38613d9ad8c6c20",
+      "catalogStatus": "passed",
+      "matchingReview": "docs/design/platform-unification-2026-11-05/design/reviews/WS-R024-review.json",
+      "reviewVerdict": "pass",
+      "submittedPromptUtf8Sha256BySidecar": {
+        "docs/design/platform-unification-2026-11-05/design/images/WS-R024.json": "baba1ed8e66452375809d70cc9e37a262651f774c835a8be6c0aa8b32912efaf"
+      }
+    },
+    "WS-R025-v2": {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/WS-R025-v2.png",
+      "sha256": "67b1dba246cd1434098809e3bf8a500dbbd85a914a5fe41880d96fb57fc5299c",
+      "catalogStatus": "passed",
+      "matchingReview": "docs/design/platform-unification-2026-11-05/design/reviews/WS-R025-v2-review.json",
+      "reviewVerdict": "pass",
+      "submittedPromptUtf8Sha256BySidecar": {
+        "docs/design/platform-unification-2026-11-05/design/images/WS-R025.json": "edeafd56c5a9a52d96f224f8d72f916ea6c776658e79e0fec18c0ddb310ac99e",
+        "docs/design/platform-unification-2026-11-05/design/images/WS-R025-v2.json": "9d8477e92fca0f193ed2684c77cd1daf99810432127ad7f9d6f9c0d74a0a73dc"
+      }
+    },
+    "WS-R023": {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/WS-R023.png",
+      "sha256": "b1c5d42124c21df7f18feb48a367b4a8b14f8faa9ad933a0916ec89e8b8e82fe",
+      "catalogStatus": "passed",
+      "matchingReview": "docs/design/platform-unification-2026-11-05/design/reviews/WS-R023-review.json",
+      "reviewVerdict": "pass",
+      "submittedPromptUtf8Sha256BySidecar": {
+        "docs/design/platform-unification-2026-11-05/design/images/WS-R023.json": "8a5d249c76ac6eb58303ed5194301f04c86e1add0b4e61265674004fe6eda5af"
+      }
+    },
+    "WS-D046": {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/WS-D046.png",
+      "sha256": "d6471a1732da6ab1b9b32ac3ea8aecd3fb40fd4da891e36703d70eaefe239626",
+      "catalogStatus": "passed",
+      "matchingReview": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D046-review.json",
+      "reviewVerdict": "pass",
+      "submittedPromptUtf8Sha256BySidecar": {
+        "docs/design/platform-unification-2026-11-05/design/images/WS-D046.json": "3829327c58e9911d634fdb94532844b640194ebd77bb437a7863cc6589917386"
+      }
+    },
+    "WS-D047": {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/WS-D047.png",
+      "sha256": "779b88d9eb616b0e0c060707e4def74ea67d7b865388eb9d625d2c74c7594056",
+      "catalogStatus": "passed",
+      "matchingReview": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D047-review.json",
+      "reviewVerdict": "pass",
+      "submittedPromptUtf8Sha256BySidecar": {
+        "docs/design/platform-unification-2026-11-05/design/images/WS-D047.json": "cab720e97299a25a170751be226cd8a0078d6625dca599e63758651a0e91516c"
+      }
+    },
+    "WS-M009": {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/WS-M009.png",
+      "sha256": "2de0be6fee427a11c57b8c2af1f0d5dac09ba717b3feda33df26e7d43dae6eac",
+      "catalogStatus": "passed",
+      "matchingReview": "docs/design/platform-unification-2026-11-05/design/reviews/WS-M009-review.json",
+      "reviewVerdict": "pass",
+      "submittedPromptUtf8Sha256BySidecar": {
+        "docs/design/platform-unification-2026-11-05/design/images/WS-M009.json": "e665c0683ad9e198c2934bbb4087892ce0b021c4de95e81744f3c2dc451c3b75"
+      }
+    },
+    "WS-D091-v3": {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/WS-D091-v3.png",
+      "sha256": "51a9728238ad827129fd7380edeee7eea2c9dc736e70bd1ae9cf506c280c6d6b",
+      "catalogStatus": "passed",
+      "matchingReview": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D091-v3-review.json",
+      "reviewVerdict": "pass",
+      "submittedPromptUtf8Sha256BySidecar": {
+        "docs/design/platform-unification-2026-11-05/design/images/WS-D091.json": "16b00a963f972036b0ce314890d3d43c1aedaf9dd2a3395170f0b161fe4b2009",
+        "docs/design/platform-unification-2026-11-05/design/images/WS-D091-v2.json": "4566ee695033da31cfe6f67e3f075a8bcb37d5eeb19bbd4e67c8744d3b459904",
+        "docs/design/platform-unification-2026-11-05/design/images/WS-D091-v3.json": "8d66fe26875cdbf204d48365e42d3327a27293551e764b5d428ebe1dfc5f89e2"
+      }
+    },
+    "MP-R037-v2": {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/MP-R037-v2.png",
+      "sha256": "ccd2c1aa9ca271fc3e76d68dfd9020e422e4e2794fdf740e8214d897588c3b5b",
+      "catalogStatus": "passed",
+      "matchingReview": "docs/design/platform-unification-2026-11-05/design/reviews/MP-R037-v2-review.json",
+      "reviewVerdict": "pass",
+      "submittedPromptUtf8Sha256BySidecar": {
+        "docs/design/platform-unification-2026-11-05/design/images/MP-R037.json": "0f0c2782de74f30f9f849362dfce95b2663aaee2d8916a349213cca394f7cc4d",
+        "docs/design/platform-unification-2026-11-05/design/images/MP-R037-v2.json": "d213f6ffae1bd2d849397c842b8a890b3ff7736786b3cc1f3d2f6a46c03066ac"
+      }
+    },
+    "diagrams/390-diagram-markdown-source": {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-diagram-markdown-source.png",
+      "sha256": "bf047260347dda7e88768054095fa3098b844b288190b21a9473ff502f12bae6",
+      "status": "Existing before-unification baseline; evidence only."
+    },
+    "diagrams/320-whiteboard-canvas": {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/320-whiteboard-canvas.png",
+      "sha256": "2622effc5e2b43f9e8ee788e003362ef0c3fd4ccc9f0ca788e2ac341df28d562",
+      "status": "Existing before-unification baseline; evidence only."
+    },
+    "windows/320-note-history": {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/windows/320-note-history.png",
+      "sha256": "3e37551b74ef425a1dbac845f6551b908160829d3eca4da65aa78ab956c50f22",
+      "status": "Existing before-unification baseline; evidence only."
+    }
+  },
+  "items": [
+    {
+      "sourceId": "WS-072",
+      "decision": "Replace R012-only shared-geometry claim with explicit composition. No new drawing needed. R028-v2 was pending in catalog snapshot; referencing a region gives no review credit.",
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3034-3045",
+        "apps/web/components/DiagramDocumentWorkspace.vue:75-86,117-147,267-311,316-387,581-812,908-925",
+        "apps/web/components/MarkdownEditor.vue:20-56,115-176",
+        "apps/web/components/NoteEditorHost.vue:473-496",
+        "apps/web/document.css:435-543",
+        "apps/web/diagrams/document-session.ts:93-179",
+        "apps/web/diagrams/primary-api.ts:41-43,85-124",
+        "apps/server/knowledge/diagram-routes.ts:42-52"
+      ],
+      "components": [
+        {
+          "asset": "diagrams/390-diagram-markdown-source",
+          "panel": "actual 390x844",
+          "region": "Complete clean mobile source geometry. Use global header, breadcrumb with overflow, compact status/action row, Markdown 源码 active in four-tab row, type + 3 icon tools, wrapped numbered editor and notebook bottom nav. Pre-unification functional reference."
+        },
+        {
+          "asset": "diagrams/320-whiteboard-canvas",
+          "panel": "actual 320x844",
+          "region": "Same nonembedded narrow header through diagram tools and bottom nav. Truncated title and dot + icons remain accessible. Set source tab selected. Exclude the entire native canvas/tools."
+        },
+        {
+          "asset": "WS-R028-v2",
+          "panel": [
+            "phone-390",
+            "phone-320"
+          ],
+          "region": "Same generated nonembedded whiteboard host groups: global top/bottom, breadcrumb + status/clock/share/save/more, 4 mode tabs and diagram type/HTML/print/PNG. Swap aria-pressed to source. Exclude PNG image and dirty-preview notice. Source/baselines govern hidden folder chain/overflow, status-only dot and icon-only actions on phone: rendered status words, full folder name or visual tool labels are not portable authority. Pending at cited snapshot."
+        },
+        {
+          "asset": "WS-D052",
+          "panel": "full",
+          "region": "Full-width .diagram-document-body > .markdown-editor, required gutter, declaration, heading, primary delimiters and preview/source links. Markdown 源码 selected treatment. Use error strip with three actions only for an actual error; exclude desktop shell, widths and invalid sample/error in ready/dirty-valid state. Source wraps at phone width."
+        },
+        {
+          "asset": "WS-R012-v4",
+          "panel": [
+            "phone-390 / left A",
+            "phone-320 / right B"
+          ],
+          "region": "Optional global shell and inner text/caret style only; source row, gutter, height, content and save semantics come from diagram. Exclude favorite, undo/redo, rich formatting, edit/preview/split, outline, manual-save/Markdown strip, source statistics, ordinary note PUT and clean-disabled save."
+        },
+        {
+          "asset": "WS-R026-v2",
+          "panel": [
+            "A",
+            "B"
+          ],
+          "region": "Optional gutter and text only; native Mermaid state.source is not state.markdown. Exclude heading, template insertion, preview/status, half-height scroll region and type-specific host. R024 A/B and R025-v2 A/B provide no additional needed region; exclude canvas/menu/mind-map controls."
+        }
+      ],
+      "condition": "Authenticated owner, primary document, !embedded, relativePath available, state present, mode=source. Distinguish clean, valid dirty, invalid draft and recovery.",
+      "fields": "state.markdown entire document, fixed showLineNumbers=true, default wrap=true, readOnly=!editable; editable=resource.capabilities.canEdit && !recovered; body inert on recovery. update:modelValue -> markdownEdit -> editMarkdown preserves input; valid same type updates title and inline source for non-excalidraw. <=720 editor uses mobile padding/font; vertical scrolling, natural wrapping. No separate source protocol form.",
+      "actionsAndGuards": [
+        "History disabled loading||saving||recovered; share disabled loading||shareBusy; both only !embedded. Save disabled loading||saving||!editable, no dirty requirement for button; status loading > saving > error > dirty > saved. More opens download complete (disabled loading||saving), Markdown, source (disabled loading||!canDownloadSource). Shared badge only if shared&&!embedded.",
+        "Design tab disabled !editable; source/read/PNG disabled loading||!state. Dirty handoff must save; block if still dirty/error. HTML/print disabled loading||saving||readingExportBusy; PNG disabled exporting||!editable. Phone mode tabs precede tool strip.",
+        "Persist draft, validate diagram declaration/type/excalidraw path, render PNG, POST /api/diagram-documents/prepare, apply prepared binding to complete Markdown and persist pending evidence before POST /api/diagram-documents/commit. Reuse pending evidence on retry, verify document/source hashes and refresh current note/resource. Dirty autosave subject to pause/error/loading/saving/recovery. Bad declaration retains text, shows 图形 Markdown 不完整，请在源码中修复; retry/reload disabled while saving, download draft available. No ordinary-note PUT or prepare/commit buttons."
+      ],
+      "minimumNewImages": 0
+    },
+    {
+      "sourceId": "WS-064",
+      "related": "WS-066 renders same DiffView inside a different control slot.",
+      "decision": "Loaded and parsed ready comparison lacks a drawn structured table and layout switch. Needs one local 2-panel board.",
+      "sourceRefs": [
+        "apps/web/components/NoteHistoryDialog.vue:45-104,184-283,538-729,840-906,919-965,1423-1442,1510-1597,1671-1710,1782-1870",
+        "packages/plugin-ui/diff-view.ts:27-38,92-211,217-259,262-352",
+        "apps/web/note-history.ts:21-40,94-107,128-153",
+        "apps/server/app.ts:445-455",
+        "apps/server/knowledge/web-routes.ts:78-88",
+        "apps/web/components/Workspace.vue:3779-3786",
+        "plugins/git/web/diff-view.ts:1-7",
+        "plugins/git/web/index.ts:466-477"
+      ],
+      "components": [
+        {
+          "asset": "WS-R023",
+          "panel": "A/B",
+          "region": "Reuse phone modal frame, saved version picker, saved baseline/reference, protection/actions. A is full original with copy; B is failed lazy import, retry and open raw pre. Exclude both bodies from ready. Source tab order is 差异对比 then 历史原文. Mobile footer protection above actions, trailing protection span hidden."
+        },
+        {
+          "asset": "WS-D046",
+          "panel": "full",
+          "region": "Empty saved-records header/footer; no selected file or layout controls."
+        },
+        {
+          "asset": "WS-D047",
+          "panel": "A/B",
+          "region": "A Git commit metadata and loading/open raw fallback; B saved original fragment/range/copy/paging. None supplies loaded renderer or its toolbar. Do not mix Git commit reference with saved baseline."
+        },
+        {
+          "asset": "WS-M009",
+          "panel": "A",
+          "region": "Loading/failure, stale/locked compact rows; retry/open raw pre incompatible with ready."
+        },
+        {
+          "asset": "WS-D091-v3",
+          "panel": [
+            "restore-warning",
+            "pending-receipt"
+          ],
+          "region": "Historical original in both; footer restore/uncertain evidence only."
+        },
+        {
+          "asset": "MP-R037-v2",
+          "panel": "B/C",
+          "region": "Readonly commit/push plain change list/pre; exclude source drawer, author, submit and receipt. Dormant plugin git.history (ST-085) has no evidenced production host for reuse."
+        },
+        {
+          "asset": "windows/320-note-history",
+          "panel": "actual 320",
+          "region": "Empty near-fullscreen saved dialog, Git unavailable; useful shell only."
+        }
+      ],
+      "dataAndGuards": "Saved: revisions.length, selected, mode=compare, patch!==undefined, loaded module, parsed DiffDocument.status=ready. GET revisions (+cursor), POST revision read; compare fully read historic text against current saved content only, guard stale/missing/large baseline. 1 MiB per side, 256 KiB max patch, bounded edit count/time. Dirty draft excluded. Source switch, selection, closing and restore guarded by busy||git.busy||savePending||git.pendingRestore. Restore starts second confirmation; pending save supplies check-result branch. Compare computes locally.",
+      "loadedActions": "Saved passes diff=patch, fileLabel=title, toolbarTarget=diffToolbarHost. Layout buttons teleported to .note-history-layout-outlet beside compare/source tabs. 逐行 default vs 左右对照; narrow if innerWidth<640 OR positive renderer width<600, forces unified and disables side-by-side; preferred layout resumes when widened. <=360 compact tab/tool padding. Generic narrow hint exists in DOM but both native history branches hide it in .note-history-detail CSS. No retry when ready. Parsed file heading/count, hunk, 旧行/新行/内容 vs 旧行/旧内容/新行/新内容, +/- and line numbers, 原始差异 initially collapsed, user can expand. Empty/loading no layout switch; parser unavailable retry differs from importing component failed; truncated Git notice only. Binary/metadata-only messages conditional.",
+      "minimumNewImages": 1,
+      "minimumSpec": {
+        "scope": "One local saved-compare control-row and body board; 2 independent panels, same valid one-file patch/label/count, no repeated full modal.",
+        "wide": "Viewport>=640, renderer width>=600; active saved 差异对比 beside 历史原文; enabled 逐行 and selected 左右对照. Show title/new-deleted count, real hunk, four columns, consistent old/new numbers and paired change, collapsed 原始差异.",
+        "mobile": "320 (<=360 padding); active 差异对比, 逐行 selected and 左右对照 disabled, three columns with change rows and matching count, same collapsed raw disclosure. No visible 窗口较窄… hint, no loading/unavailable/retry. 390 has same branch.",
+        "reuse": "After separate review the table/body and buttons map to WS-066 only with inline toolbar (no toolbarTarget or saved compare/original tabs), commit diff baseline, git.diffCommit===git.selected, diffTruncated and actual fileLabel. No extra art solely for status strings or a 390 duplicate."
+      }
+    }
+  ]
+}

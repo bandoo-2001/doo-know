@@ -1,0 +1,1070 @@
+{
+  "id": "MP-S047",
+  "title": "Component state matrix: anonymous-share-reader / ShareReader.vue",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-022",
+    "PB-023",
+    "PB-025"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-022",
+      "title": "真实组件局部状态矩阵",
+      "role": "anonymous-share-reader",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/public/1440-share-reader.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-share-missing.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-022",
+      "route": "/s/:token",
+      "trigger": "Anonymous capability link",
+      "parentId": null,
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required; 43-character token must be active/unexpired and note exists.",
+        "No password field/gate exists. Public page has noindex,nofollow. Shared content follows latest saved original.",
+        "CanEdit requires edit permission and supported Markdown; large/long-line or graph-document sources remain read-only.",
+        "A resolved embedded whiteboard uses the current share board endpoint and board.capabilities.canDownloadSource; only that resolved capability governs source-tab availability. The server includes source content/path only when allowDiagramSource and the underlying resource permit it.",
+        "DiagramPreview canEdit requires !readOnly && !shareToken && resourceEdit; canGenerate additionally requires editable=true. A guest/shareToken can never edit design, edit diagram source, convert to whiteboard or generate portable preview, even when original-source download is allowed."
+      ],
+      "fields": [],
+      "importantStates": [
+        "loading; full content",
+        "view-only or editable badge",
+        "expiry timestamp; edit-unavailable reason",
+        "heading TOC; no headings",
+        "images/attachments through capability; diagram previews read-only",
+        "Public graph-document and Excalidraw-reference read projections may be ordinary PNG preview images with public explanatory body and no source tab/download control; source-allowed setting does not turn such an image into an editor.",
+        "When an embedded whiteboard is actually resolved into DiagramPreview (including public rich editing), canDownloadSource=false hides the source tab and clears a previously visible source panel; preview/expand/retry remain the appropriate read controls.",
+        "For a resolved board whose capability explicitly permits source, source tab reveals only returned sourceText and its local Download source action. The same card still has no edit/convert/generate controls for a shareToken."
+      ],
+      "notes": [
+        "Public guest page must retain guest-only navigation; no owner workspace rails.",
+        "Actual shared component path is apps/web/components/DiagramPreview.vue; there is no PublicDiagramPreview.vue at this baseline.",
+        "Ordinary inline SVG/Mermaid code already present in shared Markdown retains inline rendering; this is distinct from permission to fetch private/native board source. Do not infer original-source access from a source-tab screenshot or from note edit permission alone.",
+        "Download is a local Blob of sourceText: for Excalidraw this is boardSource || provided scene || fence code. The component does not fetch an owner asset or an extra source.path to fill missing source.content; do not depict such a fetch as implemented."
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "公开只读分享完整页：简洁DooKnow分享页头、能力标记、标题/更新时间/正文/TOC/页脚；真实canEdit时才有编辑笔记，不用博客导航。"
+      ]
+    },
+    {
+      "sourceId": "PB-023",
+      "route": "/s/:token",
+      "trigger": "Metadata editorMode is not full",
+      "parentId": "PB-022",
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Anonymous capability token must remain active and unexpired; no owner session or password gate is required. Public content/resources remain scoped to this shared note."
+      ],
+      "fields": [],
+      "importantStates": [
+        "queued/running read preparation polls up to60 times",
+        "current fragment; next cursor available/finished",
+        "next-fragment failure keeps current rendered HTML and retry",
+        "unsupported-public-edit reason"
+      ],
+      "notes": [
+        "Replacing fragment is actual behavior, not append/infinite scroll. Headings array is empty for paged rendering in this component."
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "公开大文件片段完整页：访客页头、当前片段、准备/后续加载反馈与下一片段，不增编辑或跳任意片段。"
+      ]
+    },
+    {
+      "sourceId": "PB-025",
+      "route": "/s/:token",
+      "trigger": "Non404 initial metadata/body read failure",
+      "parentId": "PB-022",
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Anonymous capability token must remain active and unexpired; no owner session or password gate is required. Public content/resources remain scoped to this shared note."
+      ],
+      "fields": [],
+      "importantStates": [
+        "connection/server failure with refresh icon",
+        "reload pending; successful retry reads same link"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only anonymous-share-reader context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/web/components/ShareReader.vue",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-022",
+      "label": "编辑笔记",
+      "effect": "Open public editor",
+      "api": "",
+      "guard": "access.canEdit and no reader error"
+    },
+    {
+      "sourceId": "PB-022",
+      "label": "目录章节",
+      "effect": "Navigate native heading anchor",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-022",
+      "label": "附件/图片链接",
+      "effect": "Read resource authorized by share",
+      "api": "GET /api/public/shares/:token/asset?source=…",
+      "guard": "only current capability resource"
+    },
+    {
+      "sourceId": "PB-023",
+      "label": "下一片段",
+      "effect": "Read next fragment and scroll article to start",
+      "api": "POST /api/public/shares/:token/read",
+      "guard": "nextCursor; not loading"
+    },
+    {
+      "sourceId": "PB-025",
+      "label": "重新加载",
+      "effect": "Retry current capability metadata/body",
+      "api": "GET /api/public/shares/:token/meta; GET /api/public/shares/:token",
+      "guard": "not opening/loading"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。",
+    "访客白板canEdit/canGenerate永远false；仅resolved board.capabilities.canDownloadSource允许source tab及返回sourceText本地Blob下载，不补抓owner asset/source.path。",
+    "空白正文允许；dirty删除到空可保存，必需content字符串是API属性而非UI非空要求；源码/文档都受dirty/busy/loading/composing/blocked/expiry守卫，document准入独立owner构建开关。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-022",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "PB-023",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "PB-025",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "保留七个互相独立的分享样例和所有原有有效内容。只扩展第二行只读公开header下面的文章元信息局部：在“只读”header下新增文章标题“示例图形”，其下两段普通只读小字依次“有效期至 2026/12/31 23:59:59”“图形分享暂不支持公开编辑”。两段均是文章内元信息，不是按钮、输入框、徽标或弹窗。适当增加该行高度并向下排版，第三行可编辑header及其余所有样例原样保留，不裁切。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S047-v2.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-022",
+      "title": "loading",
+      "renderer": "apps/web/components/ShareReader.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:61",
+        "apps/web/components/ShareReader.vue:112",
+        "apps/web/components/ShareReader.vue:155",
+        "packages/core/shares.ts:127",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ],
+      "guardBindings": [
+        {
+          "label": "编辑笔记",
+          "guard": "access.canEdit and no reader error"
+        },
+        {
+          "label": "目录章节",
+          "guard": ""
+        },
+        {
+          "label": "附件/图片链接",
+          "guard": "only current capability resource"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "loading; full content",
+          "variant": "loading",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-022",
+        "PB-023",
+        "PB-025"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "PB-022",
+      "title": "view-only badge; edit unavailable",
+      "renderer": "apps/web/components/ShareReader.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:61",
+        "apps/web/components/ShareReader.vue:112",
+        "apps/web/components/ShareReader.vue:155",
+        "packages/core/shares.ts:127",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ],
+      "guardBindings": [
+        {
+          "label": "编辑笔记",
+          "guard": "access.canEdit and no reader error"
+        },
+        {
+          "label": "目录章节",
+          "guard": ""
+        },
+        {
+          "label": "附件/图片链接",
+          "guard": "only current capability resource"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "view-only or editable badge",
+          "variant": "view-only badge; edit unavailable",
+          "representation": "visible"
+        },
+        {
+          "state": "expiry timestamp; edit-unavailable reason",
+          "variant": "edit-unavailable reason",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-022"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "PB-022",
+      "title": "valid editable capability badge; edit action allowed",
+      "renderer": "apps/web/components/ShareReader.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:61",
+        "apps/web/components/ShareReader.vue:112",
+        "apps/web/components/ShareReader.vue:155",
+        "packages/core/shares.ts:127",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ],
+      "guardBindings": [
+        {
+          "label": "编辑笔记",
+          "guard": "access.canEdit and no reader error"
+        },
+        {
+          "label": "目录章节",
+          "guard": ""
+        },
+        {
+          "label": "附件/图片链接",
+          "guard": "only current capability resource"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "view-only or editable badge",
+          "variant": "valid editable capability badge; edit action allowed",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-022"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "PB-022",
+      "title": "heading TOC visible",
+      "renderer": "apps/web/components/ShareReader.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:61",
+        "apps/web/components/ShareReader.vue:112",
+        "apps/web/components/ShareReader.vue:155",
+        "packages/core/shares.ts:127",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ],
+      "guardBindings": [
+        {
+          "label": "编辑笔记",
+          "guard": "access.canEdit and no reader error"
+        },
+        {
+          "label": "目录章节",
+          "guard": ""
+        },
+        {
+          "label": "附件/图片链接",
+          "guard": "only current capability resource"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "heading TOC; no headings",
+          "variant": "heading TOC visible",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-022"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "PB-022",
+      "title": "no headings; TOC absent",
+      "renderer": "apps/web/components/ShareReader.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:61",
+        "apps/web/components/ShareReader.vue:112",
+        "apps/web/components/ShareReader.vue:155",
+        "packages/core/shares.ts:127",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ],
+      "guardBindings": [
+        {
+          "label": "编辑笔记",
+          "guard": "access.canEdit and no reader error"
+        },
+        {
+          "label": "目录章节",
+          "guard": ""
+        },
+        {
+          "label": "附件/图片链接",
+          "guard": "only current capability resource"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "heading TOC; no headings",
+          "variant": "no headings; TOC absent",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-022"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r6",
+      "sourceId": "PB-022",
+      "title": "diagram previews read-only",
+      "renderer": "apps/web/components/ShareReader.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:61",
+        "apps/web/components/ShareReader.vue:112",
+        "apps/web/components/ShareReader.vue:155",
+        "packages/core/shares.ts:127",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ],
+      "guardBindings": [
+        {
+          "label": "编辑笔记",
+          "guard": "access.canEdit and no reader error"
+        },
+        {
+          "label": "目录章节",
+          "guard": ""
+        },
+        {
+          "label": "附件/图片链接",
+          "guard": "only current capability resource"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "images/attachments through capability; diagram previews read-only",
+          "variant": "diagram previews read-only",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-022"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r7",
+      "sourceId": "PB-022",
+      "title": "Public graph-document and Excalidraw-reference read projections may be ordinary PNG preview images with public explanatory body and no source tab/download control; source-allowed setting does not turn such an image into an editor.",
+      "renderer": "apps/web/components/ShareReader.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:61",
+        "apps/web/components/ShareReader.vue:112",
+        "apps/web/components/ShareReader.vue:155",
+        "packages/core/shares.ts:127",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ],
+      "guardBindings": [
+        {
+          "label": "编辑笔记",
+          "guard": "access.canEdit and no reader error"
+        },
+        {
+          "label": "目录章节",
+          "guard": ""
+        },
+        {
+          "label": "附件/图片链接",
+          "guard": "only current capability resource"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "Public graph-document and Excalidraw-reference read projections may be ordinary PNG preview images with public explanatory body and no source tab/download control; source-allowed setting does not turn such an image into an editor.",
+          "variant": "Public graph-document and Excalidraw-reference read projections may be ordinary PNG preview images with public explanatory body and no source tab/download control; source-allowed setting does not turn such an image into an editor.",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-022"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-022",
+      "parentId": null,
+      "route": "/s/:token",
+      "roles": [
+        "anonymous guest"
+      ],
+      "sourceRefs": [
+        "apps/web/App.vue:61",
+        "apps/web/components/ShareReader.vue:112",
+        "apps/web/components/ShareReader.vue:155",
+        "packages/core/shares.ts:127",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ]
+    },
+    {
+      "sourceId": "PB-023",
+      "parentId": "PB-022",
+      "route": "/s/:token",
+      "roles": [
+        "anonymous guest"
+      ],
+      "sourceRefs": [
+        "apps/web/components/ShareReader.vue:49",
+        "apps/web/components/ShareReader.vue:123",
+        "apps/web/components/ShareReader.vue:191",
+        "apps/server/knowledge/web-routes.ts:240"
+      ]
+    },
+    {
+      "sourceId": "PB-025",
+      "parentId": "PB-022",
+      "route": "/s/:token",
+      "roles": [
+        "anonymous guest"
+      ],
+      "sourceRefs": [
+        "apps/web/components/ShareReader.vue:38",
+        "apps/web/components/ShareReader.vue:163"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-022",
+      "title": "公开分享阅读：普通笔记",
+      "kind": "page",
+      "module": "share",
+      "entry": {
+        "route": "/s/:token",
+        "trigger": "Anonymous capability link",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:61",
+        "apps/web/components/ShareReader.vue:112",
+        "apps/web/components/ShareReader.vue:155",
+        "packages/core/shares.ts:127",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required; 43-character token must be active/unexpired and note exists.",
+        "No password field/gate exists. Public page has noindex,nofollow. Shared content follows latest saved original.",
+        "CanEdit requires edit permission and supported Markdown; large/long-line or graph-document sources remain read-only.",
+        "A resolved embedded whiteboard uses the current share board endpoint and board.capabilities.canDownloadSource; only that resolved capability governs source-tab availability. The server includes source content/path only when allowDiagramSource and the underlying resource permit it.",
+        "DiagramPreview canEdit requires !readOnly && !shareToken && resourceEdit; canGenerate additionally requires editable=true. A guest/shareToken can never edit design, edit diagram source, convert to whiteboard or generate portable preview, even when original-source download is allowed."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "编辑笔记",
+          "effect": "Open public editor",
+          "api": "",
+          "guard": "access.canEdit and no reader error"
+        },
+        {
+          "label": "目录章节",
+          "effect": "Navigate native heading anchor",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "附件/图片链接",
+          "effect": "Read resource authorized by share",
+          "api": "GET /api/public/shares/:token/asset?source=…",
+          "guard": "only current capability resource"
+        }
+      ],
+      "importantStates": [
+        "loading; full content",
+        "view-only or editable badge",
+        "expiry timestamp; edit-unavailable reason",
+        "heading TOC; no headings",
+        "images/attachments through capability; diagram previews read-only",
+        "Public graph-document and Excalidraw-reference read projections may be ordinary PNG preview images with public explanatory body and no source tab/download control; source-allowed setting does not turn such an image into an editor.",
+        "When an embedded whiteboard is actually resolved into DiagramPreview (including public rich editing), canDownloadSource=false hides the source tab and clears a previously visible source panel; preview/expand/retry remain the appropriate read controls.",
+        "For a resolved board whose capability explicitly permits source, source tab reveals only returned sourceText and its local Download source action. The same card still has no edit/convert/generate controls for a shareToken."
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/shares.test.ts:5",
+        "tests/e2e/sharing-permissions.spec.ts:71",
+        "tests/e2e/sharing-permissions.spec.ts:327",
+        "tests/e2e/sharing-permissions.spec.ts:604",
+        "tests/e2e/diagram-public-reader.spec.ts:8",
+        "tests/diagram-public-projection.test.ts:266",
+        "tests/e2e/sharing-permissions.spec.ts:363"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Public guest page must retain guest-only navigation; no owner workspace rails.",
+        "Actual shared component path is apps/web/components/DiagramPreview.vue; there is no PublicDiagramPreview.vue at this baseline.",
+        "Ordinary inline SVG/Mermaid code already present in shared Markdown retains inline rendering; this is distinct from permission to fetch private/native board source. Do not infer original-source access from a source-tab screenshot or from note edit permission alone.",
+        "Download is a local Blob of sourceText: for Excalidraw this is boardSource || provided scene || fence code. The component does not fetch an owner asset or an extra source.path to fill missing source.content; do not depict such a fetch as implemented."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-023",
+      "title": "公开分享阅读：大文件片段",
+      "kind": "page",
+      "module": "share",
+      "entry": {
+        "route": "/s/:token",
+        "trigger": "Metadata editorMode is not full",
+        "parentId": "PB-022"
+      },
+      "sourceRefs": [
+        "apps/web/components/ShareReader.vue:49",
+        "apps/web/components/ShareReader.vue:123",
+        "apps/web/components/ShareReader.vue:191",
+        "apps/server/knowledge/web-routes.ts:240"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Anonymous capability token must remain active and unexpired; no owner session or password gate is required. Public content/resources remain scoped to this shared note."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "下一片段",
+          "effect": "Read next fragment and scroll article to start",
+          "api": "POST /api/public/shares/:token/read",
+          "guard": "nextCursor; not loading"
+        }
+      ],
+      "importantStates": [
+        "queued/running read preparation polls up to60 times",
+        "current fragment; next cursor available/finished",
+        "next-fragment failure keeps current rendered HTML and retry",
+        "unsupported-public-edit reason"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/reader-feedback.spec.ts:55",
+        "tests/e2e/sharing-permissions.spec.ts:327"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Replacing fragment is actual behavior, not append/infinite scroll. Headings array is empty for paged rendering in this component."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-025",
+      "title": "公开分享：临时读取失败",
+      "kind": "state",
+      "module": "share",
+      "entry": {
+        "route": "/s/:token",
+        "trigger": "Non404 initial metadata/body read failure",
+        "parentId": "PB-022"
+      },
+      "sourceRefs": [
+        "apps/web/components/ShareReader.vue:38",
+        "apps/web/components/ShareReader.vue:163"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Anonymous capability token must remain active and unexpired; no owner session or password gate is required. Public content/resources remain scoped to this shared note."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新加载",
+          "effect": "Retry current capability metadata/body",
+          "api": "GET /api/public/shares/:token/meta; GET /api/public/shares/:token",
+          "guard": "not opening/loading"
+        }
+      ],
+      "importantStates": [
+        "connection/server failure with refresh icon",
+        "reload pending; successful retry reads same link"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/reader-feedback.spec.ts:4"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S047",
+  "roles": [
+    "anonymous-share-reader"
+  ],
+  "selectedState": [
+    "r1 loading",
+    "r2 readonly graph share header plus article title, future expiry and actual graph edit-unavailable reason",
+    "r3 editable public header",
+    "r4 heading TOC",
+    "r5 no headings no TOC",
+    "r6 resolved board no source permission",
+    "r7 ordinary PNG read projection"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "保留七个互相独立的分享样例和所有原有有效内容。只扩展第二行只读公开header下面的文章元信息局部：在“只读”header下新增文章标题“示例图形”，其下两段普通只读小字依次“有效期至 2026/12/31 23:59:59”“图形分享暂不支持公开编辑”。两段均是文章内元信息，不是按钮、输入框、徽标或弹窗。适当增加该行高度并向下排版，第三行可编辑header及其余所有样例原样保留，不裁切。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S047 Component state matrix: anonymous-share-reader / ShareReader.vue\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only anonymous-share-reader context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | PB-022 | 真实组件局部状态矩阵 | role=anonymous-share-reader | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n公开只读分享完整页：简洁DooKnow分享页头、能力标记、标题/更新时间/正文/TOC/页脚；真实canEdit时才有编辑笔记，不用博客导航。\n公开大文件片段完整页：访客页头、当前片段、准备/后续加载反馈与下一片段，不增编辑或跳任意片段。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n局部矩阵（≤7行/卡）：\nr1 | PB-022 | 实际只画代表：loading | 既有busy/spinner/禁用控件模式，按原guard锁定。 | renderer=apps/web/components/ShareReader.vue\nr2 | PB-022 | 实际只画代表：view-only badge; edit unavailable | 已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。 | renderer=apps/web/components/ShareReader.vue\nr3 | PB-022 | 实际只画代表：valid editable capability badge; edit action allowed | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/ShareReader.vue\nr4 | PB-022 | 实际只画代表：heading TOC visible | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/ShareReader.vue\nr5 | PB-022 | 实际只画代表：no headings; TOC absent | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/ShareReader.vue\nr6 | PB-022 | 实际只画代表：diagram previews read-only | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/ShareReader.vue\nr7 | PB-022 | 实际只画代表：Public graph-document and Excalidraw-reference read projections may be ordinary PNG preview images with public explanatory body and no source tab/download control; source-allowed setting does not turn such an image into an editor. | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/ShareReader.vue\n\n精确功能/字段/动作guard合同：\nPB-022权限：No owner session required; 43-character token must be active/unexpired and note exists. / No password field/gate exists. Public page has noindex,nofollow. Shared content follows latest saved original. / CanEdit requires edit permission and supported Markdown; large/long-line or graph-document sources remain read-only. / A resolved embedded whiteboard uses the current share board endpoint and board.capabilities.canDownloadSource; only that resolved capability governs source-tab availability. The server includes source content/path only when allowDiagramSource and the underlying resource permit it. / DiagramPreview canEdit requires !readOnly && !shareToken && resourceEdit; canGenerate additionally requires editable=true. A guest/shareToken can never edit design, edit diagram source, convert to whiteboard or generate portable preview, even when original-source download is allowed.\nPB-023/PB-025权限：Anonymous capability token must remain active and unexpired; no owner session or password gate is required. Public content/resources remain scoped to this shared note.\nPB-022/PB-023/PB-025字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nPB-022白名单：编辑笔记 => Open public editor；guard=access.canEdit and no reader error\nPB-022白名单：目录章节 => Navigate native heading anchor；guard=既有上下文\nPB-022白名单：附件/图片链接 => Read resource authorized by share；guard=only current capability resource；接口约束=GET /api/public/shares/:token/asset?source=…\nPB-023白名单：下一片段 => Read next fragment and scroll article to start；guard=nextCursor; not loading；接口约束=POST /api/public/shares/:token/read\nPB-025白名单：重新加载 => Retry current capability metadata/body；guard=not opening/loading；接口约束=GET /api/public/shares/:token/meta; GET /api/public/shares/:token\n\n响应式合同：\n<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。\n访客白板canEdit/canGenerate永远false；仅resolved board.capabilities.canDownloadSource允许source tab及返回sourceText本地Blob下载，不补抓owner asset/source.path。\n空白正文允许；dirty删除到空可保存，必需content字符串是API属性而非UI非空要求；源码/文档都受dirty/busy/loading/composing/blocked/expiry守卫，document准入独立owner构建开关。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/public/1440-share-reader.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "cb262d29907ee83ce1309ae1fde51051f31e86b2ce2665a247eaf40ebb2bd2e1",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 45556
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-share-missing.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "c8df8a96082a6bef98cd3dc008c3ce4bbe269280e464ec8baf01c1a6f7df5a5f",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 28917
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S047.png",
+      "role": "previous design / intermediate targeted edit",
+      "responsibility": "Retain valid specimens and add missing source-defined fields or mounted readonly EditorSearch",
+      "sha256": "2f849d23898622e776e0bfd66ef06e5563fd40af0538e55b3b046e15e9c45075",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      },
+      "bytes": 1089960
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S047.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S047-v2.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-071fd69e-85ed-45f6-97f5-0eba345a124c.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-071fd69e-85ed-45f6-97f5-0eba345a124c.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T05:08:01.998Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "concerns": [],
+    "pageSpecific": "Added exact omitted source structure; no audit caption text in final; original valid states preserved."
+  },
+  "sha256": "e4be6cf0b8b79ec9b2cb67171558513b0e64310b51ff18729754b241965ac891",
+  "dimensions": {
+    "width": 1024,
+    "height": 1536
+  },
+  "bytes": 1605335,
+  "sourceInspection": [
+    {
+      "path": "apps/web/App.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1161ad07a6926fac6bf51d8b81b2474f825755aca223bec10c443d2bf3047157"
+    },
+    {
+      "path": "apps/web/components/ShareReader.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "3cb8c4dfdf276afb6b29ac68d3d8a323621abd90ec71a406eb345d0bc717224b"
+    },
+    {
+      "path": "apps/web/components/ShareReader.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "3cb8c4dfdf276afb6b29ac68d3d8a323621abd90ec71a406eb345d0bc717224b"
+    },
+    {
+      "path": "packages/core/shares.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "779f776d0098ff55dfac58402316656bc6774049c1fbd5fcf83271bcb0eee0e5"
+    },
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ab25ff99612c6c6d06be26a95e4afed4bbb16ab5a5859a07df65dc96b6537b7e"
+    },
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ab25ff99612c6c6d06be26a95e4afed4bbb16ab5a5859a07df65dc96b6537b7e"
+    },
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ab25ff99612c6c6d06be26a95e4afed4bbb16ab5a5859a07df65dc96b6537b7e"
+    },
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ab25ff99612c6c6d06be26a95e4afed4bbb16ab5a5859a07df65dc96b6537b7e"
+    },
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ab25ff99612c6c6d06be26a95e4afed4bbb16ab5a5859a07df65dc96b6537b7e"
+    },
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ab25ff99612c6c6d06be26a95e4afed4bbb16ab5a5859a07df65dc96b6537b7e"
+    },
+    {
+      "path": "packages/core/public-diagram-projection.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "b5b46370dca1136067d0597ec4061f508a51745bcc0a0b20d961329d7369fae5"
+    },
+    {
+      "path": "packages/core/public-diagram-projection.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "b5b46370dca1136067d0597ec4061f508a51745bcc0a0b20d961329d7369fae5"
+    },
+    {
+      "path": "packages/core/public-diagram-projection.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "b5b46370dca1136067d0597ec4061f508a51745bcc0a0b20d961329d7369fae5"
+    },
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ab25ff99612c6c6d06be26a95e4afed4bbb16ab5a5859a07df65dc96b6537b7e"
+    },
+    {
+      "path": "apps/web/components/ShareReader.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "3cb8c4dfdf276afb6b29ac68d3d8a323621abd90ec71a406eb345d0bc717224b"
+    },
+    {
+      "path": "apps/web/components/ShareReader.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "3cb8c4dfdf276afb6b29ac68d3d8a323621abd90ec71a406eb345d0bc717224b"
+    },
+    {
+      "path": "apps/web/components/ShareReader.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "3cb8c4dfdf276afb6b29ac68d3d8a323621abd90ec71a406eb345d0bc717224b"
+    },
+    {
+      "path": "apps/server/knowledge/web-routes.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "c79f2fe3f0efdafae64d37e69f1e64665cf35896158783771481846d1c2810a9"
+    },
+    {
+      "path": "apps/web/components/ShareReader.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "3cb8c4dfdf276afb6b29ac68d3d8a323621abd90ec71a406eb345d0bc717224b"
+    },
+    {
+      "path": "apps/web/components/ShareReader.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "3cb8c4dfdf276afb6b29ac68d3d8a323621abd90ec71a406eb345d0bc717224b"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Mixed real baseline content and source-derived child states; no public token/source fetch/download performed. Diagram source sample is synthetic returned bytes, no extra source.path fetch.",
+  "priorGeneration": {
+    "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排七个独立公开分享局部样例，长画布保证文字清楚，不加每行解释标题，只有真实局部，不画主人导航。\n第一行：小转圈和“正在读取分享笔记…”。\n第二行：横向公开header，小蓝书本+DooKnow、细分隔线、“分享笔记”，右侧眼睛图标“只读”徽标，无编辑按钮。\n第三行：相同公开header，右侧文件图标“可编辑”徽标和蓝色可用“编辑笔记”按钮。\n第四行：文章标题“让知识保持可用”，段落“用于公开页面盘点的隔离示例，不包含真实用户资料。”，二级标题“记录与回顾”、正文“把观察留下，给下一步提供线索。”；右侧真实目录“本文目录”与一个链接“记录与回顾”，只包含此章节。\n第五行：仅一段“把观察留下，给下一步提供线索。”，没有章节标题或目录边栏，不画没有目录的占位说明。\n第六行：只读白板卡，标题“白板”，顶部按钮“预览”选中、“放大”可用，无源码tab；提示“图形原件不可编辑，显示最后完整预览。”，图中简单灰色矩形“记录”箭头连接浅绿色矩形“回顾”。没有编辑/转换/生成/下载控件。\n第七行：正文标题“示例图形”，普通PNG预览图片内容“记录”箭头到“回顾”，正文说明“把观察留下，给下一步提供线索。”；这是普通文章图片，没有白板卡片外框、图形tabs、放大或源码按钮。不画编辑器。",
+    "actualImageInputOrder": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-5871b5f5-da25-49ed-bde4-eec121653e1a.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-5871b5f5-da25-49ed-bde4-eec121653e1a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "sha256": "2f849d23898622e776e0bfd66ef06e5563fd40af0538e55b3b046e15e9c45075",
+    "dimensions": {
+      "width": 1024,
+      "height": 1536
+    },
+    "generationCallCount": 1
+  },
+  "revision": 2,
+  "revises": "docs/design/platform-unification-2026-11-05/design/images/MP-S047.json",
+  "revisionReason": "MP-S047-F1 source-verified missing structural branch",
+  "exactReadonlyMetadataBinding": {
+    "renderer": "ShareReader article .reader-expiry and .reader-edit-limitation",
+    "expiresAt": "2026-12-31 future synthetic value",
+    "editUnavailableReason": "图形分享暂不支持公开编辑",
+    "source": "packages/core/shares.ts:18",
+    "canEdit": false,
+    "editingAction": "absent"
+  }
+}

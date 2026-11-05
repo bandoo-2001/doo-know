@@ -1,0 +1,143 @@
+{
+  "assetId": "WS-R038",
+  "sourceIds": [
+    "WS-090"
+  ],
+  "reviewer": "independent platform_review_gen048 child agent, exclusively assigned eight GEN048 responsive assets",
+  "reviewedAtUtc": "2026-11-05T09:25:24.930457+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual current PNG viewed using tools.view_image in this independent context; complete actual submittedPrompt and GEN048 source contracts compared with actual input mother/baseline images, matching existing mother SHA reviews, current Vue templates/handlers/CSS and server/API policy sources. Static content review only; no generation or runtime tests.",
+  "actualViewMethod": {
+    "tool": "tools.view_image",
+    "image": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R038.png",
+    "detail": "high",
+    "boardPanelsActuallyViewed": [
+      "A",
+      "B"
+    ]
+  },
+  "reviewedImageSha256": "c04e7c83912a0d090c1e9eab78b0541a29139c0b897a413b89bb014362db63d7",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-R038.png",
+  "reviewedSidecarSha256": "6e2f8a971bec874ee0222c22f1a4176665b2abb2762f2a47ab5ab051813ca4a6",
+  "reviewedManifestSha256": "7f3fc0492e62f25af38e6dc0c0135db54d73fed95d3c1554e71f632cfb9a2474",
+  "submissionReview": {
+    "completeSubmittedPromptRead": true,
+    "submittedPromptSha256": "1cb30c4a2dcd16df10193a4b546266058515b963041cfad596933d294b506120",
+    "actualToolArgumentsPromptMatchesReceipt": true,
+    "observedReceiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-7.json",
+    "receiptOutputBytesMatchReviewedPng": true
+  },
+  "inputImageChecks": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D066.png",
+      "order": 1,
+      "role": "existing review relationship/evidence content only; exact source accepted actions specified",
+      "sha256": "fa452fbdf5d94c321ff2ee856cefd188fc121c9e3899767bec1aa3f07fec83c6",
+      "bytes": 1081765,
+      "dimensions": {
+        "width": 1129,
+        "height": 1393
+      },
+      "actualSha256": "fa452fbdf5d94c321ff2ee856cefd188fc121c9e3899767bec1aa3f07fec83c6",
+      "actuallyViewed": true,
+      "roleChecked": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "actualSha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "actuallyViewed": true,
+      "roleChecked": true
+    }
+  ],
+  "selectedState": [
+    "390 accepted status source-derived fixture; hasMore; idle",
+    "320 same review renderer/card; lower scroll permitted"
+  ],
+  "functionalFindings": [
+    {
+      "severity": "blocking",
+      "panel": "A and B, one-card review list and load-more footer",
+      "finding": "The selected isolated fixture has one relationship card and immediately shows the end-of-list load-more button. graph-workbench.ts always requests limit50 and sets reviewHasMore only when result.length===50. In A there is no clipped continuation or body scroll position that could account for49 omitted cards. B keeps the top filters but clips only the card heading; the source scroll owner is the overlay body, not a newly introduced card-body scroller.",
+      "sourceRefs": [
+        "apps/web/graph-workbench.ts:149",
+        "apps/web/graph-workbench.ts:160",
+        "apps/web/graph-workbench.ts:166",
+        "apps/web/components/GraphWorkspace.vue:1170",
+        "apps/web/components/GraphWorkspace.vue:1237",
+        "apps/web/components/graph/GraphOverlay.vue:202"
+      ],
+      "minimumCorrection": "Use a truthful source-derived50-item pagination specimen: A shows the top card and next-card continuation, without a premature footer; B shows the lower overlay-body scroll at the50th card plus load-more, with exact dataset/count/scroll-state mapping in sidecar. A simpler one-card no-more specimen must omit load-more and separately bind required pagination coverage to an actual reviewed compatible state. Do not invent a sticky toolbar or independent card scroller."
+    },
+    {
+      "severity": "blocking",
+      "panel": "A and B, relationship decision actions",
+      "finding": "Visible order is restore-candidate, ignore, confirm/save; source and GEN048 require confirm/save, ignore, restore-candidate for this accepted state.",
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:1201",
+        "apps/web/components/GraphWorkspace.vue:1223",
+        "apps/web/components/GraphWorkspace.vue:1232"
+      ],
+      "minimumCorrection": "Reorder the existing three actions to 确认 / 保存 → 忽略 → 恢复候选, wrapping in this order on the narrow screen; retain source per-action guards."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Accepted status correctly permits restore-candidate. Search, editable predicate, confidence80%, evidence quote and source-line link are existing controls/data; no protocol version/request ID becomes an input.",
+    "Card actions are all present but their visual order is reversed against the explicit source-order contract; see required correction.",
+    "Both panels portray a one-card list followed immediately by pagination. Workbench fixed limit50 makes this visible combination inconsistent; B also retains the top filters while dropping only the card heading without a corresponding source-owned card scroller. Correct the selected paging/scroll state, not merely the caption."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster shading, slight texture, rounded proportions and intended390/320 geometry are approximate. Implement flat shared CSS colors/borders/8px corners and readable source-sized text; do not reproduce raster gradients or infer exact responsive fit from this board."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-048.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R038.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/app.ts:141",
+    "apps/web/components/GraphWorkspace.vue:1148",
+    "apps/server/graph/semantic-routes.ts:164",
+    "packages/core/graph/analysis-source.ts:31",
+    "packages/core/graph/knowledge-state.ts:166",
+    "packages/core/graph/knowledge-service.ts:934",
+    "apps/web/graph-workbench.ts:149",
+    "apps/web/components/graph/GraphOverlay.vue:202",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D066-review.json"
+  ],
+  "currentSourceSha256": {
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    "apps/server/graph/semantic-routes.ts": "0f4d81250bee2aa5d27fdfd65bb5209f52525fdec1275f8ac680e17f7ea8f12a",
+    "apps/web/components/GraphWorkspace.vue": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e",
+    "apps/web/components/graph/GraphOverlay.vue": "0261e8d7dfde8c21c24a5793144b7ce2cb00fbbec49c05ec70d25d8af57439cd",
+    "apps/web/graph-workbench.ts": "68fd8a24051f471a3f7a02dd4609ab3c6963be12e9c3ade2679c609745e26c44",
+    "packages/core/graph/analysis-source.ts": "c87083ae267c60d4d876a82ca93d7f51d87cb6156f7f325c778fe3e77362eca1",
+    "packages/core/graph/knowledge-service.ts": "f1ff93c9dc7a502d3f3e61c9f4d2d4166f93f5d391b608440c1f3589782a0dfc",
+    "packages/core/graph/knowledge-state.ts": "24c5340305cd0a988e08a86ae8e2366078b6453ea336ae6f2c3c80b30ceb1001"
+  },
+  "requiredCorrections": [
+    "Use a truthful source-derived50-item pagination specimen: A shows the top card and next-card continuation, without a premature footer; B shows the lower overlay-body scroll at the50th card plus load-more, with exact dataset/count/scroll-state mapping in sidecar. A simpler one-card no-more specimen must omit load-more and separately bind required pagination coverage to an actual reviewed compatible state. Do not invent a sticky toolbar or independent card scroller.",
+    "Reorder the existing three actions to 确认 / 保存 → 忽略 → 恢复候选, wrapping in this order on the narrow screen; retain source per-action guards."
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false,
+    "limitations": "The tool does not expose a per-call physical model identity receipt; none is claimed."
+  },
+  "limitations": [
+    "Only these actual image bytes and their declared compatible selected state received static content review. Source-derived data are examples, not captured API/model outcomes.",
+    "A static PNG cannot prove physical320/390 scrolling or safe viewport, source focus trapping/return, keyboard/Escape, busy/dirty/version guards, action execution, persistence, permissions enforcement, live model/clipboard behavior or exact canvas topology.",
+    "Unshown alternative loading/error/unavailable/conflict/role variants retain their individual source contracts and mother mappings; this verdict does not claim their simultaneous presence.",
+    "Per-image content verdict does not pass platform-wide consistency/coverage/provenance gates or authorize product implementation."
+  ]
+}

@@ -1,0 +1,341 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R059",
+  "assetId": "MP-R059",
+  "sourceIds": [
+    "PB-030"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-030",
+      "title": "博客管理：概览390px",
+      "role": "authenticated owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three owner Blog app overview narrow pages: A390 actual disabled empty dashboard allstats0 and onboarding/recentempty; B320 synthetic disabled dashboard3posts (published1 withchanges,draft1,withdrawn1) exactstats3/1/1/1 and three recent states; C320 initial dashboard readerror/no dashboard with real retry and note picker, no sitebadge/banner/stats before state. Existing app-scoped shell preserved."
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-030",
+      "title": "博客管理：概览320px",
+      "role": "authenticated owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three owner Blog app overview narrow pages: A390 actual disabled empty dashboard allstats0 and onboarding/recentempty; B320 synthetic disabled dashboard3posts (published1 withchanges,draft1,withdrawn1) exactstats3/1/1/1 and three recent states; C320 initial dashboard readerror/no dashboard with real retry and note picker, no sitebadge/banner/stats before state. Existing app-scoped shell preserved."
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-030",
+      "title": "博客管理：概览320px guard",
+      "role": "authenticated owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three owner Blog app overview narrow pages: A390 actual disabled empty dashboard allstats0 and onboarding/recentempty; B320 synthetic disabled dashboard3posts (published1 withchanges,draft1,withdrawn1) exactstats3/1/1/1 and three recent states; C320 initial dashboard readerror/no dashboard with real retry and note picker, no sitebadge/banner/stats before state. Existing app-scoped shell preserved."
+    }
+  ],
+  "selectedState": "Three owner Blog app overview narrow pages: A390 actual disabled empty dashboard allstats0 and onboarding/recentempty; B320 synthetic disabled dashboard3posts (published1 withchanges,draft1,withdrawn1) exactstats3/1/1/1 and three recent states; C320 initial dashboard readerror/no dashboard with real retry and note picker, no sitebadge/banner/stats before state. Existing app-scoped shell preserved.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制并排三个完整独立博客管理窄网页，宽比例390、320、320，白灰蓝平面，严格用第二图真实宿主：顶栏返回箭头、博客、应用工作空间；底栏概览/文章/装修主页/分类与标签/更多，概览选中，不加笔记导航。左页博客标题、站点未开启徽章、选择笔记按钮；黄色“站点尚未开启。你可以先准备文章，开启后已发布内容才会公开。”和前往设置；概览、说明查看文章进度，继续最近的整理。；卡片从笔记开始、“从第一篇笔记，开始你的博客。”、选稿后完善标题、摘要与分类，每次发布都由你亲自决定。、开始选稿/设计主页布局/管理站点设置 →；统计二列网格全部文章0、已发布0、草稿0、待发布更新0；最近整理/查看全部 →，空态你的第一篇文章，从这里开始、从已有笔记中选稿，原文无需搬家。、选择一篇笔记。左内容可向下滚动，底栏可达。中同宿主/站点未开启/提示/概览及快捷动作，欢迎标题改继续整理，让思考被看见。，统计严格全部文章3、已发布1、草稿1、待发布更新1；最近整理三行可点击：让知识保持可用/方法 · 2026/11/5/有更新待发布；日常观察的记录/记录 · 2026/11/4/草稿；已经下架的示例/未分类 · 2026/11/3/已下架，查看全部保留。右为独立初始读取失败：同顶底栏、博客标题和选择笔记，红色“暂时无法读取博客，请重试。”和真实可用“重试”；尚无数据所以不画站点状态、黄色横幅、概览统计或任何虚假文章。长文窄处换行、正文滚动，禁止添加公开成功或自动发布。",
+  "prompt": "绘制并排三个完整独立博客管理窄网页，宽比例390、320、320，白灰蓝平面，严格用第二图真实宿主：顶栏返回箭头、博客、应用工作空间；底栏概览/文章/装修主页/分类与标签/更多，概览选中，不加笔记导航。左页博客标题、站点未开启徽章、选择笔记按钮；黄色“站点尚未开启。你可以先准备文章，开启后已发布内容才会公开。”和前往设置；概览、说明查看文章进度，继续最近的整理。；卡片从笔记开始、“从第一篇笔记，开始你的博客。”、选稿后完善标题、摘要与分类，每次发布都由你亲自决定。、开始选稿/设计主页布局/管理站点设置 →；统计二列网格全部文章0、已发布0、草稿0、待发布更新0；最近整理/查看全部 →，空态你的第一篇文章，从这里开始、从已有笔记中选稿，原文无需搬家。、选择一篇笔记。左内容可向下滚动，底栏可达。中同宿主/站点未开启/提示/概览及快捷动作，欢迎标题改继续整理，让思考被看见。，统计严格全部文章3、已发布1、草稿1、待发布更新1；最近整理三行可点击：让知识保持可用/方法 · 2026/11/5/有更新待发布；日常观察的记录/记录 · 2026/11/4/草稿；已经下架的示例/未分类 · 2026/11/3/已下架，查看全部保留。右为独立初始读取失败：同顶底栏、博客标题和选择笔记，红色“暂时无法读取博客，请重试。”和真实可用“重试”；尚无数据所以不画站点状态、黄色横幅、概览统计或任何虚假文章。长文窄处换行、正文滚动，禁止添加公开成功或自动发布。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; do not transfer notes rail to blog app",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-blog-overview.png",
+      "role": "Actual owner blog app compact top bar and bottom app navigation, empty dashboard",
+      "sha256": "a2e5c9315253831bd1e5a2361643245e6b9d1e3fb59bb60bb5cb2557213456ce",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; do not transfer notes rail to blog app",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-blog-overview.png",
+      "role": "Actual owner blog app compact top bar and bottom app navigation, empty dashboard",
+      "sha256": "a2e5c9315253831bd1e5a2361643245e6b9d1e3fb59bb60bb5cb2557213456ce",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制并排三个完整独立博客管理窄网页，宽比例390、320、320，白灰蓝平面，严格用第二图真实宿主：顶栏返回箭头、博客、应用工作空间；底栏概览/文章/装修主页/分类与标签/更多，概览选中，不加笔记导航。左页博客标题、站点未开启徽章、选择笔记按钮；黄色“站点尚未开启。你可以先准备文章，开启后已发布内容才会公开。”和前往设置；概览、说明查看文章进度，继续最近的整理。；卡片从笔记开始、“从第一篇笔记，开始你的博客。”、选稿后完善标题、摘要与分类，每次发布都由你亲自决定。、开始选稿/设计主页布局/管理站点设置 →；统计二列网格全部文章0、已发布0、草稿0、待发布更新0；最近整理/查看全部 →，空态你的第一篇文章，从这里开始、从已有笔记中选稿，原文无需搬家。、选择一篇笔记。左内容可向下滚动，底栏可达。中同宿主/站点未开启/提示/概览及快捷动作，欢迎标题改继续整理，让思考被看见。，统计严格全部文章3、已发布1、草稿1、待发布更新1；最近整理三行可点击：让知识保持可用/方法 · 2026/11/5/有更新待发布；日常观察的记录/记录 · 2026/11/4/草稿；已经下架的示例/未分类 · 2026/11/3/已下架，查看全部保留。右为独立初始读取失败：同顶底栏、博客标题和选择笔记，红色“暂时无法读取博客，请重试。”和真实可用“重试”；尚无数据所以不画站点状态、黄色横幅、概览统计或任何虚假文章。长文窄处换行、正文滚动，禁止添加公开成功或自动发布。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-blog-overview.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制并排三个完整独立博客管理窄网页，宽比例390、320、320，白灰蓝平面，严格用第二图真实宿主：顶栏返回箭头、博客、应用工作空间；底栏概览/文章/装修主页/分类与标签/更多，概览选中，不加笔记导航。左页博客标题、站点未开启徽章、选择笔记按钮；黄色“站点尚未开启。你可以先准备文章，开启后已发布内容才会公开。”和前往设置；概览、说明查看文章进度，继续最近的整理。；卡片从笔记开始、“从第一篇笔记，开始你的博客。”、选稿后完善标题、摘要与分类，每次发布都由你亲自决定。、开始选稿/设计主页布局/管理站点设置 →；统计二列网格全部文章0、已发布0、草稿0、待发布更新0；最近整理/查看全部 →，空态你的第一篇文章，从这里开始、从已有笔记中选稿，原文无需搬家。、选择一篇笔记。左内容可向下滚动，底栏可达。中同宿主/站点未开启/提示/概览及快捷动作，欢迎标题改继续整理，让思考被看见。，统计严格全部文章3、已发布1、草稿1、待发布更新1；最近整理三行可点击：让知识保持可用/方法 · 2026/11/5/有更新待发布；日常观察的记录/记录 · 2026/11/4/草稿；已经下架的示例/未分类 · 2026/11/3/已下架，查看全部保留。右为独立初始读取失败：同顶底栏、博客标题和选择笔记，红色“暂时无法读取博客，请重试。”和真实可用“重试”；尚无数据所以不画站点状态、黄色横幅、概览统计或任何虚假文章。长文窄处换行、正文滚动，禁止添加公开成功或自动发布。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; do not transfer notes rail to blog app"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-blog-overview.png",
+          "role": "Actual owner blog app compact top bar and bottom app navigation, empty dashboard"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-48bbd721-f54c-4328-bac2-1ec3695b929f.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-030",
+      "title": "博客管理：概览",
+      "kind": "page",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=overview",
+        "trigger": "Workspace app/menu entry → 博客",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/navigation.ts:101",
+        "apps/web/components/Workspace.vue:210",
+        "apps/web/components/BlogWorkspace.vue:287",
+        "apps/web/components/BlogWorkspace.vue:354"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session gates /api/blog. Public access toggle and article publication are separate states."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "选择笔记 / 开始选稿",
+          "effect": "Open Markdown note picker",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "设计主页布局",
+          "effect": "Navigate design section",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "管理站点设置 / 前往设置",
+          "effect": "Navigate site settings",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "统计卡 / 查看全部",
+          "effect": "Open article state filter",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "最近文章",
+          "effect": "Open selected detail",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "访问站点",
+          "effect": "Open /blog in new tab",
+          "api": "",
+          "guard": "saved enabled=true"
+        }
+      ],
+      "importantStates": [
+        "initial dashboard loading/error with retry",
+        "site disabled banner",
+        "no articles first-selection guidance",
+        "stats all/published/draft/changes; recent four posts"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-admin-visual.spec.ts:6",
+        "tests/e2e/blog.spec.ts:14"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-030",
+      "parentId": null,
+      "route": "/?view=apps&app=blog&appSection=overview",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/navigation.ts:101",
+        "apps/web/components/Workspace.vue:210",
+        "apps/web/components/BlogWorkspace.vue:287",
+        "apps/web/components/BlogWorkspace.vue:354"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-041.json#MP-R059",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R059",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-48bbd721-f54c-4328-bac2-1ec3695b929f.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R059.png",
+  "sha256": "b7775e8dff2f36823c7d02fffeea7e3dedb84f9066739326d1ec3b319776ee34",
+  "bytes": 1175870,
+  "dimensions": {
+    "width": 2172,
+    "height": 724
+  },
+  "generatedAtUtc": "2026-11-05T08:06:00.740380+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: BlogWorkspace.vue overview status/stat/recent rows",
+    "sourceIds": [
+      "PB-030"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Three owner Blog app overview narrow pages: A390 actual disabled empty dashboard allstats0 and onboarding/recentempty; B320 synthetic disabled dashboard3posts (published1 withchanges,draft1,withdrawn1) exactstats3/1/1/1 and three recent states; C320 initial dashboard readerror/no dashboard with real retry and note picker, no sitebadge/banner/stats before state. Existing app-scoped shell preserved.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "settingsEnabled": false,
+      "posts": [],
+      "stats": {
+        "all": 0,
+        "published": 0,
+        "draft": 0,
+        "changes": 0
+      }
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "settingsEnabled": false,
+      "posts": [
+        {
+          "title": "让知识保持可用",
+          "state": "published",
+          "hasUnpublishedChanges": true,
+          "category": "方法"
+        },
+        {
+          "title": "日常观察的记录",
+          "state": "draft",
+          "hasUnpublishedChanges": false,
+          "category": "记录"
+        },
+        {
+          "title": "已经下架的示例",
+          "state": "withdrawn",
+          "hasUnpublishedChanges": false,
+          "category": "未分类"
+        }
+      ],
+      "stats": {
+        "all": 3,
+        "published": 1,
+        "draft": 1,
+        "changes": 1
+      }
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "dashboard": null,
+      "loading": false,
+      "error": "暂时无法读取博客，请重试。",
+      "siteBadgeVisible": false
+    }
+  ]
+}

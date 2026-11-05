@@ -1,0 +1,64 @@
+{
+  "assetId": "MP-S037",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_state_backlog agent",
+  "reviewedAtUtc": "2026-11-05T04:33:54.750543+00:00",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S037.png",
+  "reviewedImageSha256": "629886f3e78e2ee5450d53ffa9a5c641b827f7a065c60bd027c89cde2901aad6",
+  "reviewedSidecarSha256": "b37e1e68f5bc62cb88ebbf02dfae99f064ce4d7be5445a3dea78f3e8768e4339",
+  "requirementsManifest": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-026.json",
+  "requirementsSha256": "02b14122eb31d055c5a63fa4d87685e2598bd638fa318433af72fd3986c1a6e8",
+  "viewMethod": "Actual individual PNG viewed via tools.view_image; full actual submittedPrompt and selectedState read; current template, parent/role/API/guard chain inspected. Matching backup/plugins/library/login baseline PNGs and approved style PNG were directly viewed where applicable.",
+  "sourceIds": [
+    "PB-003"
+  ],
+  "selectedState": [
+    "A compact expired session login busy",
+    "B compact login error"
+  ],
+  "sourceRefs": [
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/api.ts:30",
+    "apps/server/app.ts:141",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-026.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S037.json",
+    "apps/web/App.vue:234",
+    "apps/web/App.vue:290",
+    "apps/web/App.vue:389",
+    "apps/web/components/Login.vue:40",
+    "apps/web/components/Login.vue:38",
+    "apps/web/components/Login.vue:50",
+    "apps/web/App.vue:244"
+  ],
+  "reviewedSourceSha256": {
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md": "f78c14e2c450641e9ecc10864168fef272bc07cb0eb47e23e0e0d475bdbf9ff9",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md": "d184372a8eefffe8079b87aa9c2988e487507d95b41b263d6ed7b7a0f7827711",
+    "apps/web/api.ts": "f3cfa4add2ed9f30efb83d401345d9c95e7437b8d2e09cea21fd853ac79b55ec",
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-026.json": "02b14122eb31d055c5a63fa4d87685e2598bd638fa318433af72fd3986c1a6e8",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S037.json": "b37e1e68f5bc62cb88ebbf02dfae99f064ce4d7be5445a3dea78f3e8768e4339",
+    "apps/web/App.vue": "1161ad07a6926fac6bf51d8b81b2474f825755aca223bec10c443d2bf3047157",
+    "apps/web/components/Login.vue": "ebf1167ef06dee5cd4cb4e172fab6f9906d0ad5c7d19757848299d71b3043ec5"
+  },
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Both complete compact reauthentication cards match Login compact: DooKnow brand, expired-session title, retained-draft explanation, explicit username/password labels, masked password and private-note message.",
+    "A reflects busy inputs/submit disabled and loading; B reflects error with retained editable values and enabled submit. Compact hides first-use help and offers no cancel/close.",
+    "App keeps mounted same-owner workspace while showing a nonclosable expired-session modal; different-owner acceptSession resets workspace scope. Static local design does not claim that transition executed."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Readable white/light-gray local components, fine borders, restrained corners and blue action hierarchy match the shared style direction. Raster shading/texture and approximate scale must become flat CSS tokens; do not regenerate solely for those details."
+    }
+  ],
+  "requiredCorrections": [],
+  "limitations": [
+    "Source-derived static design review only; no runtime API operation, authorization, clipboard, network, keyboard/focus, close/mask/Escape behavior or responsive viewport was executed.",
+    "Local-component specimens are independent; parent role/source bindings remain metadata. Existing baseline references establish host context, not runtime capture of these synthetic error/busy states.",
+    "Raster shading/texture, font/icon geometry and dimensions are approximate. Implement shared flat CSS tokens, responsive wrapping and existing scroll/focus/guard rules; this is not pixel-level CSS approval.",
+    "This per-image result neither completes the non-ToDoo platform unification task nor substitutes for the later global coverage/style/function review or authorizes product implementation."
+  ]
+}

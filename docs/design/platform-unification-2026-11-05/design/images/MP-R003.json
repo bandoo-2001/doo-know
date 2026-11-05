@@ -1,0 +1,307 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R003",
+  "assetId": "MP-R003",
+  "sourceIds": [
+    "ST-002"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-002",
+      "title": "知识库与存储390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent mobile scroll positions of LibrarySettings page, full existing mobile chrome. A390 initial overview+3transfer entries+2empty task regions; B320 organization zero selection+storage7rows; C320 unconnected Git+share caller error with retained search. Long fake deployment path readonly. Source-derived child/320 states; no fabricated job or connected result."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-002",
+      "title": "知识库与存储320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent mobile scroll positions of LibrarySettings page, full existing mobile chrome. A390 initial overview+3transfer entries+2empty task regions; B320 organization zero selection+storage7rows; C320 unconnected Git+share caller error with retained search. Long fake deployment path readonly. Source-derived child/320 states; no fabricated job or connected result."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-002",
+      "title": "知识库与存储320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent mobile scroll positions of LibrarySettings page, full existing mobile chrome. A390 initial overview+3transfer entries+2empty task regions; B320 organization zero selection+storage7rows; C320 unconnected Git+share caller error with retained search. Long fake deployment path readonly. Source-derived child/320 states; no fabricated job or connected result."
+    }
+  ],
+  "selectedState": "Three independent mobile scroll positions of LibrarySettings page, full existing mobile chrome. A390 initial overview+3transfer entries+2empty task regions; B320 organization zero selection+storage7rows; C320 unconnected Git+share caller error with retained search. Long fake deployment path readonly. Source-derived child/320 states; no fabricated job or connected result.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制三列独立的DooKnow移动网页滚动位置，左390宽、中右320宽，各保留真实菜单/DooKnow/私人笔记顶栏，以及笔记、最近、收藏、应用、更多底栏（更多选中），不画硬件。白灰平面蓝按钮细边框；给每列足够纵向高度，文字不缩小。左列顶部“知识库与存储”、返回、说明“查看资料位置、空间用量与分享，导入或导出文件。”。当前知识库卡：这里的目录位于运行知识库的服务器上。、刷新信息、knowledge、知识库可用 · 时区 Asia/Shanghai，展开“服务器上的原文目录”，只读长路径/srv/data/knowledge/example-personal/very-long-folder/notes自然换行，说明目录绑定由部署配置管理。再顺序三卡：批量导入，描述导入 Markdown、Excalidraw 白板与附件，支持保留目录结构。，同名按钮；导入便携包，描述恢复主图、原件和预览，同名按钮；导出资料，描述将整个知识库或指定目录打包，方便迁移原文。，同名按钮。其后便携任务与结果、刷新结果、暂无便携任务。；任务与结果、刷新任务、暂无相关任务。。中列为向下滚动位置：批量整理卡、说明移动已保存的笔记，保留身份并更新关联链接。图形预览准备完成后才会提交。、刷新整理记录；折叠“选择需要移动的笔记（已选 0 篇）”；整理目标目录选择框未选择；“移动选中笔记”灰禁用。下面存储占用、按类别统计当前可读取的文件。、刷新统计；三列表“类别/占用/文件数量”，七行笔记原文10 KiB/3个文件、附件与其他文件20 KiB/2个文件、历史版本5 KiB/2个文件、回收站0 B/0个文件、搜索索引1 MiB/1个文件、检索模型0 B/0个文件、升级备份0 B/0个文件；统计时间2026/11/5 12:00，统计可能不完整，查看统计范围与提示。，折叠统计范围。表格只在自身内必要横滚不突破页面。右列为更下滚动位置：云端同步、刷新同步状态，说明保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。；本地分支main · 未提交文件0；尚未关联云端仓库。关联后仍需手动提交和同步。；卡片云端仓库与认证，管理仓库地址、分支和登录凭据。，按钮关联云端仓库。下面共享链接卡，说明查看链接的访问权限和有效期，并撤销不再需要的访问。；搜索输入保留“知识”、状态选择全部状态、查找链接；红色“暂时无法读取共享链接，请重试。”和“重新读取”。右列不画检查云端、推送或空结果文案，不加不存在的连接成功或任务。",
+  "prompt": "绘制三列独立的DooKnow移动网页滚动位置，左390宽、中右320宽，各保留真实菜单/DooKnow/私人笔记顶栏，以及笔记、最近、收藏、应用、更多底栏（更多选中），不画硬件。白灰平面蓝按钮细边框；给每列足够纵向高度，文字不缩小。左列顶部“知识库与存储”、返回、说明“查看资料位置、空间用量与分享，导入或导出文件。”。当前知识库卡：这里的目录位于运行知识库的服务器上。、刷新信息、knowledge、知识库可用 · 时区 Asia/Shanghai，展开“服务器上的原文目录”，只读长路径/srv/data/knowledge/example-personal/very-long-folder/notes自然换行，说明目录绑定由部署配置管理。再顺序三卡：批量导入，描述导入 Markdown、Excalidraw 白板与附件，支持保留目录结构。，同名按钮；导入便携包，描述恢复主图、原件和预览，同名按钮；导出资料，描述将整个知识库或指定目录打包，方便迁移原文。，同名按钮。其后便携任务与结果、刷新结果、暂无便携任务。；任务与结果、刷新任务、暂无相关任务。。中列为向下滚动位置：批量整理卡、说明移动已保存的笔记，保留身份并更新关联链接。图形预览准备完成后才会提交。、刷新整理记录；折叠“选择需要移动的笔记（已选 0 篇）”；整理目标目录选择框未选择；“移动选中笔记”灰禁用。下面存储占用、按类别统计当前可读取的文件。、刷新统计；三列表“类别/占用/文件数量”，七行笔记原文10 KiB/3个文件、附件与其他文件20 KiB/2个文件、历史版本5 KiB/2个文件、回收站0 B/0个文件、搜索索引1 MiB/1个文件、检索模型0 B/0个文件、升级备份0 B/0个文件；统计时间2026/11/5 12:00，统计可能不完整，查看统计范围与提示。，折叠统计范围。表格只在自身内必要横滚不突破页面。右列为更下滚动位置：云端同步、刷新同步状态，说明保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。；本地分支main · 未提交文件0；尚未关联云端仓库。关联后仍需手动提交和同步。；卡片云端仓库与认证，管理仓库地址、分支和登录凭据。，按钮关联云端仓库。下面共享链接卡，说明查看链接的访问权限和有效期，并撤销不再需要的访问。；搜索输入保留“知识”、状态选择全部状态、查找链接；红色“暂时无法读取共享链接，请重试。”和“重新读取”。右列不画检查云端、推送或空结果文案，不加不存在的连接成功或任务。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+      "role": "Actual mobile host, initial overview and entry cards",
+      "sha256": "3213f7fd9fcf209a067fe82908d8f3d6c96e5a0fea8f63d1ee5ddc7725cd384a",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+      "role": "Actual mobile host, initial overview and entry cards",
+      "sha256": "3213f7fd9fcf209a067fe82908d8f3d6c96e5a0fea8f63d1ee5ddc7725cd384a",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制三列独立的DooKnow移动网页滚动位置，左390宽、中右320宽，各保留真实菜单/DooKnow/私人笔记顶栏，以及笔记、最近、收藏、应用、更多底栏（更多选中），不画硬件。白灰平面蓝按钮细边框；给每列足够纵向高度，文字不缩小。左列顶部“知识库与存储”、返回、说明“查看资料位置、空间用量与分享，导入或导出文件。”。当前知识库卡：这里的目录位于运行知识库的服务器上。、刷新信息、knowledge、知识库可用 · 时区 Asia/Shanghai，展开“服务器上的原文目录”，只读长路径/srv/data/knowledge/example-personal/very-long-folder/notes自然换行，说明目录绑定由部署配置管理。再顺序三卡：批量导入，描述导入 Markdown、Excalidraw 白板与附件，支持保留目录结构。，同名按钮；导入便携包，描述恢复主图、原件和预览，同名按钮；导出资料，描述将整个知识库或指定目录打包，方便迁移原文。，同名按钮。其后便携任务与结果、刷新结果、暂无便携任务。；任务与结果、刷新任务、暂无相关任务。。中列为向下滚动位置：批量整理卡、说明移动已保存的笔记，保留身份并更新关联链接。图形预览准备完成后才会提交。、刷新整理记录；折叠“选择需要移动的笔记（已选 0 篇）”；整理目标目录选择框未选择；“移动选中笔记”灰禁用。下面存储占用、按类别统计当前可读取的文件。、刷新统计；三列表“类别/占用/文件数量”，七行笔记原文10 KiB/3个文件、附件与其他文件20 KiB/2个文件、历史版本5 KiB/2个文件、回收站0 B/0个文件、搜索索引1 MiB/1个文件、检索模型0 B/0个文件、升级备份0 B/0个文件；统计时间2026/11/5 12:00，统计可能不完整，查看统计范围与提示。，折叠统计范围。表格只在自身内必要横滚不突破页面。右列为更下滚动位置：云端同步、刷新同步状态，说明保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。；本地分支main · 未提交文件0；尚未关联云端仓库。关联后仍需手动提交和同步。；卡片云端仓库与认证，管理仓库地址、分支和登录凭据。，按钮关联云端仓库。下面共享链接卡，说明查看链接的访问权限和有效期，并撤销不再需要的访问。；搜索输入保留“知识”、状态选择全部状态、查找链接；红色“暂时无法读取共享链接，请重试。”和“重新读取”。右列不画检查云端、推送或空结果文案，不加不存在的连接成功或任务。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制三列独立的DooKnow移动网页滚动位置，左390宽、中右320宽，各保留真实菜单/DooKnow/私人笔记顶栏，以及笔记、最近、收藏、应用、更多底栏（更多选中），不画硬件。白灰平面蓝按钮细边框；给每列足够纵向高度，文字不缩小。左列顶部“知识库与存储”、返回、说明“查看资料位置、空间用量与分享，导入或导出文件。”。当前知识库卡：这里的目录位于运行知识库的服务器上。、刷新信息、knowledge、知识库可用 · 时区 Asia/Shanghai，展开“服务器上的原文目录”，只读长路径/srv/data/knowledge/example-personal/very-long-folder/notes自然换行，说明目录绑定由部署配置管理。再顺序三卡：批量导入，描述导入 Markdown、Excalidraw 白板与附件，支持保留目录结构。，同名按钮；导入便携包，描述恢复主图、原件和预览，同名按钮；导出资料，描述将整个知识库或指定目录打包，方便迁移原文。，同名按钮。其后便携任务与结果、刷新结果、暂无便携任务。；任务与结果、刷新任务、暂无相关任务。。中列为向下滚动位置：批量整理卡、说明移动已保存的笔记，保留身份并更新关联链接。图形预览准备完成后才会提交。、刷新整理记录；折叠“选择需要移动的笔记（已选 0 篇）”；整理目标目录选择框未选择；“移动选中笔记”灰禁用。下面存储占用、按类别统计当前可读取的文件。、刷新统计；三列表“类别/占用/文件数量”，七行笔记原文10 KiB/3个文件、附件与其他文件20 KiB/2个文件、历史版本5 KiB/2个文件、回收站0 B/0个文件、搜索索引1 MiB/1个文件、检索模型0 B/0个文件、升级备份0 B/0个文件；统计时间2026/11/5 12:00，统计可能不完整，查看统计范围与提示。，折叠统计范围。表格只在自身内必要横滚不突破页面。右列为更下滚动位置：云端同步、刷新同步状态，说明保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。；本地分支main · 未提交文件0；尚未关联云端仓库。关联后仍需手动提交和同步。；卡片云端仓库与认证，管理仓库地址、分支和登录凭据。，按钮关联云端仓库。下面共享链接卡，说明查看链接的访问权限和有效期，并撤销不再需要的访问。；搜索输入保留“知识”、状态选择全部状态、查找链接；红色“暂时无法读取共享链接，请重试。”和“重新读取”。右列不画检查云端、推送或空结果文案，不加不存在的连接成功或任务。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+          "role": "Actual mobile host, initial overview and entry cards"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-119d200d-e372-4795-acec-5f80e71daf33.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-002",
+      "title": "知识库与存储",
+      "kind": "page",
+      "module": "settings/library",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "设置→知识库与存储 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:46",
+        "apps/web/components/settings/LibrarySettings.vue:29"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新信息",
+          "effect": "更新知识库路径、可用性与时区",
+          "api": "GET /api/manage/overview",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "批量导入 / 导入便携包 / 导出资料",
+          "effect": "打开ST-018/ST-022/ST-024",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "知识库未绑定/不可用",
+        "分区独立读取失败",
+        "长目录路径",
+        "批量整理、存储、Git、共享链接、任务常驻区域"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-workspace.spec.ts:7",
+        "tests/e2e/settings-layout.spec.ts:69"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-002",
+      "parentId": null,
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:46",
+        "apps/web/components/settings/LibrarySettings.vue:29"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-035.json#MP-R003",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R003",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-119d200d-e372-4795-acec-5f80e71daf33.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R003.png",
+  "sha256": "a35ac39e54d0e8faf1e695db8822499df84ec202c5e5148f9933a863bd6f4c12",
+  "bytes": 1571311,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:19:19.404479+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: SettingsWorkspace/settings-workspace .settings-stack .settings-card: long card sections, inner table/details containment",
+    "sourceIds": [
+      "ST-002"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent mobile scroll positions of LibrarySettings page, full existing mobile chrome. A390 initial overview+3transfer entries+2empty task regions; B320 organization zero selection+storage7rows; C320 unconnected Git+share caller error with retained search. Long fake deployment path readonly. Source-derived child/320 states; no fabricated job or connected result.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scroll": "top through TransferPanel entry/empty task sections",
+      "overview": {
+        "name": "knowledge",
+        "ready": true,
+        "timeZone": "Asia/Shanghai",
+        "path": "/srv/data/knowledge/example-personal/very-long-folder/notes"
+      },
+      "jobs": [],
+      "tasks": []
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "scroll": "OrganizationOperations and StorageSettings",
+      "selected": [],
+      "folder": "",
+      "operations": [],
+      "storage": "synthetic seven-category readonly values"
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "scroll": "GitRemotePanel and ShareManagement",
+      "git": {
+        "branch": "main",
+        "changes": 0,
+        "connection": null,
+        "job": null
+      },
+      "share": {
+        "q": "知识",
+        "filter": "all",
+        "items": [],
+        "error": "暂时无法读取共享链接，请重试。",
+        "cursor": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "assetId": "MP-R061",
+  "sourceIds": [
+    "PB-032"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:18:03.128846+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Local owner article detail: A clean draft; B dirty published with locked slug; C declared ordinary recheck of published retained dirty form/prior selected error.",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "panel": "A/B/C",
+      "finding": "Summary, category and tags have required asterisks even though these fields are optional and have no required attribute; empty values are valid. This falsely constrains publication metadata.",
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:592",
+        "apps/web/components/BlogWorkspace.vue:606"
+      ]
+    },
+    {
+      "severity": "P2",
+      "blocking": true,
+      "panel": "C",
+      "finding": "Declared ordinary recheck retains the previous article-read error and 重新核对 while reading=true. model.select(id) clears state.errors[id] before calling read, and read failure sets error only after reading is reset in finally. The ordinary retry branch therefore shows the retained form/read status without its previous error.",
+      "sourceRefs": [
+        "apps/web/blog-workbench.ts:164",
+        "apps/web/blog-workbench.ts:185",
+        "apps/web/components/BlogWorkspace.vue:538"
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG/full submitted prompt and owner parent baseline viewed. Real metadata controls, manual save/preview/publish distinction, cover capabilities, published slug lock and source navigation mostly retained.",
+    "Red required markers on optional summary/category/tags change actual form semantics. Only title has required in this template; metadata accepts empty summary/category/tags.",
+    "C declared ordinary recheck does not preserve prior selectedError because model.select clears it before read begins. Current source-derived explanation does not identify another producer/guard sequence for the retained alert+reading combination."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-041.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R061.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/BlogWorkspace.vue:508",
+    "apps/web/components/BlogWorkspace.vue:588",
+    "apps/web/blog-workbench.ts:164",
+    "apps/web/blog-workbench.ts:185",
+    "apps/web/components/blog/BlogArticleCover.vue",
+    "packages/core/blog/service.ts:85"
+  ],
+  "requiredCorrections": [
+    "Remove required markers from optional summary/category/tags in all panels. Preserve input limits, tag parsing, optional cover/pin and actual title required behavior.",
+    "C: use actual ordinary recheck branch: remove the previous error/recheck alert while reading, retain the dirty form and reading status with real disabled save/preview/publish controls. Keep standalone completed-error branch mapped separately; if a different concurrent producer is intended, document and render its exact real causal guards rather than claiming ordinary prior-error retention."
+  ],
+  "reviewedImageSha256": "9d822b6eec75631118b2599b07792cfac2d0cff4e96740b7f6c97a73ca3def88",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R061.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

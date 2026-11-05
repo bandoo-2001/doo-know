@@ -1,0 +1,356 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R057",
+  "assetId": "MP-R057",
+  "sourceIds": [
+    "PB-027"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "anonymous guest"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-027",
+      "title": "公开编辑：Markdown 源码390px",
+      "role": "anonymous guest",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three public source editor responsive states: A390 actual search-open clean source queryempty0matches; B320 dirty deletion to empty valid save enabled, search closed; C320 saving readOnly true retains source/find query control and case/close available, replacement input/actions and modes/save/return disabled. Code document/source shared capability unchanged."
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-027",
+      "title": "公开编辑：Markdown 源码320px",
+      "role": "anonymous guest",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three public source editor responsive states: A390 actual search-open clean source queryempty0matches; B320 dirty deletion to empty valid save enabled, search closed; C320 saving readOnly true retains source/find query control and case/close available, replacement input/actions and modes/save/return disabled. Code document/source shared capability unchanged."
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-027",
+      "title": "公开编辑：Markdown 源码320px guard",
+      "role": "anonymous guest",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three public source editor responsive states: A390 actual search-open clean source queryempty0matches; B320 dirty deletion to empty valid save enabled, search closed; C320 saving readOnly true retains source/find query control and case/close available, replacement input/actions and modes/save/return disabled. Code document/source shared capability unchanged."
+    }
+  ],
+  "selectedState": "Three public source editor responsive states: A390 actual search-open clean source queryempty0matches; B320 dirty deletion to empty valid save enabled, search closed; C320 saving readOnly true retains source/find query control and case/close available, replacement input/actions and modes/save/return disabled. Code document/source shared capability unchanged.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制并排三个完整公开分享源码编辑窄网页，宽比例390、320、320，白灰蓝平面，照第二图真实控制结构，没有主人导航。三页顶部蓝书本DooKnow/分享笔记/可编辑徽章；文档编辑普通、Markdown 源码蓝选中，模式按钮平分整行；状态和保存修改/返回阅读下一行；说明编辑这篇笔记后请手动保存。不支持上传附件；引用的白板仅供查看。；访客页脚同第二参考。左状态已保存，保存修改禁用；编辑区顶部查找面板按真实顺序：查找空输入、0 / 0、↑和↓禁用、区分大小写未选、替换空输入可用、替换当前与全部替换禁用、关闭×可用，窄处自动换行。源码区保留# 让知识保持可用、原有隔离示例正文、## 记录与回顾、把观察留下，给下一步提供线索。；等宽源码，不增加行号工具。中状态未保存，保存修改蓝可用，模式与返回阅读可用；源码编辑区是完全空白的合法草稿，仅底部源码字符 0，没有错误、占位文字或查找面板。右状态正在保存…、保存修改转圈禁用，两个模式与返回阅读均禁用；同左源码保留且只读，查找输入值不存在仍可用，0 / 0，上下匹配按钮禁用，区分大小写与关闭×可用，替换输入灰禁用、替换当前/全部替换禁用。不要把查找整个面板禁用，不加上传/分享管理/自动保存或新输入。",
+  "prompt": "绘制并排三个完整公开分享源码编辑窄网页，宽比例390、320、320，白灰蓝平面，照第二图真实控制结构，没有主人导航。三页顶部蓝书本DooKnow/分享笔记/可编辑徽章；文档编辑普通、Markdown 源码蓝选中，模式按钮平分整行；状态和保存修改/返回阅读下一行；说明编辑这篇笔记后请手动保存。不支持上传附件；引用的白板仅供查看。；访客页脚同第二参考。左状态已保存，保存修改禁用；编辑区顶部查找面板按真实顺序：查找空输入、0 / 0、↑和↓禁用、区分大小写未选、替换空输入可用、替换当前与全部替换禁用、关闭×可用，窄处自动换行。源码区保留# 让知识保持可用、原有隔离示例正文、## 记录与回顾、把观察留下，给下一步提供线索。；等宽源码，不增加行号工具。中状态未保存，保存修改蓝可用，模式与返回阅读可用；源码编辑区是完全空白的合法草稿，仅底部源码字符 0，没有错误、占位文字或查找面板。右状态正在保存…、保存修改转圈禁用，两个模式与返回阅读均禁用；同左源码保留且只读，查找输入值不存在仍可用，0 / 0，上下匹配按钮禁用，区分大小写与关闭×可用，替换输入灰禁用、替换当前/全部替换禁用。不要把查找整个面板禁用，不加上传/分享管理/自动保存或新输入。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; no owner chrome",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-editor-source-search.png",
+      "role": "Actual source editor header/modes/search/replace/control order",
+      "sha256": "a3a802524079934e91bb1e5b66e03eb4da21951930aad704b8b1f77d24af5569",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; no owner chrome",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-editor-source-search.png",
+      "role": "Actual source editor header/modes/search/replace/control order",
+      "sha256": "a3a802524079934e91bb1e5b66e03eb4da21951930aad704b8b1f77d24af5569",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制并排三个完整公开分享源码编辑窄网页，宽比例390、320、320，白灰蓝平面，照第二图真实控制结构，没有主人导航。三页顶部蓝书本DooKnow/分享笔记/可编辑徽章；文档编辑普通、Markdown 源码蓝选中，模式按钮平分整行；状态和保存修改/返回阅读下一行；说明编辑这篇笔记后请手动保存。不支持上传附件；引用的白板仅供查看。；访客页脚同第二参考。左状态已保存，保存修改禁用；编辑区顶部查找面板按真实顺序：查找空输入、0 / 0、↑和↓禁用、区分大小写未选、替换空输入可用、替换当前与全部替换禁用、关闭×可用，窄处自动换行。源码区保留# 让知识保持可用、原有隔离示例正文、## 记录与回顾、把观察留下，给下一步提供线索。；等宽源码，不增加行号工具。中状态未保存，保存修改蓝可用，模式与返回阅读可用；源码编辑区是完全空白的合法草稿，仅底部源码字符 0，没有错误、占位文字或查找面板。右状态正在保存…、保存修改转圈禁用，两个模式与返回阅读均禁用；同左源码保留且只读，查找输入值不存在仍可用，0 / 0，上下匹配按钮禁用，区分大小写与关闭×可用，替换输入灰禁用、替换当前/全部替换禁用。不要把查找整个面板禁用，不加上传/分享管理/自动保存或新输入。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-editor-source-search.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制并排三个完整公开分享源码编辑窄网页，宽比例390、320、320，白灰蓝平面，照第二图真实控制结构，没有主人导航。三页顶部蓝书本DooKnow/分享笔记/可编辑徽章；文档编辑普通、Markdown 源码蓝选中，模式按钮平分整行；状态和保存修改/返回阅读下一行；说明编辑这篇笔记后请手动保存。不支持上传附件；引用的白板仅供查看。；访客页脚同第二参考。左状态已保存，保存修改禁用；编辑区顶部查找面板按真实顺序：查找空输入、0 / 0、↑和↓禁用、区分大小写未选、替换空输入可用、替换当前与全部替换禁用、关闭×可用，窄处自动换行。源码区保留# 让知识保持可用、原有隔离示例正文、## 记录与回顾、把观察留下，给下一步提供线索。；等宽源码，不增加行号工具。中状态未保存，保存修改蓝可用，模式与返回阅读可用；源码编辑区是完全空白的合法草稿，仅底部源码字符 0，没有错误、占位文字或查找面板。右状态正在保存…、保存修改转圈禁用，两个模式与返回阅读均禁用；同左源码保留且只读，查找输入值不存在仍可用，0 / 0，上下匹配按钮禁用，区分大小写与关闭×可用，替换输入灰禁用、替换当前/全部替换禁用。不要把查找整个面板禁用，不加上传/分享管理/自动保存或新输入。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; no owner chrome"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-editor-source-search.png",
+          "role": "Actual source editor header/modes/search/replace/control order"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-4a004506-bc31-470f-8c39-45ee98f9883a.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-027",
+      "title": "公开编辑：Markdown 源码",
+      "kind": "page",
+      "module": "public-edit",
+      "entry": {
+        "route": "/s/:token (editing=true)",
+        "trigger": "Switch to Markdown 源码 or rich-editor fallback",
+        "parentId": "PB-026"
+      },
+      "sourceRefs": [
+        "apps/web/components/PublicShareEditor.vue:119",
+        "apps/web/components/PublicShareEditor.vue:178",
+        "apps/web/components/PublicShareEditor.vue:224",
+        "apps/web/components/PublicShareEditor.vue:20",
+        "apps/web/components/PublicShareEditor.vue:35",
+        "apps/web/components/NoteEditorHost.vue:161",
+        "apps/web/editor/source-codec.ts:156",
+        "apps/web/editor/compatibility.ts:5",
+        "apps/web/components/NoteEditorHost.vue:266",
+        "apps/web/components/NoteEditorHost.vue:449",
+        "apps/web/components/EditorSearch.vue:24",
+        "packages/core/notes.ts:366",
+        "packages/core/errors.ts:10"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Active edit-capability token and supported Markdown required; write uses anonymous CSRF, same Origin and expectedModifiedAt. Existing draft text remains available on failure; referenced whiteboards are read-only.",
+        "PublicShareEditor initializes kind=document directly. NoteEditorHost calls parseSource with source-codec eligibility enabled=true; do not infer that public rich editing is disabled by the owner VITE_DOCUMENT_EDITOR_ENABLED setting.",
+        "The active public token and source/save restrictions remain authoritative in both modes, including after a rich-eligibility fallback; an empty body is not a validation failure."
+      ],
+      "fields": [
+        {
+          "name": "draft",
+          "type": "Markdown editor",
+          "required": false,
+          "constraints": "same capability source/CAS/resource restrictions as document mode; blank draft is allowed. The save JSON payload must contain a string content property, including an empty string; payload-property presence is separate from UI/nonempty validation. Save eligibility is dirty-state and busy/loading/composing/blocked/expiry based, not nonempty based.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "文档编辑",
+          "effect": "Flush source then switch mode",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "保存修改",
+          "effect": "Same capability save exchange",
+          "api": "GET /api/public/shares/:token/csrf; PUT .../source",
+          "guard": "same saveDisabled guard"
+        },
+        {
+          "label": "Ctrl/Cmd+F / Ctrl/Cmd+H",
+          "effect": "Open current shared-note find and replace panel (workspace shared surface WS-045)",
+          "api": "",
+          "guard": "editor keyboard event; Ctrl or Meta; not Alt; not composing"
+        },
+        {
+          "label": "上一个/下一个匹配 / 区分大小写 / 关闭查找",
+          "effect": "Navigate or refine current-note matches; Escape/close restores editor focus",
+          "api": "",
+          "guard": "match navigation requires results"
+        },
+        {
+          "label": "替换当前 / 全部替换",
+          "effect": "Modify current shared-note draft; explicit public save still required",
+          "api": "",
+          "guard": "not readOnly; results exist; replacement handler refuses while composing"
+        }
+      ],
+      "importantStates": [
+        "plain source editing with same manual save status",
+        "same busy/IME guards; fallback warning",
+        "Blank body is valid; a dirty deletion to empty can be saved when the ordinary save guards permit it. An unchanged blank baseline is clean, not invalid.",
+        "Ctrl/Cmd+F or Ctrl/Cmd+H inside either mode opens the shared current-note find/replace panel; zero results disables next/previous and replacement actions. Escape closes it; case-sensitive matching, current replacement and replace-all remain local draft operations.",
+        "Find remains available while host readOnly is true; replacement input/actions are disabled while readOnly (busy/reloading), and replacement is guarded during composition.",
+        "Source mode can be explicitly chosen for otherwise rich-eligible content or reached automatically by the size/unit/depth/reference-syntax fallback; warning explains why source mode preserves the original.",
+        "Attempting document mode again reruns parseSource eligibility; ineligible content falls back again without granting broader source/resource permissions."
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Toolbar wraps; <=720px mode buttons share full width and article padding decreases (PublicShareEditor.vue:329). Editor behavior at 320 remains unverified."
+      },
+      "testRefs": [
+        "tests/e2e/sharing-permissions.spec.ts:71",
+        "tests/editor-source-codec.test.ts:53",
+        "tests/editor-compatibility.test.ts:3"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Shared find/replace layout and detailed controls cross-reference coverage/workspace.json WS-045; public reachability is through NoteEditorHost keyboard handling, not an owner toolbar button.",
+        "PublicShareEditor exposes document/source mode, save and return-reading controls. It does not mount the owner full editor toolbar or handle NoteEditorHost insert-menu events, so do not add an owner insert menu to the public mockup."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-027",
+      "parentId": "PB-026",
+      "route": "/s/:token (editing=true)",
+      "roles": [
+        "anonymous guest"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PublicShareEditor.vue:119",
+        "apps/web/components/PublicShareEditor.vue:178",
+        "apps/web/components/PublicShareEditor.vue:224",
+        "apps/web/components/PublicShareEditor.vue:20",
+        "apps/web/components/PublicShareEditor.vue:35",
+        "apps/web/components/NoteEditorHost.vue:161",
+        "apps/web/editor/source-codec.ts:156",
+        "apps/web/editor/compatibility.ts:5",
+        "apps/web/components/NoteEditorHost.vue:266",
+        "apps/web/components/NoteEditorHost.vue:449",
+        "apps/web/components/EditorSearch.vue:24",
+        "packages/core/notes.ts:366",
+        "packages/core/errors.ts:10"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-041.json#MP-R057",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R057",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-4a004506-bc31-470f-8c39-45ee98f9883a.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R057.png",
+  "sha256": "f6984d8461c84883b51072aa44553bbb5d7a485abe92458094c7552d480841ed",
+  "bytes": 1135159,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T08:06:00.557028+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: PublicShareEditor/NoteEditorHost source-code editor host",
+    "sourceIds": [
+      "PB-027"
+    ],
+    "roles": [
+      "anonymous guest"
+    ],
+    "state": "Three public source editor responsive states: A390 actual search-open clean source queryempty0matches; B320 dirty deletion to empty valid save enabled, search closed; C320 saving readOnly true retains source/find query control and case/close available, replacement input/actions and modes/save/return disabled. Code document/source shared capability unchanged.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "kind": "source",
+      "dirty": false,
+      "busy": false,
+      "searchOpen": true,
+      "query": "",
+      "replacement": "",
+      "count": 0,
+      "readOnly": false
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "kind": "source",
+      "dirty": true,
+      "draft": "",
+      "baselineNonempty": true,
+      "busy": false,
+      "searchOpen": false,
+      "saveDisabled": false
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "kind": "source",
+      "dirty": true,
+      "busy": true,
+      "readOnly": true,
+      "searchOpen": true,
+      "query": "不存在",
+      "replacement": "",
+      "count": 0,
+      "findInputDisabled": false,
+      "replaceInputDisabled": true
+    }
+  ]
+}

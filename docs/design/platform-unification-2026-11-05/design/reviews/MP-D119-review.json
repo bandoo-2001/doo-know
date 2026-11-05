@@ -1,0 +1,52 @@
+{
+  "assetId": "MP-D119",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:44:02.489457+00:00",
+  "method": "Actual PNG and matching real baseline viewed; complete actual sidecar prompt, GEN-007 source contracts, current public server renderer/routes and template CSS checked.",
+  "selectedState": "Anonymous published snapshot reader; short article with TOC, source-derived lower collection/adjacent/related continuation",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Configured public brand/green/navigation and article location retained; breadcrumb, author/date/minutes/category, summary/tag, duplicate body title and two-heading TOC match baseline. No fabricated cover/code/diagram/editor.",
+    "Existing runtime reader copy/share and native top/TOC anchors retained without fake copied/success or numerical completion. No-scroll short-body progress stays unobtrusive/hidden.",
+    "Source continuation has collection 1/1 with no member navigation, one adjacent previous article and one related available snapshot. No arbitrary next/member count/private content added. Lower full page is explicitly not runtime-captured baseline."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Preserve configured user green accent/template-specific hierarchy alongside shared flat surfaces, typography/borders and spacing. Raster shading/approximate dimensions are illustrative; no exact CSS, dynamic theme or responsive fit claim."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-007.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D119.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/blog/render.ts:212",
+    "apps/server/blog/render.ts:235",
+    "apps/server/blog/reader-script.ts:2",
+    "apps/server/blog/routes.ts:341",
+    "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-reader.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "510dfdebaa9e268d4a4cbb3012b557cf4d90fd04ff960358e9393fcc6e7668b3",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D119.png",
+  "sourceIds": [
+    "PB-054"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

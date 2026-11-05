@@ -1,0 +1,16 @@
+{
+  "id": "oauth-invalid",
+  "title": "OAuth 无效授权状态",
+  "width": 1440,
+  "height": 1000,
+  "audience": "anonymous",
+  "route": "/oauth/consent",
+  "file": "1440-oauth-invalid.png",
+  "sha256": "10a6aff98a81ca91fdda5199d65590adaaa6426fbf5e4555fef45caa3c3214d4",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

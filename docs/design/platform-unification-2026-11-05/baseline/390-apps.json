@@ -1,0 +1,16 @@
+{
+  "id": "apps",
+  "title": "应用入口",
+  "width": 390,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?view=apps",
+  "file": "390-apps.png",
+  "sha256": "16eae2dfc11a22c1470d0d4bc9d7c478a40304d5d4c1e07f62d94c275536358a",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

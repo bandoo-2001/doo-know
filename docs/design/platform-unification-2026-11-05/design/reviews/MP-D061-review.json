@@ -1,0 +1,46 @@
+{
+  "assetId": "MP-D061",
+  "sourceIds": [
+    "ST-077"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T03:52:59.350294+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner new GitHub SSH credential, synthetic masked input, knownHosts blank/trust false/remember true, idle.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Source-specific SSH fields and manual official fingerprint trust warning retained; scanning is not implied trust.",
+    "KnownHosts textarea blank/trustunchecked disables save, scan/cancel available idle; encrypted storage versus30minute temporary semantics retained.",
+    "No HTTPS/token fields, false scan result, real key/private data or expanded external-help controls. Source textarea remains actual plaintext input; bullets are synthetic redacted example content, not new masking capability."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-020.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D061.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/GitRemotePanel.vue:1166",
+    "apps/web/components/GitRemotePanel.vue:1195",
+    "apps/web/components/GitRemotePanel.vue:1228",
+    "apps/server/git/credentials.ts:42"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "9f491ac861114c9f7e6383184bb7e92afcab14334dfeacc41e6130736eeb6db9",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D061.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

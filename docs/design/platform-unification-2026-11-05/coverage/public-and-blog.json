@@ -1,0 +1,4482 @@
+{
+  "moduleGroup": "onboarding-auth-public-share-blog",
+  "baselineCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "surfaces": [
+    {
+      "id": "PB-001",
+      "title": "登录 DooKnow",
+      "kind": "page",
+      "module": "auth",
+      "entry": {
+        "route": "/ (unauthenticated); /login",
+        "trigger": "App session resolves without an owner session",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:264",
+        "apps/web/App.vue:360",
+        "apps/web/components/Login.vue:13",
+        "apps/web/components/Login.vue:38"
+      ],
+      "roles": [
+        "unauthenticated visitor"
+      ],
+      "permissionRules": [
+        "Single-owner installation; account creation is performed by installation/CLI, not this form."
+      ],
+      "fields": [
+        {
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "constraints": "trimmed nonempty submit guard; sent as entered; autocomplete=username",
+          "sensitive": false
+        },
+        {
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "constraints": "nonempty; current-password autocomplete",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "登录",
+          "effect": "Authenticate and open platform or OAuth continuation",
+          "api": "POST /api/auth/sign-in/username; GET /api/auth/get-session",
+          "guard": "not busy and username.trim() and password"
+        }
+      ],
+      "importantStates": [
+        "empty required fields; submit disabled",
+        "busy locks inputs and submit",
+        "API error alert cleared on input",
+        "successful sign-in clears password, refreshes CSRF, then accepts session"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory."
+      },
+      "testRefs": [
+        "tests/e2e/login-help.spec.ts:3",
+        "tests/auth.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-002",
+      "title": "首次使用与账号来源帮助",
+      "kind": "state",
+      "module": "auth",
+      "entry": {
+        "route": "/; /login",
+        "trigger": "Expand 第一次使用或还没有账号？",
+        "parentId": "PB-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/Login.vue:81"
+      ],
+      "roles": [
+        "unauthenticated visitor"
+      ],
+      "permissionRules": [
+        "App selects this surface according to accepted session state; no browser self-registration exists."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "查看安装说明",
+          "effect": "Open existing GitHub installation guide in new tab",
+          "api": "https://github.com/bandoo-2001/doo-know#安装",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "collapsed; expanded installation/deployer guidance"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory."
+      },
+      "testRefs": [
+        "tests/e2e/login-help.spec.ts:3"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "No self-registration or password-reset form is implemented here."
+      ]
+    },
+    {
+      "id": "PB-003",
+      "title": "会话失效重新登录",
+      "kind": "dialog",
+      "module": "auth",
+      "entry": {
+        "route": "Any mounted authenticated route",
+        "trigger": "dooknow-session-expired while logged in",
+        "parentId": "PB-001"
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:234",
+        "apps/web/App.vue:290",
+        "apps/web/App.vue:389",
+        "apps/web/components/Login.vue:40"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Modal is not mask-closable or Escape-closable; no close button."
+      ],
+      "fields": [
+        {
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "constraints": "current-password",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "登录",
+          "effect": "Reauthenticate; restore accepted identity",
+          "api": "POST /api/auth/sign-in/username",
+          "guard": "required fields"
+        }
+      ],
+      "importantStates": [
+        "compact login with retained workspace/draft",
+        "same owner keeps mounted editor; different owner remounts and clears plugin drafts",
+        "busy and sign-in error"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory."
+      },
+      "testRefs": [
+        "tests/e2e/sharing-permissions.spec.ts:71"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete dialog with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Public sharing uses separate capability access and does not require this modal."
+      ]
+    },
+    {
+      "id": "PB-004",
+      "title": "启动与异步页面加载",
+      "kind": "state",
+      "module": "auth",
+      "entry": {
+        "route": "/; /login; /oauth/consent",
+        "trigger": "Initial session/platform lookup or async page chunk",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:14",
+        "apps/web/App.vue:18",
+        "apps/web/App.vue:264",
+        "apps/web/App.vue:398"
+      ],
+      "roles": [
+        "unauthenticated visitor",
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "App selects this surface according to accepted session state; no browser self-registration exists."
+      ],
+      "fields": [],
+      "actions": [],
+      "importantStates": [
+        "page loading knowledge space",
+        "inline/page loading login depending compact",
+        "platform loading after accepted session"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory."
+      },
+      "testRefs": [
+        "tests/e2e/motion-loading.spec.ts:50"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Loading strings differ by actual pending operation; preserve reduced-motion feedback."
+      ]
+    },
+    {
+      "id": "PB-005",
+      "title": "无法确认登录状态",
+      "kind": "state",
+      "module": "auth",
+      "entry": {
+        "route": "/; /login; /oauth/consent",
+        "trigger": "Initial session or CSRF validation fails",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:264",
+        "apps/web/App.vue:318"
+      ],
+      "roles": [
+        "visitor with unknown session"
+      ],
+      "permissionRules": [
+        "App selects this surface according to accepted session state; no browser self-registration exists."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重试连接",
+          "effect": "Repeat session check",
+          "api": "GET /api/auth/get-session",
+          "guard": "single-flight guard"
+        }
+      ],
+      "importantStates": [
+        "network/server error",
+        "429 backoff message",
+        "retry pending; inputs unavailable until status resolved",
+        "401 without session reaches login instead of generic failure"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory."
+      },
+      "testRefs": [
+        "tests/e2e/session-bootstrap-retry.spec.ts:5",
+        "tests/e2e/session-bootstrap-retry.spec.ts:54"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-006",
+      "title": "已登录但知识库状态无法读取",
+      "kind": "state",
+      "module": "auth",
+      "entry": {
+        "route": "/; /login; /oauth/consent",
+        "trigger": "Accepted session but platform status fails before workspace mounts",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:137",
+        "apps/web/App.vue:162",
+        "apps/web/App.vue:361"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "App selects this surface according to accepted session state; no browser self-registration exists."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新尝试",
+          "effect": "Reload platform status",
+          "api": "GET /api/platform/status",
+          "guard": "not platformBusy/logoutBusy"
+        },
+        {
+          "label": "退出并重新登录",
+          "effect": "Sign out and clear accepted session",
+          "api": "POST /api/auth/sign-out",
+          "guard": "not platformBusy/logoutBusy"
+        }
+      ],
+      "importantStates": [
+        "login identity retained",
+        "platform request failure; retry busy",
+        "logout pending; logout failure alert"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory."
+      },
+      "testRefs": [
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-007",
+      "title": "页面模块无法加载",
+      "kind": "state",
+      "module": "auth",
+      "entry": {
+        "route": "/; /login; /oauth/consent; /s/:token",
+        "trigger": "Async component chunk load rejects",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:26",
+        "apps/web/App.vue:37"
+      ],
+      "roles": [
+        "anonymous guest",
+        "unauthenticated visitor",
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "App selects this surface according to accepted session state; no browser self-registration exists."
+      ],
+      "fields": [],
+      "actions": [],
+      "importantStates": [
+        "full-page error tells user to reopen",
+        "compact login error tells user to retry login later"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory."
+      },
+      "testRefs": [],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "There is no rendered retry button in this fallback; do not invent a working local retry."
+      ]
+    },
+    {
+      "id": "PB-008",
+      "title": "首次设置：创建知识库",
+      "kind": "page",
+      "module": "setup",
+      "entry": {
+        "route": "/ (platform.phase=setup_required)",
+        "trigger": "Authenticated owner has no bound knowledge root",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:18",
+        "apps/web/components/SetupWizard.vue:119",
+        "apps/web/components/SetupWizard.vue:198",
+        "apps/server/platform/settings.ts:119"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated /api/platform requests. Existing files are preserved. Validation proof is owner-bound, expires in 5 minutes and verifies directory identity."
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "text",
+          "required": true,
+          "constraints": "UI max 40; trimmed; cannot contain slash or begin with dot; default 我的知识库",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "确认并继续",
+          "effect": "Create directory, obtain validation proof and bind library",
+          "api": "POST /api/platform/setup/create; /validate; /complete",
+          "guard": "nonempty name; not busy"
+        }
+      ],
+      "importantStates": [
+        "three-step progress; new source selected",
+        "create then validate then bind busy",
+        "existing-name/forbidden/unwritable/invalid name errors",
+        "expired validation; root changed; setup already completed; invalid timezone"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-browser/setup.spec.ts:5",
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-009",
+      "title": "首次设置：已有资料目录浏览",
+      "kind": "page",
+      "module": "setup",
+      "entry": {
+        "route": "/ (platform.phase=setup_required)",
+        "trigger": "Choose 使用已有资料",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:91",
+        "apps/web/components/SetupWizard.vue:277",
+        "apps/server/platform/setup-directories.ts:6",
+        "apps/server/platform/settings.ts:173"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [
+        {
+          "name": "knowledgeRoot",
+          "type": "server directory",
+          "required": true,
+          "constraints": "absolute readable/writable non-symlink child of allowed base; not hidden component",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "返回上一级 / 可用位置 / 文件夹",
+          "effect": "Browse server directories",
+          "api": "POST /api/platform/setup/directories",
+          "guard": "not browserBusy/busy"
+        },
+        {
+          "label": "使用这个文件夹",
+          "effect": "Select current server folder",
+          "api": "",
+          "guard": "not an allowed base itself"
+        },
+        {
+          "label": "确认并继续",
+          "effect": "Validate and bind chosen folder",
+          "api": "POST /api/platform/setup/validate; /complete",
+          "guard": "nonempty selected path"
+        }
+      ],
+      "importantStates": [
+        "folder listing loading",
+        "no child directories; current path selectable",
+        "truncated listing with advanced-path fallback",
+        "read failure and retry; chosen-folder receipt",
+        "allowed root itself cannot be bound"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "This browser describes the deployment device, not the browser device."
+      ]
+    },
+    {
+      "id": "PB-010",
+      "title": "首次设置：高级位置与时区",
+      "kind": "state",
+      "module": "setup",
+      "entry": {
+        "route": "/ (setup required)",
+        "trigger": "Expand 高级设置 in new/existing modes",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:338",
+        "apps/server/platform/settings.ts:122",
+        "apps/server/platform/setup-directories.ts:10"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [
+        {
+          "name": "parentPath",
+          "type": "server directory",
+          "required": false,
+          "constraints": "new mode only; blank uses recommended server location",
+          "sensitive": false
+        },
+        {
+          "name": "knowledgeRoot",
+          "type": "server directory",
+          "required": true,
+          "constraints": "existing mode only; absolute allowed child",
+          "sensitive": false
+        },
+        {
+          "name": "timeZone",
+          "type": "autocomplete",
+          "required": true,
+          "constraints": "Intl-valid timezone; browser-resolved default or Asia/Shanghai",
+          "sensitive": false
+        }
+      ],
+      "actions": [],
+      "importantStates": [
+        "new-mode optional parent path",
+        "existing-mode full root path",
+        "allowed-range hint; timezone autocomplete",
+        "invalid timezone/path validation errors"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Remote import mode does not show this advanced section."
+      ]
+    },
+    {
+      "id": "PB-011",
+      "title": "首次设置：从 GitHub/Gitee 导入",
+      "kind": "page",
+      "module": "setup",
+      "entry": {
+        "route": "/ (setup required)",
+        "trigger": "Choose 从 GitHub／Gitee 导入",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:253",
+        "apps/web/components/GitRepositoryImport.vue:7",
+        "apps/web/components/GitRemotePanel.vue:986",
+        "apps/web/components/GitRemotePanel.vue:1030",
+        "apps/web/components/GitRemotePanel.vue:504"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [
+        {
+          "name": "url",
+          "type": "clone URL",
+          "required": true,
+          "constraints": "HTTPS or SSH clone address; GitHub/Gitee",
+          "sensitive": false
+        },
+        {
+          "name": "branch",
+          "type": "text",
+          "required": false,
+          "constraints": "optional default branch",
+          "sensitive": false
+        },
+        {
+          "name": "credentialId",
+          "type": "select",
+          "required": false,
+          "constraints": "none or existing saved/temporary credential",
+          "sensitive": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "required": true,
+          "constraints": "UI max40; trimmed nonempty",
+          "sensitive": false
+        },
+        {
+          "name": "parentPath",
+          "type": "server directory",
+          "required": false,
+          "constraints": "blank recommended; new independent target folder",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "测试读取连接",
+          "effect": "Start test job",
+          "api": "POST /api/platform/git/jobs",
+          "guard": "url nonempty; not running/repositoryPending"
+        },
+        {
+          "label": "导入并继续",
+          "effect": "Install/enable Git and clone into new library",
+          "api": "POST /api/platform/git/jobs (kind=clone)",
+          "guard": "url/name nonempty; not running/repositoryPending"
+        },
+        {
+          "label": "添加凭据",
+          "effect": "Open shared Git credential editor",
+          "api": "POST /api/platform/git/credentials",
+          "guard": "shared settings/plugin surface"
+        },
+        {
+          "label": "刷新任务状态 / 取消当前任务 / 核对并重试任务",
+          "effect": "Poll/cancel/reconcile durable Git job",
+          "api": "GET /api/platform/git/jobs/:id; POST .../:id/cancel; POST .../:id/retry",
+          "guard": "state-dependent running/busy guards"
+        }
+      ],
+      "importantStates": [
+        "empty clone inputs; no credentials required for public HTTPS",
+        "connection test running/result",
+        "clone queued/running; server task persists across refresh",
+        "failed/cancelled/needs_reconciliation and unresolved-request recovery",
+        "existing same-name folder stops import"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/github-public-bootstrap.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Shared credential editor includes HTTPS token or SSH private key/known_hosts verification and temporary-vs-encrypted storage; settings/plugin inventory owns its detailed fields/dialogs.",
+        "Do not duplicate shared sync/credential interiors; this record owns import-specific source, destination and continuation."
+      ]
+    },
+    {
+      "id": "PB-012",
+      "title": "首次设置：选择可选功能",
+      "kind": "page",
+      "module": "setup",
+      "entry": {
+        "route": "/ (phase ready; onboarding required; step2)",
+        "trigger": "Library binding reaches ready",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:402",
+        "apps/web/components/SetupFeatures.vue:26",
+        "apps/web/components/SetupFeatures.vue:101",
+        "apps/web/components/SetupFeatures.vue:148"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "添加连接设置 / 添加版本记录 / 查看",
+          "effect": "Install plugin if needed and open shared configuration",
+          "api": "/api/platform/plugin-installations; shared plugin APIs",
+          "guard": "not busy"
+        },
+        {
+          "label": "设置内容搜索",
+          "effect": "Expand SearchRuntimeSettings onboarding",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "暂时跳过 / 继续",
+          "effect": "Advance to step3",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "not added; added but needs configuration; enabled",
+        "installation pending/succeeded/result needs reconciliation",
+        "catalog unavailable; read/install error with skip guidance",
+        "expanded MCP/Git configuration; expanded content-search setup"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/search-runtime-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "PluginManager/MCP/Git/SearchRuntimeSettings interiors belong to settings/plugin inventory; this record owns onboarding cards and expanded-entry composition."
+      ]
+    },
+    {
+      "id": "PB-013",
+      "title": "首次设置：准备完成",
+      "kind": "page",
+      "module": "setup",
+      "entry": {
+        "route": "/ (ready onboarding step3)",
+        "trigger": "Continue or skip optional features",
+        "parentId": "PB-012"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:163",
+        "apps/web/components/SetupWizard.vue:413"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "创建第一篇笔记",
+          "effect": "Finish onboarding and queue create-note welcome action",
+          "api": "POST /api/platform/setup/finish",
+          "guard": "not busy/importBusy"
+        },
+        {
+          "label": "进入工作区",
+          "effect": "Finish onboarding",
+          "api": "POST /api/platform/setup/finish",
+          "guard": "not busy/importBusy"
+        },
+        {
+          "label": "上一步",
+          "effect": "Return to optional features",
+          "api": "",
+          "guard": "not busy/importBusy"
+        },
+        {
+          "label": "导入已有资料",
+          "effect": "Expand single Markdown import",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "library location summary",
+        "finish busy/error; import busy disables leaving",
+        "create-first-note intent stored for workspace"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-browser/setup.spec.ts:5"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-014",
+      "title": "首次设置：导入单个 Markdown",
+      "kind": "state",
+      "module": "setup",
+      "entry": {
+        "route": "/ (ready onboarding step3)",
+        "trigger": "Expand 导入已有资料",
+        "parentId": "PB-013"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupImport.vue:32",
+        "apps/web/components/SetupImport.vue:92",
+        "apps/web/components/SetupWizard.vue:432"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [
+        {
+          "name": "file",
+          "type": "file",
+          "required": true,
+          "constraints": ".md UTF-8; <=256 KiB; images/attachments do not accompany import",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "选择 Markdown 文件",
+          "effect": "Choose local browser-device file",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "确认导入",
+          "effect": "Create 40-Resources if missing and copy new note",
+          "api": "GET /api/tree; POST /api/folders; POST /api/notes",
+          "guard": "selected file; not busy; valid size/encoding"
+        }
+      ],
+      "importantStates": [
+        "no file; selection filename/size",
+        "invalid extension; >256 KiB; invalid UTF-8",
+        "upload busy; success receipt",
+        "same-name conflict never overwrites",
+        "network failure retains source file"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "At baseline SetupImport is this bounded direct note form, not TransferPanel. Batch/portable/resume transfer interiors are inventoried by settings; do not replace this actual surface with hypothetical features."
+      ]
+    },
+    {
+      "id": "PB-015",
+      "title": "首次设置：初始化中",
+      "kind": "state",
+      "module": "setup",
+      "entry": {
+        "route": "/ (platform.phase=initializing)",
+        "trigger": "Bound knowledge runtime is preparing",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:189",
+        "apps/web/components/SetupWizard.vue:443"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "检查进度",
+          "effect": "Refresh platform status",
+          "api": "GET /api/platform/status",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "retained-files reassurance; auto-poll each1.5s",
+        "manual progress check"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-016",
+      "title": "首次设置：尚无主人账号",
+      "kind": "state",
+      "module": "setup",
+      "entry": {
+        "route": "/ (platform.phase=owner_required)",
+        "trigger": "SetupWizard receives owner_required",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:448",
+        "apps/server/platform/settings.ts:80",
+        "apps/server/auth.ts:34"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "actions": [],
+      "importantStates": [
+        "message directs deployment-device installation command; no browser account form"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Reachability from normal unauthenticated App is uncertain: App renders Login before platform setup and /api/platform/status requires an owner session. Do not depict this as a verified public first-owner registration route."
+      ]
+    },
+    {
+      "id": "PB-017",
+      "title": "首次设置：目录不可用或配置冲突",
+      "kind": "state",
+      "module": "setup",
+      "entry": {
+        "route": "/ (source_unavailable/configuration_error)",
+        "trigger": "SetupWizard receives other non-ready phase",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:452",
+        "apps/server/platform/settings.ts:80"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新检查",
+          "effect": "Refresh platform status",
+          "api": "GET /api/platform/status",
+          "guard": ""
+        },
+        {
+          "label": "查看详细信息",
+          "effect": "Expand status code",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "saved data/settings retained",
+        "details exposes actual status code/phase",
+        "manual recheck"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-018",
+      "title": "OAuth 连接授权：业务与资源策略",
+      "kind": "page",
+      "module": "oauth",
+      "entry": {
+        "route": "/oauth/consent?oauth_query=…",
+        "trigger": "Signed-in owner; ready platform; onboarding complete",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:333",
+        "apps/web/components/OAuthConsent.vue:23",
+        "apps/web/components/OAuthConsent.vue:79",
+        "apps/server/platform/oauth.ts:35"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required; signed OAuth query <=16384 characters; exactly one client_id; resource must equal installation origin+/mcp; client must exist and be enabled.",
+        "Requested scopes intersect server policy and owner resource ceilings. ToDoo write requires read; v2 blog publish requires knowledge read."
+      ],
+      "fields": [
+        {
+          "name": "permissionPolicy",
+          "type": "domain permissions",
+          "required": true,
+          "constraints": "subset of server allowedPolicy; shared MCPDomainPermissions",
+          "sensitive": false
+        },
+        {
+          "name": "offline_access",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "shown only when requested and allowed",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "拒绝",
+          "effect": "Submit denial and redirect",
+          "api": "POST /api/platform/mcp/oauth/consent",
+          "guard": "not busy; request loaded"
+        },
+        {
+          "label": "允许访问",
+          "effect": "Submit selected permissions and redirect",
+          "api": "POST /api/platform/mcp/oauth/consent",
+          "guard": "valid selected policy; not busy"
+        }
+      ],
+      "importantStates": [
+        "checking signed request",
+        "client identity displayed",
+        "policy-ceiling domain controls; keep-connection option",
+        "invalid selection disables allow; busy locks controls",
+        "submitted consent redirects to validated result"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Max 640px; <=600px reduces padding, wraps scope text and gives actions equal flexible widths (OAuthConsent.vue:339). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/oauth.spec.ts:4",
+        "tests/oauth-routes.test.ts:1",
+        "tests/oauth-grants.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Consent can mention ToDoo permissions because it authorizes a connection; ToDoo product UI is out of scope. Shared MCPDomainPermissions editor details belong to settings inventory."
+      ]
+    },
+    {
+      "id": "PB-019",
+      "title": "OAuth 连接授权：兼容目录与操作列表",
+      "kind": "state",
+      "module": "oauth",
+      "entry": {
+        "route": "/oauth/consent?oauth_query=…",
+        "trigger": "Valid request has no allowedPolicy",
+        "parentId": "PB-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:25",
+        "apps/web/components/OAuthConsent.vue:44",
+        "apps/web/components/OAuthConsent.vue:96",
+        "apps/server/platform/oauth.ts:89"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session and ready, completed onboarding required. Signed client request and server policy ceiling remain authoritative."
+      ],
+      "fields": [
+        {
+          "name": "scopes",
+          "type": "checkbox group",
+          "required": true,
+          "constraints": "must include resource scope; allowedScopes subset",
+          "sensitive": false
+        },
+        {
+          "name": "allowedPrefixes",
+          "type": "checkbox group",
+          "required": false,
+          "constraints": "required when selected knowledge scope or blog:publish; subset of allowed prefixes",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "允许访问",
+          "effect": "Grant legacy scoped directory access",
+          "api": "POST /api/platform/mcp/oauth/consent",
+          "guard": "ToDoo write=>read; blog publish=>knowledge read+write; required directories selected"
+        }
+      ],
+      "importantStates": [
+        "legacy scope checkboxes",
+        "directory choices shown for knowledge scope or blog publish",
+        "read/offline defaults only when allowed",
+        "scope dependencies and empty resources disable allow"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Max 640px; <=600px reduces padding, wraps scope text and gives actions equal flexible widths (OAuthConsent.vue:339). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/oauth.spec.ts:4"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Keep compatibility mode distinct from v2 policy UI; do not silently merge their authorization rules."
+      ]
+    },
+    {
+      "id": "PB-020",
+      "title": "OAuth 无效/过期与提交失败",
+      "kind": "state",
+      "module": "oauth",
+      "entry": {
+        "route": "/oauth/consent?oauth_query=…",
+        "trigger": "Request lookup or consent submission rejects",
+        "parentId": "PB-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:45",
+        "apps/web/components/OAuthConsent.vue:71",
+        "apps/web/components/OAuthConsent.vue:137"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session and ready, completed onboarding required. Signed client request and server policy ceiling remain authoritative."
+      ],
+      "fields": [],
+      "actions": [],
+      "importantStates": [
+        "invalid/expired request tells user to restart from client",
+        "consent failure alert with loaded controls retained"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Max 640px; <=600px reduces padding, wraps scope text and gives actions equal flexible widths (OAuthConsent.vue:339). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/oauth-routes.test.ts:1",
+        "tests/oauth-provider.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "No dedicated in-page new-request action exists; user returns to originating client."
+      ]
+    },
+    {
+      "id": "PB-021",
+      "title": "OAuth 登录后继续授权",
+      "kind": "state",
+      "module": "oauth",
+      "entry": {
+        "route": "/login?oauth_query=… (or raw signed query)",
+        "trigger": "Accepted owner + ready platform + complete onboarding",
+        "parentId": "PB-018"
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:108",
+        "apps/web/App.vue:341",
+        "apps/server/platform/oauth-routes.ts:27"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session and ready, completed onboarding required. Signed client request and server policy ceiling remain authoritative."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重试",
+          "effect": "Validate and resume original signed OAuth request",
+          "api": "POST /api/platform/mcp/oauth/continue",
+          "guard": "single-flight resumingOAuth"
+        }
+      ],
+      "importantStates": [
+        "continuing authorization",
+        "continuation error with retry"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Max 640px; <=600px reduces padding, wraps scope text and gives actions equal flexible widths (OAuthConsent.vue:339). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/oauth.spec.ts:4"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-022",
+      "title": "公开分享阅读：普通笔记",
+      "kind": "page",
+      "module": "share",
+      "entry": {
+        "route": "/s/:token",
+        "trigger": "Anonymous capability link",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:61",
+        "apps/web/components/ShareReader.vue:112",
+        "apps/web/components/ShareReader.vue:155",
+        "packages/core/shares.ts:127",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required; 43-character token must be active/unexpired and note exists.",
+        "No password field/gate exists. Public page has noindex,nofollow. Shared content follows latest saved original.",
+        "CanEdit requires edit permission and supported Markdown; large/long-line or graph-document sources remain read-only.",
+        "A resolved embedded whiteboard uses the current share board endpoint and board.capabilities.canDownloadSource; only that resolved capability governs source-tab availability. The server includes source content/path only when allowDiagramSource and the underlying resource permit it.",
+        "DiagramPreview canEdit requires !readOnly && !shareToken && resourceEdit; canGenerate additionally requires editable=true. A guest/shareToken can never edit design, edit diagram source, convert to whiteboard or generate portable preview, even when original-source download is allowed."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "编辑笔记",
+          "effect": "Open public editor",
+          "api": "",
+          "guard": "access.canEdit and no reader error"
+        },
+        {
+          "label": "目录章节",
+          "effect": "Navigate native heading anchor",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "附件/图片链接",
+          "effect": "Read resource authorized by share",
+          "api": "GET /api/public/shares/:token/asset?source=…",
+          "guard": "only current capability resource"
+        }
+      ],
+      "importantStates": [
+        "loading; full content",
+        "view-only or editable badge",
+        "expiry timestamp; edit-unavailable reason",
+        "heading TOC; no headings",
+        "images/attachments through capability; diagram previews read-only",
+        "Public graph-document and Excalidraw-reference read projections may be ordinary PNG preview images with public explanatory body and no source tab/download control; source-allowed setting does not turn such an image into an editor.",
+        "When an embedded whiteboard is actually resolved into DiagramPreview (including public rich editing), canDownloadSource=false hides the source tab and clears a previously visible source panel; preview/expand/retry remain the appropriate read controls.",
+        "For a resolved board whose capability explicitly permits source, source tab reveals only returned sourceText and its local Download source action. The same card still has no edit/convert/generate controls for a shareToken."
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/shares.test.ts:5",
+        "tests/e2e/sharing-permissions.spec.ts:71",
+        "tests/e2e/sharing-permissions.spec.ts:327",
+        "tests/e2e/sharing-permissions.spec.ts:604",
+        "tests/e2e/diagram-public-reader.spec.ts:8",
+        "tests/diagram-public-projection.test.ts:266",
+        "tests/e2e/sharing-permissions.spec.ts:363"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Public guest page must retain guest-only navigation; no owner workspace rails.",
+        "Actual shared component path is apps/web/components/DiagramPreview.vue; there is no PublicDiagramPreview.vue at this baseline.",
+        "Ordinary inline SVG/Mermaid code already present in shared Markdown retains inline rendering; this is distinct from permission to fetch private/native board source. Do not infer original-source access from a source-tab screenshot or from note edit permission alone.",
+        "Download is a local Blob of sourceText: for Excalidraw this is boardSource || provided scene || fence code. The component does not fetch an owner asset or an extra source.path to fill missing source.content; do not depict such a fetch as implemented."
+      ]
+    },
+    {
+      "id": "PB-023",
+      "title": "公开分享阅读：大文件片段",
+      "kind": "page",
+      "module": "share",
+      "entry": {
+        "route": "/s/:token",
+        "trigger": "Metadata editorMode is not full",
+        "parentId": "PB-022"
+      },
+      "sourceRefs": [
+        "apps/web/components/ShareReader.vue:49",
+        "apps/web/components/ShareReader.vue:123",
+        "apps/web/components/ShareReader.vue:191",
+        "apps/server/knowledge/web-routes.ts:240"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Anonymous capability token must remain active and unexpired; no owner session or password gate is required. Public content/resources remain scoped to this shared note."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "下一片段",
+          "effect": "Read next fragment and scroll article to start",
+          "api": "POST /api/public/shares/:token/read",
+          "guard": "nextCursor; not loading"
+        }
+      ],
+      "importantStates": [
+        "queued/running read preparation polls up to60 times",
+        "current fragment; next cursor available/finished",
+        "next-fragment failure keeps current rendered HTML and retry",
+        "unsupported-public-edit reason"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/reader-feedback.spec.ts:55",
+        "tests/e2e/sharing-permissions.spec.ts:327"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Replacing fragment is actual behavior, not append/infinite scroll. Headings array is empty for paged rendering in this component."
+      ]
+    },
+    {
+      "id": "PB-024",
+      "title": "公开分享：不存在/过期/撤销/轮换",
+      "kind": "state",
+      "module": "share",
+      "entry": {
+        "route": "/s/:token",
+        "trigger": "Any share read returns404",
+        "parentId": "PB-022"
+      },
+      "sourceRefs": [
+        "apps/web/components/ShareReader.vue:38",
+        "apps/web/components/ShareReader.vue:163",
+        "packages/core/shares.ts:127"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Anonymous capability token must remain active and unexpired; no owner session or password gate is required. Public content/resources remain scoped to this shared note."
+      ],
+      "fields": [],
+      "actions": [],
+      "importantStates": [
+        "common missing/private-capability failure with lock icon",
+        "get-valid-link guidance; no retry button"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/reader-feedback.spec.ts:46",
+        "tests/shares-permissions-security.test.ts:280"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Expired, revoked, rotated, malformed and missing links deliberately use the same 404 public message; do not expose the exact private cause.",
+        "No password entry, renewal control or owner status tools."
+      ]
+    },
+    {
+      "id": "PB-025",
+      "title": "公开分享：临时读取失败",
+      "kind": "state",
+      "module": "share",
+      "entry": {
+        "route": "/s/:token",
+        "trigger": "Non404 initial metadata/body read failure",
+        "parentId": "PB-022"
+      },
+      "sourceRefs": [
+        "apps/web/components/ShareReader.vue:38",
+        "apps/web/components/ShareReader.vue:163"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Anonymous capability token must remain active and unexpired; no owner session or password gate is required. Public content/resources remain scoped to this shared note."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新加载",
+          "effect": "Retry current capability metadata/body",
+          "api": "GET /api/public/shares/:token/meta; GET /api/public/shares/:token",
+          "guard": "not opening/loading"
+        }
+      ],
+      "importantStates": [
+        "connection/server failure with refresh icon",
+        "reload pending; successful retry reads same link"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/reader-feedback.spec.ts:4"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-026",
+      "title": "公开编辑：文档模式",
+      "kind": "page",
+      "module": "public-edit",
+      "entry": {
+        "route": "/s/:token (editing=true)",
+        "trigger": "Editable reader → 编辑笔记",
+        "parentId": "PB-022"
+      },
+      "sourceRefs": [
+        "apps/web/components/PublicShareEditor.vue:17",
+        "apps/web/components/PublicShareEditor.vue:68",
+        "apps/web/components/PublicShareEditor.vue:175",
+        "apps/server/knowledge/web-routes.ts:159",
+        "apps/web/components/PublicShareEditor.vue:20",
+        "apps/web/components/PublicShareEditor.vue:35",
+        "apps/web/components/PublicShareEditor.vue:224",
+        "apps/web/components/NoteEditorHost.vue:161",
+        "apps/web/editor/source-codec.ts:156",
+        "apps/web/editor/compatibility.ts:5",
+        "apps/web/components/NoteEditorHost.vue:266",
+        "apps/web/components/NoteEditorHost.vue:449",
+        "apps/web/components/EditorSearch.vue:24",
+        "packages/core/notes.ts:366",
+        "packages/core/errors.ts:10",
+        "apps/web/components/DocumentEditor.vue:486",
+        "apps/web/components/DocumentEditor.vue:569",
+        "apps/web/components/DocumentEditor.vue:1125",
+        "apps/web/components/DocumentEditor.vue:1233",
+        "apps/web/components/DocumentEditor.vue:1261",
+        "apps/web/components/DocumentEditor.vue:1280",
+        "apps/web/components/DocumentEditor.vue:1296",
+        "apps/web/components/DocumentEditor.vue:1318",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Capability grants edit only of this shared note; referenced whiteboards always view-only.",
+        "Source/write require edit token and supported document; maintenance blocks both. Write requires same Origin, JSON and separate anonymous CSRF; 30 requests/minute token rate.",
+        "Save uses expectedModifiedAt and stable requestId for same pending content/version; no owner private asset API.",
+        "PublicShareEditor initializes kind=document directly. NoteEditorHost calls parseSource with source-codec eligibility enabled=true; do not infer that public rich editing is disabled by the owner VITE_DOCUMENT_EDITOR_ENABLED setting.",
+        "The active public token and source/save restrictions remain authoritative in both modes, including after a rich-eligibility fallback; an empty body is not a validation failure.",
+        "A resolved embedded whiteboard uses the current share board endpoint and board.capabilities.canDownloadSource; only that resolved capability governs source-tab availability. The server includes source content/path only when allowDiagramSource and the underlying resource permit it.",
+        "DiagramPreview canEdit requires !readOnly && !shareToken && resourceEdit; canGenerate additionally requires editable=true. A guest/shareToken can never edit design, edit diagram source, convert to whiteboard or generate portable preview, even when original-source download is allowed."
+      ],
+      "fields": [
+        {
+          "name": "draft",
+          "type": "rich document",
+          "required": false,
+          "constraints": "Markdown source; manual save; existing resource references retained; no new private images/whiteboards/uploads; blank draft is allowed. The save JSON payload must contain a string content property, including an empty string; payload-property presence is separate from UI/nonempty validation. Save eligibility is dirty-state and busy/loading/composing/blocked/expiry based, not nonempty based.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存修改",
+          "effect": "Fetch anonymous CSRF and CAS save current draft",
+          "api": "GET /api/public/shares/:token/csrf; PUT /api/public/shares/:token/source",
+          "guard": "dirty, not busy/loading/composing/blocked/expired"
+        },
+        {
+          "label": "Markdown 源码",
+          "effect": "Flush and switch editor mode",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "返回阅读",
+          "effect": "Flush; ask discard if dirty",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "Ctrl/Cmd+F / Ctrl/Cmd+H",
+          "effect": "Open current shared-note find and replace panel (workspace shared surface WS-045)",
+          "api": "",
+          "guard": "editor keyboard event; Ctrl or Meta; not Alt; not composing"
+        },
+        {
+          "label": "上一个/下一个匹配 / 区分大小写 / 关闭查找",
+          "effect": "Navigate or refine current-note matches; Escape/close restores editor focus",
+          "api": "",
+          "guard": "match navigation requires results"
+        },
+        {
+          "label": "替换当前 / 全部替换",
+          "effect": "Modify current shared-note draft; explicit public save still required",
+          "api": "",
+          "guard": "not readOnly; results exist; replacement handler refuses while composing"
+        },
+        {
+          "label": "预览 / 源码（解析后的白板卡片）",
+          "effect": "Switch resolved board presentation; source panel includes local source download only for returned source bytes",
+          "api": "GET /api/public/shares/:token/whiteboards/:reference",
+          "guard": "Source tab only when resolved board.capabilities.canDownloadSource; capability never grants diagram editing/generation"
+        },
+        {
+          "label": "下载源码（解析后的白板源码面板）",
+          "effect": "Download the local sourceText as diagram.excalidraw/svg/mmd; for Excalidraw sourceText is boardSource || provided scene || fence code, without an extra source.path fetch",
+          "api": "local Blob download; no owner asset API",
+          "guard": "source panel reachable only for current allowed source capability; no invented private source fetch"
+        }
+      ],
+      "importantStates": [
+        "source loading/reloading; read failure",
+        "saved; unsaved; saving",
+        "IME composing disables mode/save",
+        "no upload warning; existing attachments and diagram views retained",
+        "rich-editor fallback to source with warning",
+        "Blank body is valid; a dirty deletion to empty can be saved when the ordinary save guards permit it. An unchanged blank baseline is clean, not invalid.",
+        "Ctrl/Cmd+F or Ctrl/Cmd+H inside either mode opens the shared current-note find/replace panel; zero results disables next/previous and replacement actions. Escape closes it; case-sensitive matching, current replacement and replace-all remain local draft operations.",
+        "Find remains available while host readOnly is true; replacement input/actions are disabled while readOnly (busy/reloading), and replacement is guarded during composition.",
+        "Initial mode is document for a readable edit-capability source. parseSource rejects rich eligibility only when UTF-8 bytes exceed262144, source units exceed5000, nesting depth exceeds32, or cross-paragraph reference-link syntax requires preserving global references; fallback emits warning and switches to Markdown source.",
+        "Guest-reachable document context includes table controls, image description/delete/preview, existing-link edit/remove/open, preserved-source copy/delete confirmation and unsupported-paste choice; these reuse shared editor surfaces without owner publication/upload/navigation permissions.",
+        "Public graph-document and Excalidraw-reference read projections may be ordinary PNG preview images with public explanatory body and no source tab/download control; source-allowed setting does not turn such an image into an editor.",
+        "When an embedded whiteboard is actually resolved into DiagramPreview (including public rich editing), canDownloadSource=false hides the source tab and clears a previously visible source panel; preview/expand/retry remain the appropriate read controls.",
+        "For a resolved board whose capability explicitly permits source, source tab reveals only returned sourceText and its local Download source action. The same card still has no edit/convert/generate controls for a shareToken."
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Toolbar wraps; <=720px mode buttons share full width and article padding decreases (PublicShareEditor.vue:329). Editor behavior at 320 remains unverified."
+      },
+      "testRefs": [
+        "tests/e2e/sharing-permissions.spec.ts:71",
+        "tests/e2e/sharing-permissions.spec.ts:227",
+        "tests/e2e/sharing-permissions.spec.ts:363",
+        "tests/shares-permissions-security.test.ts:111",
+        "tests/editor-source-codec.test.ts:53",
+        "tests/editor-compatibility.test.ts:3",
+        "tests/e2e/diagram-public-reader.spec.ts:8",
+        "tests/diagram-public-projection.test.ts:266"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Shared find/replace layout and detailed controls cross-reference coverage/workspace.json WS-045; public reachability is through NoteEditorHost keyboard handling, not an owner toolbar button.",
+        "PublicShareEditor exposes document/source mode, save and return-reading controls. It does not mount the owner full editor toolbar or handle NoteEditorHost insert-menu events, so do not add an owner insert menu to the public mockup.",
+        "Guest document context cross-references: WS-034 table toolbar, WS-035 image settings, WS-036 contextual link actions, WS-037 edit link, WS-038 image preview/zoom, WS-039 copy preserved original, WS-040 delete preserved content, WS-041 unsupported paste choice. These are shared-component layouts with public-specific guards, not duplicate owner-only pages.",
+        "Image preview resolves through the current share; replacement/upload actions emit the existing public upload-not-supported warning. Editing/deleting image descriptions or links changes the draft only; new private resource references remain rejected at save.",
+        "The public rich-eligibility fallback is distinct from a document chunk-load error: NoteEditorHost shows a preserved-content load-error warning and suggests switching modes; it does not mark the owner feature flag as public eligibility.",
+        "Actual shared component path is apps/web/components/DiagramPreview.vue; there is no PublicDiagramPreview.vue at this baseline.",
+        "Ordinary inline SVG/Mermaid code already present in shared Markdown retains inline rendering; this is distinct from permission to fetch private/native board source. Do not infer original-source access from a source-tab screenshot or from note edit permission alone.",
+        "Download is a local Blob of sourceText: for Excalidraw this is boardSource || provided scene || fence code. The component does not fetch an owner asset or an extra source.path to fill missing source.content; do not depict such a fetch as implemented."
+      ]
+    },
+    {
+      "id": "PB-027",
+      "title": "公开编辑：Markdown 源码",
+      "kind": "page",
+      "module": "public-edit",
+      "entry": {
+        "route": "/s/:token (editing=true)",
+        "trigger": "Switch to Markdown 源码 or rich-editor fallback",
+        "parentId": "PB-026"
+      },
+      "sourceRefs": [
+        "apps/web/components/PublicShareEditor.vue:119",
+        "apps/web/components/PublicShareEditor.vue:178",
+        "apps/web/components/PublicShareEditor.vue:224",
+        "apps/web/components/PublicShareEditor.vue:20",
+        "apps/web/components/PublicShareEditor.vue:35",
+        "apps/web/components/NoteEditorHost.vue:161",
+        "apps/web/editor/source-codec.ts:156",
+        "apps/web/editor/compatibility.ts:5",
+        "apps/web/components/NoteEditorHost.vue:266",
+        "apps/web/components/NoteEditorHost.vue:449",
+        "apps/web/components/EditorSearch.vue:24",
+        "packages/core/notes.ts:366",
+        "packages/core/errors.ts:10"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Active edit-capability token and supported Markdown required; write uses anonymous CSRF, same Origin and expectedModifiedAt. Existing draft text remains available on failure; referenced whiteboards are read-only.",
+        "PublicShareEditor initializes kind=document directly. NoteEditorHost calls parseSource with source-codec eligibility enabled=true; do not infer that public rich editing is disabled by the owner VITE_DOCUMENT_EDITOR_ENABLED setting.",
+        "The active public token and source/save restrictions remain authoritative in both modes, including after a rich-eligibility fallback; an empty body is not a validation failure."
+      ],
+      "fields": [
+        {
+          "name": "draft",
+          "type": "Markdown editor",
+          "required": false,
+          "constraints": "same capability source/CAS/resource restrictions as document mode; blank draft is allowed. The save JSON payload must contain a string content property, including an empty string; payload-property presence is separate from UI/nonempty validation. Save eligibility is dirty-state and busy/loading/composing/blocked/expiry based, not nonempty based.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "文档编辑",
+          "effect": "Flush source then switch mode",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "保存修改",
+          "effect": "Same capability save exchange",
+          "api": "GET /api/public/shares/:token/csrf; PUT .../source",
+          "guard": "same saveDisabled guard"
+        },
+        {
+          "label": "Ctrl/Cmd+F / Ctrl/Cmd+H",
+          "effect": "Open current shared-note find and replace panel (workspace shared surface WS-045)",
+          "api": "",
+          "guard": "editor keyboard event; Ctrl or Meta; not Alt; not composing"
+        },
+        {
+          "label": "上一个/下一个匹配 / 区分大小写 / 关闭查找",
+          "effect": "Navigate or refine current-note matches; Escape/close restores editor focus",
+          "api": "",
+          "guard": "match navigation requires results"
+        },
+        {
+          "label": "替换当前 / 全部替换",
+          "effect": "Modify current shared-note draft; explicit public save still required",
+          "api": "",
+          "guard": "not readOnly; results exist; replacement handler refuses while composing"
+        }
+      ],
+      "importantStates": [
+        "plain source editing with same manual save status",
+        "same busy/IME guards; fallback warning",
+        "Blank body is valid; a dirty deletion to empty can be saved when the ordinary save guards permit it. An unchanged blank baseline is clean, not invalid.",
+        "Ctrl/Cmd+F or Ctrl/Cmd+H inside either mode opens the shared current-note find/replace panel; zero results disables next/previous and replacement actions. Escape closes it; case-sensitive matching, current replacement and replace-all remain local draft operations.",
+        "Find remains available while host readOnly is true; replacement input/actions are disabled while readOnly (busy/reloading), and replacement is guarded during composition.",
+        "Source mode can be explicitly chosen for otherwise rich-eligible content or reached automatically by the size/unit/depth/reference-syntax fallback; warning explains why source mode preserves the original.",
+        "Attempting document mode again reruns parseSource eligibility; ineligible content falls back again without granting broader source/resource permissions."
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Toolbar wraps; <=720px mode buttons share full width and article padding decreases (PublicShareEditor.vue:329). Editor behavior at 320 remains unverified."
+      },
+      "testRefs": [
+        "tests/e2e/sharing-permissions.spec.ts:71",
+        "tests/editor-source-codec.test.ts:53",
+        "tests/editor-compatibility.test.ts:3"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Shared find/replace layout and detailed controls cross-reference coverage/workspace.json WS-045; public reachability is through NoteEditorHost keyboard handling, not an owner toolbar button.",
+        "PublicShareEditor exposes document/source mode, save and return-reading controls. It does not mount the owner full editor toolbar or handle NoteEditorHost insert-menu events, so do not add an owner insert menu to the public mockup."
+      ]
+    },
+    {
+      "id": "PB-028",
+      "title": "公开编辑：冲突与保存恢复",
+      "kind": "state",
+      "module": "public-edit",
+      "entry": {
+        "route": "/s/:token (editing=true)",
+        "trigger": "Save/read rejects or share expires while editing",
+        "parentId": "PB-026"
+      },
+      "sourceRefs": [
+        "apps/web/components/PublicShareEditor.vue:32",
+        "apps/web/components/PublicShareEditor.vue:47",
+        "apps/web/components/PublicShareEditor.vue:209"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Active edit-capability token and supported Markdown required; write uses anonymous CSRF, same Origin and expectedModifiedAt. Existing draft text remains available on failure; referenced whiteboards are read-only."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新载入最新内容",
+          "effect": "Ask dirty discard then reread current source",
+          "api": "GET /api/public/shares/:token/source",
+          "guard": "not busy/loading"
+        }
+      ],
+      "importantStates": [
+        "409 stale version preserves draft; instruct copy then reload",
+        "404 expired/revoked/reset blocks save but preserves draft",
+        "403 downgraded/authorization expired blocks save",
+        "new private resource rejection remains correctable without blocking further valid save",
+        "429 backoff; validation/size/encoding errors; network/unknown response preserves pending draft",
+        "live expiry timer disables save"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Toolbar wraps; <=720px mode buttons share full width and article padding decreases (PublicShareEditor.vue:329). Editor behavior at 320 remains unverified."
+      },
+      "testRefs": [
+        "tests/e2e/sharing-permissions.spec.ts:125",
+        "tests/e2e/sharing-permissions.spec.ts:168",
+        "tests/e2e/sharing-permissions.spec.ts:197",
+        "tests/e2e/sharing-permissions.spec.ts:274",
+        "tests/e2e/sharing-permissions.spec.ts:669"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Owner revocation/downgrade is not auto-poll UI; save response reveals block; expiry is computed each second."
+      ]
+    },
+    {
+      "id": "PB-029",
+      "title": "公开编辑：未保存离开/重新加载确认",
+      "kind": "dialog",
+      "module": "public-edit",
+      "entry": {
+        "route": "/s/:token (editing=true)",
+        "trigger": "Dirty draft + 返回阅读 or 重新载入最新内容",
+        "parentId": "PB-026"
+      },
+      "sourceRefs": [
+        "apps/web/components/PublicShareEditor.vue:128",
+        "apps/web/components/PublicShareEditor.vue:246"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Active edit-capability token and supported Markdown required; write uses anonymous CSRF, same Origin and expectedModifiedAt. Existing draft text remains available on failure; referenced whiteboards are read-only."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "保留编辑",
+          "effect": "Dismiss confirmation preserving draft",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "放弃编辑并重新载入",
+          "effect": "Discard and reload actual source",
+          "api": "GET /api/public/shares/:token/source",
+          "guard": ""
+        },
+        {
+          "label": "放弃编辑并返回阅读",
+          "effect": "Discard and return to reader",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "close variant discards into reader",
+        "reload variant discards and locks editing during actual read",
+        "keep draft cancels confirmation",
+        "beforeunload native browser guard for dirty or busy"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Toolbar wraps; <=720px mode buttons share full width and article padding decreases (PublicShareEditor.vue:329). Editor behavior at 320 remains unverified."
+      },
+      "testRefs": [
+        "tests/e2e/sharing-permissions.spec.ts:125",
+        "tests/e2e/sharing-permissions.spec.ts:669"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete dialog with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-030",
+      "title": "博客管理：概览",
+      "kind": "page",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=overview",
+        "trigger": "Workspace app/menu entry → 博客",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/navigation.ts:101",
+        "apps/web/components/Workspace.vue:210",
+        "apps/web/components/BlogWorkspace.vue:287",
+        "apps/web/components/BlogWorkspace.vue:354"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session gates /api/blog. Public access toggle and article publication are separate states."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "选择笔记 / 开始选稿",
+          "effect": "Open Markdown note picker",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "设计主页布局",
+          "effect": "Navigate design section",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "管理站点设置 / 前往设置",
+          "effect": "Navigate site settings",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "统计卡 / 查看全部",
+          "effect": "Open article state filter",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "最近文章",
+          "effect": "Open selected detail",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "访问站点",
+          "effect": "Open /blog in new tab",
+          "api": "",
+          "guard": "saved enabled=true"
+        }
+      ],
+      "importantStates": [
+        "initial dashboard loading/error with retry",
+        "site disabled banner",
+        "no articles first-selection guidance",
+        "stats all/published/draft/changes; recent four posts"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-admin-visual.spec.ts:6",
+        "tests/e2e/blog.spec.ts:14"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-031",
+      "title": "博客管理：文章列表与筛选",
+      "kind": "page",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "Blog nav, stats or taxonomy",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:77",
+        "apps/web/components/BlogWorkspace.vue:428",
+        "apps/web/blog-workbench.ts:133"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "query",
+          "type": "search",
+          "required": false,
+          "constraints": "matches title/sourceTitle/summary/category/tags case-insensitively",
+          "sensitive": false
+        },
+        {
+          "name": "filter",
+          "type": "select",
+          "required": false,
+          "constraints": "all,draft,published,changes,withdrawn",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "刷新文章",
+          "effect": "Reload all dashboard pages and selected detail",
+          "api": "GET /api/blog[?cursor=…]; GET /api/blog/posts/:id",
+          "guard": "not loading"
+        },
+        {
+          "label": "文章行",
+          "effect": "Select detail",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "清除搜索和筛选",
+          "effect": "Reset query/state/category/tag",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "从笔记中选稿",
+          "effect": "Open note picker",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "all/draft/published/changes/withdrawn filters",
+        "query and category/tag chips",
+        "empty library vs no matches",
+        "selected row; per-article dirty badges",
+        "refresh keeps per-article local forms; repeated cursor error"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-polish.spec.ts:74",
+        "tests/e2e/blog.spec.ts:196",
+        "tests/e2e/blog-admin-content.spec.ts:43"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-032",
+      "title": "博客管理：文章发布信息",
+      "kind": "page",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "Select an article",
+        "parentId": "PB-031"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:508",
+        "apps/web/components/BlogWorkspace.vue:588",
+        "apps/web/blog-workbench.ts:226",
+        "packages/core/blog/service.ts:85"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "title",
+          "type": "text",
+          "required": true,
+          "constraints": "UI maxlength200; API trimmed nonempty <=256 Unicode codepoints",
+          "sensitive": false
+        },
+        {
+          "name": "summary",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI maxlength1000; API <=2000 chars",
+          "sensitive": false
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "required": false,
+          "constraints": "max80; optional datalist from existing article categories",
+          "sensitive": false
+        },
+        {
+          "name": "tags",
+          "type": "comma text",
+          "required": false,
+          "constraints": "UI max600 total; comma/Chinese-comma split trimmed unique tags; API <=30 tags each<=80",
+          "sensitive": false
+        },
+        {
+          "name": "pinned",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "cover",
+          "type": "local image path",
+          "required": false,
+          "constraints": "nullable; API max8192 chars",
+          "sensitive": false
+        },
+        {
+          "name": "slug",
+          "type": "text",
+          "required": true,
+          "constraints": "lowercase alphanumeric segments joined by hyphens; API<=100; unique/reserved checks; locked after first publication",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存文章信息",
+          "effect": "CAS update metadata then reread detail",
+          "api": "PATCH /api/blog/posts/:id",
+          "guard": "dirty; not busy/reading"
+        },
+        {
+          "label": "编辑原稿",
+          "effect": "Navigate owner note editor without rewriting source",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "预览文章",
+          "effect": "Toggle private article review",
+          "api": "",
+          "guard": "not dirty/busy/reading"
+        },
+        {
+          "label": "发布文章 / 发布更新",
+          "effect": "Reread and validate source/version, render static diagrams, publish snapshot",
+          "api": "POST /api/blog/publish",
+          "guard": "not dirty/busy/reading; source hash/mtime/version unchanged"
+        },
+        {
+          "label": "复制文章链接",
+          "effect": "Copy canonical saved URL",
+          "api": "",
+          "guard": "post.url exists"
+        },
+        {
+          "label": "重新核对",
+          "effect": "Reread detail retaining local metadata",
+          "api": "GET /api/blog/posts/:id",
+          "guard": "not busy"
+        }
+      ],
+      "importantStates": [
+        "nothing selected placeholder",
+        "initial detail pending/error/retry",
+        "retained form while rereading",
+        "dirty save-required status; busy guard",
+        "draft/published/withdrawn/unpublished changes badges",
+        "once published slug is read-only"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-polish.spec.ts:27",
+        "tests/e2e/blog.spec.ts:196",
+        "tests/e2e/blog.spec.ts:336"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Selection is component state; no article-id URL parameter implemented by navigation.ts. Online snapshot changes only through explicit publish, not note save or metadata save."
+      ]
+    },
+    {
+      "id": "PB-033",
+      "title": "博客管理：选择 Markdown 笔记",
+      "kind": "dialog",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=overview|articles|taxonomy|design|settings",
+        "trigger": "选择笔记/从笔记中选稿",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:45",
+        "apps/web/components/BlogWorkspace.vue:182",
+        "apps/web/components/BlogWorkspace.vue:1041",
+        "apps/web/blog-workbench.ts:18"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "noteQuery",
+          "type": "search",
+          "required": false,
+          "constraints": "name/path; Markdown file notes only",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "笔记行",
+          "effect": "Create draft selection or open existing article",
+          "api": "POST /api/blog/posts",
+          "guard": "not creating"
+        },
+        {
+          "label": "关闭选稿",
+          "effect": "Close picker; restore trigger focus",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "search matches note name/path; Markdown notes only",
+        "none found",
+        "already selected badge selects existing post",
+        "creating state disables note buttons; API error"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-admin-content.spec.ts:4",
+        "tests/blog-workbench.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete dialog with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Escape, backdrop close and focus trap implemented. Creating selection does not publish or alter original."
+      ]
+    },
+    {
+      "id": "PB-034",
+      "title": "博客文章：附件封面选择",
+      "kind": "state",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "Expand 封面、置顶与固定链接; load original attachments",
+        "parentId": "PB-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:623",
+        "apps/web/components/blog/BlogArticleCover.vue:28",
+        "apps/web/components/blog/BlogArticleCover.vue:58"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "cover",
+          "type": "attachment selection",
+          "required": false,
+          "constraints": "relative Markdown path resolved against source note, not current note search",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "从原稿附件中选择封面",
+          "effect": "Load allowed source note assets",
+          "api": "GET /api/notes/:noteId/assets",
+          "guard": ""
+        },
+        {
+          "label": "图片",
+          "effect": "Set local metadata cover path",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "移除",
+          "effect": "Set cover null",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "attachment loading/error",
+        "no image attachments",
+        "existing PNG/JPEG/WebP/GIF image choices; selected state",
+        "cover uploaded while article changes remains owned by originating article"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio-workbench.test.ts:219",
+        "tests/blog-studio-workbench.test.ts:243"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-035",
+      "title": "博客图片：裁切与上传",
+      "kind": "state",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design|articles",
+        "trigger": "Choose avatar/banner/article-cover file",
+        "parentId": "PB-034"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogImageEditor.vue:41",
+        "apps/web/components/blog/BlogImageEditor.vue:109",
+        "apps/web/components/blog/BlogArticleCover.vue:51",
+        "apps/web/blog-workbench.ts:469"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "file",
+          "type": "image file",
+          "required": true,
+          "constraints": "JPEG/PNG/WebP; chooser<=10MB; cropped WebP output<=1600px wide; processed design upload<=5MiB",
+          "sensitive": false
+        },
+        {
+          "name": "zoom",
+          "type": "range",
+          "required": true,
+          "constraints": "1..3 step.05",
+          "sensitive": false
+        },
+        {
+          "name": "x/y",
+          "type": "range",
+          "required": true,
+          "constraints": "0..100; default50",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "裁切并上传",
+          "effect": "Process chosen crop and upload to current destination",
+          "api": "POST /api/blog/design/media (JSON); POST /api/notes/:noteId/assets (multipart)",
+          "guard": "image decoded; not pending"
+        },
+        {
+          "label": "取消裁切",
+          "effect": "Release local object URL",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "移除",
+          "effect": "Clear image selection",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "file type/size rejection",
+        "crop preview; zoom/position controls",
+        "processing/uploading locks controls; upload failure retains crop",
+        "selected; remove; cancel crop"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio-workbench.test.ts:166",
+        "tests/blog-studio-workbench.test.ts:208"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Avatar aspect1:1; homepage banner3:1; article cover16:9. UI chooser10MB and processed design upload5MiB are different constraints."
+      ]
+    },
+    {
+      "id": "PB-036",
+      "title": "博客文章：私有预览与发布前核对",
+      "kind": "state",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "Toggle 预览文章 after saving metadata",
+        "parentId": "PB-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:681",
+        "apps/web/components/blog/BlogPublicationReview.vue:17",
+        "apps/web/components/blog/BlogPublicationReview.vue:28",
+        "apps/server/blog/studio-routes.ts:61"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新检查",
+          "effect": "Refresh publication review",
+          "api": "GET /api/blog/posts/:id/review",
+          "guard": "not reviewLoading"
+        },
+        {
+          "label": "前往原稿修正 / 查看关联原稿",
+          "effect": "Open relevant owner note",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "查看文章",
+          "effect": "Select affected article if no source id",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "review loading/error; retry",
+        "no public version yet vs published/draft columns",
+        "reference warnings: unpublished/missing links, missing/unsupported images",
+        "affected related articles; generated-diagram count",
+        "original-source preview folded under details"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio-review.test.ts:1",
+        "tests/e2e/blog.spec.ts:336"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "This is private sanitized preview; publication itself remains explicit article action."
+      ]
+    },
+    {
+      "id": "PB-037",
+      "title": "博客文章：下架确认",
+      "kind": "dialog",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "下架文章 on published post",
+        "parentId": "PB-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:230",
+        "apps/web/components/BlogWorkspace.vue:705",
+        "apps/web/components/BlogWorkspace.vue:725",
+        "apps/web/blog-workbench.ts:286"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "取消",
+          "effect": "Close confirmation",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "确认下架",
+          "effect": "Withdraw public snapshot",
+          "api": "POST /api/blog/unpublish",
+          "guard": "same selected article captured at opening; not busy/reading"
+        }
+      ],
+      "importantStates": [
+        "inline alertdialog; source note retained",
+        "busy/read guards; Escape cancellation; restore focus",
+        "CAS conflict/error remains on article"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-polish.spec.ts:74"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete dialog with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-038",
+      "title": "博客文章：移除选稿确认",
+      "kind": "dialog",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "移除选稿",
+        "parentId": "PB-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:713",
+        "apps/web/components/BlogWorkspace.vue:725",
+        "apps/web/blog-workbench.ts:303"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "取消",
+          "effect": "Close confirmation",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "确认移除",
+          "effect": "Delete selected blog article and public availability",
+          "api": "DELETE /api/blog/posts/:id",
+          "guard": "same captured selection; CAS expectedVersion; not busy/reading"
+        }
+      ],
+      "importantStates": [
+        "inline alertdialog; original note retained",
+        "successful removal clears article-specific forms/selection",
+        "busy/version conflict/error"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-polish.spec.ts:74"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete dialog with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-039",
+      "title": "博客管理：分类与标签",
+      "kind": "page",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=taxonomy",
+        "trigger": "Blog navigation",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:92",
+        "apps/web/components/BlogWorkspace.vue:776"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "taxonomyQuery",
+          "type": "search",
+          "required": false,
+          "constraints": "case-insensitive category/tag name filter",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "分类 / 标签",
+          "effect": "Navigate articles with one taxonomy filter and clear unrelated query/state",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "清除分类标签搜索 / 查看全部分类 / 查看全部标签",
+          "effect": "Clear taxonomy search",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "整理文章分类 / 整理文章标签",
+          "effect": "Open article list",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "从笔记中选稿",
+          "effect": "Open picker when no articles",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "no category/tag guidance depends on article existence",
+        "categories/tags aggregate all owner article metadata",
+        "search no matches distinct from absent taxonomy",
+        "category/tag count and article filter links"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-admin-content.spec.ts:4",
+        "tests/e2e/blog-admin-content.spec.ts:43"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "No create/rename/delete taxonomy management dialog; taxonomy is edited in article information and reaches public site only after manual republish."
+      ]
+    },
+    {
+      "id": "PB-040",
+      "title": "博客管理：站点设置",
+      "kind": "page",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=settings",
+        "trigger": "Blog navigation or site-off banner",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:897",
+        "apps/web/blog-workbench.ts:324",
+        "packages/core/blog/service.ts:568"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "enabled",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "takes effect on save; closes all public blog pages when false",
+          "sensitive": false
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "required": true,
+          "constraints": "UI<=120; API<=256",
+          "sensitive": false
+        },
+        {
+          "name": "description",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=500; API<=2000",
+          "sensitive": false
+        },
+        {
+          "name": "author",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; API<=256",
+          "sensitive": false
+        },
+        {
+          "name": "baseUrl",
+          "type": "url",
+          "required": false,
+          "constraints": "API<=2048; HTTP(S) origin only; no credentials/path/query/hash",
+          "sensitive": false
+        },
+        {
+          "name": "theme",
+          "type": "select",
+          "required": true,
+          "constraints": "system or light only",
+          "sensitive": false
+        },
+        {
+          "name": "about",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=10000; API<=50000; sanitized Markdown for public about",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存站点设置",
+          "effect": "CAS save full settings",
+          "api": "PATCH /api/blog/settings",
+          "guard": "not settingsBusy; version matches"
+        },
+        {
+          "label": "重新核对设置",
+          "effect": "Reload latest and merge retained draft",
+          "api": "GET /api/blog/settings",
+          "guard": "not settingsBusy"
+        },
+        {
+          "label": "前往装修主页",
+          "effect": "Navigate design section",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "saved enabled badge and independently edited toggle",
+        "dirty status; saving; successful enabled/disabled receipt",
+        "version conflict/error; review latest preserves local changes"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-admin-visual.spec.ts:6",
+        "tests/blog-workbench.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Blog site settings are separate from platform/account settings. No unsupported explicit dark option: system can follow OS dark."
+      ]
+    },
+    {
+      "id": "PB-041",
+      "title": "博客装修：主题与个人资料",
+      "kind": "page",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design",
+        "trigger": "Design navigation; default appearance tab",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:53",
+        "apps/web/components/blog/BlogDesignStudio.vue:94",
+        "apps/web/components/blog/BlogDesignAppearance.vue:11",
+        "packages/core/blog/studio.ts:67",
+        "packages/core/blog/studio.ts:220"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "template",
+          "type": "choice",
+          "required": true,
+          "constraints": "journal文字博客; magazine卡片杂志; profile个人主页",
+          "sensitive": false
+        },
+        {
+          "name": "accent",
+          "type": "color+text",
+          "required": true,
+          "constraints": "#RRGGBB",
+          "sensitive": false
+        },
+        {
+          "name": "font",
+          "type": "select",
+          "required": true,
+          "constraints": "sans|serif",
+          "sensitive": false
+        },
+        {
+          "name": "width",
+          "type": "select",
+          "required": true,
+          "constraints": "comfortable|wide",
+          "sensitive": false
+        },
+        {
+          "name": "cardStyle",
+          "type": "select",
+          "required": true,
+          "constraints": "plain|bordered",
+          "sensitive": false
+        },
+        {
+          "name": "profile.name",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; server<=256",
+          "sensitive": false
+        },
+        {
+          "name": "profile.tagline",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=200; server<=1000",
+          "sensitive": false
+        },
+        {
+          "name": "profile.bio",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=5000; server<=50000",
+          "sensitive": false
+        },
+        {
+          "name": "profile.avatar/cover",
+          "type": "media",
+          "required": false,
+          "constraints": "only registered /blog/media/:hash references; referenced media must exist; total design images <=20MiB server-side",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存装修草稿",
+          "effect": "CAS save current draft",
+          "api": "PATCH /api/blog/design",
+          "guard": "dirty; not busy/loading"
+        },
+        {
+          "label": "发布主页",
+          "effect": "Publish saved design revision",
+          "api": "POST /api/blog/design/publish",
+          "guard": "not dirty/busy/loading; unpublished changes exist"
+        },
+        {
+          "label": "重新核对版本",
+          "effect": "Reload design and merge local changes",
+          "api": "GET /api/blog/design",
+          "guard": "not busy/loading"
+        },
+        {
+          "label": "放大预览",
+          "effect": "Open modal viewport",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "选择图片",
+          "effect": "Open shared crop UI",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "loading/error/retry config; local modifications preserved",
+        "saved draft/unpublished/online-matched badges",
+        "three templates selected state",
+        "missing avatar/banner placeholders; media selected"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-studio.spec.ts:67",
+        "tests/blog-studio-workbench.test.ts:22",
+        "tests/blog-studio-workbench.test.ts:39"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Design save does not publish homepage. Dirty beforeunload guard is implemented.",
+        "Public profile bio is escaped plain text in profileIntro; public about page separately parses sanitized Markdown."
+      ]
+    },
+    {
+      "id": "PB-042",
+      "title": "博客装修：首页模块",
+      "kind": "page",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design (modules tab)",
+        "trigger": "首页模块 tab",
+        "parentId": "PB-041"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignModules.vue:5",
+        "apps/web/components/blog/BlogDesignModules.vue:28",
+        "packages/core/blog/studio.ts:88"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "kind",
+          "type": "select",
+          "required": true,
+          "constraints": "intro,featured,latest,collections,projects,links",
+          "sensitive": false
+        },
+        {
+          "name": "module.title",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; server<=256",
+          "sensitive": false
+        },
+        {
+          "name": "module.enabled",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "module.limit",
+          "type": "number",
+          "required": true,
+          "constraints": "integer1..50; default6; server array<=30 unique ids",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "添加模块",
+          "effect": "Append local module",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "上移 / 下移",
+          "effect": "Reorder local module list",
+          "api": "",
+          "guard": "not boundary"
+        },
+        {
+          "label": "显示",
+          "effect": "Toggle module inclusion",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "删除",
+          "effect": "Remove local module; save/publish required",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "no modules guidance",
+        "visible/hidden items retain settings",
+        "first/last movement disabled",
+        "dirty draft; validation via shared studio banner"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-studio.spec.ts:67"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-043",
+      "title": "博客装修：专题合集",
+      "kind": "page",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design (collections tab)",
+        "trigger": "专题合集 tab",
+        "parentId": "PB-041"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignCollections.vue:7",
+        "apps/web/components/blog/BlogDesignCollections.vue:30",
+        "packages/core/blog/studio.ts:102"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "collection.title",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; server<=256",
+          "sensitive": false
+        },
+        {
+          "name": "collection.slug",
+          "type": "text",
+          "required": true,
+          "constraints": "lowercase hyphen pattern; server<=100; unique among collections",
+          "sensitive": false
+        },
+        {
+          "name": "collection.description",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=1000; server<=2000",
+          "sensitive": false
+        },
+        {
+          "name": "postIds",
+          "type": "ordered selection",
+          "required": false,
+          "constraints": "server<=500 unique IDs; only published posts offered; public hides no-longer-published",
+          "sensitive": false
+        },
+        {
+          "name": "query",
+          "type": "search",
+          "required": false,
+          "constraints": "published title filter; shared component query",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "添加专题",
+          "effect": "Append local collection",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "从已发布文章中添加",
+          "effect": "Expand published picker",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "文章",
+          "effect": "Add membership",
+          "api": "",
+          "guard": "not already selected"
+        },
+        {
+          "label": "上移 / 下移 / 移出",
+          "effect": "Reorder/remove membership",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "删除专题",
+          "effect": "Remove local collection",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "no collections; empty collection",
+        "published article search has no matches",
+        "already added disabled; duplicate IDs rejected",
+        "removed/unpublished member retained in editor but marked public-hidden",
+        "ordered long article titles with distinct identity"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-admin-preview.spec.ts:62",
+        "tests/e2e/blog-studio.spec.ts:67"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-044",
+      "title": "博客装修：导航、社交与友情链接",
+      "kind": "page",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design (links tab)",
+        "trigger": "导航与链接 tab",
+        "parentId": "PB-041"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:167",
+        "apps/web/components/blog/BlogDesignLinks.vue:12",
+        "packages/core/blog/studio.ts:26"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "link.label",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=80; server<=100",
+          "sensitive": false
+        },
+        {
+          "name": "link.href",
+          "type": "url",
+          "required": true,
+          "constraints": "<=2048; safe /blog path or http/https/mailto; no URL credentials, whitespace, backslash or traversal; mailto query disallowed",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "添加链接",
+          "effect": "Append link to chosen group",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "上移 / 下移",
+          "effect": "Reorder chosen group",
+          "api": "",
+          "guard": "not boundary"
+        },
+        {
+          "label": "删除",
+          "effect": "Remove local link",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "three independently titled link groups",
+        "empty group guidance",
+        "boundary reorder disabled; dirty draft; validation errors"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio.test.ts:1",
+        "tests/blog-security.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Each group max30 unique IDs server-side. Save/publish use shared studio controls."
+      ]
+    },
+    {
+      "id": "PB-045",
+      "title": "博客装修：项目作品",
+      "kind": "page",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design (projects tab)",
+        "trigger": "项目作品 tab",
+        "parentId": "PB-041"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignProjects.vue:12",
+        "packages/core/blog/studio.ts:120"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "project.title",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; server<=256",
+          "sensitive": false
+        },
+        {
+          "name": "project.href",
+          "type": "url",
+          "required": true,
+          "constraints": "safeBlogLink <=2048",
+          "sensitive": false
+        },
+        {
+          "name": "project.description",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=1000; server<=2000; server<=100 projects",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "添加项目",
+          "effect": "Append local project",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "上移 / 下移",
+          "effect": "Reorder local projects",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "删除",
+          "effect": "Remove project",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "no projects; local rows; boundary actions",
+        "safe-link validation failure in shared banner"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-studio.spec.ts:67"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-046",
+      "title": "博客装修：实时私有预览",
+      "kind": "state",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design; GET /api/blog/design/preview (authenticated HTML alias)",
+        "trigger": "Design mounted; editor changes or manual refresh; direct authenticated GET /api/blog/design/preview",
+        "parentId": "PB-041"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:60",
+        "apps/web/components/blog/BlogDesignStudio.vue:238",
+        "apps/web/components/blog/BlogPreviewViewport.vue:34",
+        "apps/web/blog-workbench.ts:454",
+        "apps/server/blog/routes.ts:151",
+        "apps/server/blog/routes.ts:158",
+        "apps/server/app.ts:141",
+        "apps/server/blog/render.ts:74"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage.",
+        "GET /api/blog/design/preview is an owner-authenticated API route under the same /api/ session hook; it is not an anonymous /blog preview link. The preview service authorizes the owner principal and may preview a disabled public site."
+      ],
+      "fields": [
+        {
+          "name": "live",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "defaulttrue",
+          "sensitive": false
+        },
+        {
+          "name": "device",
+          "type": "segmented",
+          "required": true,
+          "constraints": "desktop1100|mobile375",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "桌面 / 手机",
+          "effect": "Switch internal preview viewport",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "刷新预览 / 重试预览 / 生成预览",
+          "effect": "Request current draft preview",
+          "api": "POST /api/blog/design/preview",
+          "guard": "refresh disabled while previewBusy"
+        }
+      ],
+      "importantStates": [
+        "450ms live debounce; unsaved design included",
+        "desktop1100/mobile375 viewport scaled to host",
+        "empty preview generation button",
+        "preview busy; latest-request wins; failure retains last successful HTML and retry",
+        "Direct authenticated GET /api/blog/design/preview returns the same private homepage template as standalone text/html with the private-preview banner, using the stored design draft; no studio form or embedded device controls wrap this response.",
+        "POST /api/blog/design/preview accepts current unsaved design and returns JSON {html}; this differs from the direct GET HTML route."
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio-workbench.test.ts:58",
+        "tests/blog-studio-workbench.test.ts:131",
+        "tests/e2e/blog-admin-preview.spec.ts:5"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Sandbox allow-same-origin only; no allow-scripts. Owner-only media endpoints; preview does not publish.",
+        "The direct GET is an alias/entry for this same owner homepage-preview surface, not another public route or invented UI button. Its HTML body uses homeHtml and previewSource; the studio POST is the live unsaved-design flow."
+      ]
+    },
+    {
+      "id": "PB-047",
+      "title": "博客装修：放大主页预览",
+      "kind": "dialog",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design",
+        "trigger": "放大预览",
+        "parentId": "PB-041"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:17",
+        "apps/web/components/blog/BlogDesignStudio.vue:301",
+        "apps/web/components/blog/BlogPreviewViewport.vue:14"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "关闭预览",
+          "effect": "Close and restore originating focus",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "桌面 / 手机",
+          "effect": "Switch fixed internal viewport",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "刷新预览",
+          "effect": "Regenerate current draft",
+          "api": "POST /api/blog/design/preview",
+          "guard": "not previewBusy"
+        }
+      ],
+      "importantStates": [
+        "native modal dialog and locked body scroll",
+        "desktop/mobile fixed viewport scaling",
+        "empty/busy/error preview states",
+        "Escape works from iframe; backdrop closes; focus restored"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-admin-preview.spec.ts:5"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete dialog with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-048",
+      "title": "博客装修：发布历史与恢复",
+      "kind": "state",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design",
+        "trigger": "Expand 发布历史",
+        "parentId": "PB-041"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:211",
+        "apps/web/blog-workbench.ts:438",
+        "shared/blog-design.ts:41",
+        "packages/core/blog/studio.ts:265"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "恢复到草稿",
+          "effect": "CAS restore selected revision as draft",
+          "api": "POST /api/blog/design/restore",
+          "guard": "not dirty/busy; valid revision"
+        }
+      ],
+      "importantStates": [
+        "no history until first publication",
+        "version+time rows",
+        "restore disabled while dirty or busy",
+        "restored only into draft; success requires later manual publish"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio-workbench.test.ts:105",
+        "tests/e2e/blog-studio.spec.ts:67"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Server keeps the ten most recently published revisions; restore operation remains version-checked."
+      ]
+    },
+    {
+      "id": "PB-049",
+      "title": "博客管理：冲突与保留修改恢复",
+      "kind": "state",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles|settings|design",
+        "trigger": "Concurrent remote change, failed request or post-save read failure",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/blog-workbench.ts:164",
+        "apps/web/blog-workbench.ts:249",
+        "apps/web/blog-workbench.ts:351",
+        "apps/web/blog-workbench.ts:374",
+        "apps/web/components/BlogWorkspace.vue:537",
+        "apps/web/components/blog/BlogDesignStudio.vue:123"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新核对 / 重新核对设置 / 重新核对版本",
+          "effect": "Read latest corresponding resource and preserve applicable local fields",
+          "api": "GET /api/blog/posts/:id; /api/blog/settings; /api/blog/design",
+          "guard": "per-surface busy guards"
+        }
+      ],
+      "importantStates": [
+        "article/version/source changed blocks publish and refreshes detail",
+        "failed metadata save retains local form",
+        "post-save read failure must be reviewed before next publish",
+        "settings conflict; review merges edits",
+        "design save/publish/restore error retains draft and version-review entry",
+        "dashboard/preview/review failures expose separate recovery"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog.spec.ts:196",
+        "tests/e2e/blog.spec.ts:336",
+        "tests/blog-studio-workbench.test.ts:85"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "There is no custom global offline mode; these are concrete request-failure alerts and preserved-memory drafts. Browser reload durability for article/design forms is not established here."
+      ]
+    },
+    {
+      "id": "PB-050",
+      "title": "公开博客：文字博客主页",
+      "kind": "page",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog",
+        "trigger": "Public enabled site + published design.template=journal",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:195",
+        "apps/server/blog/render.ts:109",
+        "apps/server/blog/styles.ts:1",
+        "shared/blog-design.ts:102"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "导航 / 浏览文章 / 查看全部文章",
+          "effect": "Open public pages",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "文章卡",
+          "effect": "Read published article",
+          "api": "GET /blog/:slug",
+          "guard": ""
+        },
+        {
+          "label": "专题卡",
+          "effect": "Read collection",
+          "api": "GET /blog/-/collections/:slug",
+          "guard": ""
+        },
+        {
+          "label": "项目/社交/友情链接",
+          "effect": "Open validated destination",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "订阅 RSS",
+          "effect": "Open feed",
+          "api": "GET /blog/rss.xml",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "all configured enabled modules; module ordering/limits",
+        "modules with no published posts/projects/friends/collections show existing empty copy",
+        "with/without avatar/banner/cover; long name/intro/link text",
+        "system/light theme; font/width/card/accent settings"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/e2e/blog-public-redesign.spec.ts:188",
+        "tests/e2e/blog-public-polish.spec.ts:68",
+        "tests/e2e/blog-studio.spec.ts:212"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Single journal stream; default profile intro plus configurable article/collection/project/link modules.",
+        "/blog/ redirects /blog; /blog query/category/tag/page uses article-list presentation instead of homepage."
+      ]
+    },
+    {
+      "id": "PB-051",
+      "title": "公开博客：卡片杂志主页",
+      "kind": "page",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog",
+        "trigger": "Public enabled site + published design.template=magazine",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:195",
+        "apps/server/blog/render.ts:109",
+        "apps/server/blog/styles.ts:1",
+        "shared/blog-design.ts:102"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "导航 / 浏览文章 / 查看全部文章",
+          "effect": "Open public pages",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "文章卡",
+          "effect": "Read published article",
+          "api": "GET /blog/:slug",
+          "guard": ""
+        },
+        {
+          "label": "专题卡",
+          "effect": "Read collection",
+          "api": "GET /blog/-/collections/:slug",
+          "guard": ""
+        },
+        {
+          "label": "项目/社交/友情链接",
+          "effect": "Open validated destination",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "订阅 RSS",
+          "effect": "Open feed",
+          "api": "GET /blog/rss.xml",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "all configured enabled modules; module ordering/limits",
+        "modules with no published posts/projects/friends/collections show existing empty copy",
+        "with/without avatar/banner/cover; long name/intro/link text",
+        "system/light theme; font/width/card/accent settings"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/e2e/blog-public-redesign.spec.ts:188",
+        "tests/e2e/blog-public-polish.spec.ts:68",
+        "tests/e2e/blog-studio.spec.ts:212"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Magazine masthead, grid-based modules, featured cover treatment and optional selected cards.",
+        "/blog/ redirects /blog; /blog query/category/tag/page uses article-list presentation instead of homepage."
+      ]
+    },
+    {
+      "id": "PB-052",
+      "title": "公开博客：个人主页",
+      "kind": "page",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog",
+        "trigger": "Public enabled site + published design.template=profile",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:195",
+        "apps/server/blog/render.ts:109",
+        "apps/server/blog/styles.ts:1",
+        "shared/blog-design.ts:102"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "导航 / 浏览文章 / 查看全部文章",
+          "effect": "Open public pages",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "文章卡",
+          "effect": "Read published article",
+          "api": "GET /blog/:slug",
+          "guard": ""
+        },
+        {
+          "label": "专题卡",
+          "effect": "Read collection",
+          "api": "GET /blog/-/collections/:slug",
+          "guard": ""
+        },
+        {
+          "label": "项目/社交/友情链接",
+          "effect": "Open validated destination",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "订阅 RSS",
+          "effect": "Open feed",
+          "api": "GET /blog/rss.xml",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "all configured enabled modules; module ordering/limits",
+        "modules with no published posts/projects/friends/collections show existing empty copy",
+        "with/without avatar/banner/cover; long name/intro/link text",
+        "system/light theme; font/width/card/accent settings"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/e2e/blog-public-redesign.spec.ts:188",
+        "tests/e2e/blog-public-polish.spec.ts:68",
+        "tests/e2e/blog-studio.spec.ts:212"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Profile intro sidebar plus article/project/collection sections; no-intro variant supported.",
+        "/blog/ redirects /blog; /blog query/category/tag/page uses article-list presentation instead of homepage."
+      ]
+    },
+    {
+      "id": "PB-053",
+      "title": "公开博客：文章索引、搜索与筛选",
+      "kind": "page",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog/-/articles; /blog?q=…|category=…|tag=…|page=…",
+        "trigger": "Public navigation, homepage browse or article taxonomy",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:135",
+        "apps/server/blog/routes.ts:221",
+        "apps/server/blog/render.ts:170",
+        "packages/core/blog/service.ts:1094"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [
+        {
+          "name": "q",
+          "type": "search",
+          "required": false,
+          "constraints": "title/summary/tags source query; server query<=500",
+          "sensitive": false
+        },
+        {
+          "name": "category/tag",
+          "type": "link filter",
+          "required": false,
+          "constraints": "server<=80",
+          "sensitive": false
+        },
+        {
+          "name": "page",
+          "type": "pagination",
+          "required": false,
+          "constraints": "integer1..1000000; UI default1",
+          "sensitive": false
+        },
+        {
+          "name": "pageSize",
+          "type": "query parameter",
+          "required": false,
+          "constraints": "server1..100; default12; no UI selector",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "搜索",
+          "effect": "GET HTML with q and retained category/tag",
+          "api": "GET /blog/-/articles?q=…",
+          "guard": ""
+        },
+        {
+          "label": "分类/标签 chips",
+          "effect": "Navigate filter URL",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "查看全部文章",
+          "effect": "Clear active filter",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "上一页 / 下一页",
+          "effect": "Navigate valid pagination",
+          "api": "",
+          "guard": "within page range"
+        }
+      ],
+      "importantStates": [
+        "default all articles; query/category/tag combinations",
+        "filtered and unfiltered empty results differ",
+        "multi-page prev/next; preserves active query filters",
+        "invalid query/pagination is HTTP400, not a dedicated UI"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/e2e/blog-public-polish.spec.ts:124",
+        "tests/e2e/blog-studio.spec.ts:212"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "/blog/articles supports legacy published slug articles first, then falls back to index; canonical index uses reserved /-/ segment."
+      ]
+    },
+    {
+      "id": "PB-054",
+      "title": "公开博客：文章阅读",
+      "kind": "page",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog/:slug",
+        "trigger": "Published post card, index, archive, collection or direct URL",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:341",
+        "apps/server/blog/render.ts:212",
+        "apps/server/blog/reader-script.ts:2",
+        "packages/core/blog/service.ts:1039"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "章节目录 / 返回顶部",
+          "effect": "Native fragment navigation",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "分类 / 标签",
+          "effect": "Navigate public index filter",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "专题/相邻/继续阅读",
+          "effect": "Navigate available published article",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "复制代码",
+          "effect": "Copy code; show success/failure feedback",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "复制链接",
+          "effect": "Copy canonical URL; report status",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "分享文章",
+          "effect": "Native share or clipboard fallback",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "long article with TOC/active heading/progress",
+        "short article or no headings; progress hidden when no scroll range",
+        "optional cover/summary/tags/category",
+        "collection previous-next, adjacent posts and related posts when available",
+        "code/table/image/diagram snapshot content; long content containment",
+        "no-JS native anchors/details/navigation stay usable"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/e2e/blog-public-redesign.spec.ts:236",
+        "tests/e2e/blog-public-redesign.spec.ts:330",
+        "tests/blog-reader.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Reading progress, copy/share buttons and active TOC are progressive JS enhancements. Source note editing is not exposed to guests."
+      ]
+    },
+    {
+      "id": "PB-055",
+      "title": "公开博客阅读：复制/分享反馈",
+      "kind": "state",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog/:slug",
+        "trigger": "Activate code/link copy or share",
+        "parentId": "PB-054"
+      },
+      "sourceRefs": [
+        "apps/server/blog/reader-script.ts:6",
+        "apps/server/blog/reader-script.ts:21",
+        "apps/server/blog/reader-script.ts:32"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "复制代码 / 复制链接 / 分享文章",
+          "effect": "Perform local browser copy/share and update aria-live status",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "code copied then button resets after2s",
+        "clipboard API unavailable uses execCommand fallback",
+        "copy fails: manual code/address instructions",
+        "navigator.share unavailable: copy-link fallback",
+        "native share AbortError silent; other errors report"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/e2e/blog-public-redesign.spec.ts:330",
+        "tests/e2e/blog-studio.spec.ts:212"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-056",
+      "title": "公开博客：关于",
+      "kind": "page",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog/about",
+        "trigger": "Public navigation",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:237",
+        "apps/server/blog/render.ts:202"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "站点导航 / footer",
+          "effect": "Navigate public routes",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "sanitized Markdown about",
+        "fallback from settings.about to design.profile.bio then description",
+        "If all about/profile/description sources are empty, renders heading with empty article-body; no custom empty guidance implemented"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/e2e/blog-studio.spec.ts:67",
+        "tests/blog-security.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-057",
+      "title": "公开博客：专题合集索引",
+      "kind": "page",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog/-/collections",
+        "trigger": "Public navigation or configured collection module",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:247",
+        "apps/server/blog/render.ts:94"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "专题卡",
+          "effect": "Open public collection detail",
+          "api": "GET /blog/-/collections/:slug",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "collection cards with count of currently available published members",
+        "no collections: 暂无专题合集"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/e2e/blog-studio.spec.ts:67"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Legacy /blog/collections first resolves a published article slug collections if present, otherwise collection index."
+      ]
+    },
+    {
+      "id": "PB-058",
+      "title": "公开博客：专题阅读路线",
+      "kind": "page",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog/-/collections/:slug; /blog/collections/:slug",
+        "trigger": "Select collection card",
+        "parentId": "PB-057"
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:262",
+        "apps/server/blog/render.ts:257"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "全部专题",
+          "effect": "Return collection index",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "文章卡",
+          "effect": "Read published member",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "ordered currently published members only",
+        "empty collection: 此专题暂无已发布文章",
+        "collection absent returns404"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/e2e/blog-studio.spec.ts:67"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-059",
+      "title": "公开博客：文章归档",
+      "kind": "page",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog/archive",
+        "trigger": "Public navigation",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:280"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "归档文章",
+          "effect": "Read published article",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "返回文章列表",
+          "effect": "Navigate /blog",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "published articles sorted by publication date descending",
+        "empty archive with return-list link"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/blog-studio.test.ts:1",
+        "tests/e2e/blog-public-polish.spec.ts:124"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": []
+    },
+    {
+      "id": "PB-060",
+      "title": "公开博客：不可访问响应",
+      "kind": "state",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog; /blog/:slug; /blog/-/collections/:slug",
+        "trigger": "Site disabled/runtime unavailable/post withdrawn/deleted/unknown collection",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:92",
+        "apps/server/blog/routes.ts:104",
+        "apps/server/blog/routes.ts:268",
+        "packages/core/blog/service.ts:1039",
+        "apps/server/app.ts:108",
+        "apps/server/platform/runtime.ts:139"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [],
+      "importantStates": [
+        "disabled blog or SETUP_REQUIRED runtime responds404; other KnowledgeError failures propagate their actual status/code",
+        "unpublished/withdrawn/unknown post responds404",
+        "unknown collection responds404",
+        "response uses server error handling; no dedicated rendered HTML error page identified"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/blog-security.test.ts:1",
+        "tests/e2e/blog.spec.ts:14"
+      ],
+      "requiresDistinctImage": false,
+      "designReason": "No current app-owned HTML error UI; preserve server status/code as mapped nonvisual business rules, without inventing a new screen.",
+      "notes": [
+        "Do not invent a styled guest error page as implemented functionality. A future error treatment requires explicit contract/design decision.",
+        "No guest retry/offline cache or password gate is implemented.",
+        "Do not collapse every runtime failure into404: publicService explicitly rethrows KnowledgeError whose code differs from SETUP_REQUIRED."
+      ]
+    }
+  ],
+  "exclusions": [
+    {
+      "surface": "Owner note editor and share-creation dialog",
+      "owner": "workspace inventory",
+      "reason": "ShareDialog and note publishing entry points belong to owner workspace; public reader/editor is covered here."
+    },
+    {
+      "surface": "Platform/account settings; MCP client manager and shared permission editor",
+      "owner": "settings inventory",
+      "reason": "Only OAuth authorization page composition and exact grant rules are owned here; shared MCPDomainPermissions interiors cross-reference settings."
+    },
+    {
+      "surface": "PluginManager, Git credential/sync/job editors, SearchRuntimeSettings",
+      "owner": "settings/plugin inventory",
+      "reason": "Onboarding feature/import entry and import-specific fields are recorded here; shared detailed interiors excluded to prevent duplicate ownership."
+    },
+    {
+      "surface": "TransferPanel batch/portable import and resume",
+      "owner": "settings inventory",
+      "reason": "Baseline SetupImport is single-file direct import; settings owns the broader transfer UI and any shared wrapper used elsewhere."
+    },
+    {
+      "surface": "RSS, sitemap, assets, reader.js endpoints",
+      "owner": "non-visual interface contracts",
+      "reason": "Their visible entry links and reader behaviors are recorded; raw XML/JS/binary endpoints are not page mockups."
+    },
+    {
+      "surface": "First-owner browser registration/password recovery/share password gate",
+      "owner": "not implemented",
+      "reason": "Installation/CLI creates owner; share contracts contain no password. No invented UI."
+    },
+    {
+      "surface": "ToDoo product pages",
+      "owner": "excluded by user scope",
+      "reason": "ToDoo names remain only where existing OAuth permission contract needs them."
+    }
+  ],
+  "openQuestions": [
+    "GPT Image 2 model route remains unverified by parent; no images were requested/generated by this inventory. Every requiresDistinctImage=true is a review-queue requirement, not evidence of an image or approval.",
+    "No browser/server/test processes were run. All 320/390/1440 behavior claims are static source evidence; runtime status remains unverified. Existing tests cited are evidence locations, not claimed passing.",
+    "Owner-required SetupWizard state exists but normal public reachability is uncertain because App renders Login first and platform status requires an owner session; first-owner CLI is outside visual browser inventory.",
+    "Public blog HTTP404/400 errors currently have no dedicated rendered HTML page identified. Determine whether visual unification may introduce an explicit page contract before designing it as existing behavior.",
+    "Blog metadata UI/API limits differ (title200 vs256, summary1000 vs2000); site/profile/link fields have similar UI/server differences. Preserve current effective UI limits unless a separately authorized contract change is planned.",
+    "Blog image chooser allows10MB source; processed design-media upload enforces5MiB. Preserve both distinctions; parent must decide wording during design review without silently widening API limits.",
+    "Public guest error privacy must remain common404 for expired/revoked/rotated/missing share tokens. No password-gate or owner-rail route exists.",
+    "Article/design drafts are retained through in-session failed requests and delayed reads; persistence across full reload or a distinct offline mode is not established in these components.",
+    "Public guest rich editing starts directly in document mode and uses parseSource(enabled=true) fallback. Owner VITE_DOCUMENT_EDITOR_ENABLED does not establish public-mode unavailability; 320/390/1440 eligible/fallback/search/context states still need runtime and image review.",
+    "The authenticated GET /api/blog/design/preview HTML alias and POST JSON unsaved-design preview share PB-046; preserve authentication and the differing response/entry contracts.",
+    "Resolved public diagram source visibility/download requires explicit board capability; ordinary public PNG projection has no source controls. Guest source access must never be inferred as edit/generate permission."
+  ]
+}

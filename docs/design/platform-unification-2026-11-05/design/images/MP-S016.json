@@ -1,0 +1,517 @@
+{
+  "id": "MP-S016",
+  "title": "Component state matrix: owner-private / OrganizationRetentionSettings.vue",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-037"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-037",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-backup.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-037",
+      "route": "/?view=settings&section=backup",
+      "trigger": "异常写入恢复→高级保留期限details",
+      "parentId": "ST-034",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "整理撤销材料保留天数",
+          "type": "integer",
+          "required": true,
+          "constraints": "1–3650；默认30；只影响后续任务",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "按需加载",
+        "读取失败/重试",
+        "整数范围错误",
+        "保存未确认需重新打开核对",
+        "保存成功",
+        "不删除笔记/不缩短已有材料期限说明"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/web/components/OrganizationRetentionSettings.vue",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-037",
+      "label": "保存保留期限",
+      "effect": "保存整日天数",
+      "api": "PUT /api/maintenance/organization-settings",
+      "guard": "已加载且非busy；客户端整数范围验证"
+    },
+    {
+      "sourceId": "ST-037",
+      "label": "重新读取保留期限",
+      "effect": "重试加载",
+      "api": "GET /api/maintenance/organization-settings",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-037",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内六个独立保留期限局部样例，竖排留白分隔，清楚字号。\n第一行：展开“整理撤销材料保留期限（高级）”，黄色提示“暂时无法读取保留期限，请重试。”，按钮“重新读取保留期限”可用，没有天数字段。\n第二行：黄色提示“请填写 1 至 3650 之间的整数天数。”，数字字段“整理撤销材料保留天数”值为空，按钮“保存保留期限”可用。\n第三行：黄色提示“未能确认保存结果，请重新打开设置核对后再重试。”，数字字段“整理撤销材料保留天数”值“30”，“保存保留期限”按钮可用。\n第四行：普通帮助段落“默认保留 30 天。更改只影响后续整理任务，不会缩短已有材料的保留期限或恢复已过期的撤销能力。未完成或需要核对的任务材料会继续保留。到期清理撤销材料，不删除笔记。”。\n第五行和第六行并排两个独立窄屏内容区域，宽度比例390:320，无手机外壳、宽度数字或说明标签。每个都完整展开“整理撤销材料保留期限（高级）”，帮助“默认保留 30 天。更改只影响后续整理任务，不会缩短已有材料的保留期限或恢复已过期的撤销能力。未完成或需要核对的任务材料会继续保留。到期清理撤销材料，不删除笔记。”，字段“整理撤销材料保留天数”数字框值“30”，可用按钮“保存保留期限”，自然换行可达，没有加载、成功或错误提示。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S016.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-037",
+      "title": "读取失败/重试",
+      "renderer": "apps/web/components/OrganizationRetentionSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/OrganizationRetentionSettings.vue:9",
+        "apps/web/components/OrganizationRetentionSettings.vue:50",
+        "apps/server/knowledge/web-routes.ts:44"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存保留期限",
+          "guard": "已加载且非busy；客户端整数范围验证"
+        },
+        {
+          "label": "重新读取保留期限",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "读取失败/重试",
+          "variant": "读取失败/重试",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-037"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-037",
+      "title": "整数范围错误",
+      "renderer": "apps/web/components/OrganizationRetentionSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/OrganizationRetentionSettings.vue:9",
+        "apps/web/components/OrganizationRetentionSettings.vue:50",
+        "apps/server/knowledge/web-routes.ts:44"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存保留期限",
+          "guard": "已加载且非busy；客户端整数范围验证"
+        },
+        {
+          "label": "重新读取保留期限",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "整数范围错误",
+          "variant": "整数范围错误",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-037"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-037",
+      "title": "保存未确认需重新打开核对",
+      "renderer": "apps/web/components/OrganizationRetentionSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/OrganizationRetentionSettings.vue:9",
+        "apps/web/components/OrganizationRetentionSettings.vue:50",
+        "apps/server/knowledge/web-routes.ts:44"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存保留期限",
+          "guard": "已加载且非busy；客户端整数范围验证"
+        },
+        {
+          "label": "重新读取保留期限",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "保存未确认需重新打开核对",
+          "variant": "保存未确认需重新打开核对",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-037"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "ST-037",
+      "title": "不删除笔记/不缩短已有材料期限说明",
+      "renderer": "apps/web/components/OrganizationRetentionSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/OrganizationRetentionSettings.vue:9",
+        "apps/web/components/OrganizationRetentionSettings.vue:50",
+        "apps/server/knowledge/web-routes.ts:44"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存保留期限",
+          "guard": "已加载且非busy；客户端整数范围验证"
+        },
+        {
+          "label": "重新读取保留期限",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "不删除笔记/不缩短已有材料期限说明",
+          "variant": "不删除笔记/不缩短已有材料期限说明",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-037"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "ST-037",
+      "title": "完整紧凑组件 390px；全部登记字段/现有动作可达，长值换行、焦点与原guard保持",
+      "renderer": "apps/web/components/OrganizationRetentionSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/OrganizationRetentionSettings.vue:9",
+        "apps/web/components/OrganizationRetentionSettings.vue:50",
+        "apps/server/knowledge/web-routes.ts:44"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存保留期限",
+          "guard": "已加载且非busy；客户端整数范围验证"
+        },
+        {
+          "label": "重新读取保留期限",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。",
+      "coveredSourceIds": [
+        "ST-037"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "row": "r6",
+      "sourceId": "ST-037",
+      "title": "完整紧凑组件 320px；全部登记字段/现有动作可达，长值换行、焦点与原guard保持",
+      "renderer": "apps/web/components/OrganizationRetentionSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/OrganizationRetentionSettings.vue:9",
+        "apps/web/components/OrganizationRetentionSettings.vue:50",
+        "apps/server/knowledge/web-routes.ts:44"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存保留期限",
+          "guard": "已加载且非busy；客户端整数范围验证"
+        },
+        {
+          "label": "重新读取保留期限",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。",
+      "coveredSourceIds": [
+        "ST-037"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-037",
+      "parentId": "ST-034",
+      "route": "/?view=settings&section=backup",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/OrganizationRetentionSettings.vue:9",
+        "apps/web/components/OrganizationRetentionSettings.vue:50",
+        "apps/server/knowledge/web-routes.ts:44"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-037",
+      "title": "整理撤销材料保留期限",
+      "kind": "state",
+      "module": "settings/maintenance",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "异常写入恢复→高级保留期限details",
+        "parentId": "ST-034"
+      },
+      "sourceRefs": [
+        "apps/web/components/OrganizationRetentionSettings.vue:9",
+        "apps/web/components/OrganizationRetentionSettings.vue:50",
+        "apps/server/knowledge/web-routes.ts:44"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "整理撤销材料保留天数",
+          "type": "integer",
+          "required": true,
+          "constraints": "1–3650；默认30；只影响后续任务",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存保留期限",
+          "effect": "保存整日天数",
+          "api": "PUT /api/maintenance/organization-settings",
+          "guard": "已加载且非busy；客户端整数范围验证"
+        },
+        {
+          "label": "重新读取保留期限",
+          "effect": "重试加载",
+          "api": "GET /api/maintenance/organization-settings",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "按需加载",
+        "读取失败/重试",
+        "整数范围错误",
+        "保存未确认需重新打开核对",
+        "保存成功",
+        "不删除笔记/不缩短已有材料期限说明"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/organization-retention.spec.ts:4",
+        "tests/mcp-permission-settings.test.ts:28"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S016",
+  "roles": [
+    "owner-private"
+  ],
+  "selectedState": [
+    "r1 read failure before loaded",
+    "r2 invalid integer empty",
+    "r3 unconfirmed save",
+    "r4 retention safeguards",
+    "r5 complete compact390 target",
+    "r6 complete compact320 target"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内六个独立保留期限局部样例，竖排留白分隔，清楚字号。\n第一行：展开“整理撤销材料保留期限（高级）”，黄色提示“暂时无法读取保留期限，请重试。”，按钮“重新读取保留期限”可用，没有天数字段。\n第二行：黄色提示“请填写 1 至 3650 之间的整数天数。”，数字字段“整理撤销材料保留天数”值为空，按钮“保存保留期限”可用。\n第三行：黄色提示“未能确认保存结果，请重新打开设置核对后再重试。”，数字字段“整理撤销材料保留天数”值“30”，“保存保留期限”按钮可用。\n第四行：普通帮助段落“默认保留 30 天。更改只影响后续整理任务，不会缩短已有材料的保留期限或恢复已过期的撤销能力。未完成或需要核对的任务材料会继续保留。到期清理撤销材料，不删除笔记。”。\n第五行和第六行并排两个独立窄屏内容区域，宽度比例390:320，无手机外壳、宽度数字或说明标签。每个都完整展开“整理撤销材料保留期限（高级）”，帮助“默认保留 30 天。更改只影响后续整理任务，不会缩短已有材料的保留期限或恢复已过期的撤销能力。未完成或需要核对的任务材料会继续保留。到期清理撤销材料，不删除笔记。”，字段“整理撤销材料保留天数”数字框值“30”，可用按钮“保存保留期限”，自然换行可达，没有加载、成功或错误提示。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S016 Component state matrix: owner-private / OrganizationRetentionSettings.vue\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | ST-037 | 真实组件局部状态矩阵 | role=owner-private | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n局部矩阵（≤7行/卡）：\nr1 | ST-037 | 实际只画代表：读取失败/重试 | 已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。 | renderer=apps/web/components/OrganizationRetentionSettings.vue\nr2 | ST-037 | 实际只画代表：整数范围错误 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/OrganizationRetentionSettings.vue\nr3 | ST-037 | 实际只画代表：保存未确认需重新打开核对 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/OrganizationRetentionSettings.vue\nr4 | ST-037 | 实际只画代表：不删除笔记/不缩短已有材料期限说明 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/OrganizationRetentionSettings.vue\nr5 | ST-037 | 实际只画代表：完整紧凑组件 390px；全部登记字段/现有动作可达，长值换行、焦点与原guard保持 | 完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。 | renderer=apps/web/components/OrganizationRetentionSettings.vue | viewport=390px\nr6 | ST-037 | 实际只画代表：完整紧凑组件 320px；全部登记字段/现有动作可达，长值换行、焦点与原guard保持 | 完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。 | renderer=apps/web/components/OrganizationRetentionSettings.vue | viewport=320px\n\n精确功能/字段/动作guard合同：\nST-037权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-037字段顺序：整理撤销材料保留天数 [integer; 必填]: 1–3650；默认30；只影响后续任务\nST-037白名单：保存保留期限 => 保存整日天数；guard=已加载且非busy；客户端整数范围验证；接口约束=PUT /api/maintenance/organization-settings\nST-037白名单：重新读取保留期限 => 重试加载；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/maintenance/organization-settings\n\n响应式合同：\n1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-backup.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "97d08b85c99d01fa5a1193bd951f58708e31f29566db456b5076ce8f799cc4d0",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 129321
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S016.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-7e18fe0c-b380-4eb6-bcf5-99f509e371b4.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-7e18fe0c-b380-4eb6-bcf5-99f509e371b4.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T04:10:55.853Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Independent exact-source compact specimens inspected; action guards and visible readonly/error content preserved.",
+    "concerns": []
+  },
+  "sha256": "e20aac1b4b474a83dd16234d07d9a60c91584ced37c562fdc4e2c6db1f8e11d9",
+  "dimensions": {
+    "width": 1312,
+    "height": 1199
+  },
+  "bytes": 1586285,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/OrganizationRetentionSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "8ab7bb0dd86c6068162b3a7b08a8b680c63e383bef8031d89c5d94965b865fc4"
+    },
+    {
+      "path": "apps/web/components/OrganizationRetentionSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "8ab7bb0dd86c6068162b3a7b08a8b680c63e383bef8031d89c5d94965b865fc4"
+    },
+    {
+      "path": "apps/server/knowledge/web-routes.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "c79f2fe3f0efdafae64d37e69f1e64665cf35896158783771481846d1c2810a9"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived local state specimens; no actual mutation/network/error/viewport runtime tested. Compact widths are design targets, not screenshots."
+}

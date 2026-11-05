@@ -1,0 +1,549 @@
+{
+  "id": "WS-VR006",
+  "title": "Excalidraw mobile Edit property-sheet family at390/320",
+  "kind": "generated-design",
+  "sourceIds": [
+    "RTD-014",
+    "RTD-017",
+    "RTD-020"
+  ],
+  "panels": [
+    {
+      "label": "phone-390",
+      "sourceId": "RTD-014",
+      "title": "Rectangle shape properties; mobile Edit sheet",
+      "role": "authenticated owner",
+      "state": "Actual Edit trigger and full rectangle property sheet at390; all groups/slider/layers scroll inside bounded sheet.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reuseSourceIds": [
+        "RTD-017",
+        "RTD-020"
+      ]
+    },
+    {
+      "label": "phone-320",
+      "sourceId": "RTD-014",
+      "title": "Rectangle shape properties; mobile Edit sheet",
+      "role": "authenticated owner",
+      "state": "Same Edit property sheet at320; close through real Edit control remains reachable. Arrow/text conditional groups are exact metadata substitutions shown separately in WS-V008.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "reuseSourceIds": [
+        "RTD-017",
+        "RTD-020"
+      ]
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-mobile-shape-properties-sheet.png",
+      "role": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion."
+    },
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305, node_modules/@excalidraw/excalidraw/dist/dev/index.js:15454"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-arrow-properties-panel.png",
+      "role": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion."
+    },
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305, node_modules/@excalidraw/excalidraw/dist/dev/index.js:5460"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-text-properties-panel.png",
+      "role": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion."
+    },
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305, node_modules/@excalidraw/excalidraw/dist/dev/index.js:5017"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+    "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-VR006",
+      "representation": "direct",
+      "reason": "Actual mobile SelectedShapeActions Edit sheet at390/320, exact conditional group order and Edit trigger/close. Rectangle/arrow/text differ visibly and are explicitly rendered separately in V008.",
+      "reuseSourceId": "RTD-014",
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "sourceConstraint": "Rectangle selected without drawing. At 390 properties require bottom Edit trigger; the sheet overlays tool targets until Edit closes it. Property option radio controls have no accessible names in the actual tree.",
+      "requiredVisibleLabels": [
+        "选定形状操作",
+        "描边",
+        "背景",
+        "描边宽度",
+        "边框样式",
+        "线条风格",
+        "边角",
+        "透明度 100 0",
+        "图层",
+        "编辑"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "role": "authenticated owner",
+      "scrollContract": "Keep actual vendor panel scroll/viewport anchor and real close/Edit trigger reachable. Do not introduce native OS/browser windows.",
+      "focusContract": "Retain actual vendor focus/keyboard limitations; advertised unobserved command palette and absent mobile statistics are not invented.",
+      "sourceId": "RTD-014"
+    },
+    {
+      "assetId": "WS-VR006",
+      "representation": "shared-geometry",
+      "reason": "Actual mobile SelectedShapeActions Edit sheet at390/320, exact conditional group order and Edit trigger/close. Rectangle/arrow/text differ visibly and are explicitly rendered separately in V008.",
+      "reuseSourceId": "RTD-014",
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "sourceConstraint": "Arrow selected without drawing; same mobile Edit sheet pattern.",
+      "requiredVisibleLabels": [
+        "Arrow type",
+        "端点",
+        "arrowhead_start",
+        "arrowhead_end"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "role": "authenticated owner",
+      "scrollContract": "Keep actual vendor panel scroll/viewport anchor and real close/Edit trigger reachable. Do not introduce native OS/browser windows.",
+      "focusContract": "Retain actual vendor focus/keyboard limitations; advertised unobserved command palette and absent mobile statistics are not invented.",
+      "sourceId": "RTD-017"
+    },
+    {
+      "assetId": "WS-VR006",
+      "representation": "shared-geometry",
+      "reason": "Actual mobile SelectedShapeActions Edit sheet at390/320, exact conditional group order and Edit trigger/close. Rectangle/arrow/text differ visibly and are explicitly rendered separately in V008.",
+      "reuseSourceId": "RTD-014",
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "sourceConstraint": "Text tool selected without creating text; same mobile Edit sheet pattern.",
+      "requiredVisibleLabels": [
+        "字体",
+        "Hand-drawn",
+        "Normal",
+        "Code",
+        "Show font picker",
+        "字体大小",
+        "文本对齐"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "role": "authenticated owner",
+      "scrollContract": "Keep actual vendor panel scroll/viewport anchor and real close/Edit trigger reachable. Do not introduce native OS/browser windows.",
+      "focusContract": "Retain actual vendor focus/keyboard limitations; advertised unobserved command palette and absent mobile statistics are not invented.",
+      "sourceId": "RTD-020"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. Create one new high-fidelity flat UI comparison board showing the existing Excalidraw mobile \"编辑\" property sheet inside DooKnow. Image1 is authoritative mobile property controls; image2 is style ONLY and must not contribute its desktop navigation. Two independent narrow local viewport specimens, A width390 and B width320, height844 each, side by side on neutral white outside whitespace. The whiteboard itself is empty, with rectangle TOOL selected but no drawn or selected object. Focus on the actual bounded bottom property sheet and existing bottom toolbar, not a full notebook/header shell. Each sheet is a white, fine-bordered8px-corner surface, internally scrollable if needed, with footer remaining reachable; use normal readable14px-equivalent type, not miniature all-page text. Display these groups in exact order: 描边 (five palette swatches dark/red/green/blue/orange plus current-color picker); 背景 (transparent checkerboard/pale red/pale green/pale blue/pale yellow plus picker); 描边宽度 (three line radios, middle checked); 边框样式 (solid/dashed/dotted radios, solid checked); 线条风格 (three roughness radios, middle checked); 边角 (sharp/round radios, round checked); 透明度 (slider current100 at right end, 0 left and100 right); 图层 (four existing icon buttons in order send-to-back, send-backward, bring-forward, bring-to-front). No fill-style group because background is transparent. Preserve source-group spacing and normal tap targets. Below the scrollable body keep the genuine bottom toolbar: left main-menu icon, active palette-shaped 编辑 toggle which also closes this sheet, disabled undo and redo icons at right. No additional X, Done/Save/Cancel, drag-handle or custom action footer; \"选定形状操作\" is an accessibility region name, not an added visible title. Do not draw text-specific or arrow-specific fields in this RECTANGLE specimen, no selected-element actions/duplicate/delete/link/crop/group, no font/arrowhead popup. Those conditional groups remain separate component variants. No invented shapes or user data. Use #ffffff paper, #f7f8fa soft controls, #272b3a text, #657084 secondary, #e6e9f1 border, #4566c6 active controls and #edf1ff selection tint. Preserve varied color palette swatches as actual drawing controls. Keep all content and Edit control inside narrow width; if body needs scroll show the real internal overflow boundary, never crop the footer or shrink every field. No gradients/textures/3D/device/browser chrome/developer notes.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-VR006.png",
+  "reviewStatus": "pending-independent-review",
+  "geometryFamily": "Excalidraw mobile SelectedShapeActions Edit sheet",
+  "sourceContracts": [
+    {
+      "id": "RTD-014",
+      "runtimeKey": "vendor-shape-properties-panel",
+      "title": "Rectangle shape properties; mobile Edit sheet",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "选定形状操作",
+        "描边",
+        "背景",
+        "描边宽度",
+        "边框样式",
+        "线条风格",
+        "边角",
+        "透明度 100 0",
+        "图层",
+        "编辑"
+      ],
+      "roleEvidence": {
+        "region:选定形状操作": 1,
+        "group:描边宽度": 1,
+        "group:边框样式": 1,
+        "group:线条风格": 1,
+        "group:边角": 1,
+        "slider:透明度 100 0": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:15454"
+      ],
+      "evidence": [
+        "1440-vendor-shape-properties-panel.json",
+        "390-vendor-mobile-shape-properties-sheet.json",
+        "390-vendor-shape-properties-panel.json"
+      ],
+      "constraints": "Rectangle selected without drawing. At 390 properties require bottom Edit trigger; the sheet overlays tool targets until Edit closes it. Property option radio controls have no accessible names in the actual tree."
+    },
+    {
+      "id": "RTD-017",
+      "runtimeKey": "vendor-arrow-properties-panel",
+      "title": "Arrow tool properties",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "Arrow type",
+        "端点",
+        "arrowhead_start",
+        "arrowhead_end"
+      ],
+      "roleEvidence": {
+        "group:Arrow type": 1,
+        "group:端点": 1,
+        "button:arrowhead_start": 1,
+        "button:arrowhead_end": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5460"
+      ],
+      "evidence": [
+        "1440-vendor-arrow-properties-panel.json",
+        "390-vendor-arrow-properties-panel.json"
+      ],
+      "constraints": "Arrow selected without drawing; same mobile Edit sheet pattern."
+    },
+    {
+      "id": "RTD-020",
+      "runtimeKey": "vendor-text-properties-panel",
+      "title": "Text tool properties",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "字体",
+        "Hand-drawn",
+        "Normal",
+        "Code",
+        "Show font picker",
+        "字体大小",
+        "文本对齐"
+      ],
+      "roleEvidence": {
+        "group:字体": 1,
+        "group:字体大小": 1,
+        "group:文本对齐": 1,
+        "button:Show font picker": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5017"
+      ],
+      "evidence": [
+        "1440-vendor-text-properties-panel.json",
+        "390-vendor-text-properties-panel.json"
+      ],
+      "constraints": "Text tool selected without creating text; same mobile Edit sheet pattern."
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "RTD-014",
+      "parentIds": [
+        "WS-068"
+      ],
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Excalidraw child UI inside the actual owner whiteboard; no private page/navigation controls invented."
+    },
+    {
+      "sourceId": "RTD-017",
+      "parentIds": [
+        "WS-068"
+      ],
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Excalidraw child UI inside the actual owner whiteboard; no private page/navigation controls invented."
+    },
+    {
+      "sourceId": "RTD-020",
+      "parentIds": [
+        "WS-068"
+      ],
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Excalidraw child UI inside the actual owner whiteboard; no private page/navigation controls invented."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "stateCoverageRefs": [],
+  "statePatternRefs": [
+    {
+      "sourceId": "RTD-014",
+      "assetId": "WS-V008",
+      "representation": "nonvisual-data-rule"
+    },
+    {
+      "sourceId": "RTD-017",
+      "assetId": "WS-V008",
+      "representation": "nonvisual-data-rule"
+    },
+    {
+      "sourceId": "RTD-020",
+      "assetId": "WS-V008",
+      "representation": "nonvisual-data-rule"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-VR006",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "Use case: ui-mockup. Create one new high-fidelity flat UI comparison board showing the existing Excalidraw mobile \"编辑\" property sheet inside DooKnow. Image1 is authoritative mobile property controls; image2 is style ONLY and must not contribute its desktop navigation. Two independent narrow local viewport specimens, A width390 and B width320, height844 each, side by side on neutral white outside whitespace. The whiteboard itself is empty, with rectangle TOOL selected but no drawn or selected object. Focus on the actual bounded bottom property sheet and existing bottom toolbar, not a full notebook/header shell. Each sheet is a white, fine-bordered8px-corner surface, internally scrollable if needed, with footer remaining reachable; use normal readable14px-equivalent type, not miniature all-page text. Display these groups in exact order: 描边 (five palette swatches dark/red/green/blue/orange plus current-color picker); 背景 (transparent checkerboard/pale red/pale green/pale blue/pale yellow plus picker); 描边宽度 (three line radios, middle checked); 边框样式 (solid/dashed/dotted radios, solid checked); 线条风格 (three roughness radios, middle checked); 边角 (sharp/round radios, round checked); 透明度 (slider current100 at right end, 0 left and100 right); 图层 (four existing icon buttons in order send-to-back, send-backward, bring-forward, bring-to-front). No fill-style group because background is transparent. Preserve source-group spacing and normal tap targets. Below the scrollable body keep the genuine bottom toolbar: left main-menu icon, active palette-shaped 编辑 toggle which also closes this sheet, disabled undo and redo icons at right. No additional X, Done/Save/Cancel, drag-handle or custom action footer; \"选定形状操作\" is an accessibility region name, not an added visible title. Do not draw text-specific or arrow-specific fields in this RECTANGLE specimen, no selected-element actions/duplicate/delete/link/crop/group, no font/arrowhead popup. Those conditional groups remain separate component variants. No invented shapes or user data. Use #ffffff paper, #f7f8fa soft controls, #272b3a text, #657084 secondary, #e6e9f1 border, #4566c6 active controls and #edf1ff selection tint. Preserve varied color palette swatches as actual drawing controls. Keep all content and Edit control inside narrow width; if body needs scroll show the real internal overflow boundary, never crop the footer or shrink every field. No gradients/textures/3D/device/browser chrome/developer notes.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-VR006 Excalidraw mobile Edit property-sheet family at390/320\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"phone-390\", \"sourceId\": \"RTD-014\", \"title\": \"Rectangle shape properties; mobile Edit sheet\", \"role\": \"authenticated owner\", \"state\": \"Actual Edit trigger and full rectangle property sheet at390; all groups/slider/layers scroll inside bounded sheet.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"reuseSourceIds\": [\"RTD-017\", \"RTD-020\"]}, {\"label\": \"phone-320\", \"sourceId\": \"RTD-014\", \"title\": \"Rectangle shape properties; mobile Edit sheet\", \"role\": \"authenticated owner\", \"state\": \"Same Edit property sheet at320; close through real Edit control remains reachable. Arrow/text conditional groups are exact metadata substitutions shown separately in WS-V008.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"reuseSourceIds\": [\"RTD-017\", \"RTD-020\"]}]\nVISIBLE CONTRACTS [{\"panel\": \"phone-390\", \"sourceId\": \"RTD-014\", \"visibleLabels\": [\"选定形状操作\", \"描边\", \"背景\", \"描边宽度\", \"边框样式\", \"线条风格\", \"边角\", \"透明度 100 0\", \"图层\", \"编辑\"], \"constraints\": \"Rectangle selected without drawing. At 390 properties require bottom Edit trigger; the sheet overlays tool targets until Edit closes it. Property option radio controls have no accessible names in the actual tree.\"}, {\"panel\": \"phone-320\", \"sourceId\": \"RTD-014\", \"visibleLabels\": [\"选定形状操作\", \"描边\", \"背景\", \"描边宽度\", \"边框样式\", \"线条风格\", \"边角\", \"透明度 100 0\", \"图层\", \"编辑\"], \"constraints\": \"Rectangle selected without drawing. At 390 properties require bottom Edit trigger; the sheet overlays tool targets until Edit closes it. Property option radio controls have no accessible names in the actual tree.\"}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "actualToolArguments": {
+    "prompt": "Use case: ui-mockup. Create one new high-fidelity flat UI comparison board showing the existing Excalidraw mobile \"编辑\" property sheet inside DooKnow. Image1 is authoritative mobile property controls; image2 is style ONLY and must not contribute its desktop navigation. Two independent narrow local viewport specimens, A width390 and B width320, height844 each, side by side on neutral white outside whitespace. The whiteboard itself is empty, with rectangle TOOL selected but no drawn or selected object. Focus on the actual bounded bottom property sheet and existing bottom toolbar, not a full notebook/header shell. Each sheet is a white, fine-bordered8px-corner surface, internally scrollable if needed, with footer remaining reachable; use normal readable14px-equivalent type, not miniature all-page text. Display these groups in exact order: 描边 (five palette swatches dark/red/green/blue/orange plus current-color picker); 背景 (transparent checkerboard/pale red/pale green/pale blue/pale yellow plus picker); 描边宽度 (three line radios, middle checked); 边框样式 (solid/dashed/dotted radios, solid checked); 线条风格 (three roughness radios, middle checked); 边角 (sharp/round radios, round checked); 透明度 (slider current100 at right end, 0 left and100 right); 图层 (four existing icon buttons in order send-to-back, send-backward, bring-forward, bring-to-front). No fill-style group because background is transparent. Preserve source-group spacing and normal tap targets. Below the scrollable body keep the genuine bottom toolbar: left main-menu icon, active palette-shaped 编辑 toggle which also closes this sheet, disabled undo and redo icons at right. No additional X, Done/Save/Cancel, drag-handle or custom action footer; \"选定形状操作\" is an accessibility region name, not an added visible title. Do not draw text-specific or arrow-specific fields in this RECTANGLE specimen, no selected-element actions/duplicate/delete/link/crop/group, no font/arrowhead popup. Those conditional groups remain separate component variants. No invented shapes or user data. Use #ffffff paper, #f7f8fa soft controls, #272b3a text, #657084 secondary, #e6e9f1 border, #4566c6 active controls and #edf1ff selection tint. Preserve varied color palette swatches as actual drawing controls. Keep all content and Edit control inside narrow width; if body needs scroll show the real internal overflow boundary, never crop the footer or shrink every field. No gradients/textures/3D/device/browser chrome/developer notes.",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-mobile-shape-properties-sheet.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-mobile-shape-properties-sheet.png",
+      "role": "Authoritative actual mobile renderer and visible state; no runtime redesign acceptance implied",
+      "sha256": "9210597e44d965b5d56cd3fe7d428d653d58cc402b69a3e6ba12e5903f7a1fa3",
+      "bytes": 38460,
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved palette/hierarchy only, no notebook fields or owner rail transfer",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-mobile-shape-properties-sheet.png",
+      "role": "Authoritative actual mobile renderer and visible state; no runtime redesign acceptance implied",
+      "sha256": "9210597e44d965b5d56cd3fe7d428d653d58cc402b69a3e6ba12e5903f7a1fa3",
+      "bytes": 38460,
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved palette/hierarchy only, no notebook fields or owner rail transfer",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-mobile-shape-properties-sheet.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "sourceInspection": [
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "Current installed vendor source inspected as behavioral authority",
+      "sha256": "e10e24df153077770849c7d68f9a8f5db3bb1eb1576d909d1e3c9a5b024d1882",
+      "bytes": 1147428
+    }
+  ],
+  "generationCallCount": 1,
+  "generationAttempts": [
+    {
+      "id": "WS-VR006",
+      "submittedPrompt": "Use case: ui-mockup. Create one new high-fidelity flat UI comparison board showing the existing Excalidraw mobile \"编辑\" property sheet inside DooKnow. Image1 is authoritative mobile property controls; image2 is style ONLY and must not contribute its desktop navigation. Two independent narrow local viewport specimens, A width390 and B width320, height844 each, side by side on neutral white outside whitespace. The whiteboard itself is empty, with rectangle TOOL selected but no drawn or selected object. Focus on the actual bounded bottom property sheet and existing bottom toolbar, not a full notebook/header shell. Each sheet is a white, fine-bordered8px-corner surface, internally scrollable if needed, with footer remaining reachable; use normal readable14px-equivalent type, not miniature all-page text. Display these groups in exact order: 描边 (five palette swatches dark/red/green/blue/orange plus current-color picker); 背景 (transparent checkerboard/pale red/pale green/pale blue/pale yellow plus picker); 描边宽度 (three line radios, middle checked); 边框样式 (solid/dashed/dotted radios, solid checked); 线条风格 (three roughness radios, middle checked); 边角 (sharp/round radios, round checked); 透明度 (slider current100 at right end, 0 left and100 right); 图层 (four existing icon buttons in order send-to-back, send-backward, bring-forward, bring-to-front). No fill-style group because background is transparent. Preserve source-group spacing and normal tap targets. Below the scrollable body keep the genuine bottom toolbar: left main-menu icon, active palette-shaped 编辑 toggle which also closes this sheet, disabled undo and redo icons at right. No additional X, Done/Save/Cancel, drag-handle or custom action footer; \"选定形状操作\" is an accessibility region name, not an added visible title. Do not draw text-specific or arrow-specific fields in this RECTANGLE specimen, no selected-element actions/duplicate/delete/link/crop/group, no font/arrowhead popup. Those conditional groups remain separate component variants. No invented shapes or user data. Use #ffffff paper, #f7f8fa soft controls, #272b3a text, #657084 secondary, #e6e9f1 border, #4566c6 active controls and #edf1ff selection tint. Preserve varied color palette swatches as actual drawing controls. Keep all content and Edit control inside narrow width; if body needs scroll show the real internal overflow boundary, never crop the footer or shrink every field. No gradients/textures/3D/device/browser chrome/developer notes.",
+      "actualImageInputOrder": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-mobile-shape-properties-sheet.png",
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-ebf2b271-7962-4ece-bd16-b7098fe96f65.png",
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2 as /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-ebf2b271-7962-4ece-bd16-b7098fe96f65.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "startedAtUtc": "2026-11-05T08:15:34.316Z",
+      "completedAtUtc": "2026-11-05T08:16:35.880Z"
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-ebf2b271-7962-4ece-bd16-b7098fe96f65.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2 as /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-ebf2b271-7962-4ece-bd16-b7098fe96f65.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generatedAtUtc": "2026-11-05T08:16:35.880Z",
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-VR006.png",
+  "postprocessing": "Raw PNG bytes copied unchanged; no pixel editing or raster overlays",
+  "pendingReview": true,
+  "selfInspection": {
+    "method": "Actual native generated image visually inspected in root tool output against viewed actual mobile baseline and installed vendor source",
+    "status": "source/content self-check passed; independent SHA review pending",
+    "checks": [
+      "Rectangle tool only and empty canvas, transparent fill, all eight actual ordered property groups",
+      "Three stroke width/style/roughness choices, two corner choices; opacity100 and four existing layer controls",
+      "Actual bottom menu/Edit/disabled undo-redo, without new save/close action",
+      "Arrow/text conditional content remains separately reviewed V008 family; not claimed simultaneously in rectangle sheet"
+    ],
+    "limitations": [
+      "Raster dimensions and scale are illustrative, not measured CSS viewport widths",
+      "Static design does not verify scrolling, focus, keyboard, touch, clipboard, actions or permission enforcement"
+    ]
+  },
+  "sha256": "3f967f3f306b0ce15c0d28456de79f71069a9a103eeea943f42138ad1d7706c9",
+  "bytes": 1106787,
+  "dimensions": {
+    "width": 1263,
+    "height": 1246
+  },
+  "actualPanelModeBindings": [
+    {
+      "panel": "phone-390",
+      "sourceId": "RTD-014",
+      "mode": "rectangle tool, no elements, transparent fill",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "panel": "phone-320",
+      "sourceId": "RTD-014",
+      "mode": "rectangle tool, no elements, transparent fill",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      }
+    }
+  ],
+  "conditionalVariantBindings": [
+    {
+      "sourceId": "RTD-017",
+      "mode": "arrow",
+      "specificGroups": {
+        "assetId": "WS-V008",
+        "panel": "arrow",
+        "file": "design/images/WS-V008-v2.png",
+        "sha256": "4b7fabafa7b698ba3a7eaab1c3ecd5a0a75f02642fa2026392de9c94535de010",
+        "review": "design/reviews/WS-V008-v2-review.json"
+      },
+      "mobileGeometry": {
+        "assetId": "WS-VR006",
+        "panels": [
+          "phone-390",
+          "phone-320"
+        ],
+        "component": "SelectedShapeActions inside MobileMenu App-mobile-menu, toggled by actual Edit action"
+      },
+      "literalPhoneArrowPanelDrawnHere": false
+    },
+    {
+      "sourceId": "RTD-020",
+      "mode": "text",
+      "specificGroups": {
+        "assetId": "WS-V008",
+        "panel": "text",
+        "file": "design/images/WS-V008-v2.png",
+        "sha256": "4b7fabafa7b698ba3a7eaab1c3ecd5a0a75f02642fa2026392de9c94535de010",
+        "review": "design/reviews/WS-V008-v2-review.json"
+      },
+      "mobileGeometry": {
+        "assetId": "WS-VR006",
+        "panels": [
+          "phone-390",
+          "phone-320"
+        ],
+        "component": "SelectedShapeActions inside MobileMenu App-mobile-menu, toggled by actual Edit action"
+      },
+      "literalPhoneTextPanelDrawnHere": false
+    }
+  ],
+  "mappingClarification": "Rectangle panels draw only their true fields. Arrow and text retain their exact separate source groups from WS-V008-v2 and the shared mobile Edit body/footer; no simultaneous field union or runtime fit/behavior acceptance is claimed. All phone variants remain required in actual runtime verification."
+}

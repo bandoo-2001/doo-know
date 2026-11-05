@@ -1,0 +1,390 @@
+{
+  "id": "MP-R052",
+  "title": "Responsive family: OAuthConsent.vue legacy scopes/directory form",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-019"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-019",
+      "title": "OAuth 连接授权：兼容目录与操作列表390px",
+      "role": "authenticated owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-019",
+      "title": "OAuth 连接授权：兼容目录与操作列表320px",
+      "role": "authenticated owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-019",
+      "title": "OAuth 连接授权：兼容目录与操作列表320px guard",
+      "role": "authenticated owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "viewportIntent": "390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/public/390-oauth-consent.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-019",
+      "route": "/oauth/consent?oauth_query=…",
+      "trigger": "Valid request has no allowedPolicy",
+      "parentId": "PB-018",
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session and ready, completed onboarding required. Signed client request and server policy ceiling remain authoritative."
+      ],
+      "fields": [
+        {
+          "name": "scopes",
+          "type": "checkbox group",
+          "required": true,
+          "constraints": "must include resource scope; allowedScopes subset",
+          "sensitive": false
+        },
+        {
+          "name": "allowedPrefixes",
+          "type": "checkbox group",
+          "required": false,
+          "constraints": "required when selected knowledge scope or blog:publish; subset of allowed prefixes",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "legacy scope checkboxes",
+        "directory choices shown for knowledge scope or blog publish",
+        "read/offline defaults only when allowed",
+        "scope dependencies and empty resources disable allow"
+      ],
+      "notes": [
+        "Keep compatibility mode distinct from v2 policy UI; do not silently merge their authorization rules."
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "独立OAuth兼容授权完整表单：scopes、allowedPrefixes、依赖关系及资源scope必需，禁止超allowedScopes/prefixes。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "已登录主人审阅的独立OAuth授权壳，无其私人笔记侧栏或数据；请求客户端身份不等于可信认证。"
+    },
+    {
+      "type": "responsive-family-reuse",
+      "renderer": "OAuthConsent.vue legacy scopes/directory form",
+      "allSourceIds": [
+        "PB-019"
+      ],
+      "rule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-019",
+      "label": "允许访问",
+      "effect": "Grant legacy scoped directory access",
+      "api": "POST /api/platform/mcp/oauth/consent",
+      "guard": "ToDoo write=>read; blog publish=>knowledge read+write; required directories selected"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-019",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "Max 640px; <=600px reduces padding, wraps scope text and gives actions equal flexible widths (OAuthConsent.vue:339). Runtime unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI设计图，白/浅灰平面、深色文字、细边线、蓝色主动作、小圆角、紧凑清楚字号。只显示指定真实UI文案，不写组件名、审查术语或额外说明。三个独立并排窄屏面板，外部仅A/B/C；A按390宽、B和C按320宽的相同比例，窄屏自然换行、页面可纵向延长，不缩成缩略图；不画手机壳或宽度数字。\n每个面板独立完整授权页：上方书图标“DooKnow”，主卡标题“连接 DooKnow”；锁图标客户端身份块，小字“连接请求来自”，名称“隔离界面盘点客户端”；说明“请选择此连接允许的业务能力与资源范围。”。字段组“允许的操作”，只有一个已勾选的复选框“读取所选目录中的资料”。字段组“允许的资料目录”，每行文件夹图标和一个复选框，九行按顺序：README.md、00-Inbox、10-Projects、20-Areas、30-Knowledge、40-Resources、50-Journal、90-Archive、99-System。锁图标帮助“未选择的业务能力和资源不会开放。可随时在 MCP 设置中收窄或撤销连接。”；页脚“拒绝”和“允许访问”；卡片外页尾“仅在你确认后，连接才能访问所选资料。”。\nA/B九个目录复选框全部勾选，所有复选框可用，拒绝与蓝色允许访问可用。C目录九项全部未勾选，读取资料复选框仍勾选、所有复选框仍可用；拒绝可用，允许访问灰色禁用，无加载。不要添加域开关/预设/多选tag/保持连接选项、To Doo、权限全选、额外错误提示、登录栏或私人导航。目录是行内checkbox列表，完整全部九行与底部按钮都要可读可达。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R052.png",
+  "reviewStatus": "pending-independent-review",
+  "responsiveFamily": {
+    "id": "MP-RF052",
+    "actualComponent": "OAuthConsent.vue legacy scopes/directory form",
+    "sourceIds": [
+      "PB-019"
+    ],
+    "roleBoundary": "owner-oauth",
+    "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-019",
+      "parentId": "PB-018",
+      "route": "/oauth/consent?oauth_query=…",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:25",
+        "apps/web/components/OAuthConsent.vue:44",
+        "apps/web/components/OAuthConsent.vue:96",
+        "apps/server/platform/oauth.ts:89"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-019",
+      "title": "OAuth 连接授权：兼容目录与操作列表",
+      "kind": "state",
+      "module": "oauth",
+      "entry": {
+        "route": "/oauth/consent?oauth_query=…",
+        "trigger": "Valid request has no allowedPolicy",
+        "parentId": "PB-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:25",
+        "apps/web/components/OAuthConsent.vue:44",
+        "apps/web/components/OAuthConsent.vue:96",
+        "apps/server/platform/oauth.ts:89"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session and ready, completed onboarding required. Signed client request and server policy ceiling remain authoritative."
+      ],
+      "fields": [
+        {
+          "name": "scopes",
+          "type": "checkbox group",
+          "required": true,
+          "constraints": "must include resource scope; allowedScopes subset",
+          "sensitive": false
+        },
+        {
+          "name": "allowedPrefixes",
+          "type": "checkbox group",
+          "required": false,
+          "constraints": "required when selected knowledge scope or blog:publish; subset of allowed prefixes",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "允许访问",
+          "effect": "Grant legacy scoped directory access",
+          "api": "POST /api/platform/mcp/oauth/consent",
+          "guard": "ToDoo write=>read; blog publish=>knowledge read+write; required directories selected"
+        }
+      ],
+      "importantStates": [
+        "legacy scope checkboxes",
+        "directory choices shown for knowledge scope or blog publish",
+        "read/offline defaults only when allowed",
+        "scope dependencies and empty resources disable allow"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Max 640px; <=600px reduces padding, wraps scope text and gives actions equal flexible widths (OAuthConsent.vue:339). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/oauth.spec.ts:4"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Keep compatibility mode distinct from v2 policy UI; do not silently merge their authorization rules."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-R052",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "legacy valid request; no allowedPolicy; allowedScopes only knowledge:read; all nine supplied baseline prefixes selected",
+    "same target320",
+    "same legacy request/read selected but prefixes empty; canAccept false; not busy"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI设计图，白/浅灰平面、深色文字、细边线、蓝色主动作、小圆角、紧凑清楚字号。只显示指定真实UI文案，不写组件名、审查术语或额外说明。三个独立并排窄屏面板，外部仅A/B/C；A按390宽、B和C按320宽的相同比例，窄屏自然换行、页面可纵向延长，不缩成缩略图；不画手机壳或宽度数字。\n每个面板独立完整授权页：上方书图标“DooKnow”，主卡标题“连接 DooKnow”；锁图标客户端身份块，小字“连接请求来自”，名称“隔离界面盘点客户端”；说明“请选择此连接允许的业务能力与资源范围。”。字段组“允许的操作”，只有一个已勾选的复选框“读取所选目录中的资料”。字段组“允许的资料目录”，每行文件夹图标和一个复选框，九行按顺序：README.md、00-Inbox、10-Projects、20-Areas、30-Knowledge、40-Resources、50-Journal、90-Archive、99-System。锁图标帮助“未选择的业务能力和资源不会开放。可随时在 MCP 设置中收窄或撤销连接。”；页脚“拒绝”和“允许访问”；卡片外页尾“仅在你确认后，连接才能访问所选资料。”。\nA/B九个目录复选框全部勾选，所有复选框可用，拒绝与蓝色允许访问可用。C目录九项全部未勾选，读取资料复选框仍勾选、所有复选框仍可用；拒绝可用，允许访问灰色禁用，无加载。不要添加域开关/预设/多选tag/保持连接选项、To Doo、权限全选、额外错误提示、登录栏或私人导航。目录是行内checkbox列表，完整全部九行与底部按钮都要可读可达。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-R052 Responsive family: OAuthConsent.vue legacy scopes/directory form\n\n390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。\n\n角色壳：已登录主人审阅的独立OAuth授权壳，无其私人笔记侧栏或数据；请求客户端身份不等于可信认证。\n\n独立场景：\nA | PB-019 | OAuth 连接授权：兼容目录与操作列表390px | role=authenticated owner | 390px完整可读代表：字段按登记顺序，动作保持源guard\nB | PB-019 | OAuth 连接授权：兼容目录与操作列表320px | role=authenticated owner | 320px字段/长值/内层滚动与操作可达\nC | PB-019 | OAuth 连接授权：兼容目录与操作列表320px guard | role=authenticated owner | 同源关键禁用/错误/长标签状态，使用已有组件且保留输入\n\n完整构图：\n独立OAuth兼容授权完整表单：scopes、allowedPrefixes、依赖关系及资源scope必需，禁止超allowedScopes/prefixes。\n\n精确功能/字段/动作guard合同：\nPB-019权限：Owner session and ready, completed onboarding required. Signed client request and server policy ceiling remain authoritative.\nPB-019字段顺序：scopes [checkbox group; 必填]: must include resource scope; allowedScopes subset | allowedPrefixes [checkbox group; 可选]: required when selected knowledge scope or blog:publish; subset of allowed prefixes\nPB-019白名单：允许访问 => Grant legacy scoped directory access；guard=ToDoo write=>read; blog publish=>knowledge read+write; required directories selected；接口约束=POST /api/platform/mcp/oauth/consent\n\n响应式合同：\nMax 640px; <=600px reduces padding, wraps scope text and gives actions equal flexible widths (OAuthConsent.vue:339). Runtime unverified.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/public/390-oauth-consent.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "728c3aeae54f202172c642aa4075681d69630c5fb4023e7b22b9c1cd05f927ae",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "bytes": 46913
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-oauth-consent.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R052.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-5fd31003-a1f8-4ea3-b027-fcffb4636f7e.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-5fd31003-a1f8-4ea3-b027-fcffb4636f7e.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T07:39:52.414Z",
+  "selfInspection": {
+    "method": "Native generated PNG inspected in child against actual390 legacy consent baseline, OAuthConsent template and canAccept guard",
+    "status": "pending-independent-review",
+    "pageSpecific": "Complete legacy consent with one read scope and all nine baseline prefixes. A/B checked directories allow; C empty selected prefixes keeps read scope available but allow disabled while reject available. No policy editor, offline option, invented all-select or hidden role shell.",
+    "concerns": []
+  },
+  "sha256": "fb8217d16a4c4e29c028e9871f5c994dde51080e35fe808f43b29815b732ea37",
+  "dimensions": {
+    "width": 1877,
+    "height": 838
+  },
+  "bytes": 1258767,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/OAuthConsent.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "760da32f42324676fe15f63f30eb4dcdfcd5bb0a035d9b13cc71ccd5a2194406"
+    },
+    {
+      "path": "apps/web/components/OAuthConsent.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "760da32f42324676fe15f63f30eb4dcdfcd5bb0a035d9b13cc71ccd5a2194406"
+    },
+    {
+      "path": "apps/web/components/OAuthConsent.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "760da32f42324676fe15f63f30eb4dcdfcd5bb0a035d9b13cc71ccd5a2194406"
+    },
+    {
+      "path": "apps/server/platform/oauth.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "c4e6c230065c04ad5b147039177035d48ac1353ca15508d0554278e9740f31f4"
+    }
+  ],
+  "responsiveTargetCssWidths": [
+    390,
+    320,
+    320
+  ],
+  "runtimeResponsiveVerified": false,
+  "baselineStatus": "actual390 legacy consent content;320 and empty-prefix substate source-derived",
+  "sourceDerivedUnverifiedScope": "No OAuth request/consent/redirect executed. Labels and prefixes from supplied baseline, unselected C is synthetic. Real runtime fit/focus and permissions not asserted.",
+  "legacyFixture": {
+    "allowedScopes": [
+      "knowledge:read"
+    ],
+    "allowedPrefixes": [
+      "README.md",
+      "00-Inbox",
+      "10-Projects",
+      "20-Areas",
+      "30-Knowledge",
+      "40-Resources",
+      "50-Journal",
+      "90-Archive",
+      "99-System"
+    ],
+    "AandBSelected": "all allowed prefixes",
+    "CSelected": []
+  }
+}

@@ -1,0 +1,601 @@
+{
+  "assetId": "MP-R071-v3",
+  "sourceIds": [
+    "PB-043"
+  ],
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "responsive-board",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-043",
+      "title": "博客装修：专题合集390px",
+      "role": "authenticated owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-043",
+      "title": "博客装修：专题合集320px",
+      "role": "authenticated owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-043",
+      "title": "博客装修：专题合集320px guard",
+      "role": "authenticated owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "只删除中间B列搜索文章输入框最右侧的×清除按钮，保留搜索图标、值“无匹配示例”、没有匹配的已发布文章提示。其它所有面板、字段、值、按钮、上移下移禁用、成员移出、专题名称/路径/介绍和从已发布文章中添加的真实details全部保持不变。",
+  "sourceContracts": [
+    {
+      "id": "PB-043",
+      "title": "博客装修：专题合集",
+      "kind": "page",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design (collections tab)",
+        "trigger": "专题合集 tab",
+        "parentId": "PB-041"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignCollections.vue:7",
+        "apps/web/components/blog/BlogDesignCollections.vue:30",
+        "packages/core/blog/studio.ts:102"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "collection.title",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; server<=256",
+          "sensitive": false
+        },
+        {
+          "name": "collection.slug",
+          "type": "text",
+          "required": true,
+          "constraints": "lowercase hyphen pattern; server<=100; unique among collections",
+          "sensitive": false
+        },
+        {
+          "name": "collection.description",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=1000; server<=2000",
+          "sensitive": false
+        },
+        {
+          "name": "postIds",
+          "type": "ordered selection",
+          "required": false,
+          "constraints": "server<=500 unique IDs; only published posts offered; public hides no-longer-published",
+          "sensitive": false
+        },
+        {
+          "name": "query",
+          "type": "search",
+          "required": false,
+          "constraints": "published title filter; shared component query",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "添加专题",
+          "effect": "Append local collection",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "从已发布文章中添加",
+          "effect": "Expand published picker",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "文章",
+          "effect": "Add membership",
+          "api": "",
+          "guard": "not already selected"
+        },
+        {
+          "label": "上移 / 下移 / 移出",
+          "effect": "Reorder/remove membership",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "删除专题",
+          "effect": "Remove local collection",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "no collections; empty collection",
+        "published article search has no matches",
+        "already added disabled; duplicate IDs rejected",
+        "removed/unpublished member retained in editor but marked public-hidden",
+        "ordered long article titles with distinct identity"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-admin-preview.spec.ts:62",
+        "tests/e2e/blog-studio.spec.ts:67"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "originalManifestContract": {
+    "id": "MP-R071",
+    "title": "Responsive family: BlogDesignCollections.vue collection and member-order/picker rows",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "PB-043"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "PB-043",
+        "title": "博客装修：专题合集390px",
+        "role": "authenticated owner",
+        "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        }
+      },
+      {
+        "label": "B",
+        "sourceId": "PB-043",
+        "title": "博客装修：专题合集320px",
+        "role": "authenticated owner",
+        "state": "320px字段/长值/内层滚动与操作可达",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        }
+      },
+      {
+        "label": "C",
+        "sourceId": "PB-043",
+        "title": "博客装修：专题合集320px guard",
+        "role": "authenticated owner",
+        "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        }
+      }
+    ],
+    "viewportIntent": "390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/390-blog-design.png",
+        "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+        "role": "精确sourceId字段/动作/权限合同；非图片输入"
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+        "role": "已复核边界与尚未验证运行项；非图片输入"
+      }
+    ],
+    "functionalInvariants": [
+      {
+        "sourceId": "PB-043",
+        "route": "/?view=apps&app=blog&appSection=design (collections tab)",
+        "trigger": "专题合集 tab",
+        "parentId": "PB-041",
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+        ],
+        "fields": [
+          {
+            "name": "collection.title",
+            "type": "text",
+            "required": false,
+            "constraints": "UI<=120; server<=256",
+            "sensitive": false
+          },
+          {
+            "name": "collection.slug",
+            "type": "text",
+            "required": true,
+            "constraints": "lowercase hyphen pattern; server<=100; unique among collections",
+            "sensitive": false
+          },
+          {
+            "name": "collection.description",
+            "type": "textarea",
+            "required": false,
+            "constraints": "UI<=1000; server<=2000",
+            "sensitive": false
+          },
+          {
+            "name": "postIds",
+            "type": "ordered selection",
+            "required": false,
+            "constraints": "server<=500 unique IDs; only published posts offered; public hides no-longer-published",
+            "sensitive": false
+          },
+          {
+            "name": "query",
+            "type": "search",
+            "required": false,
+            "constraints": "published title filter; shared component query",
+            "sensitive": false
+          }
+        ],
+        "importantStates": [
+          "no collections; empty collection",
+          "published article search has no matches",
+          "already added disabled; duplicate IDs rejected",
+          "removed/unpublished member retained in editor but marked public-hidden",
+          "ordered long article titles with distinct identity"
+        ],
+        "notes": []
+      },
+      {
+        "type": "composition",
+        "details": [
+          "装修合集完整长页：title/slug/description、已发布文章查找/添加/排序/移出、创建/删除合集，原稿未发布成员不能暴露公开。"
+        ]
+      },
+      {
+        "type": "role-shell",
+        "rule": "所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。"
+      },
+      {
+        "type": "responsive-family-reuse",
+        "renderer": "BlogDesignCollections.vue collection and member-order/picker rows",
+        "allSourceIds": [
+          "PB-043"
+        ],
+        "rule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+      },
+      {
+        "type": "local-component-composition",
+        "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+      }
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "PB-043",
+        "label": "添加专题",
+        "effect": "Append local collection",
+        "api": "",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-043",
+        "label": "从已发布文章中添加",
+        "effect": "Expand published picker",
+        "api": "",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-043",
+        "label": "文章",
+        "effect": "Add membership",
+        "api": "",
+        "guard": "not already selected"
+      },
+      {
+        "sourceId": "PB-043",
+        "label": "上移 / 下移 / 移出",
+        "effect": "Reorder/remove membership",
+        "api": "",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-043",
+        "label": "删除专题",
+        "effect": "Remove local collection",
+        "api": "",
+        "guard": ""
+      }
+    ],
+    "forbiddenAdditions": [
+      "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+      "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+      "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+      "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+      "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+      "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+    ],
+    "responsiveContract": [
+      {
+        "sourceId": "PB-043",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified.",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      }
+    ],
+    "prompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-R071 Responsive family: BlogDesignCollections.vue collection and member-order/picker rows\n\n390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。\n\n角色壳：所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。\n\n独立场景：\nA | PB-043 | 博客装修：专题合集390px | role=authenticated owner | 390px完整可读代表：字段按登记顺序，动作保持源guard\nB | PB-043 | 博客装修：专题合集320px | role=authenticated owner | 320px字段/长值/内层滚动与操作可达\nC | PB-043 | 博客装修：专题合集320px guard | role=authenticated owner | 同源关键禁用/错误/长标签状态，使用已有组件且保留输入\n\n完整构图：\n装修合集完整长页：title/slug/description、已发布文章查找/添加/排序/移出、创建/删除合集，原稿未发布成员不能暴露公开。\n\n精确功能/字段/动作guard合同：\nPB-043权限：Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage.\nPB-043字段顺序：collection.title [text; 可选]: UI<=120; server<=256 | collection.slug [text; 必填]: lowercase hyphen pattern; server<=100; unique among collections | collection.description [textarea; 可选]: UI<=1000; server<=2000 | postIds [ordered selection; 可选]: server<=500 unique IDs; only published posts offered; public hides no-longer-published | query [search; 可选]: published title filter; shared component query\nPB-043白名单：添加专题 => Append local collection；guard=既有上下文\nPB-043白名单：从已发布文章中添加 => Expand published picker；guard=既有上下文\nPB-043白名单：文章 => Add membership；guard=not already selected\nPB-043白名单：上移 / 下移 / 移出 => Reorder/remove membership；guard=既有上下文\nPB-043白名单：删除专题 => Remove local collection；guard=既有上下文\n\n响应式合同：\n<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R071.png",
+    "reviewStatus": "pending-generation",
+    "responsiveFamily": {
+      "id": "MP-RF071",
+      "actualComponent": "BlogDesignCollections.vue collection and member-order/picker rows",
+      "sourceIds": [
+        "PB-043"
+      ],
+      "roleBoundary": "owner-private",
+      "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+    },
+    "parentBindings": [
+      {
+        "sourceId": "PB-043",
+        "parentId": "PB-041",
+        "route": "/?view=apps&app=blog&appSection=design (collections tab)",
+        "roles": [
+          "authenticated owner"
+        ],
+        "sourceRefs": [
+          "apps/web/components/blog/BlogDesignCollections.vue:7",
+          "apps/web/components/blog/BlogDesignCollections.vue:30",
+          "packages/core/blog/studio.ts:102"
+        ]
+      }
+    ],
+    "sourceContracts": [
+      {
+        "id": "PB-043",
+        "title": "博客装修：专题合集",
+        "kind": "page",
+        "module": "studio",
+        "entry": {
+          "route": "/?view=apps&app=blog&appSection=design (collections tab)",
+          "trigger": "专题合集 tab",
+          "parentId": "PB-041"
+        },
+        "sourceRefs": [
+          "apps/web/components/blog/BlogDesignCollections.vue:7",
+          "apps/web/components/blog/BlogDesignCollections.vue:30",
+          "packages/core/blog/studio.ts:102"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+        ],
+        "fields": [
+          {
+            "name": "collection.title",
+            "type": "text",
+            "required": false,
+            "constraints": "UI<=120; server<=256",
+            "sensitive": false
+          },
+          {
+            "name": "collection.slug",
+            "type": "text",
+            "required": true,
+            "constraints": "lowercase hyphen pattern; server<=100; unique among collections",
+            "sensitive": false
+          },
+          {
+            "name": "collection.description",
+            "type": "textarea",
+            "required": false,
+            "constraints": "UI<=1000; server<=2000",
+            "sensitive": false
+          },
+          {
+            "name": "postIds",
+            "type": "ordered selection",
+            "required": false,
+            "constraints": "server<=500 unique IDs; only published posts offered; public hides no-longer-published",
+            "sensitive": false
+          },
+          {
+            "name": "query",
+            "type": "search",
+            "required": false,
+            "constraints": "published title filter; shared component query",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "添加专题",
+            "effect": "Append local collection",
+            "api": "",
+            "guard": ""
+          },
+          {
+            "label": "从已发布文章中添加",
+            "effect": "Expand published picker",
+            "api": "",
+            "guard": ""
+          },
+          {
+            "label": "文章",
+            "effect": "Add membership",
+            "api": "",
+            "guard": "not already selected"
+          },
+          {
+            "label": "上移 / 下移 / 移出",
+            "effect": "Reorder/remove membership",
+            "api": "",
+            "guard": ""
+          },
+          {
+            "label": "删除专题",
+            "effect": "Remove local collection",
+            "api": "",
+            "guard": ""
+          }
+        ],
+        "importantStates": [
+          "no collections; empty collection",
+          "published article search has no matches",
+          "already added disabled; duplicate IDs rejected",
+          "removed/unpublished member retained in editor but marked public-hidden",
+          "ordered long article titles with distinct identity"
+        ],
+        "responsive": {
+          "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+        },
+        "testRefs": [
+          "tests/e2e/blog-admin-preview.spec.ts:62",
+          "tests/e2e/blog-studio.spec.ts:67"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+        "notes": [],
+        "inventoryFile": "coverage/public-and-blog.json"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "manifestReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-043.json",
+  "sourceDerived": true,
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "只删除中间B列搜索文章输入框最右侧的×清除按钮，保留搜索图标、值“无匹配示例”、没有匹配的已发布文章提示。其它所有面板、字段、值、按钮、上移下移禁用、成员移出、专题名称/路径/介绍和从已发布文章中添加的真实details全部保持不变。",
+  "actualToolArguments": {
+    "prompt": "只删除中间B列搜索文章输入框最右侧的×清除按钮，保留搜索图标、值“无匹配示例”、没有匹配的已发布文章提示。其它所有面板、字段、值、按钮、上移下移禁用、成员移出、专题名称/路径/介绍和从已发布文章中添加的真实details全部保持不变。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R071-v2.png"
+    ],
+    "transparent_background": false
+  },
+  "inputs": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R071-v2.png",
+      "role": "edit target",
+      "sha256": "68c9d9397ede4c19764b56c89cc5d92ca3973bef979eff938aa9d0d8bcffef56",
+      "dimensions": {
+        "width": 1908,
+        "height": 824
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "inputReferences": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R071-v2.png",
+      "role": "edit target",
+      "sha256": "68c9d9397ede4c19764b56c89cc5d92ca3973bef979eff938aa9d0d8bcffef56",
+      "dimensions": {
+        "width": 1908,
+        "height": 824
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-24f25789-0af3-43cd-8460-fd8ac76af527.png",
+  "toolDefaultOutputSource": "$CODEX_HOME/generated_images (actual path in toolOutputFile)",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R071-v3.png",
+  "sha256": "d830e3af020a97c934b829ef908628c835f1f8bf7cba5fb9c682155249a64463",
+  "bytes": 1202650,
+  "dimensions": {
+    "width": 1908,
+    "height": 824
+  },
+  "generatedAtUtc": "2026-11-05T08:45:41.902707+00:00",
+  "revisionOf": "MP-R071-v2",
+  "generationAttempts": [
+    {
+      "actualToolArguments": {
+        "prompt": "只删除中间B列搜索文章输入框最右侧的×清除按钮，保留搜索图标、值“无匹配示例”、没有匹配的已发布文章提示。其它所有面板、字段、值、按钮、上移下移禁用、成员移出、专题名称/路径/介绍和从已发布文章中添加的真实details全部保持不变。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R071-v2.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-24f25789-0af3-43cd-8460-fd8ac76af527.png",
+      "status": "saved"
+    }
+  ],
+  "postprocessing": "original PNG copied without pixel modification",
+  "selfInspection": {
+    "method": "Viewed actual inputs and generated native preview; compared selected state to source contracts",
+    "concerns": [
+      "Targeted independent review source correction; static behavior remains unverified."
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "reviewStatus": "pending-independent-review",
+  "pendingReview": true,
+  "revisionHistory": {
+    "previousSidecar": "docs/design/platform-unification-2026-11-05/design/images/MP-R071-v2.json",
+    "previousSidecarSha256": "0e49ecb39ff473b47a78f9db568f98fa21a9285ef05832211a323af0bc86c62f",
+    "previousSubmittedPrompt": "只修正输入图中真实表单控件：A左列的蓝色标题区下面、专题介绍之前，增加两个正常可编辑text输入，标签“专题名称”值“知识与记录”，标签“专题路径”值“knowledge-notes”。蓝色标题区仅保留编号1、只读标题知识与记录及2篇徽标，删除A/B标题区右侧折叠箭头，专题本身不能折叠。左列搜索框当前“记录”会与显示结果不匹配，改为空值placeholder“按文章名称搜索”，明确加标签“搜索文章”；B搜索框也加“搜索文章”label。两个成员的垃圾桶按钮改为文字“移出”；成员上移/下移边界禁用保留。左列下方从已发布文章中添加是真正details，保留它的展开箭头、已选禁用和未选可用按钮、删除专题。必要使A面板纵向更长或内部滚动，不缩字号。B其余字段/空态/删除专题不变，C空态只保留顶部唯一＋添加专题，删除中央重复添加按钮；其他不改。"
+  }
+}

@@ -1,0 +1,216 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D054",
+  "assetId": "WS-D054",
+  "sourceIds": [
+    "WS-074"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-074",
+      "title": "Primary diagram reading view",
+      "role": "authenticated owner",
+      "state": "Actual primary whiteboard reading baseline, saved empty whiteboard with title only; no invented drawing, frontmatter or inspector",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host."
+    }
+  ],
+  "selectedState": "Actual primary whiteboard reading baseline, saved empty whiteboard with title only; no invented drawing, frontmatter or inspector",
+  "sourceDerived": false,
+  "baselineStatus": "actual-matching-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作清晰中文UI设计图。完整主人桌面DooKnow页，约1440×1000。图1是真实内容/状态/宿主几何，图2只给共享平面配色/密度。在顶部保留DooKnow书本标识 | 笔记的共享横页头；窄owner rail为O账户、笔记/最近/收藏/应用，底部回收站/设置；保留知识侧栏搜索笔记与目录、新建分裂按钮、笔记本plus/刷新、目录树及resize。只用现有控件，不虚构导航。笔记rail选中；树00-Inbox展开，保留图1隔离fixture条目和选中的runtime-whiteboard条目，30-Knowledge折叠。主区保留图1图形文档完整chrome：侧栏收起/后退/前进、面包屑笔记本 › 00-Inbox › runtime-whiteboard-1793810927830；已保存、历史版本icon、分享、蓝色保存可用、更多。下一行左白板kind及导出HTML/打印/导出PNG图标，右tabs白板/Markdown 源码/阅读/PNG 预览，其中阅读选中。正文仅图1的大标题runtime-whiteboard-1793810927830，其余白色，因为实际白板为空。不添加图形节点/图片/正文/格式工具栏/大纲，不暴露frontmatter或可编辑源。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。caption与角色绑定metadata。",
+  "prompt": "制作清晰中文UI设计图。完整主人桌面DooKnow页，约1440×1000。图1是真实内容/状态/宿主几何，图2只给共享平面配色/密度。在顶部保留DooKnow书本标识 | 笔记的共享横页头；窄owner rail为O账户、笔记/最近/收藏/应用，底部回收站/设置；保留知识侧栏搜索笔记与目录、新建分裂按钮、笔记本plus/刷新、目录树及resize。只用现有控件，不虚构导航。笔记rail选中；树00-Inbox展开，保留图1隔离fixture条目和选中的runtime-whiteboard条目，30-Knowledge折叠。主区保留图1图形文档完整chrome：侧栏收起/后退/前进、面包屑笔记本 › 00-Inbox › runtime-whiteboard-1793810927830；已保存、历史版本icon、分享、蓝色保存可用、更多。下一行左白板kind及导出HTML/打印/导出PNG图标，右tabs白板/Markdown 源码/阅读/PNG 预览，其中阅读选中。正文仅图1的大标题runtime-whiteboard-1793810927830，其余白色，因为实际白板为空。不添加图形节点/图片/正文/格式工具栏/大纲，不暴露frontmatter或可编辑源。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。caption与角色绑定metadata。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-reading.png",
+      "role": "Actual matching baseline: content/role/current visible controls and geometry",
+      "sha256": "881a14d1f24d6c95168b69c8ccd1a09cfaf8c3e082dbfab40638dfa7d07bbc4a",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Shared flat palette and density only; actual role-specific host takes precedence",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-reading.png",
+      "role": "Actual matching baseline: content/role/current visible controls and geometry",
+      "sha256": "881a14d1f24d6c95168b69c8ccd1a09cfaf8c3e082dbfab40638dfa7d07bbc4a",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Shared flat palette and density only; actual role-specific host takes precedence",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作清晰中文UI设计图。完整主人桌面DooKnow页，约1440×1000。图1是真实内容/状态/宿主几何，图2只给共享平面配色/密度。在顶部保留DooKnow书本标识 | 笔记的共享横页头；窄owner rail为O账户、笔记/最近/收藏/应用，底部回收站/设置；保留知识侧栏搜索笔记与目录、新建分裂按钮、笔记本plus/刷新、目录树及resize。只用现有控件，不虚构导航。笔记rail选中；树00-Inbox展开，保留图1隔离fixture条目和选中的runtime-whiteboard条目，30-Knowledge折叠。主区保留图1图形文档完整chrome：侧栏收起/后退/前进、面包屑笔记本 › 00-Inbox › runtime-whiteboard-1793810927830；已保存、历史版本icon、分享、蓝色保存可用、更多。下一行左白板kind及导出HTML/打印/导出PNG图标，右tabs白板/Markdown 源码/阅读/PNG 预览，其中阅读选中。正文仅图1的大标题runtime-whiteboard-1793810927830，其余白色，因为实际白板为空。不添加图形节点/图片/正文/格式工具栏/大纲，不暴露frontmatter或可编辑源。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。caption与角色绑定metadata。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-reading.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作清晰中文UI设计图。完整主人桌面DooKnow页，约1440×1000。图1是真实内容/状态/宿主几何，图2只给共享平面配色/密度。在顶部保留DooKnow书本标识 | 笔记的共享横页头；窄owner rail为O账户、笔记/最近/收藏/应用，底部回收站/设置；保留知识侧栏搜索笔记与目录、新建分裂按钮、笔记本plus/刷新、目录树及resize。只用现有控件，不虚构导航。笔记rail选中；树00-Inbox展开，保留图1隔离fixture条目和选中的runtime-whiteboard条目，30-Knowledge折叠。主区保留图1图形文档完整chrome：侧栏收起/后退/前进、面包屑笔记本 › 00-Inbox › runtime-whiteboard-1793810927830；已保存、历史版本icon、分享、蓝色保存可用、更多。下一行左白板kind及导出HTML/打印/导出PNG图标，右tabs白板/Markdown 源码/阅读/PNG 预览，其中阅读选中。正文仅图1的大标题runtime-whiteboard-1793810927830，其余白色，因为实际白板为空。不添加图形节点/图片/正文/格式工具栏/大纲，不暴露frontmatter或可编辑源。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。caption与角色绑定metadata。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-reading.png",
+          "role": "Actual matching baseline: content/role/current visible controls and geometry"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Shared flat palette and density only; actual role-specific host takes precedence"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-811a345b-86a0-44dc-9d01-794d217c7f2d.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-074",
+      "title": "Primary diagram reading view",
+      "kind": "state",
+      "module": "diagrams",
+      "entry": {
+        "route": "/?note=:primaryDiagramId",
+        "trigger": "阅读 tab",
+        "parentId": "WS-068"
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramDocumentWorkspace.vue:93",
+        "apps/web/components/DiagramDocumentWorkspace.vue:840"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "导出 HTML / 打印",
+          "effect": "Export sanitized reading content with resolved local assets",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Frontmatter excluded; primary source projected as preview",
+        "Local image resolution",
+        "Readonly rendered article"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/e2e/diagram-document-chrome.spec.ts",
+        "tests/diagram-document-read.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-074",
+      "parentId": "WS-068",
+      "route": "/?note=:primaryDiagramId",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/DiagramDocumentWorkspace.vue:93",
+        "apps/web/components/DiagramDocumentWorkspace.vue:840"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-009.json#WS-D054",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D054",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-811a345b-86a0-44dc-9d01-794d217c7f2d.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D054.png",
+  "sha256": "2c374a4c5ae3878329e7e8ecad8d4720a36ff5644a18a79f9827250acd4fd33c",
+  "bytes": 1115074,
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "generatedAtUtc": "2026-11-05T02:10:17.734293+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Primary diagram reading view",
+    "sourceIds": [
+      "WS-074"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Actual primary whiteboard reading baseline, saved empty whiteboard with title only; no invented drawing, frontmatter or inspector",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Actual isolated whiteboard is empty, so reading body has title only; no figure, properties/frontmatter or controls invented."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

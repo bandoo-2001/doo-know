@@ -1,0 +1,562 @@
+{
+  "id": "WS-D083",
+  "title": "Trash inline restore rename and pending-request banner",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-109",
+    "WS-111"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-109",
+      "title": "Trash restore inline rename form",
+      "role": "authenticated owner",
+      "state": "A basename-only original-parent restore rename; B unreadable/error/empty source feedback; C immutable-request browser recovery.",
+      "presentationInstruction": "A basename-only original-parent restore rename; B unreadable/error/empty source feedback; C immutable-request browser recovery."
+    },
+    {
+      "label": "C",
+      "sourceId": "WS-111",
+      "title": "Trash uncertain request and browser recovery banner",
+      "role": "authenticated owner",
+      "state": "A basename-only original-parent restore rename; B unreadable/error/empty source feedback; C immutable-request browser recovery.",
+      "presentationInstruction": "A basename-only original-parent restore rename; B unreadable/error/empty source feedback; C immutable-request browser recovery."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/TrashWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/TrashWorkspace.vue:193, apps/web/components/TrashWorkspace.vue:303, apps/web/components/TrashWorkspace.vue:520, packages/core/files.ts:20"
+    },
+    {
+      "path": "apps/web/components/TrashWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/TrashWorkspace.vue:439, apps/web/components/TrashWorkspace.vue:459, apps/web/components/TrashWorkspace.vue:513, apps/web/components/TrashWorkspace.vue:574"
+    },
+    {
+      "path": "apps/web/components/TrashWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/TrashWorkspace.vue:102, apps/web/components/TrashWorkspace.vue:217, apps/web/components/TrashWorkspace.vue:269, apps/web/components/TrashWorkspace.vue:427"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-109",
+      "label": "恢复并打开 / 恢复文件夹 / 恢复所选",
+      "effect": "Restore with optional fileNames map",
+      "api": "POST /api/manage/trash/restore",
+      "guard": "!locked&&!loading; all selected names pass validation; never overwrite existing destination"
+    },
+    {
+      "sourceId": "WS-109",
+      "label": "取消改名 / Escape",
+      "effect": "Delete rename draft and field error; restore trigger focus",
+      "api": "none (local UI)",
+      "guard": "Authenticated owner; current note/session guards apply."
+    },
+    {
+      "sourceId": "WS-111",
+      "label": "按原请求核对结果",
+      "effect": "Resubmit same immutable ids, rename map/snapshotId and requestId",
+      "api": "POST /api/manage/trash/restore or /purge",
+      "guard": "No new batch; !busy&&!loading"
+    },
+    {
+      "sourceId": "WS-111",
+      "label": "返回笔记后重新进入",
+      "effect": "Keep pending state in account-scoped sessionStorage if available",
+      "api": "none (local UI)",
+      "guard": "Authenticated owner; current note/session guards apply."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R044",
+      "representation": "shared-geometry",
+      "reason": "Actual full TrashWorkspace phone page contains expanded rename, results/pending region and responsive row actions at390/320. Frozen request/selection locks, exact filename constraints and retry outcomes remain source-specific.",
+      "reuseSourceId": "WS-107",
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Workspace max-width1100px, padding32px clamp(18px,4vw,48px)64px.<=743px search wraps, batch actions full width and item actions move below title;<=420px item buttons flex, rename input wraps and results stack. Actual320/390/1440 fit unverified."
+      },
+      "requiredFieldOrder": [
+        "恢复时使用的文件名/文件夹名"
+      ],
+      "requiredFields": [
+        {
+          "name": "恢复时使用的文件名/文件夹名",
+          "type": "text",
+          "required": false,
+          "constraints": "Empty/absent keeps original. Nonempty<=180 UTF-8 bytes; no U+0000–001F/U+007F / \\ :; no leading dot/trailing space; not AGENTS.md. Notes require.md suffix case-insensitively; folders cannot use reserved _doo-assets. Remains in original parent; cannot enter a path.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "恢复并打开 / 恢复文件夹 / 恢复所选",
+          "effect": "Restore with optional fileNames map",
+          "api": "POST /api/manage/trash/restore",
+          "guard": "!locked&&!loading; all selected names pass validation; never overwrite existing destination"
+        },
+        {
+          "label": "取消改名 / Escape",
+          "effect": "Delete rename draft and field error; restore trigger focus",
+          "api": "none (local UI)",
+          "guard": "Authenticated owner; current note/session guards apply."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported."
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-109"
+    },
+    {
+      "assetId": "WS-R044",
+      "reuseSourceId": "WS-107",
+      "representation": "shared-geometry",
+      "reason": "Actual full TrashWorkspace phone page contains expanded rename, results/pending region and responsive row actions at390/320. Frozen request/selection locks, exact filename constraints and retry outcomes remain source-specific.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Workspace max-width1100px, padding32px clamp(18px,4vw,48px)64px.<=743px search wraps, batch actions full width and item actions move below title;<=420px item buttons flex, rename input wraps and results stack. Actual320/390/1440 fit unverified."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "按原请求核对结果",
+          "effect": "Resubmit same immutable ids, rename map/snapshotId and requestId",
+          "api": "POST /api/manage/trash/restore or /purge",
+          "guard": "No new batch; !busy&&!loading"
+        },
+        {
+          "label": "返回笔记后重新进入",
+          "effect": "Keep pending state in account-scoped sessionStorage if available",
+          "api": "none (local UI)",
+          "guard": "Authenticated owner; current note/session guards apply."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "widths": [
+        320,
+        390
+      ],
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported.",
+        "SessionStorage key scoped by authenticated user id. Restored record ids1–100 and requestId validated; purge record requires literal confirmation and string snapshotId."
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-111"
+    }
+  ],
+  "prompt": "保留A、C两个独立回收站局部所有内容与按钮状态。只在C下方灰色禁用的搜索输入框正上方补上真实可见标签“搜索回收站”。搜索输入框仍灰色禁用，placeholder与两个禁用操作按钮完整保留。A完全不变，不加其它标签、解释或控件。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D083.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-109",
+      "title": "Trash restore inline rename form",
+      "kind": "state",
+      "module": "trash",
+      "entry": {
+        "route": "/?view=trash",
+        "trigger": "更换文件名/文件夹名 or NAME_CONFLICT result",
+        "parentId": "WS-107"
+      },
+      "sourceRefs": [
+        "apps/web/components/TrashWorkspace.vue:193",
+        "apps/web/components/TrashWorkspace.vue:303",
+        "apps/web/components/TrashWorkspace.vue:520",
+        "packages/core/files.ts:20"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported."
+      ],
+      "fields": [
+        {
+          "name": "恢复时使用的文件名/文件夹名",
+          "type": "text",
+          "required": false,
+          "constraints": "Empty/absent keeps original. Nonempty<=180 UTF-8 bytes; no U+0000–001F/U+007F / \\ :; no leading dot/trailing space; not AGENTS.md. Notes require.md suffix case-insensitively; folders cannot use reserved _doo-assets. Remains in original parent; cannot enter a path.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "恢复并打开 / 恢复文件夹 / 恢复所选",
+          "effect": "Restore with optional fileNames map",
+          "api": "POST /api/manage/trash/restore",
+          "guard": "!locked&&!loading; all selected names pass validation; never overwrite existing destination"
+        },
+        {
+          "label": "取消改名 / Escape",
+          "effect": "Delete rename draft and field error; restore trigger focus",
+          "api": "none (local UI)",
+          "guard": "Authenticated owner; current note/session guards apply."
+        }
+      ],
+      "importantStates": [
+        "Default original basename",
+        "Folder/note label difference",
+        "Name conflict automatically expands rename form",
+        "Invalid name inline error",
+        "Cancelled hidden field no longer affects restore"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Workspace max-width1100px, padding32px clamp(18px,4vw,48px)64px.<=743px search wraps, batch actions full width and item actions move below title;<=420px item buttons flex, rename input wraps and results stack. Actual320/390/1440 fit unverified."
+      },
+      "testRefs": [
+        "tests/trash-workspace.test.ts",
+        "tests/e2e/folder-trash.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-111",
+      "title": "Trash uncertain request and browser recovery banner",
+      "kind": "state",
+      "module": "trash",
+      "entry": {
+        "route": "/?view=trash",
+        "trigger": "Restore/purge response missing, interrupted or restored pending session record",
+        "parentId": "WS-107"
+      },
+      "sourceRefs": [
+        "apps/web/components/TrashWorkspace.vue:102",
+        "apps/web/components/TrashWorkspace.vue:217",
+        "apps/web/components/TrashWorkspace.vue:269",
+        "apps/web/components/TrashWorkspace.vue:427"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported.",
+        "SessionStorage key scoped by authenticated user id. Restored record ids1–100 and requestId validated; purge record requires literal confirmation and string snapshotId."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "按原请求核对结果",
+          "effect": "Resubmit same immutable ids, rename map/snapshotId and requestId",
+          "api": "POST /api/manage/trash/restore or /purge",
+          "guard": "No new batch; !busy&&!loading"
+        },
+        {
+          "label": "返回笔记后重新进入",
+          "effect": "Keep pending state in account-scoped sessionStorage if available",
+          "api": "none (local UI)",
+          "guard": "Authenticated owner; current note/session guards apply."
+        }
+      ],
+      "importantStates": [
+        "Pending banner pauses new restore/purge and page selection",
+        "Network/server/OPERATION_OUTCOME_UNKNOWN retains request",
+        "WORKSPACE_BUSY preserves exact selection",
+        "Storage unavailable/unreadable warning",
+        "Explicit rejected snapshot clears pending and reloads fresh list"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Workspace max-width1100px, padding32px clamp(18px,4vw,48px)64px.<=743px search wraps, batch actions full width and item actions move below title;<=420px item buttons flex, rename input wraps and results stack. Actual320/390/1440 fit unverified."
+      },
+      "testRefs": [
+        "tests/trash-workspace.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-109",
+      "parentId": "WS-107",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-111",
+      "parentId": "WS-107",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-109,WS-111",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-109",
+      "state": "Default original basename",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-109",
+      "state": "Folder/note label difference",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-109",
+      "state": "Name conflict automatically expands rename form",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-109",
+      "state": "Invalid name inline error",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-109",
+      "state": "Cancelled hidden field no longer affects restore",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-111",
+      "state": "Pending banner pauses new restore/purge and page selection",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-111",
+      "state": "Network/server/OPERATION_OUTCOME_UNKNOWN retains request",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-111",
+      "state": "WORKSPACE_BUSY preserves exact selection",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-111",
+      "state": "Storage unavailable/unreadable warning",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-111",
+      "state": "Explicit rejected snapshot clears pending and reloads fresh list",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D083",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "A available note inline original-parent basename rename idle",
+    "C pending immutable restore request, new mutations/search locked, retry available"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "保留A、C两个独立回收站局部所有内容与按钮状态。只在C下方灰色禁用的搜索输入框正上方补上真实可见标签“搜索回收站”。搜索输入框仍灰色禁用，placeholder与两个禁用操作按钮完整保留。A完全不变，不加其它标签、解释或控件。",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D083 Trash inline restore rename and pending-request banner\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-109\", \"title\": \"Trash restore inline rename form\", \"role\": \"authenticated owner\", \"state\": \"A basename-only original-parent restore rename; B unreadable/error/empty source feedback; C immutable-request browser recovery.\", \"presentationInstruction\": \"A basename-only original-parent restore rename; B unreadable/error/empty source feedback; C immutable-request browser recovery.\"}, {\"label\": \"C\", \"sourceId\": \"WS-111\", \"title\": \"Trash uncertain request and browser recovery banner\", \"role\": \"authenticated owner\", \"state\": \"A basename-only original-parent restore rename; B unreadable/error/empty source feedback; C immutable-request browser recovery.\", \"presentationInstruction\": \"A basename-only original-parent restore rename; B unreadable/error/empty source feedback; C immutable-request browser recovery.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-109\", \"fieldsInOrder\": [{\"name\": \"恢复时使用的文件名/文件夹名\", \"type\": \"text\", \"required\": false, \"constraints\": \"Empty/absent keeps original. Nonempty<=180 UTF-8 bytes; no U+0000–001F/U+007F / \\\\ :; no leading dot/trailing space; not AGENTS.md. Notes require.md suffix case-insensitively; folders cannot use reserved _doo-assets. Remains in original parent; cannot enter a path.\", \"sensitive\": false}], \"actions\": [{\"label\": \"恢复并打开 / 恢复文件夹 / 恢复所选\", \"effect\": \"Restore with optional fileNames map\", \"api\": \"POST /api/manage/trash/restore\", \"guard\": \"!locked&&!loading; all selected names pass validation; never overwrite existing destination\"}, {\"label\": \"取消改名 / Escape\", \"effect\": \"Delete rename draft and field error; restore trigger focus\", \"api\": \"none (local UI)\", \"guard\": \"Authenticated owner; current note/session guards apply.\"}], \"importantStates\": [\"Default original basename\", \"Folder/note label difference\", \"Name conflict automatically expands rename form\", \"Invalid name inline error\", \"Cancelled hidden field no longer affects restore\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported.\"]}, {\"panel\": \"C\", \"sourceId\": \"WS-111\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"按原请求核对结果\", \"effect\": \"Resubmit same immutable ids, rename map/snapshotId and requestId\", \"api\": \"POST /api/manage/trash/restore or /purge\", \"guard\": \"No new batch; !busy&&!loading\"}, {\"label\": \"返回笔记后重新进入\", \"effect\": \"Keep pending state in account-scoped sessionStorage if available\", \"api\": \"none (local UI)\", \"guard\": \"Authenticated owner; current note/session guards apply.\"}], \"importantStates\": [\"Pending banner pauses new restore/purge and page selection\", \"Network/server/OPERATION_OUTCOME_UNKNOWN retains request\", \"WORKSPACE_BUSY preserves exact selection\", \"Storage unavailable/unreadable warning\", \"Explicit rejected snapshot clears pending and reloads fresh list\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported.\", \"SessionStorage key scoped by authenticated user id. Restored record ids1–100 and requestId validated; purge record requires literal confirmation and string snapshotId.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/TrashWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/TrashWorkspace.vue:193, apps/web/components/TrashWorkspace.vue:303, apps/web/components/TrashWorkspace.vue:520, packages/core/files.ts:20",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/TrashWorkspace.vue:193, apps/web/components/TrashWorkspace.vue:303, apps/web/components/TrashWorkspace.vue:520, packages/core/files.ts:20",
+      "sha256": "9c8c7cd21f05f3288eacd029f50a48c12b2da466ac00b77c61a9e13514395a89"
+    },
+    {
+      "path": "apps/web/components/TrashWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/TrashWorkspace.vue:439, apps/web/components/TrashWorkspace.vue:459, apps/web/components/TrashWorkspace.vue:513, apps/web/components/TrashWorkspace.vue:574",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/TrashWorkspace.vue:439, apps/web/components/TrashWorkspace.vue:459, apps/web/components/TrashWorkspace.vue:513, apps/web/components/TrashWorkspace.vue:574",
+      "sha256": "9c8c7cd21f05f3288eacd029f50a48c12b2da466ac00b77c61a9e13514395a89"
+    },
+    {
+      "path": "apps/web/components/TrashWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/TrashWorkspace.vue:102, apps/web/components/TrashWorkspace.vue:217, apps/web/components/TrashWorkspace.vue:269, apps/web/components/TrashWorkspace.vue:427",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/TrashWorkspace.vue:102, apps/web/components/TrashWorkspace.vue:217, apps/web/components/TrashWorkspace.vue:269, apps/web/components/TrashWorkspace.vue:427",
+      "sha256": "9c8c7cd21f05f3288eacd029f50a48c12b2da466ac00b77c61a9e13514395a89"
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c04ae541-e009-4114-9dc7-3d7966514c67.png",
+      "role": "initial generated candidate targeted edit",
+      "responsibility": "Restore actual conditional simultaneous-preview toggle / search label while preserving valid states",
+      "sha256": "2d61309b0b972245322f5e1ddee3ca1d5f4d8de513377198c5545442e097e23d",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1298268
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c04ae541-e009-4114-9dc7-3d7966514c67.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D083.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-fb488884-ec20-48b0-bc2f-ce1840aac3d2.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-fb488884-ec20-48b0-bc2f-ce1840aac3d2.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T05:35:57.090Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Source controls checked; source-only owner modes separate, retained draft and original-parent restore/pending guards intact.",
+    "concerns": []
+  },
+  "sha256": "964e950d41aa945db4df6107b0f8f48d19ef1009880f640b372e1aff8b871d8a",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1574745,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/TrashWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9c8c7cd21f05f3288eacd029f50a48c12b2da466ac00b77c61a9e13514395a89"
+    },
+    {
+      "path": "apps/web/components/TrashWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9c8c7cd21f05f3288eacd029f50a48c12b2da466ac00b77c61a9e13514395a89"
+    },
+    {
+      "path": "apps/web/components/TrashWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9c8c7cd21f05f3288eacd029f50a48c12b2da466ac00b77c61a9e13514395a89"
+    },
+    {
+      "path": "packages/core/files.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9d1a1395a682262a0af8520bb1af5b3704f95119ffd93d5ce8546743fd65724a"
+    },
+    {
+      "path": "apps/web/components/TrashWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9c8c7cd21f05f3288eacd029f50a48c12b2da466ac00b77c61a9e13514395a89"
+    },
+    {
+      "path": "apps/web/components/TrashWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9c8c7cd21f05f3288eacd029f50a48c12b2da466ac00b77c61a9e13514395a89"
+    },
+    {
+      "path": "apps/web/components/TrashWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9c8c7cd21f05f3288eacd029f50a48c12b2da466ac00b77c61a9e13514395a89"
+    },
+    {
+      "path": "apps/web/components/TrashWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9c8c7cd21f05f3288eacd029f50a48c12b2da466ac00b77c61a9e13514395a89"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Exact child states source-derived, actual parent baselines checked. No editor fallback/rename/restore/pending recovery runtime verified.",
+  "sourceGuardBinding": "Pending immutable request locks new restores/purge/search/pagination; retry resubmits same immutable request. Readonly original path and basename-only rename retained; not a destination path editor.",
+  "generationHistoryFiles": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-032-WS-D083-call-01-output.json",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-032-WS-D083-call-02-output.json"
+  ]
+}

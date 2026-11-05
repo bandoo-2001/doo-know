@@ -1,0 +1,365 @@
+{
+  "id": "WS-D033",
+  "title": "YAML document properties",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-043"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-043",
+      "title": "YAML document properties",
+      "role": "authenticated owner",
+      "state": "All existing typed properties/new key; complex YAML remains read-only, apply patches draft and needs later manual save.",
+      "presentationInstruction": "All existing typed properties/new key; complex YAML remains read-only, apply patches draft and needs later manual save."
+    }
+  ],
+  "viewportIntent": "One complete readable large window/form; no independent-window montage.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/DocumentProperties.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DocumentProperties.vue:1, shared/frontmatter.ts:95, apps/web/components/Workspace.vue:171"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-043",
+      "label": "添加属性",
+      "effect": "Add local form row",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-043",
+      "label": "应用到草稿",
+      "effect": "Patch changed scalar ranges, preserve untouched YAML",
+      "api": "none",
+      "guard": "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627). Captured revision check; requires later manual note save."
+    },
+    {
+      "sourceId": "WS-043",
+      "label": "取消 / 关闭",
+      "effect": "Close",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R019",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Ant Modal requests width560px; form children use width100% and scroll/height constraints where present. No caller-specific narrow-screen breakpoint was found; actual framework shrink/fit remains unverified."
+      },
+      "requiredFieldOrder": [
+        "标题 / 标签 / 别名 / 状态及已存在属性",
+        "新属性名称"
+      ],
+      "requiredFields": [
+        {
+          "name": "标题 / 标签 / 别名 / 状态及已存在属性",
+          "type": "typed-fields",
+          "required": false,
+          "constraints": "Editable scalars: string, finite number, boolean; simple string lists split by comma/Chinese comma/newline. Complex/nested/anchor/tag/comment cases preserved and not editable.",
+          "sensitive": false
+        },
+        {
+          "name": "新属性名称",
+          "type": "text",
+          "required": false,
+          "constraints": "Trimmed, unique, <=128 characters, no controls; invalid YAML blocks apply.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "添加属性",
+          "effect": "Add local form row",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "应用到草稿",
+          "effect": "Patch changed scalar ranges, preserve untouched YAML",
+          "api": "none",
+          "guard": "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627). Captured revision check; requires later manual note save."
+        },
+        {
+          "label": "取消 / 关闭",
+          "effect": "Close",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-043"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. One complete existing DooKnow LOCAL component on neutral light-gray backdrop, not a full invented host page. Simplified Chinese, crisp natural-size controls, flat white/#f7f8fa, dark #272b3a/secondary#657084, thin #e6e9f1 lines, primary#4566c6,8px radii and restrained shadow. PILOT input is STYLE ONLY, no importing its rail/header/tree/content. Actual source templates determine all titles, field order, controls, permissions and selected state. No protocol requestId/version/hash/cursor/CSRF fields, fabricated success/online states, team/AI/ToDoo features or OS/browser-dialog chrome. Secret data empty or masked only. One coherent selected condition; hidden alternatives remain hidden. Preserve header/close/body-scroll/footer actions and actual disabled guards; do not derive new disabled rules from API constraints.\nSOURCE-DERIVED COMPLETE 笔记属性 modal, real width560px; taller canvas if necessary, no text shrinking/omission. Header exact 笔记属性 and existing closeX. Intro 属性保存在笔记开头的 YAML 中。更改会进入当前草稿，保存笔记后生效。 Selected valid YAML with readOnly=false, no parser/message error; existing seven property rows in THIS order:\n标题 text input 隔离示例;\n标签 three-row textarea with two lines 记录 and 回顾;\n别名 three-row textarea 示例;\n状态 text input 草稿;\ncustom key rating with numeric input3;\ncustom key published with closed boolean select 否;\ncustom key metadata is COMPLEX READ-ONLY, show only actual source note 复杂属性，原文已保留；可在源码中编辑。 with its label metadata, NO editable JSON/text field or nested UI.\nList fields retain source placeholder 用逗号、中文逗号或换行分隔 when empty, not as invented helper inputs. Below rows actual new-key input EMPTY placeholder 新属性名称, existing 添加属性 DISABLED because empty. Footer actual 取消 and blue 应用到草稿 enabled (valid parser/readOnly=false); applying modifies current draft and still needs manual note save. No property-type dropdown/delete buttons/save-to-server/publish/auto-save guarantees, no invalid-YAML/duplicate-key/numeric-error banners simultaneously. Existing simple scalars/list values editable, complex YAML retained exactly and not silently flattened. Source-derived isolated values only, no real private note data or protocol fields.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D033.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-043",
+      "title": "YAML document properties",
+      "kind": "dialog",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "笔记属性",
+        "parentId": "WS-029"
+      },
+      "sourceRefs": [
+        "apps/web/components/DocumentProperties.vue:1",
+        "shared/frontmatter.ts:95",
+        "apps/web/components/Workspace.vue:171"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "标题 / 标签 / 别名 / 状态及已存在属性",
+          "type": "typed-fields",
+          "required": false,
+          "constraints": "Editable scalars: string, finite number, boolean; simple string lists split by comma/Chinese comma/newline. Complex/nested/anchor/tag/comment cases preserved and not editable.",
+          "sensitive": false
+        },
+        {
+          "name": "新属性名称",
+          "type": "text",
+          "required": false,
+          "constraints": "Trimmed, unique, <=128 characters, no controls; invalid YAML blocks apply.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "添加属性",
+          "effect": "Add local form row",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "应用到草稿",
+          "effect": "Patch changed scalar ranges, preserve untouched YAML",
+          "api": "none",
+          "guard": "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627). Captured revision check; requires later manual note save."
+        },
+        {
+          "label": "取消 / 关闭",
+          "effect": "Close",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Invalid YAML",
+        "Complex attribute read-only",
+        "Duplicate/invalid key",
+        "Invalid numeric value",
+        "Draft changed rejects apply"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Ant Modal requests width560px; form children use width100% and scroll/height constraints where present. No caller-specific narrow-screen breakpoint was found; actual framework shrink/fit remains unverified."
+      },
+      "testRefs": [
+        "tests/e2e/editor-secondary-menus.spec.ts",
+        "tests/editor-compatibility.test.ts",
+        "tests/frontmatter.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-043",
+      "parentId": "WS-029",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "complete-large-window-or-dense-form",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 1,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-043",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-043",
+      "state": "Invalid YAML",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-043",
+      "state": "Complex attribute read-only",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-043",
+      "state": "Duplicate/invalid key",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-043",
+      "state": "Invalid numeric value",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-043",
+      "state": "Draft changed rejects apply",
+      "representation": "nonvisual-data-rule"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D033",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "source-derived valid seven-property YAML, readOnlyfalse, complex metadata readonly, newKeyempty/add disabled"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. One complete existing DooKnow LOCAL component on neutral light-gray backdrop, not a full invented host page. Simplified Chinese, crisp natural-size controls, flat white/#f7f8fa, dark #272b3a/secondary#657084, thin #e6e9f1 lines, primary#4566c6,8px radii and restrained shadow. PILOT input is STYLE ONLY, no importing its rail/header/tree/content. Actual source templates determine all titles, field order, controls, permissions and selected state. No protocol requestId/version/hash/cursor/CSRF fields, fabricated success/online states, team/AI/ToDoo features or OS/browser-dialog chrome. Secret data empty or masked only. One coherent selected condition; hidden alternatives remain hidden. Preserve header/close/body-scroll/footer actions and actual disabled guards; do not derive new disabled rules from API constraints.\nSOURCE-DERIVED COMPLETE 笔记属性 modal, real width560px; taller canvas if necessary, no text shrinking/omission. Header exact 笔记属性 and existing closeX. Intro 属性保存在笔记开头的 YAML 中。更改会进入当前草稿，保存笔记后生效。 Selected valid YAML with readOnly=false, no parser/message error; existing seven property rows in THIS order:\n标题 text input 隔离示例;\n标签 three-row textarea with two lines 记录 and 回顾;\n别名 three-row textarea 示例;\n状态 text input 草稿;\ncustom key rating with numeric input3;\ncustom key published with closed boolean select 否;\ncustom key metadata is COMPLEX READ-ONLY, show only actual source note 复杂属性，原文已保留；可在源码中编辑。 with its label metadata, NO editable JSON/text field or nested UI.\nList fields retain source placeholder 用逗号、中文逗号或换行分隔 when empty, not as invented helper inputs. Below rows actual new-key input EMPTY placeholder 新属性名称, existing 添加属性 DISABLED because empty. Footer actual 取消 and blue 应用到草稿 enabled (valid parser/readOnly=false); applying modifies current draft and still needs manual note save. No property-type dropdown/delete buttons/save-to-server/publish/auto-save guarantees, no invalid-YAML/duplicate-key/numeric-error banners simultaneously. Existing simple scalars/list values editable, complex YAML retained exactly and not silently flattened. Source-derived isolated values only, no real private note data or protocol fields.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D033 YAML document properties\nSCOPE complete-large-window-or-dense-form\nVIEW One complete readable large window/form; no independent-window montage.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 1, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"full\", \"sourceId\": \"WS-043\", \"title\": \"YAML document properties\", \"role\": \"authenticated owner\", \"state\": \"All existing typed properties/new key; complex YAML remains read-only, apply patches draft and needs later manual save.\", \"presentationInstruction\": \"All existing typed properties/new key; complex YAML remains read-only, apply patches draft and needs later manual save.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"full\", \"sourceId\": \"WS-043\", \"fieldsInOrder\": [{\"name\": \"标题 / 标签 / 别名 / 状态及已存在属性\", \"type\": \"typed-fields\", \"required\": false, \"constraints\": \"Editable scalars: string, finite number, boolean; simple string lists split by comma/Chinese comma/newline. Complex/nested/anchor/tag/comment cases preserved and not editable.\", \"sensitive\": false}, {\"name\": \"新属性名称\", \"type\": \"text\", \"required\": false, \"constraints\": \"Trimmed, unique, <=128 characters, no controls; invalid YAML blocks apply.\", \"sensitive\": false}], \"actions\": [{\"label\": \"添加属性\", \"effect\": \"Add local form row\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"应用到草稿\", \"effect\": \"Patch changed scalar ranges, preserve untouched YAML\", \"api\": \"none\", \"guard\": \"Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627). Captured revision check; requires later manual note save.\"}, {\"label\": \"取消 / 关闭\", \"effect\": \"Close\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Invalid YAML\", \"Complex attribute read-only\", \"Duplicate/invalid key\", \"Invalid numeric value\", \"Draft changed rejects apply\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/DocumentProperties.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DocumentProperties.vue:1, shared/frontmatter.ts:95, apps/web/components/Workspace.vue:171",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DocumentProperties.vue:1, shared/frontmatter.ts:95, apps/web/components/Workspace.vue:171",
+      "sha256": "8fbc727710528e2af43a6262a066e91288658751c235bf61b7a152ce911d8a02"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D033.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-665274d1-a839-4d76-af0d-8e69e831bcd3.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-665274d1-a839-4d76-af0d-8e69e831bcd3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T02:28:29.473Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Source-derived valid YAML property modal preserves seven typed/complex rows, complex-readonly note, disabled empty new-key add and draft-only apply; no type/delete/server-save inventions.",
+    "concerns": [
+      "Exact selected component state is source-derived; parent baseline only supplies matching context or form geometry.",
+      "Static design does not verify close/focus/session/renderer/YAML-preservation/runtime behavior; exact geometry/raster texture approximate."
+    ]
+  },
+  "sha256": "7058ec9cc6cfd323f32a5685c02a3525975f7d1083803d2fea3688f17e369f59",
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  },
+  "bytes": 1098512,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/DocumentProperties.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "8fbc727710528e2af43a6262a066e91288658751c235bf61b7a152ce911d8a02"
+    },
+    {
+      "path": "shared/frontmatter.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "4b318bb35b115a78ca268003c19edef95673bde9b3044586ae38f9cd8607ff87"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source template conditionals select this coherent state; no runtime screenshot for exact selected variant. Synthetic pending path/property values are examples only."
+}

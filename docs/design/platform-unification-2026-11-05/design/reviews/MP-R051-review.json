@@ -1,0 +1,52 @@
+{
+  "assetId": "MP-R051",
+  "sourceIds": [
+    "PB-018"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:14:46.450980+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "OAuth request loaded with v2 allowedPolicy containing knowledge-read only, stable selected directory, offline_access requested/checked; C is consent-busy.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG, initial submitted prompt and precise closed-tree-tag edit prompt/history read; actual supplied OAuth baseline viewed for own client/role shell. Modern policy state differs explicitly from baseline legacy list.",
+    "API normalizer permits knowledge-only domain object; request scopes intersect domain ceiling and same-owner binding. Default consent selects allowed read only, valid nonempty stable directory, with optional offline checkbox only when requested/allowed.",
+    "Knowledge switch, read preset, selected scope, one removable directory tag, one-directory/zero-note count, resource helper and collapsed advanced options match real shared child. No global rebind or additional unavailable domains in consent.",
+    "C retains selected values while disabling policy inputs, resource tag removal, offline checkbox, deny and allow; allow has spinner. No protocol fields, signup, trusted-client claim or private navigation.",
+    "Actual consent POST revalidates owner/session/signed request/ceiling and redirects; image proves no grant or API execution."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-040.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R051.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/OAuthConsent.vue:23",
+    "apps/web/components/OAuthConsent.vue:79",
+    "apps/web/components/MCPDomainPermissions.vue:14",
+    "apps/web/components/KnowledgeResourceTreeSelect.vue",
+    "apps/web/mcp-permissions.ts:18",
+    "apps/server/platform/oauth.ts:35",
+    "packages/core/auth/permissions.ts:27",
+    "docs/design/platform-unification-2026-11-05/baseline/public/390-oauth-consent.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "324926f3e817376a4b3189c620d84702d8a205cf012085b16f635875be36d220",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R051.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

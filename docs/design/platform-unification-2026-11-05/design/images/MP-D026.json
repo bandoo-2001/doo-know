@@ -1,0 +1,367 @@
+{
+  "id": "MP-D026",
+  "title": "从下载备份恢复：选择文件",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-032"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-032",
+      "title": "从下载备份恢复：选择文件",
+      "role": "authenticated-owner",
+      "state": "完整桌面紧凑真实窗口/浮层；只画实际组件，不重绘外部宿主",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-032",
+      "title": "从下载备份恢复：选择文件 390px",
+      "role": "authenticated-owner",
+      "state": "同一完整紧凑组件的390px布局，登记字段/现有动作/焦点和guard不变",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-032",
+      "title": "从下载备份恢复：选择文件 320px",
+      "role": "authenticated-owner",
+      "state": "同一完整紧凑组件的320px布局，登记字段/现有动作/焦点和guard不变",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "viewportIntent": "同一紧凑真实组件的桌面/390/320三面板对照；各面板完整、1:1可读，只画局部真实窗口/浮层，父页面/role由metadata承担，禁止新增导航。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-backup.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-032",
+      "route": "/?view=settings&section=backup",
+      "trigger": "从备份恢复",
+      "parentId": "ST-004",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "加密备份",
+          "type": "file",
+          "required": true,
+          "constraints": "≤128MiB",
+          "sensitive": false
+        },
+        {
+          "name": "恢复私钥",
+          "type": "file",
+          "required": true,
+          "constraints": "≤16KiB；不渲染文件内容",
+          "sensitive": true
+        }
+      ],
+      "importantStates": [
+        "两步进度条",
+        "未选择文件",
+        "超限验证错误",
+        "保留文件选择以重试"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "下载备份恢复完整抽屉第一步：加密备份/恢复私钥选件名大小和各自上限、下一步/取消，不显私钥。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。"
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-032",
+      "label": "下一步：确认恢复",
+      "effect": "本地验证两文件及大小；进入ST-033",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-032",
+      "label": "取消",
+      "effect": "dirty显示ST-089",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-032",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. Generate ONE clearly labeled DESIGN BOARD with exactly THREE independent width specimens of the SAME existing DooKnow downloaded-backup restoration FILE-CHOICE DRAWER, never pretend three windows are simultaneously open in one app. External labels above product frames: DESIGN BOARD, A Desktop, B 390px, C 320px. Source roles/states are metadata; no other developer captions inside components. Straight-on neutral backdrop, no phones/browser/private parent rail/workspace. Supplied PILOT is STYLE ONLY: flat white/#f7f8fa, #272b3a/#657084 text, #e6e9f1 fine borders, #4566c6 primary, small8px radii and clear compact Chinese typography. Use approximately1600×1152 canvas so all3 natural-size frames and their complete fields/footers remain readable; no tiny thumbnails.\nA is only the desktop right-drawer component approx760CSSpx width×1000height; B is complete390px-wide×844height component; C is complete320px-wide×780height component. Each genuine drawer has straight full-height white frame, header/body with its own scroll region and reachable fixed footer; no outer app/desktop chrome, no phone bezel, no additional window duplicated in any specimen. Narrow specimens wrap title/description/labels and native file control row if necessary, never remove fields/close/actions.\nALL3 selected SOURCE-DERIVED states identical: restoreBackup absent, restoreStep=choose, no selected backup or key, busy=false/error absent/dirty=false, help collapsed. Header undo icon, title 从备份恢复, exact description 在独立位置恢复并验证备份，当前知识库继续运行。, closeX enabled. Stepper source exactly 1 选择文件 active, 2 确认恢复 inactive. Body contains only two actual fields in order: 加密备份（最多 128 MiB） with native file-choice input 未选择文件; 恢复私钥（最多 16 KiB） with separate native file-choice input 未选择文件. Never display private-key content. Below retain collapsed 大文件与部署切换帮助 disclosure.\nFooter exactly 取消 enabled plus primary forward-icon 下一步：确认恢复 ENABLED in every specimen. Actual template disables this button only while busy and validates empty/oversize file choices on activation; do not invent disabled-empty behavior. No confirmation-summary table/backup time/size/ID, no 上一步, no 上传并恢复独立副本 or 开始独立恢复 (later/other branch), no task/success/error/discard prompt simultaneously. No password/destination-path inputs, backend request/hash/cursor/CSRF fields, OS picker. Keep all3 source controls/guards and source field sequence, with readable 320/390 layout and no horizontal overflow; this static board does not prove runtime fit.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D026.png",
+  "reviewStatus": "pending-independent-review",
+  "responsiveFamily": {
+    "id": "MP-RF017",
+    "actualComponent": "SettingsOverlay two-file restore source selector",
+    "sourceIds": [
+      "ST-032"
+    ],
+    "roleBoundary": "owner-private",
+    "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here.",
+    "canonicalImage": "MP-D026"
+  },
+  "parentBindings": [
+    {
+      "sourceId": "ST-032",
+      "parentId": "ST-004",
+      "route": "/?view=settings&section=backup",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:161",
+        "apps/web/components/settings/BackupSettings.vue:348"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-032",
+      "title": "从下载备份恢复：选择文件",
+      "kind": "drawer",
+      "module": "settings/restore",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "从备份恢复",
+        "parentId": "ST-004"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:161",
+        "apps/web/components/settings/BackupSettings.vue:348"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "加密备份",
+          "type": "file",
+          "required": true,
+          "constraints": "≤128MiB",
+          "sensitive": false
+        },
+        {
+          "name": "恢复私钥",
+          "type": "file",
+          "required": true,
+          "constraints": "≤16KiB；不渲染文件内容",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "下一步：确认恢复",
+          "effect": "本地验证两文件及大小；进入ST-033",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "effect": "dirty显示ST-089",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "两步进度条",
+        "未选择文件",
+        "超限验证错误",
+        "保留文件选择以重试"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:198"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-D026",
+  "roles": [
+    "authenticated-owner",
+    "authenticated-owner",
+    "authenticated-owner"
+  ],
+  "selectedState": [
+    "source-derived identical initial choose-file step at desktop/390/320, nofiles/nobusy/noerror/helpclosed, next enabled by actual template"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. Generate ONE clearly labeled DESIGN BOARD with exactly THREE independent width specimens of the SAME existing DooKnow downloaded-backup restoration FILE-CHOICE DRAWER, never pretend three windows are simultaneously open in one app. External labels above product frames: DESIGN BOARD, A Desktop, B 390px, C 320px. Source roles/states are metadata; no other developer captions inside components. Straight-on neutral backdrop, no phones/browser/private parent rail/workspace. Supplied PILOT is STYLE ONLY: flat white/#f7f8fa, #272b3a/#657084 text, #e6e9f1 fine borders, #4566c6 primary, small8px radii and clear compact Chinese typography. Use approximately1600×1152 canvas so all3 natural-size frames and their complete fields/footers remain readable; no tiny thumbnails.\nA is only the desktop right-drawer component approx760CSSpx width×1000height; B is complete390px-wide×844height component; C is complete320px-wide×780height component. Each genuine drawer has straight full-height white frame, header/body with its own scroll region and reachable fixed footer; no outer app/desktop chrome, no phone bezel, no additional window duplicated in any specimen. Narrow specimens wrap title/description/labels and native file control row if necessary, never remove fields/close/actions.\nALL3 selected SOURCE-DERIVED states identical: restoreBackup absent, restoreStep=choose, no selected backup or key, busy=false/error absent/dirty=false, help collapsed. Header undo icon, title 从备份恢复, exact description 在独立位置恢复并验证备份，当前知识库继续运行。, closeX enabled. Stepper source exactly 1 选择文件 active, 2 确认恢复 inactive. Body contains only two actual fields in order: 加密备份（最多 128 MiB） with native file-choice input 未选择文件; 恢复私钥（最多 16 KiB） with separate native file-choice input 未选择文件. Never display private-key content. Below retain collapsed 大文件与部署切换帮助 disclosure.\nFooter exactly 取消 enabled plus primary forward-icon 下一步：确认恢复 ENABLED in every specimen. Actual template disables this button only while busy and validates empty/oversize file choices on activation; do not invent disabled-empty behavior. No confirmation-summary table/backup time/size/ID, no 上一步, no 上传并恢复独立副本 or 开始独立恢复 (later/other branch), no task/success/error/discard prompt simultaneously. No password/destination-path inputs, backend request/hash/cursor/CSRF fields, OS picker. Keep all3 source controls/guards and source field sequence, with readable 320/390 layout and no horizontal overflow; this static board does not prove runtime fit.",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-D026 从下载备份恢复：选择文件\n\n同一紧凑真实组件的桌面/390/320三面板对照；各面板完整、1:1可读，只画局部真实窗口/浮层，父页面/role由metadata承担，禁止新增导航。\n\n角色壳：所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。\n\n独立场景：\nA | ST-032 | 从下载备份恢复：选择文件 | role=authenticated-owner | 完整桌面紧凑真实窗口/浮层；只画实际组件，不重绘外部宿主\nB | ST-032 | 从下载备份恢复：选择文件 390px | role=authenticated-owner | 同一完整紧凑组件的390px布局，登记字段/现有动作/焦点和guard不变\nC | ST-032 | 从下载备份恢复：选择文件 320px | role=authenticated-owner | 同一完整紧凑组件的320px布局，登记字段/现有动作/焦点和guard不变\n\n完整构图：\n下载备份恢复完整抽屉第一步：加密备份/恢复私钥选件名大小和各自上限、下一步/取消，不显私钥。\n\n精确功能/字段/动作guard合同：\nST-032权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-032字段顺序：加密备份 [file; 必填]: ≤128MiB | 恢复私钥 [file; 必填]: ≤16KiB；不渲染文件内容；仅合成掩码\nST-032白名单：下一步：确认恢复 => 本地验证两文件及大小；进入ST-033；guard=已登录所有者；请求期间禁用重复操作\nST-032白名单：取消 => dirty显示ST-089；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\nSettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-backup.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "97d08b85c99d01fa5a1193bd951f58708e31f29566db456b5076ce8f799cc4d0",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 129321
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D026.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-1bae9b5e-a782-4c6f-a1df-aa05e5ab8421.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-1bae9b5e-a782-4c6f-a1df-aa05e5ab8421.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T02:15:21.611Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Three independent source-derived desktop/390/320 restore-file-choice specimens retain both inputs/limits, steps/help, close and enabled empty-state next action exactly as template.",
+    "concerns": [
+      "Actual component state is source-derived and not a runtime capture.",
+      "Static raster does not verify validation/capability/close/focus or 320/390 scrolling; exact dimensions/text geometry and minor texture approximate."
+    ]
+  },
+  "sha256": "d332a9d3a871488c39575cca0e76144f27d85fb58a7ee7d6dd9326a6103a1aef",
+  "dimensions": {
+    "width": 1568,
+    "height": 1003
+  },
+  "bytes": 1266826,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/settings/BackupSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+    },
+    {
+      "path": "apps/web/components/settings/BackupSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+    },
+    {
+      "path": "apps/web/components/settings/SettingsOverlay.vue",
+      "role": "actual window width/body/footer/close/focus guards authority",
+      "sha256": "1642d0324aaad3921e52fe60d086622981d2203e05b08e215e231dd406da657d"
+    },
+    {
+      "path": "apps/web/components/settings/settings-overlay.css",
+      "role": "actual window width/body/footer/close/focus guards authority",
+      "sha256": "55edaa352854eb6c491907e7c8b28b5500dd9aec1b9c98c866ac44bf710be647"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Parent settings baseline provides only context; exact component uncaptured. Actual template controls and visibility/disabled conditions outrank generic API summaries."
+}

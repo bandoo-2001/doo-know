@@ -1,0 +1,258 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D013",
+  "assetId": "MP-D013",
+  "sourceIds": [
+    "ST-016"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-016",
+      "title": "共享链接总览与筛选",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Loaded share overview with three distinct active/expired/revoked records, all filter, no cursor/error/copy notice; capability URLs are not printed."
+    }
+  ],
+  "selectedState": "Loaded share overview with three distinct active/expired/revoked records, all filter, no cursor/error/copy notice; capability URLs are not printed.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作完整“共享链接”局部设置卡，不画父页或新的关闭按钮。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。标题共享链接、说明“查看链接的访问权限和有效期，并撤销不再需要的访问。”。工具行空搜索input placeholder按标题或路径查找、select全部状态、查找链接按钮。三个独立记录：\n示例笔记A、可访问、路径00-Inbox/a.md、仅查看、永久有效；现有链接“打开共享页面”，按钮复制链接与红色撤销。\n示例笔记B、已过期、路径00-Inbox/b.md、可编辑、截止2026/11/4 10:00:00；只有红色撤销，无打开/复制。\n示例笔记C、已撤销、路径00-Inbox/c.md、仅查看、永久有效；无打开/复制/撤销动作。\n没有分页cursor所以无加载更多链接；无错误则无重新读取。不要显示原始共享URL/token或把三条状态混在一条，无密码门/新增分享/确认气泡。",
+  "prompt": "制作完整“共享链接”局部设置卡，不画父页或新的关闭按钮。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。标题共享链接、说明“查看链接的访问权限和有效期，并撤销不再需要的访问。”。工具行空搜索input placeholder按标题或路径查找、select全部状态、查找链接按钮。三个独立记录：\n示例笔记A、可访问、路径00-Inbox/a.md、仅查看、永久有效；现有链接“打开共享页面”，按钮复制链接与红色撤销。\n示例笔记B、已过期、路径00-Inbox/b.md、可编辑、截止2026/11/4 10:00:00；只有红色撤销，无打开/复制。\n示例笔记C、已撤销、路径00-Inbox/c.md、仅查看、永久有效；无打开/复制/撤销动作。\n没有分页cursor所以无加载更多链接；无错误则无重新读取。不要显示原始共享URL/token或把三条状态混在一条，无密码门/新增分享/确认气泡。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exclude owner workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exclude owner workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作完整“共享链接”局部设置卡，不画父页或新的关闭按钮。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。标题共享链接、说明“查看链接的访问权限和有效期，并撤销不再需要的访问。”。工具行空搜索input placeholder按标题或路径查找、select全部状态、查找链接按钮。三个独立记录：\n示例笔记A、可访问、路径00-Inbox/a.md、仅查看、永久有效；现有链接“打开共享页面”，按钮复制链接与红色撤销。\n示例笔记B、已过期、路径00-Inbox/b.md、可编辑、截止2026/11/4 10:00:00；只有红色撤销，无打开/复制。\n示例笔记C、已撤销、路径00-Inbox/c.md、仅查看、永久有效；无打开/复制/撤销动作。\n没有分页cursor所以无加载更多链接；无错误则无重新读取。不要显示原始共享URL/token或把三条状态混在一条，无密码门/新增分享/确认气泡。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作完整“共享链接”局部设置卡，不画父页或新的关闭按钮。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。标题共享链接、说明“查看链接的访问权限和有效期，并撤销不再需要的访问。”。工具行空搜索input placeholder按标题或路径查找、select全部状态、查找链接按钮。三个独立记录：\n示例笔记A、可访问、路径00-Inbox/a.md、仅查看、永久有效；现有链接“打开共享页面”，按钮复制链接与红色撤销。\n示例笔记B、已过期、路径00-Inbox/b.md、可编辑、截止2026/11/4 10:00:00；只有红色撤销，无打开/复制。\n示例笔记C、已撤销、路径00-Inbox/c.md、仅查看、永久有效；无打开/复制/撤销动作。\n没有分页cursor所以无加载更多链接；无错误则无重新读取。不要显示原始共享URL/token或把三条状态混在一条，无密码门/新增分享/确认气泡。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+          "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; exclude owner workspace shell"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-05ad4547-6de6-46dc-8d78-8238ff2bb060.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-016",
+      "title": "共享链接总览与筛选",
+      "kind": "state",
+      "module": "settings/shares",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "共享链接卡片",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/ShareManagement.vue:40",
+        "apps/web/components/settings/ShareManagement.vue:95"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "查找共享链接",
+          "type": "search",
+          "required": false,
+          "constraints": "按标题或路径；服务端q最长200",
+          "sensitive": false
+        },
+        {
+          "name": "共享链接状态",
+          "type": "select",
+          "required": false,
+          "constraints": "全部/可访问/已失效",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "查找链接 / 加载更多 / 重新读取",
+          "effect": "分页读取共享信息",
+          "api": "GET /api/manage/shares?q=&enabled=&cursor=",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "复制链接",
+          "effect": "写剪贴板；失败保留下方手动复制链接",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "打开共享页面",
+          "effect": "新窗口打开有效分享",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "撤销",
+          "effect": "打开ST-017",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "加载/无符合结果/错误",
+        "active/expired/revoked/private",
+        "仅查看/可编辑",
+        "永久/到期时间",
+        "1秒时钟更新到期状态",
+        "复制失败"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:312",
+        "tests/e2e/share-management-expiry.spec.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "有效链接属于敏感访问材料，设计用占位符。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-016",
+      "parentId": "ST-002",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/ShareManagement.vue:40",
+        "apps/web/components/settings/ShareManagement.vue:95"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-017.json#MP-D013",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D013",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-05ad4547-6de6-46dc-8d78-8238ff2bb060.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D013.png",
+  "sha256": "88e2696a26b2d99fd53c64f392aa2347b4f7370f92e77402a6a5e144ba1ccaf6",
+  "bytes": 1083314,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T03:49:28.645917+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "共享链接总览与筛选",
+    "sourceIds": [
+      "ST-016"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Loaded share overview with three distinct active/expired/revoked records, all filter, no cursor/error/copy notice; capability URLs are not printed.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "renderedVariants": []
+}

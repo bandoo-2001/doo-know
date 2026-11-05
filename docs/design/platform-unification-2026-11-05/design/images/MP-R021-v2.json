@@ -1,0 +1,297 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R021-v2",
+  "assetId": "MP-R021",
+  "sourceIds": [
+    "ST-050"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-050",
+      "title": "Git插件配置内页390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three local narrow Git plugin settings positions at390/320/320: A full disabled clean config and actual unconnected GitRemote; B lower author fields with long valid fictional name/email dirty, enable disabled save allowed; C explicit config conflict retains inputs, re-load action, save/enable disabled while uninstall/back/refresh allowed. No actual Git task or connected result."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-050",
+      "title": "Git插件配置内页320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three local narrow Git plugin settings positions at390/320/320: A full disabled clean config and actual unconnected GitRemote; B lower author fields with long valid fictional name/email dirty, enable disabled save allowed; C explicit config conflict retains inputs, re-load action, save/enable disabled while uninstall/back/refresh allowed. No actual Git task or connected result."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-050",
+      "title": "Git插件配置内页320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three local narrow Git plugin settings positions at390/320/320: A full disabled clean config and actual unconnected GitRemote; B lower author fields with long valid fictional name/email dirty, enable disabled save allowed; C explicit config conflict retains inputs, re-load action, save/enable disabled while uninstall/back/refresh allowed. No actual Git task or connected result."
+    }
+  ],
+  "selectedState": "Three local narrow Git plugin settings positions at390/320/320: A full disabled clean config and actual unconnected GitRemote; B lower author fields with long valid fictional name/email dirty, enable disabled save allowed; C explicit config conflict retains inputs, re-load action, save/enable disabled while uninstall/back/refresh allowed. No actual Git task or connected result.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "只删除中间B列两个单行输入框底部新增的横向滚动条轨道、滑块及左右小箭头按钮。提交作者仍显示原来的长示例作者值，作者邮箱仍显示long-example-author@example.invalid，两者恢复普通单行input，文字在输入内部通过光标横移，没有可见滚动条控件。其余全部保持不变：左A和右C所有内容、中列标签和说明、有未保存的更改提示、启用插件禁用/卸载可用/保存插件配置可用，以及右C冲突提示与各guard，不增加新控件或文字。",
+  "prompt": "只删除中间B列两个单行输入框底部新增的横向滚动条轨道、滑块及左右小箭头按钮。提交作者仍显示原来的长示例作者值，作者邮箱仍显示long-example-author@example.invalid，两者恢复普通单行input，文字在输入内部通过光标横移，没有可见滚动条控件。其余全部保持不变：左A和右C所有内容、中列标签和说明、有未保存的更改提示、启用插件禁用/卸载可用/保存插件配置可用，以及右C冲突提示与各guard，不增加新控件或文字。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R021.png",
+      "role": "Edit target: B plain single-line author input controls only",
+      "sha256": "c33000c11f032f3c0fa280b875ab46268d2a27eaeae19a8dba6e7f080b076c81",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R021.png",
+      "role": "Edit target: B plain single-line author input controls only",
+      "sha256": "c33000c11f032f3c0fa280b875ab46268d2a27eaeae19a8dba6e7f080b076c81",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "只删除中间B列两个单行输入框底部新增的横向滚动条轨道、滑块及左右小箭头按钮。提交作者仍显示原来的长示例作者值，作者邮箱仍显示long-example-author@example.invalid，两者恢复普通单行input，文字在输入内部通过光标横移，没有可见滚动条控件。其余全部保持不变：左A和右C所有内容、中列标签和说明、有未保存的更改提示、启用插件禁用/卸载可用/保存插件配置可用，以及右C冲突提示与各guard，不增加新控件或文字。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R021.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "只删除中间B列两个单行输入框底部新增的横向滚动条轨道、滑块及左右小箭头按钮。提交作者仍显示原来的长示例作者值，作者邮箱仍显示long-example-author@example.invalid，两者恢复普通单行input，文字在输入内部通过光标横移，没有可见滚动条控件。其余全部保持不变：左A和右C所有内容、中列标签和说明、有未保存的更改提示、启用插件禁用/卸载可用/保存插件配置可用，以及右C冲突提示与各guard，不增加新控件或文字。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R021.png",
+          "role": "Edit target: B plain single-line author input controls only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-cb6cfd2a-a6b1-4034-bbe3-3f1ae1d75a09.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-050",
+      "title": "Git插件配置内页",
+      "kind": "state",
+      "module": "settings/plugins/git",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "Git版本管理→配置",
+        "parentId": "ST-047"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:544",
+        "apps/web/components/PluginManager.vue:590",
+        "plugins/git/manifest.json:14"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "提交作者",
+          "type": "text",
+          "required": false,
+          "constraints": "≤100字符",
+          "sensitive": false
+        },
+        {
+          "name": "作者邮箱",
+          "type": "text",
+          "required": false,
+          "constraints": "≤254字符；署名非登录凭据",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存插件配置",
+          "effect": "按configVersion保存作者设置",
+          "api": "PUT /api/platform/plugins/git/config",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "启用/停用/卸载插件",
+          "effect": "生命周期操作",
+          "api": "POST /api/platform/plugins/git/:action",
+          "guard": "Git任务忙时服务器拒绝409"
+        }
+      ],
+      "importantStates": [
+        "未配置作者",
+        "运行异常",
+        "重启待生效",
+        "GitRemotePanel ST-074",
+        "Git仓库插件贡献ST-082"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/git.spec.ts:7",
+        "tests/git-remote-routes.test.ts:73"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-050",
+      "parentId": "ST-047",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:544",
+        "apps/web/components/PluginManager.vue:590",
+        "plugins/git/manifest.json:14"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-037.json#MP-R021",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R021",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-cb6cfd2a-a6b1-4034-bbe3-3f1ae1d75a09.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R021-v2.png",
+  "sha256": "83caf0115821ef27e64f23911c1a63dded3362bda73f076600ff73d707143266",
+  "bytes": 1590963,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:46:58.117381+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R021.png",
+    "sha256": "c33000c11f032f3c0fa280b875ab46268d2a27eaeae19a8dba6e7f080b076c81",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/MP-R021-review.json"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: PluginManager.vue Git author/email compact config",
+    "sourceIds": [
+      "ST-050"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three local narrow Git plugin settings positions at390/320/320: A full disabled clean config and actual unconnected GitRemote; B lower author fields with long valid fictional name/email dirty, enable disabled save allowed; C explicit config conflict retains inputs, re-load action, save/enable disabled while uninstall/back/refresh allowed. No actual Git task or connected result.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "state": "disabled",
+      "dirty": false,
+      "remoteChanged": false,
+      "authorName": "",
+      "authorEmail": "",
+      "git": {
+        "branch": "",
+        "changes": 0,
+        "connection": null
+      }
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "scope": "lower scroll and lifecycle guards",
+      "state": "disabled",
+      "dirty": true,
+      "remoteChanged": false,
+      "authorName": "用于长字段换行检查的示例作者",
+      "authorEmail": "long-example-author@example.invalid"
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "scope": "conflict local body and footer",
+      "state": "disabled",
+      "dirty": true,
+      "remoteChanged": true,
+      "authorName": "示例作者",
+      "authorEmail": "author@example.invalid"
+    }
+  ]
+}

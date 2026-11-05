@@ -1,0 +1,256 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D083",
+  "assetId": "MP-D083",
+  "sourceIds": [
+    "PB-013"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-013",
+      "title": "首次设置：准备完成",
+      "role": "authenticated owner",
+      "state": "Source-derived ready/onboarding step3; sample library path summary, import collapsed and idle, finish buttons enabled"
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "Source-derived ready/onboarding step3; sample library path summary, import collapsed and idle, finish buttons enabled",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-runtime-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "只在这张DooKnow第3步首次设置图的资料位置摘要中补回准确源码label“资料保存位置”，放在现有/srv/example/knowledge路径上方、同一摘要区域内，用小号清晰深色文字。所有其余内容/路径/标题/步骤/说明/创建第一篇笔记与进入工作区按钮/折叠导入/上一步/页脚/布局保持不变。不得新增输入、主人导航、文件树、上传表单或其他动作。",
+  "prompt": "只在这张DooKnow第3步首次设置图的资料位置摘要中补回准确源码label“资料保存位置”，放在现有/srv/example/knowledge路径上方、同一摘要区域内，用小号清晰深色文字。所有其余内容/路径/标题/步骤/说明/创建第一篇笔记与进入工作区按钮/折叠导入/上一步/页脚/布局保持不变。不得新增输入、主人导航、文件树、上传表单或其他动作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Palette/density and DooKnow book identity only; no owner shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-322b5fc4-c34e-4194-a0fe-d2052ffe1e62.png",
+      "role": "Edit target: preserve all existing source-derived setup controls/content except exact label/title correction",
+      "sha256": "0aeec7b85573c5a6b23b4c1b9d771578e4c37a079e603984287f8f5fc211bfa8",
+      "dimensions": {
+        "width": 1487,
+        "height": 1058
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Palette/density and DooKnow book identity only; no owner shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-322b5fc4-c34e-4194-a0fe-d2052ffe1e62.png",
+      "role": "Edit target: preserve all existing source-derived setup controls/content except exact label/title correction",
+      "sha256": "0aeec7b85573c5a6b23b4c1b9d771578e4c37a079e603984287f8f5fc211bfa8",
+      "dimensions": {
+        "width": 1487,
+        "height": 1058
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "只在这张DooKnow第3步首次设置图的资料位置摘要中补回准确源码label“资料保存位置”，放在现有/srv/example/knowledge路径上方、同一摘要区域内，用小号清晰深色文字。所有其余内容/路径/标题/步骤/说明/创建第一篇笔记与进入工作区按钮/折叠导入/上一步/页脚/布局保持不变。不得新增输入、主人导航、文件树、上传表单或其他动作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-322b5fc4-c34e-4194-a0fe-d2052ffe1e62.png"
+    ],
+    "transparent_background": false
+  },
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-004.json#MP-D083",
+  "sourceReferences": [
+    {
+      "sourceId": "PB-013",
+      "parentId": "PB-012",
+      "route": "/ (ready onboarding step3)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:163",
+        "apps/web/components/SetupWizard.vue:413"
+      ]
+    }
+  ],
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D083",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "generationCallCount": 2,
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-1c31d3b9-8fb2-4342-a6ba-99157e44201c.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D083.png",
+  "sha256": "144da64f546e4d84ba4488c7e59ccea982e717cf9aebb8939059aef727402791",
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "bytes": 1577305,
+  "generatedAtUtc": "2026-11-05T01:34:35.781200+00:00",
+  "postprocessing": "Original built-in tool PNG copied byte-for-byte; no pixel editing.",
+  "revisionOf": {
+    "kind": "generation-attempt",
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-322b5fc4-c34e-4194-a0fe-d2052ffe1e62.png",
+    "sha256": "0aeec7b85573c5a6b23b4c1b9d771578e4c37a079e603984287f8f5fc211bfa8"
+  },
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "首次设置：准备完成",
+    "sourceIds": [
+      "PB-013"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Source-derived ready/onboarding step3; sample library path summary, import collapsed and idle, finish buttons enabled",
+    "location": "metadata, outside product UI"
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-013",
+      "parentId": "PB-012",
+      "route": "/ (ready onboarding step3)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:163",
+        "apps/web/components/SetupWizard.vue:413"
+      ]
+    }
+  ],
+  "sourceStateAndActionContracts": {
+    "functionalInvariants": [
+      {
+        "sourceId": "PB-013",
+        "route": "/ (ready onboarding step3)",
+        "trigger": "Continue or skip optional features",
+        "parentId": "PB-012",
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+        ],
+        "fields": [],
+        "importantStates": [
+          "library location summary",
+          "finish busy/error; import busy disables leaving",
+          "create-first-note intent stored for workspace"
+        ],
+        "notes": []
+      },
+      {
+        "type": "composition",
+        "details": [
+          "首启准备完成完整页：库位置摘要、创建首篇/进入工作区/上一步/导入已有资料；busy保持原守卫。"
+        ]
+      },
+      {
+        "type": "role-shell",
+        "rule": "已验证主人会话的首启壳，仅首启步骤与允许入口，无主人私有文件树。PB-016可达性待核，不增浏览器主人创建。"
+      }
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "PB-013",
+        "label": "创建第一篇笔记",
+        "effect": "Finish onboarding and queue create-note welcome action",
+        "api": "POST /api/platform/setup/finish",
+        "guard": "not busy/importBusy"
+      },
+      {
+        "sourceId": "PB-013",
+        "label": "进入工作区",
+        "effect": "Finish onboarding",
+        "api": "POST /api/platform/setup/finish",
+        "guard": "not busy/importBusy"
+      },
+      {
+        "sourceId": "PB-013",
+        "label": "上一步",
+        "effect": "Return to optional features",
+        "api": "",
+        "guard": "not busy/importBusy"
+      },
+      {
+        "sourceId": "PB-013",
+        "label": "导入已有资料",
+        "effect": "Expand single Markdown import",
+        "api": "",
+        "guard": ""
+      }
+    ],
+    "responsiveContract": [
+      {
+        "sourceId": "PB-013",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified.",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      }
+    ],
+    "otherVariantsDrawn": false
+  },
+  "selfInspection": {
+    "method": "Native generated PNG actually viewed in generation child context against all submitted image inputs and actual component templates.",
+    "concerns": [
+      "Static raster does not establish source/API execution, role enforcement, conditional guards, keyboard/focus, responsive fit or actual action outcomes.",
+      "Light raster shading/texture and approximate proportions are illustrative CSS guidance, not exact measured compliance.",
+      "SOURCE-DERIVED: no actual runtime screenshot for this selected setup surface; source template/state and synthetic /srv/example placeholders only. No runtime/reachability acceptance implied."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作独立DooKnow首次设置第3步准备完成页面，约1440×1000。完整独立DooKnow首次设置页面，1440px左右桌面画布，中央约840px宽纵向页面，淡灰外背景、白卡。只参考输入图的平面配色和密度，完全不复制它的主人rail、目录树、顶部工作区导航或空笔记内容。此处只有页首书本DooKnow，右侧欢迎使用；卡内三步进度为准备知识库/选择功能/开始使用，卡外底部你的资料，由你掌握。只画声明的一种源码状态，无浏览器账号创建、注册、找回密码、社交登录、私人目录树或新增按钮。进度准备知识库/选择功能均已完成，开始使用第3步激活。卡内顺序：勾号ready图标；知识库准备好了；写下第一个想法，或把已有资料放进来。之后的设置都能在工作区里找到。；摘要框只读资料保存位置，/srv/example/knowledge，说明资料保存在部署 DooKnow 的设备上。；并排主动作蓝色创建第一篇笔记、描边进入工作区，二者均idle可用；折叠导入已有资料（不显示上传字段）；页脚上一步与所有可选功能都能稍后设置。只画该ready首启状态，不画已进入的工作区、主人导航/笔记树、不加自动完成保证、账号创建或上传弹窗。平面白底、#f7f8fa浅面、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中；紧凑清晰中文无衬线、小线性图标、8px圆角，无渐变纹理，无浏览器外壳。source-derived/未runtime验证只记录metadata。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Palette/density and DooKnow book identity only; no owner shell"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-322b5fc4-c34e-4194-a0fe-d2052ffe1e62.png"
+    },
+    {
+      "submittedPrompt": "只在这张DooKnow第3步首次设置图的资料位置摘要中补回准确源码label“资料保存位置”，放在现有/srv/example/knowledge路径上方、同一摘要区域内，用小号清晰深色文字。所有其余内容/路径/标题/步骤/说明/创建第一篇笔记与进入工作区按钮/折叠导入/上一步/页脚/布局保持不变。不得新增输入、主人导航、文件树、上传表单或其他动作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-322b5fc4-c34e-4194-a0fe-d2052ffe1e62.png",
+          "role": "Edit target: preserve all existing source-derived setup controls/content except exact label/title correction"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-1c31d3b9-8fb2-4342-a6ba-99157e44201c.png"
+    }
+  ]
+}

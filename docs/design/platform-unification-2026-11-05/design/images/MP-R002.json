@@ -1,0 +1,291 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R002",
+  "assetId": "MP-R002",
+  "sourceIds": [
+    "ST-010"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-010",
+      "title": "编辑器显示预览展开390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent expanded EditorSettings details local snippets at390/320/320: split light wraps with line numbers and comfortable reading; preview-only dark wide; edit-only light no-wrap inner horizontal overflow. <=430 split stacks vertically. No editable source input, no save controls inside preview."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-010",
+      "title": "编辑器显示预览展开320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent expanded EditorSettings details local snippets at390/320/320: split light wraps with line numbers and comfortable reading; preview-only dark wide; edit-only light no-wrap inner horizontal overflow. <=430 split stacks vertically. No editable source input, no save controls inside preview."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-010",
+      "title": "编辑器显示预览展开320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent expanded EditorSettings details local snippets at390/320/320: split light wraps with line numbers and comfortable reading; preview-only dark wide; edit-only light no-wrap inner horizontal overflow. <=430 split stacks vertically. No editable source input, no save controls inside preview."
+    }
+  ],
+  "selectedState": "Three independent expanded EditorSettings details local snippets at390/320/320: split light wraps with line numbers and comfortable reading; preview-only dark wide; edit-only light no-wrap inner horizontal overflow. <=430 split stacks vertically. No editable source input, no save controls inside preview.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制三个独立窄宽的网页“显示预览”展开局部，白灰细边框、第一参考的紧凑字号，不画整个设置页或导航。左390宽：展开三角“显示预览”，卡片工具栏“显示预览”和“舒适宽度 · 15 px · 浅色”，说明“预览为缩略示意；点击「保存偏好」后应用到笔记。”。分屏必须上下堆叠而非左右，顶区等宽只读代码，行号1对应“# 阅读与记录”，行号2对应正文“把今天的想法记下来，让原文、链接和附件留在一起。调整显示方式，为下一次阅读留出舒服的空间。”自动换行；下区是同内容的排版阅读页，标题阅读与记录。中间320宽：同展开summary、工具栏“显示预览”“宽屏阅读 · 18 px · 深色”和相同说明，预览卡片深灰底浅字，仅排版阅读区，无代码区或行号。右320宽：同展开summary、浅色工具栏“舒适宽度 · 15 px · 浅色”、相同说明，仅只读源码区，无行号；第一行# 阅读与记录，第二行长正文不换行，在区内横向滚动，底部可见小滚动条；下方文案“阅读宽度：舒适宽度，在预览或分屏视图中查看效果。”。所有代码是只读示意，不画编辑输入光标，不把说明中的保存偏好变成按钮，不新增切换或保存动作。",
+  "prompt": "绘制三个独立窄宽的网页“显示预览”展开局部，白灰细边框、第一参考的紧凑字号，不画整个设置页或导航。左390宽：展开三角“显示预览”，卡片工具栏“显示预览”和“舒适宽度 · 15 px · 浅色”，说明“预览为缩略示意；点击「保存偏好」后应用到笔记。”。分屏必须上下堆叠而非左右，顶区等宽只读代码，行号1对应“# 阅读与记录”，行号2对应正文“把今天的想法记下来，让原文、链接和附件留在一起。调整显示方式，为下一次阅读留出舒服的空间。”自动换行；下区是同内容的排版阅读页，标题阅读与记录。中间320宽：同展开summary、工具栏“显示预览”“宽屏阅读 · 18 px · 深色”和相同说明，预览卡片深灰底浅字，仅排版阅读区，无代码区或行号。右320宽：同展开summary、浅色工具栏“舒适宽度 · 15 px · 浅色”、相同说明，仅只读源码区，无行号；第一行# 阅读与记录，第二行长正文不换行，在区内横向滚动，底部可见小滚动条；下方文案“阅读宽度：舒适宽度，在预览或分屏视图中查看效果。”。所有代码是只读示意，不画编辑输入光标，不把说明中的保存偏好变成按钮，不新增切换或保存动作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-editor.png",
+      "role": "Actual mobile parent host reference only; selected expanded states source-derived",
+      "sha256": "f2fbbc498eaeb50cb0513ac14a32de59b2d71cab2cff92cbd982c43efc7406c5",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-editor.png",
+      "role": "Actual mobile parent host reference only; selected expanded states source-derived",
+      "sha256": "f2fbbc498eaeb50cb0513ac14a32de59b2d71cab2cff92cbd982c43efc7406c5",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制三个独立窄宽的网页“显示预览”展开局部，白灰细边框、第一参考的紧凑字号，不画整个设置页或导航。左390宽：展开三角“显示预览”，卡片工具栏“显示预览”和“舒适宽度 · 15 px · 浅色”，说明“预览为缩略示意；点击「保存偏好」后应用到笔记。”。分屏必须上下堆叠而非左右，顶区等宽只读代码，行号1对应“# 阅读与记录”，行号2对应正文“把今天的想法记下来，让原文、链接和附件留在一起。调整显示方式，为下一次阅读留出舒服的空间。”自动换行；下区是同内容的排版阅读页，标题阅读与记录。中间320宽：同展开summary、工具栏“显示预览”“宽屏阅读 · 18 px · 深色”和相同说明，预览卡片深灰底浅字，仅排版阅读区，无代码区或行号。右320宽：同展开summary、浅色工具栏“舒适宽度 · 15 px · 浅色”、相同说明，仅只读源码区，无行号；第一行# 阅读与记录，第二行长正文不换行，在区内横向滚动，底部可见小滚动条；下方文案“阅读宽度：舒适宽度，在预览或分屏视图中查看效果。”。所有代码是只读示意，不画编辑输入光标，不把说明中的保存偏好变成按钮，不新增切换或保存动作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-editor.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制三个独立窄宽的网页“显示预览”展开局部，白灰细边框、第一参考的紧凑字号，不画整个设置页或导航。左390宽：展开三角“显示预览”，卡片工具栏“显示预览”和“舒适宽度 · 15 px · 浅色”，说明“预览为缩略示意；点击「保存偏好」后应用到笔记。”。分屏必须上下堆叠而非左右，顶区等宽只读代码，行号1对应“# 阅读与记录”，行号2对应正文“把今天的想法记下来，让原文、链接和附件留在一起。调整显示方式，为下一次阅读留出舒服的空间。”自动换行；下区是同内容的排版阅读页，标题阅读与记录。中间320宽：同展开summary、工具栏“显示预览”“宽屏阅读 · 18 px · 深色”和相同说明，预览卡片深灰底浅字，仅排版阅读区，无代码区或行号。右320宽：同展开summary、浅色工具栏“舒适宽度 · 15 px · 浅色”、相同说明，仅只读源码区，无行号；第一行# 阅读与记录，第二行长正文不换行，在区内横向滚动，底部可见小滚动条；下方文案“阅读宽度：舒适宽度，在预览或分屏视图中查看效果。”。所有代码是只读示意，不画编辑输入光标，不把说明中的保存偏好变成按钮，不新增切换或保存动作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-editor.png",
+          "role": "Actual mobile parent host reference only; selected expanded states source-derived"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-aa23558a-8c3d-4edf-9a99-3bd0544a6445.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-010",
+      "title": "编辑器显示预览展开",
+      "kind": "state",
+      "module": "settings/editor",
+      "entry": {
+        "route": "/?view=settings&section=editor",
+        "trigger": "显示预览details",
+        "parentId": "ST-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/EditorSettings.vue:195"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "显示示意",
+          "type": "read-only",
+          "required": false,
+          "constraints": "文字大小、换行、行号、阅读宽度与浅深外观实时跟随草稿；编辑/预览/分屏",
+          "sensitive": false
+        }
+      ],
+      "actions": [],
+      "importantStates": [
+        "浅色",
+        "深色",
+        "split双栏",
+        "显示预览收起"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-layout.spec.ts:23"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "示意不保存；与实际编辑器预览区别明确。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-010",
+      "parentId": "ST-001",
+      "route": "/?view=settings&section=editor",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/EditorSettings.vue:195"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-035.json#MP-R002",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R002",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-aa23558a-8c3d-4edf-9a99-3bd0544a6445.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R002.png",
+  "sha256": "f7209485acd05b99fbc29bbe6cd9b548fc67eb64620885dd77b2d1eadd45e65f",
+  "bytes": 1192689,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:19:19.243709+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: EditorSettings.vue .editor-preview / two-pane preview",
+    "sourceIds": [
+      "ST-010"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent expanded EditorSettings details local snippets at390/320/320: split light wraps with line numbers and comfortable reading; preview-only dark wide; edit-only light no-wrap inner horizontal overflow. <=430 split stacks vertically. No editable source input, no save controls inside preview.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "mode": "split",
+      "theme": "light",
+      "fontSize": 15,
+      "readingWidth": "comfortable",
+      "wrap": true,
+      "lineNumbers": true,
+      "splitLayout": "vertical at <=430"
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "mode": "preview",
+      "theme": "dark",
+      "fontSize": 18,
+      "readingWidth": "wide"
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "mode": "edit",
+      "theme": "light",
+      "fontSize": 15,
+      "readingWidth": "comfortable",
+      "wrap": false,
+      "lineNumbers": false,
+      "overflow": "source code readonly inner horizontal scroll"
+    }
+  ]
+}

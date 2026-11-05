@@ -1,0 +1,386 @@
+{
+  "kind": "generated-design",
+  "id": "WS-M008-v2",
+  "assetId": "WS-M008",
+  "sourceIds": [
+    "WS-061"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-061",
+      "title": "Attachment upload queue and recovery panel — compact component state matrix",
+      "role": "authenticated owner",
+      "state": "Workspace.vue uploadBusy/uploadFailure/batchItems/status queue. Rows are actual queue/status fragments.",
+      "presentation": "ONE compact component matrix, not multiple simultaneously open full windows",
+      "rows": [
+        {
+          "label": "row-1",
+          "sourceId": "WS-061",
+          "title": "Attachment upload queue and recovery panel",
+          "role": "authenticated owner",
+          "state": "Preparing/queued",
+          "actionPresentation": "EXACT existing item state labels/inserted flag: failed has retryBatch(item), successful uninserted enables insertBatch(true), dismissBatch disabled uploadBusy; upload success does not imply insertion or deleting uploaded files.",
+          "sourceComponent": "apps/web/components/Workspace.vue"
+        },
+        {
+          "label": "row-2",
+          "sourceId": "WS-061",
+          "title": "Attachment upload queue and recovery panel",
+          "role": "authenticated owner",
+          "state": "Uploading",
+          "actionPresentation": "EXACT existing item state labels/inserted flag: failed has retryBatch(item), successful uninserted enables insertBatch(true), dismissBatch disabled uploadBusy; upload success does not imply insertion or deleting uploaded files.",
+          "sourceComponent": "apps/web/components/Workspace.vue"
+        },
+        {
+          "label": "row-3",
+          "sourceId": "WS-061",
+          "title": "Attachment upload queue and recovery panel",
+          "role": "authenticated owner",
+          "state": "Successful upload awaiting insertion",
+          "actionPresentation": "EXACT existing item state labels/inserted flag: failed has retryBatch(item), successful uninserted enables insertBatch(true), dismissBatch disabled uploadBusy; upload success does not imply insertion or deleting uploaded files.",
+          "sourceComponent": "apps/web/components/Workspace.vue"
+        },
+        {
+          "label": "row-4",
+          "sourceId": "WS-061",
+          "title": "Attachment upload queue and recovery panel",
+          "role": "authenticated owner",
+          "state": "Per-item failure with retry",
+          "actionPresentation": "EXACT existing item state labels/inserted flag: failed has retryBatch(item), successful uninserted enables insertBatch(true), dismissBatch disabled uploadBusy; upload success does not imply insertion or deleting uploaded files.",
+          "sourceComponent": "apps/web/components/Workspace.vue"
+        },
+        {
+          "label": "row-5",
+          "sourceId": "WS-061",
+          "title": "Attachment upload queue and recovery panel",
+          "role": "authenticated owner",
+          "state": "Partial success and failure in one batch",
+          "actionPresentation": "EXACT existing item state labels/inserted flag: failed has retryBatch(item), successful uninserted enables insertBatch(true), dismissBatch disabled uploadBusy; upload success does not imply insertion or deleting uploaded files.",
+          "sourceComponent": "apps/web/components/Workspace.vue"
+        },
+        {
+          "label": "row-6",
+          "sourceId": "WS-061",
+          "title": "Attachment upload queue and recovery panel",
+          "role": "authenticated owner",
+          "state": "Upload complete but captured target changed",
+          "actionPresentation": "EXACT existing item state labels/inserted flag: failed has retryBatch(item), successful uninserted enables insertBatch(true), dismissBatch disabled uploadBusy; upload success does not imply insertion or deleting uploaded files.",
+          "sourceComponent": "apps/web/components/Workspace.vue"
+        },
+        {
+          "label": "row-7",
+          "sourceId": "WS-061",
+          "title": "Attachment upload queue and recovery panel",
+          "role": "authenticated owner",
+          "state": "Fresh insertion point needed",
+          "actionPresentation": "EXACT existing item state labels/inserted flag: failed has retryBatch(item), successful uninserted enables insertBatch(true), dismissBatch disabled uploadBusy; upload success does not imply insertion or deleting uploaded files.",
+          "sourceComponent": "apps/web/components/Workspace.vue"
+        }
+      ],
+      "selectedState": "Seven actual Workspace queue/pending-asset slices: queued locked-clear; uploading locked-clear; succeeded uninserted enabledinsert; failed retry; partial batch distinct items; same-note captured target invalid queue kept+toast; single pendingAsset current note insertion. Upload is not insertion/save."
+    }
+  ],
+  "selectedState": "Seven actual Workspace queue/pending-asset slices: queued locked-clear; uploading locked-clear; succeeded uninserted enabledinsert; failed retry; partial batch distinct items; same-note captured target invalid queue kept+toast; single pendingAsset current note insertion. Upload is not insertion/save.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅修正两处。第二行“上传中 · 示例.png / 正在上传”局部中，删除文件状态右侧那条蓝灰色进度条，保留转圈、文件名、正在上传和灰色禁用清除上传记录；此组件没有数值进度条。第三行待插入状态的蓝色按钮文字请清晰精确重写为“插入已上传附件”，不要误写清入等近形字。所有其他行的文字、状态、错误、可用/禁用按钮、布局完全不变，不新增百分比、取消任务或任何控件。",
+  "prompt": "仅修正两处。第二行“上传中 · 示例.png / 正在上传”局部中，删除文件状态右侧那条蓝灰色进度条，保留转圈、文件名、正在上传和灰色禁用清除上传记录；此组件没有数值进度条。第三行待插入状态的蓝色按钮文字请清晰精确重写为“插入已上传附件”，不要误写清入等近形字。所有其他行的文字、状态、错误、可用/禁用按钮、布局完全不变，不新增百分比、取消任务或任何控件。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-M008.png",
+      "role": "Edit target; remove unsupported determinate upload progress and ensure exact insertion action text",
+      "sha256": "4dac93204fa815081d158246d936ffbed362fe27e6a5b90c16023c85053b1abb",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-M008.png",
+      "role": "Edit target; remove unsupported determinate upload progress and ensure exact insertion action text",
+      "sha256": "4dac93204fa815081d158246d936ffbed362fe27e6a5b90c16023c85053b1abb",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅修正两处。第二行“上传中 · 示例.png / 正在上传”局部中，删除文件状态右侧那条蓝灰色进度条，保留转圈、文件名、正在上传和灰色禁用清除上传记录；此组件没有数值进度条。第三行待插入状态的蓝色按钮文字请清晰精确重写为“插入已上传附件”，不要误写清入等近形字。所有其他行的文字、状态、错误、可用/禁用按钮、布局完全不变，不新增百分比、取消任务或任何控件。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-M008.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅修正两处。第二行“上传中 · 示例.png / 正在上传”局部中，删除文件状态右侧那条蓝灰色进度条，保留转圈、文件名、正在上传和灰色禁用清除上传记录；此组件没有数值进度条。第三行待插入状态的蓝色按钮文字请清晰精确重写为“插入已上传附件”，不要误写清入等近形字。所有其他行的文字、状态、错误、可用/禁用按钮、布局完全不变，不新增百分比、取消任务或任何控件。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-M008.png",
+          "role": "Edit target; remove unsupported determinate upload progress and ensure exact insertion action text"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-6f378403-52a4-47c9-9235-02f29be99661.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-061",
+      "title": "Attachment upload queue and recovery panel",
+      "kind": "state",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Upload picker, paste/drop files or replace image",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3016",
+        "apps/web/components/Workspace.vue:3020",
+        "apps/web/components/Workspace.vue:3024",
+        "apps/web/components/Workspace.vue:2340",
+        "shared/media.ts:1",
+        "shared/portable-resource-limits.ts:1"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "附件",
+          "type": "file-list",
+          "required": true,
+          "constraints": "Picker accepts PNG/JPEG/GIF/WebP/SVG, PDF, MP4/WebM, MP3/WAV. Shared limits: media128MiB; ordinary attachment10MiB; backend content/type validation applies (shared/media.ts:1 and shared/portable-resource-limits.ts:4).",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "重试此附件",
+          "effect": "Retry same queued file/upload request",
+          "api": "POST /api/notes/:id/assets",
+          "guard": "Current note and queue ownership guard"
+        },
+        {
+          "label": "插入已上传附件",
+          "effect": "Insert successful upload at current captured/renewed selection",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "清除上传记录",
+          "effect": "Dismiss current queue records; this button does not advertise deleting uploaded files.",
+          "api": "none (local UI)",
+          "guard": "!uploadBusy"
+        }
+      ],
+      "importantStates": [
+        "Preparing/uploading",
+        "Per-item success/failure",
+        "Partial batch success",
+        "Upload succeeds but insertion target changed",
+        "Pending asset requires choosing insertion point",
+        "Retryable failure"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/editor-upload-queue.test.ts",
+        "tests/editor-upload-idempotency.test.ts",
+        "tests/editor-asset-bookmark.test.ts",
+        "tests/e2e/editor-async-ownership.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-061",
+      "parentId": "WS-024",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3016",
+        "apps/web/components/Workspace.vue:3020",
+        "apps/web/components/Workspace.vue:3024",
+        "apps/web/components/Workspace.vue:2340",
+        "shared/media.ts:1",
+        "shared/portable-resource-limits.ts:1"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-033.json#WS-M008",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-M008",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-6f378403-52a4-47c9-9235-02f29be99661.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M008-v2.png",
+  "sha256": "99f731c13899753ee8b454ca61faf4e53349c148eada330b8ca776274155a183",
+  "bytes": 1577392,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:04:20.508131+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-M008.png",
+    "sha256": "4dac93204fa815081d158246d936ffbed362fe27e6a5b90c16023c85053b1abb"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Attachment upload queue and recovery panel — compact component state matrix",
+    "sourceIds": [
+      "WS-061"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Seven actual Workspace queue/pending-asset slices: queued locked-clear; uploading locked-clear; succeeded uninserted enabledinsert; failed retry; partial batch distinct items; same-note captured target invalid queue kept+toast; single pendingAsset current note insertion. Upload is not insertion/save.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "row": 1,
+      "uploadBusy": true,
+      "items": [
+        {
+          "name": "示例.png",
+          "state": "queued",
+          "inserted": false
+        }
+      ],
+      "dismissDisabled": true
+    },
+    {
+      "row": 2,
+      "uploadBusy": true,
+      "items": [
+        {
+          "name": "示例.png",
+          "state": "uploading",
+          "inserted": false
+        }
+      ],
+      "dismissDisabled": true
+    },
+    {
+      "row": 3,
+      "uploadBusy": false,
+      "items": [
+        {
+          "name": "示例.png",
+          "state": "succeeded",
+          "inserted": false
+        }
+      ],
+      "insertEnabled": true
+    },
+    {
+      "row": 4,
+      "uploadBusy": false,
+      "items": [
+        {
+          "name": "示例.png",
+          "state": "failed",
+          "error": "网络连接失败",
+          "inserted": false
+        }
+      ],
+      "retryEnabled": true
+    },
+    {
+      "row": 5,
+      "uploadBusy": false,
+      "items": [
+        {
+          "name": "图片.png",
+          "state": "succeeded",
+          "inserted": false
+        },
+        {
+          "name": "附件.pdf",
+          "state": "failed",
+          "error": "网络连接失败",
+          "inserted": false
+        }
+      ]
+    },
+    {
+      "row": 6,
+      "uploadBusy": false,
+      "noteMatchesQueue": true,
+      "capturedTargetInvalid": true,
+      "items": [
+        {
+          "name": "示例.png",
+          "state": "succeeded",
+          "inserted": false
+        }
+      ],
+      "toast": "附件已上传，请选择位置后插入"
+    },
+    {
+      "row": 7,
+      "pendingAsset": "示例.png",
+      "currentNoteMatches": true,
+      "queueAbsent": true,
+      "actions": [
+        "插入已上传附件"
+      ]
+    }
+  ]
+}

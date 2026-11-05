@@ -1,0 +1,55 @@
+{
+  "assetId": "WS-D052",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:04:50.179053+00:00",
+  "method": "Actual current PNG viewed after interruption audit; complete current sidecar actual prompt/history, GEN-008 source contracts, current DiagramDocumentWorkspace/document-session/vendor wrapper and relevant real baseline checked. No product tests run or source-derived state called runtime proof.",
+  "selectedState": "Source-derived invalid primary Markdown draft retained after failed save, original editable resource still present",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Full Markdown/source mode retains invalid engine declaration and document body in line-number editor, with exact repair error and red 保存未完成 state. No successful commit or blank replacement canvas asserted.",
+    "Retry/reload/download-draft and enabled app save agree with not-saving/source canEdit guard; history/share/more and mode/export controls remain. No recovery/loading/reading/PNG body mixed into source error.",
+    "Version/declaration text is actual editable document source syntax, not a fabricated individual protocol form. Original source/resource capabilities remain authoritative.",
+    "Valid real baseline supplies host/editor reference only; failed-save variant explicitly source-derived. Folder collapse is a source-reachable context variation, not a permission or action-set change."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-008.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D052.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/DiagramDocumentWorkspace.vue:84",
+    "apps/web/components/DiagramDocumentWorkspace.vue:120",
+    "apps/web/components/DiagramDocumentWorkspace.vue:794",
+    "apps/web/components/DiagramDocumentWorkspace.vue:805",
+    "apps/web/diagrams/document-session.ts:48",
+    "apps/web/diagrams/document-session.ts:103",
+    "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-markdown-source.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "3574a2aaea636ddcc23720db6526ef9147846e55f539464cd4bc22b6816751f3",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D052.png",
+  "sourceIds": [
+    "WS-072"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

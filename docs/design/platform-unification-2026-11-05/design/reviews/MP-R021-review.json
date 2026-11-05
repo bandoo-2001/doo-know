@@ -1,0 +1,56 @@
+{
+  "assetId": "MP-R021",
+  "sourceIds": [
+    "ST-050"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T07:39:47.651488+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Three narrow Git plugin settings positions: clean disabled full content/dirty long fields/conflict",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "finding": "B adds visible horizontal scrollbars with left/right arrow controls below both single-line author inputs. Actual string fields are plain AInput, whose text scrolls internally with the caret, and have no scrollbar/arrow-button controls. The raster introduces unsupported input controls.",
+      "sourceEvidence": "PluginManager.vue:728 string fallback is AInput v-model:value=values[key]; git manifest authorName/authorEmail type=string. No nested scroll widget or explicit scroll buttons."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed three panels/full prompt/current parent/manifest/Git API. Disabled clean plugin can show actual Git status (status endpoint reports pluginEnabled separately, not blocked by it), uninitialized/unconnected sync and optional author/email; lifecycle/save remain real.",
+    "Dirty B disables enable but allows save/uninstall; C config conflict preserves editable values, disables save/enable and exposes reload-confirm trigger. Author/email are signature fields, not GitHub login credentials; no claimed push/network task success."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-037.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R021.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/PluginManager.vue:544",
+    "apps/web/components/PluginManager.vue:590",
+    "apps/web/components/PluginManager.vue:728",
+    "plugins/git/manifest.json:14",
+    "apps/server/git/routes.ts:8",
+    "apps/server/git/service.ts:934"
+  ],
+  "requiredCorrections": [
+    "Remove only the two visible scrollbar tracks and arrow controls in B; keep long author/email values in normal single-line input fields with native caret-driven horizontal text scrolling. Preserve exact dirty/conflict/enable/save/uninstall fields and all A/C content."
+  ],
+  "reviewedImageSha256": "c33000c11f032f3c0fa280b875ab46268d2a27eaeae19a8dba6e7f080b076c81",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R021.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

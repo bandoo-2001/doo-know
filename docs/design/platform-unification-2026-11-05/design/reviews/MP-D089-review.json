@@ -1,0 +1,50 @@
+{
+  "assetId": "MP-D089",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:28:48.454185+00:00",
+  "method": "Actual PNG viewed; actual matching baseline (when available), complete sidecar submitted prompt, batch contract and current component template checked under review-execution-contract.",
+  "selectedState": "Anonymous plain note share, canEdit=false, no expiry",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Public reader brand/share label/read-only badge, title/update time/body and single-heading TOC match actual baseline; footer still states latest saved-original synchronization.",
+    "No owner navigation, password gate, editor/download/source control, expiry line or invented diagram resource. Active capability/read-only resource constraints remain source guard contracts."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-005.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D089.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/ShareReader.vue:112",
+    "apps/web/components/ShareReader.vue:155",
+    "apps/web/components/ShareReader.vue:175",
+    "docs/design/platform-unification-2026-11-05/baseline/public/1440-share-reader.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "039fe9407eb83cedc59cb0626bcc007269cca96fafffaa1131f2d02d30e67d4f",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D089.png",
+  "sourceIds": [
+    "PB-022"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

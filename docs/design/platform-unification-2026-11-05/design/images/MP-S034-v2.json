@@ -1,0 +1,387 @@
+{
+  "id": "MP-S034",
+  "title": "Component state matrix: owner-private / SettingsOverlay.vue",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-089"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-089",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-089",
+      "route": "所有SettingsOverlay宿主路由",
+      "trigger": "有dirty时点击关闭/遮罩/Escape",
+      "parentId": null,
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "footer替换为未保存更改提示",
+        "busy禁止关闭与确认",
+        "焦点回触发按钮",
+        "Git inline自己的放弃alert变体"
+      ],
+      "notes": [
+        "不是独立页面或第二层弹窗；共用状态仍需设计稿验证。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/web/components/settings/SettingsOverlay.vue",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-089",
+      "label": "继续编辑",
+      "effect": "收起放弃提示并保留草稿",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-089",
+      "label": "放弃更改",
+      "effect": "关闭并执行宿主清理",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-089",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "保留上方A的未保存确认全部内容。只替换下方B的底部区域：B保持标题“从备份恢复”和灰色禁用关闭X。删除B中“有未保存的更改”“关闭后将放弃本次输入。”以及“继续编辑”“放弃更改”按钮。B底部改为正在上传的真实普通操作栏，依次“取消”灰色禁用、“上一步”灰色禁用、“上传并恢复独立副本”蓝色带加载转圈，无法重复点击。不加错误、成功提示或额外字段。A完全不变，B不是未保存确认状态。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S034-v2.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-089",
+      "title": "footer替换为未保存更改提示",
+      "renderer": "apps/web/components/settings/SettingsOverlay.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsOverlay.vue:50",
+        "apps/web/components/settings/SettingsOverlay.vue:131",
+        "apps/web/components/GitRemotePanel.vue:260"
+      ],
+      "guardBindings": [
+        {
+          "label": "继续编辑",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "放弃更改",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "footer替换为未保存更改提示",
+          "variant": "footer替换为未保存更改提示",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-089"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-089",
+      "title": "actual busy upload normal footer and header; discardOpen=false",
+      "renderer": "apps/web/components/settings/SettingsOverlay.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsOverlay.vue:50",
+        "apps/web/components/settings/SettingsOverlay.vue:131",
+        "apps/web/components/GitRemotePanel.vue:260"
+      ],
+      "guardBindings": [
+        {
+          "label": "继续编辑",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "放弃更改",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "busy禁止关闭与确认",
+          "variant": "busy禁止关闭与确认",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-089"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-089",
+      "parentId": null,
+      "route": "所有SettingsOverlay宿主路由",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsOverlay.vue:50",
+        "apps/web/components/settings/SettingsOverlay.vue:131",
+        "apps/web/components/GitRemotePanel.vue:260"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-089",
+      "title": "设置窗口未保存更改/放弃确认",
+      "kind": "state",
+      "module": "settings/overlay",
+      "entry": {
+        "route": "所有SettingsOverlay宿主路由",
+        "trigger": "有dirty时点击关闭/遮罩/Escape",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsOverlay.vue:50",
+        "apps/web/components/settings/SettingsOverlay.vue:131",
+        "apps/web/components/GitRemotePanel.vue:260"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "继续编辑",
+          "effect": "收起放弃提示并保留草稿",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "放弃更改",
+          "effect": "关闭并执行宿主清理",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "footer替换为未保存更改提示",
+        "busy禁止关闭与确认",
+        "焦点回触发按钮",
+        "Git inline自己的放弃alert变体"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:65",
+        "tests/e2e/settings-overlays.spec.ts:385"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "不是独立页面或第二层弹窗；共用状态仍需设计稿验证。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S034",
+  "roles": [
+    "owner-private"
+  ],
+  "selectedState": [
+    "A dirty restore footer discardOpen=true busy=false",
+    "B upload restore review busy=true discardOpen=false normal footer"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "保留上方A的未保存确认全部内容。只替换下方B的底部区域：B保持标题“从备份恢复”和灰色禁用关闭X。删除B中“有未保存的更改”“关闭后将放弃本次输入。”以及“继续编辑”“放弃更改”按钮。B底部改为正在上传的真实普通操作栏，依次“取消”灰色禁用、“上一步”灰色禁用、“上传并恢复独立副本”蓝色带加载转圈，无法重复点击。不加错误、成功提示或额外字段。A完全不变，B不是未保存确认状态。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S034 Component state matrix: owner-private / SettingsOverlay.vue\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | ST-089 | 真实组件局部状态矩阵 | role=owner-private | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n局部矩阵（≤7行/卡）：\nr1 | ST-089 | 实际只画代表：footer替换为未保存更改提示 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/SettingsOverlay.vue\nr2 | ST-089 | 实际只画代表：busy禁止关闭与确认 | 既有busy/spinner/禁用控件模式，按原guard锁定。 | renderer=apps/web/components/settings/SettingsOverlay.vue\n\n精确功能/字段/动作guard合同：\nST-089权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-089字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-089白名单：继续编辑 => 收起放弃提示并保留草稿；guard=已登录所有者；请求期间禁用重复操作\nST-089白名单：放弃更改 => 关闭并执行宿主清理；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\nSettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S034.png",
+      "role": "previous generated design edit target",
+      "responsibility": "Targeted host reachability correction, preserve valid specimens",
+      "sha256": "fd0f40de3ee8fd4d482352a90c7e4edeb1b3bbfac2e9aed7f1ec51afa01923cc",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 998993
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S034.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S034-v2.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-1cbaecde-2d15-4f7f-836d-890d9c483087.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-1cbaecde-2d15-4f7f-836d-890d9c483087.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T04:41:44.395Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "concerns": [],
+    "pageSpecific": "Corrected only source-proven independent specimen, preserved all other valid content."
+  },
+  "sha256": "41f503acadae3837853c71be12be42deb82718b8e8ed1261267834ad6a6f56f6",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1420659,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/settings/SettingsOverlay.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1642d0324aaad3921e52fe60d086622981d2203e05b08e215e231dd406da657d"
+    },
+    {
+      "path": "apps/web/components/settings/SettingsOverlay.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1642d0324aaad3921e52fe60d086622981d2203e05b08e215e231dd406da657d"
+    },
+    {
+      "path": "apps/web/components/GitRemotePanel.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1ef7dbfc441518f0aaed509633413592b74a170897c602f802e9c2492ff9fe4c"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived compact states; no login/API/session expiry/mutation or close/focus runtime tests.",
+  "priorGeneration": {
+    "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n上下两个独立设置窗口局部，外部只标A、B，只画窗口顶部和底部未保存确认部分，中间不添加表单。A标题“从备份恢复”，右上关闭X可用；底部未保存提示，标题“有未保存的更改”，说明“关闭后将放弃本次输入。”，按钮“继续编辑”可用、“放弃更改”红色可用，正常取消/下一步按钮不出现。B标题“从备份恢复”，右上关闭X灰色禁用；底部完全相同未保存提示，但“继续编辑”“放弃更改”均灰色禁用。两者是独立样例，不是叠层确认对话框。不增加“关闭被阻止”等额外文案。",
+    "actualImageInputOrder": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-4a66809a-e88d-4a57-ab30-c90159b7224a.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-4a66809a-e88d-4a57-ab30-c90159b7224a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "sha256": "fd0f40de3ee8fd4d482352a90c7e4edeb1b3bbfac2e9aed7f1ec51afa01923cc",
+    "dimensions": {
+      "width": 1536,
+      "height": 1024
+    },
+    "generationCallCount": 1
+  },
+  "revision": 2,
+  "revises": "docs/design/platform-unification-2026-11-05/design/images/MP-S034.json",
+  "revisionReason": "Current-hash independent P2 verified against actual host call chain",
+  "sourceCorrection": "Busy upload begins from normal review footer. close() returns while busy. No claim busy+discardOpen host reachability. B close/cancel/back disabled and upload loading."
+}

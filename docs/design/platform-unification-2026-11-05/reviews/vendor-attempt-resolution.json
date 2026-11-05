@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-11-05T03:15:24.412Z",
+  "packageVersion": "0.18.1",
+  "method": "Targeted source resolution of three previously unsuccessful runtime attempts; no full inventory repeat, no product/third-party bundle edits",
+  "sourceHashes": [
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "sha256": "e10e24df153077770849c7d68f9a8f5db3bb1eb1576d909d1e3c9a5b024d1882"
+    },
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/prod/index.js",
+      "sha256": "7f651063487849c79a8cdedc3aa6bd04c6b0c717ee63959116f1f12dbc0a51b8"
+    },
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js.map",
+      "sha256": "fb10475857f742f44fa46985bbef035375c55b164a76f3dde9ea1ccaade192fe"
+    },
+    {
+      "path": "apps/web/whiteboards/canvas.ts",
+      "sha256": "421649c508e3da5a25da20249dcbf1fdb889f8efa9f2a3b6adf30440377ab352"
+    }
+  ],
+  "commandPalette": {
+    "definitionBundled": true,
+    "compiledReactRenderSites": 0,
+    "layerImportOrRender": false,
+    "integration": "mountCanvas passes Excalidraw props only, no custom children/MainMenu/CommandPalette component",
+    "classification": "not-currently-mounted-by-integrated-locked-renderer",
+    "originalAttemptsPreserved": true,
+    "doesNotClaimRuntimeDialogPassed": true
+  },
+  "mobileStatistics": {
+    "statsRenderedInLayerDesktopBranch": true,
+    "statsInMobileMenu": false,
+    "classification": "desktop-only stats render path in current locked renderer; mobile context action does not mount a stats panel",
+    "existingSurface": "RTD-013",
+    "existingDesign": "WS-V007 panel B explicitly desktop statistics only",
+    "noNewMobileStatsUI": true
+  },
+  "remainingConfirmedUiBug": "Find/library mobile panels mount but are offscreen; existing actual bounds evidence retained and implementation regression still required after design gate"
+}

@@ -1,0 +1,53 @@
+{
+  "assetId": "MP-D090",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:28:48.455236+00:00",
+  "method": "Actual PNG viewed; actual matching baseline (when available), complete sidecar submitted prompt, batch contract and current component template checked under review-execution-contract.",
+  "selectedState": "Anonymous source-derived ready large-file fragment; next cursor available, no error/loading",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Large-file edit-unavailable reason, current fragment body, current-fragment status and enabled 下一片段 preserved without loading/error/finished branch mixed in.",
+    "No TOC despite body heading: readPage sets headings=[] in fragment projection. No page count/jump/previous/infinite append or cursor input invented; next action is source replacement with scroll-to-top.",
+    "Public header/read-only/footer and no owner/editor controls. Ordinary baseline is host-only reference; sidecar explicitly source-derived selected fragment state, not runtime proof."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-005.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D090.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/ShareReader.vue:49",
+    "apps/web/components/ShareReader.vue:100",
+    "apps/web/components/ShareReader.vue:123",
+    "apps/web/components/ShareReader.vue:191",
+    "apps/server/knowledge/web-routes.ts:240",
+    "docs/design/platform-unification-2026-11-05/baseline/public/1440-share-reader.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "e9cbae8fa25588bac111005c09509026b593ca0b8171b215b9199506ec381b59",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D090.png",
+  "sourceIds": [
+    "PB-023"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "assetId": "WS-D028",
+  "sourceIds": [
+    "WS-034",
+    "WS-035",
+    "WS-036"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T06:24:07.847016+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Three independent writable table3x3/image metadata/link-context selection specimens",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The table toolbar omits the existing read-only dimension caption3 ×3: its left caption shows only a table icon. Current selected table size is an actual source-visible data field, not an optional decorative label.",
+      "sourceEvidence": "DocumentTableTools.vue:83..85 renders Icon plus <span>{{ rows }} × {{ columns }}</span>; document-editor.css:311..316 keeps caption display/nowrap, no rule hides its size text. Selected source-derived data is rows3/columns3."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed three independent selection regions/full prompt/contracts. All14 table actions are present in actual row/column/alignment/delete groups; up-row/left-column disabled at first row/column; center alignment selected. No simultaneous three selections or read-only editing inferred.",
+    "Image alt/title and apply/preview/replace/delete remain real selected-image actions; link URL is read-only display with open/edit/remove only, no fake editable URL/copy/save."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-031.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D028.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/DocumentTableTools.vue:12",
+    "apps/web/components/DocumentTableTools.vue:75",
+    "apps/web/components/DocumentEditor.vue:1133",
+    "apps/web/components/DocumentEditor.vue:1146",
+    "apps/web/components/DocumentEditor.vue:1202",
+    "apps/web/document-editor.css:311"
+  ],
+  "requiredCorrections": [
+    "Add only the read-only3 ×3 text beside the existing left table icon, before 行 group. Preserve all14 icons/order, disabled up/left boundary actions and center selection; do not add editable dimensions or new controls."
+  ],
+  "reviewedImageSha256": "35e47ab9dd5501ea8a69e41e6cd309645b84775aee8bbda322e64ce60050aed4",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D028.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

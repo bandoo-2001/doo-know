@@ -1,0 +1,601 @@
+{
+  "id": "WS-D031",
+  "title": "Copy preserved original source / Delete preserved content confirmation / Unsupported paste choice",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-039",
+    "WS-040",
+    "WS-041"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-039",
+      "title": "Copy preserved original source",
+      "role": "authenticated owner",
+      "state": "A preserved source copy; B explicit original-content delete warning; C plain-text unsupported-paste choice.",
+      "presentationInstruction": "A preserved source copy; B explicit original-content delete warning; C plain-text unsupported-paste choice."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-040",
+      "title": "Delete preserved content confirmation",
+      "role": "authenticated owner",
+      "state": "A preserved source copy; B explicit original-content delete warning; C plain-text unsupported-paste choice.",
+      "presentationInstruction": "A preserved source copy; B explicit original-content delete warning; C plain-text unsupported-paste choice."
+    },
+    {
+      "label": "C",
+      "sourceId": "WS-041",
+      "title": "Unsupported paste choice",
+      "role": "authenticated owner",
+      "state": "A preserved source copy; B explicit original-content delete warning; C plain-text unsupported-paste choice.",
+      "presentationInstruction": "A preserved source copy; B explicit original-content delete warning; C plain-text unsupported-paste choice."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/DocumentEditor.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DocumentEditor.vue:1261, apps/web/editor/extensions/opaque-source.ts:1"
+    },
+    {
+      "path": "apps/web/components/DocumentEditor.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DocumentEditor.vue:1280"
+    },
+    {
+      "path": "apps/web/components/DocumentEditor.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DocumentEditor.vue:1318, apps/web/editor/clipboard.ts:1"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-039",
+      "label": "选择并复制",
+      "effect": "Manual copy fallback",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-040",
+      "label": "确认删除此内容",
+      "effect": "Remove source block from draft; undo available; save writes deletion",
+      "api": "none",
+      "guard": "Editor operation guard"
+    },
+    {
+      "sourceId": "WS-040",
+      "label": "取消",
+      "effect": "Preserve content",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-041",
+      "label": "按普通文本粘贴",
+      "effect": "Insert retained clipboard text with plain-text Markdown encoding",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-041",
+      "label": "取消",
+      "effect": "Dismiss paste",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R011",
+      "reuseSourceId": "WS-024",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "requiredFieldOrder": [
+        "保留块原文"
+      ],
+      "requiredActions": [
+        {
+          "label": "选择并复制",
+          "effect": "Manual copy fallback",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [
+        {
+          "name": "保留块原文",
+          "type": "textarea",
+          "required": false,
+          "constraints": "Read-only, full original source selected on focus.",
+          "sensitive": false
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-039"
+    },
+    {
+      "assetId": "WS-R011",
+      "reuseSourceId": "WS-024",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "确认删除此内容",
+          "effect": "Remove source block from draft; undo available; save writes deletion",
+          "api": "none",
+          "guard": "Editor operation guard"
+        },
+        {
+          "label": "取消",
+          "effect": "Preserve content",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-040"
+    },
+    {
+      "assetId": "WS-R011",
+      "reuseSourceId": "WS-024",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "按普通文本粘贴",
+          "effect": "Insert retained clipboard text with plain-text Markdown encoding",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "取消",
+          "effect": "Dismiss paste",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-041"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n横向三个独立紧凑真实窗口，外部仅标A、B、C，无背景宿主。A标题“复制保留原文”，右上关闭X可用；说明“可选择并复制下方完整原文。”，一个只读多行文本域完整显示“:::custom”换行“示例原文”换行“:::”，文本有全选浅蓝高亮。没有复制/完成/下载按钮。B标题“删除保留内容？”，右上关闭X；说明“将移除此块原文，保存后生效；可以通过撤销恢复。”；底部“取消”可用、“确认删除此内容”红色可用，没有额外输入。C标题“粘贴内容”，右上关闭X；原因“此内容包含暂不支持的格式，可选择按普通文本粘贴”；底部“取消”和蓝色“按普通文本粘贴”均可用，没有预览或另存格式控件。文字清楚、按钮不裁切。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D031.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-039",
+      "title": "Copy preserved original source",
+      "kind": "dialog",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Copy opaque/preserved content action",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/DocumentEditor.vue:1261",
+        "apps/web/editor/extensions/opaque-source.ts:1"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "保留块原文",
+          "type": "textarea",
+          "required": false,
+          "constraints": "Read-only, full original source selected on focus.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "选择并复制",
+          "effect": "Manual copy fallback",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Unsupported content preserved verbatim"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/editor-opaque-source.test.ts",
+        "tests/editor-compatibility.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-040",
+      "title": "Delete preserved content confirmation",
+      "kind": "dialog",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Delete opaque/preserved content action",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/DocumentEditor.vue:1280"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "确认删除此内容",
+          "effect": "Remove source block from draft; undo available; save writes deletion",
+          "api": "none",
+          "guard": "Editor operation guard"
+        },
+        {
+          "label": "取消",
+          "effect": "Preserve content",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Explicit original-content deletion warning"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/editor-opaque-source.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-041",
+      "title": "Unsupported paste choice",
+      "kind": "dialog",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Paste conversion requires fallback",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/DocumentEditor.vue:1318",
+        "apps/web/editor/clipboard.ts:1"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "按普通文本粘贴",
+          "effect": "Insert retained clipboard text with plain-text Markdown encoding",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "取消",
+          "effect": "Dismiss paste",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Conversion reason displayed",
+        "Plain-text fallback"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/editor-clipboard.test.ts",
+        "tests/e2e/editor-improvements.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-039",
+      "parentId": "WS-024",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-040",
+      "parentId": "WS-024",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-041",
+      "parentId": "WS-024",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-039,WS-040,WS-041",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-039",
+      "state": "Unsupported content preserved verbatim",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-040",
+      "state": "Explicit original-content deletion warning",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-041",
+      "state": "Conversion reason displayed",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-041",
+      "state": "Plain-text fallback",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D031",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "A source copy readonly selected text",
+    "B opaque deletion idle",
+    "C unsupported-format paste choice"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n横向三个独立紧凑真实窗口，外部仅标A、B、C，无背景宿主。A标题“复制保留原文”，右上关闭X可用；说明“可选择并复制下方完整原文。”，一个只读多行文本域完整显示“:::custom”换行“示例原文”换行“:::”，文本有全选浅蓝高亮。没有复制/完成/下载按钮。B标题“删除保留内容？”，右上关闭X；说明“将移除此块原文，保存后生效；可以通过撤销恢复。”；底部“取消”可用、“确认删除此内容”红色可用，没有额外输入。C标题“粘贴内容”，右上关闭X；原因“此内容包含暂不支持的格式，可选择按普通文本粘贴”；底部“取消”和蓝色“按普通文本粘贴”均可用，没有预览或另存格式控件。文字清楚、按钮不裁切。",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D031 Copy preserved original source / Delete preserved content confirmation / Unsupported paste choice\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-039\", \"title\": \"Copy preserved original source\", \"role\": \"authenticated owner\", \"state\": \"A preserved source copy; B explicit original-content delete warning; C plain-text unsupported-paste choice.\", \"presentationInstruction\": \"A preserved source copy; B explicit original-content delete warning; C plain-text unsupported-paste choice.\"}, {\"label\": \"B\", \"sourceId\": \"WS-040\", \"title\": \"Delete preserved content confirmation\", \"role\": \"authenticated owner\", \"state\": \"A preserved source copy; B explicit original-content delete warning; C plain-text unsupported-paste choice.\", \"presentationInstruction\": \"A preserved source copy; B explicit original-content delete warning; C plain-text unsupported-paste choice.\"}, {\"label\": \"C\", \"sourceId\": \"WS-041\", \"title\": \"Unsupported paste choice\", \"role\": \"authenticated owner\", \"state\": \"A preserved source copy; B explicit original-content delete warning; C plain-text unsupported-paste choice.\", \"presentationInstruction\": \"A preserved source copy; B explicit original-content delete warning; C plain-text unsupported-paste choice.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-039\", \"fieldsInOrder\": [{\"name\": \"保留块原文\", \"type\": \"textarea\", \"required\": false, \"constraints\": \"Read-only, full original source selected on focus.\", \"sensitive\": false}], \"actions\": [{\"label\": \"选择并复制\", \"effect\": \"Manual copy fallback\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Unsupported content preserved verbatim\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-040\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"确认删除此内容\", \"effect\": \"Remove source block from draft; undo available; save writes deletion\", \"api\": \"none\", \"guard\": \"Editor operation guard\"}, {\"label\": \"取消\", \"effect\": \"Preserve content\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Explicit original-content deletion warning\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"C\", \"sourceId\": \"WS-041\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"按普通文本粘贴\", \"effect\": \"Insert retained clipboard text with plain-text Markdown encoding\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"取消\", \"effect\": \"Dismiss paste\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Conversion reason displayed\", \"Plain-text fallback\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/DocumentEditor.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DocumentEditor.vue:1261, apps/web/editor/extensions/opaque-source.ts:1",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DocumentEditor.vue:1261, apps/web/editor/extensions/opaque-source.ts:1",
+      "sha256": "59f28da8e35a8f806a4c3b3eef20d04332bc4272ddd03518d924183629acd774"
+    },
+    {
+      "path": "apps/web/components/DocumentEditor.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DocumentEditor.vue:1280",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DocumentEditor.vue:1280",
+      "sha256": "59f28da8e35a8f806a4c3b3eef20d04332bc4272ddd03518d924183629acd774"
+    },
+    {
+      "path": "apps/web/components/DocumentEditor.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DocumentEditor.vue:1318, apps/web/editor/clipboard.ts:1",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DocumentEditor.vue:1318, apps/web/editor/clipboard.ts:1",
+      "sha256": "59f28da8e35a8f806a4c3b3eef20d04332bc4272ddd03518d924183629acd774"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D031.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-9030d02d-d85d-460c-b376-db0f6739eab9.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-9030d02d-d85d-460c-b376-db0f6739eab9.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T05:18:36.995Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Exact local component fields/actions inspected; no invented host or unrelated conditional branches.",
+    "concerns": []
+  },
+  "sha256": "ca183530a370a212532f1e390d095e2b2fc640a49790204e6910fe7b33c72b1a",
+  "dimensions": {
+    "width": 2172,
+    "height": 724
+  },
+  "bytes": 1058418,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/DocumentEditor.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "59f28da8e35a8f806a4c3b3eef20d04332bc4272ddd03518d924183629acd774"
+    },
+    {
+      "path": "apps/web/editor/extensions/opaque-source.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "80d44b2fe0cc9d4a54c2c24e55b9802282fff1e83f2630e7a45960bc8f7b5936"
+    },
+    {
+      "path": "apps/web/components/DocumentEditor.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "59f28da8e35a8f806a4c3b3eef20d04332bc4272ddd03518d924183629acd774"
+    },
+    {
+      "path": "apps/web/components/DocumentEditor.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "59f28da8e35a8f806a4c3b3eef20d04332bc4272ddd03518d924183629acd774"
+    },
+    {
+      "path": "apps/web/editor/clipboard.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "91b34872cf35a71b4d9a3b17d2250748c7fad27a4a1f8263a98fd2fec89338bb"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Exact substates source-derived; relevant actual parent baselines viewed separately. No copy/delete/paste/download/save/fragment runtime executed.",
+  "sourceCorrection": "Copy-preserved-source modal has no separate copy/complete button; selection of readonly textarea is actual manual-copy mechanism. Inventory action label is behavior, not a rendered button."
+}

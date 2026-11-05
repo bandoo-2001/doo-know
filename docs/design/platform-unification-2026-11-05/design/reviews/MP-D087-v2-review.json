@@ -1,0 +1,46 @@
+{
+  "assetId": "MP-D087-v2",
+  "sourceIds": [
+    "PB-019"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T04:25:41.073926+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Actual legacy OAuth consent fixture, read scope and all9allowed prefixes selected, no v2 allowedPolicy/offline scope.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "New v2 PNG actually viewed, README.md punctuation and all9true prefix selections match actual baseline.",
+    "Only allowed legacy read operation appears, permission-policy editor/offline grant not injected; resource selection enables allow with refuse retained.",
+    "Owner-confirmed OAuth client authority bounded by scopes/prefixes, no owner workspace/navigation/account creation."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-021.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D087-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/OAuthConsent.vue:25",
+    "apps/web/components/OAuthConsent.vue:96",
+    "apps/server/platform/oauth.ts:89",
+    "docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "4e893ecff18e81c2fa200e2dfd685aa58eee8b2d9dcf102cf6fc3181857beef6",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D087-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

@@ -1,0 +1,1086 @@
+{
+  "id": "MP-S004",
+  "title": "Component state matrix: owner-private / BackupSettings.vue",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-004",
+    "ST-029",
+    "ST-030",
+    "ST-031"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-004",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-backup.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-004",
+      "route": "/?view=settings&section=backup",
+      "trigger": "设置→备份与恢复；旧section=maintenance归一化到backup",
+      "parentId": null,
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "无备份",
+        "加载/错误",
+        "外部备份范围待验证",
+        "任务执行/恢复验证成功"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "完整备份恢复页：备份清单/加密/大小/范围/下载/独立恢复、创建加密备份、恢复密钥下载、下载备份恢复、异常写入恢复和任务。"
+      ]
+    },
+    {
+      "sourceId": "ST-029",
+      "route": "/?view=settings&section=backup",
+      "trigger": "备份列表常驻区",
+      "parentId": "ST-004",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "读取中/无记录/失败",
+        "已加密与大小",
+        "包含原文/未含原文/外部范围待验证",
+        "备份编号和公钥指纹details",
+        "创建任务已提交提示"
+      ],
+      "notes": [
+        "公钥指纹可展示；不可填入真实恢复私钥或真实私有目录。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "sourceId": "ST-030",
+      "route": "/?view=settings&section=backup",
+      "trigger": "下载恢复密钥",
+      "parentId": "ST-004",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "当前密码",
+          "type": "password",
+          "required": true,
+          "constraints": "服务端≤1024字符；每所有者5次/60秒节流；每次尝试后立即清空",
+          "sensitive": true
+        }
+      ],
+      "importantStates": [
+        "密码未填",
+        "403错误密码",
+        "429稍后重试",
+        "尚未创建备份/恢复密钥不可用409",
+        "下载中关闭锁定",
+        "成功notice"
+      ],
+      "notes": [
+        "任何设计图只使用掩码，不展示私钥字节。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "恢复密钥完整密码窗口：当前密码、验证下载/取消；403/429/409/busy各自反馈、尝试后立即清空，不显密钥。"
+      ]
+    },
+    {
+      "sourceId": "ST-031",
+      "route": "/?view=settings&section=backup",
+      "trigger": "记录→恢复到独立副本",
+      "parentId": "ST-029",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "备份时间 / 大小 / 编号",
+          "type": "read-only",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "恢复摘要",
+        "新空目录与校验说明",
+        "服务继续运行",
+        "提交中",
+        "请求失败可沿原requestId重试"
+      ],
+      "notes": [
+        "drawer宽760px；服务器生成独立目标位置，不提供覆盖现有目录字段。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "备份记录独立恢复完整抽屉：备份时间/大小/编号、独立新空目录和校验说明、开始恢复/取消，external不可恢复。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/web/components/settings/BackupSettings.vue",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-004",
+      "label": "创建加密备份",
+      "effect": "提交后台加密备份",
+      "api": "POST /api/manage/backups",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-004",
+      "label": "下载恢复密钥",
+      "effect": "打开ST-030",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-004",
+      "label": "从备份恢复",
+      "effect": "打开ST-032",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-004",
+      "label": "异常写入恢复",
+      "effect": "展开ST-034",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-029",
+      "label": "下载备份",
+      "effect": "获取所有者备份文件",
+      "api": "GET /api/manage/backups/:id/download",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-029",
+      "label": "恢复到独立副本",
+      "effect": "打开ST-031",
+      "api": "无请求",
+      "guard": "非external备份"
+    },
+    {
+      "sourceId": "ST-029",
+      "label": "加载更多备份 / 刷新备份记录",
+      "effect": "分页读取",
+      "api": "GET /api/manage/backups",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-030",
+      "label": "验证密码并下载密钥",
+      "effect": "下载私钥文件；关闭弹窗",
+      "api": "POST /api/manage/backups/key",
+      "guard": "密码非空；不keyBusy"
+    },
+    {
+      "sourceId": "ST-030",
+      "label": "取消",
+      "effect": "清除草稿关闭",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-031",
+      "label": "开始独立恢复",
+      "effect": "提交恢复任务；关闭抽屉",
+      "api": "POST /api/manage/restores",
+      "guard": "非external记录；backupId及稳定requestId；不busy"
+    },
+    {
+      "sourceId": "ST-031",
+      "label": "取消",
+      "effect": "关闭",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-004",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-029",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-030",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-031",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排七个互相独立的紧凑局部样例，足够长画布使文本清楚，无额外开发标题，各行用留白分开。\n第一行：红色错误提示“暂时无法读取备份记录”，其下“创建加密备份”蓝色按钮与“刷新备份记录”按钮均可用，没有无记录说明。\n第二行：按钮“刷新备份记录”转圈，正文“正在读取备份记录…”。\n第三行：正文“尚无加密备份。”与“刷新备份记录”可用按钮。\n第四行：同一个真实备份列表的三个不同记录，每行小蓝标签“已加密”。一条“2.0 MiB · 包含原文”、一条“1.0 MiB · 未包含知识库原文”，这两条都有“下载备份”“恢复到独立副本”按钮；第三条“3.0 MiB · 外部加密备份（范围待验证） · 外部导入”，仅“下载备份”按钮，说明“恢复此备份需要对应私钥，请在下方「从已下载的备份恢复」中选择文件。”。不加成功提示。\n第五行：展开“备份编号与密钥指纹”，只读“备份：example-backup-01”“密钥指纹：SHA256:<fingerprint>”。\n第六行：下载恢复密钥表单局部，标签“当前密码”空密码框，下面红字“请先创建加密备份以生成恢复密钥”，按钮“取消”和“验证密码并下载密钥”均可用。没有秘密文本。\n第七行：蓝灰信息提示标题“恢复会创建新的独立副本”，说明“服务会在新的空目录恢复并校验数据，完成后在下方任务中提供副本位置与启用步骤。核验完成后，部署切换需要单独操作。”；下方“提交后可以关闭面板，任务与结果会继续在本页更新。”。不画宿主导航或不属于这些局部的输入。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S004.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-004",
+      "title": "错误",
+      "renderer": "apps/web/components/settings/BackupSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:58",
+        "apps/web/settings.ts:52",
+        "apps/web/components/settings/BackupSettings.vue:222"
+      ],
+      "guardBindings": [
+        {
+          "label": "创建加密备份",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "下载恢复密钥",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "从备份恢复",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "异常写入恢复",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "加载/错误",
+          "variant": "错误",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-004",
+        "ST-029",
+        "ST-030",
+        "ST-031"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-029",
+      "title": "读取中",
+      "renderer": "apps/web/components/settings/BackupSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:85",
+        "apps/web/components/settings/BackupSettings.vue:243",
+        "apps/server/platform/transfers.ts:869"
+      ],
+      "guardBindings": [
+        {
+          "label": "下载备份",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "恢复到独立副本",
+          "guard": "非external备份"
+        },
+        {
+          "label": "加载更多备份 / 刷新备份记录",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "读取中/无记录/失败",
+          "variant": "读取中",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-029",
+        "ST-030",
+        "ST-031"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-029",
+      "title": "无记录",
+      "renderer": "apps/web/components/settings/BackupSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:85",
+        "apps/web/components/settings/BackupSettings.vue:243",
+        "apps/server/platform/transfers.ts:869"
+      ],
+      "guardBindings": [
+        {
+          "label": "下载备份",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "恢复到独立副本",
+          "guard": "非external备份"
+        },
+        {
+          "label": "加载更多备份 / 刷新备份记录",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "读取中/无记录/失败",
+          "variant": "无记录",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-029"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "ST-029",
+      "title": "包含原文/未含原文/外部范围待验证",
+      "renderer": "apps/web/components/settings/BackupSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:85",
+        "apps/web/components/settings/BackupSettings.vue:243",
+        "apps/server/platform/transfers.ts:869"
+      ],
+      "guardBindings": [
+        {
+          "label": "下载备份",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "恢复到独立副本",
+          "guard": "非external备份"
+        },
+        {
+          "label": "加载更多备份 / 刷新备份记录",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "包含原文/未含原文/外部范围待验证",
+          "variant": "包含原文/未含原文/外部范围待验证",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-029"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "ST-029",
+      "title": "备份编号和公钥指纹details",
+      "renderer": "apps/web/components/settings/BackupSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:85",
+        "apps/web/components/settings/BackupSettings.vue:243",
+        "apps/server/platform/transfers.ts:869"
+      ],
+      "guardBindings": [
+        {
+          "label": "下载备份",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "恢复到独立副本",
+          "guard": "非external备份"
+        },
+        {
+          "label": "加载更多备份 / 刷新备份记录",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "备份编号和公钥指纹details",
+          "variant": "备份编号和公钥指纹details",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-029"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r6",
+      "sourceId": "ST-030",
+      "title": "尚未创建备份/恢复密钥不可用409",
+      "renderer": "apps/web/components/settings/BackupSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:142",
+        "apps/web/components/settings/BackupSettings.vue:313",
+        "apps/server/platform/transfers.ts:893"
+      ],
+      "guardBindings": [
+        {
+          "label": "验证密码并下载密钥",
+          "guard": "密码非空；不keyBusy"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "尚未创建备份/恢复密钥不可用409",
+          "variant": "尚未创建备份/恢复密钥不可用409",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-030"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r7",
+      "sourceId": "ST-031",
+      "title": "新空目录与校验说明",
+      "renderer": "apps/web/components/settings/BackupSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:121",
+        "apps/web/components/settings/BackupSettings.vue:348",
+        "apps/web/components/settings/BackupSettings.vue:387"
+      ],
+      "guardBindings": [
+        {
+          "label": "开始独立恢复",
+          "guard": "非external记录；backupId及稳定requestId；不busy"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "新空目录与校验说明",
+          "variant": "新空目录与校验说明",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-031"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-004",
+      "parentId": null,
+      "route": "/?view=settings&section=backup",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:58",
+        "apps/web/settings.ts:52",
+        "apps/web/components/settings/BackupSettings.vue:222"
+      ]
+    },
+    {
+      "sourceId": "ST-029",
+      "parentId": "ST-004",
+      "route": "/?view=settings&section=backup",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:85",
+        "apps/web/components/settings/BackupSettings.vue:243",
+        "apps/server/platform/transfers.ts:869"
+      ]
+    },
+    {
+      "sourceId": "ST-030",
+      "parentId": "ST-004",
+      "route": "/?view=settings&section=backup",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:142",
+        "apps/web/components/settings/BackupSettings.vue:313",
+        "apps/server/platform/transfers.ts:893"
+      ]
+    },
+    {
+      "sourceId": "ST-031",
+      "parentId": "ST-029",
+      "route": "/?view=settings&section=backup",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:121",
+        "apps/web/components/settings/BackupSettings.vue:348",
+        "apps/web/components/settings/BackupSettings.vue:387"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-004",
+      "title": "备份与恢复",
+      "kind": "page",
+      "module": "settings/backup",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "设置→备份与恢复；旧section=maintenance归一化到backup",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:58",
+        "apps/web/settings.ts:52",
+        "apps/web/components/settings/BackupSettings.vue:222"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "创建加密备份",
+          "effect": "提交后台加密备份",
+          "api": "POST /api/manage/backups",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "下载恢复密钥",
+          "effect": "打开ST-030",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "从备份恢复",
+          "effect": "打开ST-032",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "异常写入恢复",
+          "effect": "展开ST-034",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "无备份",
+        "加载/错误",
+        "外部备份范围待验证",
+        "任务执行/恢复验证成功"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:427",
+        "tests/e2e/settings-overlays.spec.ts:26"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-029",
+      "title": "加密备份记录与外部备份",
+      "kind": "state",
+      "module": "settings/backup",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "备份列表常驻区",
+        "parentId": "ST-004"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:85",
+        "apps/web/components/settings/BackupSettings.vue:243",
+        "apps/server/platform/transfers.ts:869"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "下载备份",
+          "effect": "获取所有者备份文件",
+          "api": "GET /api/manage/backups/:id/download",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "恢复到独立副本",
+          "effect": "打开ST-031",
+          "api": "无请求",
+          "guard": "非external备份"
+        },
+        {
+          "label": "加载更多备份 / 刷新备份记录",
+          "effect": "分页读取",
+          "api": "GET /api/manage/backups",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "读取中/无记录/失败",
+        "已加密与大小",
+        "包含原文/未含原文/外部范围待验证",
+        "备份编号和公钥指纹details",
+        "创建任务已提交提示"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:427"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "公钥指纹可展示；不可填入真实恢复私钥或真实私有目录。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-030",
+      "title": "验证密码下载恢复密钥",
+      "kind": "dialog",
+      "module": "settings/backup",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "下载恢复密钥",
+        "parentId": "ST-004"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:142",
+        "apps/web/components/settings/BackupSettings.vue:313",
+        "apps/server/platform/transfers.ts:893"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "当前密码",
+          "type": "password",
+          "required": true,
+          "constraints": "服务端≤1024字符；每所有者5次/60秒节流；每次尝试后立即清空",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "验证密码并下载密钥",
+          "effect": "下载私钥文件；关闭弹窗",
+          "api": "POST /api/manage/backups/key",
+          "guard": "密码非空；不keyBusy"
+        },
+        {
+          "label": "取消",
+          "effect": "清除草稿关闭",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "密码未填",
+        "403错误密码",
+        "429稍后重试",
+        "尚未创建备份/恢复密钥不可用409",
+        "下载中关闭锁定",
+        "成功notice"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:118",
+        "tests/e2e/management-features.spec.ts:427"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "任何设计图只使用掩码，不展示私钥字节。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-031",
+      "title": "从服务器记录恢复到独立副本",
+      "kind": "drawer",
+      "module": "settings/restore",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "记录→恢复到独立副本",
+        "parentId": "ST-029"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:121",
+        "apps/web/components/settings/BackupSettings.vue:348",
+        "apps/web/components/settings/BackupSettings.vue:387"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "备份时间 / 大小 / 编号",
+          "type": "read-only",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "开始独立恢复",
+          "effect": "提交恢复任务；关闭抽屉",
+          "api": "POST /api/manage/restores",
+          "guard": "非external记录；backupId及稳定requestId；不busy"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "恢复摘要",
+        "新空目录与校验说明",
+        "服务继续运行",
+        "提交中",
+        "请求失败可沿原requestId重试"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:427"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "drawer宽760px；服务器生成独立目标位置，不提供覆盖现有目录字段。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S004",
+  "roles": [
+    "owner-private"
+  ],
+  "selectedState": [
+    "r1 backup read error",
+    "r2 initial loading",
+    "r3 empty backup list",
+    "r4 internal included/not-included and external records",
+    "r5 readonly backup/fingerprint expanded",
+    "r6 key-download409 after password cleared",
+    "r7 independent restore guidance"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排七个互相独立的紧凑局部样例，足够长画布使文本清楚，无额外开发标题，各行用留白分开。\n第一行：红色错误提示“暂时无法读取备份记录”，其下“创建加密备份”蓝色按钮与“刷新备份记录”按钮均可用，没有无记录说明。\n第二行：按钮“刷新备份记录”转圈，正文“正在读取备份记录…”。\n第三行：正文“尚无加密备份。”与“刷新备份记录”可用按钮。\n第四行：同一个真实备份列表的三个不同记录，每行小蓝标签“已加密”。一条“2.0 MiB · 包含原文”、一条“1.0 MiB · 未包含知识库原文”，这两条都有“下载备份”“恢复到独立副本”按钮；第三条“3.0 MiB · 外部加密备份（范围待验证） · 外部导入”，仅“下载备份”按钮，说明“恢复此备份需要对应私钥，请在下方「从已下载的备份恢复」中选择文件。”。不加成功提示。\n第五行：展开“备份编号与密钥指纹”，只读“备份：example-backup-01”“密钥指纹：SHA256:<fingerprint>”。\n第六行：下载恢复密钥表单局部，标签“当前密码”空密码框，下面红字“请先创建加密备份以生成恢复密钥”，按钮“取消”和“验证密码并下载密钥”均可用。没有秘密文本。\n第七行：蓝灰信息提示标题“恢复会创建新的独立副本”，说明“服务会在新的空目录恢复并校验数据，完成后在下方任务中提供副本位置与启用步骤。核验完成后，部署切换需要单独操作。”；下方“提交后可以关闭面板，任务与结果会继续在本页更新。”。不画宿主导航或不属于这些局部的输入。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S004 Component state matrix: owner-private / BackupSettings.vue\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | ST-004 | 真实组件局部状态矩阵 | role=owner-private | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n完整备份恢复页：备份清单/加密/大小/范围/下载/独立恢复、创建加密备份、恢复密钥下载、下载备份恢复、异常写入恢复和任务。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n恢复密钥完整密码窗口：当前密码、验证下载/取消；403/429/409/busy各自反馈、尝试后立即清空，不显密钥。\n备份记录独立恢复完整抽屉：备份时间/大小/编号、独立新空目录和校验说明、开始恢复/取消，external不可恢复。\n\n局部矩阵（≤7行/卡）：\nr1 | ST-004 | 实际只画代表：错误 | 已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。 | renderer=apps/web/components/settings/BackupSettings.vue\nr2 | ST-029 | 实际只画代表：读取中 | 既有busy/spinner/禁用控件模式，按原guard锁定。 | renderer=apps/web/components/settings/BackupSettings.vue\nr3 | ST-029 | 实际只画代表：无记录 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/BackupSettings.vue\nr4 | ST-029 | 实际只画代表：包含原文/未含原文/外部范围待验证 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/BackupSettings.vue\nr5 | ST-029 | 实际只画代表：备份编号和公钥指纹details | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/BackupSettings.vue\nr6 | ST-030 | 实际只画代表：尚未创建备份/恢复密钥不可用409 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/BackupSettings.vue\nr7 | ST-031 | 实际只画代表：新空目录与校验说明 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/BackupSettings.vue\n\n精确功能/字段/动作guard合同：\nST-004/ST-029/ST-030/ST-031权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-004/ST-029字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-030字段顺序：当前密码 [password; 必填]: 服务端≤1024字符；每所有者5次/60秒节流；每次尝试后立即清空；仅合成掩码\nST-031字段顺序：备份时间 / 大小 / 编号 [read-only; 可选]: 既有控件\nST-004白名单：创建加密备份 => 提交后台加密备份；guard=已登录所有者；请求期间禁用重复操作；接口约束=POST /api/manage/backups\nST-004白名单：下载恢复密钥 => 打开ST-030；guard=已登录所有者；请求期间禁用重复操作\nST-004白名单：从备份恢复 => 打开ST-032；guard=已登录所有者；请求期间禁用重复操作\nST-004白名单：异常写入恢复 => 展开ST-034；guard=已登录所有者；请求期间禁用重复操作\nST-029白名单：下载备份 => 获取所有者备份文件；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/manage/backups/:id/download\nST-029白名单：恢复到独立副本 => 打开ST-031；guard=非external备份；接口约束=无请求\nST-029白名单：加载更多备份 / 刷新备份记录 => 分页读取；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/manage/backups\nST-030白名单：验证密码并下载密钥 => 下载私钥文件；关闭弹窗；guard=密码非空；不keyBusy；接口约束=POST /api/manage/backups/key\nST-030白名单：取消 => 清除草稿关闭；guard=已登录所有者；请求期间禁用重复操作\nST-031白名单：开始独立恢复 => 提交恢复任务；关闭抽屉；guard=非external记录；backupId及稳定requestId；不busy；接口约束=POST /api/manage/restores\nST-031白名单：取消 => 关闭；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\n1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。\nSettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-backup.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "97d08b85c99d01fa5a1193bd951f58708e31f29566db456b5076ce8f799cc4d0",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 129321
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S004.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c3dc5823-a18d-4ab7-b298-3dc49b692eec.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c3dc5823-a18d-4ab7-b298-3dc49b692eec.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T04:01:10.606Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Seven independent excerpts. External backup lacks record-restore action; 409 key error keeps empty password after attempt.",
+    "concerns": []
+  },
+  "sha256": "1a368902d62634a57b3eb13568015a244f54a817449c6b5739ff0142cd03acd3",
+  "dimensions": {
+    "width": 1024,
+    "height": 1536
+  },
+  "bytes": 1275688,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/settings/SettingsWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e9c0b0d2399cae094e29926dfbcf5dbf9a099857330f280e3d532cd1a8887fe7"
+    },
+    {
+      "path": "apps/web/settings.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "95b2194400a131de9e14943a735dba7a7c6100615c573cb8b88547540731c08d"
+    },
+    {
+      "path": "apps/web/components/settings/BackupSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+    },
+    {
+      "path": "apps/web/components/settings/BackupSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+    },
+    {
+      "path": "apps/web/components/settings/BackupSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+    },
+    {
+      "path": "apps/server/platform/transfers.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7bff08aba5736bb235082280a200f194d5ad40a65cd5adf7c2cbcbe2178864a5"
+    },
+    {
+      "path": "apps/web/components/settings/BackupSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+    },
+    {
+      "path": "apps/web/components/settings/BackupSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+    },
+    {
+      "path": "apps/server/platform/transfers.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7bff08aba5736bb235082280a200f194d5ad40a65cd5adf7c2cbcbe2178864a5"
+    },
+    {
+      "path": "apps/web/components/settings/BackupSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+    },
+    {
+      "path": "apps/web/components/settings/BackupSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+    },
+    {
+      "path": "apps/web/components/settings/BackupSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived independent component specimens. Synthetic values, no backup/restore/mutation execution; runtime responsive/close/focus guards unverified."
+}

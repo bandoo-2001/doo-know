@@ -1,0 +1,16 @@
+{
+  "id": "settings-library",
+  "title": "平台设置 library",
+  "width": 390,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?view=settings&section=library",
+  "file": "390-settings-library.png",
+  "sha256": "3213f7fd9fcf209a067fe82908d8f3d6c96e5a0fea8f63d1ee5ddc7725cd384a",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

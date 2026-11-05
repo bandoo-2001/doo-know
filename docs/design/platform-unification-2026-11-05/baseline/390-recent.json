@@ -1,0 +1,16 @@
+{
+  "id": "recent",
+  "title": "最近浏览",
+  "width": 390,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?view=recent",
+  "file": "390-recent.png",
+  "sha256": "dea2092b73ed6208af9325b4c43d0003c14997cb72d24f1c0f9f2e39d3db7615",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

@@ -1,0 +1,2039 @@
+{
+  "id": "WS-R038",
+  "title": "Graph relationship review modal",
+  "kind": "responsive-board",
+  "sourceIds": [
+    "WS-090"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-090",
+      "title": "Graph relationship review modal",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-090",
+      "title": "Graph relationship review modal",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:1148, apps/server/graph/semantic-routes.ts:164, packages/core/graph/analysis-source.ts:31, packages/core/graph/knowledge-state.ts:166, packages/core/graph/knowledge-service.ts:934"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-090",
+      "label": "确认 / 保存",
+      "effect": "Accept candidate or save predicate",
+      "api": "POST /api/graph/commands",
+      "guard": "!busy"
+    },
+    {
+      "sourceId": "WS-090",
+      "label": "忽略 / 恢复候选",
+      "effect": "Ignore or reset decision",
+      "api": "POST /api/graph/commands",
+      "guard": "Reset only shown for non-suggested list"
+    },
+    {
+      "sourceId": "WS-090",
+      "label": "原文证据",
+      "effect": "Open evidence note at startLine",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-090",
+      "label": "加载更多关系",
+      "effect": "Paginate review",
+      "api": "GET /api/graph/review",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R038",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "requiredFieldOrder": [
+        "审核状态",
+        "搜索审核关系",
+        "关系"
+      ],
+      "requiredFields": [
+        {
+          "name": "审核状态",
+          "type": "select",
+          "required": true,
+          "constraints": "suggested | accepted | ignored UI; server also accepts manual.",
+          "sensitive": false
+        },
+        {
+          "name": "搜索审核关系",
+          "type": "search",
+          "required": false,
+          "constraints": "Server q<=256 characters.",
+          "sensitive": false
+        },
+        {
+          "name": "关系",
+          "type": "text",
+          "required": false,
+          "constraints": "Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "确认 / 保存",
+          "effect": "Accept candidate or save predicate",
+          "api": "POST /api/graph/commands",
+          "guard": "!busy"
+        },
+        {
+          "label": "忽略 / 恢复候选",
+          "effect": "Ignore or reset decision",
+          "api": "POST /api/graph/commands",
+          "guard": "Reset only shown for non-suggested list"
+        },
+        {
+          "label": "原文证据",
+          "effect": "Open evidence note at startLine",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "加载更多关系",
+          "effect": "Paginate review",
+          "api": "GET /api/graph/review",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).",
+        "Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-090"
+    }
+  ],
+  "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R038 Graph relationship review modal\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-090\", \"title\": \"Graph relationship review modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\"}, {\"label\": \"B\", \"sourceId\": \"WS-090\", \"title\": \"Graph relationship review modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-090\", \"fieldsInOrder\": [{\"name\": \"审核状态\", \"type\": \"select\", \"required\": true, \"constraints\": \"suggested | accepted | ignored UI; server also accepts manual.\", \"sensitive\": false}, {\"name\": \"搜索审核关系\", \"type\": \"search\", \"required\": false, \"constraints\": \"Server q<=256 characters.\", \"sensitive\": false}, {\"name\": \"关系\", \"type\": \"text\", \"required\": false, \"constraints\": \"Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.\", \"sensitive\": false}], \"actions\": [{\"label\": \"确认 / 保存\", \"effect\": \"Accept candidate or save predicate\", \"api\": \"POST /api/graph/commands\", \"guard\": \"!busy\"}, {\"label\": \"忽略 / 恢复候选\", \"effect\": \"Ignore or reset decision\", \"api\": \"POST /api/graph/commands\", \"guard\": \"Reset only shown for non-suggested list\"}, {\"label\": \"原文证据\", \"effect\": \"Open evidence note at startLine\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"加载更多关系\", \"effect\": \"Paginate review\", \"api\": \"GET /api/graph/review\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading\", \"No relationships for filter\", \"Confidence+evidence per card\", \"State busy disables decision buttons\", \"More-results loading\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).\", \"Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-090\", \"fieldsInOrder\": [{\"name\": \"审核状态\", \"type\": \"select\", \"required\": true, \"constraints\": \"suggested | accepted | ignored UI; server also accepts manual.\", \"sensitive\": false}, {\"name\": \"搜索审核关系\", \"type\": \"search\", \"required\": false, \"constraints\": \"Server q<=256 characters.\", \"sensitive\": false}, {\"name\": \"关系\", \"type\": \"text\", \"required\": false, \"constraints\": \"Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.\", \"sensitive\": false}], \"actions\": [{\"label\": \"确认 / 保存\", \"effect\": \"Accept candidate or save predicate\", \"api\": \"POST /api/graph/commands\", \"guard\": \"!busy\"}, {\"label\": \"忽略 / 恢复候选\", \"effect\": \"Ignore or reset decision\", \"api\": \"POST /api/graph/commands\", \"guard\": \"Reset only shown for non-suggested list\"}, {\"label\": \"原文证据\", \"effect\": \"Open evidence note at startLine\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"加载更多关系\", \"effect\": \"Paginate review\", \"api\": \"GET /api/graph/review\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading\", \"No relationships for filter\", \"Confidence+evidence per card\", \"State busy disables decision buttons\", \"More-results loading\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).\", \"Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R038-v2.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-090",
+      "title": "Graph relationship review modal",
+      "kind": "dialog",
+      "module": "graph",
+      "entry": {
+        "route": "/?view=apps&app=graph",
+        "trigger": "关系审核",
+        "parentId": "WS-085"
+      },
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:1148",
+        "apps/server/graph/semantic-routes.ts:164",
+        "packages/core/graph/analysis-source.ts:31",
+        "packages/core/graph/knowledge-state.ts:166",
+        "packages/core/graph/knowledge-service.ts:934"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).",
+        "Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target."
+      ],
+      "fields": [
+        {
+          "name": "审核状态",
+          "type": "select",
+          "required": true,
+          "constraints": "suggested | accepted | ignored UI; server also accepts manual.",
+          "sensitive": false
+        },
+        {
+          "name": "搜索审核关系",
+          "type": "search",
+          "required": false,
+          "constraints": "Server q<=256 characters.",
+          "sensitive": false
+        },
+        {
+          "name": "关系",
+          "type": "text",
+          "required": false,
+          "constraints": "Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "确认 / 保存",
+          "effect": "Accept candidate or save predicate",
+          "api": "POST /api/graph/commands",
+          "guard": "!busy"
+        },
+        {
+          "label": "忽略 / 恢复候选",
+          "effect": "Ignore or reset decision",
+          "api": "POST /api/graph/commands",
+          "guard": "Reset only shown for non-suggested list"
+        },
+        {
+          "label": "原文证据",
+          "effect": "Open evidence note at startLine",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "加载更多关系",
+          "effect": "Paginate review",
+          "api": "GET /api/graph/review",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Loading",
+        "No relationships for filter",
+        "Confidence+evidence per card",
+        "State busy disables decision buttons",
+        "More-results loading"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "testRefs": [
+        "tests/graph-semantic-api.test.ts",
+        "tests/e2e/knowledge-graph-full.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-090",
+      "parentId": "WS-085",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-090",
+  "stateCoverageRefs": [],
+  "statePatternRefs": [
+    {
+      "sourceId": "WS-090",
+      "assetId": "WS-D066",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-R038",
+  "originalManifest": {
+    "id": "WS-R038",
+    "title": "Graph relationship review modal",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-090"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-090",
+        "title": "Graph relationship review modal",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards."
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-090",
+        "title": "Graph relationship review modal",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards."
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "apps/web/components/GraphWorkspace.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:1148, apps/server/graph/semantic-routes.ts:164, packages/core/graph/analysis-source.ts:31, packages/core/graph/knowledge-state.ts:166, packages/core/graph/knowledge-service.ts:934"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-090",
+        "label": "确认 / 保存",
+        "effect": "Accept candidate or save predicate",
+        "api": "POST /api/graph/commands",
+        "guard": "!busy"
+      },
+      {
+        "sourceId": "WS-090",
+        "label": "忽略 / 恢复候选",
+        "effect": "Ignore or reset decision",
+        "api": "POST /api/graph/commands",
+        "guard": "Reset only shown for non-suggested list"
+      },
+      {
+        "sourceId": "WS-090",
+        "label": "原文证据",
+        "effect": "Open evidence note at startLine",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-090",
+        "label": "加载更多关系",
+        "effect": "Paginate review",
+        "api": "GET /api/graph/review",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-R038",
+        "representation": "direct",
+        "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+        },
+        "requiredFieldOrder": [
+          "审核状态",
+          "搜索审核关系",
+          "关系"
+        ],
+        "requiredFields": [
+          {
+            "name": "审核状态",
+            "type": "select",
+            "required": true,
+            "constraints": "suggested | accepted | ignored UI; server also accepts manual.",
+            "sensitive": false
+          },
+          {
+            "name": "搜索审核关系",
+            "type": "search",
+            "required": false,
+            "constraints": "Server q<=256 characters.",
+            "sensitive": false
+          },
+          {
+            "name": "关系",
+            "type": "text",
+            "required": false,
+            "constraints": "Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "确认 / 保存",
+            "effect": "Accept candidate or save predicate",
+            "api": "POST /api/graph/commands",
+            "guard": "!busy"
+          },
+          {
+            "label": "忽略 / 恢复候选",
+            "effect": "Ignore or reset decision",
+            "api": "POST /api/graph/commands",
+            "guard": "Reset only shown for non-suggested list"
+          },
+          {
+            "label": "原文证据",
+            "effect": "Open evidence note at startLine",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "加载更多关系",
+            "effect": "Paginate review",
+            "api": "GET /api/graph/review",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).",
+          "Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target."
+        ],
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-090"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R038 Graph relationship review modal\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-090\", \"title\": \"Graph relationship review modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\"}, {\"label\": \"B\", \"sourceId\": \"WS-090\", \"title\": \"Graph relationship review modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Complete review filter/search/predicate/evidence cards and pagination, actual semantic decision/version guards.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-090\", \"fieldsInOrder\": [{\"name\": \"审核状态\", \"type\": \"select\", \"required\": true, \"constraints\": \"suggested | accepted | ignored UI; server also accepts manual.\", \"sensitive\": false}, {\"name\": \"搜索审核关系\", \"type\": \"search\", \"required\": false, \"constraints\": \"Server q<=256 characters.\", \"sensitive\": false}, {\"name\": \"关系\", \"type\": \"text\", \"required\": false, \"constraints\": \"Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.\", \"sensitive\": false}], \"actions\": [{\"label\": \"确认 / 保存\", \"effect\": \"Accept candidate or save predicate\", \"api\": \"POST /api/graph/commands\", \"guard\": \"!busy\"}, {\"label\": \"忽略 / 恢复候选\", \"effect\": \"Ignore or reset decision\", \"api\": \"POST /api/graph/commands\", \"guard\": \"Reset only shown for non-suggested list\"}, {\"label\": \"原文证据\", \"effect\": \"Open evidence note at startLine\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"加载更多关系\", \"effect\": \"Paginate review\", \"api\": \"GET /api/graph/review\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading\", \"No relationships for filter\", \"Confidence+evidence per card\", \"State busy disables decision buttons\", \"More-results loading\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).\", \"Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-090\", \"fieldsInOrder\": [{\"name\": \"审核状态\", \"type\": \"select\", \"required\": true, \"constraints\": \"suggested | accepted | ignored UI; server also accepts manual.\", \"sensitive\": false}, {\"name\": \"搜索审核关系\", \"type\": \"search\", \"required\": false, \"constraints\": \"Server q<=256 characters.\", \"sensitive\": false}, {\"name\": \"关系\", \"type\": \"text\", \"required\": false, \"constraints\": \"Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.\", \"sensitive\": false}], \"actions\": [{\"label\": \"确认 / 保存\", \"effect\": \"Accept candidate or save predicate\", \"api\": \"POST /api/graph/commands\", \"guard\": \"!busy\"}, {\"label\": \"忽略 / 恢复候选\", \"effect\": \"Ignore or reset decision\", \"api\": \"POST /api/graph/commands\", \"guard\": \"Reset only shown for non-suggested list\"}, {\"label\": \"原文证据\", \"effect\": \"Open evidence note at startLine\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"加载更多关系\", \"effect\": \"Paginate review\", \"api\": \"GET /api/graph/review\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading\", \"No relationships for filter\", \"Confidence+evidence per card\", \"State busy disables decision buttons\", \"More-results loading\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).\", \"Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R038.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-090",
+        "title": "Graph relationship review modal",
+        "kind": "dialog",
+        "module": "graph",
+        "entry": {
+          "route": "/?view=apps&app=graph",
+          "trigger": "关系审核",
+          "parentId": "WS-085"
+        },
+        "sourceRefs": [
+          "apps/web/components/GraphWorkspace.vue:1148",
+          "apps/server/graph/semantic-routes.ts:164",
+          "packages/core/graph/analysis-source.ts:31",
+          "packages/core/graph/knowledge-state.ts:166",
+          "packages/core/graph/knowledge-service.ts:934"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).",
+          "Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target."
+        ],
+        "fields": [
+          {
+            "name": "审核状态",
+            "type": "select",
+            "required": true,
+            "constraints": "suggested | accepted | ignored UI; server also accepts manual.",
+            "sensitive": false
+          },
+          {
+            "name": "搜索审核关系",
+            "type": "search",
+            "required": false,
+            "constraints": "Server q<=256 characters.",
+            "sensitive": false
+          },
+          {
+            "name": "关系",
+            "type": "text",
+            "required": false,
+            "constraints": "Server command string trimmed nonblank, <=128 characters, no U+0000–001F; current candidate predicate is default.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "确认 / 保存",
+            "effect": "Accept candidate or save predicate",
+            "api": "POST /api/graph/commands",
+            "guard": "!busy"
+          },
+          {
+            "label": "忽略 / 恢复候选",
+            "effect": "Ignore or reset decision",
+            "api": "POST /api/graph/commands",
+            "guard": "Reset only shown for non-suggested list"
+          },
+          {
+            "label": "原文证据",
+            "effect": "Open evidence note at startLine",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "加载更多关系",
+            "effect": "Paginate review",
+            "api": "GET /api/graph/review",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Loading",
+          "No relationships for filter",
+          "Confidence+evidence per card",
+          "State busy disables decision buttons",
+          "More-results loading"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+        },
+        "testRefs": [
+          "tests/graph-semantic-api.test.ts",
+          "tests/e2e/knowledge-graph-full.spec.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-090",
+        "parentId": "WS-085",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-090",
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "WS-090",
+        "assetId": "WS-D066",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "定点修订这张“关系审核”手机设计图，保留两个独立窄列A/B，A390/B320比例和现有白底细线蓝色主动作、正常字号、标题“关系审核”、描述“核对原文证据，再确认、修改或忽略模型建议。”、右上关闭X。修正分页和动作顺序，不能保留单卡后完整空白再分页。\nA显示一段连续长列表的最顶部：标题下面真实审核下拉“已确认”、空搜索框placeholder“搜索实体或关系”及放大镜，无清除X。接着第一张完整卡：标题“记录 → 方法”、置信分80%、label“关系”与可编辑输入“关联”、证据引用“记录为整理方法提供线索。”、来源链接“示例笔记 · L3”。卡内动作必须从左到右准确为蓝色“确认 / 保存”、普通“忽略”、文字“恢复候选”，禁止再把蓝色动作放右边。下方立即接下一张卡的上边缘与标题“收集 → 归类”，在视口底部被自然裁切，明确列表继续向下，A不显示“加载更多关系”，也不要留大空白。整个弹窗正文右侧有一根长滚动轨道、滑块在上端，不给单张卡添加滚动条。\nB是同一连续长列表已经滚到页底的独立视口。标题/描述/关闭X属于窗口标题区仍保留；审核筛选和搜索是正文的一部分，已经一起滚出顶部，B不显示审核筛选或搜索条。B正文顶缘先露出上一张卡底部的局部片段：来源链接“示例笔记 · L4”及动作“确认 / 保存”“忽略”“恢复候选”的部分边缘；然后最后一张完整卡，标题“观察 → 整理”、置信分80%、label“关系”、输入值“关联”、blockquote“观察为整理资料提供线索。”、来源链接“示例笔记 · L5”。这张卡动作也必须准确按蓝色“确认 / 保存”在左、普通“忽略”在中、文字“恢复候选”在右，太窄时按此顺序自然换行。最后卡之后立即是完整可达按钮“加载更多关系”。B整个正文唯一滚动轨道的滑块接近底部，不画卡内滚动条。\n两面板均为已确认/非忙，所有上述现有按钮可用，不新增计数、条目序号、分页页码、开发说明、状态说明、确认弹窗或新功能；任何50、条数、顶部/底部等文字都不要烧入产品界面。只通过下一卡/上一卡自然裁切及整段正文滚动条表达真实滚动位置。",
+  "actualToolArguments": {
+    "prompt": "定点修订这张“关系审核”手机设计图，保留两个独立窄列A/B，A390/B320比例和现有白底细线蓝色主动作、正常字号、标题“关系审核”、描述“核对原文证据，再确认、修改或忽略模型建议。”、右上关闭X。修正分页和动作顺序，不能保留单卡后完整空白再分页。\nA显示一段连续长列表的最顶部：标题下面真实审核下拉“已确认”、空搜索框placeholder“搜索实体或关系”及放大镜，无清除X。接着第一张完整卡：标题“记录 → 方法”、置信分80%、label“关系”与可编辑输入“关联”、证据引用“记录为整理方法提供线索。”、来源链接“示例笔记 · L3”。卡内动作必须从左到右准确为蓝色“确认 / 保存”、普通“忽略”、文字“恢复候选”，禁止再把蓝色动作放右边。下方立即接下一张卡的上边缘与标题“收集 → 归类”，在视口底部被自然裁切，明确列表继续向下，A不显示“加载更多关系”，也不要留大空白。整个弹窗正文右侧有一根长滚动轨道、滑块在上端，不给单张卡添加滚动条。\nB是同一连续长列表已经滚到页底的独立视口。标题/描述/关闭X属于窗口标题区仍保留；审核筛选和搜索是正文的一部分，已经一起滚出顶部，B不显示审核筛选或搜索条。B正文顶缘先露出上一张卡底部的局部片段：来源链接“示例笔记 · L4”及动作“确认 / 保存”“忽略”“恢复候选”的部分边缘；然后最后一张完整卡，标题“观察 → 整理”、置信分80%、label“关系”、输入值“关联”、blockquote“观察为整理资料提供线索。”、来源链接“示例笔记 · L5”。这张卡动作也必须准确按蓝色“确认 / 保存”在左、普通“忽略”在中、文字“恢复候选”在右，太窄时按此顺序自然换行。最后卡之后立即是完整可达按钮“加载更多关系”。B整个正文唯一滚动轨道的滑块接近底部，不画卡内滚动条。\n两面板均为已确认/非忙，所有上述现有按钮可用，不新增计数、条目序号、分页页码、开发说明、状态说明、确认弹窗或新功能；任何50、条数、顶部/底部等文字都不要烧入产品界面。只通过下一卡/上一卡自然裁切及整段正文滚动条表达真实滚动位置。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R038.png"
+    ],
+    "transparent_background": false
+  },
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R038.png"
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R038.png",
+      "order": 1,
+      "role": "edit target/style reference: retain truthful accepted-review fields, replace impossible one-card+pagination composition with whole-overlay-body top/bottom scroll positions",
+      "sha256": "c04e7c83912a0d090c1e9eab78b0541a29139c0b897a413b89bb014362db63d7",
+      "bytes": 1482852,
+      "dimensions": {
+        "width": 1407,
+        "height": 1118
+      }
+    }
+  ],
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "sha256": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/server/graph/semantic-routes.ts",
+      "sha256": "0f4d81250bee2aa5d27fdfd65bb5209f52525fdec1275f8ac680e17f7ea8f12a",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "packages/core/graph/analysis-source.ts",
+      "sha256": "c87083ae267c60d4d876a82ca93d7f51d87cb6156f7f325c778fe3e77362eca1",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "packages/core/graph/knowledge-state.ts",
+      "sha256": "24c5340305cd0a988e08a86ae8e2366078b6453ea336ae6f2c3c80b30ceb1001",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "packages/core/graph/knowledge-service.ts",
+      "sha256": "f1ff93c9dc7a502d3f3e61c9f4d2d4166f93f5d391b608440c1f3589782a0dfc",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/graph-workbench.ts",
+      "sha256": "68fd8a24051f471a3f7a02dd4609ab3c6963be12e9c3ade2679c609745e26c44",
+      "role": "read before targeted revision; template/pagination/scroll behavior authority"
+    },
+    {
+      "path": "apps/web/components/graph/GraphOverlay.vue",
+      "sha256": "0261e8d7dfde8c21c24a5793144b7ce2cb00fbbec49c05ec70d25d8af57439cd",
+      "role": "read before targeted revision; template/pagination/scroll behavior authority"
+    }
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "fallbackUsed": false,
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "url": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "verifiedModel": "gpt-image-2",
+      "scope": "Codex built-in image generation",
+      "date": "2026-11-05",
+      "apiReference": "https://developers.openai.com/api/reference/resources/images/methods/generate",
+      "apiModelSupported": true,
+      "apiReferenceDoesNotProveBuiltinRouteAlone": true
+    }
+  },
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-94b72bfd-7e62-458a-9fd4-300ec5979dd3.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-94b72bfd-7e62-458a-9fd4-300ec5979dd3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generatedAtUtc": "2026-11-05T09:31:35.574Z",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R038-v2.png",
+  "generationCalls": [
+    {
+      "status": "completed-with-tool-receipt",
+      "actualToolArguments": {
+        "prompt": "定点修订这张“关系审核”手机设计图，保留两个独立窄列A/B，A390/B320比例和现有白底细线蓝色主动作、正常字号、标题“关系审核”、描述“核对原文证据，再确认、修改或忽略模型建议。”、右上关闭X。修正分页和动作顺序，不能保留单卡后完整空白再分页。\nA显示一段连续长列表的最顶部：标题下面真实审核下拉“已确认”、空搜索框placeholder“搜索实体或关系”及放大镜，无清除X。接着第一张完整卡：标题“记录 → 方法”、置信分80%、label“关系”与可编辑输入“关联”、证据引用“记录为整理方法提供线索。”、来源链接“示例笔记 · L3”。卡内动作必须从左到右准确为蓝色“确认 / 保存”、普通“忽略”、文字“恢复候选”，禁止再把蓝色动作放右边。下方立即接下一张卡的上边缘与标题“收集 → 归类”，在视口底部被自然裁切，明确列表继续向下，A不显示“加载更多关系”，也不要留大空白。整个弹窗正文右侧有一根长滚动轨道、滑块在上端，不给单张卡添加滚动条。\nB是同一连续长列表已经滚到页底的独立视口。标题/描述/关闭X属于窗口标题区仍保留；审核筛选和搜索是正文的一部分，已经一起滚出顶部，B不显示审核筛选或搜索条。B正文顶缘先露出上一张卡底部的局部片段：来源链接“示例笔记 · L4”及动作“确认 / 保存”“忽略”“恢复候选”的部分边缘；然后最后一张完整卡，标题“观察 → 整理”、置信分80%、label“关系”、输入值“关联”、blockquote“观察为整理资料提供线索。”、来源链接“示例笔记 · L5”。这张卡动作也必须准确按蓝色“确认 / 保存”在左、普通“忽略”在中、文字“恢复候选”在右，太窄时按此顺序自然换行。最后卡之后立即是完整可达按钮“加载更多关系”。B整个正文唯一滚动轨道的滑块接近底部，不画卡内滚动条。\n两面板均为已确认/非忙，所有上述现有按钮可用，不新增计数、条目序号、分页页码、开发说明、状态说明、确认弹窗或新功能；任何50、条数、顶部/底部等文字都不要烧入产品界面。只通过下一卡/上一卡自然裁切及整段正文滚动条表达真实滚动位置。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R038.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-94b72bfd-7e62-458a-9fd4-300ec5979dd3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    }
+  ],
+  "generationCallCount": 1,
+  "selfInspection": {
+    "status": "pending-independent-review",
+    "method": "Native generated PNG inspected against the independent review requirements, actual template and handler guards",
+    "verified": [
+      "A whole-overlay body top contains toolbar, first complete card and clipped next card, no load-more",
+      "B top toolbar scrolled away; visible previous-card tail, last complete card then load-more",
+      "One body scrollbar each; no independent card scrollbar",
+      "All three actions now confirm/save, ignore, reset in source order"
+    ],
+    "concerns": [
+      "Raster geometry remains approximate. Runtime focus, real 320/390 fit, requests and actions remain unverified."
+    ]
+  },
+  "sha256": "3ebdce3c5fe8ecb632bff012736200c7f3a0ebdf7224d46bcc32230a38a0ae6c",
+  "bytes": 1597366,
+  "dimensions": {
+    "width": 1407,
+    "height": 1118
+  },
+  "selectedState": [
+    "390 accepted review full50-item page; whole-overlay body at top showing card1 and start of card2; hasMore true",
+    "320 same50-item page; whole-overlay body near bottom showing tail of card49, full card50 and load-more; toolbar scrolled out"
+  ],
+  "sourceStateRationale": "Accepted50-item first page permits restore candidate and hasMore; A top exposes next-card continuation, B scrolls entire overlay body to last card and real paginator. Toolbar is not sticky, cards own no scroller.",
+  "runtimeResponsiveVerified": false,
+  "responsiveTargetCssWidths": [
+    390,
+    320
+  ],
+  "currentGenerationReceipt": {
+    "toolResultReceiptObserved": true,
+    "receiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-gen048-targeted-receipts.json",
+    "actualToolArguments": {
+      "prompt": "定点修订这张“关系审核”手机设计图，保留两个独立窄列A/B，A390/B320比例和现有白底细线蓝色主动作、正常字号、标题“关系审核”、描述“核对原文证据，再确认、修改或忽略模型建议。”、右上关闭X。修正分页和动作顺序，不能保留单卡后完整空白再分页。\nA显示一段连续长列表的最顶部：标题下面真实审核下拉“已确认”、空搜索框placeholder“搜索实体或关系”及放大镜，无清除X。接着第一张完整卡：标题“记录 → 方法”、置信分80%、label“关系”与可编辑输入“关联”、证据引用“记录为整理方法提供线索。”、来源链接“示例笔记 · L3”。卡内动作必须从左到右准确为蓝色“确认 / 保存”、普通“忽略”、文字“恢复候选”，禁止再把蓝色动作放右边。下方立即接下一张卡的上边缘与标题“收集 → 归类”，在视口底部被自然裁切，明确列表继续向下，A不显示“加载更多关系”，也不要留大空白。整个弹窗正文右侧有一根长滚动轨道、滑块在上端，不给单张卡添加滚动条。\nB是同一连续长列表已经滚到页底的独立视口。标题/描述/关闭X属于窗口标题区仍保留；审核筛选和搜索是正文的一部分，已经一起滚出顶部，B不显示审核筛选或搜索条。B正文顶缘先露出上一张卡底部的局部片段：来源链接“示例笔记 · L4”及动作“确认 / 保存”“忽略”“恢复候选”的部分边缘；然后最后一张完整卡，标题“观察 → 整理”、置信分80%、label“关系”、输入值“关联”、blockquote“观察为整理资料提供线索。”、来源链接“示例笔记 · L5”。这张卡动作也必须准确按蓝色“确认 / 保存”在左、普通“忽略”在中、文字“恢复候选”在右，太窄时按此顺序自然换行。最后卡之后立即是完整可达按钮“加载更多关系”。B整个正文唯一滚动轨道的滑块接近底部，不画卡内滚动条。\n两面板均为已确认/非忙，所有上述现有按钮可用，不新增计数、条目序号、分页页码、开发说明、状态说明、确认弹窗或新功能；任何50、条数、顶部/底部等文字都不要烧入产品界面。只通过下一卡/上一卡自然裁切及整段正文滚动条表达真实滚动位置。",
+      "referenced_image_paths": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R038.png"
+      ],
+      "transparent_background": false
+    },
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-94b72bfd-7e62-458a-9fd4-300ec5979dd3.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-94b72bfd-7e62-458a-9fd4-300ec5979dd3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "completionObservedAtUtc": "2026-11-05T09:31:35.574Z",
+    "exactToolServerCompletionTimestampExposed": false
+  },
+  "generatedAtUtcBasis": "Local observation after awaited callback; exact server generation/completion timestamp is not exposed.",
+  "sourceImageSha256": "3ebdce3c5fe8ecb632bff012736200c7f3a0ebdf7224d46bcc32230a38a0ae6c",
+  "metadataAmendments": [
+    {
+      "atUtc": "2026-11-05T09:18:09.836367+00:00",
+      "reason": "Attach observed current receipt, source byte verification and full prior revision chain without changing PNG or rewriting historical no-receipt status."
+    }
+  ],
+  "revisionOf": "WS-R038.png",
+  "revisionReason": "Independent GEN048 review: truthful limit50 pagination with top/bottom overlay-body scroll, and exact source action order",
+  "sourceGuards": {
+    "reviewStatus": "accepted",
+    "query": "",
+    "reviewPageRequest": {
+      "limit": 50,
+      "offset": 0
+    },
+    "returnedItemCount": 50,
+    "reviewHasMore": true,
+    "reviewLoading": false,
+    "stateBusy": false,
+    "overlayBusy": false,
+    "actionOrder": [
+      "确认 / 保存",
+      "忽略",
+      "恢复候选"
+    ],
+    "restoreCandidateGuard": "reviewStatus !== suggested",
+    "scrollOwner": "GraphOverlay modal .ant-modal-body wraps .graph-overlay-body and owns overflow-y:auto; toolbar and cards scroll together, separate modal header remains outside the scroll body.",
+    "individualCardScrollbar": false
+  },
+  "renderedItemMapping": {
+    "A": {
+      "firstCompleteItem": 1,
+      "nextClippedItem": 2,
+      "loadMoreInViewport": false,
+      "toolbarInViewport": true
+    },
+    "B": {
+      "previousClippedItem": 49,
+      "lastCompleteItem": 50,
+      "loadMoreInViewport": true,
+      "toolbarInViewport": false
+    }
+  },
+  "priorGenerationHistory": {
+    "sidecar": "docs/design/platform-unification-2026-11-05/design/images/WS-R038.json",
+    "sha256": "c04e7c83912a0d090c1e9eab78b0541a29139c0b897a413b89bb014362db63d7",
+    "currentGenerationReceipt": {
+      "toolResultReceiptObserved": true,
+      "receiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-7.json",
+      "actualToolArguments": {
+        "prompt": "制作中文“关系审核”手机弹窗两独立窄列视口A/B，A390/B320比例，正常可读字号，白底细边线小圆角，中性背景，不画手机壳/系统栏/宿主导航。标题“关系审核”、描述“核对原文证据，再确认、修改或忽略模型建议。”、可达关闭X。两屏均是已确认筛选的相同真实表单，正文内部滚动，正常排版不缩小。顶部审核状态下拉“已确认”，下方搜索输入placeholder“搜索实体或关系”，搜索图标。下面一张已有关系卡：卡标题“记录 → 方法”，小标签“置信分 80%”；label“关系”，输入值“关联”；引用blockquote“记录为整理方法提供线索。”；蓝色来源链接“示例笔记 · L3”。卡内底部依次蓝色“确认 / 保存”、次按钮“忽略”、文字按钮“恢复候选”，窄屏自然换行；这是已确认状态，因此保留恢复候选。卡下独立按钮“加载更多关系”，当前非busy且有下一页。若B空间不足，B可展示同一弹窗正文下半部滚动位置，保留卡的输入尾部/证据/来源/三个动作及分页，不删动作或缩字。没有成功通知、协议版本输入、删除关系、批量批准、创建关系或独立“证据/真实来源”编辑字段。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D066.png",
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-32387658-8ce6-4b70-bd2d-947583d17b7c.png",
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-32387658-8ce6-4b70-bd2d-947583d17b7c.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "completionObservedAtUtc": "2026-11-05T09:10:11.107Z",
+      "exactToolServerCompletionTimestampExposed": false
+    },
+    "submittedPrompt": "制作中文“关系审核”手机弹窗两独立窄列视口A/B，A390/B320比例，正常可读字号，白底细边线小圆角，中性背景，不画手机壳/系统栏/宿主导航。标题“关系审核”、描述“核对原文证据，再确认、修改或忽略模型建议。”、可达关闭X。两屏均是已确认筛选的相同真实表单，正文内部滚动，正常排版不缩小。顶部审核状态下拉“已确认”，下方搜索输入placeholder“搜索实体或关系”，搜索图标。下面一张已有关系卡：卡标题“记录 → 方法”，小标签“置信分 80%”；label“关系”，输入值“关联”；引用blockquote“记录为整理方法提供线索。”；蓝色来源链接“示例笔记 · L3”。卡内底部依次蓝色“确认 / 保存”、次按钮“忽略”、文字按钮“恢复候选”，窄屏自然换行；这是已确认状态，因此保留恢复候选。卡下独立按钮“加载更多关系”，当前非busy且有下一页。若B空间不足，B可展示同一弹窗正文下半部滚动位置，保留卡的输入尾部/证据/来源/三个动作及分页，不删动作或缩字。没有成功通知、协议版本输入、删除关系、批量批准、创建关系或独立“证据/真实来源”编辑字段。",
+    "generationCalls": [
+      {
+        "status": "completed-with-tool-receipt",
+        "actualToolArguments": {
+          "prompt": "制作中文“关系审核”手机弹窗两独立窄列视口A/B，A390/B320比例，正常可读字号，白底细边线小圆角，中性背景，不画手机壳/系统栏/宿主导航。标题“关系审核”、描述“核对原文证据，再确认、修改或忽略模型建议。”、可达关闭X。两屏均是已确认筛选的相同真实表单，正文内部滚动，正常排版不缩小。顶部审核状态下拉“已确认”，下方搜索输入placeholder“搜索实体或关系”，搜索图标。下面一张已有关系卡：卡标题“记录 → 方法”，小标签“置信分 80%”；label“关系”，输入值“关联”；引用blockquote“记录为整理方法提供线索。”；蓝色来源链接“示例笔记 · L3”。卡内底部依次蓝色“确认 / 保存”、次按钮“忽略”、文字按钮“恢复候选”，窄屏自然换行；这是已确认状态，因此保留恢复候选。卡下独立按钮“加载更多关系”，当前非busy且有下一页。若B空间不足，B可展示同一弹窗正文下半部滚动位置，保留卡的输入尾部/证据/来源/三个动作及分页，不删动作或缩字。没有成功通知、协议版本输入、删除关系、批量批准、创建关系或独立“证据/真实来源”编辑字段。",
+          "referenced_image_paths": [
+            "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D066.png",
+            "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+          ],
+          "transparent_background": false
+        },
+        "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-32387658-8ce6-4b70-bd2d-947583d17b7c.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+      }
+    ]
+  },
+  "reviewRequest": {
+    "reviewFile": "docs/design/platform-unification-2026-11-05/design/reviews/WS-R038-review.json",
+    "priorVerdict": "needs-revision",
+    "reviewer": "platform_review_gen048",
+    "newImageRequiresIndependentReview": true
+  },
+  "paginationFixture": {
+    "synthetic": true,
+    "notAnObservedApiResponse": true,
+    "purpose": "Exact independent top and bottom scroll mapping of source-required50-item returned page; no count burned into UI.",
+    "request": {
+      "status": "accepted",
+      "limit": 50,
+      "offset": 0
+    },
+    "returnedCount": 50,
+    "reviewHasMore": true,
+    "items": [
+      {
+        "ordinal": 1,
+        "id": "isolated-review-01",
+        "source": {
+          "id": "isolated-source-01",
+          "name": "记录"
+        },
+        "target": {
+          "id": "isolated-target-01",
+          "name": "方法"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-01",
+            "title": "示例笔记",
+            "quote": "记录为整理方法提供线索。",
+            "startLine": 3
+          }
+        ]
+      },
+      {
+        "ordinal": 2,
+        "id": "isolated-review-02",
+        "source": {
+          "id": "isolated-source-02",
+          "name": "收集"
+        },
+        "target": {
+          "id": "isolated-target-02",
+          "name": "归类"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-02",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 3,
+        "id": "isolated-review-03",
+        "source": {
+          "id": "isolated-source-03",
+          "name": "示例概念3甲"
+        },
+        "target": {
+          "id": "isolated-target-03",
+          "name": "示例概念3乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-03",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 4,
+        "id": "isolated-review-04",
+        "source": {
+          "id": "isolated-source-04",
+          "name": "示例概念4甲"
+        },
+        "target": {
+          "id": "isolated-target-04",
+          "name": "示例概念4乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-04",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 5,
+        "id": "isolated-review-05",
+        "source": {
+          "id": "isolated-source-05",
+          "name": "示例概念5甲"
+        },
+        "target": {
+          "id": "isolated-target-05",
+          "name": "示例概念5乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-05",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 6,
+        "id": "isolated-review-06",
+        "source": {
+          "id": "isolated-source-06",
+          "name": "示例概念6甲"
+        },
+        "target": {
+          "id": "isolated-target-06",
+          "name": "示例概念6乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-06",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 7,
+        "id": "isolated-review-07",
+        "source": {
+          "id": "isolated-source-07",
+          "name": "示例概念7甲"
+        },
+        "target": {
+          "id": "isolated-target-07",
+          "name": "示例概念7乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-07",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 8,
+        "id": "isolated-review-08",
+        "source": {
+          "id": "isolated-source-08",
+          "name": "示例概念8甲"
+        },
+        "target": {
+          "id": "isolated-target-08",
+          "name": "示例概念8乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-08",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 9,
+        "id": "isolated-review-09",
+        "source": {
+          "id": "isolated-source-09",
+          "name": "示例概念9甲"
+        },
+        "target": {
+          "id": "isolated-target-09",
+          "name": "示例概念9乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-09",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 10,
+        "id": "isolated-review-10",
+        "source": {
+          "id": "isolated-source-10",
+          "name": "示例概念10甲"
+        },
+        "target": {
+          "id": "isolated-target-10",
+          "name": "示例概念10乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-10",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 11,
+        "id": "isolated-review-11",
+        "source": {
+          "id": "isolated-source-11",
+          "name": "示例概念11甲"
+        },
+        "target": {
+          "id": "isolated-target-11",
+          "name": "示例概念11乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-11",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 12,
+        "id": "isolated-review-12",
+        "source": {
+          "id": "isolated-source-12",
+          "name": "示例概念12甲"
+        },
+        "target": {
+          "id": "isolated-target-12",
+          "name": "示例概念12乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-12",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 13,
+        "id": "isolated-review-13",
+        "source": {
+          "id": "isolated-source-13",
+          "name": "示例概念13甲"
+        },
+        "target": {
+          "id": "isolated-target-13",
+          "name": "示例概念13乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-13",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 14,
+        "id": "isolated-review-14",
+        "source": {
+          "id": "isolated-source-14",
+          "name": "示例概念14甲"
+        },
+        "target": {
+          "id": "isolated-target-14",
+          "name": "示例概念14乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-14",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 15,
+        "id": "isolated-review-15",
+        "source": {
+          "id": "isolated-source-15",
+          "name": "示例概念15甲"
+        },
+        "target": {
+          "id": "isolated-target-15",
+          "name": "示例概念15乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-15",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 16,
+        "id": "isolated-review-16",
+        "source": {
+          "id": "isolated-source-16",
+          "name": "示例概念16甲"
+        },
+        "target": {
+          "id": "isolated-target-16",
+          "name": "示例概念16乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-16",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 17,
+        "id": "isolated-review-17",
+        "source": {
+          "id": "isolated-source-17",
+          "name": "示例概念17甲"
+        },
+        "target": {
+          "id": "isolated-target-17",
+          "name": "示例概念17乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-17",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 18,
+        "id": "isolated-review-18",
+        "source": {
+          "id": "isolated-source-18",
+          "name": "示例概念18甲"
+        },
+        "target": {
+          "id": "isolated-target-18",
+          "name": "示例概念18乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-18",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 19,
+        "id": "isolated-review-19",
+        "source": {
+          "id": "isolated-source-19",
+          "name": "示例概念19甲"
+        },
+        "target": {
+          "id": "isolated-target-19",
+          "name": "示例概念19乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-19",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 20,
+        "id": "isolated-review-20",
+        "source": {
+          "id": "isolated-source-20",
+          "name": "示例概念20甲"
+        },
+        "target": {
+          "id": "isolated-target-20",
+          "name": "示例概念20乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-20",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 21,
+        "id": "isolated-review-21",
+        "source": {
+          "id": "isolated-source-21",
+          "name": "示例概念21甲"
+        },
+        "target": {
+          "id": "isolated-target-21",
+          "name": "示例概念21乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-21",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 22,
+        "id": "isolated-review-22",
+        "source": {
+          "id": "isolated-source-22",
+          "name": "示例概念22甲"
+        },
+        "target": {
+          "id": "isolated-target-22",
+          "name": "示例概念22乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-22",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 23,
+        "id": "isolated-review-23",
+        "source": {
+          "id": "isolated-source-23",
+          "name": "示例概念23甲"
+        },
+        "target": {
+          "id": "isolated-target-23",
+          "name": "示例概念23乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-23",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 24,
+        "id": "isolated-review-24",
+        "source": {
+          "id": "isolated-source-24",
+          "name": "示例概念24甲"
+        },
+        "target": {
+          "id": "isolated-target-24",
+          "name": "示例概念24乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-24",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 25,
+        "id": "isolated-review-25",
+        "source": {
+          "id": "isolated-source-25",
+          "name": "示例概念25甲"
+        },
+        "target": {
+          "id": "isolated-target-25",
+          "name": "示例概念25乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-25",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 26,
+        "id": "isolated-review-26",
+        "source": {
+          "id": "isolated-source-26",
+          "name": "示例概念26甲"
+        },
+        "target": {
+          "id": "isolated-target-26",
+          "name": "示例概念26乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-26",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 27,
+        "id": "isolated-review-27",
+        "source": {
+          "id": "isolated-source-27",
+          "name": "示例概念27甲"
+        },
+        "target": {
+          "id": "isolated-target-27",
+          "name": "示例概念27乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-27",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 28,
+        "id": "isolated-review-28",
+        "source": {
+          "id": "isolated-source-28",
+          "name": "示例概念28甲"
+        },
+        "target": {
+          "id": "isolated-target-28",
+          "name": "示例概念28乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-28",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 29,
+        "id": "isolated-review-29",
+        "source": {
+          "id": "isolated-source-29",
+          "name": "示例概念29甲"
+        },
+        "target": {
+          "id": "isolated-target-29",
+          "name": "示例概念29乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-29",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 30,
+        "id": "isolated-review-30",
+        "source": {
+          "id": "isolated-source-30",
+          "name": "示例概念30甲"
+        },
+        "target": {
+          "id": "isolated-target-30",
+          "name": "示例概念30乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-30",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 31,
+        "id": "isolated-review-31",
+        "source": {
+          "id": "isolated-source-31",
+          "name": "示例概念31甲"
+        },
+        "target": {
+          "id": "isolated-target-31",
+          "name": "示例概念31乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-31",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 32,
+        "id": "isolated-review-32",
+        "source": {
+          "id": "isolated-source-32",
+          "name": "示例概念32甲"
+        },
+        "target": {
+          "id": "isolated-target-32",
+          "name": "示例概念32乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-32",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 33,
+        "id": "isolated-review-33",
+        "source": {
+          "id": "isolated-source-33",
+          "name": "示例概念33甲"
+        },
+        "target": {
+          "id": "isolated-target-33",
+          "name": "示例概念33乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-33",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 34,
+        "id": "isolated-review-34",
+        "source": {
+          "id": "isolated-source-34",
+          "name": "示例概念34甲"
+        },
+        "target": {
+          "id": "isolated-target-34",
+          "name": "示例概念34乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-34",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 35,
+        "id": "isolated-review-35",
+        "source": {
+          "id": "isolated-source-35",
+          "name": "示例概念35甲"
+        },
+        "target": {
+          "id": "isolated-target-35",
+          "name": "示例概念35乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-35",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 36,
+        "id": "isolated-review-36",
+        "source": {
+          "id": "isolated-source-36",
+          "name": "示例概念36甲"
+        },
+        "target": {
+          "id": "isolated-target-36",
+          "name": "示例概念36乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-36",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 37,
+        "id": "isolated-review-37",
+        "source": {
+          "id": "isolated-source-37",
+          "name": "示例概念37甲"
+        },
+        "target": {
+          "id": "isolated-target-37",
+          "name": "示例概念37乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-37",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 38,
+        "id": "isolated-review-38",
+        "source": {
+          "id": "isolated-source-38",
+          "name": "示例概念38甲"
+        },
+        "target": {
+          "id": "isolated-target-38",
+          "name": "示例概念38乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-38",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 39,
+        "id": "isolated-review-39",
+        "source": {
+          "id": "isolated-source-39",
+          "name": "示例概念39甲"
+        },
+        "target": {
+          "id": "isolated-target-39",
+          "name": "示例概念39乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-39",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 40,
+        "id": "isolated-review-40",
+        "source": {
+          "id": "isolated-source-40",
+          "name": "示例概念40甲"
+        },
+        "target": {
+          "id": "isolated-target-40",
+          "name": "示例概念40乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-40",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 41,
+        "id": "isolated-review-41",
+        "source": {
+          "id": "isolated-source-41",
+          "name": "示例概念41甲"
+        },
+        "target": {
+          "id": "isolated-target-41",
+          "name": "示例概念41乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-41",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 42,
+        "id": "isolated-review-42",
+        "source": {
+          "id": "isolated-source-42",
+          "name": "示例概念42甲"
+        },
+        "target": {
+          "id": "isolated-target-42",
+          "name": "示例概念42乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-42",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 43,
+        "id": "isolated-review-43",
+        "source": {
+          "id": "isolated-source-43",
+          "name": "示例概念43甲"
+        },
+        "target": {
+          "id": "isolated-target-43",
+          "name": "示例概念43乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-43",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 44,
+        "id": "isolated-review-44",
+        "source": {
+          "id": "isolated-source-44",
+          "name": "示例概念44甲"
+        },
+        "target": {
+          "id": "isolated-target-44",
+          "name": "示例概念44乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-44",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 45,
+        "id": "isolated-review-45",
+        "source": {
+          "id": "isolated-source-45",
+          "name": "示例概念45甲"
+        },
+        "target": {
+          "id": "isolated-target-45",
+          "name": "示例概念45乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-45",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 46,
+        "id": "isolated-review-46",
+        "source": {
+          "id": "isolated-source-46",
+          "name": "示例概念46甲"
+        },
+        "target": {
+          "id": "isolated-target-46",
+          "name": "示例概念46乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-46",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 47,
+        "id": "isolated-review-47",
+        "source": {
+          "id": "isolated-source-47",
+          "name": "示例概念47甲"
+        },
+        "target": {
+          "id": "isolated-target-47",
+          "name": "示例概念47乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-47",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 48,
+        "id": "isolated-review-48",
+        "source": {
+          "id": "isolated-source-48",
+          "name": "示例概念48甲"
+        },
+        "target": {
+          "id": "isolated-target-48",
+          "name": "示例概念48乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-48",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 49,
+        "id": "isolated-review-49",
+        "source": {
+          "id": "isolated-source-49",
+          "name": "示例概念49甲"
+        },
+        "target": {
+          "id": "isolated-target-49",
+          "name": "示例概念49乙"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-49",
+            "title": "示例笔记",
+            "quote": "用于关系列表分页设计的隔离示例。",
+            "startLine": 4
+          }
+        ]
+      },
+      {
+        "ordinal": 50,
+        "id": "isolated-review-50",
+        "source": {
+          "id": "isolated-source-50",
+          "name": "观察"
+        },
+        "target": {
+          "id": "isolated-target-50",
+          "name": "整理"
+        },
+        "predicate": "关联",
+        "confidence": 0.8,
+        "reviewStatus": "accepted",
+        "evidence": [
+          {
+            "id": "isolated-evidence-50",
+            "title": "示例笔记",
+            "quote": "观察为整理资料提供线索。",
+            "startLine": 5
+          }
+        ]
+      }
+    ],
+    "visibleOrdinals": {
+      "A": {
+        "full": [
+          1
+        ],
+        "partiallyVisible": [
+          2
+        ]
+      },
+      "B": {
+        "partiallyVisible": [
+          49
+        ],
+        "full": [
+          50
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "assetId": "MP-D004",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:19:39.120546+00:00",
+  "method": "Actual generated PNG and matching real baseline each viewed in independent child context. Exact submitted sidecar prompt and batch requirements checked against current templates; source outranks generic prompt/API summaries.",
+  "selectedState": "Owner empty encrypted-backup list; no recovery dialogs; exception recovery collapsed",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Empty backup state, encrypted-backup scope and independent-backup verification note retained; create encrypted backup and refresh records present without a fabricated record/progress/success.",
+    "Download-recovery-key and downloaded-backup-recovery cards retain source actions and password/independent-copy explanations. Password/key/file forms correctly stay hidden in closed overlays.",
+    "Task section with refresh/background-continuation note and no tasks; exception write recovery remains collapsed. Source owner rail/eight settings choices/back actions/global settings header preserved."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/generation-batch-03.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D004.json",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/BackupSettings.vue:222",
+    "apps/web/components/settings/BackupSettings.vue:298",
+    "apps/web/components/settings/BackupSettings.vue:460",
+    "apps/web/components/settings/TransferTasks.vue:1",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-settings-backup.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "a3c15c0b710cf04378e90c8b9f43a7d0a4a78fc9b1870e1708463609f690cf8a",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D004.png",
+  "sourceIds": [
+    "ST-004"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

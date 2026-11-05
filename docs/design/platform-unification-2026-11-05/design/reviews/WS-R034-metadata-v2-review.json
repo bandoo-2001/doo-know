@@ -1,0 +1,151 @@
+{
+  "assetId": "WS-R034",
+  "sourceIds": [
+    "WS-086",
+    "WS-106"
+  ],
+  "reviewer": "independent platform_review_gen048 child agent, exclusively assigned eight GEN048 responsive assets",
+  "reviewedAtUtc": "2026-11-05T09:37:57.848769+00:00",
+  "verdict": "pass",
+  "method": "Metadata-only independent follow-up to the already actually viewed identical PNG SHA. Corrected exact mother path/SHA/panel binding, correction history and immutable original failure compared against actual previously viewed D069 image, its matching passed review and current GraphWorkspace/GraphInspector source conditions. No regeneration, new pixel review claim, or runtime tests.",
+  "actualViewMethod": {
+    "tool": "tools.view_image",
+    "image": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R034.png",
+    "detail": "high",
+    "boardPanelsActuallyViewed": [
+      "A",
+      "B"
+    ]
+  },
+  "reviewedImageSha256": "87928065849d2b43a6cf18154f046f5ce573784427dd5f51bd3fdb0526131dd8",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-R034.png",
+  "reviewedSidecarSha256": "bab145ad172aacde89ed8385d43dd6de4758d9562d79959999f1ef4c595ee7f5",
+  "reviewedManifestSha256": "7f3fc0492e62f25af38e6dc0c0135db54d73fed95d3c1554e71f632cfb9a2474",
+  "submissionReview": {
+    "completeSubmittedPromptRead": true,
+    "submittedPromptSha256": "8bb57f2c729395c29ec6bacb263e4c931d05f71ba2a0e224c3db3f75491c5ad0",
+    "actualToolArgumentsPromptMatchesReceipt": true,
+    "observedReceiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-6.json",
+    "receiptOutputBytesMatchReviewedPng": true
+  },
+  "inputImageChecks": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-graph.png",
+      "order": 1,
+      "role": "actual hosted graph mobile chrome only; list content source-derived isolated specimen",
+      "sha256": "869e72f5cf7e41543c74135e998600a23fd6b19a87b939e75aff0e2cac4ca516",
+      "bytes": 73363,
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "actualSha256": "869e72f5cf7e41543c74135e998600a23fd6b19a87b939e75aff0e2cac4ca516",
+      "actuallyViewed": true,
+      "roleChecked": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "actualSha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "actuallyViewed": true,
+      "roleChecked": true
+    }
+  ],
+  "selectedState": [
+    "390 source-derived isolated knowledge list, no selectedId",
+    "same list320, no mobile selection drawer"
+  ],
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "WS-R034 image SHA87928065849d2b43a6cf18154f046f5ce573784427dd5f51bd3fdb0526131dd8 is unchanged from the actual PNG previously viewed by this independent reviewer. Original list/source checks stand.",
+    "Current unscreenedControlsBinding now identifies WS-D069 A/B, sourceWS-093, actual full image path, SHA ddba4c636815ffe37fde2dc903f62131ed6cacecde27217a652a386ccef9e533 and matching passed D069 review. This is the mobile entity/semantic-edge inspector renderer, not the former background task board.",
+    "R034 remains an unselected list and does not portray an open inspector. Selection opens mobile&&selectedId&&!panel drawer. D069 entity/edge panels remain conditional: notes use source open/original+hop/evidence controls and do not inherit non-note alias/merge/manual-relation forms; note/similarity alternatives retain the distinct matching-reviewed source mapping recorded in D069 review.",
+    "priorUnscreenedControlsBindings and metadataCorrectionHistory preserve the incorrect D064 record; graph-list-inspector-binding-correction.json preserves the exact from/to change. Original needs-revision report remains intact. No pixels/prompt/tool arguments/host role changed."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster shading, slight texture, rounded proportions and intended390/320 geometry are approximate. Implement flat shared CSS colors/borders/8px corners and readable source-sized text; do not reproduce raster gradients or infer exact responsive fit from this board."
+    }
+  ],
+  "sourceRefs": [
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R034.json",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-R034-review.json",
+    "docs/design/platform-unification-2026-11-05/design/reviews/graph-list-inspector-binding-correction.json",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D069-review.json",
+    "apps/web/components/graph/GraphInspector.vue:99",
+    "apps/web/components/graph/GraphInspector.vue:114",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-048.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/app.ts:141",
+    "apps/web/components/GraphWorkspace.vue:753",
+    "apps/web/components/GraphWorkspace.vue:130",
+    "apps/web/components/GraphWorkspace.vue:605",
+    "apps/server/graph/semantic-routes.ts:62",
+    "packages/core/graph/knowledge-service.ts:645",
+    "apps/web/graph.css:394",
+    "apps/web/components/GraphWorkspace.vue:1374",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D064-review.json"
+  ],
+  "currentSourceSha256": {
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    "apps/server/graph/semantic-routes.ts": "0f4d81250bee2aa5d27fdfd65bb5209f52525fdec1275f8ac680e17f7ea8f12a",
+    "apps/web/components/GraphWorkspace.vue": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e",
+    "apps/web/graph.css": "2caa5b70edcb0176dcef36821008e1997fca57e56488c890c9bfa513eaa9943b",
+    "packages/core/graph/knowledge-service.ts": "f1ff93c9dc7a502d3f3e61c9f4d2d4166f93f5d391b608440c1f3589782a0dfc",
+    "apps/web/components/graph/GraphInspector.vue": "2c950b442d004deb93f861c093cdbfd90e9031a6ff8c385ee0f7208a4d72f400"
+  },
+  "requiredCorrections": [],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false,
+    "limitations": "The tool does not expose a per-call physical model identity receipt; none is claimed."
+  },
+  "limitations": [
+    "Only these actual image bytes and their declared compatible selected state received static content review. Source-derived data are examples, not captured API/model outcomes.",
+    "A static PNG cannot prove physical320/390 scrolling or safe viewport, source focus trapping/return, keyboard/Escape, busy/dirty/version guards, action execution, persistence, permissions enforcement, live model/clipboard behavior or exact canvas topology.",
+    "Unshown alternative loading/error/unavailable/conflict/role variants retain their individual source contracts and mother mappings; this verdict does not claim their simultaneous presence.",
+    "Per-image content verdict does not pass platform-wide consistency/coverage/provenance gates or authorize product implementation."
+  ],
+  "priorReview": {
+    "path": "docs/design/platform-unification-2026-11-05/design/reviews/WS-R034-review.json",
+    "sha256": "f90e78103a39893072664de9dae9e4e7b6cd276f6808b48dc7b5feeabf97ed9e",
+    "verdict": "needs-revision",
+    "reviewedImageSha256": "87928065849d2b43a6cf18154f046f5ce573784427dd5f51bd3fdb0526131dd8",
+    "preserved": true
+  },
+  "metadataCorrectionCheck": {
+    "record": "docs/design/platform-unification-2026-11-05/design/reviews/graph-list-inspector-binding-correction.json",
+    "recordSha256": "8547b4ecdebb3c16cf76f2b1e39085a52a4e3f50772433e27557e1f296af76de",
+    "currentBinding": {
+      "assetId": "WS-D069",
+      "panels": [
+        "A",
+        "B"
+      ],
+      "sourceId": "WS-093",
+      "fieldOrder": [
+        "selection triggers mobile graph detail drawer",
+        "node or edge inspector"
+      ],
+      "sha256": "ddba4c636815ffe37fde2dc903f62131ed6cacecde27217a652a386ccef9e533",
+      "path": "docs/design/platform-unification-2026-11-05/design/images/WS-D069.png",
+      "review": "design/reviews/WS-D069-review.json",
+      "scope": "Exact already-reviewed mobile node/edge inspector drawer container and conditional inspector presentation. Current list image is unselected; it does not claim an open detail drawer."
+    },
+    "motherReview": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D069-review.json",
+    "motherReviewSha256": "f61d63ebbd20164f81606e35eea7372fe97b2c150a02c4dedcd9e2156cac3e4f",
+    "samePngBytes": true,
+    "onlyOriginalBlockingBindingFindingClosed": true
+  },
+  "resolvedFindingCount": 1
+}

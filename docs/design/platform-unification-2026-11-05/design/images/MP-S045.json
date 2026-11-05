@@ -1,0 +1,500 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S045",
+  "assetId": "MP-S045",
+  "sourceIds": [
+    "PB-018",
+    "PB-019"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "owner-oauth"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-018",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-oauth",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Five OAuth local slices v2 knowledge-only ceiling with offline_access; busy buttons/field controls; legacy allowedScopes; legacy directory selection; empty directory selection invalid accept. V2 and legacy independent, source-derived."
+    }
+  ],
+  "selectedState": "Five OAuth local slices v2 knowledge-only ceiling with offline_access; busy buttons/field controls; legacy allowedScopes; legacy directory selection; empty directory selection invalid accept. V2 and legacy independent, source-derived.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。五个独立局部行。1 完整权限片段：“知识库”卡片开关开启，“知识库能力预设”选“只读”，“知识库资源范围”选“整个知识库”，灰色说明“目录授权跟随身份并覆盖后代；自主整理允许直接创建、移动和改名。归档和维护索引独立设置。”，折叠“独立权限与高级选项”。下方勾选框“保持连接，允许刷新访问令牌”勾选；不出现全局重绑动作。2 独立提交中片段：灰色禁用的“知识库能力预设”下拉只读、灰色禁用且勾选的“保持连接，允许刷新访问令牌”；底部“拒绝”禁用、“允许访问”转圈禁用。3 兼容授权操作片段，标题“允许的操作”，复选框“读取所选目录中的资料”勾选、“创建、修改和归档资料”未勾选、“保持连接，允许刷新访问令牌”勾选。4 兼容授权目录片段“允许的资料目录”，目录复选框00-Inbox勾选、30-Knowledge未勾选。5 另一兼容片段：读取所选目录中的资料勾选，目录00-Inbox和30-Knowledge都未勾选，“拒绝”可用、“允许访问”灰色禁用。所有分区相互独立，不能混同兼容复选框与新权限卡，不加搜索、创建、密码、登录或其他按钮。",
+  "prompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。五个独立局部行。1 完整权限片段：“知识库”卡片开关开启，“知识库能力预设”选“只读”，“知识库资源范围”选“整个知识库”，灰色说明“目录授权跟随身份并覆盖后代；自主整理允许直接创建、移动和改名。归档和维护索引独立设置。”，折叠“独立权限与高级选项”。下方勾选框“保持连接，允许刷新访问令牌”勾选；不出现全局重绑动作。2 独立提交中片段：灰色禁用的“知识库能力预设”下拉只读、灰色禁用且勾选的“保持连接，允许刷新访问令牌”；底部“拒绝”禁用、“允许访问”转圈禁用。3 兼容授权操作片段，标题“允许的操作”，复选框“读取所选目录中的资料”勾选、“创建、修改和归档资料”未勾选、“保持连接，允许刷新访问令牌”勾选。4 兼容授权目录片段“允许的资料目录”，目录复选框00-Inbox勾选、30-Knowledge未勾选。5 另一兼容片段：读取所选目录中的资料勾选，目录00-Inbox和30-Knowledge都未勾选，“拒绝”可用、“允许访问”灰色禁用。所有分区相互独立，不能混同兼容复选框与新权限卡，不加搜索、创建、密码、登录或其他按钮。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png",
+      "role": "Actual OAuth role/content baseline; requested selected local state source-derived",
+      "sha256": "2d0e1957205eb4d488fbd90d7a4f3386856e5930b1ec65976a10674e3e2efd8b",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only, never owner shell reference",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png",
+      "role": "Actual OAuth role/content baseline; requested selected local state source-derived",
+      "sha256": "2d0e1957205eb4d488fbd90d7a4f3386856e5930b1ec65976a10674e3e2efd8b",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only, never owner shell reference",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。五个独立局部行。1 完整权限片段：“知识库”卡片开关开启，“知识库能力预设”选“只读”，“知识库资源范围”选“整个知识库”，灰色说明“目录授权跟随身份并覆盖后代；自主整理允许直接创建、移动和改名。归档和维护索引独立设置。”，折叠“独立权限与高级选项”。下方勾选框“保持连接，允许刷新访问令牌”勾选；不出现全局重绑动作。2 独立提交中片段：灰色禁用的“知识库能力预设”下拉只读、灰色禁用且勾选的“保持连接，允许刷新访问令牌”；底部“拒绝”禁用、“允许访问”转圈禁用。3 兼容授权操作片段，标题“允许的操作”，复选框“读取所选目录中的资料”勾选、“创建、修改和归档资料”未勾选、“保持连接，允许刷新访问令牌”勾选。4 兼容授权目录片段“允许的资料目录”，目录复选框00-Inbox勾选、30-Knowledge未勾选。5 另一兼容片段：读取所选目录中的资料勾选，目录00-Inbox和30-Knowledge都未勾选，“拒绝”可用、“允许访问”灰色禁用。所有分区相互独立，不能混同兼容复选框与新权限卡，不加搜索、创建、密码、登录或其他按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。五个独立局部行。1 完整权限片段：“知识库”卡片开关开启，“知识库能力预设”选“只读”，“知识库资源范围”选“整个知识库”，灰色说明“目录授权跟随身份并覆盖后代；自主整理允许直接创建、移动和改名。归档和维护索引独立设置。”，折叠“独立权限与高级选项”。下方勾选框“保持连接，允许刷新访问令牌”勾选；不出现全局重绑动作。2 独立提交中片段：灰色禁用的“知识库能力预设”下拉只读、灰色禁用且勾选的“保持连接，允许刷新访问令牌”；底部“拒绝”禁用、“允许访问”转圈禁用。3 兼容授权操作片段，标题“允许的操作”，复选框“读取所选目录中的资料”勾选、“创建、修改和归档资料”未勾选、“保持连接，允许刷新访问令牌”勾选。4 兼容授权目录片段“允许的资料目录”，目录复选框00-Inbox勾选、30-Knowledge未勾选。5 另一兼容片段：读取所选目录中的资料勾选，目录00-Inbox和30-Knowledge都未勾选，“拒绝”可用、“允许访问”灰色禁用。所有分区相互独立，不能混同兼容复选框与新权限卡，不加搜索、创建、密码、登录或其他按钮。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png",
+          "role": "Actual OAuth role/content baseline; requested selected local state source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only, never owner shell reference"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-e636ef2c-0539-4d30-943c-be19c00eefaf.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-018",
+      "title": "OAuth 连接授权：业务与资源策略",
+      "kind": "page",
+      "module": "oauth",
+      "entry": {
+        "route": "/oauth/consent?oauth_query=…",
+        "trigger": "Signed-in owner; ready platform; onboarding complete",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:333",
+        "apps/web/components/OAuthConsent.vue:23",
+        "apps/web/components/OAuthConsent.vue:79",
+        "apps/server/platform/oauth.ts:35"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required; signed OAuth query <=16384 characters; exactly one client_id; resource must equal installation origin+/mcp; client must exist and be enabled.",
+        "Requested scopes intersect server policy and owner resource ceilings. ToDoo write requires read; v2 blog publish requires knowledge read."
+      ],
+      "fields": [
+        {
+          "name": "permissionPolicy",
+          "type": "domain permissions",
+          "required": true,
+          "constraints": "subset of server allowedPolicy; shared MCPDomainPermissions",
+          "sensitive": false
+        },
+        {
+          "name": "offline_access",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "shown only when requested and allowed",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "拒绝",
+          "effect": "Submit denial and redirect",
+          "api": "POST /api/platform/mcp/oauth/consent",
+          "guard": "not busy; request loaded"
+        },
+        {
+          "label": "允许访问",
+          "effect": "Submit selected permissions and redirect",
+          "api": "POST /api/platform/mcp/oauth/consent",
+          "guard": "valid selected policy; not busy"
+        }
+      ],
+      "importantStates": [
+        "checking signed request",
+        "client identity displayed",
+        "policy-ceiling domain controls; keep-connection option",
+        "invalid selection disables allow; busy locks controls",
+        "submitted consent redirects to validated result"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Max 640px; <=600px reduces padding, wraps scope text and gives actions equal flexible widths (OAuthConsent.vue:339). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/oauth.spec.ts:4",
+        "tests/oauth-routes.test.ts:1",
+        "tests/oauth-grants.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Consent can mention ToDoo permissions because it authorizes a connection; ToDoo product UI is out of scope. Shared MCPDomainPermissions editor details belong to settings inventory."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-019",
+      "title": "OAuth 连接授权：兼容目录与操作列表",
+      "kind": "state",
+      "module": "oauth",
+      "entry": {
+        "route": "/oauth/consent?oauth_query=…",
+        "trigger": "Valid request has no allowedPolicy",
+        "parentId": "PB-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:25",
+        "apps/web/components/OAuthConsent.vue:44",
+        "apps/web/components/OAuthConsent.vue:96",
+        "apps/server/platform/oauth.ts:89"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session and ready, completed onboarding required. Signed client request and server policy ceiling remain authoritative."
+      ],
+      "fields": [
+        {
+          "name": "scopes",
+          "type": "checkbox group",
+          "required": true,
+          "constraints": "must include resource scope; allowedScopes subset",
+          "sensitive": false
+        },
+        {
+          "name": "allowedPrefixes",
+          "type": "checkbox group",
+          "required": false,
+          "constraints": "required when selected knowledge scope or blog:publish; subset of allowed prefixes",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "允许访问",
+          "effect": "Grant legacy scoped directory access",
+          "api": "POST /api/platform/mcp/oauth/consent",
+          "guard": "ToDoo write=>read; blog publish=>knowledge read+write; required directories selected"
+        }
+      ],
+      "importantStates": [
+        "legacy scope checkboxes",
+        "directory choices shown for knowledge scope or blog publish",
+        "read/offline defaults only when allowed",
+        "scope dependencies and empty resources disable allow"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Max 640px; <=600px reduces padding, wraps scope text and gives actions equal flexible widths (OAuthConsent.vue:339). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/oauth.spec.ts:4"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Keep compatibility mode distinct from v2 policy UI; do not silently merge their authorization rules."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-018",
+      "parentId": null,
+      "route": "/oauth/consent?oauth_query=…",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:333",
+        "apps/web/components/OAuthConsent.vue:23",
+        "apps/web/components/OAuthConsent.vue:79",
+        "apps/server/platform/oauth.ts:35"
+      ]
+    },
+    {
+      "sourceId": "PB-019",
+      "parentId": "PB-018",
+      "route": "/oauth/consent?oauth_query=…",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:25",
+        "apps/web/components/OAuthConsent.vue:44",
+        "apps/web/components/OAuthConsent.vue:96",
+        "apps/server/platform/oauth.ts:89"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-027.json#MP-S045",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S045",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-e636ef2c-0539-4d30-943c-be19c00eefaf.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S045.png",
+  "sha256": "638e7310c0a1da989b64aca9c0a8385e51dc7be1b1a395e8073c00da852bfd31",
+  "bytes": 1176881,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T05:29:29.178532+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-oauth / OAuthConsent.vue",
+    "sourceIds": [
+      "PB-018",
+      "PB-019"
+    ],
+    "roles": [
+      "authenticated owner",
+      "owner-oauth"
+    ],
+    "state": "Five OAuth local slices v2 knowledge-only ceiling with offline_access; busy buttons/field controls; legacy allowedScopes; legacy directory selection; empty directory selection invalid accept. V2 and legacy independent, source-derived.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-018",
+      "title": "policy-ceiling domain controls",
+      "renderer": "apps/web/components/OAuthConsent.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:333",
+        "apps/web/components/OAuthConsent.vue:23",
+        "apps/web/components/OAuthConsent.vue:79",
+        "apps/server/platform/oauth.ts:35"
+      ],
+      "guardBindings": [
+        {
+          "label": "拒绝",
+          "guard": "not busy; request loaded"
+        },
+        {
+          "label": "允许访问",
+          "guard": "valid selected policy; not busy"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "policy-ceiling domain controls; keep-connection option",
+          "variant": "policy-ceiling domain controls",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-018"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "PB-018",
+      "title": "busy locks controls",
+      "renderer": "apps/web/components/OAuthConsent.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:333",
+        "apps/web/components/OAuthConsent.vue:23",
+        "apps/web/components/OAuthConsent.vue:79",
+        "apps/server/platform/oauth.ts:35"
+      ],
+      "guardBindings": [
+        {
+          "label": "拒绝",
+          "guard": "not busy; request loaded"
+        },
+        {
+          "label": "允许访问",
+          "guard": "valid selected policy; not busy"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "invalid selection disables allow; busy locks controls",
+          "variant": "busy locks controls",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-018"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "PB-019",
+      "title": "legacy scope checkboxes",
+      "renderer": "apps/web/components/OAuthConsent.vue",
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:25",
+        "apps/web/components/OAuthConsent.vue:44",
+        "apps/web/components/OAuthConsent.vue:96",
+        "apps/server/platform/oauth.ts:89"
+      ],
+      "guardBindings": [
+        {
+          "label": "允许访问",
+          "guard": "ToDoo write=>read; blog publish=>knowledge read+write; required directories selected"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "legacy scope checkboxes",
+          "variant": "legacy scope checkboxes",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-019"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "PB-019",
+      "title": "directory choices shown for knowledge scope or blog publish",
+      "renderer": "apps/web/components/OAuthConsent.vue",
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:25",
+        "apps/web/components/OAuthConsent.vue:44",
+        "apps/web/components/OAuthConsent.vue:96",
+        "apps/server/platform/oauth.ts:89"
+      ],
+      "guardBindings": [
+        {
+          "label": "允许访问",
+          "guard": "ToDoo write=>read; blog publish=>knowledge read+write; required directories selected"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "directory choices shown for knowledge scope or blog publish",
+          "variant": "directory choices shown for knowledge scope or blog publish",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-019"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "PB-019",
+      "title": "scope dependencies and empty resources disable allow",
+      "renderer": "apps/web/components/OAuthConsent.vue",
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:25",
+        "apps/web/components/OAuthConsent.vue:44",
+        "apps/web/components/OAuthConsent.vue:96",
+        "apps/server/platform/oauth.ts:89"
+      ],
+      "guardBindings": [
+        {
+          "label": "允许访问",
+          "guard": "ToDoo write=>read; blog publish=>knowledge read+write; required directories selected"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "scope dependencies and empty resources disable allow",
+          "variant": "scope dependencies and empty resources disable allow",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-019"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": []
+}

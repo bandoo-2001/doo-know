@@ -1,0 +1,362 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S062-v2",
+  "assetId": "MP-S062",
+  "sourceIds": [
+    "PB-042"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-042",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Two BlogDesignModules specimens: empty guidance with new-module selector; loaded two modules first visible/last hidden retains fields with first/last movement guards. Parent dirty/save shared exact canonical D107v2."
+    }
+  ],
+  "selectedState": "Two BlogDesignModules specimens: empty guidance with new-module selector; loaded two modules first visible/last hidden retains fields with first/last movement guards. Parent dirty/save shared exact canonical D107v2.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅将下半部分模块列表两行“显示数量”栏当前值6的控件，从带下拉三角的选择框改为可直接输入数字的原生数字输入框，值仍为6。可以显示上下微调stepper；绝不显示下拉三角或选项菜单。除此以外全部不动：上下两个首页模块区、空态引导、两条模块类型/显示勾选/已隐藏标记/模块标题、首尾上移下移禁用状态、删除动作、两处新模块下拉与添加按钮、全部文案及布局均保持原样。",
+  "prompt": "仅将下半部分模块列表两行“显示数量”栏当前值6的控件，从带下拉三角的选择框改为可直接输入数字的原生数字输入框，值仍为6。可以显示上下微调stepper；绝不显示下拉三角或选项菜单。除此以外全部不动：上下两个首页模块区、空态引导、两条模块类型/显示勾选/已隐藏标记/模块标题、首尾上移下移禁用状态、删除动作、两处新模块下拉与添加按钮、全部文案及布局均保持原样。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S062.png",
+      "role": "Edit target; two display quantity controls are native number inputs, not enumerated selects",
+      "sha256": "f3ba623a52faa905ddf9be03e6865dc803d613566df4eac45ce9d6d4a1eaca7a",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S062.png",
+      "role": "Edit target; two display quantity controls are native number inputs, not enumerated selects",
+      "sha256": "f3ba623a52faa905ddf9be03e6865dc803d613566df4eac45ce9d6d4a1eaca7a",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅将下半部分模块列表两行“显示数量”栏当前值6的控件，从带下拉三角的选择框改为可直接输入数字的原生数字输入框，值仍为6。可以显示上下微调stepper；绝不显示下拉三角或选项菜单。除此以外全部不动：上下两个首页模块区、空态引导、两条模块类型/显示勾选/已隐藏标记/模块标题、首尾上移下移禁用状态、删除动作、两处新模块下拉与添加按钮、全部文案及布局均保持原样。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S062.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅将下半部分模块列表两行“显示数量”栏当前值6的控件，从带下拉三角的选择框改为可直接输入数字的原生数字输入框，值仍为6。可以显示上下微调stepper；绝不显示下拉三角或选项菜单。除此以外全部不动：上下两个首页模块区、空态引导、两条模块类型/显示勾选/已隐藏标记/模块标题、首尾上移下移禁用状态、删除动作、两处新模块下拉与添加按钮、全部文案及布局均保持原样。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S062.png",
+          "role": "Edit target; two display quantity controls are native number inputs, not enumerated selects"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-6635e61e-9789-4bb5-9dff-9d59cee1bd74.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-042",
+      "title": "博客装修：首页模块",
+      "kind": "page",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design (modules tab)",
+        "trigger": "首页模块 tab",
+        "parentId": "PB-041"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignModules.vue:5",
+        "apps/web/components/blog/BlogDesignModules.vue:28",
+        "packages/core/blog/studio.ts:88"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "kind",
+          "type": "select",
+          "required": true,
+          "constraints": "intro,featured,latest,collections,projects,links",
+          "sensitive": false
+        },
+        {
+          "name": "module.title",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; server<=256",
+          "sensitive": false
+        },
+        {
+          "name": "module.enabled",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "module.limit",
+          "type": "number",
+          "required": true,
+          "constraints": "integer1..50; default6; server array<=30 unique ids",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "添加模块",
+          "effect": "Append local module",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "上移 / 下移",
+          "effect": "Reorder local module list",
+          "api": "",
+          "guard": "not boundary"
+        },
+        {
+          "label": "显示",
+          "effect": "Toggle module inclusion",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "删除",
+          "effect": "Remove local module; save/publish required",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "no modules guidance",
+        "visible/hidden items retain settings",
+        "first/last movement disabled",
+        "dirty draft; validation via shared studio banner"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-studio.spec.ts:67"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-042",
+      "parentId": "PB-041",
+      "route": "/?view=apps&app=blog&appSection=design (modules tab)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignModules.vue:5",
+        "apps/web/components/blog/BlogDesignModules.vue:28",
+        "packages/core/blog/studio.ts:88"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-029.json#MP-S062",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S062",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-6635e61e-9789-4bb5-9dff-9d59cee1bd74.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S062-v2.png",
+  "sha256": "762965c6ba4303d664bf5032a0ae3f7e76d63847d8f5384d22ce502aada7f851",
+  "bytes": 1475762,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T05:58:40.898294+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S062.png",
+    "sha256": "f3ba623a52faa905ddf9be03e6865dc803d613566df4eac45ce9d6d4a1eaca7a",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/MP-S062-review.json"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / BlogDesignModules.vue",
+    "sourceIds": [
+      "PB-042"
+    ],
+    "roles": [
+      "authenticated owner",
+      "owner-private"
+    ],
+    "state": "Two BlogDesignModules specimens: empty guidance with new-module selector; loaded two modules first visible/last hidden retains fields with first/last movement guards. Parent dirty/save shared exact canonical D107v2.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-042",
+      "title": "no modules guidance",
+      "renderer": "apps/web/components/blog/BlogDesignModules.vue",
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignModules.vue:5",
+        "apps/web/components/blog/BlogDesignModules.vue:28",
+        "packages/core/blog/studio.ts:88"
+      ],
+      "guardBindings": [
+        {
+          "label": "添加模块",
+          "guard": ""
+        },
+        {
+          "label": "上移 / 下移",
+          "guard": "not boundary"
+        },
+        {
+          "label": "显示",
+          "guard": ""
+        },
+        {
+          "label": "删除",
+          "guard": ""
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "no modules guidance",
+          "variant": "no modules guidance",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-042"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "PB-042",
+      "title": "first/last movement disabled",
+      "renderer": "apps/web/components/blog/BlogDesignModules.vue",
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignModules.vue:5",
+        "apps/web/components/blog/BlogDesignModules.vue:28",
+        "packages/core/blog/studio.ts:88"
+      ],
+      "guardBindings": [
+        {
+          "label": "添加模块",
+          "guard": ""
+        },
+        {
+          "label": "上移 / 下移",
+          "guard": "not boundary"
+        },
+        {
+          "label": "显示",
+          "guard": ""
+        },
+        {
+          "label": "删除",
+          "guard": ""
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "first/last movement disabled",
+          "variant": "first/last movement disabled",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-042"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": [
+    {
+      "row": "r1",
+      "modules": [],
+      "newKind": "latest"
+    },
+    {
+      "row": "r2",
+      "modules": [
+        {
+          "kind": "intro",
+          "title": "个人介绍",
+          "enabled": true,
+          "limit": 6
+        },
+        {
+          "kind": "latest",
+          "title": "最近更新",
+          "enabled": false,
+          "limit": 6
+        }
+      ],
+      "guards": "first up disabled / down enabled; last up enabled / down disabled; hidden fields kept",
+      "newKind": "latest"
+    },
+    {
+      "canonicalReuse": {
+        "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D107-v2.png",
+        "sha256": "b7f37a2ea6d2cad3d19028228753657b5874d973379cc69fb917a87240ef03dd",
+        "portion": "BlogDesignStudio shared dirty/savebar with actual BlogDesignModules tab, same source/owner-private guards"
+      }
+    }
+  ]
+}

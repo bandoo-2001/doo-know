@@ -1,0 +1,74 @@
+{
+  "assetId": "MP-S015",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_state_backlog agent",
+  "reviewedAtUtc": "2026-11-05T04:33:54.750543+00:00",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S015.png",
+  "reviewedImageSha256": "53eb10aa5ef557dad29b5e394467054ea57eb819c321ac68c6fa0664c6a60c64",
+  "reviewedSidecarSha256": "bf5f9c0ebe54d35edf2c9a8fa52a2ebd3015b59e984e4353ec842dfcf974b2d1",
+  "requirementsManifest": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json",
+  "requirementsSha256": "b00025577cc63764c920052eb18432f5956200c2daa4ae915d201c20eea86ba9",
+  "viewMethod": "Actual individual PNG viewed via tools.view_image; full actual submittedPrompt and selectedState read; current template, parent/role/API/guard chain inspected. Matching backup/plugins/library/login baseline PNGs and approved style PNG were directly viewed where applicable.",
+  "sourceIds": [
+    "ST-034",
+    "ST-035",
+    "ST-036"
+  ],
+  "selectedState": [
+    "r1 loading",
+    "r2 fetch error",
+    "r3 multi-file and missing file non-resolvable",
+    "r4 organization incomplete and needs_reconciliation",
+    "r5 disk snapshot confirmation",
+    "r6 current disk changed409"
+  ],
+  "sourceRefs": [
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/api.ts:30",
+    "apps/server/app.ts:141",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S015.json",
+    "apps/web/components/settings/BackupSettings.vue:463",
+    "apps/web/components/MaintenanceSettings.vue:90",
+    "apps/web/components/MaintenanceSettings.vue:38",
+    "apps/web/components/MaintenanceSettings.vue:137",
+    "apps/server/knowledge/web-routes.ts:48",
+    "apps/web/components/MaintenanceSettings.vue:57",
+    "apps/web/components/MaintenanceSettings.vue:83",
+    "apps/web/components/MaintenanceSettings.vue:122",
+    "apps/web/components/MaintenanceSettings.vue:21",
+    "apps/web/components/MaintenanceSettings.vue:151"
+  ],
+  "reviewedSourceSha256": {
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md": "f78c14e2c450641e9ecc10864168fef272bc07cb0eb47e23e0e0d475bdbf9ff9",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md": "d184372a8eefffe8079b87aa9c2988e487507d95b41b263d6ed7b7a0f7827711",
+    "apps/web/api.ts": "f3cfa4add2ed9f30efb83d401345d9c95e7437b8d2e09cea21fd853ac79b55ec",
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json": "b00025577cc63764c920052eb18432f5956200c2daa4ae915d201c20eea86ba9",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S015.json": "bf5f9c0ebe54d35edf2c9a8fa52a2ebd3015b59e984e4353ec842dfcf974b2d1",
+    "apps/web/components/settings/BackupSettings.vue": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45",
+    "apps/web/components/MaintenanceSettings.vue": "562b4b3cc264d4431fee43c12780f2b83450db7508a06253ba776a6c93b3422c",
+    "apps/server/knowledge/web-routes.ts": "c79f2fe3f0efdafae64d37e69f1e64665cf35896158783771481846d1c2810a9"
+  },
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual six independent local specimens viewed: initial load, read error, non-resolvable multi-file/missing-file records, organization warnings, idle disk confirmation and 409 detail error. No fake no-conflict success is mixed with read failure.",
+    "MaintenanceSettings load/resolve/recheck, item.resolvable and selected.disk conditions match the illustrated actions. Relative path, mtime and existing read-only operation IDs remain illustrative values; expectedModifiedAt/hash/requestId are not editable controls.",
+    "409 catch retains selected disk detail and finally clears busy, so cancel/recheck/adopt remain available as drawn. Busy close protection stays source-bound and is not claimed executed."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Readable white/light-gray local components, fine borders, restrained corners and blue action hierarchy match the shared style direction. Raster shading/texture and approximate scale must become flat CSS tokens; do not regenerate solely for those details."
+    }
+  ],
+  "requiredCorrections": [],
+  "limitations": [
+    "Source-derived static design review only; no runtime API operation, authorization, clipboard, network, keyboard/focus, close/mask/Escape behavior or responsive viewport was executed.",
+    "Local-component specimens are independent; parent role/source bindings remain metadata. Existing baseline references establish host context, not runtime capture of these synthetic error/busy states.",
+    "Raster shading/texture, font/icon geometry and dimensions are approximate. Implement shared flat CSS tokens, responsive wrapping and existing scroll/focus/guard rules; this is not pixel-level CSS approval.",
+    "This per-image result neither completes the non-ToDoo platform unification task nor substitutes for the later global coverage/style/function review or authorizes product implementation."
+  ]
+}

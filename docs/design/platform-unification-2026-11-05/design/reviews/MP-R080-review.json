@@ -1,0 +1,50 @@
+{
+  "assetId": "MP-R080",
+  "sourceIds": [
+    "PB-054",
+    "PB-055"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:34:15.357318+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Anonymous immutable public article: A/B actual top position with closed TOC; C independent lower position after code-copy failure, one-member collection and separate previous/related article.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG/full submitted prompt and actual390 public reader baseline viewed. Public custom brand/description/green accent and six actual navigation links, breadcrumb, author/date/category/read-time/title/summary/tag and native TOC preserved.",
+    "A/B no cover, no numeric progress or owner editing controls. Heading/body repeat follows actual snapshot baseline. Native chapter/anchor navigation remains valid without JS.",
+    "C code-copy error label and exact status come from real progressive reader-script, while copy-link/share remain available. Two-line readonly pre and internal overflow do not become source editor or a new failure workflow.",
+    "One-member collection has no previous/next within its own members. Separate global previous article and related-one-entry are coherent with a second published record, even when snapshot title/date repeat. Footer retains public identity/author/RSS.",
+    "No immutable-public/owner-source leakage, comment/like/edit action or source-path capability. Clipboard/native-share/scroll-progress and responsive runtime are not verified by static example."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-044.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R080.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/blog/routes.ts:341",
+    "apps/server/blog/render.ts:212",
+    "apps/server/blog/reader-script.ts:2",
+    "packages/core/blog/service.ts:1039",
+    "docs/design/platform-unification-2026-11-05/baseline/public/390-public-reader.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

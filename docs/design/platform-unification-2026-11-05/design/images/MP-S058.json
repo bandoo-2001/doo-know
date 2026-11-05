@@ -1,0 +1,386 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S058",
+  "assetId": "MP-S058",
+  "sourceIds": [
+    "PB-034"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-034",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Three BlogArticleCover attachment-selector slices: loading; zero-image success; failed loaded empty list with its independent actual empty copy. Selected-image branch exact canonical D100 already reviewed."
+    }
+  ],
+  "selectedState": "Three BlogArticleCover attachment-selector slices: loading; zero-image success; failed loaded empty list with its independent actual empty copy. Selected-image branch exact canonical D100 already reviewed.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制中文博客网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、字体清晰紧凑。每行是独立状态，细线留白分隔，只画指定组件，不画外部导航/页头、浏览器或审查注释。三个纵向紧凑行。1 原稿附件读取中，现有按钮文字“正在读取附件…”灰色禁用；不显示无图片说明。2 读取完成但没有图片，按钮“从原稿附件中选择封面”可用，灰色说明“这篇笔记还没有图片附件，可在上方上传。”。3 读取失败，按钮“从原稿附件中选择封面”可用，红色提示“暂时无法读取原稿附件，请重试。”，下面仍保留“这篇笔记还没有图片附件，可在上方上传。”。第三行不能以错误为由隐藏真实空说明。只画附件选择局部，不加上传控件、重试按钮、取消、保存或其他操作。",
+  "prompt": "绘制中文博客网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、字体清晰紧凑。每行是独立状态，细线留白分隔，只画指定组件，不画外部导航/页头、浏览器或审查注释。三个纵向紧凑行。1 原稿附件读取中，现有按钮文字“正在读取附件…”灰色禁用；不显示无图片说明。2 读取完成但没有图片，按钮“从原稿附件中选择封面”可用，灰色说明“这篇笔记还没有图片附件，可在上方上传。”。3 读取失败，按钮“从原稿附件中选择封面”可用，红色提示“暂时无法读取原稿附件，请重试。”，下面仍保留“这篇笔记还没有图片附件，可在上方上传。”。第三行不能以错误为由隐藏真实空说明。只画附件选择局部，不加上传控件、重试按钮、取消、保存或其他操作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "role": "Actual owner blog host baseline; selected local component/error state source-derived",
+      "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "role": "Actual owner blog host baseline; selected local component/error state source-derived",
+      "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制中文博客网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、字体清晰紧凑。每行是独立状态，细线留白分隔，只画指定组件，不画外部导航/页头、浏览器或审查注释。三个纵向紧凑行。1 原稿附件读取中，现有按钮文字“正在读取附件…”灰色禁用；不显示无图片说明。2 读取完成但没有图片，按钮“从原稿附件中选择封面”可用，灰色说明“这篇笔记还没有图片附件，可在上方上传。”。3 读取失败，按钮“从原稿附件中选择封面”可用，红色提示“暂时无法读取原稿附件，请重试。”，下面仍保留“这篇笔记还没有图片附件，可在上方上传。”。第三行不能以错误为由隐藏真实空说明。只画附件选择局部，不加上传控件、重试按钮、取消、保存或其他操作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制中文博客网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、字体清晰紧凑。每行是独立状态，细线留白分隔，只画指定组件，不画外部导航/页头、浏览器或审查注释。三个纵向紧凑行。1 原稿附件读取中，现有按钮文字“正在读取附件…”灰色禁用；不显示无图片说明。2 读取完成但没有图片，按钮“从原稿附件中选择封面”可用，灰色说明“这篇笔记还没有图片附件，可在上方上传。”。3 读取失败，按钮“从原稿附件中选择封面”可用，红色提示“暂时无法读取原稿附件，请重试。”，下面仍保留“这篇笔记还没有图片附件，可在上方上传。”。第三行不能以错误为由隐藏真实空说明。只画附件选择局部，不加上传控件、重试按钮、取消、保存或其他操作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+          "role": "Actual owner blog host baseline; selected local component/error state source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-dfb80739-720a-4319-be25-c776c6d48e82.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-034",
+      "title": "博客文章：附件封面选择",
+      "kind": "state",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "Expand 封面、置顶与固定链接; load original attachments",
+        "parentId": "PB-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:623",
+        "apps/web/components/blog/BlogArticleCover.vue:28",
+        "apps/web/components/blog/BlogArticleCover.vue:58"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "cover",
+          "type": "attachment selection",
+          "required": false,
+          "constraints": "relative Markdown path resolved against source note, not current note search",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "从原稿附件中选择封面",
+          "effect": "Load allowed source note assets",
+          "api": "GET /api/notes/:noteId/assets",
+          "guard": ""
+        },
+        {
+          "label": "图片",
+          "effect": "Set local metadata cover path",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "移除",
+          "effect": "Set cover null",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "attachment loading/error",
+        "no image attachments",
+        "existing PNG/JPEG/WebP/GIF image choices; selected state",
+        "cover uploaded while article changes remains owned by originating article"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio-workbench.test.ts:219",
+        "tests/blog-studio-workbench.test.ts:243"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-034",
+      "parentId": "PB-032",
+      "route": "/?view=apps&app=blog&appSection=articles",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:623",
+        "apps/web/components/blog/BlogArticleCover.vue:28",
+        "apps/web/components/blog/BlogArticleCover.vue:58"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-029.json#MP-S058",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S058",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-dfb80739-720a-4319-be25-c776c6d48e82.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S058.png",
+  "sha256": "4740e93d0888c46b9d275f1618f002a19d6939e5e292a0638d1c8c868bfad0f2",
+  "bytes": 1033053,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T05:47:28.571669+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / BlogArticleCover.vue",
+    "sourceIds": [
+      "PB-034"
+    ],
+    "roles": [
+      "authenticated owner",
+      "owner-private"
+    ],
+    "state": "Three BlogArticleCover attachment-selector slices: loading; zero-image success; failed loaded empty list with its independent actual empty copy. Selected-image branch exact canonical D100 already reviewed.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-034",
+      "title": "原稿附件读取中",
+      "renderer": "apps/web/components/blog/BlogArticleCover.vue",
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:623",
+        "apps/web/components/blog/BlogArticleCover.vue:28",
+        "apps/web/components/blog/BlogArticleCover.vue:58"
+      ],
+      "guardBindings": [
+        {
+          "label": "从原稿附件中选择封面",
+          "guard": ""
+        },
+        {
+          "label": "图片",
+          "guard": ""
+        },
+        {
+          "label": "移除",
+          "guard": ""
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "attachment loading/error",
+          "variant": "attachment loading/error",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-034"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "PB-034",
+      "title": "no image attachments",
+      "renderer": "apps/web/components/blog/BlogArticleCover.vue",
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:623",
+        "apps/web/components/blog/BlogArticleCover.vue:28",
+        "apps/web/components/blog/BlogArticleCover.vue:58"
+      ],
+      "guardBindings": [
+        {
+          "label": "从原稿附件中选择封面",
+          "guard": ""
+        },
+        {
+          "label": "图片",
+          "guard": ""
+        },
+        {
+          "label": "移除",
+          "guard": ""
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "no image attachments",
+          "variant": "no image attachments",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-034"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "PB-034",
+      "title": "原稿附件读取失败",
+      "renderer": "apps/web/components/blog/BlogArticleCover.vue",
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:623",
+        "apps/web/components/blog/BlogArticleCover.vue:28",
+        "apps/web/components/blog/BlogArticleCover.vue:58"
+      ],
+      "guardBindings": [
+        {
+          "label": "从原稿附件中选择封面",
+          "guard": ""
+        },
+        {
+          "label": "图片",
+          "guard": ""
+        },
+        {
+          "label": "移除",
+          "guard": ""
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "attachment loading/error",
+          "variant": "attachment loading/error",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-034"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": [
+    {
+      "row": "r1",
+      "loading": true,
+      "opened": true,
+      "images": [],
+      "button": "正在读取附件…",
+      "buttonDisabled": true
+    },
+    {
+      "row": "r2",
+      "loading": false,
+      "opened": true,
+      "images": [],
+      "error": ""
+    },
+    {
+      "row": "r3",
+      "loading": false,
+      "opened": true,
+      "images": [],
+      "error": "暂时无法读取原稿附件，请重试。",
+      "emptyCopyStillVisible": true
+    },
+    {
+      "canonicalReuse": {
+        "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D100.png",
+        "sha256": "3e61219c502bdd99da369a75227e7bd754603a30819d32d55b18fc0fae0be025",
+        "portion": "BlogArticleCover selected source-note images/buttons and BlogImageEditor value selected; same owner-private renderer",
+        "guards": "opened true/loading false/value first image; no crop/upload task"
+      }
+    }
+  ]
+}

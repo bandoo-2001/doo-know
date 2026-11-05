@@ -1,0 +1,281 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R041-v2",
+  "assetId": "MP-R041",
+  "sourceIds": [
+    "ST-089"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-089",
+      "title": "设置窗口未保存更改/放弃确认390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent local discard contexts: A390/B320 actual SettingsOverlay download-key modal password dirty, normal footer replaced by continue/edit discard actions, close remains enabled; C320 actual GitRemotePanel inline connection discard AAlert uses own放弃修改 label, no nested modal. Busy branch guard remains source-only, not fabricated with in-flight changed footer."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-089",
+      "title": "设置窗口未保存更改/放弃确认320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent local discard contexts: A390/B320 actual SettingsOverlay download-key modal password dirty, normal footer replaced by continue/edit discard actions, close remains enabled; C320 actual GitRemotePanel inline connection discard AAlert uses own放弃修改 label, no nested modal. Busy branch guard remains source-only, not fabricated with in-flight changed footer."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-089",
+      "title": "设置窗口未保存更改/放弃确认320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent local discard contexts: A390/B320 actual SettingsOverlay download-key modal password dirty, normal footer replaced by continue/edit discard actions, close remains enabled; C320 actual GitRemotePanel inline connection discard AAlert uses own放弃修改 label, no nested modal. Busy branch guard remains source-only, not fabricated with in-flight changed footer."
+    }
+  ],
+  "selectedState": "Three independent local discard contexts: A390/B320 actual SettingsOverlay download-key modal password dirty, normal footer replaced by continue/edit discard actions, close remains enabled; C320 actual GitRemotePanel inline connection discard AAlert uses own放弃修改 label, no nested modal. Busy branch guard remains source-only, not fabricated with in-flight changed footer.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅修改最右C列两处：删除页头下面整行“同步状态”和绿色“已同步”徽章，那里保留自然空白，不加入其它状态；将C页头改成普通标题“管理云端同步”和旁边独立可用文字按钮“返回同步状态”（可带左箭头），不要仅剩没有文字的返回箭头。原黄色“有尚未保存的修改，确定放弃吗？”警告及继续编辑/放弃修改两动作、下方3个字段全部不变。左和中下载恢复密钥窗完全不变，六圆点、X和替换页脚全部保留。不得添加同步成功、其它badge或任何新操作。",
+  "prompt": "仅修改最右C列两处：删除页头下面整行“同步状态”和绿色“已同步”徽章，那里保留自然空白，不加入其它状态；将C页头改成普通标题“管理云端同步”和旁边独立可用文字按钮“返回同步状态”（可带左箭头），不要仅剩没有文字的返回箭头。原黄色“有尚未保存的修改，确定放弃吗？”警告及继续编辑/放弃修改两动作、下方3个字段全部不变。左和中下载恢复密钥窗完全不变，六圆点、X和替换页脚全部保留。不得添加同步成功、其它badge或任何新操作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R041.png",
+      "role": "Edit target C unsupported sync status removal and actual return label",
+      "sha256": "6f92d54a0f0c83ac000de7a414143d0d548b6b1bbf8839c2fadc93ccdd8c6378",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R041.png",
+      "role": "Edit target C unsupported sync status removal and actual return label",
+      "sha256": "6f92d54a0f0c83ac000de7a414143d0d548b6b1bbf8839c2fadc93ccdd8c6378",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅修改最右C列两处：删除页头下面整行“同步状态”和绿色“已同步”徽章，那里保留自然空白，不加入其它状态；将C页头改成普通标题“管理云端同步”和旁边独立可用文字按钮“返回同步状态”（可带左箭头），不要仅剩没有文字的返回箭头。原黄色“有尚未保存的修改，确定放弃吗？”警告及继续编辑/放弃修改两动作、下方3个字段全部不变。左和中下载恢复密钥窗完全不变，六圆点、X和替换页脚全部保留。不得添加同步成功、其它badge或任何新操作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R041.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅修改最右C列两处：删除页头下面整行“同步状态”和绿色“已同步”徽章，那里保留自然空白，不加入其它状态；将C页头改成普通标题“管理云端同步”和旁边独立可用文字按钮“返回同步状态”（可带左箭头），不要仅剩没有文字的返回箭头。原黄色“有尚未保存的修改，确定放弃吗？”警告及继续编辑/放弃修改两动作、下方3个字段全部不变。左和中下载恢复密钥窗完全不变，六圆点、X和替换页脚全部保留。不得添加同步成功、其它badge或任何新操作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R041.png",
+          "role": "Edit target C unsupported sync status removal and actual return label"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-b5b5a55a-4a0c-435a-a1e3-d5afa2a2dce4.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-089",
+      "title": "设置窗口未保存更改/放弃确认",
+      "kind": "state",
+      "module": "settings/overlay",
+      "entry": {
+        "route": "所有SettingsOverlay宿主路由",
+        "trigger": "有dirty时点击关闭/遮罩/Escape",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsOverlay.vue:50",
+        "apps/web/components/settings/SettingsOverlay.vue:131",
+        "apps/web/components/GitRemotePanel.vue:260"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "继续编辑",
+          "effect": "收起放弃提示并保留草稿",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "放弃更改",
+          "effect": "关闭并执行宿主清理",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "footer替换为未保存更改提示",
+        "busy禁止关闭与确认",
+        "焦点回触发按钮",
+        "Git inline自己的放弃alert变体"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:65",
+        "tests/e2e/settings-overlays.spec.ts:385"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "不是独立页面或第二层弹窗；共用状态仍需设计稿验证。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-089",
+      "parentId": null,
+      "route": "所有SettingsOverlay宿主路由",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsOverlay.vue:50",
+        "apps/web/components/settings/SettingsOverlay.vue:131",
+        "apps/web/components/GitRemotePanel.vue:260"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-039.json#MP-R041",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R041",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-b5b5a55a-4a0c-435a-a1e3-d5afa2a2dce4.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R041-v2.png",
+  "sha256": "2e68fbc4ea21ad3d634ac84565d758bb097ad6dae682f057fd9e688fe1c1a4bd",
+  "bytes": 1478792,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:54:26.436433+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R041.png",
+    "sha256": "6f92d54a0f0c83ac000de7a414143d0d548b6b1bbf8839c2fadc93ccdd8c6378"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: SettingsOverlay.vue discard footer and source-trigger focus",
+    "sourceIds": [
+      "ST-089"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent local discard contexts: A390/B320 actual SettingsOverlay download-key modal password dirty, normal footer replaced by continue/edit discard actions, close remains enabled; C320 actual GitRemotePanel inline connection discard AAlert uses own放弃修改 label, no nested modal. Busy branch guard remains source-only, not fabricated with in-flight changed footer.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "host": "BackupSettings download key",
+      "dirty": true,
+      "busy": false,
+      "discardOpen": true,
+      "password": "masked",
+      "footer": "settings-discard-prompt",
+      "originalFooterHidden": true
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "host": "same A",
+      "dirty": true,
+      "busy": false,
+      "discardOpen": true,
+      "password": "masked"
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "host": "GitRemotePanel inline connection",
+      "frameInline": true,
+      "overlay": "connection",
+      "discardOpen": true,
+      "overlayBusy": false,
+      "url": "https://github.com/example-owner/example-notes.git",
+      "branch": "main",
+      "credentialId": ""
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "assetId": "WS-D023",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:18:37.740852+00:00",
+  "method": "Actual generated PNG and matching real baseline each viewed in independent child context. Exact submitted sidecar prompt and batch requirements checked against current templates; source outranks generic prompt/API summaries.",
+  "selectedState": "Owner saved reading preview with formatting disabled and document feature flag disabled",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "预览 active; single rendered heading/paragraph/list/blockquote and docked heading outline match actual reading baseline, with no editable source markers or source-count footer.",
+    "Formatting toolbar remains present with pale disabled controls, matching baseline/source read-only guard. Existing favorite/share/more and edit/split return controls remain owner actions.",
+    "Saved history/save-disabled state and full existing owner/context shell preserved with shared header. No invented public restriction or auto-save/shared-publish status."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/generation-batch-02.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D023.json",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/Workspace.vue:627",
+    "apps/web/components/Workspace.vue:3046",
+    "apps/web/components/Workspace.vue:3187",
+    "apps/web/components/Workspace.vue:3322",
+    "apps/web/components/EditorToolbar.vue:86",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-note-read.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "ddba258fa4644ba822860dcffaad086aa26481a68b0976090a8c7d0a713db75b",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D023.png",
+  "sourceIds": [
+    "WS-027"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

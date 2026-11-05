@@ -1,0 +1,50 @@
+{
+  "assetId": "MP-R069",
+  "sourceIds": [
+    "PB-041"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:22:55.665290+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner local appearance responsive viewport positions: A/B top of clean journal/accent#44684f form with save/publish disabled; C separate dirty magazine draft scrolled to profile, save enabled/publish disabled.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual final PNG and every actual generation-call prompt/history read, including rejected long-page candidates and final independent-viewport composition. Actual design baseline viewed. Prior pass master MP-D106 matching image/report SHA confirmed without re-review.",
+    "A/B selected journal, actual five section tabs, template choices, green user accent value, own clean status and disabled save/publish retained. C explicitly independent profile scroll position; dirty source-compatible fields and empty avatar/banner placeholders with genuine choose-image/help remain.",
+    "Fields between top/profile and history/private preview are below scroll, not claimed simultaneously visible. Exact full appearance renderer/field order retains reviewed MP-D106 master; no removal of font/width/cardStyle or preview capabilities inferred.",
+    "Each viewport has independent real source savebar and guarded actions, no shared cross-panel footer. Source-specific media ratio/type guidance retained; no invented selected image/remove/crop controls while absent.",
+    "Intent390/320 and scroll positions are illustrations. No exact pixel fit, focus/scroll reachability or saved/public runtime result asserted."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-042.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R069.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/blog/BlogDesignStudio.vue:53",
+    "apps/web/components/blog/BlogDesignStudio.vue:94",
+    "apps/web/components/blog/BlogDesignAppearance.vue:11",
+    "apps/web/components/blog/BlogImageEditor.vue:109",
+    "docs/design/platform-unification-2026-11-05/baseline/390-blog-design.png",
+    "docs/design/platform-unification-2026-11-05/design/reviews/MP-D106-review.json"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "a7f4cfdb6aea863449c4eddabd715366486bec89b7a618dc169bf510f5bec7a8",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R069.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

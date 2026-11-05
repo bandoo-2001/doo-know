@@ -1,0 +1,353 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R037",
+  "assetId": "MP-R037",
+  "sourceIds": [
+    "ST-078"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-078",
+      "title": "确认本次提交内容并推送390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent GitRemote review drawers at390/320/320: A author not configured and message empty, save-author/preview disabled and no confirm; B current synthetic one-file preview with partial staging warning+raw diff, author ready and confirm+push enabled; C commitUnknown true busyfalse retains preview/message locked, close/cancel/preview disabled, reconcile commit enabled. No OS/source protocol fields edited."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-078",
+      "title": "确认本次提交内容并推送320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent GitRemote review drawers at390/320/320: A author not configured and message empty, save-author/preview disabled and no confirm; B current synthetic one-file preview with partial staging warning+raw diff, author ready and confirm+push enabled; C commitUnknown true busyfalse retains preview/message locked, close/cancel/preview disabled, reconcile commit enabled. No OS/source protocol fields edited."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-078",
+      "title": "确认本次提交内容并推送320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent GitRemote review drawers at390/320/320: A author not configured and message empty, save-author/preview disabled and no confirm; B current synthetic one-file preview with partial staging warning+raw diff, author ready and confirm+push enabled; C commitUnknown true busyfalse retains preview/message locked, close/cancel/preview disabled, reconcile commit enabled. No OS/source protocol fields edited."
+    }
+  ],
+  "selectedState": "Three independent GitRemote review drawers at390/320/320: A author not configured and message empty, save-author/preview disabled and no confirm; B current synthetic one-file preview with partial staging warning+raw diff, author ready and confirm+push enabled; C commitUnknown true busyfalse retains preview/message locked, close/cancel/preview disabled, reconcile commit enabled. No OS/source protocol fields edited.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制横向并排三个独立窄网页抽屉，宽比例390、320、320，白灰蓝细边框，无外部导航。每窗页头“确认本次提交内容”、X、说明“先填写说明并预览文件，再确认提交与推送。”，正文内滚动。左窗展开“先设置版本记录的署名”，提示署名记录在 Git 提交中，与仓库登录凭据无关。，同步提交作者和同步作者邮箱两空输入，保存同步署名灰禁用；云端同步提交说明空输入占位简述本次保存的文件变更，提示提交包含暂存、未暂存及未忽略的新增和删除文件。请核对完整文件列表。；预览本次提交灰禁用、取消提交可用，没有确认按钮。中窗没有署名字段，云端同步提交说明=更新示例笔记，同完整文件提示，可用重新预览本次提交；预览“1 项文件变更 · 更新示例笔记”，提示“部分暂存文件将提交完整当前版本：00-Inbox/示例笔记.md”，一条“M · 00-Inbox/示例笔记.md”，只读等宽差异两行-旧段落、+新段落；按钮确认提交并推送蓝可用、取消提交可用，X可用。右窗同中完整内容保留，顶部红色“提交结果尚未确认，请核对原请求。”，提交说明输入禁用，重新预览本次提交禁用，X及取消提交禁用；原蓝主按钮文字改为“核对提交结果”且可用，没有转圈。不能把右窗画成已提交成功或已推送，不增加协议编号输入、原生Git弹窗或新的重试按钮。",
+  "prompt": "绘制横向并排三个独立窄网页抽屉，宽比例390、320、320，白灰蓝细边框，无外部导航。每窗页头“确认本次提交内容”、X、说明“先填写说明并预览文件，再确认提交与推送。”，正文内滚动。左窗展开“先设置版本记录的署名”，提示署名记录在 Git 提交中，与仓库登录凭据无关。，同步提交作者和同步作者邮箱两空输入，保存同步署名灰禁用；云端同步提交说明空输入占位简述本次保存的文件变更，提示提交包含暂存、未暂存及未忽略的新增和删除文件。请核对完整文件列表。；预览本次提交灰禁用、取消提交可用，没有确认按钮。中窗没有署名字段，云端同步提交说明=更新示例笔记，同完整文件提示，可用重新预览本次提交；预览“1 项文件变更 · 更新示例笔记”，提示“部分暂存文件将提交完整当前版本：00-Inbox/示例笔记.md”，一条“M · 00-Inbox/示例笔记.md”，只读等宽差异两行-旧段落、+新段落；按钮确认提交并推送蓝可用、取消提交可用，X可用。右窗同中完整内容保留，顶部红色“提交结果尚未确认，请核对原请求。”，提交说明输入禁用，重新预览本次提交禁用，X及取消提交禁用；原蓝主按钮文字改为“核对提交结果”且可用，没有转圈。不能把右窗画成已提交成功或已推送，不增加协议编号输入、原生Git弹窗或新的重试按钮。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+      "role": "Actual owner parent only; review drawer source-derived",
+      "sha256": "3213f7fd9fcf209a067fe82908d8f3d6c96e5a0fea8f63d1ee5ddc7725cd384a",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+      "role": "Actual owner parent only; review drawer source-derived",
+      "sha256": "3213f7fd9fcf209a067fe82908d8f3d6c96e5a0fea8f63d1ee5ddc7725cd384a",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制横向并排三个独立窄网页抽屉，宽比例390、320、320，白灰蓝细边框，无外部导航。每窗页头“确认本次提交内容”、X、说明“先填写说明并预览文件，再确认提交与推送。”，正文内滚动。左窗展开“先设置版本记录的署名”，提示署名记录在 Git 提交中，与仓库登录凭据无关。，同步提交作者和同步作者邮箱两空输入，保存同步署名灰禁用；云端同步提交说明空输入占位简述本次保存的文件变更，提示提交包含暂存、未暂存及未忽略的新增和删除文件。请核对完整文件列表。；预览本次提交灰禁用、取消提交可用，没有确认按钮。中窗没有署名字段，云端同步提交说明=更新示例笔记，同完整文件提示，可用重新预览本次提交；预览“1 项文件变更 · 更新示例笔记”，提示“部分暂存文件将提交完整当前版本：00-Inbox/示例笔记.md”，一条“M · 00-Inbox/示例笔记.md”，只读等宽差异两行-旧段落、+新段落；按钮确认提交并推送蓝可用、取消提交可用，X可用。右窗同中完整内容保留，顶部红色“提交结果尚未确认，请核对原请求。”，提交说明输入禁用，重新预览本次提交禁用，X及取消提交禁用；原蓝主按钮文字改为“核对提交结果”且可用，没有转圈。不能把右窗画成已提交成功或已推送，不增加协议编号输入、原生Git弹窗或新的重试按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制横向并排三个独立窄网页抽屉，宽比例390、320、320，白灰蓝细边框，无外部导航。每窗页头“确认本次提交内容”、X、说明“先填写说明并预览文件，再确认提交与推送。”，正文内滚动。左窗展开“先设置版本记录的署名”，提示署名记录在 Git 提交中，与仓库登录凭据无关。，同步提交作者和同步作者邮箱两空输入，保存同步署名灰禁用；云端同步提交说明空输入占位简述本次保存的文件变更，提示提交包含暂存、未暂存及未忽略的新增和删除文件。请核对完整文件列表。；预览本次提交灰禁用、取消提交可用，没有确认按钮。中窗没有署名字段，云端同步提交说明=更新示例笔记，同完整文件提示，可用重新预览本次提交；预览“1 项文件变更 · 更新示例笔记”，提示“部分暂存文件将提交完整当前版本：00-Inbox/示例笔记.md”，一条“M · 00-Inbox/示例笔记.md”，只读等宽差异两行-旧段落、+新段落；按钮确认提交并推送蓝可用、取消提交可用，X可用。右窗同中完整内容保留，顶部红色“提交结果尚未确认，请核对原请求。”，提交说明输入禁用，重新预览本次提交禁用，X及取消提交禁用；原蓝主按钮文字改为“核对提交结果”且可用，没有转圈。不能把右窗画成已提交成功或已推送，不增加协议编号输入、原生Git弹窗或新的重试按钮。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+          "role": "Actual owner parent only; review drawer source-derived"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-06ea1da5-46e8-4083-af17-9da65b51526d.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-078",
+      "title": "确认本次提交内容并推送",
+      "kind": "drawer",
+      "module": "settings/git",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "预览提交并推送",
+        "parentId": "ST-074"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:668",
+        "apps/web/components/GitRemotePanel.vue:1233",
+        "plugins/git/server/index.ts:381"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "同步提交作者",
+          "type": "text",
+          "required": false,
+          "constraints": "未配置时显示；保存作者配置≤100",
+          "sensitive": false
+        },
+        {
+          "name": "同步作者邮箱",
+          "type": "email",
+          "required": false,
+          "constraints": "未配置时显示；≤254",
+          "sensitive": false
+        },
+        {
+          "name": "云端同步提交说明",
+          "type": "text",
+          "required": true,
+          "constraints": "trim非空；服务端UTF8≤8192字节、无NUL",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存同步署名",
+          "effect": "保存Git插件configVersion作者配置",
+          "api": "PUT /api/platform/plugins/git/config",
+          "guard": "作者与邮箱非空"
+        },
+        {
+          "label": "预览本次提交 / 重新预览",
+          "effect": "生成含文件完整列表的临时预览",
+          "api": "POST /api/plugins/git/call command:git.preview",
+          "guard": "无未保存草稿、有变更、authorReady、说明非空、无未知提交"
+        },
+        {
+          "label": "确认提交并推送",
+          "effect": "先幂等提交成功，再创建push任务",
+          "api": "POST /api/plugins/git/call command:git.commit; POST /api/platform/git/jobs kind:push",
+          "guard": "previewCurrent；token未过期；原requestId"
+        },
+        {
+          "label": "取消提交",
+          "effect": "取消预览并还原草稿基线",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "作者未设置",
+        "预览文件列表/diff",
+        "部分暂存会提交完整当前版本提示",
+        "说明修改使预览失效",
+        "过期/原文变更需重览",
+        "busy锁关闭",
+        "本地提交成功但推送失败保留HEAD"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/z-git-remote.spec.ts:16",
+        "tests/e2e/settings-overlays.spec.ts:385"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "请求drawer宽960px；inline时父窗口内页。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-078",
+      "parentId": "ST-074",
+      "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:668",
+        "apps/web/components/GitRemotePanel.vue:1233",
+        "plugins/git/server/index.ts:381"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-039.json#MP-R037",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R037",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-06ea1da5-46e8-4083-af17-9da65b51526d.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R037.png",
+  "sha256": "706311b56fc60ef39986ddf4aafc437369189c76bddc9a17d9ba90846969f06a",
+  "bytes": 1495334,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:37:32.514452+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: GitRemotePanel commit-and-push author/message/diff form",
+    "sourceIds": [
+      "ST-078"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent GitRemote review drawers at390/320/320: A author not configured and message empty, save-author/preview disabled and no confirm; B current synthetic one-file preview with partial staging warning+raw diff, author ready and confirm+push enabled; C commitUnknown true busyfalse retains preview/message locked, close/cancel/preview disabled, reconcile commit enabled. No OS/source protocol fields edited.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "authorReady": false,
+      "authorName": "",
+      "authorEmail": "",
+      "message": "",
+      "preview": null,
+      "running": false
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "authorReady": true,
+      "message": "更新示例笔记",
+      "preview": {
+        "changes": [
+          {
+            "code": "M",
+            "path": "00-Inbox/示例笔记.md"
+          }
+        ],
+        "partialStaging": [
+          "00-Inbox/示例笔记.md"
+        ],
+        "diff": "-旧段落\\n+新段落"
+      },
+      "previewCurrent": true,
+      "busy": false,
+      "commitUnknown": false
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "authorReady": true,
+      "message": "更新示例笔记",
+      "samePreview": "B",
+      "busy": false,
+      "commitUnknown": true,
+      "previewCurrent": true,
+      "closeDisabled": true,
+      "cancelDisabled": true,
+      "confirmEnabled": true,
+      "error": "提交结果尚未确认，请核对原请求。"
+    }
+  ]
+}

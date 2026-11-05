@@ -1,0 +1,354 @@
+{
+  "id": "MP-D034",
+  "title": "修改密码",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-043"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-043",
+      "title": "修改密码",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    }
+  ],
+  "viewportIntent": "1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-account.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-043",
+      "route": "/?view=settings&section=account",
+      "trigger": "修改密码",
+      "parentId": "ST-007",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "所有者账户会话；/api/auth/change-password由Better Auth专属路径处理（apps/server/app.ts:177），非普通API hook；UI明确revokeOtherSessions=true。"
+      ],
+      "fields": [
+        {
+          "name": "当前密码",
+          "type": "password",
+          "required": true,
+          "constraints": "autocomplete=current-password",
+          "sensitive": true
+        },
+        {
+          "name": "新密码",
+          "type": "password",
+          "required": true,
+          "constraints": "至少8字符；autocomplete=new-password",
+          "sensitive": true
+        },
+        {
+          "name": "确认新密码",
+          "type": "password",
+          "required": true,
+          "constraints": "非空且与新密码一致",
+          "sensitive": true
+        }
+      ],
+      "importantStates": [
+        "busy锁定关闭",
+        "关闭有草稿ST-089",
+        "成功notice并重读设备"
+      ],
+      "notes": [
+        "/api/auth/change-password由Better Auth专属路径处理，不能将普通/api全局CSRF hook直接套到此路径；本次未追溯依赖内部最大密码长度。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "修改密码完整窗口：当前/新/确认密码、至少8字符与匹配、更新/取消；成功撤其他设备。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。"
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-043",
+      "label": "更新密码",
+      "effect": "更新并强制退出其他会话",
+      "api": "POST /api/auth/change-password",
+      "guard": "当前密码非空、新密码≥8、确认匹配；revokeOtherSessions=true"
+    },
+    {
+      "sourceId": "ST-043",
+      "label": "取消",
+      "effect": "关闭清空全部密码和字段错误",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-043",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. Generate exactly ONE high-fidelity Simplified Chinese EXISTING DooKnow LOCAL SETTINGS WINDOW component for design review. Draw only the complete real modal/drawer on a quiet neutral light-gray backdrop, naturally readable desktop scale; no browser/device chrome, no invented parent workspace or presentation captions. The supplied PILOT-WS-001 is STYLE ONLY: flat white/#f7f8fa, text #272b3a/#657084, #e6e9f1 thin lines, #4566c6 primary/#edf1ff selection, clear compact typography, aligned fields, small8px radii and restrained shadow. Do NOT copy PILOT owner rail/header/tree/search/create/empty note into this local component.\nContent/role/control authority is the real source template, not generic API summaries. Selected component states below are source-derived isolated examples where the parent baseline does not capture this window; no runtime verification or business success is implied. Preserve title/icon/close, full field order, genuine labels/descriptions/conditional controls, body scroll and reachable fixed footer. This is authenticated OWNER management, not public guest.\nOnly one coherent selected state. No mixed preview/result/error/recovery/busy states unless specified; no additional nav, invented inputs/features, ToDoo tasks, AI/team/social/password gate. Backend requestId/version/hash/cursor/CSRF/nonce are NOT product inputs. Existing read-only backup/path/time identifiers may appear as source allows, with synthetic placeholders only. Secrets must be EMPTY or masked, never actual key/password contents. Native file-input buttons are allowed, but no OS/browser file-picker window. Do not convert source validation rules into extra fields or automatic disabled rules; actual template guards win.\nSELECTED COMPONENT:\nLOCAL CHANGE-PASSWORD MODAL, actual520px width. Header lock icon, title 修改密码, exact description 新密码至少 8 个字符。修改成功后会退出其他设备。, closeX enabled. Source-derived INITIAL EMPTY clean state, busy=false and all field errors/passwordError empty. Source form contains exactly THREE password fields in order: 当前密码, 新密码, 确认新密码. All empty with password-visibility eye icons, first field focused with clear source focus border. No actual password text, no fake masked existing secret if empty. Footer 取消 enabled and lock-icon blue primary 更新密码 ENABLED. Actual source AButton is not disabled for initial empty form; click handler validates current nonempty/newlength/confirmation before request. Do not introduce auto-disabled-invalid behavior from generic API constraints. No separate “退出其他设备” checkbox because revokeOtherSessions=true is fixed action behavior; no password strength/generator/reset/recovery field, current user list, login/register/social controls, success/error/validation alerts or discard confirmation already open. Existing close/dirty protection and field error updates are separate states. Complete clear modal only on neutral background.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D034.png",
+  "reviewStatus": "pending-independent-review",
+  "parentBindings": [
+    {
+      "sourceId": "ST-043",
+      "parentId": "ST-007",
+      "route": "/?view=settings&section=account",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:46",
+        "apps/web/components/settings/AccountSettings.vue:142",
+        "shared/password-policy.ts:2"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-043",
+      "title": "修改密码",
+      "kind": "dialog",
+      "module": "settings/account",
+      "entry": {
+        "route": "/?view=settings&section=account",
+        "trigger": "修改密码",
+        "parentId": "ST-007"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:46",
+        "apps/web/components/settings/AccountSettings.vue:142",
+        "shared/password-policy.ts:2"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "所有者账户会话；/api/auth/change-password由Better Auth专属路径处理（apps/server/app.ts:177），非普通API hook；UI明确revokeOtherSessions=true。"
+      ],
+      "fields": [
+        {
+          "name": "当前密码",
+          "type": "password",
+          "required": true,
+          "constraints": "autocomplete=current-password",
+          "sensitive": true
+        },
+        {
+          "name": "新密码",
+          "type": "password",
+          "required": true,
+          "constraints": "至少8字符；autocomplete=new-password",
+          "sensitive": true
+        },
+        {
+          "name": "确认新密码",
+          "type": "password",
+          "required": true,
+          "constraints": "非空且与新密码一致",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "更新密码",
+          "effect": "更新并强制退出其他会话",
+          "api": "POST /api/auth/change-password",
+          "guard": "当前密码非空、新密码≥8、确认匹配；revokeOtherSessions=true"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭清空全部密码和字段错误",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "busy锁定关闭",
+        "关闭有草稿ST-089",
+        "成功notice并重读设备"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:9",
+        "tests/e2e/settings-overlays.spec.ts:65",
+        "tests/e2e/settings-overlays.spec.ts:319"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "/api/auth/change-password由Better Auth专属路径处理，不能将普通/api全局CSRF hook直接套到此路径；本次未追溯依赖内部最大密码长度。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-D034",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "selectedState": [
+    "source-derived empty clean form, nobusy, noerrors, current-password focus, submit enabled by actual template"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. Generate exactly ONE high-fidelity Simplified Chinese EXISTING DooKnow LOCAL SETTINGS WINDOW component for design review. Draw only the complete real modal/drawer on a quiet neutral light-gray backdrop, naturally readable desktop scale; no browser/device chrome, no invented parent workspace or presentation captions. The supplied PILOT-WS-001 is STYLE ONLY: flat white/#f7f8fa, text #272b3a/#657084, #e6e9f1 thin lines, #4566c6 primary/#edf1ff selection, clear compact typography, aligned fields, small8px radii and restrained shadow. Do NOT copy PILOT owner rail/header/tree/search/create/empty note into this local component.\nContent/role/control authority is the real source template, not generic API summaries. Selected component states below are source-derived isolated examples where the parent baseline does not capture this window; no runtime verification or business success is implied. Preserve title/icon/close, full field order, genuine labels/descriptions/conditional controls, body scroll and reachable fixed footer. This is authenticated OWNER management, not public guest.\nOnly one coherent selected state. No mixed preview/result/error/recovery/busy states unless specified; no additional nav, invented inputs/features, ToDoo tasks, AI/team/social/password gate. Backend requestId/version/hash/cursor/CSRF/nonce are NOT product inputs. Existing read-only backup/path/time identifiers may appear as source allows, with synthetic placeholders only. Secrets must be EMPTY or masked, never actual key/password contents. Native file-input buttons are allowed, but no OS/browser file-picker window. Do not convert source validation rules into extra fields or automatic disabled rules; actual template guards win.\nSELECTED COMPONENT:\nLOCAL CHANGE-PASSWORD MODAL, actual520px width. Header lock icon, title 修改密码, exact description 新密码至少 8 个字符。修改成功后会退出其他设备。, closeX enabled. Source-derived INITIAL EMPTY clean state, busy=false and all field errors/passwordError empty. Source form contains exactly THREE password fields in order: 当前密码, 新密码, 确认新密码. All empty with password-visibility eye icons, first field focused with clear source focus border. No actual password text, no fake masked existing secret if empty. Footer 取消 enabled and lock-icon blue primary 更新密码 ENABLED. Actual source AButton is not disabled for initial empty form; click handler validates current nonempty/newlength/confirmation before request. Do not introduce auto-disabled-invalid behavior from generic API constraints. No separate “退出其他设备” checkbox because revokeOtherSessions=true is fixed action behavior; no password strength/generator/reset/recovery field, current user list, login/register/social controls, success/error/validation alerts or discard confirmation already open. Existing close/dirty protection and field error updates are separate states. Complete clear modal only on neutral background.",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-D034 修改密码\n\n1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。\n\n角色壳：所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。\n\n独立场景：\nA | ST-043 | 修改密码 | role=authenticated-owner | 实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\n\n完整构图：\n修改密码完整窗口：当前/新/确认密码、至少8字符与匹配、更新/取消；成功撤其他设备。\n\n精确功能/字段/动作guard合同：\nST-043权限：所有者账户会话；/api/auth/change-password由Better Auth专属路径处理（apps/server/app.ts:177），非普通API hook；UI明确revokeOtherSessions=true。\nST-043字段顺序：当前密码 [password; 必填]: autocomplete=current-password；仅合成掩码 | 新密码 [password; 必填]: 至少8字符；autocomplete=new-password；仅合成掩码 | 确认新密码 [password; 必填]: 非空且与新密码一致；仅合成掩码\nST-043白名单：更新密码 => 更新并强制退出其他会话；guard=当前密码非空、新密码≥8、确认匹配；revokeOtherSessions=true；接口约束=POST /api/auth/change-password\nST-043白名单：取消 => 关闭清空全部密码和字段错误；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\nSettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-account.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "fd3ded6edb1cec0b726f05588147b12e829f482ffb63f579e154d596a5a146b5",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 91708
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D034.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-1685b044-065f-4c4d-bbdc-c880a77e4c07.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-1685b044-065f-4c4d-bbdc-c880a77e4c07.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T02:15:21.618Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Source-derived initial change-password modal retains exactly three empty password inputs and enabled source submit with handler validation; no new revoke-session/strength controls.",
+    "concerns": [
+      "Actual component state is source-derived and not a runtime capture.",
+      "Static raster does not verify validation/capability/close/focus or 320/390 scrolling; exact dimensions/text geometry and minor texture approximate."
+    ]
+  },
+  "sha256": "9d82fc6ee5c766e5bdbba2d206738288c21004c10d5d3ae3102ca59aced9c4db",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1107876,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/settings/AccountSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "53c67d1c3b22ec0944ab73edd32438ee1eea1bb7a5a24dffda690571f8274201"
+    },
+    {
+      "path": "apps/web/components/settings/AccountSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "53c67d1c3b22ec0944ab73edd32438ee1eea1bb7a5a24dffda690571f8274201"
+    },
+    {
+      "path": "shared/password-policy.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "699270b9559dbd215c21a5241aea41c5ec5197c9aaa747f405c0b42dc4b18182"
+    },
+    {
+      "path": "apps/web/components/settings/SettingsOverlay.vue",
+      "role": "actual window width/body/footer/close/focus guards authority",
+      "sha256": "1642d0324aaad3921e52fe60d086622981d2203e05b08e215e231dd406da657d"
+    },
+    {
+      "path": "apps/web/components/settings/settings-overlay.css",
+      "role": "actual window width/body/footer/close/focus guards authority",
+      "sha256": "55edaa352854eb6c491907e7c8b28b5500dd9aec1b9c98c866ac44bf710be647"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Parent settings baseline provides only context; exact component uncaptured. Actual template controls and visibility/disabled conditions outrank generic API summaries."
+}

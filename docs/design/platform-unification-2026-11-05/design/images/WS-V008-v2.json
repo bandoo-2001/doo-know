@@ -1,0 +1,293 @@
+{
+  "kind": "generated-design",
+  "id": "WS-V008-v2",
+  "assetId": "WS-V008",
+  "sourceIds": [
+    "RTD-014",
+    "RTD-017",
+    "RTD-020"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "rectangle",
+      "sourceId": "RTD-014",
+      "title": "Rectangle shape properties; mobile Edit sheet",
+      "role": "authenticated owner",
+      "state": "Full actual rectangle property region, all visible groups and opacity/layers.",
+      "selectedState": "Three independent complete desktop tool property panels, rectangle transparent background (no fill-style icons), arrow curved type, text hand-drawn M left-aligned. No selected scene elements so no selection-only action group."
+    },
+    {
+      "label": "arrow",
+      "sourceId": "RTD-017",
+      "title": "Arrow tool properties",
+      "role": "authenticated owner",
+      "state": "Full actual arrow property region including arrow type and start/end controls; retain common groups in actual source order.",
+      "selectedState": "Three independent complete desktop tool property panels, rectangle transparent background (no fill-style icons), arrow curved type, text hand-drawn M left-aligned. No selected scene elements so no selection-only action group."
+    },
+    {
+      "label": "text",
+      "sourceId": "RTD-020",
+      "title": "Text tool properties",
+      "role": "authenticated owner",
+      "state": "Full actual text property region including font/size/alignment; retain common groups in actual source order.",
+      "selectedState": "Three independent complete desktop tool property panels, rectangle transparent background (no fill-style icons), arrow curved type, text hand-drawn M left-aligned. No selected scene elements so no selection-only action group."
+    }
+  ],
+  "selectedState": "Three independent complete desktop tool property panels, rectangle transparent background (no fill-style icons), arrow curved type, text hand-drawn M left-aligned. No selected scene elements so no selection-only action group.",
+  "sourceDerived": false,
+  "baselineStatus": "actual-matching-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "只修改最左列“背景”这一行的第一枚快速色块（位于粉红色块左边）：将它显示为透明棋盘，并添加清晰蓝色选中描边，与该行最右端当前透明颜色按钮的蓝色选中描边一致。保留第一枚以外所有颜色、该行五枚快速色块加独立右端按钮的数量和位置。其余所有内容一像素也尽量不动：三列布局、外部棋盘底、全部文字与图标、描边选择、透明度100、边角、图层、字体、箭头和所有选中项保持。不要添加填充样式或其它操作。",
+  "prompt": "只修改最左列“背景”这一行的第一枚快速色块（位于粉红色块左边）：将它显示为透明棋盘，并添加清晰蓝色选中描边，与该行最右端当前透明颜色按钮的蓝色选中描边一致。保留第一枚以外所有颜色、该行五枚快速色块加独立右端按钮的数量和位置。其余所有内容一像素也尽量不动：三列布局、外部棋盘底、全部文字与图标、描边选择、透明度100、边角、图层、字体、箭头和所有选中项保持。不要添加填充样式或其它操作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V008.png",
+      "role": "Edit target: rectangle transparent first quick-pick only",
+      "sha256": "10ae1a6b40f7254642b350e777594b11a2c3d88879ff0103bb15bfd5aed4613b",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V008.png",
+      "role": "Edit target: rectangle transparent first quick-pick only",
+      "sha256": "10ae1a6b40f7254642b350e777594b11a2c3d88879ff0103bb15bfd5aed4613b",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "只修改最左列“背景”这一行的第一枚快速色块（位于粉红色块左边）：将它显示为透明棋盘，并添加清晰蓝色选中描边，与该行最右端当前透明颜色按钮的蓝色选中描边一致。保留第一枚以外所有颜色、该行五枚快速色块加独立右端按钮的数量和位置。其余所有内容一像素也尽量不动：三列布局、外部棋盘底、全部文字与图标、描边选择、透明度100、边角、图层、字体、箭头和所有选中项保持。不要添加填充样式或其它操作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V008.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "只修改最左列“背景”这一行的第一枚快速色块（位于粉红色块左边）：将它显示为透明棋盘，并添加清晰蓝色选中描边，与该行最右端当前透明颜色按钮的蓝色选中描边一致。保留第一枚以外所有颜色、该行五枚快速色块加独立右端按钮的数量和位置。其余所有内容一像素也尽量不动：三列布局、外部棋盘底、全部文字与图标、描边选择、透明度100、边角、图层、字体、箭头和所有选中项保持。不要添加填充样式或其它操作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V008.png",
+          "role": "Edit target: rectangle transparent first quick-pick only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-2ad59ee3-4a3d-48d5-aecf-b5be309d7b9e.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "RTD-014",
+      "runtimeKey": "vendor-shape-properties-panel",
+      "title": "Rectangle shape properties; mobile Edit sheet",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "选定形状操作",
+        "描边",
+        "背景",
+        "描边宽度",
+        "边框样式",
+        "线条风格",
+        "边角",
+        "透明度 100 0",
+        "图层",
+        "编辑"
+      ],
+      "roleEvidence": {
+        "region:选定形状操作": 1,
+        "group:描边宽度": 1,
+        "group:边框样式": 1,
+        "group:线条风格": 1,
+        "group:边角": 1,
+        "slider:透明度 100 0": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:15454"
+      ],
+      "evidence": [
+        "1440-vendor-shape-properties-panel.json",
+        "390-vendor-mobile-shape-properties-sheet.json",
+        "390-vendor-shape-properties-panel.json"
+      ],
+      "constraints": "Rectangle selected without drawing. At 390 properties require bottom Edit trigger; the sheet overlays tool targets until Edit closes it. Property option radio controls have no accessible names in the actual tree."
+    },
+    {
+      "id": "RTD-017",
+      "runtimeKey": "vendor-arrow-properties-panel",
+      "title": "Arrow tool properties",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "Arrow type",
+        "端点",
+        "arrowhead_start",
+        "arrowhead_end"
+      ],
+      "roleEvidence": {
+        "group:Arrow type": 1,
+        "group:端点": 1,
+        "button:arrowhead_start": 1,
+        "button:arrowhead_end": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5460"
+      ],
+      "evidence": [
+        "1440-vendor-arrow-properties-panel.json",
+        "390-vendor-arrow-properties-panel.json"
+      ],
+      "constraints": "Arrow selected without drawing; same mobile Edit sheet pattern."
+    },
+    {
+      "id": "RTD-020",
+      "runtimeKey": "vendor-text-properties-panel",
+      "title": "Text tool properties",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "字体",
+        "Hand-drawn",
+        "Normal",
+        "Code",
+        "Show font picker",
+        "字体大小",
+        "文本对齐"
+      ],
+      "roleEvidence": {
+        "group:字体": 1,
+        "group:字体大小": 1,
+        "group:文本对齐": 1,
+        "button:Show font picker": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5017"
+      ],
+      "evidence": [
+        "1440-vendor-text-properties-panel.json",
+        "390-vendor-text-properties-panel.json"
+      ],
+      "constraints": "Text tool selected without creating text; same mobile Edit sheet pattern."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "RTD-014",
+      "parentId": null,
+      "route": null,
+      "roles": [],
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:15454"
+      ]
+    },
+    {
+      "sourceId": "RTD-017",
+      "parentId": null,
+      "route": null,
+      "roles": [],
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5460"
+      ]
+    },
+    {
+      "sourceId": "RTD-020",
+      "parentId": null,
+      "route": null,
+      "roles": [],
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5017"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-035.json#WS-V008",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-V008",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-2ad59ee3-4a3d-48d5-aecf-b5be309d7b9e.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-V008-v2.png",
+  "sha256": "4b7fabafa7b698ba3a7eaab1c3ecd5a0a75f02642fa2026392de9c94535de010",
+  "bytes": 1539568,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:28:12.426861+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-V008.png",
+    "sha256": "10ae1a6b40f7254642b350e777594b11a2c3d88879ff0103bb15bfd5aed4613b",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/WS-V008-review.json"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Excalidraw rectangle, arrow and text property sections",
+    "sourceIds": [
+      "RTD-014",
+      "RTD-017",
+      "RTD-020"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Three independent complete desktop tool property panels, rectangle transparent background (no fill-style icons), arrow curved type, text hand-drawn M left-aligned. No selected scene elements so no selection-only action group.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": []
+}

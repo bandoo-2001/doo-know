@@ -1,0 +1,272 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D081",
+  "assetId": "WS-D081",
+  "sourceIds": [
+    "WS-107"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-107",
+      "title": "Trash workspace page",
+      "role": "authenticated owner",
+      "state": "Actual trash empty first page, all status, zero selected/items, batch/select-all/pagination disabled; no mutation/rename/confirm state",
+      "presentationInstruction": "Complete trash search/current-page availability/select/table/page/restore/rename/files-only purge, unavailable rows and unknown metadata."
+    }
+  ],
+  "selectedState": "Actual trash empty first page, all status, zero selected/items, batch/select-all/pagination disabled; no mutation/rename/confirm state",
+  "sourceDerived": false,
+  "baselineStatus": "actual-matching-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作完整回收站中文UI图。完整主人桌面DooKnow页，约1440×1000。图1是真实内容/状态/宿主几何，图2只给共享平面配色/密度。在顶部保留DooKnow书本标识 | 笔记的共享横页头；窄owner rail为O账户、笔记/最近/收藏/应用，底部回收站/设置；保留知识侧栏搜索笔记与目录、新建分裂按钮、笔记本plus/刷新、目录树及resize。只用现有控件，不虚构导航。顶部共享header上下文回收站，rail回收站选中。知识侧栏保持图1正常两目录。主区小字知识库管理、主标题回收站、副文笔记和文件夹均可恢复，保留原笔记标识；原位置被占用时，可以更换名称。，右上返回笔记。搜索回收站空输入placeholder按原路径或文件名查找；本页文件状态select全部状态；查找和刷新列表可用。选择栏全选本页可读取项目unchecked且禁用，本页0项 · 已选0项；恢复所选/永久移除所选文件均禁用。中央回收站为空、删除的笔记和文件夹会显示在这里。。分页上一页/下一页禁用，第1页。底部完整说明文件夹支持整体恢复，暂不支持永久移除。永久移除仅针对所选回收站原文件，无法在此恢复；历史版本、备份及必要的元数据仍按各自的保留规则保存。无虚构文件/恢复成功/重命名/确认弹窗或未知大小日期。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。metadata保留其他状态合同。",
+  "prompt": "制作完整回收站中文UI图。完整主人桌面DooKnow页，约1440×1000。图1是真实内容/状态/宿主几何，图2只给共享平面配色/密度。在顶部保留DooKnow书本标识 | 笔记的共享横页头；窄owner rail为O账户、笔记/最近/收藏/应用，底部回收站/设置；保留知识侧栏搜索笔记与目录、新建分裂按钮、笔记本plus/刷新、目录树及resize。只用现有控件，不虚构导航。顶部共享header上下文回收站，rail回收站选中。知识侧栏保持图1正常两目录。主区小字知识库管理、主标题回收站、副文笔记和文件夹均可恢复，保留原笔记标识；原位置被占用时，可以更换名称。，右上返回笔记。搜索回收站空输入placeholder按原路径或文件名查找；本页文件状态select全部状态；查找和刷新列表可用。选择栏全选本页可读取项目unchecked且禁用，本页0项 · 已选0项；恢复所选/永久移除所选文件均禁用。中央回收站为空、删除的笔记和文件夹会显示在这里。。分页上一页/下一页禁用，第1页。底部完整说明文件夹支持整体恢复，暂不支持永久移除。永久移除仅针对所选回收站原文件，无法在此恢复；历史版本、备份及必要的元数据仍按各自的保留规则保存。无虚构文件/恢复成功/重命名/确认弹窗或未知大小日期。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。metadata保留其他状态合同。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-trash.png",
+      "role": "Actual matching baseline: content/role/current visible controls and geometry",
+      "sha256": "6297ff8cbdc72ca786783b2bbf1f2394444026e7eb95a680e11ce2246b9ee061",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Shared flat palette and density only; actual role-specific host takes precedence",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-trash.png",
+      "role": "Actual matching baseline: content/role/current visible controls and geometry",
+      "sha256": "6297ff8cbdc72ca786783b2bbf1f2394444026e7eb95a680e11ce2246b9ee061",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Shared flat palette and density only; actual role-specific host takes precedence",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作完整回收站中文UI图。完整主人桌面DooKnow页，约1440×1000。图1是真实内容/状态/宿主几何，图2只给共享平面配色/密度。在顶部保留DooKnow书本标识 | 笔记的共享横页头；窄owner rail为O账户、笔记/最近/收藏/应用，底部回收站/设置；保留知识侧栏搜索笔记与目录、新建分裂按钮、笔记本plus/刷新、目录树及resize。只用现有控件，不虚构导航。顶部共享header上下文回收站，rail回收站选中。知识侧栏保持图1正常两目录。主区小字知识库管理、主标题回收站、副文笔记和文件夹均可恢复，保留原笔记标识；原位置被占用时，可以更换名称。，右上返回笔记。搜索回收站空输入placeholder按原路径或文件名查找；本页文件状态select全部状态；查找和刷新列表可用。选择栏全选本页可读取项目unchecked且禁用，本页0项 · 已选0项；恢复所选/永久移除所选文件均禁用。中央回收站为空、删除的笔记和文件夹会显示在这里。。分页上一页/下一页禁用，第1页。底部完整说明文件夹支持整体恢复，暂不支持永久移除。永久移除仅针对所选回收站原文件，无法在此恢复；历史版本、备份及必要的元数据仍按各自的保留规则保存。无虚构文件/恢复成功/重命名/确认弹窗或未知大小日期。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。metadata保留其他状态合同。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-trash.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作完整回收站中文UI图。完整主人桌面DooKnow页，约1440×1000。图1是真实内容/状态/宿主几何，图2只给共享平面配色/密度。在顶部保留DooKnow书本标识 | 笔记的共享横页头；窄owner rail为O账户、笔记/最近/收藏/应用，底部回收站/设置；保留知识侧栏搜索笔记与目录、新建分裂按钮、笔记本plus/刷新、目录树及resize。只用现有控件，不虚构导航。顶部共享header上下文回收站，rail回收站选中。知识侧栏保持图1正常两目录。主区小字知识库管理、主标题回收站、副文笔记和文件夹均可恢复，保留原笔记标识；原位置被占用时，可以更换名称。，右上返回笔记。搜索回收站空输入placeholder按原路径或文件名查找；本页文件状态select全部状态；查找和刷新列表可用。选择栏全选本页可读取项目unchecked且禁用，本页0项 · 已选0项；恢复所选/永久移除所选文件均禁用。中央回收站为空、删除的笔记和文件夹会显示在这里。。分页上一页/下一页禁用，第1页。底部完整说明文件夹支持整体恢复，暂不支持永久移除。永久移除仅针对所选回收站原文件，无法在此恢复；历史版本、备份及必要的元数据仍按各自的保留规则保存。无虚构文件/恢复成功/重命名/确认弹窗或未知大小日期。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。metadata保留其他状态合同。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-trash.png",
+          "role": "Actual matching baseline: content/role/current visible controls and geometry"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Shared flat palette and density only; actual role-specific host takes precedence"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-c82994f0-66d8-45fb-88b0-541336a70065.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-107",
+      "title": "Trash workspace page",
+      "kind": "page",
+      "module": "trash",
+      "entry": {
+        "route": "/?view=trash",
+        "trigger": "回收站 main navigation",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/TrashWorkspace.vue:13",
+        "apps/web/components/TrashWorkspace.vue:417",
+        "apps/server/platform/management.ts:301",
+        "shared/management-contracts.ts:57"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported.",
+        "Management route checks ownerId exists in user table. Batch IDs1–100 unique, /^[A-Za-z0-9_-]{1,128}$/; requestId nonempty<=128 and no control characters."
+      ],
+      "fields": [
+        {
+          "name": "搜索回收站",
+          "type": "search",
+          "required": false,
+          "constraints": "maxLength200; trimmed query filters original path/file name on server.",
+          "sensitive": false
+        },
+        {
+          "name": "本页文件状态",
+          "type": "select",
+          "required": true,
+          "constraints": "all | available | unavailable; filters current page only and clears selection.",
+          "sensitive": false
+        },
+        {
+          "name": "选择项目 / 全选本页",
+          "type": "checkboxes",
+          "required": false,
+          "constraints": "Only readable items on current loaded page; page size50 UI; server limit1–100; selection resets on page load.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "查找 / 刷新列表 / 上一页 / 下一页",
+          "effect": "Load signed-cursor page and new confirmation snapshot",
+          "api": "GET /api/manage/trash?limit=50&q=:q&cursor=:cursor",
+          "guard": "!locked&&!loading; cursor required for next"
+        },
+        {
+          "label": "恢复所选 / 恢复并打开 / 恢复文件夹",
+          "effect": "Restore selected originals preserving note identity; only note restore opens editor",
+          "api": "POST /api/manage/trash/restore",
+          "guard": "Current page available items; !locked&&!loading; optional per-id replacement base names"
+        },
+        {
+          "label": "更换文件名/文件夹名",
+          "effect": "Reveal inline restoration rename form",
+          "api": "none (local UI)",
+          "guard": "Authenticated owner; current note/session guards apply."
+        },
+        {
+          "label": "永久移除文件 / 永久移除所选文件",
+          "effect": "Open frozen selection confirmation WS-108",
+          "api": "none",
+          "guard": "Selection nonempty, available and contains no folders"
+        },
+        {
+          "label": "返回笔记",
+          "effect": "Return to retained note context",
+          "api": "none (local UI)",
+          "guard": "Authenticated owner; current note/session guards apply."
+        }
+      ],
+      "importantStates": [
+        "Loading/empty/filter-empty/error",
+        "Unavailable item remains visible",
+        "Note versus whole-folder actions",
+        "Pending request reconciliation",
+        "Partial batch result",
+        "Unknown deletion date/size remain unknown"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Workspace max-width1100px, padding32px clamp(18px,4vw,48px)64px.<=743px search wraps, batch actions full width and item actions move below title;<=420px item buttons flex, rename input wraps and results stack. Actual320/390/1440 fit unverified."
+      },
+      "testRefs": [
+        "tests/trash-workspace.test.ts",
+        "tests/management-api.test.ts",
+        "tests/e2e/folder-trash.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-107",
+      "parentId": "WS-001",
+      "route": "/?view=trash",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/TrashWorkspace.vue:13",
+        "apps/web/components/TrashWorkspace.vue:417",
+        "apps/server/platform/management.ts:301",
+        "shared/management-contracts.ts:57"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-009.json#WS-D081",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D081",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-c82994f0-66d8-45fb-88b0-541336a70065.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D081.png",
+  "sha256": "ce659bf569a640dca0fec5a688e131ae162ad634b51698bbea5491564ca039af",
+  "bytes": 1108139,
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "generatedAtUtc": "2026-11-05T02:15:34.172060+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Trash workspace page",
+    "sourceIds": [
+      "WS-107"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Actual trash empty first page, all status, zero selected/items, batch/select-all/pagination disabled; no mutation/rename/confirm state",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Actual empty first page has zero selections; batch restore/purge, select-all and previous/next are disabled. Item/rename/purge confirmation variants remain separate contracts."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

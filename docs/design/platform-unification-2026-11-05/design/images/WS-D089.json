@@ -1,0 +1,409 @@
+{
+  "id": "WS-D089",
+  "title": "Global reminder overlay host outside ToDoo",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-123"
+  ],
+  "panels": [
+    {
+      "label": "desktop",
+      "sourceId": "WS-123",
+      "title": "Global reminder overlay host outside ToDoo",
+      "role": "authenticated owner",
+      "state": "Existing ToDoo reminder interior reuse; this job covers outside-host positioning, missed summary, retained-note/history navigation and consumed link only.",
+      "presentationInstruction": "Existing ToDoo reminder interior reuse; this job covers outside-host positioning, missed summary, retained-note/history navigation and consumed link only."
+    },
+    {
+      "label": "phone-390",
+      "sourceId": "WS-123",
+      "title": "Global reminder overlay host outside ToDoo",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Existing ToDoo reminder interior reuse; this job covers outside-host positioning, missed summary, retained-note/history navigation and consumed link only.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Existing ToDoo reminder interior reuse; this job covers outside-host positioning, missed summary, retained-note/history navigation and consumed link only."
+    },
+    {
+      "label": "phone-320",
+      "sourceId": "WS-123",
+      "title": "Global reminder overlay host outside ToDoo",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Existing ToDoo reminder interior reuse; this job covers outside-host positioning, missed summary, retained-note/history navigation and consumed link only.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Existing ToDoo reminder interior reuse; this job covers outside-host positioning, missed summary, retained-note/history navigation and consumed link only."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:1795, apps/web/components/Workspace.vue:1813, apps/web/components/Workspace.vue:3578, apps/web/components/to-doo/ToDooReminderCards.vue:97, apps/web/components/to-doo/ToDooReminderCards.vue:129, apps/web/components/to-doo/ToDooReminderCards.vue:244, apps/web/components/to-doo/ToDooReminderCards.vue:257, apps/web/to-doo-reminders.ts:10"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-123",
+      "label": "查看事项 / 较早提醒 / 查看通知中心",
+      "effect": "Navigate existing ToDoo section/task/occurrence/date through Workspace retainNoteContext",
+      "api": "Existing reminder feed GET /api/to-doo/reminders/pending; target app navigation",
+      "guard": "History pending restore can block navigation; flush/preserve current note draft and verify navigation intent before switching"
+    },
+    {
+      "sourceId": "WS-123",
+      "label": "consume-link",
+      "effect": "Remove consumed reminder query parameter with replace-history commit",
+      "api": "none",
+      "guard": "Reminder opener validates same-origin root URL, view=apps,app=to-doo and reminder /^[A-Za-z0-9_-]{1,128}$/; consume emitted after open attempt finishes"
+    },
+    {
+      "sourceId": "WS-123",
+      "label": "提醒卡内部动作",
+      "effect": "Reuse completed ToDoo reminder card actions; no new platform behavior",
+      "api": "Existing reminder /action and /complete APIs",
+      "guard": "Completed ToDoo baseline owns interior card controls/constraints"
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-D089",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Teleported to body; fixed right24px,bottom44px+workspace-bottom-inset,widthmin(400px,100vw-32px),z90.<=600px right16px,bottommax(20px,safe-area-inset-bottom)+workspace inset, smaller padding. Verify overlap with host navigation/modals at320/390/1440; no new layout claimed."
+      },
+      "requiredFieldOrder": [],
+      "requiredFields": [],
+      "requiredActions": [
+        {
+          "label": "查看事项 / 较早提醒 / 查看通知中心",
+          "effect": "Navigate existing ToDoo section/task/occurrence/date through Workspace retainNoteContext",
+          "api": "Existing reminder feed GET /api/to-doo/reminders/pending; target app navigation",
+          "guard": "History pending restore can block navigation; flush/preserve current note draft and verify navigation intent before switching"
+        },
+        {
+          "label": "consume-link",
+          "effect": "Remove consumed reminder query parameter with replace-history commit",
+          "api": "none",
+          "guard": "Reminder opener validates same-origin root URL, view=apps,app=to-doo and reminder /^[A-Za-z0-9_-]{1,128}$/; consume emitted after open attempt finishes"
+        },
+        {
+          "label": "提醒卡内部动作",
+          "effect": "Reuse completed ToDoo reminder card actions; no new platform behavior",
+          "api": "Existing reminder /action and /complete APIs",
+          "guard": "Completed ToDoo baseline owns interior card controls/constraints"
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Only outside-host positioning/navigation/state mapping is in non-ToDoo scope; interior reminder card design reuses implemented ToDoo baseline."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-123"
+    }
+  ],
+  "prompt": "绘制三个独立的工作区右下角局部画面，外部仅标A、B、C，不画手机边框或说明文字。参考图1只用于真实窄屏底部导航和空白工作区的样式；参考图2只用于配色/字体/细线。只截取下方区域，不画顶部品牌、文件树、编辑正文或中央空状态图文。A是桌面画布右下角，底部没有横向导航；B是390px视口的底部区域；C是320px视口的底部区域。\n三个画面里均只有一个真实的小白色描边按钮，文字“较早提醒 2”，不带额外图标。A按钮固定靠右24px、离底44px；B/C按钮靠右16px，位于真实底部导航上方20px，不遮挡导航。B/C底部导航依次5个图标与标签“笔记”“最近”“收藏”“应用”“更多”，仅“笔记”为淡蓝选中；完整导航均在画面内可点击。其余画布是白色留白。\n不画任何提醒卡正文、任务/习惯/日历内容、关闭X、通知错误、成功提示或新按钮，不把“较早提醒 2”改成新建提醒功能。局部按钮与导航保持清楚自然字号、细边线、小圆角、白/浅灰/克制蓝色。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D089.png",
+  "reviewStatus": "pending-independent-review",
+  "geometryFamily": "same source renderer: desktop local component and 390/320 component fit",
+  "sourceContracts": [
+    {
+      "id": "WS-123",
+      "title": "Global reminder overlay host outside ToDoo",
+      "kind": "state",
+      "module": "navigation",
+      "entry": {
+        "route": "/ and /?note=:id and hosted apps; incoming /?view=apps&app=to-doo&reminder=:id",
+        "trigger": "Global Workspace ToDooReminderCards host, reminder feed or notification link",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:1795",
+        "apps/web/components/Workspace.vue:1813",
+        "apps/web/components/Workspace.vue:3578",
+        "apps/web/components/to-doo/ToDooReminderCards.vue:97",
+        "apps/web/components/to-doo/ToDooReminderCards.vue:129",
+        "apps/web/components/to-doo/ToDooReminderCards.vue:244",
+        "apps/web/components/to-doo/ToDooReminderCards.vue:257",
+        "apps/web/to-doo-reminders.ts:10"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Only outside-host positioning/navigation/state mapping is in non-ToDoo scope; interior reminder card design reuses implemented ToDoo baseline."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "查看事项 / 较早提醒 / 查看通知中心",
+          "effect": "Navigate existing ToDoo section/task/occurrence/date through Workspace retainNoteContext",
+          "api": "Existing reminder feed GET /api/to-doo/reminders/pending; target app navigation",
+          "guard": "History pending restore can block navigation; flush/preserve current note draft and verify navigation intent before switching"
+        },
+        {
+          "label": "consume-link",
+          "effect": "Remove consumed reminder query parameter with replace-history commit",
+          "api": "none",
+          "guard": "Reminder opener validates same-origin root URL, view=apps,app=to-doo and reminder /^[A-Za-z0-9_-]{1,128}$/; consume emitted after open attempt finishes"
+        },
+        {
+          "label": "提醒卡内部动作",
+          "effect": "Reuse completed ToDoo reminder card actions; no new platform behavior",
+          "api": "Existing reminder /action and /complete APIs",
+          "guard": "Completed ToDoo baseline owns interior card controls/constraints"
+        }
+      ],
+      "importantStates": [
+        "Global card visible while outside ToDoo",
+        "Missed-summary button shown only when activeAppMenu.id!=to-doo and missedCount>0",
+        "No card but error fallback can open notification center",
+        "Multiple queued cards and feed error reuse baseline",
+        "Notification URL consumed once without creating new reminder feature",
+        "Other workspace note/history/navigation guards preserved"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Teleported to body; fixed right24px,bottom44px+workspace-bottom-inset,widthmin(400px,100vw-32px),z90.<=600px right16px,bottommax(20px,safe-area-inset-bottom)+workspace inset, smaller padding. Verify overlap with host navigation/modals at320/390/1440; no new layout claimed."
+      },
+      "testRefs": [
+        "tests/to-doo-reminder-cards.test.ts",
+        "tests/to-doo-reminder-controller.test.ts",
+        "tests/workspace-save-recovery.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-123",
+      "parentId": "WS-001",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-123",
+      "state": "Global card visible while outside ToDoo",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-123",
+      "state": "Missed-summary button shown only when activeAppMenu.id!=to-doo and missedCount>0",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-123",
+      "state": "No card but error fallback can open notification center",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-123",
+      "state": "Multiple queued cards and feed error reuse baseline",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-123",
+      "state": "Notification URL consumed once without creating new reminder feature",
+      "representation": "nonvisual-data-rule"
+    },
+    {
+      "sourceId": "WS-123",
+      "state": "Other workspace note/history/navigation guards preserved",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D089",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "source-derived outside-ToDoo notes host, card absent/errorabsent/missedCount2/showMissedSummarytrue; desktop and390/320 bottom crops"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "绘制三个独立的工作区右下角局部画面，外部仅标A、B、C，不画手机边框或说明文字。参考图1只用于真实窄屏底部导航和空白工作区的样式；参考图2只用于配色/字体/细线。只截取下方区域，不画顶部品牌、文件树、编辑正文或中央空状态图文。A是桌面画布右下角，底部没有横向导航；B是390px视口的底部区域；C是320px视口的底部区域。\n三个画面里均只有一个真实的小白色描边按钮，文字“较早提醒 2”，不带额外图标。A按钮固定靠右24px、离底44px；B/C按钮靠右16px，位于真实底部导航上方20px，不遮挡导航。B/C底部导航依次5个图标与标签“笔记”“最近”“收藏”“应用”“更多”，仅“笔记”为淡蓝选中；完整导航均在画面内可点击。其余画布是白色留白。\n不画任何提醒卡正文、任务/习惯/日历内容、关闭X、通知错误、成功提示或新按钮，不把“较早提醒 2”改成新建提醒功能。局部按钮与导航保持清楚自然字号、细边线、小圆角、白/浅灰/克制蓝色。",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D089 Global reminder overlay host outside ToDoo\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"desktop\", \"sourceId\": \"WS-123\", \"title\": \"Global reminder overlay host outside ToDoo\", \"role\": \"authenticated owner\", \"state\": \"Existing ToDoo reminder interior reuse; this job covers outside-host positioning, missed summary, retained-note/history navigation and consumed link only.\", \"presentationInstruction\": \"Existing ToDoo reminder interior reuse; this job covers outside-host positioning, missed summary, retained-note/history navigation and consumed link only.\"}, {\"label\": \"phone-390\", \"sourceId\": \"WS-123\", \"title\": \"Global reminder overlay host outside ToDoo\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Existing ToDoo reminder interior reuse; this job covers outside-host positioning, missed summary, retained-note/history navigation and consumed link only.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Existing ToDoo reminder interior reuse; this job covers outside-host positioning, missed summary, retained-note/history navigation and consumed link only.\"}, {\"label\": \"phone-320\", \"sourceId\": \"WS-123\", \"title\": \"Global reminder overlay host outside ToDoo\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Existing ToDoo reminder interior reuse; this job covers outside-host positioning, missed summary, retained-note/history navigation and consumed link only.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Existing ToDoo reminder interior reuse; this job covers outside-host positioning, missed summary, retained-note/history navigation and consumed link only.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"desktop\", \"sourceId\": \"WS-123\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"查看事项 / 较早提醒 / 查看通知中心\", \"effect\": \"Navigate existing ToDoo section/task/occurrence/date through Workspace retainNoteContext\", \"api\": \"Existing reminder feed GET /api/to-doo/reminders/pending; target app navigation\", \"guard\": \"History pending restore can block navigation; flush/preserve current note draft and verify navigation intent before switching\"}, {\"label\": \"consume-link\", \"effect\": \"Remove consumed reminder query parameter with replace-history commit\", \"api\": \"none\", \"guard\": \"Reminder opener validates same-origin root URL, view=apps,app=to-doo and reminder /^[A-Za-z0-9_-]{1,128}$/; consume emitted after open attempt finishes\"}, {\"label\": \"提醒卡内部动作\", \"effect\": \"Reuse completed ToDoo reminder card actions; no new platform behavior\", \"api\": \"Existing reminder /action and /complete APIs\", \"guard\": \"Completed ToDoo baseline owns interior card controls/constraints\"}], \"importantStates\": [\"Global card visible while outside ToDoo\", \"Missed-summary button shown only when activeAppMenu.id!=to-doo and missedCount>0\", \"No card but error fallback can open notification center\", \"Multiple queued cards and feed error reuse baseline\", \"Notification URL consumed once without creating new reminder feature\", \"Other workspace note/history/navigation guards preserved\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Only outside-host positioning/navigation/state mapping is in non-ToDoo scope; interior reminder card design reuses implemented ToDoo baseline.\"]}, {\"panel\": \"phone-390\", \"sourceId\": \"WS-123\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"查看事项 / 较早提醒 / 查看通知中心\", \"effect\": \"Navigate existing ToDoo section/task/occurrence/date through Workspace retainNoteContext\", \"api\": \"Existing reminder feed GET /api/to-doo/reminders/pending; target app navigation\", \"guard\": \"History pending restore can block navigation; flush/preserve current note draft and verify navigation intent before switching\"}, {\"label\": \"consume-link\", \"effect\": \"Remove consumed reminder query parameter with replace-history commit\", \"api\": \"none\", \"guard\": \"Reminder opener validates same-origin root URL, view=apps,app=to-doo and reminder /^[A-Za-z0-9_-]{1,128}$/; consume emitted after open attempt finishes\"}, {\"label\": \"提醒卡内部动作\", \"effect\": \"Reuse completed ToDoo reminder card actions; no new platform behavior\", \"api\": \"Existing reminder /action and /complete APIs\", \"guard\": \"Completed ToDoo baseline owns interior card controls/constraints\"}], \"importantStates\": [\"Global card visible while outside ToDoo\", \"Missed-summary button shown only when activeAppMenu.id!=to-doo and missedCount>0\", \"No card but error fallback can open notification center\", \"Multiple queued cards and feed error reuse baseline\", \"Notification URL consumed once without creating new reminder feature\", \"Other workspace note/history/navigation guards preserved\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Only outside-host positioning/navigation/state mapping is in non-ToDoo scope; interior reminder card design reuses implemented ToDoo baseline.\"]}, {\"panel\": \"phone-320\", \"sourceId\": \"WS-123\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"查看事项 / 较早提醒 / 查看通知中心\", \"effect\": \"Navigate existing ToDoo section/task/occurrence/date through Workspace retainNoteContext\", \"api\": \"Existing reminder feed GET /api/to-doo/reminders/pending; target app navigation\", \"guard\": \"History pending restore can block navigation; flush/preserve current note draft and verify navigation intent before switching\"}, {\"label\": \"consume-link\", \"effect\": \"Remove consumed reminder query parameter with replace-history commit\", \"api\": \"none\", \"guard\": \"Reminder opener validates same-origin root URL, view=apps,app=to-doo and reminder /^[A-Za-z0-9_-]{1,128}$/; consume emitted after open attempt finishes\"}, {\"label\": \"提醒卡内部动作\", \"effect\": \"Reuse completed ToDoo reminder card actions; no new platform behavior\", \"api\": \"Existing reminder /action and /complete APIs\", \"guard\": \"Completed ToDoo baseline owns interior card controls/constraints\"}], \"importantStates\": [\"Global card visible while outside ToDoo\", \"Missed-summary button shown only when activeAppMenu.id!=to-doo and missedCount>0\", \"No card but error fallback can open notification center\", \"Multiple queued cards and feed error reuse baseline\", \"Notification URL consumed once without creating new reminder feature\", \"Other workspace note/history/navigation guards preserved\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Only outside-host positioning/navigation/state mapping is in non-ToDoo scope; interior reminder card design reuses implemented ToDoo baseline.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:1795, apps/web/components/Workspace.vue:1813, apps/web/components/Workspace.vue:3578, apps/web/components/to-doo/ToDooReminderCards.vue:97, apps/web/components/to-doo/ToDooReminderCards.vue:129, apps/web/components/to-doo/ToDooReminderCards.vue:244, apps/web/components/to-doo/ToDooReminderCards.vue:257, apps/web/to-doo-reminders.ts:10",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:1795, apps/web/components/Workspace.vue:1813, apps/web/components/Workspace.vue:3578, apps/web/components/to-doo/ToDooReminderCards.vue:97, apps/web/components/to-doo/ToDooReminderCards.vue:129, apps/web/components/to-doo/ToDooReminderCards.vue:244, apps/web/components/to-doo/ToDooReminderCards.vue:257, apps/web/to-doo-reminders.ts:10",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-workspace-empty.png",
+      "role": "matching actual owner mobile host/navigation context only",
+      "responsibility": "Preserve actual5bottom-nav items in cropped outside-host region; reminder summary is source-derived",
+      "sha256": "93f55ccad4ce6dd829394e0d3e16e051b6c46b1f44c60baaeac837a7760007c2",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "bytes": 23766
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-workspace-empty.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D089.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-049cc1ae-382d-40e1-ab5e-eee8a0ac6e62.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-049cc1ae-382d-40e1-ab5e-eee8a0ac6e62.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T03:14:34.327Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Three bottom-crop outside-host specimens preserve legitimate missed-summary-only branch with existing button and actual5-item mobile navigation; reminder interior not redesigned.",
+    "concerns": [
+      "Host-only crop scope does not claim complete delegated settings/reminder interior or runtime navigation validation.",
+      "Static3-width positioning does not verify actual safe-area/bottom-inset/z-index/modal overlap, keyboard or retained-note/history guards."
+    ]
+  },
+  "sha256": "d76d553246b2fd34c244406918a1a3d48431b1b00030cc73aa28af7f735eb855",
+  "dimensions": {
+    "width": 2172,
+    "height": 724
+  },
+  "bytes": 910264,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/to-doo/ToDooReminderCards.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7ddc7f43f66e5583a4bb3eb78f40b5af5858f2d43166e618331f2b6f4dbcd58d"
+    },
+    {
+      "path": "apps/web/components/to-doo/ToDooReminderCards.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7ddc7f43f66e5583a4bb3eb78f40b5af5858f2d43166e618331f2b6f4dbcd58d"
+    },
+    {
+      "path": "apps/web/components/to-doo/ToDooReminderCards.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7ddc7f43f66e5583a4bb3eb78f40b5af5858f2d43166e618331f2b6f4dbcd58d"
+    },
+    {
+      "path": "apps/web/components/to-doo/ToDooReminderCards.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7ddc7f43f66e5583a4bb3eb78f40b5af5858f2d43166e618331f2b6f4dbcd58d"
+    },
+    {
+      "path": "apps/web/to-doo-reminders.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1880c6db1f6b8db331584a13ea5e14670b3eaf2d77c6d851432ddf69a2724dba"
+    }
+  ],
+  "coverageScope": "Only outside-host summary positioning and existing workspace bottom navigation cue; completed ToDoo card interior reused, not regenerated.",
+  "sourceDerivedUnverifiedScope": "Actual source establishes host rules.390workspace screenshot only supports truthful navigation/context; selected missed summary/cropped host is not a captured runtime state."
+}

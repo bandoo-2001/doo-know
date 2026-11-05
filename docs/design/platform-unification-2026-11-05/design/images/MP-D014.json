@@ -1,0 +1,514 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D014",
+  "assetId": "MP-D014",
+  "sourceIds": [
+    "ST-017",
+    "ST-045",
+    "ST-046",
+    "ST-052"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-017",
+      "title": "撤销共享链接确认",
+      "role": "authenticated-owner",
+      "state": "同一真实APopconfirm；其他source使用精确message/按钮label/guard绑定，不同时打开",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "selectedState": "Canonical idle APopconfirm share-revoke shown in three independent desktop/390/320 crops; other exact message/action bindings stored in metadata only"
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-017",
+      "title": "撤销共享链接确认",
+      "role": "authenticated-owner",
+      "state": "同一真实APopconfirm；其他source使用精确message/按钮label/guard绑定，不同时打开",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Canonical idle APopconfirm share-revoke shown in three independent desktop/390/320 crops; other exact message/action bindings stored in metadata only"
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-017",
+      "title": "撤销共享链接确认",
+      "role": "authenticated-owner",
+      "state": "同一真实APopconfirm；其他source使用精确message/按钮label/guard绑定，不同时打开",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Canonical idle APopconfirm share-revoke shown in three independent desktop/390/320 crops; other exact message/action bindings stored in metadata only"
+    }
+  ],
+  "selectedState": "Canonical idle APopconfirm share-revoke shown in three independent desktop/390/320 crops; other exact message/action bindings stored in metadata only",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作一个紧凑UI DESIGN BOARD，外部A1440宿主/B390px/C320px标注，表示三个独立视口中的同一真实APopconfirm组件。只画局部气泡+原触发撤销按钮，不重画Settings或owner导航/文件列表，不是假装3个确认同时打开。约1300×650外画布可放3分区，留足白边；小屏气泡限制视口宽度、文字可换行，尺寸是设计意图非运行测量。\n每个仅显示白色小圆角确认气泡、克制阴影、小pointer，内容黄色警告icon和源码准确“撤销此共享链接？”，底部准确两动作“取消”普通描边、“撤销链接”蓝色primary，二者可用，气泡下方为小红色描边触发“撤销”。没有X关闭、标题栏、输入、成功/错误/忙态、设备退出/插件重载消息。这张只画ST-017 canonical，其他APopconfirm精确文案/按钮/guard绑定放metadata，不添加额外分区。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。不画原生系统对话框。",
+  "prompt": "制作一个紧凑UI DESIGN BOARD，外部A1440宿主/B390px/C320px标注，表示三个独立视口中的同一真实APopconfirm组件。只画局部气泡+原触发撤销按钮，不重画Settings或owner导航/文件列表，不是假装3个确认同时打开。约1300×650外画布可放3分区，留足白边；小屏气泡限制视口宽度、文字可换行，尺寸是设计意图非运行测量。\n每个仅显示白色小圆角确认气泡、克制阴影、小pointer，内容黄色警告icon和源码准确“撤销此共享链接？”，底部准确两动作“取消”普通描边、“撤销链接”蓝色primary，二者可用，气泡下方为小红色描边触发“撤销”。没有X关闭、标题栏、输入、成功/错误/忙态、设备退出/插件重载消息。这张只画ST-017 canonical，其他APopconfirm精确文案/按钮/guard绑定放metadata，不添加额外分区。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。不画原生系统对话框。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual owner library parent only; APopconfirm canonical component source-derived with no runtime popover baseline",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Shared flat palette and density only; actual role-specific host takes precedence",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual owner library parent only; APopconfirm canonical component source-derived with no runtime popover baseline",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Shared flat palette and density only; actual role-specific host takes precedence",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作一个紧凑UI DESIGN BOARD，外部A1440宿主/B390px/C320px标注，表示三个独立视口中的同一真实APopconfirm组件。只画局部气泡+原触发撤销按钮，不重画Settings或owner导航/文件列表，不是假装3个确认同时打开。约1300×650外画布可放3分区，留足白边；小屏气泡限制视口宽度、文字可换行，尺寸是设计意图非运行测量。\n每个仅显示白色小圆角确认气泡、克制阴影、小pointer，内容黄色警告icon和源码准确“撤销此共享链接？”，底部准确两动作“取消”普通描边、“撤销链接”蓝色primary，二者可用，气泡下方为小红色描边触发“撤销”。没有X关闭、标题栏、输入、成功/错误/忙态、设备退出/插件重载消息。这张只画ST-017 canonical，其他APopconfirm精确文案/按钮/guard绑定放metadata，不添加额外分区。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。不画原生系统对话框。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作一个紧凑UI DESIGN BOARD，外部A1440宿主/B390px/C320px标注，表示三个独立视口中的同一真实APopconfirm组件。只画局部气泡+原触发撤销按钮，不重画Settings或owner导航/文件列表，不是假装3个确认同时打开。约1300×650外画布可放3分区，留足白边；小屏气泡限制视口宽度、文字可换行，尺寸是设计意图非运行测量。\n每个仅显示白色小圆角确认气泡、克制阴影、小pointer，内容黄色警告icon和源码准确“撤销此共享链接？”，底部准确两动作“取消”普通描边、“撤销链接”蓝色primary，二者可用，气泡下方为小红色描边触发“撤销”。没有X关闭、标题栏、输入、成功/错误/忙态、设备退出/插件重载消息。这张只画ST-017 canonical，其他APopconfirm精确文案/按钮/guard绑定放metadata，不添加额外分区。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。不画原生系统对话框。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+          "role": "Actual owner library parent only; APopconfirm canonical component source-derived with no runtime popover baseline"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Shared flat palette and density only; actual role-specific host takes precedence"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ce06ae29-15b3-429e-a968-f1bbf58f76cd.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-017",
+      "title": "撤销共享链接确认",
+      "kind": "popover",
+      "module": "settings/shares",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "共享列表中的撤销",
+        "parentId": "ST-016"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/ShareManagement.vue:58",
+        "apps/web/components/settings/ShareManagement.vue:165"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "撤销链接",
+          "effect": "单项批量协议撤销；旧链接失效",
+          "api": "POST /api/manage/shares/revoke",
+          "guard": "active或expired；ids=[id]、requestId"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "提交中禁用",
+        "逐项失败/请求错误",
+        "成功刷新列表"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:312"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-045",
+      "title": "退出单台其他设备确认",
+      "kind": "popover",
+      "module": "settings/account",
+      "entry": {
+        "route": "/?view=settings&section=account",
+        "trigger": "非当前登录设备→退出设备",
+        "parentId": "ST-007"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:90",
+        "apps/web/components/settings/AccountSettings.vue:234",
+        "apps/server/platform/management.ts:242"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "退出设备",
+          "effect": "删除所选其他会话",
+          "api": "DELETE /api/manage/sessions/:id",
+          "guard": "不能针对current；所有者拥有会话"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "请求中禁用其他退出操作",
+        "成功刷新列表",
+        "错误提示"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/management-api.test.ts:245",
+        "tests/e2e/management-features.spec.ts:521"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-046",
+      "title": "退出所有其他设备确认",
+      "kind": "popover",
+      "module": "settings/account",
+      "entry": {
+        "route": "/?view=settings&section=account",
+        "trigger": "退出其他设备",
+        "parentId": "ST-007"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:103",
+        "apps/web/components/settings/AccountSettings.vue:251"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "退出其他设备",
+          "effect": "撤销除当前会话外所有登录",
+          "api": "POST /api/manage/sessions/revoke-others",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "请求中",
+        "成功刷新列表",
+        "失败alert"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/management-api.test.ts:7"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-052",
+      "title": "丢弃插件草稿并重新载入确认",
+      "kind": "popover",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "远端已变→重新载入已保存配置",
+        "parentId": "ST-051"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:302",
+        "apps/web/components/PluginManager.vue:617"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "丢弃输入并重新载入",
+          "effect": "替换草稿为最新服务器值",
+          "api": "GET /api/platform/plugins",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "保留当前输入",
+          "effect": "关闭确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "远端冲突警告上下文",
+        "重载中",
+        "重载成功/失败"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/plugin-config.spec.ts:86"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-017",
+      "parentId": "ST-016",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/ShareManagement.vue:58",
+        "apps/web/components/settings/ShareManagement.vue:165"
+      ]
+    },
+    {
+      "sourceId": "ST-045",
+      "parentId": "ST-007",
+      "route": "/?view=settings&section=account",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:90",
+        "apps/web/components/settings/AccountSettings.vue:234",
+        "apps/server/platform/management.ts:242"
+      ]
+    },
+    {
+      "sourceId": "ST-046",
+      "parentId": "ST-007",
+      "route": "/?view=settings&section=account",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:103",
+        "apps/web/components/settings/AccountSettings.vue:251"
+      ]
+    },
+    {
+      "sourceId": "ST-052",
+      "parentId": "ST-051",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:302",
+        "apps/web/components/PluginManager.vue:617"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-009.json#MP-D014",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D014",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ce06ae29-15b3-429e-a968-f1bbf58f76cd.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D014.png",
+  "sha256": "77b358b4365c9fe932bab2cc5ffd3af63ab7a09df14d2b745203f42bf86f225c",
+  "bytes": 1044229,
+  "dimensions": {
+    "width": 1774,
+    "height": 887
+  },
+  "generatedAtUtc": "2026-11-05T02:17:57.810012+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Owner APopconfirm: exact source action/message bindings",
+    "sourceIds": [
+      "ST-017",
+      "ST-045",
+      "ST-046",
+      "ST-052"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Canonical idle APopconfirm share-revoke shown in three independent desktop/390/320 crops; other exact message/action bindings stored in metadata only",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present.",
+      "Independent three-viewport local component board only; viewport labels are design targets, not runtime measurements. No parent shell or simultaneous-open assertion."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "exactPopoverBindings": [
+    {
+      "sourceId": "ST-017",
+      "message": "撤销此共享链接？",
+      "ok": "撤销链接",
+      "cancel": "取消",
+      "visibleWhen": "share active or expired; trigger disabled while another revoke busy"
+    },
+    {
+      "sourceId": "ST-045",
+      "message": "退出这台设备的登录？",
+      "ok": "退出设备",
+      "cancel": "取消",
+      "visibleWhen": "non-current owner session only; sessionBusy guards"
+    },
+    {
+      "sourceId": "ST-046",
+      "message": "退出所有其他设备的登录？",
+      "ok": "退出其他设备",
+      "cancel": "取消",
+      "visibleWhen": "account owner; sessionBusy guards"
+    },
+    {
+      "sourceId": "ST-052",
+      "message": "重新载入会丢弃当前未保存输入，确定继续？",
+      "ok": "丢弃输入并重新载入",
+      "cancel": "保留当前输入",
+      "visibleWhen": "plugin remoteChanged alert; trigger disabled busy"
+    }
+  ]
+}

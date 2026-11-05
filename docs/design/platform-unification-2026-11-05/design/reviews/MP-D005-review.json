@@ -1,0 +1,53 @@
+{
+  "assetId": "MP-D005",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:19:39.121549+00:00",
+  "method": "Actual generated PNG and matching real baseline each viewed in independent child context. Exact submitted sidecar prompt and batch requirements checked against current templates; source outranks generic prompt/API summaries.",
+  "selectedState": "Owner background state: no active tasks; search preparation collapsed, index expanded with fixture pending 3, writes collapsed",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual 4-second update statement and refresh action, empty current tasks, service-state sections and source links retained. No invented global online/success outcome.",
+    "Exact baseline disclosure states retained: search preparation collapsed, index expanded, recent checks collapsed, writes/recovery collapsed. Hidden prepare/download/cancel controls need not coexist.",
+    "Index fixture 3 pending / 0 retrying / 0 failed / 0 conflicts agrees with summary, dependency-not-ready note and reachable 检查并更新索引. These are fixture data, not guaranteed runtime state.",
+    "Real eight settings destinations, selected 后台状态, private owner rail/account and back actions remain with shared DooKnow header."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/generation-batch-03.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D005.json",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/StatusSettings.vue:160",
+    "apps/web/components/settings/StatusSettings.vue:275",
+    "apps/web/components/settings/status-model.ts:29",
+    "apps/web/components/settings/TransferTasks.vue:1",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-settings-status.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "d26ed13a32b3733adfaf1ed090522d7cb0b14163c6374d003a23d2cc55231bd5",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D005.png",
+  "sourceIds": [
+    "ST-005",
+    "ST-041"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

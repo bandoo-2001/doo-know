@@ -1,0 +1,837 @@
+{
+  "id": "WS-R035",
+  "title": "Graph filters and path/range modal",
+  "kind": "responsive-board",
+  "sourceIds": [
+    "WS-087"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-087",
+      "title": "Graph filters and path/range modal",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order"
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-087",
+      "title": "Graph filters and path/range modal",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order"
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:836, apps/server/graph/semantic-routes.ts:62"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-087",
+      "label": "筛选变更 / 查找路径",
+      "effect": "Explore filtered authorized graph",
+      "api": "GET /api/graph/explore",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-087",
+      "label": "关闭",
+      "effect": "Close overlay",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R035",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "requiredFieldOrder": [
+        "目录",
+        "节点类型",
+        "关系类型",
+        "待审核候选 / 语义相似 / 仅孤立节点",
+        "最低语义相似度 / 最低置信度",
+        "节点颜色",
+        "起点 / 终点",
+        "节点上限"
+      ],
+      "requiredFields": [
+        {
+          "name": "目录",
+          "type": "directory",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "节点类型",
+          "type": "multiselect",
+          "required": false,
+          "constraints": "note,concept,person,organization,place,event,technology",
+          "sensitive": false
+        },
+        {
+          "name": "关系类型",
+          "type": "multiselect",
+          "required": false,
+          "constraints": "reference,mentions,cooccurs,similarity,semantic,manual",
+          "sensitive": false
+        },
+        {
+          "name": "待审核候选 / 语义相似 / 仅孤立节点",
+          "type": "checkboxes",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "最低语义相似度 / 最低置信度",
+          "type": "ranges",
+          "required": false,
+          "constraints": "0–1 inclusive, UIstep0.05; similarity threshold only when similarity enabled.",
+          "sensitive": false
+        },
+        {
+          "name": "节点颜色",
+          "type": "select",
+          "required": false,
+          "constraints": "type | community",
+          "sensitive": false
+        },
+        {
+          "name": "起点 / 终点",
+          "type": "node-select",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "节点上限",
+          "type": "integer",
+          "required": false,
+          "constraints": "1–1000 inclusive; server validates integer.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "筛选变更 / 查找路径",
+          "effect": "Explore filtered authorized graph",
+          "api": "GET /api/graph/explore",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "关闭",
+          "effect": "Close overlay",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-087"
+    }
+  ],
+  "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R035 Graph filters and path/range modal\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-087\", \"title\": \"Graph filters and path/range modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order\"}, {\"label\": \"B\", \"sourceId\": \"WS-087\", \"title\": \"Graph filters and path/range modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-087\", \"fieldsInOrder\": [{\"name\": \"目录\", \"type\": \"directory\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"节点类型\", \"type\": \"multiselect\", \"required\": false, \"constraints\": \"note,concept,person,organization,place,event,technology\", \"sensitive\": false}, {\"name\": \"关系类型\", \"type\": \"multiselect\", \"required\": false, \"constraints\": \"reference,mentions,cooccurs,similarity,semantic,manual\", \"sensitive\": false}, {\"name\": \"待审核候选 / 语义相似 / 仅孤立节点\", \"type\": \"checkboxes\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"最低语义相似度 / 最低置信度\", \"type\": \"ranges\", \"required\": false, \"constraints\": \"0–1 inclusive, UIstep0.05; similarity threshold only when similarity enabled.\", \"sensitive\": false}, {\"name\": \"节点颜色\", \"type\": \"select\", \"required\": false, \"constraints\": \"type | community\", \"sensitive\": false}, {\"name\": \"起点 / 终点\", \"type\": \"node-select\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"节点上限\", \"type\": \"integer\", \"required\": false, \"constraints\": \"1–1000 inclusive; server validates integer.\", \"sensitive\": false}], \"actions\": [{\"label\": \"筛选变更 / 查找路径\", \"effect\": \"Explore filtered authorized graph\", \"api\": \"GET /api/graph/explore\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"关闭\", \"effect\": \"Close overlay\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Collapsed path/range advanced form\", \"Conditional similarity threshold\", \"Service error\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-087\", \"fieldsInOrder\": [{\"name\": \"目录\", \"type\": \"directory\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"节点类型\", \"type\": \"multiselect\", \"required\": false, \"constraints\": \"note,concept,person,organization,place,event,technology\", \"sensitive\": false}, {\"name\": \"关系类型\", \"type\": \"multiselect\", \"required\": false, \"constraints\": \"reference,mentions,cooccurs,similarity,semantic,manual\", \"sensitive\": false}, {\"name\": \"待审核候选 / 语义相似 / 仅孤立节点\", \"type\": \"checkboxes\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"最低语义相似度 / 最低置信度\", \"type\": \"ranges\", \"required\": false, \"constraints\": \"0–1 inclusive, UIstep0.05; similarity threshold only when similarity enabled.\", \"sensitive\": false}, {\"name\": \"节点颜色\", \"type\": \"select\", \"required\": false, \"constraints\": \"type | community\", \"sensitive\": false}, {\"name\": \"起点 / 终点\", \"type\": \"node-select\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"节点上限\", \"type\": \"integer\", \"required\": false, \"constraints\": \"1–1000 inclusive; server validates integer.\", \"sensitive\": false}], \"actions\": [{\"label\": \"筛选变更 / 查找路径\", \"effect\": \"Explore filtered authorized graph\", \"api\": \"GET /api/graph/explore\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"关闭\", \"effect\": \"Close overlay\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Collapsed path/range advanced form\", \"Conditional similarity threshold\", \"Service error\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R035.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-087",
+      "title": "Graph filters and path/range modal",
+      "kind": "dialog",
+      "module": "graph",
+      "entry": {
+        "route": "/?view=apps&app=graph",
+        "trigger": "筛选",
+        "parentId": "WS-085"
+      },
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:836",
+        "apps/server/graph/semantic-routes.ts:62"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "目录",
+          "type": "directory",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "节点类型",
+          "type": "multiselect",
+          "required": false,
+          "constraints": "note,concept,person,organization,place,event,technology",
+          "sensitive": false
+        },
+        {
+          "name": "关系类型",
+          "type": "multiselect",
+          "required": false,
+          "constraints": "reference,mentions,cooccurs,similarity,semantic,manual",
+          "sensitive": false
+        },
+        {
+          "name": "待审核候选 / 语义相似 / 仅孤立节点",
+          "type": "checkboxes",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "最低语义相似度 / 最低置信度",
+          "type": "ranges",
+          "required": false,
+          "constraints": "0–1 inclusive, UIstep0.05; similarity threshold only when similarity enabled.",
+          "sensitive": false
+        },
+        {
+          "name": "节点颜色",
+          "type": "select",
+          "required": false,
+          "constraints": "type | community",
+          "sensitive": false
+        },
+        {
+          "name": "起点 / 终点",
+          "type": "node-select",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "节点上限",
+          "type": "integer",
+          "required": false,
+          "constraints": "1–1000 inclusive; server validates integer.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "筛选变更 / 查找路径",
+          "effect": "Explore filtered authorized graph",
+          "api": "GET /api/graph/explore",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "关闭",
+          "effect": "Close overlay",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Collapsed path/range advanced form",
+        "Conditional similarity threshold",
+        "Service error"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "testRefs": [
+        "tests/graph-semantic-api.test.ts",
+        "tests/e2e/knowledge-graph-full.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-087",
+      "parentId": "WS-085",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-087",
+  "stateCoverageRefs": [],
+  "statePatternRefs": [
+    {
+      "sourceId": "WS-087",
+      "assetId": "WS-D063",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-R035",
+  "originalManifest": {
+    "id": "WS-R035",
+    "title": "Graph filters and path/range modal",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-087"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-087",
+        "title": "Graph filters and path/range modal",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order"
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-087",
+        "title": "Graph filters and path/range modal",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order"
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "apps/web/components/GraphWorkspace.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:836, apps/server/graph/semantic-routes.ts:62"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-087",
+        "label": "筛选变更 / 查找路径",
+        "effect": "Explore filtered authorized graph",
+        "api": "GET /api/graph/explore",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-087",
+        "label": "关闭",
+        "effect": "Close overlay",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-R035",
+        "representation": "direct",
+        "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+        },
+        "requiredFieldOrder": [
+          "目录",
+          "节点类型",
+          "关系类型",
+          "待审核候选 / 语义相似 / 仅孤立节点",
+          "最低语义相似度 / 最低置信度",
+          "节点颜色",
+          "起点 / 终点",
+          "节点上限"
+        ],
+        "requiredFields": [
+          {
+            "name": "目录",
+            "type": "directory",
+            "required": false,
+            "constraints": "No additional client constraint found; server validation not otherwise verified.",
+            "sensitive": false
+          },
+          {
+            "name": "节点类型",
+            "type": "multiselect",
+            "required": false,
+            "constraints": "note,concept,person,organization,place,event,technology",
+            "sensitive": false
+          },
+          {
+            "name": "关系类型",
+            "type": "multiselect",
+            "required": false,
+            "constraints": "reference,mentions,cooccurs,similarity,semantic,manual",
+            "sensitive": false
+          },
+          {
+            "name": "待审核候选 / 语义相似 / 仅孤立节点",
+            "type": "checkboxes",
+            "required": false,
+            "constraints": "No additional client constraint found; server validation not otherwise verified.",
+            "sensitive": false
+          },
+          {
+            "name": "最低语义相似度 / 最低置信度",
+            "type": "ranges",
+            "required": false,
+            "constraints": "0–1 inclusive, UIstep0.05; similarity threshold only when similarity enabled.",
+            "sensitive": false
+          },
+          {
+            "name": "节点颜色",
+            "type": "select",
+            "required": false,
+            "constraints": "type | community",
+            "sensitive": false
+          },
+          {
+            "name": "起点 / 终点",
+            "type": "node-select",
+            "required": false,
+            "constraints": "No additional client constraint found; server validation not otherwise verified.",
+            "sensitive": false
+          },
+          {
+            "name": "节点上限",
+            "type": "integer",
+            "required": false,
+            "constraints": "1–1000 inclusive; server validates integer.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "筛选变更 / 查找路径",
+            "effect": "Explore filtered authorized graph",
+            "api": "GET /api/graph/explore",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "关闭",
+            "effect": "Close overlay",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-087"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R035 Graph filters and path/range modal\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-087\", \"title\": \"Graph filters and path/range modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order\"}, {\"label\": \"B\", \"sourceId\": \"WS-087\", \"title\": \"Graph filters and path/range modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. stack full filter/path/range fields in source order\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-087\", \"fieldsInOrder\": [{\"name\": \"目录\", \"type\": \"directory\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"节点类型\", \"type\": \"multiselect\", \"required\": false, \"constraints\": \"note,concept,person,organization,place,event,technology\", \"sensitive\": false}, {\"name\": \"关系类型\", \"type\": \"multiselect\", \"required\": false, \"constraints\": \"reference,mentions,cooccurs,similarity,semantic,manual\", \"sensitive\": false}, {\"name\": \"待审核候选 / 语义相似 / 仅孤立节点\", \"type\": \"checkboxes\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"最低语义相似度 / 最低置信度\", \"type\": \"ranges\", \"required\": false, \"constraints\": \"0–1 inclusive, UIstep0.05; similarity threshold only when similarity enabled.\", \"sensitive\": false}, {\"name\": \"节点颜色\", \"type\": \"select\", \"required\": false, \"constraints\": \"type | community\", \"sensitive\": false}, {\"name\": \"起点 / 终点\", \"type\": \"node-select\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"节点上限\", \"type\": \"integer\", \"required\": false, \"constraints\": \"1–1000 inclusive; server validates integer.\", \"sensitive\": false}], \"actions\": [{\"label\": \"筛选变更 / 查找路径\", \"effect\": \"Explore filtered authorized graph\", \"api\": \"GET /api/graph/explore\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"关闭\", \"effect\": \"Close overlay\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Collapsed path/range advanced form\", \"Conditional similarity threshold\", \"Service error\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-087\", \"fieldsInOrder\": [{\"name\": \"目录\", \"type\": \"directory\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"节点类型\", \"type\": \"multiselect\", \"required\": false, \"constraints\": \"note,concept,person,organization,place,event,technology\", \"sensitive\": false}, {\"name\": \"关系类型\", \"type\": \"multiselect\", \"required\": false, \"constraints\": \"reference,mentions,cooccurs,similarity,semantic,manual\", \"sensitive\": false}, {\"name\": \"待审核候选 / 语义相似 / 仅孤立节点\", \"type\": \"checkboxes\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"最低语义相似度 / 最低置信度\", \"type\": \"ranges\", \"required\": false, \"constraints\": \"0–1 inclusive, UIstep0.05; similarity threshold only when similarity enabled.\", \"sensitive\": false}, {\"name\": \"节点颜色\", \"type\": \"select\", \"required\": false, \"constraints\": \"type | community\", \"sensitive\": false}, {\"name\": \"起点 / 终点\", \"type\": \"node-select\", \"required\": false, \"constraints\": \"No additional client constraint found; server validation not otherwise verified.\", \"sensitive\": false}, {\"name\": \"节点上限\", \"type\": \"integer\", \"required\": false, \"constraints\": \"1–1000 inclusive; server validates integer.\", \"sensitive\": false}], \"actions\": [{\"label\": \"筛选变更 / 查找路径\", \"effect\": \"Explore filtered authorized graph\", \"api\": \"GET /api/graph/explore\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"关闭\", \"effect\": \"Close overlay\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Collapsed path/range advanced form\", \"Conditional similarity threshold\", \"Service error\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R035.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-087",
+        "title": "Graph filters and path/range modal",
+        "kind": "dialog",
+        "module": "graph",
+        "entry": {
+          "route": "/?view=apps&app=graph",
+          "trigger": "筛选",
+          "parentId": "WS-085"
+        },
+        "sourceRefs": [
+          "apps/web/components/GraphWorkspace.vue:836",
+          "apps/server/graph/semantic-routes.ts:62"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "fields": [
+          {
+            "name": "目录",
+            "type": "directory",
+            "required": false,
+            "constraints": "No additional client constraint found; server validation not otherwise verified.",
+            "sensitive": false
+          },
+          {
+            "name": "节点类型",
+            "type": "multiselect",
+            "required": false,
+            "constraints": "note,concept,person,organization,place,event,technology",
+            "sensitive": false
+          },
+          {
+            "name": "关系类型",
+            "type": "multiselect",
+            "required": false,
+            "constraints": "reference,mentions,cooccurs,similarity,semantic,manual",
+            "sensitive": false
+          },
+          {
+            "name": "待审核候选 / 语义相似 / 仅孤立节点",
+            "type": "checkboxes",
+            "required": false,
+            "constraints": "No additional client constraint found; server validation not otherwise verified.",
+            "sensitive": false
+          },
+          {
+            "name": "最低语义相似度 / 最低置信度",
+            "type": "ranges",
+            "required": false,
+            "constraints": "0–1 inclusive, UIstep0.05; similarity threshold only when similarity enabled.",
+            "sensitive": false
+          },
+          {
+            "name": "节点颜色",
+            "type": "select",
+            "required": false,
+            "constraints": "type | community",
+            "sensitive": false
+          },
+          {
+            "name": "起点 / 终点",
+            "type": "node-select",
+            "required": false,
+            "constraints": "No additional client constraint found; server validation not otherwise verified.",
+            "sensitive": false
+          },
+          {
+            "name": "节点上限",
+            "type": "integer",
+            "required": false,
+            "constraints": "1–1000 inclusive; server validates integer.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "筛选变更 / 查找路径",
+            "effect": "Explore filtered authorized graph",
+            "api": "GET /api/graph/explore",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "关闭",
+            "effect": "Close overlay",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Collapsed path/range advanced form",
+          "Conditional similarity threshold",
+          "Service error"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+        },
+        "testRefs": [
+          "tests/graph-semantic-api.test.ts",
+          "tests/e2e/knowledge-graph-full.spec.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-087",
+        "parentId": "WS-085",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-087",
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "WS-087",
+        "assetId": "WS-D063",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作中文图谱“筛选与路径”手机弹窗，两独立窄列A/B，A390/B320比例，正常字号不缩小。白底细线圆角，中性浅灰外背景，不画宿主导航和系统栏。标题“筛选与路径”、描述“缩小范围，聚焦值得探索的联系。”、右上关闭X。真实长表单内部竖向滚动，A上半部，B同一表单下半部，细滚动条清楚。A依序：目录下拉“知识库根目录”；节点类型多选placeholder“全部类型”；关系类型多选placeholder“全部关系”；label“关系线索”下三个checkbox顺序“显示待审核候选”（未勾）、“显示语义相似（向量）”（已勾）、“仅孤立节点”（未勾）；label“最低语义相似度”滑条及只读值“0.65”，说明“余弦分数越高，内容越相近。每篇笔记保留最相近的少量连接。”，后续向下滚动。B滚到下半部：先label“最低置信度”滑条与只读“0%”；接着展开的“路径与范围”；label“节点颜色”下拉“按类型”；label“起点”可搜索下拉placeholder“选择起点”；label“终点”下拉placeholder“选择终点”；label“节点上限”数字输入“80”；蓝色按钮“查找路径”，自然可达。长label换行，不把滑条只读数值画成输入，不加应用/取消/重置按钮，不删除高级字段。",
+  "actualToolArguments": {
+    "prompt": "制作中文图谱“筛选与路径”手机弹窗，两独立窄列A/B，A390/B320比例，正常字号不缩小。白底细线圆角，中性浅灰外背景，不画宿主导航和系统栏。标题“筛选与路径”、描述“缩小范围，聚焦值得探索的联系。”、右上关闭X。真实长表单内部竖向滚动，A上半部，B同一表单下半部，细滚动条清楚。A依序：目录下拉“知识库根目录”；节点类型多选placeholder“全部类型”；关系类型多选placeholder“全部关系”；label“关系线索”下三个checkbox顺序“显示待审核候选”（未勾）、“显示语义相似（向量）”（已勾）、“仅孤立节点”（未勾）；label“最低语义相似度”滑条及只读值“0.65”，说明“余弦分数越高，内容越相近。每篇笔记保留最相近的少量连接。”，后续向下滚动。B滚到下半部：先label“最低置信度”滑条与只读“0%”；接着展开的“路径与范围”；label“节点颜色”下拉“按类型”；label“起点”可搜索下拉placeholder“选择起点”；label“终点”下拉placeholder“选择终点”；label“节点上限”数字输入“80”；蓝色按钮“查找路径”，自然可达。长label换行，不把滑条只读数值画成输入，不加应用/取消/重置按钮，不删除高级字段。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D063.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D063.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D063.png",
+      "order": 1,
+      "role": "complete approved exact filter/path fields and order",
+      "sha256": "f01f8afb5c2c0019668297f75eaf515ea5f78174b08c364bb36f8d5d4da4e140",
+      "bytes": 1127786,
+      "dimensions": {
+        "width": 1089,
+        "height": 1444
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "sha256": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/server/graph/semantic-routes.ts",
+      "sha256": "0f4d81250bee2aa5d27fdfd65bb5209f52525fdec1275f8ac680e17f7ea8f12a",
+      "role": "actual source template/behavior authority; read before generation"
+    }
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "fallbackUsed": false,
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "url": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "verifiedModel": "gpt-image-2",
+      "scope": "Codex built-in image generation",
+      "date": "2026-11-05",
+      "apiReference": "https://developers.openai.com/api/reference/resources/images/methods/generate",
+      "apiModelSupported": true,
+      "apiReferenceDoesNotProveBuiltinRouteAlone": true
+    }
+  },
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-175cbbd8-90a3-4b08-a6fc-94b65d669d84.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-175cbbd8-90a3-4b08-a6fc-94b65d669d84.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generatedAtUtc": "2026-11-05T09:06:59.249Z",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R035.png",
+  "generationCalls": [
+    {
+      "status": "completed-with-tool-receipt",
+      "actualToolArguments": {
+        "prompt": "制作中文图谱“筛选与路径”手机弹窗，两独立窄列A/B，A390/B320比例，正常字号不缩小。白底细线圆角，中性浅灰外背景，不画宿主导航和系统栏。标题“筛选与路径”、描述“缩小范围，聚焦值得探索的联系。”、右上关闭X。真实长表单内部竖向滚动，A上半部，B同一表单下半部，细滚动条清楚。A依序：目录下拉“知识库根目录”；节点类型多选placeholder“全部类型”；关系类型多选placeholder“全部关系”；label“关系线索”下三个checkbox顺序“显示待审核候选”（未勾）、“显示语义相似（向量）”（已勾）、“仅孤立节点”（未勾）；label“最低语义相似度”滑条及只读值“0.65”，说明“余弦分数越高，内容越相近。每篇笔记保留最相近的少量连接。”，后续向下滚动。B滚到下半部：先label“最低置信度”滑条与只读“0%”；接着展开的“路径与范围”；label“节点颜色”下拉“按类型”；label“起点”可搜索下拉placeholder“选择起点”；label“终点”下拉placeholder“选择终点”；label“节点上限”数字输入“80”；蓝色按钮“查找路径”，自然可达。长label换行，不把滑条只读数值画成输入，不加应用/取消/重置按钮，不删除高级字段。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D063.png",
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-175cbbd8-90a3-4b08-a6fc-94b65d669d84.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    }
+  ],
+  "generationCallCount": 1,
+  "selfInspection": {
+    "status": "pending-independent-review",
+    "method": "Native original PNG read against actual source controls and independent scroll positions",
+    "concerns": [
+      "Raster approximate CSS geometry; no runtime layout/actions verification."
+    ]
+  },
+  "sha256": "13e9dbe362ed74bd3a7041fd8a3cd564d4ddeaf80e170b496289615a5224fbaf",
+  "bytes": 1304350,
+  "dimensions": {
+    "width": 1394,
+    "height": 1128
+  },
+  "selectedState": [
+    "390 filters upper scroll including similarity true",
+    "320 same expanded path/range lower scroll"
+  ],
+  "unscreenedControlsBinding": {
+    "assetId": "WS-D063",
+    "fieldOrder": [
+      "folder",
+      "nodeKinds",
+      "edgeKinds",
+      "includeSuggested/includeSimilarity/orphans",
+      "similarityThreshold",
+      "minConfidence",
+      "path accordion",
+      "colorBy",
+      "focus",
+      "target",
+      "limit",
+      "find path"
+    ],
+    "sha256": "f01f8afb5c2c0019668297f75eaf515ea5f78174b08c364bb36f8d5d4da4e140",
+    "path": "docs/design/platform-unification-2026-11-05/design/images/WS-D063.png"
+  },
+  "runtimeResponsiveVerified": false,
+  "responsiveTargetCssWidths": [
+    390,
+    320
+  ],
+  "currentGenerationReceipt": {
+    "toolResultReceiptObserved": true,
+    "receiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-6.json",
+    "actualToolArguments": {
+      "prompt": "制作中文图谱“筛选与路径”手机弹窗，两独立窄列A/B，A390/B320比例，正常字号不缩小。白底细线圆角，中性浅灰外背景，不画宿主导航和系统栏。标题“筛选与路径”、描述“缩小范围，聚焦值得探索的联系。”、右上关闭X。真实长表单内部竖向滚动，A上半部，B同一表单下半部，细滚动条清楚。A依序：目录下拉“知识库根目录”；节点类型多选placeholder“全部类型”；关系类型多选placeholder“全部关系”；label“关系线索”下三个checkbox顺序“显示待审核候选”（未勾）、“显示语义相似（向量）”（已勾）、“仅孤立节点”（未勾）；label“最低语义相似度”滑条及只读值“0.65”，说明“余弦分数越高，内容越相近。每篇笔记保留最相近的少量连接。”，后续向下滚动。B滚到下半部：先label“最低置信度”滑条与只读“0%”；接着展开的“路径与范围”；label“节点颜色”下拉“按类型”；label“起点”可搜索下拉placeholder“选择起点”；label“终点”下拉placeholder“选择终点”；label“节点上限”数字输入“80”；蓝色按钮“查找路径”，自然可达。长label换行，不把滑条只读数值画成输入，不加应用/取消/重置按钮，不删除高级字段。",
+      "referenced_image_paths": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D063.png",
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "transparent_background": false
+    },
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-175cbbd8-90a3-4b08-a6fc-94b65d669d84.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-175cbbd8-90a3-4b08-a6fc-94b65d669d84.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "completionObservedAtUtc": "2026-11-05T09:06:59.249Z",
+    "exactToolServerCompletionTimestampExposed": false
+  },
+  "generatedAtUtcBasis": "Local observation after awaited callback; tool does not expose exact server completion timestamp.",
+  "sourceImageSha256": "13e9dbe362ed74bd3a7041fd8a3cd564d4ddeaf80e170b496289615a5224fbaf",
+  "metadataAmendments": [
+    {
+      "atUtc": "2026-11-05T09:18:09.836367+00:00",
+      "reason": "Attach observed current receipt, source byte verification and full prior revision chain without changing PNG or rewriting historical no-receipt status."
+    }
+  ]
+}

@@ -1,0 +1,391 @@
+{
+  "id": "MP-R065",
+  "title": "Responsive family: BlogPublicationReview.vue private preview/reference checks",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-036"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-036",
+      "title": "博客文章：私有预览与发布前核对390px",
+      "role": "authenticated owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-036",
+      "title": "博客文章：私有预览与发布前核对320px",
+      "role": "authenticated owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-036",
+      "title": "博客文章：私有预览与发布前核对320px guard",
+      "role": "authenticated owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "viewportIntent": "390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-blog-articles.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-036",
+      "route": "/?view=apps&app=blog&appSection=articles",
+      "trigger": "Toggle 预览文章 after saving metadata",
+      "parentId": "PB-032",
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [],
+      "importantStates": [
+        "review loading/error; retry",
+        "no public version yet vs published/draft columns",
+        "reference warnings: unpublished/missing links, missing/unsupported images",
+        "affected related articles; generated-diagram count",
+        "original-source preview folded under details"
+      ],
+      "notes": [
+        "This is private sanitized preview; publication itself remains explicit article action."
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "私有文章预览与发布前检查：预览/原稿引用与资源警告、刷新/前往原稿修正/查看关联原稿；未发布与已发布比较分清。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。"
+    },
+    {
+      "type": "responsive-family-reuse",
+      "renderer": "BlogPublicationReview.vue private preview/reference checks",
+      "allSourceIds": [
+        "PB-036"
+      ],
+      "rule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-036",
+      "label": "刷新检查",
+      "effect": "Refresh publication review",
+      "api": "GET /api/blog/posts/:id/review",
+      "guard": "not reviewLoading"
+    },
+    {
+      "sourceId": "PB-036",
+      "label": "前往原稿修正 / 查看关联原稿",
+      "effect": "Open relevant owner note",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-036",
+      "label": "查看文章",
+      "effect": "Select affected article if no source id",
+      "api": "",
+      "guard": ""
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-036",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n制作三个并排独立的窄屏内容面板，外部只标A、B、C，不画手机外壳、宽度数字或额外说明。A按390宽、B和C按320宽的相同比例布局；窄屏字段和操作自然换行，文本不省略，画布可纵向延长保持正常字号。不画全局header/底栏/侧栏或虚构宿主，每个只画指定真实组件。\n三个面板完整私有文章预览局部：顶部锁图标“仅自己可见的发布预览”、文章标题“示例笔记”、摘要“记录与回顾”。接着“发布前核对”和按钮“刷新检查”；两段版本区窄屏纵排：小标题“线上版本”、文字“还没有公开版本。”；小标题“待发布版本”、正文“记录与回顾，让知识保持可用。未发布笔记”。下方小标题“引用检查”；一条警告粗体“引用的笔记尚未发布，发布时将显示为文字。”，等宽只读目标“未发布笔记.md”，可用小按钮“前往原稿修正”。小标题“可能需要重新发布的关联文章”；第一条“相关整理”与可用“查看关联原稿”；第二条“旧有发布记录”与可用“查看文章”。最下方折叠“原稿预览”。A/B刷新与三个相关动作都可用。\nC保留全部相同预览、警告和关联文章，在“发布前核对/刷新检查”下面、版本区之前增加真实状态“正在检查线上快照、原稿引用和关联文章…”；刷新检查灰色禁用，前往原稿修正/查看关联原稿/查看文章仍可用。不要增加发布/下载/确认/关闭按钮、成功回执、图形数量或宿主导航。目标仅只读文字，不是输入。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R065.png",
+  "reviewStatus": "pending-independent-review",
+  "responsiveFamily": {
+    "id": "MP-RF065",
+    "actualComponent": "BlogPublicationReview.vue private preview/reference checks",
+    "sourceIds": [
+      "PB-036"
+    ],
+    "roleBoundary": "owner-private",
+    "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-036",
+      "parentId": "PB-032",
+      "route": "/?view=apps&app=blog&appSection=articles",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:681",
+        "apps/web/components/blog/BlogPublicationReview.vue:17",
+        "apps/web/components/blog/BlogPublicationReview.vue:28",
+        "apps/server/blog/studio-routes.ts:61"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-036",
+      "title": "博客文章：私有预览与发布前核对",
+      "kind": "state",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "Toggle 预览文章 after saving metadata",
+        "parentId": "PB-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:681",
+        "apps/web/components/blog/BlogPublicationReview.vue:17",
+        "apps/web/components/blog/BlogPublicationReview.vue:28",
+        "apps/server/blog/studio-routes.ts:61"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新检查",
+          "effect": "Refresh publication review",
+          "api": "GET /api/blog/posts/:id/review",
+          "guard": "not reviewLoading"
+        },
+        {
+          "label": "前往原稿修正 / 查看关联原稿",
+          "effect": "Open relevant owner note",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "查看文章",
+          "effect": "Select affected article if no source id",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "review loading/error; retry",
+        "no public version yet vs published/draft columns",
+        "reference warnings: unpublished/missing links, missing/unsupported images",
+        "affected related articles; generated-diagram count",
+        "original-source preview folded under details"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio-review.test.ts:1",
+        "tests/e2e/blog.spec.ts:336"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "This is private sanitized preview; publication itself remains explicit article action."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-R065",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "preview open; review publishedHtml null, draft rendered, unpublished-link warning, two affected posts; idle",
+    "same target320",
+    "same retained review with reviewLoading true, refresh disabled, note/article navigation stays available"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n制作三个并排独立的窄屏内容面板，外部只标A、B、C，不画手机外壳、宽度数字或额外说明。A按390宽、B和C按320宽的相同比例布局；窄屏字段和操作自然换行，文本不省略，画布可纵向延长保持正常字号。不画全局header/底栏/侧栏或虚构宿主，每个只画指定真实组件。\n三个面板完整私有文章预览局部：顶部锁图标“仅自己可见的发布预览”、文章标题“示例笔记”、摘要“记录与回顾”。接着“发布前核对”和按钮“刷新检查”；两段版本区窄屏纵排：小标题“线上版本”、文字“还没有公开版本。”；小标题“待发布版本”、正文“记录与回顾，让知识保持可用。未发布笔记”。下方小标题“引用检查”；一条警告粗体“引用的笔记尚未发布，发布时将显示为文字。”，等宽只读目标“未发布笔记.md”，可用小按钮“前往原稿修正”。小标题“可能需要重新发布的关联文章”；第一条“相关整理”与可用“查看关联原稿”；第二条“旧有发布记录”与可用“查看文章”。最下方折叠“原稿预览”。A/B刷新与三个相关动作都可用。\nC保留全部相同预览、警告和关联文章，在“发布前核对/刷新检查”下面、版本区之前增加真实状态“正在检查线上快照、原稿引用和关联文章…”；刷新检查灰色禁用，前往原稿修正/查看关联原稿/查看文章仍可用。不要增加发布/下载/确认/关闭按钮、成功回执、图形数量或宿主导航。目标仅只读文字，不是输入。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-R065 Responsive family: BlogPublicationReview.vue private preview/reference checks\n\n390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。\n\n角色壳：所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。\n\n独立场景：\nA | PB-036 | 博客文章：私有预览与发布前核对390px | role=authenticated owner | 390px完整可读代表：字段按登记顺序，动作保持源guard\nB | PB-036 | 博客文章：私有预览与发布前核对320px | role=authenticated owner | 320px字段/长值/内层滚动与操作可达\nC | PB-036 | 博客文章：私有预览与发布前核对320px guard | role=authenticated owner | 同源关键禁用/错误/长标签状态，使用已有组件且保留输入\n\n完整构图：\n私有文章预览与发布前检查：预览/原稿引用与资源警告、刷新/前往原稿修正/查看关联原稿；未发布与已发布比较分清。\n\n精确功能/字段/动作guard合同：\nPB-036权限：Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled.\nPB-036字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nPB-036白名单：刷新检查 => Refresh publication review；guard=not reviewLoading；接口约束=GET /api/blog/posts/:id/review\nPB-036白名单：前往原稿修正 / 查看关联原稿 => Open relevant owner note；guard=既有上下文\nPB-036白名单：查看文章 => Select affected article if no source id；guard=既有上下文\n\n响应式合同：\n<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-blog-articles.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "5acade1cc837a73e8aaa2486267dd6055a1dd056b46d5b77fd0e86aafd1474f4",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "bytes": 53410
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-blog-articles.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R065.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-ceb2a1f7-3fd2-4810-9f4c-b2792540ec52.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-ceb2a1f7-3fd2-4810-9f4c-b2792540ec52.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T07:51:24.643Z",
+  "selfInspection": {
+    "method": "Native generated PNG inspected against actual BlogPublicationReview and parent private preview template, plus packages/core/blog/review warning strings",
+    "status": "pending-independent-review",
+    "pageSpecific": "Complete private preview, unpublished online version, draft plain-text unpublished link, real reference warning/read-only target and affected-post navigation. C refresh keeps existing review while only refresh disables; no publish or guessed busy guards.",
+    "concerns": []
+  },
+  "sha256": "121f0d2bf9d36016af3a717394c3c15d94f4731fe316f7efb3c9f42efcf0733f",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1480943,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/BlogWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7c4cad934bb1c19d1833445e4d71a99811f06c9afb622f6f50d387e54a371a6c"
+    },
+    {
+      "path": "apps/web/components/blog/BlogPublicationReview.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "931620bff5e13267bd4d114fd5af730f359ec83ce405ef4f8fdaed79c5b3ca84"
+    },
+    {
+      "path": "apps/web/components/blog/BlogPublicationReview.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "931620bff5e13267bd4d114fd5af730f359ec83ce405ef4f8fdaed79c5b3ca84"
+    },
+    {
+      "path": "apps/server/blog/studio-routes.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "299355c3bfe1ee60f80a1783977433e1fae65de5b46719f0ca2770aec38b9478"
+    }
+  ],
+  "responsiveTargetCssWidths": [
+    390,
+    320,
+    320
+  ],
+  "runtimeResponsiveVerified": false,
+  "baselineStatus": "articles host baseline viewed; private review substate source-derived",
+  "sourceDerivedUnverifiedScope": "Synthetic note/HTML/review and affected-post fixture, no review/API or publishing executed. No diagrams in this fixture, so no generated-diagram count.",
+  "reviewFixture": {
+    "warning": {
+      "code": "unpublished-link",
+      "target": "未发布笔记.md",
+      "message": "引用的笔记尚未发布，发布时将显示为文字。"
+    },
+    "affectedPosts": [
+      {
+        "title": "相关整理",
+        "sourceIdPresentInDashboard": true
+      },
+      {
+        "title": "旧有发布记录",
+        "sourceIdPresentInDashboard": false,
+        "reason": "synthetic stale dashboard relative to newer review response; actual fallback renderer source(post.id) undefined"
+      }
+    ]
+  },
+  "additionalSourceAuthority": [
+    "packages/core/blog/review.ts"
+  ]
+}

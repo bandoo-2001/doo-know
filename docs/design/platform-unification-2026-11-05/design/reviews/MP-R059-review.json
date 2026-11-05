@@ -1,0 +1,49 @@
+{
+  "assetId": "MP-R059",
+  "sourceIds": [
+    "PB-030"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:18:03.126319+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner hosted blog overview: A disabled empty dashboard; B disabled synthetic three-post dashboard with published-changes1/draft1/withdrawn1; C initial read failure without dashboard.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG/full prompt and actual hosted owner blog mobile baseline viewed. App-specific compact top bar and bottom navigation retained with overview selected; no transfer of note tree or public blog navigation.",
+    "A empty statistics and first-selection guidance consistent; B total3 includes withdrawn while published1/draft1/changes1 are overlapping correct counts, not an invalid sum. Recent3 descending dates and actual source status labels retained.",
+    "Site disabled banner and setup/design/picker actions retained; published snapshots may exist while site disabled, without a public-visit action. C no dashboard means no badge/site banner/statistics or invented zero-results data.",
+    "C error/retry and note picker genuine. Responsive target proportions/count fixtures are illustrative, not a captured runtime or live published outcome."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-041.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R059.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/BlogWorkspace.vue:77",
+    "apps/web/components/BlogWorkspace.vue:287",
+    "apps/web/components/BlogWorkspace.vue:354",
+    "apps/web/blog-workbench.ts:133",
+    "apps/web/components/Workspace.vue:210",
+    "docs/design/platform-unification-2026-11-05/baseline/390-blog-overview.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "b7775e8dff2f36823c7d02fffeea7e3dedb84f9066739326d1ec3b319776ee34",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R059.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

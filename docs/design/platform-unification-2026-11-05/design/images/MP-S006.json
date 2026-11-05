@@ -1,0 +1,655 @@
+{
+  "id": "MP-S006",
+  "title": "Component state matrix: owner-private / StatusSettings.vue",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-005",
+    "ST-041"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-005",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-status.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-005",
+      "route": "/?view=settings&section=status",
+      "trigger": "设置→后台状态 / 直接地址",
+      "parentId": null,
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "每4秒自动更新",
+        "任务优先显示运行/失败",
+        "历史折叠",
+        "各状态读取失败仍保留其他分区",
+        "异常自动展开"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "完整后台状态页：检索、索引、写入、同步、传输/备份任务，真实刷新与详情/跨页入口；保留分区各自失败。"
+      ]
+    },
+    {
+      "sourceId": "ST-041",
+      "route": "/?view=settings&section=status",
+      "trigger": "展开搜索准备/索引更新/写入与恢复",
+      "parentId": "ST-005",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "pending/retrying/failed/conflicts计数",
+        "最近10篇笔记textIndexedHash/sourceHash判断",
+        "只显示最多5条写入冲突",
+        "错误details",
+        "搜索活跃/错误自动展开",
+        "索引更新/冲突自动展开",
+        "写入计数未知"
+      ],
+      "notes": [
+        "当前writeCount仅计items+syncConflicts，未计organizationConflicts；保留源码事实，设计评审需决定是否补齐文案。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "后台详情完整区域：写入/索引/同步/错误details和现有跳转；organizationConflicts计数差异留待评审。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/web/components/settings/StatusSettings.vue",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-005",
+      "label": "刷新状态",
+      "effect": "独立刷新索引、搜索、写入与任务",
+      "api": "GET /api/index/status; GET /api/platform/search-runtime; GET /api/maintenance/conflicts; GET /api/manage/tasks",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-005",
+      "label": "打开搜索设置 / 打开异常写入恢复 / 导入与导出 / 备份与恢复",
+      "effect": "导航对应设置页面",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-041",
+      "label": "检查并更新索引",
+      "effect": "请求扫描原文并更新",
+      "api": "POST /api/index/refresh",
+      "guard": "无busy且索引状态可读取"
+    },
+    {
+      "sourceId": "ST-041",
+      "label": "打开搜索设置 / 核对写入与同步 / 打开异常写入恢复",
+      "effect": "导航设置",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-041",
+      "label": "打开笔记",
+      "effect": "最近检查或冲突笔记入口",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-005",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-041",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "保持五个独立局部样例的所有文字、布局和按钮不变，只作两处精确修正：第一块“任务与结果”标题左侧没有折叠操作，去掉标题左边的向下箭头；该块导入任务进度条只显示蓝色条，不显示百分比数字，去掉右边“40%”，仍保留时间行的“2 / 5”。其余所有真正的“任务编号”“错误详情”“搜索准备”“索引更新”“最近检查的笔记”折叠箭头、按钮和文字完整保留，不添加其它控件。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S006.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-005",
+      "title": "任务优先显示运行/失败",
+      "renderer": "apps/web/components/settings/StatusSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/StatusSettings.vue:164"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新状态",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "打开搜索设置 / 打开异常写入恢复 / 导入与导出 / 备份与恢复",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "任务优先显示运行/失败",
+          "variant": "任务优先显示运行/失败",
+          "representation": "visible"
+        },
+        {
+          "state": "各状态读取失败仍保留其他分区",
+          "variant": "各状态读取失败仍保留其他分区",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-005",
+        "ST-041"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-005",
+      "title": "异常自动展开",
+      "renderer": "apps/web/components/settings/StatusSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/StatusSettings.vue:164"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新状态",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "打开搜索设置 / 打开异常写入恢复 / 导入与导出 / 备份与恢复",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "异常自动展开",
+          "variant": "异常自动展开",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-005"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-041",
+      "title": "pending/retrying/failed/conflicts计数",
+      "renderer": "apps/web/components/settings/StatusSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/StatusSettings.vue:187",
+        "apps/web/components/settings/StatusSettings.vue:277",
+        "apps/web/components/settings/StatusSettings.vue:351"
+      ],
+      "guardBindings": [
+        {
+          "label": "检查并更新索引",
+          "guard": "无busy且索引状态可读取"
+        },
+        {
+          "label": "打开搜索设置 / 核对写入与同步 / 打开异常写入恢复",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "打开笔记",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "pending/retrying/failed/conflicts计数",
+          "variant": "pending/retrying/failed/conflicts计数",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-041"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "ST-041",
+      "title": "最近10篇笔记textIndexedHash/sourceHash判断",
+      "renderer": "apps/web/components/settings/StatusSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/StatusSettings.vue:187",
+        "apps/web/components/settings/StatusSettings.vue:277",
+        "apps/web/components/settings/StatusSettings.vue:351"
+      ],
+      "guardBindings": [
+        {
+          "label": "检查并更新索引",
+          "guard": "无busy且索引状态可读取"
+        },
+        {
+          "label": "打开搜索设置 / 核对写入与同步 / 打开异常写入恢复",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "打开笔记",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "最近10篇笔记textIndexedHash/sourceHash判断",
+          "variant": "最近10篇笔记textIndexedHash/sourceHash判断",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-041"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "ST-041",
+      "title": "索引更新/冲突自动展开",
+      "renderer": "apps/web/components/settings/StatusSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/StatusSettings.vue:187",
+        "apps/web/components/settings/StatusSettings.vue:277",
+        "apps/web/components/settings/StatusSettings.vue:351"
+      ],
+      "guardBindings": [
+        {
+          "label": "检查并更新索引",
+          "guard": "无busy且索引状态可读取"
+        },
+        {
+          "label": "打开搜索设置 / 核对写入与同步 / 打开异常写入恢复",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "打开笔记",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "索引更新/冲突自动展开",
+          "variant": "索引更新/冲突自动展开",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-041"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-005",
+      "parentId": null,
+      "route": "/?view=settings&section=status",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/StatusSettings.vue:164"
+      ]
+    },
+    {
+      "sourceId": "ST-041",
+      "parentId": "ST-005",
+      "route": "/?view=settings&section=status",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/StatusSettings.vue:187",
+        "apps/web/components/settings/StatusSettings.vue:277",
+        "apps/web/components/settings/StatusSettings.vue:351"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-005",
+      "title": "后台状态",
+      "kind": "page",
+      "module": "settings/status",
+      "entry": {
+        "route": "/?view=settings&section=status",
+        "trigger": "设置→后台状态 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/StatusSettings.vue:164"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新状态",
+          "effect": "独立刷新索引、搜索、写入与任务",
+          "api": "GET /api/index/status; GET /api/platform/search-runtime; GET /api/maintenance/conflicts; GET /api/manage/tasks",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "打开搜索设置 / 打开异常写入恢复 / 导入与导出 / 备份与恢复",
+          "effect": "导航对应设置页面",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "每4秒自动更新",
+        "任务优先显示运行/失败",
+        "历史折叠",
+        "各状态读取失败仍保留其他分区",
+        "异常自动展开"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/status-settings.spec.ts:45",
+        "tests/e2e/status-settings.spec.ts:128",
+        "tests/e2e/status-settings.spec.ts:206"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-041",
+      "title": "后台状态展开服务详情",
+      "kind": "state",
+      "module": "settings/status",
+      "entry": {
+        "route": "/?view=settings&section=status",
+        "trigger": "展开搜索准备/索引更新/写入与恢复",
+        "parentId": "ST-005"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/StatusSettings.vue:187",
+        "apps/web/components/settings/StatusSettings.vue:277",
+        "apps/web/components/settings/StatusSettings.vue:351"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "检查并更新索引",
+          "effect": "请求扫描原文并更新",
+          "api": "POST /api/index/refresh",
+          "guard": "无busy且索引状态可读取"
+        },
+        {
+          "label": "打开搜索设置 / 核对写入与同步 / 打开异常写入恢复",
+          "effect": "导航设置",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "打开笔记",
+          "effect": "最近检查或冲突笔记入口",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "pending/retrying/failed/conflicts计数",
+        "最近10篇笔记textIndexedHash/sourceHash判断",
+        "只显示最多5条写入冲突",
+        "错误details",
+        "搜索活跃/错误自动展开",
+        "索引更新/冲突自动展开",
+        "写入计数未知"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/status-settings.spec.ts:206",
+        "tests/status-summary.test.ts:3"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "当前writeCount仅计items+syncConflicts，未计organizationConflicts；保留源码事实，设计评审需决定是否补齐文案。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S006",
+  "roles": [
+    "owner-private"
+  ],
+  "selectedState": [
+    "r1 running import and failed backup priority",
+    "r2 search state unknown expanded",
+    "r3 index counts failed",
+    "r4 recent notes equal-hash/different-hash/conflict labels",
+    "r5 index conflict expanded"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "保持五个独立局部样例的所有文字、布局和按钮不变，只作两处精确修正：第一块“任务与结果”标题左侧没有折叠操作，去掉标题左边的向下箭头；该块导入任务进度条只显示蓝色条，不显示百分比数字，去掉右边“40%”，仍保留时间行的“2 / 5”。其余所有真正的“任务编号”“错误详情”“搜索准备”“索引更新”“最近检查的笔记”折叠箭头、按钮和文字完整保留，不添加其它控件。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S006 Component state matrix: owner-private / StatusSettings.vue\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | ST-005 | 真实组件局部状态矩阵 | role=owner-private | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n完整后台状态页：检索、索引、写入、同步、传输/备份任务，真实刷新与详情/跨页入口；保留分区各自失败。\n后台详情完整区域：写入/索引/同步/错误details和现有跳转；organizationConflicts计数差异留待评审。\n\n局部矩阵（≤7行/卡）：\nr1 | ST-005 | 实际只画代表：任务优先显示运行/失败 | 已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。 | renderer=apps/web/components/settings/StatusSettings.vue\nr2 | ST-005 | 实际只画代表：异常自动展开 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/StatusSettings.vue\nr3 | ST-041 | 实际只画代表：pending/retrying/failed/conflicts计数 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/StatusSettings.vue\nr4 | ST-041 | 实际只画代表：最近10篇笔记textIndexedHash/sourceHash判断 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/StatusSettings.vue\nr5 | ST-041 | 实际只画代表：索引更新/冲突自动展开 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/StatusSettings.vue\n\n精确功能/字段/动作guard合同：\nST-005/ST-041权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-005/ST-041字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-005白名单：刷新状态 => 独立刷新索引、搜索、写入与任务；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/index/status; GET /api/platform/search-runtime; GET /api/maintenance/conflicts; GET /api/manage/tasks\nST-005白名单：打开搜索设置 / 打开异常写入恢复 / 导入与导出 / 备份与恢复 => 导航对应设置页面；guard=已登录所有者；请求期间禁用重复操作\nST-041白名单：检查并更新索引 => 请求扫描原文并更新；guard=无busy且索引状态可读取；接口约束=POST /api/index/refresh\nST-041白名单：打开搜索设置 / 核对写入与同步 / 打开异常写入恢复 => 导航设置；guard=已登录所有者；请求期间禁用重复操作\nST-041白名单：打开笔记 => 最近检查或冲突笔记入口；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\n1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-status.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "6969d2ce8b9bceefc23f26082304cd0b548b3afd147e55ae55ccbabb35bcbaa5",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 109907
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-de2a1d22-0d69-476b-a636-c4acad086a06.png",
+      "role": "initial generated candidate targeted edit",
+      "responsibility": "Remove invented header disclosure and progress percent label; preserve source task controls",
+      "sha256": "8a7004465ed8d24247e8352dc5e920fc7db2adc571613633fd0394eb464b3496",
+      "dimensions": {
+        "width": 1199,
+        "height": 1312
+      },
+      "bytes": 1310319
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-de2a1d22-0d69-476b-a636-c4acad086a06.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S006.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-cb79b761-6703-480b-a4d6-d8197e7ff1c3.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-cb79b761-6703-480b-a4d6-d8197e7ff1c3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T04:02:24.178Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Five independent compact specimens preserve priority task ordering, unknown runtime, counts and note status mapping; removed invented task header chevron and percent label.",
+    "concerns": []
+  },
+  "sha256": "20cebf516bba2715056a77fc57d08c46718d32b65286386a78a562d480b3aa1c",
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  },
+  "bytes": 1586081,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/settings/StatusSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d860b4659555ae4a20ba153a7b66444de5de69b97b8513a4196a5b0c64412df4"
+    },
+    {
+      "path": "apps/web/components/settings/StatusSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d860b4659555ae4a20ba153a7b66444de5de69b97b8513a4196a5b0c64412df4"
+    },
+    {
+      "path": "apps/web/components/settings/StatusSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d860b4659555ae4a20ba153a7b66444de5de69b97b8513a4196a5b0c64412df4"
+    },
+    {
+      "path": "apps/web/components/settings/StatusSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d860b4659555ae4a20ba153a7b66444de5de69b97b8513a4196a5b0c64412df4"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived independent specimens; synthetic task/count/note data, no operational or polling verification.",
+  "generationHistoryFiles": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-022-MP-S006-call-01-output.json",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-022-MP-S006-call-02-output.json"
+  ]
+}

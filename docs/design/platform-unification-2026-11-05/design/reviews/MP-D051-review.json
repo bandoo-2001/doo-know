@@ -1,0 +1,96 @@
+{
+  "assetId": "MP-D051",
+  "sourceIds": [
+    "ST-064"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T04:18:07.524025+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "APIclient list with active, expired-active, requires_reauthorization and revoked synthetic clients; deep API-chain review correction.",
+  "functionalFindings": [
+    {
+      "id": "MP-D051-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Expired, requires_reauthorization and revoked rows show 当前生效：当前不可访问, but their API response effectivePolicy is undefined. MCPApiClients renders the entire 当前生效 row only when effectivePolicy exists. These are impossible extra status rows, not the empty-policy text substitution.",
+      "sourceEvidence": "mcp-api-keys.ts view derives effectivePolicy through platformPolicy; grants.ts validates active grant and mcpApiCredentialValid, which rejects expired/revoked/requires_reauthorization credential/client. Template v-if=client.effectivePolicy hides the line."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Per-status mutation actions and readonly key suffix/expiry/issued/use information are retained; expired display label does not change underlying active client action set.",
+    "Completed initial source-template review was revised after following effectivePolicy API derivation; no runtime/API calls performed."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-019.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D051.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/MCPApiClients.vue:425",
+    "apps/server/platform/mcp-api-keys.ts:140",
+    "packages/core/auth/grants.ts:214",
+    "packages/core/auth/mcp-api-credentials.ts:24"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "MP-D051-F1",
+      "correction": "Remove the entire 当前生效 line from expired, requires_reauthorization and revoked cards; keep active client current-effective policy line. Retain status badges/granted policies/key summaries and each existing action set."
+    }
+  ],
+  "reviewedImageSha256": "11924af3fc0886ba894df27431602428f34ac1666b6fbf3b99dc975842e1fa5c",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D051.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ],
+  "reviewHistory": [
+    {
+      "sequence": 1,
+      "event": "initial-pass",
+      "verdict": "pass",
+      "eventAtUtc": null,
+      "eventTimePrecision": "Exact initial timestamp was not retained when the atomic review file was replaced. Event occurred immediately before the API-chain recheck in this review turn; do not infer a fabricated timestamp.",
+      "recordedAtUtc": "2026-11-05T04:21:02.569251+00:00",
+      "reviewedImageSha256": "11924af3fc0886ba894df27431602428f34ac1666b6fbf3b99dc975842e1fa5c",
+      "reason": "Initial actual-image/template comparison accepted policy summaries and guarded action sets; did not yet follow optional effectivePolicy through API credential validity.",
+      "superseded": true
+    },
+    {
+      "sequence": 2,
+      "event": "api-chain-recheck",
+      "eventAtUtc": "2026-11-05T04:18:07.524025+00:00",
+      "recordedAtUtc": "2026-11-05T04:21:02.569251+00:00",
+      "reviewedImageSha256": "11924af3fc0886ba894df27431602428f34ac1666b6fbf3b99dc975842e1fa5c",
+      "sourceEvidence": [
+        "apps/server/platform/mcp-api-keys.ts:140",
+        "packages/core/auth/grants.ts:214",
+        "packages/core/auth/mcp-api-credentials.ts:24",
+        "apps/web/components/MCPApiClients.vue:435"
+      ],
+      "finding": "Expired/revoked/requires_reauthorization credentials return no effectivePolicy, so whole current-effective row is conditionally absent.",
+      "supersededInitialPass": true
+    },
+    {
+      "sequence": 3,
+      "event": "needs-revision",
+      "verdict": "needs-revision",
+      "eventAtUtc": "2026-11-05T04:18:07.524025+00:00",
+      "recordedAtUtc": "2026-11-05T04:21:02.569251+00:00",
+      "reviewedImageSha256": "11924af3fc0886ba894df27431602428f34ac1666b6fbf3b99dc975842e1fa5c",
+      "reason": "P2 MP-D051-F1: remove three impossible current-effective lines; active line and original per-status action sets remain."
+    }
+  ],
+  "auditNote": "Author explicitly corrected initial pass after deeper API-chain review. Current verdict is needs-revision; prior pass must not be treated as acceptance. Precise initial timestamp unavailable and is not invented."
+}

@@ -1,0 +1,73 @@
+{
+  "assetId": "MP-S018",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_state_backlog agent",
+  "reviewedAtUtc": "2026-11-05T04:33:54.750543+00:00",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S018.png",
+  "reviewedImageSha256": "c0680064f2a0fbc1c903651a6fd0894be20e393b4de2f3152a57e3ebf572e7fe",
+  "reviewedSidecarSha256": "666d45476995f368e69fbe7b0e76918e091573870036bd4f19fbd7e22c42e2fa",
+  "requirementsManifest": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json",
+  "requirementsSha256": "b00025577cc63764c920052eb18432f5956200c2daa4ae915d201c20eea86ba9",
+  "viewMethod": "Actual individual PNG viewed via tools.view_image; full actual submittedPrompt and selectedState read; current template, parent/role/API/guard chain inspected. Matching backup/plugins/library/login baseline PNGs and approved style PNG were directly viewed where applicable.",
+  "sourceIds": [
+    "ST-051",
+    "ST-053",
+    "ST-054"
+  ],
+  "selectedState": [
+    "A transport outcome uncertain",
+    "B MCP uninstall busy with close/cancel lock",
+    "C failed installation receipt phase downloading"
+  ],
+  "sourceRefs": [
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/api.ts:30",
+    "apps/server/app.ts:141",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S018.json",
+    "apps/web/components/PluginManager.vue:203",
+    "apps/web/components/PluginManager.vue:269",
+    "apps/web/components/PluginManager.vue:609",
+    "apps/web/components/PluginManager.vue:326",
+    "apps/web/components/PluginManager.vue:519",
+    "apps/web/components/PluginManager.vue:337",
+    "apps/web/components/PluginManager.vue:394",
+    "apps/web/components/PluginManager.vue:413",
+    "apps/web/components/PluginManager.vue:602",
+    "apps/web/components/settings/SettingsOverlay.vue:50",
+    "apps/web/components/settings/SettingsOverlay.vue:118",
+    "apps/web/git-sync.ts:79"
+  ],
+  "reviewedSourceSha256": {
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md": "f78c14e2c450641e9ecc10864168fef272bc07cb0eb47e23e0e0d475bdbf9ff9",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md": "d184372a8eefffe8079b87aa9c2988e487507d95b41b263d6ed7b7a0f7827711",
+    "apps/web/api.ts": "f3cfa4add2ed9f30efb83d401345d9c95e7437b8d2e09cea21fd853ac79b55ec",
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json": "b00025577cc63764c920052eb18432f5956200c2daa4ae915d201c20eea86ba9",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S018.json": "666d45476995f368e69fbe7b0e76918e091573870036bd4f19fbd7e22c42e2fa",
+    "apps/web/components/PluginManager.vue": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988",
+    "apps/web/components/settings/SettingsOverlay.vue": "1642d0324aaad3921e52fe60d086622981d2203e05b08e215e231dd406da657d",
+    "apps/web/git-sync.ts": "e2bb1532d5943da5c36bd7eef7adb1697d8a9f8c74c0d8a5e1393638918c9eb7"
+  },
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Uncertain non-read mutation uses the exact result-unconfirmed error and refresh action, without implying success or offering a new retry mutation.",
+    "MCP uninstall busy overlay preserves configuration/data and authorizations, disables close and cancel and uses the guarded loading confirmation. No destructive data-delete option was introduced.",
+    "Failed downloading installation receipt maps phase downloading and failed status to the current ordinary status text; no progress percentage or needs_reconciliation/succeeded state is mixed in."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Readable white/light-gray local components, fine borders, restrained corners and blue action hierarchy match the shared style direction. Raster shading/texture and approximate scale must become flat CSS tokens; do not regenerate solely for those details."
+    }
+  ],
+  "requiredCorrections": [],
+  "limitations": [
+    "Source-derived static design review only; no runtime API operation, authorization, clipboard, network, keyboard/focus, close/mask/Escape behavior or responsive viewport was executed.",
+    "Local-component specimens are independent; parent role/source bindings remain metadata. Existing baseline references establish host context, not runtime capture of these synthetic error/busy states.",
+    "Raster shading/texture, font/icon geometry and dimensions are approximate. Implement shared flat CSS tokens, responsive wrapping and existing scroll/focus/guard rules; this is not pixel-level CSS approval.",
+    "This per-image result neither completes the non-ToDoo platform unification task nor substitutes for the later global coverage/style/function review or authorizes product implementation."
+  ]
+}

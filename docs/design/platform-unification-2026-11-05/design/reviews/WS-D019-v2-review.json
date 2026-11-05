@@ -1,0 +1,92 @@
+{
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:09:02.046096+00:00",
+  "method": "Each delivered v2 PNG actually viewed in the independent child context. Compared to original per-image review, actual revision brief/progress/submitted prompt, current component and helper source, shared style contract and relevant previously viewed actual baselines. No image-generation, product code or runtime test performed.",
+  "reviewRulings": [
+    "Source/title/role/state caption may reside in metadata; missing bitmap caption is not blocking.",
+    "A real local component/state crop is sufficient when metadata precisely maps source/owner/host. Existing host, if drawn, must preserve source capabilities.",
+    "Light raster texture and approximate geometry are implementation token guidance, not grounds for indefinite bitmap revisions."
+  ],
+  "limitations": [
+    "Per-image static design review only; does not complete the full platform coverage/global consistency gate or authorize product implementation.",
+    "No raster can prove API behavior, owner enforcement, keyboard/focus, accessible names, input filtering, busy guards, resizing or responsive fit.",
+    "Only the declared coherent visible state was reviewed; incompatible state variants are not asserted to coexist."
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-tool-contract",
+    "required": "gpt-image-2",
+    "perCallModelIdentityReceiptExposed": false
+  },
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Residual light raster texture, blue shading and illustrative spacing remain. Use shared flat CSS color/border/radius/spacing tokens; preserve resizable knowledge-sidebar behavior where the shell is drawn. No exact pixel compliance is claimed and this is not a regeneration blocker."
+    }
+  ],
+  "assetId": "WS-D019-v2",
+  "sourceAssetId": "WS-D019",
+  "sourceIds": [
+    "WS-023"
+  ],
+  "verdict": "pass",
+  "functionalFindings": [],
+  "fieldActionAndStateChecks": [
+    "Intentional DirectoryTreeSelect crop maps WS-023 to authenticated owner WS-003 search host and shared ST-015 reference; no invented navigation/host.",
+    "Single searchable/selectable combobox plus anchored tree: 所有目录 root, 00-Inbox, expanded 30-Knowledge/个人知识管理 ancestors, selected 方法, guide lines/chevrons and supplied sibling folders.",
+    "Only source browse/expand/select affordances appear. No separate search box, confirm/cancel, folder-management or permission-expansion action invented.",
+    "Source active-filter expansion, Escape close, portal/list bounds and caller disabled/root/value policies remain contractual behavior; static enabled selection does not prove those alternatives."
+  ],
+  "resolvedPriorFindings": [
+    {
+      "priorId": "WS-D019-F01",
+      "status": "resolved",
+      "reason": "Invented host removed; source directory component only, with source/owner/search-host mapping."
+    },
+    {
+      "priorId": "WS-D019-S01",
+      "status": "resolved",
+      "reason": "No ToDoo mark/content, unsupported navigation or skeleton motif remains."
+    }
+  ],
+  "metadataMapping": {
+    "caption": {
+      "sourceIds": [
+        "WS-023"
+      ],
+      "title": "Canonical shared directory tree selector popup",
+      "role": "authenticated owner",
+      "state": "Enabled searchable combobox, expanded selected ancestors, selected 方法",
+      "location": "metadata by authorized revision scope"
+    },
+    "scope": {
+      "presentation": "component-crop",
+      "hostSourceIds": [
+        "WS-003"
+      ],
+      "sharedReferences": [
+        "ST-015"
+      ],
+      "runtimeBehaviorVerified": false
+    },
+    "status": "accepted"
+  },
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/regenerate-first-six-brief.json",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/regenerate-first-six-progress.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D019-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D019-review.json",
+    "docs/design/platform-unification-2026-11-05/coverage/workspace.json",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/DirectoryTreeSelect.vue:1",
+    "apps/web/components/DirectoryTreeSelect.vue:64",
+    "apps/web/components/DirectoryTreeSelect.vue:126",
+    "apps/web/components/Workspace.vue:2812",
+    "apps/web/components/NoteMoveDialog.vue:130",
+    "apps/web/components/NoteCopyDialog.vue:105"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "6c310f8430cfea4c5b6444dbb1d7b30b2e295fc9848155e30310f66bdc0c8a86",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D019-v2.png",
+  "metadataExists": true
+}

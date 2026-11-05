@@ -1,0 +1,29 @@
+{
+  "id": "note-move",
+  "title": "note-move",
+  "sourceIds": [
+    "WS-017"
+  ],
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "1440-note-move.png",
+  "sha256": "b6a1867ee801fd267a4a8f6eddac23475a9fc2bca960ce8952a015fafff2e292",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "buildFlags": {
+    "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+  },
+  "status": "captured",
+  "pageErrors": [],
+  "targetBounds": {
+    "x": 445,
+    "y": 311.828125,
+    "width": 550,
+    "height": 376.34375
+  },
+  "targetWithinViewport": true,
+  "outerOverflow": 0
+}

@@ -1,0 +1,305 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R016",
+  "assetId": "MP-R016",
+  "sourceIds": [
+    "ST-031"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-031",
+      "title": "从服务器记录恢复到独立副本390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent server-record restore drawers at390/320/320; normal readonly summary, retained long record ID and retryable error, submitting closure locked. Existing chosen backup means no upload inputs, no stepper/back. Independent destination created server-side."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-031",
+      "title": "从服务器记录恢复到独立副本320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent server-record restore drawers at390/320/320; normal readonly summary, retained long record ID and retryable error, submitting closure locked. Existing chosen backup means no upload inputs, no stepper/back. Independent destination created server-side."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-031",
+      "title": "从服务器记录恢复到独立副本320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent server-record restore drawers at390/320/320; normal readonly summary, retained long record ID and retryable error, submitting closure locked. Existing chosen backup means no upload inputs, no stepper/back. Independent destination created server-side."
+    }
+  ],
+  "selectedState": "Three independent server-record restore drawers at390/320/320; normal readonly summary, retained long record ID and retryable error, submitting closure locked. Existing chosen backup means no upload inputs, no stepper/back. Independent destination created server-side.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制横向并排三个独立窄网页抽屉，宽度比例390、320、320，白灰蓝平面、细边框，每个完整页头与固定页脚、正文内滚动，无主人导航。页头标题“恢复到独立副本”、关闭X；说明“在独立位置恢复并验证备份，当前知识库继续运行。”。正文“确认恢复内容”，只读摘要“备份时间 2026/11/5 12:00”“备份大小 12.0 MiB”“备份编号 backup-example-20261105”；蓝色信息块标题“恢复会创建新的独立副本”，说明“服务会在新的空目录恢复并校验数据，完成后在下方任务中提供副本位置与启用步骤。核验完成后，部署切换需要单独操作。”；提示“提交后可以关闭面板，任务与结果会继续在本页更新。”，折叠“大文件与部署切换帮助”。页脚取消和蓝色开始独立恢复。左正常均可用。中窗编号改为backup-example-20261105-long-record-id自然换行，正文下方红色“暂时无法提交恢复请求，请重试。”，原摘要保留，取消/X/开始独立恢复仍可用。右窗同左摘要，提交中：X和取消禁用，开始独立恢复转圈忙态；不加错误。三窗都不画文件选择、目标目录输入、密码、协议编号输入、上一步或上传按钮。",
+  "prompt": "绘制横向并排三个独立窄网页抽屉，宽度比例390、320、320，白灰蓝平面、细边框，每个完整页头与固定页脚、正文内滚动，无主人导航。页头标题“恢复到独立副本”、关闭X；说明“在独立位置恢复并验证备份，当前知识库继续运行。”。正文“确认恢复内容”，只读摘要“备份时间 2026/11/5 12:00”“备份大小 12.0 MiB”“备份编号 backup-example-20261105”；蓝色信息块标题“恢复会创建新的独立副本”，说明“服务会在新的空目录恢复并校验数据，完成后在下方任务中提供副本位置与启用步骤。核验完成后，部署切换需要单独操作。”；提示“提交后可以关闭面板，任务与结果会继续在本页更新。”，折叠“大文件与部署切换帮助”。页脚取消和蓝色开始独立恢复。左正常均可用。中窗编号改为backup-example-20261105-long-record-id自然换行，正文下方红色“暂时无法提交恢复请求，请重试。”，原摘要保留，取消/X/开始独立恢复仍可用。右窗同左摘要，提交中：X和取消禁用，开始独立恢复转圈忙态；不加错误。三窗都不画文件选择、目标目录输入、密码、协议编号输入、上一步或上传按钮。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-backup.png",
+      "role": "Actual owner backup parent only; selected restore drawers source-derived",
+      "sha256": "dfa6da746282d2784f0490c5c005b0d8a504eb003baa8965f491df1b7824ef09",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-backup.png",
+      "role": "Actual owner backup parent only; selected restore drawers source-derived",
+      "sha256": "dfa6da746282d2784f0490c5c005b0d8a504eb003baa8965f491df1b7824ef09",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制横向并排三个独立窄网页抽屉，宽度比例390、320、320，白灰蓝平面、细边框，每个完整页头与固定页脚、正文内滚动，无主人导航。页头标题“恢复到独立副本”、关闭X；说明“在独立位置恢复并验证备份，当前知识库继续运行。”。正文“确认恢复内容”，只读摘要“备份时间 2026/11/5 12:00”“备份大小 12.0 MiB”“备份编号 backup-example-20261105”；蓝色信息块标题“恢复会创建新的独立副本”，说明“服务会在新的空目录恢复并校验数据，完成后在下方任务中提供副本位置与启用步骤。核验完成后，部署切换需要单独操作。”；提示“提交后可以关闭面板，任务与结果会继续在本页更新。”，折叠“大文件与部署切换帮助”。页脚取消和蓝色开始独立恢复。左正常均可用。中窗编号改为backup-example-20261105-long-record-id自然换行，正文下方红色“暂时无法提交恢复请求，请重试。”，原摘要保留，取消/X/开始独立恢复仍可用。右窗同左摘要，提交中：X和取消禁用，开始独立恢复转圈忙态；不加错误。三窗都不画文件选择、目标目录输入、密码、协议编号输入、上一步或上传按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-backup.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制横向并排三个独立窄网页抽屉，宽度比例390、320、320，白灰蓝平面、细边框，每个完整页头与固定页脚、正文内滚动，无主人导航。页头标题“恢复到独立副本”、关闭X；说明“在独立位置恢复并验证备份，当前知识库继续运行。”。正文“确认恢复内容”，只读摘要“备份时间 2026/11/5 12:00”“备份大小 12.0 MiB”“备份编号 backup-example-20261105”；蓝色信息块标题“恢复会创建新的独立副本”，说明“服务会在新的空目录恢复并校验数据，完成后在下方任务中提供副本位置与启用步骤。核验完成后，部署切换需要单独操作。”；提示“提交后可以关闭面板，任务与结果会继续在本页更新。”，折叠“大文件与部署切换帮助”。页脚取消和蓝色开始独立恢复。左正常均可用。中窗编号改为backup-example-20261105-long-record-id自然换行，正文下方红色“暂时无法提交恢复请求，请重试。”，原摘要保留，取消/X/开始独立恢复仍可用。右窗同左摘要，提交中：X和取消禁用，开始独立恢复转圈忙态；不加错误。三窗都不画文件选择、目标目录输入、密码、协议编号输入、上一步或上传按钮。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-backup.png",
+          "role": "Actual owner backup parent only; selected restore drawers source-derived"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-03c30334-0427-4f89-b0f5-818de5cba241.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-031",
+      "title": "从服务器记录恢复到独立副本",
+      "kind": "drawer",
+      "module": "settings/restore",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "记录→恢复到独立副本",
+        "parentId": "ST-029"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:121",
+        "apps/web/components/settings/BackupSettings.vue:348",
+        "apps/web/components/settings/BackupSettings.vue:387"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "备份时间 / 大小 / 编号",
+          "type": "read-only",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "开始独立恢复",
+          "effect": "提交恢复任务；关闭抽屉",
+          "api": "POST /api/manage/restores",
+          "guard": "非external记录；backupId及稳定requestId；不busy"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "恢复摘要",
+        "新空目录与校验说明",
+        "服务继续运行",
+        "提交中",
+        "请求失败可沿原requestId重试"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:427"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "drawer宽760px；服务器生成独立目标位置，不提供覆盖现有目录字段。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-031",
+      "parentId": "ST-029",
+      "route": "/?view=settings&section=backup",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:121",
+        "apps/web/components/settings/BackupSettings.vue:348",
+        "apps/web/components/settings/BackupSettings.vue:387"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-037.json#MP-R016",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R016",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-03c30334-0427-4f89-b0f5-818de5cba241.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R016.png",
+  "sha256": "b53c309244d7f6b0a95ceba20de275cacbff76ca33279dc9176dd504ff1497cc",
+  "bytes": 1413220,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:24:14.995668+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: SettingsOverlay summary/impact/confirmation with scroll body and footer",
+    "sourceIds": [
+      "ST-031"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent server-record restore drawers at390/320/320; normal readonly summary, retained long record ID and retryable error, submitting closure locked. Existing chosen backup means no upload inputs, no stepper/back. Independent destination created server-side.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "restoreBackup": true,
+      "restoreStep": "review",
+      "busy": false,
+      "restoreError": ""
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "restoreBackup": true,
+      "restoreStep": "review",
+      "busy": false,
+      "restoreError": "暂时无法提交恢复请求，请重试。",
+      "id": "backup-example-20261105-long-record-id"
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "restoreBackup": true,
+      "restoreStep": "review",
+      "busy": true,
+      "restoreError": "",
+      "closeDisabled": true
+    }
+  ]
+}

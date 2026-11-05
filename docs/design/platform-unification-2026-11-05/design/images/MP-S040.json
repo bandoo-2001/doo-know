@@ -1,0 +1,692 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S040",
+  "assetId": "MP-S040",
+  "sourceIds": [
+    "PB-008",
+    "PB-009",
+    "PB-013",
+    "PB-015"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "owner-setup"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-008",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-setup",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Seven SetupWizard slices: progress/submitbusy; new source controls; directory-exists error; invalid timezone; empty child folder; nonroot current folder selectable; truncated browser with real advanced path/timezone fallback. Strict placeholder allowed root/srv/example; nonroot childbind."
+    }
+  ],
+  "selectedState": "Seven SetupWizard slices: progress/submitbusy; new source controls; directory-exists error; invalid timezone; empty child folder; nonroot current folder selectable; truncated browser with real advanced path/timezone fallback. Strict placeholder allowed root/srv/example; nonroot childbind.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。七个纵向局部行，画布可加高。1 真实步骤条“1 准备知识库”选中、“2 选择功能”“3 开始使用”，旁边“确认并继续”按钮转圈禁用。2 “资料来源”三个选择卡：“创建新知识库”选中，说明“只需起个名字，保存位置由我们准备。”；“使用已有资料”，说明“选择部署设备上的文件夹，保留原有文件。”；“从 GitHub／Gitee 导入”，说明“下载云端仓库到新的知识库文件夹。”；下方“知识库名称”输入我的知识库。3 红色错误“这个名称的文件夹已经存在。请换个名称，或选择“使用已有资料”。”，下面折叠“查看详细信息”。4 红色“这个时区无法使用，请在高级设置中重新选择。”及折叠“查看详细信息”。5 目录列表局部“当前位置 /srv/example/knowledge”，空态“没有可浏览的子文件夹，可以选择当前文件夹。”，按钮“返回上一级”“使用这个文件夹”可用。6 独立目录操作局部“当前位置 /srv/example/notes”，按钮“使用这个文件夹”可用；说明“已有文件会保留，不会清空这个文件夹。”。7 目录局部提示“文件夹较多，仅显示部分结果。可以在高级设置中填写完整路径。”，展开“高级设置”，标签“服务器上的知识库目录”输入/srv/example/notes，说明“允许保存的范围：/srv/example”，标签“时区”输入Asia/Shanghai。不要创建浏览器账号、注册、清空资料或添加其他按钮。",
+  "prompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。七个纵向局部行，画布可加高。1 真实步骤条“1 准备知识库”选中、“2 选择功能”“3 开始使用”，旁边“确认并继续”按钮转圈禁用。2 “资料来源”三个选择卡：“创建新知识库”选中，说明“只需起个名字，保存位置由我们准备。”；“使用已有资料”，说明“选择部署设备上的文件夹，保留原有文件。”；“从 GitHub／Gitee 导入”，说明“下载云端仓库到新的知识库文件夹。”；下方“知识库名称”输入我的知识库。3 红色错误“这个名称的文件夹已经存在。请换个名称，或选择“使用已有资料”。”，下面折叠“查看详细信息”。4 红色“这个时区无法使用，请在高级设置中重新选择。”及折叠“查看详细信息”。5 目录列表局部“当前位置 /srv/example/knowledge”，空态“没有可浏览的子文件夹，可以选择当前文件夹。”，按钮“返回上一级”“使用这个文件夹”可用。6 独立目录操作局部“当前位置 /srv/example/notes”，按钮“使用这个文件夹”可用；说明“已有文件会保留，不会清空这个文件夹。”。7 目录局部提示“文件夹较多，仅显示部分结果。可以在高级设置中填写完整路径。”，展开“高级设置”，标签“服务器上的知识库目录”输入/srv/example/notes，说明“允许保存的范围：/srv/example”，标签“时区”输入Asia/Shanghai。不要创建浏览器账号、注册、清空资料或添加其他按钮。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; no actual matching runtime baseline or role-shell reference exists",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; no actual matching runtime baseline or role-shell reference exists",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。七个纵向局部行，画布可加高。1 真实步骤条“1 准备知识库”选中、“2 选择功能”“3 开始使用”，旁边“确认并继续”按钮转圈禁用。2 “资料来源”三个选择卡：“创建新知识库”选中，说明“只需起个名字，保存位置由我们准备。”；“使用已有资料”，说明“选择部署设备上的文件夹，保留原有文件。”；“从 GitHub／Gitee 导入”，说明“下载云端仓库到新的知识库文件夹。”；下方“知识库名称”输入我的知识库。3 红色错误“这个名称的文件夹已经存在。请换个名称，或选择“使用已有资料”。”，下面折叠“查看详细信息”。4 红色“这个时区无法使用，请在高级设置中重新选择。”及折叠“查看详细信息”。5 目录列表局部“当前位置 /srv/example/knowledge”，空态“没有可浏览的子文件夹，可以选择当前文件夹。”，按钮“返回上一级”“使用这个文件夹”可用。6 独立目录操作局部“当前位置 /srv/example/notes”，按钮“使用这个文件夹”可用；说明“已有文件会保留，不会清空这个文件夹。”。7 目录局部提示“文件夹较多，仅显示部分结果。可以在高级设置中填写完整路径。”，展开“高级设置”，标签“服务器上的知识库目录”输入/srv/example/notes，说明“允许保存的范围：/srv/example”，标签“时区”输入Asia/Shanghai。不要创建浏览器账号、注册、清空资料或添加其他按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。七个纵向局部行，画布可加高。1 真实步骤条“1 准备知识库”选中、“2 选择功能”“3 开始使用”，旁边“确认并继续”按钮转圈禁用。2 “资料来源”三个选择卡：“创建新知识库”选中，说明“只需起个名字，保存位置由我们准备。”；“使用已有资料”，说明“选择部署设备上的文件夹，保留原有文件。”；“从 GitHub／Gitee 导入”，说明“下载云端仓库到新的知识库文件夹。”；下方“知识库名称”输入我的知识库。3 红色错误“这个名称的文件夹已经存在。请换个名称，或选择“使用已有资料”。”，下面折叠“查看详细信息”。4 红色“这个时区无法使用，请在高级设置中重新选择。”及折叠“查看详细信息”。5 目录列表局部“当前位置 /srv/example/knowledge”，空态“没有可浏览的子文件夹，可以选择当前文件夹。”，按钮“返回上一级”“使用这个文件夹”可用。6 独立目录操作局部“当前位置 /srv/example/notes”，按钮“使用这个文件夹”可用；说明“已有文件会保留，不会清空这个文件夹。”。7 目录局部提示“文件夹较多，仅显示部分结果。可以在高级设置中填写完整路径。”，展开“高级设置”，标签“服务器上的知识库目录”输入/srv/example/notes，说明“允许保存的范围：/srv/example”，标签“时区”输入Asia/Shanghai。不要创建浏览器账号、注册、清空资料或添加其他按钮。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only; no actual matching runtime baseline or role-shell reference exists"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ef70b884-f8c2-4746-b6b1-4c6137cbe6e9.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-008",
+      "title": "首次设置：创建知识库",
+      "kind": "page",
+      "module": "setup",
+      "entry": {
+        "route": "/ (platform.phase=setup_required)",
+        "trigger": "Authenticated owner has no bound knowledge root",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:18",
+        "apps/web/components/SetupWizard.vue:119",
+        "apps/web/components/SetupWizard.vue:198",
+        "apps/server/platform/settings.ts:119"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated /api/platform requests. Existing files are preserved. Validation proof is owner-bound, expires in 5 minutes and verifies directory identity."
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "text",
+          "required": true,
+          "constraints": "UI max 40; trimmed; cannot contain slash or begin with dot; default 我的知识库",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "确认并继续",
+          "effect": "Create directory, obtain validation proof and bind library",
+          "api": "POST /api/platform/setup/create; /validate; /complete",
+          "guard": "nonempty name; not busy"
+        }
+      ],
+      "importantStates": [
+        "three-step progress; new source selected",
+        "create then validate then bind busy",
+        "existing-name/forbidden/unwritable/invalid name errors",
+        "expired validation; root changed; setup already completed; invalid timezone"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-browser/setup.spec.ts:5",
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-009",
+      "title": "首次设置：已有资料目录浏览",
+      "kind": "page",
+      "module": "setup",
+      "entry": {
+        "route": "/ (platform.phase=setup_required)",
+        "trigger": "Choose 使用已有资料",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:91",
+        "apps/web/components/SetupWizard.vue:277",
+        "apps/server/platform/setup-directories.ts:6",
+        "apps/server/platform/settings.ts:173"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [
+        {
+          "name": "knowledgeRoot",
+          "type": "server directory",
+          "required": true,
+          "constraints": "absolute readable/writable non-symlink child of allowed base; not hidden component",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "返回上一级 / 可用位置 / 文件夹",
+          "effect": "Browse server directories",
+          "api": "POST /api/platform/setup/directories",
+          "guard": "not browserBusy/busy"
+        },
+        {
+          "label": "使用这个文件夹",
+          "effect": "Select current server folder",
+          "api": "",
+          "guard": "not an allowed base itself"
+        },
+        {
+          "label": "确认并继续",
+          "effect": "Validate and bind chosen folder",
+          "api": "POST /api/platform/setup/validate; /complete",
+          "guard": "nonempty selected path"
+        }
+      ],
+      "importantStates": [
+        "folder listing loading",
+        "no child directories; current path selectable",
+        "truncated listing with advanced-path fallback",
+        "read failure and retry; chosen-folder receipt",
+        "allowed root itself cannot be bound"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "This browser describes the deployment device, not the browser device."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-013",
+      "title": "首次设置：准备完成",
+      "kind": "page",
+      "module": "setup",
+      "entry": {
+        "route": "/ (ready onboarding step3)",
+        "trigger": "Continue or skip optional features",
+        "parentId": "PB-012"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:163",
+        "apps/web/components/SetupWizard.vue:413"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "创建第一篇笔记",
+          "effect": "Finish onboarding and queue create-note welcome action",
+          "api": "POST /api/platform/setup/finish",
+          "guard": "not busy/importBusy"
+        },
+        {
+          "label": "进入工作区",
+          "effect": "Finish onboarding",
+          "api": "POST /api/platform/setup/finish",
+          "guard": "not busy/importBusy"
+        },
+        {
+          "label": "上一步",
+          "effect": "Return to optional features",
+          "api": "",
+          "guard": "not busy/importBusy"
+        },
+        {
+          "label": "导入已有资料",
+          "effect": "Expand single Markdown import",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "library location summary",
+        "finish busy/error; import busy disables leaving",
+        "create-first-note intent stored for workspace"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-browser/setup.spec.ts:5"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-015",
+      "title": "首次设置：初始化中",
+      "kind": "state",
+      "module": "setup",
+      "entry": {
+        "route": "/ (platform.phase=initializing)",
+        "trigger": "Bound knowledge runtime is preparing",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:189",
+        "apps/web/components/SetupWizard.vue:443"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "检查进度",
+          "effect": "Refresh platform status",
+          "api": "GET /api/platform/status",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "retained-files reassurance; auto-poll each1.5s",
+        "manual progress check"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-008",
+      "parentId": null,
+      "route": "/ (platform.phase=setup_required)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:18",
+        "apps/web/components/SetupWizard.vue:119",
+        "apps/web/components/SetupWizard.vue:198",
+        "apps/server/platform/settings.ts:119"
+      ]
+    },
+    {
+      "sourceId": "PB-009",
+      "parentId": "PB-008",
+      "route": "/ (platform.phase=setup_required)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:91",
+        "apps/web/components/SetupWizard.vue:277",
+        "apps/server/platform/setup-directories.ts:6",
+        "apps/server/platform/settings.ts:173"
+      ]
+    },
+    {
+      "sourceId": "PB-013",
+      "parentId": "PB-012",
+      "route": "/ (ready onboarding step3)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:163",
+        "apps/web/components/SetupWizard.vue:413"
+      ]
+    },
+    {
+      "sourceId": "PB-015",
+      "parentId": "PB-008",
+      "route": "/ (platform.phase=initializing)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:189",
+        "apps/web/components/SetupWizard.vue:443"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-027.json#MP-S040",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S040",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ef70b884-f8c2-4746-b6b1-4c6137cbe6e9.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S040.png",
+  "sha256": "7e9fd48fd226b9da575fcb89215e25a2f6251ca2027a77c647679d46b6f4f578",
+  "bytes": 1463993,
+  "dimensions": {
+    "width": 1086,
+    "height": 1448
+  },
+  "generatedAtUtc": "2026-11-05T05:05:27.903890+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-setup / SetupWizard.vue",
+    "sourceIds": [
+      "PB-008",
+      "PB-009",
+      "PB-013",
+      "PB-015"
+    ],
+    "roles": [
+      "authenticated owner",
+      "owner-setup"
+    ],
+    "state": "Seven SetupWizard slices: progress/submitbusy; new source controls; directory-exists error; invalid timezone; empty child folder; nonroot current folder selectable; truncated browser with real advanced path/timezone fallback. Strict placeholder allowed root/srv/example; nonroot childbind.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-008",
+      "title": "three-step progress",
+      "renderer": "apps/web/components/SetupWizard.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:18",
+        "apps/web/components/SetupWizard.vue:119",
+        "apps/web/components/SetupWizard.vue:198",
+        "apps/server/platform/settings.ts:119"
+      ],
+      "guardBindings": [
+        {
+          "label": "确认并继续",
+          "guard": "nonempty name; not busy"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "three-step progress; new source selected",
+          "variant": "three-step progress",
+          "representation": "visible"
+        },
+        {
+          "state": "create then validate then bind busy",
+          "variant": "create then validate then bind busy",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-008",
+        "PB-009",
+        "PB-013",
+        "PB-015"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "PB-008",
+      "title": "new source selected",
+      "renderer": "apps/web/components/SetupWizard.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:18",
+        "apps/web/components/SetupWizard.vue:119",
+        "apps/web/components/SetupWizard.vue:198",
+        "apps/server/platform/settings.ts:119"
+      ],
+      "guardBindings": [
+        {
+          "label": "确认并继续",
+          "guard": "nonempty name; not busy"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "three-step progress; new source selected",
+          "variant": "new source selected",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-008"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "PB-008",
+      "title": "existing-name/forbidden/unwritable/invalid name errors",
+      "renderer": "apps/web/components/SetupWizard.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:18",
+        "apps/web/components/SetupWizard.vue:119",
+        "apps/web/components/SetupWizard.vue:198",
+        "apps/server/platform/settings.ts:119"
+      ],
+      "guardBindings": [
+        {
+          "label": "确认并继续",
+          "guard": "nonempty name; not busy"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "existing-name/forbidden/unwritable/invalid name errors",
+          "variant": "existing-name/forbidden/unwritable/invalid name errors",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-008"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "PB-008",
+      "title": "invalid timezone",
+      "renderer": "apps/web/components/SetupWizard.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:18",
+        "apps/web/components/SetupWizard.vue:119",
+        "apps/web/components/SetupWizard.vue:198",
+        "apps/server/platform/settings.ts:119"
+      ],
+      "guardBindings": [
+        {
+          "label": "确认并继续",
+          "guard": "nonempty name; not busy"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "expired validation; root changed; setup already completed; invalid timezone",
+          "variant": "invalid timezone",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-008"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "PB-009",
+      "title": "no child directories",
+      "renderer": "apps/web/components/SetupWizard.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:91",
+        "apps/web/components/SetupWizard.vue:277",
+        "apps/server/platform/setup-directories.ts:6",
+        "apps/server/platform/settings.ts:173"
+      ],
+      "guardBindings": [
+        {
+          "label": "返回上一级 / 可用位置 / 文件夹",
+          "guard": "not browserBusy/busy"
+        },
+        {
+          "label": "使用这个文件夹",
+          "guard": "not an allowed base itself"
+        },
+        {
+          "label": "确认并继续",
+          "guard": "nonempty selected path"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "no child directories; current path selectable",
+          "variant": "no child directories",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-009"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r6",
+      "sourceId": "PB-009",
+      "title": "current path selectable",
+      "renderer": "apps/web/components/SetupWizard.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:91",
+        "apps/web/components/SetupWizard.vue:277",
+        "apps/server/platform/setup-directories.ts:6",
+        "apps/server/platform/settings.ts:173"
+      ],
+      "guardBindings": [
+        {
+          "label": "返回上一级 / 可用位置 / 文件夹",
+          "guard": "not browserBusy/busy"
+        },
+        {
+          "label": "使用这个文件夹",
+          "guard": "not an allowed base itself"
+        },
+        {
+          "label": "确认并继续",
+          "guard": "nonempty selected path"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "no child directories; current path selectable",
+          "variant": "current path selectable",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-009"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r7",
+      "sourceId": "PB-009",
+      "title": "truncated listing with advanced-path fallback",
+      "renderer": "apps/web/components/SetupWizard.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:91",
+        "apps/web/components/SetupWizard.vue:277",
+        "apps/server/platform/setup-directories.ts:6",
+        "apps/server/platform/settings.ts:173"
+      ],
+      "guardBindings": [
+        {
+          "label": "返回上一级 / 可用位置 / 文件夹",
+          "guard": "not browserBusy/busy"
+        },
+        {
+          "label": "使用这个文件夹",
+          "guard": "not an allowed base itself"
+        },
+        {
+          "label": "确认并继续",
+          "guard": "nonempty selected path"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "truncated listing with advanced-path fallback",
+          "variant": "truncated listing with advanced-path fallback",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-009"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": []
+}

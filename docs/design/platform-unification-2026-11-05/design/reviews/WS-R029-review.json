@@ -1,0 +1,48 @@
+{
+  "assetId": "WS-R029",
+  "sourceIds": [
+    "WS-077"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T09:47:22.514346+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner local diagram unsaved-close prompt: A saving=false, B saving=true after explicit Ctrl/Cmd+S while prompt open.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG/full prompt/current close/save/keyboard/automatic-save chain read. Exact prompt text and only3real actions; no X/save-and-exit/dont-ask checkbox or invented host.",
+    "B busy while closing is source-compatible through still-active global Ctrl/Cmd+S handler/save(), which does not reject closing. Closing pauses automatic save, so this is not a claim auto-save starts behind prompt.",
+    "Only discard disabled during saving; continue/download remain source-enabled. A all3enabled. Actual close first awaits save then offers prompt if dirty/recovery persists; no fake unconditional unsaved dialog or successful mutation.",
+    "Actual source inset30% has unverified320 fit; illustration supplies readable intended layout, not proof CSS focus/visibility/viewport fits already."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-047.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R029.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/DiagramDocumentWorkspace.vue:120",
+    "apps/web/components/DiagramDocumentWorkspace.vue:315",
+    "apps/web/components/DiagramDocumentWorkspace.vue:520",
+    "apps/web/components/DiagramDocumentWorkspace.vue:545",
+    "apps/web/components/DiagramDocumentWorkspace.vue:850"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "4343387df2d0e0d92bf2c8d39a3b7c2fcfb5baf59f4b9a16260a1be6200eaf7f",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-R029.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

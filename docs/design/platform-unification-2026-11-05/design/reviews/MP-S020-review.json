@@ -1,0 +1,67 @@
+{
+  "assetId": "MP-S020",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_state_backlog agent",
+  "reviewedAtUtc": "2026-11-05T04:33:54.750543+00:00",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S020.png",
+  "reviewedImageSha256": "7ced2ff4e1199a011d3c47f0212973c2a04fc09d3c56cdd182fa88351e75a363",
+  "reviewedSidecarSha256": "dd54d89bfcf25bf7e1363779b16a11c2695e08a752f2efdb2df321efb9143879",
+  "requirementsManifest": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json",
+  "requirementsSha256": "b00025577cc63764c920052eb18432f5956200c2daa4ae915d201c20eea86ba9",
+  "viewMethod": "Actual individual PNG viewed via tools.view_image; full actual submittedPrompt and selectedState read; current template, parent/role/API/guard chain inspected. Matching backup/plugins/library/login baseline PNGs and approved style PNG were directly viewed where applicable.",
+  "sourceIds": [
+    "ST-057",
+    "ST-058"
+  ],
+  "selectedState": [
+    "r1 dirty config OAuth readonly endpoint/copy disabled",
+    "r2 nonHTTPS warning",
+    "r3 empty API clients plugin disabled create blocked",
+    "r4 independent API Key instruction/readonly endpoint"
+  ],
+  "sourceRefs": [
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/api.ts:30",
+    "apps/server/app.ts:141",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S020.json",
+    "apps/web/components/MCPConnectionGuide.vue:112",
+    "apps/web/components/MCPConnectionGuide.vue:168",
+    "apps/web/components/MCPConnectionGuide.vue:181",
+    "apps/web/components/MCPConnectionGuide.vue:194",
+    "apps/web/components/MCPConnectionGuide.vue:235",
+    "apps/web/components/MCPApiClients.vue:313",
+    "apps/web/components/MCPConnectionGuide.vue:205"
+  ],
+  "reviewedSourceSha256": {
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md": "f78c14e2c450641e9ecc10864168fef272bc07cb0eb47e23e0e0d475bdbf9ff9",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md": "d184372a8eefffe8079b87aa9c2988e487507d95b41b263d6ed7b7a0f7827711",
+    "apps/web/api.ts": "f3cfa4add2ed9f30efb83d401345d9c95e7437b8d2e09cea21fd853ac79b55ec",
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json": "b00025577cc63764c920052eb18432f5956200c2daa4ae915d201c20eea86ba9",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S020.json": "dd54d89bfcf25bf7e1363779b16a11c2695e08a752f2efdb2df321efb9143879",
+    "apps/web/components/MCPConnectionGuide.vue": "48e5e616137c8434d94d907478bb5dcb8dce2941b93ee16eaaebe9c749a637f7",
+    "apps/web/components/MCPApiClients.vue": "412bf10ba4f6d64f1ca6eae9e328eb8d36943e751f780c16c7612f8fb11912e4"
+  },
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Dirty warning and saved-configuration address reference match MCPConnectionGuide; copy is disabled only for the dirty specimen and addresses are read-only examples.",
+    "Non-HTTPS OAuth warning is an independent specimen. API-key client empty state has refresh available and create disabled when plugin/channel/draft guard disallows issuance.",
+    "Independent API-key instructions preserve Streamable HTTP/custom Authorization header and placeholder-only key syntax; no credential is shown and no external reachability/current-online outcome is asserted."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Readable white/light-gray local components, fine borders, restrained corners and blue action hierarchy match the shared style direction. Raster shading/texture and approximate scale must become flat CSS tokens; do not regenerate solely for those details."
+    }
+  ],
+  "requiredCorrections": [],
+  "limitations": [
+    "Source-derived static design review only; no runtime API operation, authorization, clipboard, network, keyboard/focus, close/mask/Escape behavior or responsive viewport was executed.",
+    "Local-component specimens are independent; parent role/source bindings remain metadata. Existing baseline references establish host context, not runtime capture of these synthetic error/busy states.",
+    "Raster shading/texture, font/icon geometry and dimensions are approximate. Implement shared flat CSS tokens, responsive wrapping and existing scroll/focus/guard rules; this is not pixel-level CSS approval.",
+    "This per-image result neither completes the non-ToDoo platform unification task nor substitutes for the later global coverage/style/function review or authorizes product implementation."
+  ]
+}

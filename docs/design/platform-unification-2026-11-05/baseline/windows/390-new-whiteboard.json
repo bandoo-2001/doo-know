@@ -1,0 +1,29 @@
+{
+  "id": "new-whiteboard",
+  "title": "new-whiteboard",
+  "sourceIds": [
+    "WS-013"
+  ],
+  "width": 390,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "390-new-whiteboard.png",
+  "sha256": "caf427f442ee86174e8a3817493fcadf7d5e2beaedec5168ab8840342dc76f13",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "buildFlags": {
+    "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+  },
+  "status": "captured",
+  "pageErrors": [],
+  "targetBounds": {
+    "x": 14,
+    "y": 219.625,
+    "width": 362,
+    "height": 404.734375
+  },
+  "targetWithinViewport": true,
+  "outerOverflow": 0
+}

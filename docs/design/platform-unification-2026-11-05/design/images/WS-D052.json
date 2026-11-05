@@ -1,0 +1,330 @@
+{
+  "id": "WS-D052",
+  "title": "Primary diagram Markdown source view",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-072"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-072",
+      "title": "Primary diagram Markdown source view",
+      "role": "authenticated owner",
+      "state": "Invalid primary declaration",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host."
+    }
+  ],
+  "viewportIntent": "Complete 1440×1000 independent page.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-markdown-source.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:763, apps/web/components/DiagramDocumentWorkspace.vue:805"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-072",
+      "label": "编辑源码",
+      "effect": "Update primary document session; validate supported primary structure",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-072",
+      "label": "保存",
+      "effect": "Regenerate native/preview as needed and commit",
+      "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+    "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R012",
+      "representation": "shared-geometry",
+      "reason": "Owner source editor full viewport and CodeMirror family at390/320. Diagram host substitutes only its actual diagram header/tabs/source capabilities; exact source fields, readonly guards and actions are not borrowed from ordinary-note mode.",
+      "reuseSourceId": "WS-025",
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [
+        "完整 Markdown"
+      ],
+      "requiredFields": [
+        {
+          "name": "完整 Markdown",
+          "type": "code-editor",
+          "required": true,
+          "constraints": "Entire diagram document source; line numbers; readonly if !editable.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "编辑源码",
+          "effect": "Update primary document session; validate supported primary structure",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "保存",
+          "effect": "Regenerate native/preview as needed and commit",
+          "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-072"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. Generate exactly ONE complete high-fidelity desktop DooKnow authenticated-owner UI design around1536×1024, clear Simplified Chinese, no browser/device frame or developer caption. Image1 actual matching baseline when provided is content/action/selected-state authority; PILOT-WS-001 is ONLY palette, density, flat surfaces and owner rail/global-header hierarchy authority. Current real templates/sourceContracts decide all fields/guards. Never copy PILOT's empty-note content into the selected editor.\nShared owner shell: approximately64px full-height muted light-gray left rail, circular O account avatar at top; exact real destinations 笔记 (only active), 最近, 收藏, separator, 应用, bottom 回收站 and 设置. Blue open-book DooKnow brand in approximately56px horizontal global header, divider and static context 笔记; no invented header actions. Below header a contextual notebook sidebar with 搜索笔记与目录, blue split 新建 button, 笔记本 heading with plus and refresh icons, actual closed folder roots 00-Inbox and 30-Knowledge unless matching baseline explicitly shows expansion; preserve sidebar resize affordance. Main document area fills remaining size. No added teams, AI, ToDoo tasks/calendar menus, counts/notifications or fake status.\nStyle: white #ffffff main and #f7f8fa chrome, #272b3a text/#657084 secondary, #e6e9f1 fine dividers, #4566c6 primary/#edf1ff selected, restrained8px radii, flat surfaces/no texture/gradient/heavy shadows. Native diagram/scene content colors remain its actual content colors, never recolor them into UI blue. One coherent selected state; no combined overlays/error/loading/success variants. No backend requestId/hash/cursor/CSRF/version metadata inputs. Native exact source already contained in a Markdown document may remain code text, not extra protocol controls. Guard-dependent actions stay hidden/disabled as source specifies.\nPrimary diagram document chrome: row1 existing sidebar toggle/back/forward navigation and breadcrumb 笔记本 > 00-Inbox > current document title; right source save-state dot/text, existing history clock icon, 分享, blue 保存, closed 更多 ellipsis. Row2 left type badge and ONLY app-owned icon actions 导出 HTML (code icon), 打印 (printer), 导出 PNG (image); right four tabs use current type label, Markdown 源码, 阅读, PNG 预览; only selected tab active. Preserve source operation guards. No normal rich formatting/insert toolbar. All popovers/dialogs CLOSED unless explicitly requested. Do not turn hidden export/download menus into extra action rows.\nSelected primary WHITEBOARD MARKDOWN SOURCE VIEW in the declared INVALID PRIMARY DECLARATION state. Image1 actual valid source baseline supplies host/editor layout; selected invalid/error draft is SOURCE-DERIVED from current templates/document-session.ts, not captured runtime. Keep document title runtime-whiteboard-1793810927830 and actual source baseline owner file tree/selected note, don't invent new destinations.\nCurrent resource remains original editable whiteboard, loading/saving/recovery false; mode Markdown 源码 active; other modes 白板, 阅读, PNG 预览 retained. Header status is red ● 保存未完成 (NOT 已保存). Existing app 保存 remains enabled because resource canEdit; history/share and more retain source guards. Main top source ERROR band EXACTLY 图形 Markdown 不完整，请在源码中修复 and the three real actions 重试, 重新读取, 下载草稿, all enabled, no extra confirmation dialog.\nBelow error band show the entire retained INVALID Markdown draft in a full-width code editor with line numbers, no ordinary rendered document preview and no canvas/tool palette. Use this synthetic source document content (code text, not separate metadata fields):\n<!-- dooknow:document {\"version\":1,\"type\":\"whiteboard\",\"engine\":\"unknown\"} -->\n\n# runtime-whiteboard-1793810927830\n\n<!-- dooknow:primary:start -->\n\n![白板预览](_doo-assets/example-preview.png)\n\n[图形源文件](_doo-assets/example.excalidraw)\n\n<!-- dooknow:primary:end -->\nThis intentionally invalid declaration draft is retained after failed save; no successful commit or replacement canvas is asserted. Real source/editor field may contain its declaration syntax, but do not draw individual API version/hash/requestId/CSRF/cursor inputs or review/contract captions. Keep code lines clean and horizontally contained. No native vendor menus/dialogs, no fallback blank editable canvas on missing resource, no simultaneous loading/recovery/reading/PNG state. Exact primary-invalid state only, full owner host preserved.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D052.png",
+  "reviewStatus": "pending-independent-review",
+  "presentationScope": "complete-independent-page",
+  "geometryFamily": "independent-page:WS-072",
+  "sourceContracts": [
+    {
+      "id": "WS-072",
+      "title": "Primary diagram Markdown source view",
+      "kind": "state",
+      "module": "diagrams",
+      "entry": {
+        "route": "/?note=:primaryDiagramId",
+        "trigger": "Markdown 源码 tab",
+        "parentId": "WS-068"
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramDocumentWorkspace.vue:763",
+        "apps/web/components/DiagramDocumentWorkspace.vue:805"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "完整 Markdown",
+          "type": "code-editor",
+          "required": true,
+          "constraints": "Entire diagram document source; line numbers; readonly if !editable.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "编辑源码",
+          "effect": "Update primary document session; validate supported primary structure",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "保存",
+          "effect": "Regenerate native/preview as needed and commit",
+          "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Invalid primary declaration/source retained with error",
+        "Unsaved source change"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/diagram-markdown-edits.test.ts",
+        "tests/e2e/diagram-document-chrome.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-072",
+      "parentId": "WS-068",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "compositionRules": {
+    "fullPage": true,
+    "maxIndependentSections": 1,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-072",
+      "state": "Invalid primary declaration/source retained with error",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-072",
+      "state": "Unsaved source change",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D052",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "source-derived existing editable whiteboard session, mode=source, invalid retained declaration after failed save, error shown, no recovery"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. Generate exactly ONE complete high-fidelity desktop DooKnow authenticated-owner UI design around1536×1024, clear Simplified Chinese, no browser/device frame or developer caption. Image1 actual matching baseline when provided is content/action/selected-state authority; PILOT-WS-001 is ONLY palette, density, flat surfaces and owner rail/global-header hierarchy authority. Current real templates/sourceContracts decide all fields/guards. Never copy PILOT's empty-note content into the selected editor.\nShared owner shell: approximately64px full-height muted light-gray left rail, circular O account avatar at top; exact real destinations 笔记 (only active), 最近, 收藏, separator, 应用, bottom 回收站 and 设置. Blue open-book DooKnow brand in approximately56px horizontal global header, divider and static context 笔记; no invented header actions. Below header a contextual notebook sidebar with 搜索笔记与目录, blue split 新建 button, 笔记本 heading with plus and refresh icons, actual closed folder roots 00-Inbox and 30-Knowledge unless matching baseline explicitly shows expansion; preserve sidebar resize affordance. Main document area fills remaining size. No added teams, AI, ToDoo tasks/calendar menus, counts/notifications or fake status.\nStyle: white #ffffff main and #f7f8fa chrome, #272b3a text/#657084 secondary, #e6e9f1 fine dividers, #4566c6 primary/#edf1ff selected, restrained8px radii, flat surfaces/no texture/gradient/heavy shadows. Native diagram/scene content colors remain its actual content colors, never recolor them into UI blue. One coherent selected state; no combined overlays/error/loading/success variants. No backend requestId/hash/cursor/CSRF/version metadata inputs. Native exact source already contained in a Markdown document may remain code text, not extra protocol controls. Guard-dependent actions stay hidden/disabled as source specifies.\nPrimary diagram document chrome: row1 existing sidebar toggle/back/forward navigation and breadcrumb 笔记本 > 00-Inbox > current document title; right source save-state dot/text, existing history clock icon, 分享, blue 保存, closed 更多 ellipsis. Row2 left type badge and ONLY app-owned icon actions 导出 HTML (code icon), 打印 (printer), 导出 PNG (image); right four tabs use current type label, Markdown 源码, 阅读, PNG 预览; only selected tab active. Preserve source operation guards. No normal rich formatting/insert toolbar. All popovers/dialogs CLOSED unless explicitly requested. Do not turn hidden export/download menus into extra action rows.\nSelected primary WHITEBOARD MARKDOWN SOURCE VIEW in the declared INVALID PRIMARY DECLARATION state. Image1 actual valid source baseline supplies host/editor layout; selected invalid/error draft is SOURCE-DERIVED from current templates/document-session.ts, not captured runtime. Keep document title runtime-whiteboard-1793810927830 and actual source baseline owner file tree/selected note, don't invent new destinations.\nCurrent resource remains original editable whiteboard, loading/saving/recovery false; mode Markdown 源码 active; other modes 白板, 阅读, PNG 预览 retained. Header status is red ● 保存未完成 (NOT 已保存). Existing app 保存 remains enabled because resource canEdit; history/share and more retain source guards. Main top source ERROR band EXACTLY 图形 Markdown 不完整，请在源码中修复 and the three real actions 重试, 重新读取, 下载草稿, all enabled, no extra confirmation dialog.\nBelow error band show the entire retained INVALID Markdown draft in a full-width code editor with line numbers, no ordinary rendered document preview and no canvas/tool palette. Use this synthetic source document content (code text, not separate metadata fields):\n<!-- dooknow:document {\"version\":1,\"type\":\"whiteboard\",\"engine\":\"unknown\"} -->\n\n# runtime-whiteboard-1793810927830\n\n<!-- dooknow:primary:start -->\n\n![白板预览](_doo-assets/example-preview.png)\n\n[图形源文件](_doo-assets/example.excalidraw)\n\n<!-- dooknow:primary:end -->\nThis intentionally invalid declaration draft is retained after failed save; no successful commit or replacement canvas is asserted. Real source/editor field may contain its declaration syntax, but do not draw individual API version/hash/requestId/CSRF/cursor inputs or review/contract captions. Keep code lines clean and horizontally contained. No native vendor menus/dialogs, no fallback blank editable canvas on missing resource, no simultaneous loading/recovery/reading/PNG state. Exact primary-invalid state only, full owner host preserved.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D052 Primary diagram Markdown source view\nSCOPE complete-independent-page\nVIEW Complete 1440×1000 independent page.\nCOMPOSITION {\"fullPage\": true, \"maxIndependentSections\": 1, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"full\", \"sourceId\": \"WS-072\", \"title\": \"Primary diagram Markdown source view\", \"role\": \"authenticated owner\", \"state\": \"Invalid primary declaration\", \"presentationInstruction\": \"Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"full\", \"sourceId\": \"WS-072\", \"fieldsInOrder\": [{\"name\": \"完整 Markdown\", \"type\": \"code-editor\", \"required\": true, \"constraints\": \"Entire diagram document source; line numbers; readonly if !editable.\", \"sensitive\": false}], \"actions\": [{\"label\": \"编辑源码\", \"effect\": \"Update primary document session; validate supported primary structure\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"保存\", \"effect\": \"Regenerate native/preview as needed and commit\", \"api\": \"POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Invalid primary declaration/source retained with error\", \"Unsaved source change\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-markdown-source.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state.",
+      "responsibility": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state.",
+      "sha256": "6cd760be5fa5e8c4f339eed246e6726567611e9e5fbc69548c8cfde1391ff557",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 139418
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:763, apps/web/components/DiagramDocumentWorkspace.vue:805",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:763, apps/web/components/DiagramDocumentWorkspace.vue:805",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-markdown-source.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D052.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-a88ea348-05d8-4603-a1b9-82e360b10ac6.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-a88ea348-05d8-4603-a1b9-82e360b10ac6.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T01:55:55.598Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Source-derived invalid declaration retained in real full Markdown editor, failed-save status and exact repair/error actions 重试/重新读取/下载草稿; no unsafe empty canvas substitute.",
+    "concerns": [
+      "Selected state is source-derived; matching exact runtime state is uncaptured.",
+      "Static raster cannot verify capability/unsaved-close/CAS/renderer guards, scroll interaction or vendor responsive fit; geometry and texture approximate."
+    ]
+  },
+  "sha256": "3574a2aaea636ddcc23720db6526ef9147846e55f539464cd4bc22b6816751f3",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1156392,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    },
+    {
+      "path": "apps/web/diagrams/document-session.ts",
+      "role": "actual textual renderer/control/fixture authority; not an image input",
+      "sha256": "509dc350eb83c8da1cc05e035c3e99b95465b3e2f2a4d64d4622c62465645e70"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "No exact runtime capture for selected state; actual templates and sourceContracts determine controls/role. Baseline when supplied is host/editor/tool-placement reference only."
+}

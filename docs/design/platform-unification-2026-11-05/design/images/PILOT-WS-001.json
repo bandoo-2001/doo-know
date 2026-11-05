@@ -1,0 +1,91 @@
+{
+  "id": "PILOT-WS-001",
+  "kind": "generated-design",
+  "surfaceIds": [
+    "WS-001"
+  ],
+  "contextSurfaceIds": [
+    "WS-002",
+    "WS-098"
+  ],
+  "status": "generated-awaiting-independent-content-review",
+  "contentReview": {
+    "status": "passed-with-shared-css-guidance",
+    "independentReview": "design/reviews/PILOT-WS-001-review.json",
+    "selected": true,
+    "implementationGuide": "design/style-contract.md",
+    "doesNotProveGlobalDesignGate": true
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "prompt": "Use case: ui-mockup\nAsset ID: PILOT-WS-001\nProduce EXACTLY ONE polished high-fidelity desktop UI concept image for DooKnow, the authenticated owner's existing personal knowledge workspace, in the READY / NO NOTE SELECTED state. Wide landscape composition around 1536 × 1024 pixels, straight-on full application canvas, no device frame, no browser chrome, no presentation caption. Render crisp, readable Simplified Chinese UI typography.\n\nINPUT IMAGE AUTHORITY:\nImage 1 (1440-workspace-empty.png) is the CONTENT AND FUNCTION AUTHORITY. Preserve ALL actual navigation destinations, existing controls, exact labels, owner-only personal-workspace meaning, and this unselected-note state. The baseline source commit is 933d63d942b6499fee964f8a060c7b22b9d299d1; only existing source fields/actions are allowed.\nImage 2 (1440-02-tasks-list-v2.png) is STYLE AUTHORITY ONLY: borrow its calm blue-gray / white palette, fine cool-gray separators, narrow primary rail + contextual secondary sidebar, consistent horizontal header alignment, compact density, restrained blue selection and primary buttons, understated rounded corners, thin line icons, and abundant flexible white work area. DO NOT copy its To Doo brand, task navigation, task content, notifications, saved status, right detail panel, back button, task counts, or actions.\n\nSTRUCTURE AND VISUAL TREATMENT:\nUse a narrow approximately 64px primary navigation rail on the far left. Preserve the circular account avatar with exact letter \"O\" near the top, not a return arrow. Primary rail destinations top to bottom remain exactly \"笔记\" (active), \"最近\", \"收藏\", separator, \"应用\"; bottom utilities remain exactly \"回收站\", \"设置\". Each has its existing clear line icon and readable compact label. No other rail entries or badges. Use a softly tinted blue-gray rail; active 笔记 has blue icon/text, pale blue fill and restrained blue outline.\nUse a clean approximately 56px horizontal application header in the same visual language as Image 2. Place the existing blue outlined open-book logo with exact wordmark \"DooKnow\" (D-o-o-K-n-o-w), plus a fine divider and the existing contextual label \"笔记\". This is a static context header, no added header actions, menus, controls, search, notifications, dots, slogans, or breadcrumbs beyond that context. Keep the primary rail and header geometrically aligned.\nBelow the header, preserve the approximately 260px-wide secondary notebook/context sidebar. It must contain the search field with magnifying glass and exact placeholder \"搜索笔记与目录\"; below it the existing full-width blue split create button, plus icon and exact text \"新建\" on its main part, a separate downward-chevron segment on its right. The dropdown is CLOSED.\nBelow a quiet divider, preserve exact heading \"笔记本\"; at its right preserve BOTH existing controls: plus icon for 新建文件夹 and circular refresh icon for 刷新目录. Below, preserve exactly two CLOSED root folder rows, with chevrons and outlined folder icons, exact folder names \"00-Inbox\" and \"30-Knowledge\". Do not invent more folders, notes, counts, or sections.\nPreserve the existing VERTICAL SIDEBAR RESIZER between secondary sidebar and main canvas: thin draggable separator with a subtle visible grip; it is a resize affordance, not a new collapse button. Main canvas must fill ALL remaining width and height; no fixed maximum-width article container or unnecessary reserved columns.\nThe main area is an unselected-note EMPTY STATE, mostly white with generous space. Place the existing thin book icon above the exact headline \"选择一篇笔记\", then exact body text \"从左侧目录打开笔记，或新建笔记开始记录。\". Under it preserve BOTH existing actions: blue primary button \"快速记录\" and secondary text action \"导入 Markdown\". Balance this group in the upper-middle of the available main work area as in Image 1. The empty state is the only main content.\n\nCONTENT WHITELIST AND INVARIANTS:\nVisible text is limited to: \"O\", \"DooKnow\", \"笔记\", \"最近\", \"收藏\", \"应用\", \"回收站\", \"设置\", \"搜索笔记与目录\", \"新建\", \"笔记本\", \"00-Inbox\", \"30-Knowledge\", \"选择一篇笔记\", \"从左侧目录打开笔记，或新建笔记开始记录。\", \"快速记录\", \"导入 Markdown\".\nKeep all existing source buttons and the resizer clearly distinguishable and usable at the intended compact desktop density. Preserve source owner permissions; no administrator/member split, teams, collaboration, AI assistant, new workspace switcher, AI chat input, OAuth login, invitation, cloud account states, notification counts, fake upload status, fabricated sample notes, stats, note metadata or newly invented actions. No selected note, editor toolbar, properties, tabs, note preview, right-hand details panel, extra borders dividing main into columns, loading/error/maintenance banners, or overlays.\nThis is one realistic generated design concept for design review, not a claim of running screenshot, not product code. Subtle, controlled, highly legible. Prioritize the exact content/functional whitelist from Image 1 over any visual detail in Image 2.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-workspace-empty.png",
+      "role": "content-and-function-authority",
+      "sha256": "5b5f9e507269f8ff724ae65309a317dbace517722ffdc2bd8552d1001919a8a7",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-02-tasks-list-v2.png",
+      "role": "style-authority-only",
+      "sha256": "4de7eacafca95ed74b4d8e4c5924758d3fe39208ac810a2e5d440c194814443b",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    }
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "intendedDimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+  "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "reviewNotes": [
+    "One real generated-design raster only; this is not a runtime screenshot or source implementation.",
+    "Built-in tool model identity is justified by the official gpt-image-2 contract, not by a per-call model receipt.",
+    "No product code, tests, servers, dependencies, or additional image calls were created or changed.",
+    "Preserve source permissions, owner-only meaning, control guards, closed dropdown/folder state and sidebar resizing in later implementation."
+  ],
+  "generatedAtUtc": "2026-11-04 17:15:24 UTC",
+  "generationCallCount": 1,
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a78c-60fb-7322-b4af-4aac0a416147/exec-cadc87fa-bae8-47de-94b7-02b28b0bbc01.png",
+  "bytes": 1010972,
+  "selfInspection": {
+    "method": "Native generated image preview inspected in child tool context",
+    "navigationAndActions": "All baseline navigation destinations and owner-visible controls are visibly retained.",
+    "emptyState": "No selected note, editor, selected-note toolbar, or right detail pane.",
+    "style": "Two-level rail/context sidebar, blue-gray surfaces, white flexible main, fine borders, horizontal header, blue selection/buttons.",
+    "visibleText": "No visible extra content outside prompt whitelist detected on visual self-inspection.",
+    "potentialDrift": [
+      "Rail and sidebar appear somewhat wider than the suggested 64px/260px proportions; responsive behavior is not established by a static concept.",
+      "Generated controls, Chinese glyphs, icon meaning and static header context require independent content review before implementation.",
+      "Generated raster includes subtle shaded texture/gradient beyond the flatter style reference; implementation should use established design tokens rather than sampling generated pixel noise."
+    ],
+    "behaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

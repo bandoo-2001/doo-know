@@ -1,0 +1,454 @@
+{
+  "id": "WS-D057",
+  "title": "Expanded inline diagram presentation / Inline diagram source and download view",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-079",
+    "WS-080"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-079",
+      "title": "Expanded inline diagram presentation",
+      "role": "authenticated owner",
+      "state": "Expanded preview",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-080",
+      "title": "Inline diagram source and download view",
+      "role": "authenticated owner",
+      "state": "Source allowed",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramPreview.vue:293, apps/web/components/DiagramPreview.vue:310, apps/web/components/DiagramPreview.vue:483"
+    },
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramPreview.vue:335"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-079",
+      "label": "收起",
+      "effect": "Return inline card size",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-080",
+      "label": "下载源码",
+      "effect": "Download available source",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-080",
+      "label": "预览",
+      "effect": "Return rendered view",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+    "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R030",
+      "reuseSourceId": "WS-078",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "收起",
+          "effect": "Return inline card size",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-079"
+    },
+    {
+      "assetId": "WS-R030",
+      "reuseSourceId": "WS-078",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [
+        "图形源码"
+      ],
+      "requiredActions": [
+        {
+          "label": "下载源码",
+          "effect": "Download available source",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "预览",
+          "effect": "Return rendered view",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [
+        {
+          "name": "图形源码",
+          "type": "preformatted",
+          "required": false,
+          "constraints": "Read-only source of SVG/Mermaid/whiteboard; hidden when resource canDownloadSource is false.",
+          "sensitive": false
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-080"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n上下两个独立SVG图形卡片，外部仅标A、B，不画宿主导航。A为放大的预览卡，顶部标题“SVG 图形”，右侧真实按钮“预览”当前、“源码”可用、“收起”可用；主体白底中一个薄荷绿色圆形图案，无可拖动节点、选中框或编辑工具。B为同图独立源码卡，顶部“SVG 图形”，“预览”可用、“源码”当前、“放大”可用；下面可用“下载源码”按钮和只读等宽代码，三行“<svg viewBox=\"0 0 80 80\" xmlns=\"http://www.w3.org/2000/svg\">”“  <circle cx=\"40\" cy=\"40\" r=\"24\" fill=\"#8fc7a5\"/>”“</svg>”。代码不是输入框。不添加编辑设计、编辑源码、生成、转换或PNG按钮，颜色保持图形内容的薄荷绿，不改成UI蓝。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D057.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-079",
+      "title": "Expanded inline diagram presentation",
+      "kind": "state",
+      "module": "diagrams",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "放大 on inline diagram",
+        "parentId": "WS-078"
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramPreview.vue:293",
+        "apps/web/components/DiagramPreview.vue:310",
+        "apps/web/components/DiagramPreview.vue:483"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "收起",
+          "effect": "Return inline card size",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Expanded preview/source",
+        "Mobile action wrapping"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/diagram-preview-artifact.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-080",
+      "title": "Inline diagram source and download view",
+      "kind": "state",
+      "module": "diagrams",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "源码 in inline diagram card",
+        "parentId": "WS-078"
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramPreview.vue:335"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "图形源码",
+          "type": "preformatted",
+          "required": false,
+          "constraints": "Read-only source of SVG/Mermaid/whiteboard; hidden when resource canDownloadSource is false.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "下载源码",
+          "effect": "Download available source",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "预览",
+          "effect": "Return rendered view",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Source allowed/forbidden",
+        "Referenced whiteboard resolved source"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/diagram-resource.test.ts",
+        "tests/editor-knowledge-preview.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-079",
+      "parentId": "WS-078",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-080",
+      "parentId": "WS-078",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-079,WS-080",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-079",
+      "state": "Expanded preview/source",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-079",
+      "state": "Mobile action wrapping",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-080",
+      "state": "Source allowed/forbidden",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-080",
+      "state": "Referenced whiteboard resolved source",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D057",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "A expanded SVG preview",
+    "B allowed SVG source readonly/local download; owner reading mode editable=false"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n上下两个独立SVG图形卡片，外部仅标A、B，不画宿主导航。A为放大的预览卡，顶部标题“SVG 图形”，右侧真实按钮“预览”当前、“源码”可用、“收起”可用；主体白底中一个薄荷绿色圆形图案，无可拖动节点、选中框或编辑工具。B为同图独立源码卡，顶部“SVG 图形”，“预览”可用、“源码”当前、“放大”可用；下面可用“下载源码”按钮和只读等宽代码，三行“<svg viewBox=\"0 0 80 80\" xmlns=\"http://www.w3.org/2000/svg\">”“  <circle cx=\"40\" cy=\"40\" r=\"24\" fill=\"#8fc7a5\"/>”“</svg>”。代码不是输入框。不添加编辑设计、编辑源码、生成、转换或PNG按钮，颜色保持图形内容的薄荷绿，不改成UI蓝。",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D057 Expanded inline diagram presentation / Inline diagram source and download view\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-079\", \"title\": \"Expanded inline diagram presentation\", \"role\": \"authenticated owner\", \"state\": \"Expanded preview\", \"presentationInstruction\": \"Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\"}, {\"label\": \"B\", \"sourceId\": \"WS-080\", \"title\": \"Inline diagram source and download view\", \"role\": \"authenticated owner\", \"state\": \"Source allowed\", \"presentationInstruction\": \"Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-079\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"收起\", \"effect\": \"Return inline card size\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Expanded preview/source\", \"Mobile action wrapping\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-080\", \"fieldsInOrder\": [{\"name\": \"图形源码\", \"type\": \"preformatted\", \"required\": false, \"constraints\": \"Read-only source of SVG/Mermaid/whiteboard; hidden when resource canDownloadSource is false.\", \"sensitive\": false}], \"actions\": [{\"label\": \"下载源码\", \"effect\": \"Download available source\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"预览\", \"effect\": \"Return rendered view\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Source allowed/forbidden\", \"Referenced whiteboard resolved source\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramPreview.vue:293, apps/web/components/DiagramPreview.vue:310, apps/web/components/DiagramPreview.vue:483",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DiagramPreview.vue:293, apps/web/components/DiagramPreview.vue:310, apps/web/components/DiagramPreview.vue:483",
+      "sha256": "ab25ff99612c6c6d06be26a95e4afed4bbb16ab5a5859a07df65dc96b6537b7e"
+    },
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramPreview.vue:335",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DiagramPreview.vue:335",
+      "sha256": "ab25ff99612c6c6d06be26a95e4afed4bbb16ab5a5859a07df65dc96b6537b7e"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D057.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-8613bb45-9685-4d6f-94fd-c979b1a073b8.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-8613bb45-9685-4d6f-94fd-c979b1a073b8.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T05:24:08.878Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Actual readonly SVG controls and source bytes / complete mindmap root-child disabled guards and real Ctrl shortcuts inspected.",
+    "concerns": []
+  },
+  "sha256": "f3d86de5ed2778af342de997a421f11e46a6268e66a7e09ad848285e8c4177bb",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1027162,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ab25ff99612c6c6d06be26a95e4afed4bbb16ab5a5859a07df65dc96b6537b7e"
+    },
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ab25ff99612c6c6d06be26a95e4afed4bbb16ab5a5859a07df65dc96b6537b7e"
+    },
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ab25ff99612c6c6d06be26a95e4afed4bbb16ab5a5859a07df65dc96b6537b7e"
+    },
+    {
+      "path": "apps/web/components/DiagramPreview.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ab25ff99612c6c6d06be26a95e4afed4bbb16ab5a5859a07df65dc96b6537b7e"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived independent local surfaces; no diagram/source/download/mindmap/keyboard runtime testing.",
+  "sourceGuardBinding": "SVG kind excludes edit-design action; Workspace mode=preview sets editable=false so canGenerate=false. Source allowed=true; no invented edit/generate controls."
+}

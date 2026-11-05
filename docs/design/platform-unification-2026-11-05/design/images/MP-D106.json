@@ -1,0 +1,510 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D106",
+  "assetId": "MP-D106",
+  "sourceIds": [
+    "PB-041"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-041",
+      "title": "博客装修：主题与个人资料",
+      "role": "authenticated owner",
+      "state": "Actual appearance tab baseline with default saved journal design, source-completed lower profile/media fields, no preview HTML and no open picker"
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "Actual appearance tab baseline with default saved journal design, source-completed lower profile/media fields, no preview HTML and no open picker",
+  "sourceDerived": false,
+  "baselineStatus": "actual-captured-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "只定点修正这张博客装修appearance页3处源码占位文字，其他全部内容、控件、状态、布局不变：空头像方框删除人形图标，改为居中汉字“你”；空主页横幅方框删除山景图标，改为居中“给主页留一张风景”。两处只是无图片占位，保留现有头像/主页横幅label、选择图片按钮、格式/大小/裁切比例说明，不新增移除按钮。右侧预览下方的说明精确改为“预览仅自己可见。发布主页后访客才能看到更改。”，不带“下方”二字。保持主题色color输入#44684f及其绿方块，主人蓝色动作不变。",
+  "prompt": "只定点修正这张博客装修appearance页3处源码占位文字，其他全部内容、控件、状态、布局不变：空头像方框删除人形图标，改为居中汉字“你”；空主页横幅方框删除山景图标，改为居中“给主页留一张风景”。两处只是无图片占位，保留现有头像/主页横幅label、选择图片按钮、格式/大小/裁切比例说明，不新增移除按钮。右侧预览下方的说明精确改为“预览仅自己可见。发布主页后访客才能看到更改。”，不带“下方”二字。保持主题色color输入#44684f及其绿方块，主人蓝色动作不变。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-design.png",
+      "role": "Actual matching baseline: content/role/host geometry authority; selected tab continuation source-derived when explicitly declared",
+      "sha256": "d91badae422d3e52b77089047ae5861e863d52f8eaa804ef9066016f5df9c22a",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Shared palette/density only; actual blog role-specific shell and configured accent take precedence",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ebeaf2a2-7594-4b84-8b63-d9e6bf69e43a.png",
+      "role": "Edit target: preserve actual blog host, controls/content and selected state except the requested styling/placeholder correction",
+      "sha256": "fe7d75162f5df3fc5a39172fbbb8fce11b02a36a4fd81c719ad15f2cdc7d0831",
+      "dimensions": {
+        "width": 1003,
+        "height": 1568
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-design.png",
+      "role": "Actual matching baseline: content/role/host geometry authority; selected tab continuation source-derived when explicitly declared",
+      "sha256": "d91badae422d3e52b77089047ae5861e863d52f8eaa804ef9066016f5df9c22a",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Shared palette/density only; actual blog role-specific shell and configured accent take precedence",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ebeaf2a2-7594-4b84-8b63-d9e6bf69e43a.png",
+      "role": "Edit target: preserve actual blog host, controls/content and selected state except the requested styling/placeholder correction",
+      "sha256": "fe7d75162f5df3fc5a39172fbbb8fce11b02a36a4fd81c719ad15f2cdc7d0831",
+      "dimensions": {
+        "width": 1003,
+        "height": 1568
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "只定点修正这张博客装修appearance页3处源码占位文字，其他全部内容、控件、状态、布局不变：空头像方框删除人形图标，改为居中汉字“你”；空主页横幅方框删除山景图标，改为居中“给主页留一张风景”。两处只是无图片占位，保留现有头像/主页横幅label、选择图片按钮、格式/大小/裁切比例说明，不新增移除按钮。右侧预览下方的说明精确改为“预览仅自己可见。发布主页后访客才能看到更改。”，不带“下方”二字。保持主题色color输入#44684f及其绿方块，主人蓝色动作不变。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ebeaf2a2-7594-4b84-8b63-d9e6bf69e43a.png"
+    ],
+    "transparent_background": false
+  },
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-006.json#MP-D106",
+  "sourceReferences": [
+    {
+      "sourceId": "PB-041",
+      "parentId": "PB-030",
+      "route": "/?view=apps&app=blog&appSection=design",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:53",
+        "apps/web/components/blog/BlogDesignStudio.vue:94",
+        "apps/web/components/blog/BlogDesignAppearance.vue:11",
+        "packages/core/blog/studio.ts:67",
+        "packages/core/blog/studio.ts:220"
+      ]
+    }
+  ],
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D106",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "generationCallCount": 2,
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-79fd4468-678f-4afb-a5f4-f45291a67795.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D106.png",
+  "sha256": "79bb05eac1df3c11fb9dc23e6a093b110e283efd011fae534ccbe97237b7d1e1",
+  "dimensions": {
+    "width": 1003,
+    "height": 1568
+  },
+  "bytes": 1456999,
+  "generatedAtUtc": "2026-11-05T01:46:52.409301+00:00",
+  "postprocessing": "Original built-in tool PNG copied byte-for-byte; no pixel editing.",
+  "revisionOf": {
+    "kind": "generation-attempt",
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ebeaf2a2-7594-4b84-8b63-d9e6bf69e43a.png",
+    "sha256": "fe7d75162f5df3fc5a39172fbbb8fce11b02a36a4fd81c719ad15f2cdc7d0831"
+  },
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "博客装修：主题与个人资料",
+    "sourceIds": [
+      "PB-041"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Actual appearance tab baseline with default saved journal design, source-completed lower profile/media fields, no preview HTML and no open picker",
+    "location": "metadata, outside product UI"
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-041",
+      "parentId": "PB-030",
+      "route": "/?view=apps&app=blog&appSection=design",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:53",
+        "apps/web/components/blog/BlogDesignStudio.vue:94",
+        "apps/web/components/blog/BlogDesignAppearance.vue:11",
+        "packages/core/blog/studio.ts:67",
+        "packages/core/blog/studio.ts:220"
+      ]
+    }
+  ],
+  "sourceStateAndActionContracts": {
+    "functionalInvariants": [
+      {
+        "sourceId": "PB-041",
+        "route": "/?view=apps&app=blog&appSection=design",
+        "trigger": "Design navigation; default appearance tab",
+        "parentId": "PB-030",
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+        ],
+        "fields": [
+          {
+            "name": "template",
+            "type": "choice",
+            "required": true,
+            "constraints": "journal文字博客; magazine卡片杂志; profile个人主页",
+            "sensitive": false
+          },
+          {
+            "name": "accent",
+            "type": "color+text",
+            "required": true,
+            "constraints": "#RRGGBB",
+            "sensitive": false
+          },
+          {
+            "name": "font",
+            "type": "select",
+            "required": true,
+            "constraints": "sans|serif",
+            "sensitive": false
+          },
+          {
+            "name": "width",
+            "type": "select",
+            "required": true,
+            "constraints": "comfortable|wide",
+            "sensitive": false
+          },
+          {
+            "name": "cardStyle",
+            "type": "select",
+            "required": true,
+            "constraints": "plain|bordered",
+            "sensitive": false
+          },
+          {
+            "name": "profile.name",
+            "type": "text",
+            "required": false,
+            "constraints": "UI<=120; server<=256",
+            "sensitive": false
+          },
+          {
+            "name": "profile.tagline",
+            "type": "text",
+            "required": false,
+            "constraints": "UI<=200; server<=1000",
+            "sensitive": false
+          },
+          {
+            "name": "profile.bio",
+            "type": "textarea",
+            "required": false,
+            "constraints": "UI<=5000; server<=50000",
+            "sensitive": false
+          },
+          {
+            "name": "profile.avatar/cover",
+            "type": "media",
+            "required": false,
+            "constraints": "only registered /blog/media/:hash references; referenced media must exist; total design images <=20MiB server-side",
+            "sensitive": false
+          }
+        ],
+        "importantStates": [
+          "loading/error/retry config; local modifications preserved",
+          "saved draft/unpublished/online-matched badges",
+          "three templates selected state",
+          "missing avatar/banner placeholders; media selected"
+        ],
+        "notes": [
+          "Design save does not publish homepage. Dirty beforeunload guard is implemented.",
+          "Public profile bio is escaped plain text in profileIntro; public about page separately parses sanitized Markdown."
+        ]
+      },
+      {
+        "type": "composition",
+        "details": [
+          "装修主题资料完整长页：journal/magazine/profile三模板、accent/font/width/cardStyle、name/tagline/bio/avatar/cover、私有预览、保存草稿/发布。所有字段可读且可滚动到。"
+        ]
+      },
+      {
+        "type": "role-shell",
+        "rule": "所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。"
+      }
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "PB-041",
+        "label": "保存装修草稿",
+        "effect": "CAS save current draft",
+        "api": "PATCH /api/blog/design",
+        "guard": "dirty; not busy/loading"
+      },
+      {
+        "sourceId": "PB-041",
+        "label": "发布主页",
+        "effect": "Publish saved design revision",
+        "api": "POST /api/blog/design/publish",
+        "guard": "not dirty/busy/loading; unpublished changes exist"
+      },
+      {
+        "sourceId": "PB-041",
+        "label": "重新核对版本",
+        "effect": "Reload design and merge local changes",
+        "api": "GET /api/blog/design",
+        "guard": "not busy/loading"
+      },
+      {
+        "sourceId": "PB-041",
+        "label": "放大预览",
+        "effect": "Open modal viewport",
+        "api": "",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-041",
+        "label": "选择图片",
+        "effect": "Open shared crop UI",
+        "api": "",
+        "guard": ""
+      }
+    ],
+    "responsiveContract": [
+      {
+        "sourceId": "PB-041",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified.",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      }
+    ],
+    "otherVariantsDrawn": false
+  },
+  "selfInspection": {
+    "method": "Native generated PNG actually viewed in generation child context against all submitted image inputs and actual component templates.",
+    "concerns": [
+      "Static raster does not establish source/API execution, role enforcement, conditional guards, keyboard/focus, responsive fit or actual action outcomes.",
+      "Light raster shading/texture and approximate proportions are illustrative CSS guidance, not exact measured compliance.",
+      "Missing-media placeholder text restored. Minor helper prefix 下方 remains raster copy drift; source sentence is 预览仅自己可见。发布主页后访客才能看到更改。"
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作完整博客装修appearance长页，约1440×1600，延长纵向确保所有表单/保存栏可读。完整DooKnow博客主人桌面页，约1440px宽，可延长画布保全字段。图1为真实博客内容/宿主/状态参考，图2仅配色密度，不借笔记界面的导航。实际窄博客rail仅顶部返回、概览、文章、装修主页、分类与标签，底部站点设置；不画账户O、笔记/最近/收藏、回收站、目录树。全局横页头保留现有书本博客、从笔记选稿，整理文章与自己的站点。、站点未开启badge、蓝色选择笔记。下方黄色站点尚未开启。你可以先准备文章，开启后已发布内容才会公开。与前往设置→，不画访问站点。装修主页选中。主区eyebrow主页设计，主标题装修主页，副文选择主题、编排内容，预览你的下一版主页。，右侧放大预览。编辑区与访客视角预览区两列；只开一种tab，tabs完整主题与个人资料/首页模块/专题合集/导航与链接/项目作品。右区保留访客视角、未保存的修改也能预览、桌面选中/手机、已勾实时预览、刷新预览；预览框是实际基线的空白fallback：正在准备你的主页。及可用生成预览。下方预览仅自己可见。发布主页后访客才能看到更改。没有新错误、生成忙字样、预览弹窗或实际发布结果。当前是未修改的已保存配置，与线上一致badge；savebar装修草稿已保存、当前装修已与线上主页同步。，保存装修草稿和发布主页均禁用。发布历史0折叠。即使站点关闭也不改写为已公开。主题与个人资料tab选中。\n左侧先选择一种表达卡，保留三种选择和各自不同缩略布局：文字博客选中（留白与时间线，让文字自然流动）、卡片杂志（用封面与精选，呈现丰富的主题）、个人主页（从你出发，连接文章、项目与朋友）。字段顺序：主题色color小方块和文本#44684f；字体无衬线 · 清晰简洁；内容宽度舒适阅读；卡片样式轻盈留白。\n随后让读者认识你卡、副文个人资料会展示在主页介绍中。：姓名空输入placeholder你的名字，一句话介绍空输入placeholder用一句话介绍这里，个人简介空4行textarea placeholder你在关注什么，又正在创造什么？。头像区域显示你占位+头像label+选择图片，说明支持JPEG、PNG、WebP，最大10 MB。头像将裁切为正方形。；主页横幅区域显示给主页留一张风景占位+主页横幅label+选择图片，说明同格式大小、横幅将裁切为3:1。无已选图片因此无移除/裁切弹窗。保留右预览与源保存发布禁用规则。平面白/浅灰表面，#272b3a正文、#657084次级、#e6e9f1细线、#4566c6主人主动作、#edf1ff选中、小圆角、清晰紧凑中文无衬线。保持实际主题色#44684f配置；无纹理渐变、浏览器外壳或开发注解。不虚构图片、自动发布或额外字段，caption仅metadata。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-design.png",
+          "role": "Actual matching baseline: content/role/host geometry authority; selected tab continuation source-derived when explicitly declared"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Shared palette/density only; actual blog role-specific shell and configured accent take precedence"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ebeaf2a2-7594-4b84-8b63-d9e6bf69e43a.png"
+    },
+    {
+      "submittedPrompt": "只定点修正这张博客装修appearance页3处源码占位文字，其他全部内容、控件、状态、布局不变：空头像方框删除人形图标，改为居中汉字“你”；空主页横幅方框删除山景图标，改为居中“给主页留一张风景”。两处只是无图片占位，保留现有头像/主页横幅label、选择图片按钮、格式/大小/裁切比例说明，不新增移除按钮。右侧预览下方的说明精确改为“预览仅自己可见。发布主页后访客才能看到更改。”，不带“下方”二字。保持主题色color输入#44684f及其绿方块，主人蓝色动作不变。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ebeaf2a2-7594-4b84-8b63-d9e6bf69e43a.png",
+          "role": "Edit target: preserve actual blog host, controls/content and selected state except the requested styling/placeholder correction"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-79fd4468-678f-4afb-a5f4-f45291a67795.png"
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-041",
+      "title": "博客装修：主题与个人资料",
+      "kind": "page",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design",
+        "trigger": "Design navigation; default appearance tab",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:53",
+        "apps/web/components/blog/BlogDesignStudio.vue:94",
+        "apps/web/components/blog/BlogDesignAppearance.vue:11",
+        "packages/core/blog/studio.ts:67",
+        "packages/core/blog/studio.ts:220"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "template",
+          "type": "choice",
+          "required": true,
+          "constraints": "journal文字博客; magazine卡片杂志; profile个人主页",
+          "sensitive": false
+        },
+        {
+          "name": "accent",
+          "type": "color+text",
+          "required": true,
+          "constraints": "#RRGGBB",
+          "sensitive": false
+        },
+        {
+          "name": "font",
+          "type": "select",
+          "required": true,
+          "constraints": "sans|serif",
+          "sensitive": false
+        },
+        {
+          "name": "width",
+          "type": "select",
+          "required": true,
+          "constraints": "comfortable|wide",
+          "sensitive": false
+        },
+        {
+          "name": "cardStyle",
+          "type": "select",
+          "required": true,
+          "constraints": "plain|bordered",
+          "sensitive": false
+        },
+        {
+          "name": "profile.name",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; server<=256",
+          "sensitive": false
+        },
+        {
+          "name": "profile.tagline",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=200; server<=1000",
+          "sensitive": false
+        },
+        {
+          "name": "profile.bio",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=5000; server<=50000",
+          "sensitive": false
+        },
+        {
+          "name": "profile.avatar/cover",
+          "type": "media",
+          "required": false,
+          "constraints": "only registered /blog/media/:hash references; referenced media must exist; total design images <=20MiB server-side",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存装修草稿",
+          "effect": "CAS save current draft",
+          "api": "PATCH /api/blog/design",
+          "guard": "dirty; not busy/loading"
+        },
+        {
+          "label": "发布主页",
+          "effect": "Publish saved design revision",
+          "api": "POST /api/blog/design/publish",
+          "guard": "not dirty/busy/loading; unpublished changes exist"
+        },
+        {
+          "label": "重新核对版本",
+          "effect": "Reload design and merge local changes",
+          "api": "GET /api/blog/design",
+          "guard": "not busy/loading"
+        },
+        {
+          "label": "放大预览",
+          "effect": "Open modal viewport",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "选择图片",
+          "effect": "Open shared crop UI",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "loading/error/retry config; local modifications preserved",
+        "saved draft/unpublished/online-matched badges",
+        "three templates selected state",
+        "missing avatar/banner placeholders; media selected"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-studio.spec.ts:67",
+        "tests/blog-studio-workbench.test.ts:22",
+        "tests/blog-studio-workbench.test.ts:39"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Design save does not publish homepage. Dirty beforeunload guard is implemented.",
+        "Public profile bio is escaped plain text in profileIntro; public about page separately parses sanitized Markdown."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "baselineScope": "Actual appearance capture plus source-completed lower profile/media fields"
+}

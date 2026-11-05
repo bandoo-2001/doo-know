@@ -1,0 +1,16 @@
+{
+  "id": "graph",
+  "title": "知识图谱",
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?view=apps&app=graph&appSection=overview",
+  "file": "1440-graph.png",
+  "sha256": "b12c6d9f125032b6cd0f4c74d3badc16f098543f05d3baffa96f272df1a64cae",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

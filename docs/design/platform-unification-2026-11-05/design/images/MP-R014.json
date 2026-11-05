@@ -1,0 +1,341 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R014",
+  "assetId": "MP-R014",
+  "sourceIds": [
+    "ST-028"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-028",
+      "title": "便携任务与预览恢复390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent local PortableJobs lists at390/320/320; distinct list items legitimately coexist per list: A failed export with previews and completed download; B interrupted archive import with partial note result+needsSource and cancelled export no previews; C running export globalbusy true with retained caller error, cancel disabled, refresh remains enabled. Five real kind/state/action structures preserved."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-028",
+      "title": "便携任务与预览恢复320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent local PortableJobs lists at390/320/320; distinct list items legitimately coexist per list: A failed export with previews and completed download; B interrupted archive import with partial note result+needsSource and cancelled export no previews; C running export globalbusy true with retained caller error, cancel disabled, refresh remains enabled. Five real kind/state/action structures preserved."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-028",
+      "title": "便携任务与预览恢复320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent local PortableJobs lists at390/320/320; distinct list items legitimately coexist per list: A failed export with previews and completed download; B interrupted archive import with partial note result+needsSource and cancelled export no previews; C running export globalbusy true with retained caller error, cancel disabled, refresh remains enabled. Five real kind/state/action structures preserved."
+    }
+  ],
+  "selectedState": "Three independent local PortableJobs lists at390/320/320; distinct list items legitimately coexist per list: A failed export with previews and completed download; B interrupted archive import with partial note result+needsSource and cancelled export no previews; C running export globalbusy true with retained caller error, cancel disabled, refresh remains enabled. Five real kind/state/action structures preserved.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制横向并排三个独立的窄网页局部列表，逻辑宽390、320、320，用白灰平面、蓝可用按钮、细分隔线、长路径自然换行，不画整页导航或手机硬件。每个列表标题“便携任务与结果”和可用“刷新结果”。左列表有两条真实任务：第一“便携导出 · 失败，尚未完成”，提示“待生成 1 张便携图形预览，原任务尚未完成。”，列表项“00-Inbox/长标题的知识与行动示例.excalidraw · 主图”，按钮“取消预览准备”“生成预览并继续导出”可换行；第二“便携导出 · 已完成”，蓝色可点链接“下载便携结果”。中列表两条：第一“归档整包导入 · 已中断，尚未完成”，提示“重新选择原始完整资料后继续。已创建的笔记保留，使用原请求继续不会重复创建。”，结果笔记“00-Inbox/示例笔记.md”画成可点button样式，按钮“选择原资料继续”；第二“便携导出 · 已取消”，可用“重试导出”。右列表上方红色“暂时无法更新便携任务，请重试。”，下方保留“便携导出 · 进行中”，只有“取消任务”灰色禁用，顶部刷新结果仍可用。每列真实纵向滚动边界独立、文字不溢出；不加任务编号、百分比、进度条、删除或虚假下载地址输入。",
+  "prompt": "绘制横向并排三个独立的窄网页局部列表，逻辑宽390、320、320，用白灰平面、蓝可用按钮、细分隔线、长路径自然换行，不画整页导航或手机硬件。每个列表标题“便携任务与结果”和可用“刷新结果”。左列表有两条真实任务：第一“便携导出 · 失败，尚未完成”，提示“待生成 1 张便携图形预览，原任务尚未完成。”，列表项“00-Inbox/长标题的知识与行动示例.excalidraw · 主图”，按钮“取消预览准备”“生成预览并继续导出”可换行；第二“便携导出 · 已完成”，蓝色可点链接“下载便携结果”。中列表两条：第一“归档整包导入 · 已中断，尚未完成”，提示“重新选择原始完整资料后继续。已创建的笔记保留，使用原请求继续不会重复创建。”，结果笔记“00-Inbox/示例笔记.md”画成可点button样式，按钮“选择原资料继续”；第二“便携导出 · 已取消”，可用“重试导出”。右列表上方红色“暂时无法更新便携任务，请重试。”，下方保留“便携导出 · 进行中”，只有“取消任务”灰色禁用，顶部刷新结果仍可用。每列真实纵向滚动边界独立、文字不溢出；不加任务编号、百分比、进度条、删除或虚假下载地址输入。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+      "role": "Actual parent mobile role reference only; selected jobs source-derived",
+      "sha256": "3213f7fd9fcf209a067fe82908d8f3d6c96e5a0fea8f63d1ee5ddc7725cd384a",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+      "role": "Actual parent mobile role reference only; selected jobs source-derived",
+      "sha256": "3213f7fd9fcf209a067fe82908d8f3d6c96e5a0fea8f63d1ee5ddc7725cd384a",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制横向并排三个独立的窄网页局部列表，逻辑宽390、320、320，用白灰平面、蓝可用按钮、细分隔线、长路径自然换行，不画整页导航或手机硬件。每个列表标题“便携任务与结果”和可用“刷新结果”。左列表有两条真实任务：第一“便携导出 · 失败，尚未完成”，提示“待生成 1 张便携图形预览，原任务尚未完成。”，列表项“00-Inbox/长标题的知识与行动示例.excalidraw · 主图”，按钮“取消预览准备”“生成预览并继续导出”可换行；第二“便携导出 · 已完成”，蓝色可点链接“下载便携结果”。中列表两条：第一“归档整包导入 · 已中断，尚未完成”，提示“重新选择原始完整资料后继续。已创建的笔记保留，使用原请求继续不会重复创建。”，结果笔记“00-Inbox/示例笔记.md”画成可点button样式，按钮“选择原资料继续”；第二“便携导出 · 已取消”，可用“重试导出”。右列表上方红色“暂时无法更新便携任务，请重试。”，下方保留“便携导出 · 进行中”，只有“取消任务”灰色禁用，顶部刷新结果仍可用。每列真实纵向滚动边界独立、文字不溢出；不加任务编号、百分比、进度条、删除或虚假下载地址输入。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制横向并排三个独立的窄网页局部列表，逻辑宽390、320、320，用白灰平面、蓝可用按钮、细分隔线、长路径自然换行，不画整页导航或手机硬件。每个列表标题“便携任务与结果”和可用“刷新结果”。左列表有两条真实任务：第一“便携导出 · 失败，尚未完成”，提示“待生成 1 张便携图形预览，原任务尚未完成。”，列表项“00-Inbox/长标题的知识与行动示例.excalidraw · 主图”，按钮“取消预览准备”“生成预览并继续导出”可换行；第二“便携导出 · 已完成”，蓝色可点链接“下载便携结果”。中列表两条：第一“归档整包导入 · 已中断，尚未完成”，提示“重新选择原始完整资料后继续。已创建的笔记保留，使用原请求继续不会重复创建。”，结果笔记“00-Inbox/示例笔记.md”画成可点button样式，按钮“选择原资料继续”；第二“便携导出 · 已取消”，可用“重试导出”。右列表上方红色“暂时无法更新便携任务，请重试。”，下方保留“便携导出 · 进行中”，只有“取消任务”灰色禁用，顶部刷新结果仍可用。每列真实纵向滚动边界独立、文字不溢出；不加任务编号、百分比、进度条、删除或虚假下载地址输入。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+          "role": "Actual parent mobile role reference only; selected jobs source-derived"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-b54a7c62-58ff-445d-94e3-cafde911e6de.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-028",
+      "title": "便携任务与预览恢复",
+      "kind": "state",
+      "module": "settings/portable-jobs",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "便携任务与结果常驻区",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/PortableJobs.vue:32",
+        "apps/web/components/settings/PortableJobs.vue:70"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新结果",
+          "effect": "每2秒轮询且支持手动刷新",
+          "api": "GET /api/portable-jobs",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消任务 / 取消预览准备",
+          "effect": "取消原任务",
+          "api": "POST /api/portable-jobs/:id/cancel",
+          "guard": "任务running或未运行但有portablePreviews"
+        },
+        {
+          "label": "生成预览并继续导出 / 重试导出",
+          "effect": "准备便携图形预览后继续原导出",
+          "api": "POST /api/portable-jobs/:id/retry",
+          "guard": "非completed的export"
+        },
+        {
+          "label": "选择原资料继续",
+          "effect": "打开ST-023",
+          "api": "无请求",
+          "guard": "needsSource"
+        },
+        {
+          "label": "下载便携结果 / 结果笔记",
+          "effect": "下载结果或打开已导入笔记",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "暂无便携任务",
+        "读取失败",
+        "running/completed/failed/cancelled/interrupted",
+        "待生成预览清单",
+        "需要原资料",
+        "已完成下载"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/portable-owner-workflow.test.ts:1",
+        "tests/e2e/portable-native-preview.spec.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-028",
+      "parentId": "ST-002",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/PortableJobs.vue:32",
+        "apps/web/components/settings/PortableJobs.vue:70"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-037.json#MP-R014",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R014",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-b54a7c62-58ff-445d-94e3-cafde911e6de.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R014.png",
+  "sha256": "204d306e6e4a499796c5e8c930a82388c23a2bb63635d7d4178b1e08c747686a",
+  "bytes": 1306824,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:24:14.991760+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: PortableJobs.vue preview/source-resume task rows",
+    "sourceIds": [
+      "ST-028"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent local PortableJobs lists at390/320/320; distinct list items legitimately coexist per list: A failed export with previews and completed download; B interrupted archive import with partial note result+needsSource and cancelled export no previews; C running export globalbusy true with retained caller error, cancel disabled, refresh remains enabled. Five real kind/state/action structures preserved.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "busy": false,
+      "jobs": [
+        {
+          "kind": "export",
+          "state": "failed",
+          "portablePreviews": [
+            {
+              "document": "00-Inbox/长标题的知识与行动示例.excalidraw",
+              "role": "primary"
+            }
+          ]
+        },
+        {
+          "kind": "export",
+          "state": "completed",
+          "downloadUrl": "example.invalid placeholder"
+        }
+      ]
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "busy": false,
+      "jobs": [
+        {
+          "kind": "import-archive",
+          "state": "interrupted",
+          "needsSource": true,
+          "resultNotes": [
+            "00-Inbox/示例笔记.md"
+          ]
+        },
+        {
+          "kind": "export",
+          "state": "cancelled",
+          "portablePreviews": []
+        }
+      ]
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "busy": true,
+      "error": "暂时无法更新便携任务，请重试。",
+      "jobs": [
+        {
+          "kind": "export",
+          "state": "running"
+        }
+      ]
+    }
+  ]
+}

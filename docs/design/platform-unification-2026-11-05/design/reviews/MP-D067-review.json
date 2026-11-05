@@ -1,0 +1,46 @@
+{
+  "assetId": "MP-D067",
+  "sourceIds": [
+    "ST-083",
+    "ST-084"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:39:01.641288+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner actual Git plugin commit-all panel, valid unchanged preview with partial-staging warning",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Exact commit-all scope explanation/message/preview action, two readonly files/expiry and partial-staging full-version warning retained. No diff panel or per-file staging choice invented.",
+    "Confirm-commit/cancel-preview available for valid unchanged message/nonbusy/no result/uncertain; this actual plugin action does not push. No cloud-sync author/settings, success commit hash or protocol inputs."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-011.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D067.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "plugins/git/web/index.ts:207",
+    "plugins/git/web/index.ts:214",
+    "plugins/git/web/index.ts:291",
+    "apps/web/components/PluginPanel.vue:1"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "2424d29f0b8b927d7b7303da14d7237ad8b3dc01637f6f85496c011c3b05950b",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D067.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

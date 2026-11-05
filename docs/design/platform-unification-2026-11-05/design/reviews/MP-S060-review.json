@@ -1,0 +1,48 @@
+{
+  "assetId": "MP-S060",
+  "sourceIds": [
+    "PB-036"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:49:01.537903+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Five independent private publication-review loading/warnings/closed-source/error/version-column excerpts",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed all five rows/full prompt and source contracts. Initial loading disables refresh; real review-error uses same available refresh action. Original-source native details remain folded independently.",
+    "Warning target is legitimate read-only source data, and 前往原稿修正 opens current source; affected article lookup with source opens associated note, without lookup source selects article. Both existing branches drawn, no auto-fix/publish capability.",
+    "Published/draft HTML columns are private sanitized snapshots with synthetic old/new body. No-public-version and diagram-count existing canonical D102 separately retained; review never implies current publication or executes publish."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-029.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S060.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/BlogWorkspace.vue:681",
+    "apps/web/components/blog/BlogPublicationReview.vue:17",
+    "apps/web/components/blog/BlogPublicationReview.vue:28",
+    "apps/server/blog/studio-routes.ts:61",
+    "packages/core/blog/studio.ts",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D102.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "896e752b09b05837dffe8b71b4f57a4ac479db644a4cf78877f10efcbdd7e004",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S060.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

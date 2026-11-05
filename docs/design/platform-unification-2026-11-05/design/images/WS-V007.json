@@ -1,0 +1,266 @@
+{
+  "kind": "generated-design",
+  "id": "WS-V007",
+  "assetId": "WS-V007",
+  "sourceIds": [
+    "RTD-012",
+    "RTD-013"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "RTD-012",
+      "title": "Empty canvas context menu",
+      "role": "authenticated owner",
+      "state": "Actual seven-entry empty context menu and independent desktop statistics Shapes0,width0,height0; no invented mobile stats.",
+      "presentationInstruction": "Actual seven-entry empty context menu and independent desktop statistics Shapes0,width0,height0; no invented mobile stats.",
+      "selectedState": "Two independent desktop local surfaces: empty-canvas seven-entry context menu; empty General stats with Shapes/width/height zero and close. Mobile statistics not drawn."
+    },
+    {
+      "label": "B",
+      "sourceId": "RTD-013",
+      "title": "Canvas statistics panel",
+      "role": "authenticated owner",
+      "state": "Actual seven-entry empty context menu and independent desktop statistics Shapes0,width0,height0; no invented mobile stats.",
+      "presentationInstruction": "Actual seven-entry empty context menu and independent desktop statistics Shapes0,width0,height0; no invented mobile stats.",
+      "selectedState": "Two independent desktop local surfaces: empty-canvas seven-entry context menu; empty General stats with Shapes/width/height zero and close. Mobile statistics not drawn."
+    }
+  ],
+  "selectedState": "Two independent desktop local surfaces: empty-canvas seven-entry context menu; empty General stats with Shapes/width/height zero and close. Mobile statistics not drawn.",
+  "sourceDerived": false,
+  "baselineStatus": "actual-matching-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制两个彼此独立的网页局部浮层，留白隔开，不画整页或导航。采用第一图白底、细灰边、蓝选中色和紧凑排版，后两图只提取实际浮层。左边完整右键菜单严格七项原顺序：“粘贴” Ctrl+V；“全部选中” Ctrl+A；“Toggle grid” Ctrl+'；“吸附至对象” Alt+S；“禅模式” Alt+Z；“查看模式” Alt+R；“Canvas & Shape properties” Alt+/。保留前两项后的分隔线。右边独立小统计面板，页头“详细统计信息”与关闭X；可折叠分组“General”展开，列标题“画布”，三行“Shapes 0”“宽度 0”“高度 0”。菜单没有统计数据，统计面板没有菜单；不增加复制导出或统计动作。",
+  "prompt": "绘制两个彼此独立的网页局部浮层，留白隔开，不画整页或导航。采用第一图白底、细灰边、蓝选中色和紧凑排版，后两图只提取实际浮层。左边完整右键菜单严格七项原顺序：“粘贴” Ctrl+V；“全部选中” Ctrl+A；“Toggle grid” Ctrl+'；“吸附至对象” Alt+S；“禅模式” Alt+Z；“查看模式” Alt+R；“Canvas & Shape properties” Alt+/。保留前两项后的分隔线。右边独立小统计面板，页头“详细统计信息”与关闭X；可折叠分组“General”展开，列标题“画布”，三行“Shapes 0”“宽度 0”“高度 0”。菜单没有统计数据，统计面板没有菜单；不增加复制导出或统计动作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-empty-canvas-context-menu.png",
+      "role": "Actual context menu labels, shortcuts and seven-item boundary",
+      "sha256": "703bf7b37f043cbd5ce4b08b33e25799112951d1f1ed70f5abc6fbc6a519eef4",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-canvas-shape-properties.png",
+      "role": "Actual independent desktop empty statistics body and close",
+      "sha256": "ca8e0fa6d061db9f209e9541004bf2865d5880bc77534f556117ab10e826e675",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-empty-canvas-context-menu.png",
+      "role": "Actual context menu labels, shortcuts and seven-item boundary",
+      "sha256": "703bf7b37f043cbd5ce4b08b33e25799112951d1f1ed70f5abc6fbc6a519eef4",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-canvas-shape-properties.png",
+      "role": "Actual independent desktop empty statistics body and close",
+      "sha256": "ca8e0fa6d061db9f209e9541004bf2865d5880bc77534f556117ab10e826e675",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制两个彼此独立的网页局部浮层，留白隔开，不画整页或导航。采用第一图白底、细灰边、蓝选中色和紧凑排版，后两图只提取实际浮层。左边完整右键菜单严格七项原顺序：“粘贴” Ctrl+V；“全部选中” Ctrl+A；“Toggle grid” Ctrl+'；“吸附至对象” Alt+S；“禅模式” Alt+Z；“查看模式” Alt+R；“Canvas & Shape properties” Alt+/。保留前两项后的分隔线。右边独立小统计面板，页头“详细统计信息”与关闭X；可折叠分组“General”展开，列标题“画布”，三行“Shapes 0”“宽度 0”“高度 0”。菜单没有统计数据，统计面板没有菜单；不增加复制导出或统计动作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-empty-canvas-context-menu.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-canvas-shape-properties.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制两个彼此独立的网页局部浮层，留白隔开，不画整页或导航。采用第一图白底、细灰边、蓝选中色和紧凑排版，后两图只提取实际浮层。左边完整右键菜单严格七项原顺序：“粘贴” Ctrl+V；“全部选中” Ctrl+A；“Toggle grid” Ctrl+'；“吸附至对象” Alt+S；“禅模式” Alt+Z；“查看模式” Alt+R；“Canvas & Shape properties” Alt+/。保留前两项后的分隔线。右边独立小统计面板，页头“详细统计信息”与关闭X；可折叠分组“General”展开，列标题“画布”，三行“Shapes 0”“宽度 0”“高度 0”。菜单没有统计数据，统计面板没有菜单；不增加复制导出或统计动作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-empty-canvas-context-menu.png",
+          "role": "Actual context menu labels, shortcuts and seven-item boundary"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-canvas-shape-properties.png",
+          "role": "Actual independent desktop empty statistics body and close"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-dfc66a98-8666-4ea1-bd57-e46556a51b1a.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "RTD-012",
+      "runtimeKey": "vendor-empty-canvas-context-menu",
+      "title": "Empty canvas context menu",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "粘贴",
+        "全部选中",
+        "Toggle grid",
+        "吸附至对象",
+        "禅模式",
+        "查看模式",
+        "Canvas & Shape properties"
+      ],
+      "roleEvidence": {
+        "context-button-count": 7
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:29140"
+      ],
+      "evidence": [
+        "1440-vendor-empty-canvas-context-menu.json",
+        "390-vendor-empty-canvas-context-menu.json"
+      ],
+      "constraints": "Narrow capture uses a real mouse right-click at 390 viewport; no touch/long-press claim. Clipboard content was not read or pasted."
+    },
+    {
+      "id": "RTD-013",
+      "runtimeKey": "vendor-canvas-shape-properties",
+      "title": "Canvas statistics panel",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440
+      ],
+      "actualDOMLabels": [
+        "详细统计信息",
+        "General",
+        "画布 Shapes 0 宽度 0 高度 0"
+      ],
+      "roleEvidence": {
+        "heading:详细统计信息": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:20610",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:21176"
+      ],
+      "evidence": [
+        "1440-vendor-canvas-shape-properties.json",
+        "390-vendor-canvas-shape-properties.json"
+      ],
+      "constraints": "Desktop visible. The same 390 context action produced no stats heading/panel; not counted as a mobile visible surface."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "RTD-012",
+      "parentId": null,
+      "route": null,
+      "roles": [],
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:29140"
+      ]
+    },
+    {
+      "sourceId": "RTD-013",
+      "parentId": null,
+      "route": null,
+      "roles": [],
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:20610",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:21176"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-035.json#WS-V007",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-V007",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-dfc66a98-8666-4ea1-bd57-e46556a51b1a.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-V007.png",
+  "sha256": "b8a2a9de9dd61e100665e8bc79ecad4259df62a72a3df3baa6709dc02a6e62fb",
+  "bytes": 891566,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:13:12.106425+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Empty canvas context menu / Canvas statistics panel",
+    "sourceIds": [
+      "RTD-012",
+      "RTD-013"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Two independent desktop local surfaces: empty-canvas seven-entry context menu; empty General stats with Shapes/width/height zero and close. Mobile statistics not drawn.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": []
+}

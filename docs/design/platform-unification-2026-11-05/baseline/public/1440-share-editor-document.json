@@ -1,0 +1,15 @@
+{
+  "id": "share-editor-document",
+  "title": "访客文档编辑",
+  "width": 1440,
+  "audience": "public",
+  "route": "/s/<isolated-capability>",
+  "file": "1440-share-editor-document.png",
+  "sha256": "1c38eebd017897dbf2d5342d6652b2b300281a5126c57047ad9263c3762f8c4e",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "pageErrors": [],
+  "outerOverflow": 0
+}

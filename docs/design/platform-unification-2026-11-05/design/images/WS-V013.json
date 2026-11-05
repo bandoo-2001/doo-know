@@ -1,0 +1,221 @@
+{
+  "kind": "generated-design",
+  "id": "WS-V013",
+  "assetId": "WS-V013",
+  "sourceIds": [
+    "RTD-021"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "desktop",
+      "sourceId": "RTD-021",
+      "title": "Font search popup",
+      "role": "authenticated owner",
+      "state": "Quick search and actual available font families only, no upload/add font.",
+      "presentationInstruction": "Quick search and actual available font families only, no upload/add font.",
+      "selectedState": "Source-derived font-picker popover filtered by lowercase excalifont; only verified default registered family Excalifont, no scene fonts, no runtime expanded popup capture."
+    },
+    {
+      "label": "phone-390",
+      "sourceId": "RTD-021",
+      "title": "Font search popup",
+      "role": "authenticated owner",
+      "state": "Quick search and actual available font families only, no upload/add font.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Quick search and actual available font families only, no upload/add font.",
+      "selectedState": "Source-derived font-picker popover filtered by lowercase excalifont; only verified default registered family Excalifont, no scene fonts, no runtime expanded popup capture."
+    },
+    {
+      "label": "phone-320",
+      "sourceId": "RTD-021",
+      "title": "Font search popup",
+      "role": "authenticated owner",
+      "state": "Quick search and actual available font families only, no upload/add font.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Quick search and actual available font families only, no upload/add font.",
+      "selectedState": "Source-derived font-picker popover filtered by lowercase excalifont; only verified default registered family Excalifont, no scene fonts, no runtime expanded popup capture."
+    }
+  ],
+  "selectedState": "Source-derived font-picker popover filtered by lowercase excalifont; only verified default registered family Excalifont, no scene fonts, no runtime expanded popup capture.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作三个独立分区对照板，外部只标桌面、390px、320px，三个局部组件而非三窗同时打开。保持全部字段/动作，窄分区自然换行与可达关闭，比例仅示意。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。只画字体搜索小浮层，每份约240px宽，三种外部视口内均放得下，不画画布、样式栏或主页面。顶部一个快速搜索input，当前输入小写“excalifont”。下方分组标题准确英文“Available fonts”，只有一项已注册字体“Excalifont”，浅蓝选中，使用其手写风格预览文字。没有其他字体名称、没有本场景字体组、上传/添加字体、确认/取消/保存/关闭X、字号或颜色控件。保持一条真实字体选择，不生造字体系统。",
+  "prompt": "制作三个独立分区对照板，外部只标桌面、390px、320px，三个局部组件而非三窗同时打开。保持全部字段/动作，窄分区自然换行与可达关闭，比例仅示意。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。只画字体搜索小浮层，每份约240px宽，三种外部视口内均放得下，不画画布、样式栏或主页面。顶部一个快速搜索input，当前输入小写“excalifont”。下方分组标题准确英文“Available fonts”，只有一项已注册字体“Excalifont”，浅蓝选中，使用其手写风格预览文字。没有其他字体名称、没有本场景字体组、上传/添加字体、确认/取消/保存/关闭X、字号或颜色控件。保持一条真实字体选择，不生造字体系统。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-font-picker-popover.png",
+      "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured",
+      "sha256": "2a6f9544bfcf2ebb763ad7752877c3a86c1aa0b106ff678bd0cc82190d4624f4",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exclude owner workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-font-picker-popover.png",
+      "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured",
+      "sha256": "2a6f9544bfcf2ebb763ad7752877c3a86c1aa0b106ff678bd0cc82190d4624f4",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exclude owner workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作三个独立分区对照板，外部只标桌面、390px、320px，三个局部组件而非三窗同时打开。保持全部字段/动作，窄分区自然换行与可达关闭，比例仅示意。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。只画字体搜索小浮层，每份约240px宽，三种外部视口内均放得下，不画画布、样式栏或主页面。顶部一个快速搜索input，当前输入小写“excalifont”。下方分组标题准确英文“Available fonts”，只有一项已注册字体“Excalifont”，浅蓝选中，使用其手写风格预览文字。没有其他字体名称、没有本场景字体组、上传/添加字体、确认/取消/保存/关闭X、字号或颜色控件。保持一条真实字体选择，不生造字体系统。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-font-picker-popover.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作三个独立分区对照板，外部只标桌面、390px、320px，三个局部组件而非三窗同时打开。保持全部字段/动作，窄分区自然换行与可达关闭，比例仅示意。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。只画字体搜索小浮层，每份约240px宽，三种外部视口内均放得下，不画画布、样式栏或主页面。顶部一个快速搜索input，当前输入小写“excalifont”。下方分组标题准确英文“Available fonts”，只有一项已注册字体“Excalifont”，浅蓝选中，使用其手写风格预览文字。没有其他字体名称、没有本场景字体组、上传/添加字体、确认/取消/保存/关闭X、字号或颜色控件。保持一条真实字体选择，不生造字体系统。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-font-picker-popover.png",
+          "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; exclude owner workspace shell"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-c6d47efc-b70a-4223-8d28-01e995b748db.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "RTD-021",
+      "runtimeKey": "vendor-font-picker-popover",
+      "title": "Font search popup",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "Quick search",
+        "Available fonts",
+        "Comic Shanns",
+        "Lilita One",
+        "Excalifont",
+        "Nunito"
+      ],
+      "roleEvidence": {
+        "textbox:Quick search": 1,
+        "menu": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3917",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:4165"
+      ],
+      "evidence": [
+        "1440-vendor-font-picker-popover.json",
+        "390-vendor-font-picker-popover.json"
+      ],
+      "constraints": "Only opened. No fonts chosen or added."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "RTD-021",
+      "parentId": null,
+      "route": null,
+      "roles": [],
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3917",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:4165"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-017.json#WS-V013",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-V013",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-c6d47efc-b70a-4223-8d28-01e995b748db.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-V013.png",
+  "sha256": "72f799441cd4b82282bff0df6f65468b17d056a7eafb62d6d901a8828c66d35a",
+  "bytes": 1030086,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T03:47:01.941111+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Font search popup",
+    "sourceIds": [
+      "RTD-021"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Source-derived font-picker popover filtered by lowercase excalifont; only verified default registered family Excalifont, no scene fonts, no runtime expanded popup capture.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "renderedVariants": []
+}

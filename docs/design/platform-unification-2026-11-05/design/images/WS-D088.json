@@ -1,0 +1,396 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D088",
+  "assetId": "WS-D088",
+  "sourceIds": [
+    "WS-121",
+    "WS-122"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "share-feedback",
+      "sourceId": "WS-121",
+      "title": "Share request busy and form-error state",
+      "role": "authenticated owner",
+      "state": "Six compact independent ShareDialog busy/error/copy fragments. No full form duplication.",
+      "rows": [
+        {
+          "label": "row-1",
+          "sourceId": "WS-121",
+          "title": "Share request busy and form-error state",
+          "role": "authenticated owner",
+          "state": "Busy request spinner and disabled form/actions/Done",
+          "actionPresentation": "Permission/expiry/original/action/Done disabled busy, copy remains callable if active URL. Never add busy mask/Escape/close-x lock or reset/revoke confirmations. Stale note response ignored.",
+          "sourceComponent": "apps/web/components/ShareDialog.vue"
+        },
+        {
+          "label": "row-2",
+          "sourceId": "WS-121",
+          "title": "Share request busy and form-error state",
+          "role": "authenticated owner",
+          "state": "Request error retains chosen fields",
+          "actionPresentation": "Permission/expiry/original/action/Done disabled busy, copy remains callable if active URL. Never add busy mask/Escape/close-x lock or reset/revoke confirmations. Stale note response ignored.",
+          "sourceComponent": "apps/web/components/ShareDialog.vue"
+        },
+        {
+          "label": "row-3",
+          "sourceId": "WS-121",
+          "title": "Share request busy and form-error state",
+          "role": "authenticated owner",
+          "state": "Default modal dismissal has no explicit busy lock",
+          "actionPresentation": "Permission/expiry/original/action/Done disabled busy, copy remains callable if active URL. Never add busy mask/Escape/close-x lock or reset/revoke confirmations. Stale note response ignored.",
+          "sourceComponent": "apps/web/components/ShareDialog.vue"
+        },
+        {
+          "label": "row-4",
+          "sourceId": "WS-122",
+          "title": "Share link copy success and manual-copy fallback",
+          "role": "authenticated owner",
+          "state": "Copied check icon and 已复制",
+          "actionPresentation": "copy() sets copied false/copyError empty then clipboard; failure manual-selection message only. No copy/link row when status.enabled false.",
+          "sourceComponent": "apps/web/components/ShareDialog.vue"
+        },
+        {
+          "label": "row-5",
+          "sourceId": "WS-122",
+          "title": "Share link copy success and manual-copy fallback",
+          "role": "authenticated owner",
+          "state": "Clipboard denied with readonly selectable public URL",
+          "actionPresentation": "copy() sets copied false/copyError empty then clipboard; failure manual-selection message only. No copy/link row when status.enabled false.",
+          "sourceComponent": "apps/web/components/ShareDialog.vue"
+        },
+        {
+          "label": "row-6",
+          "sourceId": "WS-122",
+          "title": "Share link copy success and manual-copy fallback",
+          "role": "authenticated owner",
+          "state": "Reopen/status update resets copied/error flags",
+          "actionPresentation": "copy() sets copied false/copyError empty then clipboard; failure manual-selection message only. No copy/link row when status.enabled false.",
+          "sourceComponent": "apps/web/components/ShareDialog.vue"
+        }
+      ],
+      "selectedState": "Six ShareDialog localized specimens: active-share busy all form/footer disabled but copy enabled; failed save retains view/custom expiry/original checked draft; default header close remains allowed busy; copied; manual-copy error; reset flags. No busy modal dismissal lock or added confirmation."
+    }
+  ],
+  "selectedState": "Six ShareDialog localized specimens: active-share busy all form/footer disabled but copy enabled; failed save retains view/custom expiry/original checked draft; default header close remains allowed busy; copied; manual-copy error; reset flags. No busy modal dismissal lock or added confirmation.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。每行独立以留白细线分开，只画真实局部，不画外部主人导航、浏览器、审查编号或注释。六个紧凑独立行，不画六个完整弹窗。1 分享忙态局部：分享权限“仅查看”、链接有效期“7 天”、未勾选“允许下载图形原件”均灰色禁用；只读公开链接https://example.invalid/s/example，旁边“复制链接”仍可用；底部“重置链接”“取消分享”“保存分享设置”“完成”都禁用，保存分享设置转圈。2 失败保留表单：红色“暂时无法保存分享设置，请重试。”，分享权限仍仅查看，有效期自定义时间，自定义到期时间2027/01/01 12:00，允许下载图形原件勾选，控件均可用。3 只画真实弹窗页头“分享笔记”和可用关闭X、底部灰色禁用“完成”，不能加忙态蒙层或禁用X。4 公开链接只读框https://example.invalid/s/example，复制按钮勾选图标“已复制”。5 同链接框和可用“复制链接”，红色“复制失败，请选中公开链接手动复制。”。6 同链接框和普通可用复制链接，没有已复制或错误。公开链接是可选择只读输入，不能当密码掩码；不加重置/撤销确认窗、自动关闭或其它按钮。",
+  "prompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。每行独立以留白细线分开，只画真实局部，不画外部主人导航、浏览器、审查编号或注释。六个紧凑独立行，不画六个完整弹窗。1 分享忙态局部：分享权限“仅查看”、链接有效期“7 天”、未勾选“允许下载图形原件”均灰色禁用；只读公开链接https://example.invalid/s/example，旁边“复制链接”仍可用；底部“重置链接”“取消分享”“保存分享设置”“完成”都禁用，保存分享设置转圈。2 失败保留表单：红色“暂时无法保存分享设置，请重试。”，分享权限仍仅查看，有效期自定义时间，自定义到期时间2027/01/01 12:00，允许下载图形原件勾选，控件均可用。3 只画真实弹窗页头“分享笔记”和可用关闭X、底部灰色禁用“完成”，不能加忙态蒙层或禁用X。4 公开链接只读框https://example.invalid/s/example，复制按钮勾选图标“已复制”。5 同链接框和可用“复制链接”，红色“复制失败，请选中公开链接手动复制。”。6 同链接框和普通可用复制链接，没有已复制或错误。公开链接是可选择只读输入，不能当密码掩码；不加重置/撤销确认窗、自动关闭或其它按钮。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; not field/action/state authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; not field/action/state authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。每行独立以留白细线分开，只画真实局部，不画外部主人导航、浏览器、审查编号或注释。六个紧凑独立行，不画六个完整弹窗。1 分享忙态局部：分享权限“仅查看”、链接有效期“7 天”、未勾选“允许下载图形原件”均灰色禁用；只读公开链接https://example.invalid/s/example，旁边“复制链接”仍可用；底部“重置链接”“取消分享”“保存分享设置”“完成”都禁用，保存分享设置转圈。2 失败保留表单：红色“暂时无法保存分享设置，请重试。”，分享权限仍仅查看，有效期自定义时间，自定义到期时间2027/01/01 12:00，允许下载图形原件勾选，控件均可用。3 只画真实弹窗页头“分享笔记”和可用关闭X、底部灰色禁用“完成”，不能加忙态蒙层或禁用X。4 公开链接只读框https://example.invalid/s/example，复制按钮勾选图标“已复制”。5 同链接框和可用“复制链接”，红色“复制失败，请选中公开链接手动复制。”。6 同链接框和普通可用复制链接，没有已复制或错误。公开链接是可选择只读输入，不能当密码掩码；不加重置/撤销确认窗、自动关闭或其它按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。每行独立以留白细线分开，只画真实局部，不画外部主人导航、浏览器、审查编号或注释。六个紧凑独立行，不画六个完整弹窗。1 分享忙态局部：分享权限“仅查看”、链接有效期“7 天”、未勾选“允许下载图形原件”均灰色禁用；只读公开链接https://example.invalid/s/example，旁边“复制链接”仍可用；底部“重置链接”“取消分享”“保存分享设置”“完成”都禁用，保存分享设置转圈。2 失败保留表单：红色“暂时无法保存分享设置，请重试。”，分享权限仍仅查看，有效期自定义时间，自定义到期时间2027/01/01 12:00，允许下载图形原件勾选，控件均可用。3 只画真实弹窗页头“分享笔记”和可用关闭X、底部灰色禁用“完成”，不能加忙态蒙层或禁用X。4 公开链接只读框https://example.invalid/s/example，复制按钮勾选图标“已复制”。5 同链接框和可用“复制链接”，红色“复制失败，请选中公开链接手动复制。”。6 同链接框和普通可用复制链接，没有已复制或错误。公开链接是可选择只读输入，不能当密码掩码；不加重置/撤销确认窗、自动关闭或其它按钮。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only; not field/action/state authority"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-b12d020c-9591-4456-8562-036e32ac4fa5.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-121",
+      "title": "Share request busy and form-error state",
+      "kind": "state",
+      "module": "sharing",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Load/submit sharing settings or validation/network failure",
+        "parentId": "WS-099"
+      },
+      "sourceRefs": [
+        "apps/web/components/ShareDialog.vue:104",
+        "apps/web/components/ShareDialog.vue:134",
+        "apps/web/components/ShareDialog.vue:180",
+        "apps/web/components/Workspace.vue:1543"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Full ShareDialog owner form is owned by this workspace inventory. Settings inventory owns ShareManagement listing/entry only; public inventory owns anonymous reader/editor.",
+        "status.editSupported disables the edit option; server rejects edit for primary diagrams, invalid diagram documents, large/long-line Markdown. Browser state does not imply a new public editor permission.",
+        "Parent Workspace manageShare/shareAction captures noteId+viewEpoch; note switch closes form and ignores stale response; duplicate mutations are blocked by shareBusy. Shared status updates after successful result.",
+        "Busy disables permission/expiry/source controls and action/Done buttons. ShareDialog does not explicitly disable NModal mask/Escape/close-x dismissal while busy; copy-link remains callable. Do not invent a busy dismissal lock."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "修正字段并重新提交",
+          "effect": "Retry current chosen action",
+          "api": "POST /api/notes/:id/share or /reset; DELETE /share",
+          "guard": "Parent shareBusy blocks duplicate mutations"
+        },
+        {
+          "label": "关闭表单",
+          "effect": "NModal close event emits show=false",
+          "api": "none",
+          "guard": "No explicit busy dismissal lock in ShareDialog; Done button itself disabled"
+        }
+      ],
+      "importantStates": [
+        "shareBusy action spinner and disabled form inputs/buttons",
+        "Alert chooses error then validation then copyError",
+        "Failed settings request retains choices",
+        "Stale noteId/epoch response ignored",
+        "Initial status request failure uses workspace global error and does not open new form"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width min(550px,100vw-28px), max90dvh scroll. Share settings two columns desktop, one column<=540px; actions wrap and buttons flex on narrow screens. Actual320/390/1440 layout unverified."
+      },
+      "testRefs": [
+        "tests/share-options.test.ts",
+        "tests/workspace-save-recovery.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-122",
+      "title": "Share link copy success and manual-copy fallback",
+      "kind": "state",
+      "module": "sharing",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "复制链接",
+        "parentId": "WS-099"
+      },
+      "sourceRefs": [
+        "apps/web/components/ShareDialog.vue:84",
+        "apps/web/components/ShareDialog.vue:112"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Full ShareDialog owner form is owned by this workspace inventory. Settings inventory owns ShareManagement listing/entry only; public inventory owns anonymous reader/editor.",
+        "status.editSupported disables the edit option; server rejects edit for primary diagrams, invalid diagram documents, large/long-line Markdown. Browser state does not imply a new public editor permission.",
+        "Parent Workspace manageShare/shareAction captures noteId+viewEpoch; note switch closes form and ignores stale response; duplicate mutations are blocked by shareBusy. Shared status updates after successful result.",
+        "Busy disables permission/expiry/source controls and action/Done buttons. ShareDialog does not explicitly disable NModal mask/Escape/close-x dismissal while busy; copy-link remains callable. Do not invent a busy dismissal lock."
+      ],
+      "fields": [
+        {
+          "name": "公开链接",
+          "type": "readonly-url",
+          "required": false,
+          "constraints": "Absolute generated capability URL; can select text manually when clipboard unavailable.",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "复制链接",
+          "effect": "Use clipboard API; success sets label已复制",
+          "api": "navigator.clipboard.writeText",
+          "guard": "Active share and URL row visible"
+        },
+        {
+          "label": "手动选择公开链接",
+          "effect": "Copy from readonly input after clipboard failure",
+          "api": "none (local UI)",
+          "guard": "Authenticated owner; current note/session guards apply."
+        }
+      ],
+      "importantStates": [
+        "Copied check icon/text",
+        "Clipboard failure alert says select URL manually",
+        "Reopen/status change resets copied/error flags"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width min(550px,100vw-28px), max90dvh scroll. Share settings two columns desktop, one column<=540px; actions wrap and buttons flex on narrow screens. Actual320/390/1440 layout unverified."
+      },
+      "testRefs": [
+        "tests/e2e/diagram-sharing-visual.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-121",
+      "parentId": "WS-099",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/ShareDialog.vue:104",
+        "apps/web/components/ShareDialog.vue:134",
+        "apps/web/components/ShareDialog.vue:180",
+        "apps/web/components/Workspace.vue:1543"
+      ]
+    },
+    {
+      "sourceId": "WS-122",
+      "parentId": "WS-099",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/ShareDialog.vue:84",
+        "apps/web/components/ShareDialog.vue:112"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-033.json#WS-D088",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D088",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-b12d020c-9591-4456-8562-036e32ac4fa5.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D088.png",
+  "sha256": "c676df6313e23c940b5e9e66d6adab8b990be618d6bcd8789914206ce260fc5c",
+  "bytes": 1151499,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T06:34:54.761998+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Share busy, retained error and copy feedback specimens",
+    "sourceIds": [
+      "WS-121",
+      "WS-122"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Six ShareDialog localized specimens: active-share busy all form/footer disabled but copy enabled; failed save retains view/custom expiry/original checked draft; default header close remains allowed busy; copied; manual-copy error; reset flags. No busy modal dismissal lock or added confirmation.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "row": 1,
+      "statusEnabled": true,
+      "busy": true,
+      "permission": "view",
+      "duration": "7d",
+      "allowDiagramSource": false,
+      "copyEnabled": true,
+      "formFooterDisabled": true
+    },
+    {
+      "row": 2,
+      "statusEnabled": true,
+      "busy": false,
+      "permission": "view",
+      "duration": "custom",
+      "customDate": "2027-01-01T12:00",
+      "allowDiagramSource": true,
+      "error": "暂时无法保存分享设置，请重试。"
+    },
+    {
+      "row": 3,
+      "busy": true,
+      "modalDismissal": "NModal defaults retained; X and Escape/mask not explicitly locked, Done disabled"
+    },
+    {
+      "row": 4,
+      "statusEnabled": true,
+      "copied": true
+    },
+    {
+      "row": 5,
+      "statusEnabled": true,
+      "copied": false,
+      "copyError": "复制失败，请选中公开链接手动复制。"
+    },
+    {
+      "row": 6,
+      "statusEnabled": true,
+      "copied": false,
+      "copyError": ""
+    }
+  ]
+}

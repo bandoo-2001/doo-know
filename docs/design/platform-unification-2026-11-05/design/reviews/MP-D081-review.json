@@ -1,0 +1,54 @@
+{
+  "assetId": "MP-D081",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:33:03.375979+00:00",
+  "method": "Actual final PNG viewed; all initial/correction prompts in sidecar generationAttempts, current setup/import templates and GEN-004 contract checked. No captured runtime baseline exists for these source-derived setup states.",
+  "selectedState": "Source-derived owner setup remote import; empty URL/branch, no credentials or task, default library name",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Step1 remote source selected; clone URL/optional branch/credential selector/default library name/optional server parent fields and source help preserve order. No ordinary confirm/time-zone/advanced branch added in remote mode.",
+    "Add credential and add-new-credential actions available; connection test and import remain disabled for empty URL. Sync refresh remains distinct. No fabricated empty-credential card or task/cancel/receipt result.",
+    "Import Git-install/preserve-existing/no-auto-merge-force-push explanations and separate saved-local/commit/push concepts retained. Credential management text and closed SSH help appear; no secret editor or credential values exposed.",
+    "Standalone authenticated-owner setup with no private chrome, registration or runtime-success claim. Current saved artifact includes targeted field-state/title-hierarchy corrections."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Residual raster shading and approximate geometry remain illustration only. Use shared flat tokens, exact disclosure open/closed semantics and real conditional field/scroll behavior; no pixel-precision/runtime-fit claim."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-004.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D081.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/SetupWizard.vue:253",
+    "apps/web/components/GitRepositoryImport.vue:7",
+    "apps/web/components/GitRemotePanel.vue:786",
+    "apps/web/components/GitRemotePanel.vue:986",
+    "apps/web/components/GitRemotePanel.vue:1030",
+    "apps/web/components/GitRemotePanel.vue:1060"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "88c93a51bc2ddcb0d1c16d4725d791ccf5ff5643561ef6ac5e9a108ede3c8bce",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D081.png",
+  "sourceIds": [
+    "PB-011"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

@@ -1,0 +1,305 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R015",
+  "assetId": "MP-R015",
+  "sourceIds": [
+    "ST-030"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-030",
+      "title": "验证密码下载恢复密钥390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent SettingsOverlay recovery-key modal states at390/320/320: empty clean validation; 403 after attempted password clears input; in-flight download masked password disabled, close/cancel disabled and primary loading. Primary has no password-empty disabled prop; source downloadKey validates on submit."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-030",
+      "title": "验证密码下载恢复密钥320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent SettingsOverlay recovery-key modal states at390/320/320: empty clean validation; 403 after attempted password clears input; in-flight download masked password disabled, close/cancel disabled and primary loading. Primary has no password-empty disabled prop; source downloadKey validates on submit."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-030",
+      "title": "验证密码下载恢复密钥320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent SettingsOverlay recovery-key modal states at390/320/320: empty clean validation; 403 after attempted password clears input; in-flight download masked password disabled, close/cancel disabled and primary loading. Primary has no password-empty disabled prop; source downloadKey validates on submit."
+    }
+  ],
+  "selectedState": "Three independent SettingsOverlay recovery-key modal states at390/320/320: empty clean validation; 403 after attempted password clears input; in-flight download masked password disabled, close/cancel disabled and primary loading. Primary has no password-empty disabled prop; source downloadKey validates on submit.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制横向并排三张独立窄网页模态窗，宽度比例390、320、320，白色卡、浅灰边、蓝主按钮，无整页导航、硬件或浏览器窗。每窗页头钥匙图标“下载恢复密钥”、关闭X；完整说明“输入当前账户密码后下载私钥文件。请与备份分开保存，避免丢失后无法恢复。”自然换行；正文唯一字段“当前密码”，密码框带真实显示密码眼睛图标；固定页脚两按钮“取消”“验证密码并下载密钥”，窄屏自然换行且全部在边界内。左窗密码空白、无错误，两按钮和关闭X均可用，主按钮蓝色，不能因空密码变灰。中窗密码空白、框红色，下方红字“当前密码不正确。”，取消/主按钮/X仍可用，不能保留已提交密码。右窗密码显示六个圆点且输入禁用，X和取消灰色禁用，主按钮蓝色转圈忙态不可重复点击，没有错误。不能画私钥内容、下载路径、成功回执、注册或额外确认。",
+  "prompt": "绘制横向并排三张独立窄网页模态窗，宽度比例390、320、320，白色卡、浅灰边、蓝主按钮，无整页导航、硬件或浏览器窗。每窗页头钥匙图标“下载恢复密钥”、关闭X；完整说明“输入当前账户密码后下载私钥文件。请与备份分开保存，避免丢失后无法恢复。”自然换行；正文唯一字段“当前密码”，密码框带真实显示密码眼睛图标；固定页脚两按钮“取消”“验证密码并下载密钥”，窄屏自然换行且全部在边界内。左窗密码空白、无错误，两按钮和关闭X均可用，主按钮蓝色，不能因空密码变灰。中窗密码空白、框红色，下方红字“当前密码不正确。”，取消/主按钮/X仍可用，不能保留已提交密码。右窗密码显示六个圆点且输入禁用，X和取消灰色禁用，主按钮蓝色转圈忙态不可重复点击，没有错误。不能画私钥内容、下载路径、成功回执、注册或额外确认。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-backup.png",
+      "role": "Actual owner backup parent only; selected modal source-derived",
+      "sha256": "dfa6da746282d2784f0490c5c005b0d8a504eb003baa8965f491df1b7824ef09",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-backup.png",
+      "role": "Actual owner backup parent only; selected modal source-derived",
+      "sha256": "dfa6da746282d2784f0490c5c005b0d8a504eb003baa8965f491df1b7824ef09",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制横向并排三张独立窄网页模态窗，宽度比例390、320、320，白色卡、浅灰边、蓝主按钮，无整页导航、硬件或浏览器窗。每窗页头钥匙图标“下载恢复密钥”、关闭X；完整说明“输入当前账户密码后下载私钥文件。请与备份分开保存，避免丢失后无法恢复。”自然换行；正文唯一字段“当前密码”，密码框带真实显示密码眼睛图标；固定页脚两按钮“取消”“验证密码并下载密钥”，窄屏自然换行且全部在边界内。左窗密码空白、无错误，两按钮和关闭X均可用，主按钮蓝色，不能因空密码变灰。中窗密码空白、框红色，下方红字“当前密码不正确。”，取消/主按钮/X仍可用，不能保留已提交密码。右窗密码显示六个圆点且输入禁用，X和取消灰色禁用，主按钮蓝色转圈忙态不可重复点击，没有错误。不能画私钥内容、下载路径、成功回执、注册或额外确认。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-backup.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制横向并排三张独立窄网页模态窗，宽度比例390、320、320，白色卡、浅灰边、蓝主按钮，无整页导航、硬件或浏览器窗。每窗页头钥匙图标“下载恢复密钥”、关闭X；完整说明“输入当前账户密码后下载私钥文件。请与备份分开保存，避免丢失后无法恢复。”自然换行；正文唯一字段“当前密码”，密码框带真实显示密码眼睛图标；固定页脚两按钮“取消”“验证密码并下载密钥”，窄屏自然换行且全部在边界内。左窗密码空白、无错误，两按钮和关闭X均可用，主按钮蓝色，不能因空密码变灰。中窗密码空白、框红色，下方红字“当前密码不正确。”，取消/主按钮/X仍可用，不能保留已提交密码。右窗密码显示六个圆点且输入禁用，X和取消灰色禁用，主按钮蓝色转圈忙态不可重复点击，没有错误。不能画私钥内容、下载路径、成功回执、注册或额外确认。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-backup.png",
+          "role": "Actual owner backup parent only; selected modal source-derived"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-bdb6eb40-da69-4e60-886f-1bef026f9469.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-030",
+      "title": "验证密码下载恢复密钥",
+      "kind": "dialog",
+      "module": "settings/backup",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "下载恢复密钥",
+        "parentId": "ST-004"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:142",
+        "apps/web/components/settings/BackupSettings.vue:313",
+        "apps/server/platform/transfers.ts:893"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "当前密码",
+          "type": "password",
+          "required": true,
+          "constraints": "服务端≤1024字符；每所有者5次/60秒节流；每次尝试后立即清空",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "验证密码并下载密钥",
+          "effect": "下载私钥文件；关闭弹窗",
+          "api": "POST /api/manage/backups/key",
+          "guard": "密码非空；不keyBusy"
+        },
+        {
+          "label": "取消",
+          "effect": "清除草稿关闭",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "密码未填",
+        "403错误密码",
+        "429稍后重试",
+        "尚未创建备份/恢复密钥不可用409",
+        "下载中关闭锁定",
+        "成功notice"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:118",
+        "tests/e2e/management-features.spec.ts:427"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "任何设计图只使用掩码，不展示私钥字节。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-030",
+      "parentId": "ST-004",
+      "route": "/?view=settings&section=backup",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:142",
+        "apps/web/components/settings/BackupSettings.vue:313",
+        "apps/server/platform/transfers.ts:893"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-037.json#MP-R015",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R015",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-bdb6eb40-da69-4e60-886f-1bef026f9469.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R015.png",
+  "sha256": "b9f3d8f2bf9a52b5746dbefb1c930f15edf529835831d2bd50a9d001e1a981bf",
+  "bytes": 1188748,
+  "dimensions": {
+    "width": 1983,
+    "height": 793
+  },
+  "generatedAtUtc": "2026-11-05T07:24:14.838903+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: SettingsOverlay .settings-form .settings-field password inputs and validation",
+    "sourceIds": [
+      "ST-030"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent SettingsOverlay recovery-key modal states at390/320/320: empty clean validation; 403 after attempted password clears input; in-flight download masked password disabled, close/cancel disabled and primary loading. Primary has no password-empty disabled prop; source downloadKey validates on submit.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "password": "",
+      "keyBusy": false,
+      "keyError": "",
+      "primaryEnabled": true
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "password": "",
+      "keyBusy": false,
+      "keyError": "当前密码不正确。",
+      "primaryEnabled": true
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "password": "masked",
+      "keyBusy": true,
+      "closeDisabled": true,
+      "cancelDisabled": true
+    }
+  ]
+}

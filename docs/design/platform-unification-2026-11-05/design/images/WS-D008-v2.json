@@ -1,0 +1,130 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D008-v2",
+  "sourceIds": [
+    "WS-008"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-008",
+      "title": "Favorite notes collection",
+      "role": "authenticated owner",
+      "state": "Coherent initial loading, total 0 and empty sidebar head",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host."
+    }
+  ],
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D008.png",
+    "sha256": "21c0b16eaafb2b5bda4b7ba982677918c54770f299d3232642b8af022c6c1aa5",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D008-review.json"
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "Use case: ui-mockup. One complete full desktop DooKnow favorites INITIAL LOADING page, about 1440x1000. Image 1 gives real content/geometry; Image 2 gives global header and compact flat styling. Preserve the real DooKnow book identity and full horizontal global header as in Image 2. A narrow left owner rail has account O, 笔记/最近/收藏/应用, bottom 回收站/设置. Keep the contextual sidebar and its search field, 新建 split button, contextual heading, add-folder and refresh icons, and resize divider. No invented navigation or header actions. Select 收藏 in the rail.\nContext sidebar heading 收藏, then only 暂无收藏，可右键笔记或在编辑窗口中收藏. No sidebar note entries or 查看全部. Main heading hierarchy 我的笔记 then 收藏, 0 篇笔记 and 按最近修改排序. Main refresh is disabled, 新建笔记 remains enabled. Main body is exactly six quiet skeleton cards in a three-column two-row grid, not the empty-content illustration from Image 1. This is a single coherent initial-loading state with no cards/pagination/error. Flat white #ffffff main/header, #f7f8fa context sidebar, #272b3a text, #657084 muted, #e6e9f1 thin borders, #4566c6 blue and #edf1ff selection. Crisp Chinese sans-serif, 8px corners, no texture/gradient. Preserve DooKnow global horizontal header across top. No browser chrome, task identity or extra navigation. Source/role/state caption is metadata.",
+  "prompt": "Use case: ui-mockup. One complete full desktop DooKnow favorites INITIAL LOADING page, about 1440x1000. Image 1 gives real content/geometry; Image 2 gives global header and compact flat styling. Preserve the real DooKnow book identity and full horizontal global header as in Image 2. A narrow left owner rail has account O, 笔记/最近/收藏/应用, bottom 回收站/设置. Keep the contextual sidebar and its search field, 新建 split button, contextual heading, add-folder and refresh icons, and resize divider. No invented navigation or header actions. Select 收藏 in the rail.\nContext sidebar heading 收藏, then only 暂无收藏，可右键笔记或在编辑窗口中收藏. No sidebar note entries or 查看全部. Main heading hierarchy 我的笔记 then 收藏, 0 篇笔记 and 按最近修改排序. Main refresh is disabled, 新建笔记 remains enabled. Main body is exactly six quiet skeleton cards in a three-column two-row grid, not the empty-content illustration from Image 1. This is a single coherent initial-loading state with no cards/pagination/error. Flat white #ffffff main/header, #f7f8fa context sidebar, #272b3a text, #657084 muted, #e6e9f1 thin borders, #4566c6 blue and #edf1ff selection. Crisp Chinese sans-serif, 8px corners, no texture/gradient. Preserve DooKnow global horizontal header across top. No browser chrome, task identity or extra navigation. Source/role/state caption is metadata.",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-favorites.png",
+      "role": "Actual DooKnow favorites collection host and controls; main changed to initial load"
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "DooKnow global-header hierarchy, flat palette and compact density only"
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-favorites.png",
+      "role": "Actual DooKnow favorites collection host and controls; main changed to initial load"
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "DooKnow global-header hierarchy, flat palette and compact density only"
+    }
+  ],
+  "generationAttempts": [
+    {
+      "submittedPrompt": "Use case: ui-mockup. One complete full desktop DooKnow favorites INITIAL LOADING page, about 1440x1000. Image 1 gives real content/geometry; Image 2 gives global header and compact flat styling. Preserve the real DooKnow book identity and full horizontal global header as in Image 2. A narrow left owner rail has account O, 笔记/最近/收藏/应用, bottom 回收站/设置. Keep the contextual sidebar and its search field, 新建 split button, contextual heading, add-folder and refresh icons, and resize divider. No invented navigation or header actions. Select 收藏 in the rail.\nContext sidebar heading 收藏, then only 暂无收藏，可右键笔记或在编辑窗口中收藏. No sidebar note entries or 查看全部. Main heading hierarchy 我的笔记 then 收藏, 0 篇笔记 and 按最近修改排序. Main refresh is disabled, 新建笔记 remains enabled. Main body is exactly six quiet skeleton cards in a three-column two-row grid, not the empty-content illustration from Image 1. This is a single coherent initial-loading state with no cards/pagination/error. Flat white #ffffff main/header, #f7f8fa context sidebar, #272b3a text, #657084 muted, #e6e9f1 thin borders, #4566c6 blue and #edf1ff selection. Crisp Chinese sans-serif, 8px corners, no texture/gradient. Preserve DooKnow global horizontal header across top. No browser chrome, task identity or extra navigation. Source/role/state caption is metadata.",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-favorites.png",
+          "role": "Actual DooKnow favorites collection host and controls; main changed to initial load"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "DooKnow global-header hierarchy, flat palette and compact density only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-79a8e4fb-cb58-4dac-ab41-b456c98581a6.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D008-v2.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-79a8e4fb-cb58-4dac-ab41-b456c98581a6.png",
+  "sha256": "7715a67ce591c579dbc9cf7e0a5458a920ca267a47a1251fa23d16a95615159e",
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "bytes": 1038336,
+  "generatedAtUtc": "2026-11-05T01:05:14.943643+00:00",
+  "postprocessing": "None. Original tool-generated PNG copied byte-for-byte; no pixel editing.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "sourceIds": [
+      "WS-008"
+    ],
+    "title": "Favorite notes collection",
+    "role": "authenticated owner",
+    "state": "Coherent initial loading, total 0 and empty sidebar head",
+    "location": "metadata by authorized revision scope"
+  },
+  "scope": {
+    "presentation": "full-desktop",
+    "hostSourceIds": [
+      "WS-008"
+    ],
+    "sharedReferences": [],
+    "runtimeBehaviorVerified": false
+  },
+  "selfInspection": {
+    "method": "Actual generated native preview viewed in generation child context; compared to actual baseline, source contracts and PILOT-WS-001.",
+    "concerns": [
+      "Raster texture/blue shading and approximate geometry are illustrative only; eventual CSS must use flat shared tokens and preserve resize behavior.",
+      "Static raster does not verify action execution, keyboard, focus, guards, owner enforcement or responsive fit.",
+      "Skeleton bar geometry is illustrative; this bitmap covers initial loading only, not incompatible loaded/empty/error variants."
+    ],
+    "independentReviewStatus": "pending"
+  },
+  "sourceReferences": [
+    {
+      "path": "apps/web/components/CollectionWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/CollectionWorkspace.vue:132, apps/web/components/NoteCollection.vue:1, apps/web/collection-window.ts:1, apps/server/app.ts:234"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+      "role": "Shared style contract"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D008-review.json",
+      "role": "Prior independent review correction requirements"
+    }
+  ]
+}

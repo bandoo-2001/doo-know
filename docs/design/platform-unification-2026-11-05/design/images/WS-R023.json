@@ -1,0 +1,768 @@
+{
+  "id": "WS-R023",
+  "title": "Saved note history and diff modal",
+  "kind": "responsive-board",
+  "sourceIds": [
+    "WS-064"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-064",
+      "title": "Saved note history and diff modal",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar"
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-064",
+      "title": "Saved note history and diff modal",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar"
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/NoteHistoryDialog.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/NoteHistoryDialog.vue:511, apps/web/components/NoteHistoryDialog.vue:587, apps/web/note-history.ts:1, apps/server/app.ts:445"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-064",
+      "label": "选择版本 / 加载更早版本",
+      "effect": "Fetch version list/source and compute difference",
+      "api": "GET /api/notes/:id/revisions; POST /api/notes/:id/revisions/:revisionId/read",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-064",
+      "label": "恢复此版本",
+      "effect": "Enter explicit second confirmation",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-064",
+      "label": "关闭",
+      "effect": "Close when history not locked",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+    "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R023",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px nearly full viewport (100vw-12px x 100dvh-12px), mobile version picker and stacked chrome; <=360px compact diff tabs/tools; desktop split version list + diff (NoteHistoryDialog.vue:1671,1859)."
+      },
+      "requiredFieldOrder": [
+        "历史版本",
+        "历史内容视图"
+      ],
+      "requiredFields": [
+        {
+          "name": "历史版本",
+          "type": "version-select",
+          "required": true,
+          "constraints": "Saved revisions, 50 per server page; mobile select replaces list.",
+          "sensitive": false
+        },
+        {
+          "name": "历史内容视图",
+          "type": "tabs",
+          "required": true,
+          "constraints": "差异对比 | 历史原文",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "选择版本 / 加载更早版本",
+          "effect": "Fetch version list/source and compute difference",
+          "api": "GET /api/notes/:id/revisions; POST /api/notes/:id/revisions/:revisionId/read",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "恢复此版本",
+          "effect": "Enter explicit second confirmation",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "关闭",
+          "effect": "Close when history not locked",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-064"
+    }
+  ],
+  "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R023 Saved note history and diff modal\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-064\", \"title\": \"Saved note history and diff modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar\"}, {\"label\": \"B\", \"sourceId\": \"WS-064\", \"title\": \"Saved note history and diff modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-064\", \"fieldsInOrder\": [{\"name\": \"历史版本\", \"type\": \"version-select\", \"required\": true, \"constraints\": \"Saved revisions, 50 per server page; mobile select replaces list.\", \"sensitive\": false}, {\"name\": \"历史内容视图\", \"type\": \"tabs\", \"required\": true, \"constraints\": \"差异对比 | 历史原文\", \"sensitive\": false}], \"actions\": [{\"label\": \"选择版本 / 加载更早版本\", \"effect\": \"Fetch version list/source and compute difference\", \"api\": \"GET /api/notes/:id/revisions; POST /api/notes/:id/revisions/:revisionId/read\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"恢复此版本\", \"effect\": \"Enter explicit second confirmation\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"关闭\", \"effect\": \"Close when history not locked\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading/empty/error/retry\", \"Read/diff computing\", \"Renderer loading/failure with raw-diff fallback\", \"Unsaved draft excluded from comparison\", \"Baseline stale\", \"Pending restore locks navigation\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-064\", \"fieldsInOrder\": [{\"name\": \"历史版本\", \"type\": \"version-select\", \"required\": true, \"constraints\": \"Saved revisions, 50 per server page; mobile select replaces list.\", \"sensitive\": false}, {\"name\": \"历史内容视图\", \"type\": \"tabs\", \"required\": true, \"constraints\": \"差异对比 | 历史原文\", \"sensitive\": false}], \"actions\": [{\"label\": \"选择版本 / 加载更早版本\", \"effect\": \"Fetch version list/source and compute difference\", \"api\": \"GET /api/notes/:id/revisions; POST /api/notes/:id/revisions/:revisionId/read\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"恢复此版本\", \"effect\": \"Enter explicit second confirmation\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"关闭\", \"effect\": \"Close when history not locked\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading/empty/error/retry\", \"Read/diff computing\", \"Renderer loading/failure with raw-diff fallback\", \"Unsaved draft excluded from comparison\", \"Baseline stale\", \"Pending restore locks navigation\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R023.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-064",
+      "title": "Saved note history and diff modal",
+      "kind": "dialog",
+      "module": "history",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "历史版本",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/NoteHistoryDialog.vue:511",
+        "apps/web/components/NoteHistoryDialog.vue:587",
+        "apps/web/note-history.ts:1",
+        "apps/server/app.ts:445"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "历史版本",
+          "type": "version-select",
+          "required": true,
+          "constraints": "Saved revisions, 50 per server page; mobile select replaces list.",
+          "sensitive": false
+        },
+        {
+          "name": "历史内容视图",
+          "type": "tabs",
+          "required": true,
+          "constraints": "差异对比 | 历史原文",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "选择版本 / 加载更早版本",
+          "effect": "Fetch version list/source and compute difference",
+          "api": "GET /api/notes/:id/revisions; POST /api/notes/:id/revisions/:revisionId/read",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "恢复此版本",
+          "effect": "Enter explicit second confirmation",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "关闭",
+          "effect": "Close when history not locked",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Loading/empty/error/retry",
+        "Read/diff computing",
+        "Renderer loading/failure with raw-diff fallback",
+        "Unsaved draft excluded from comparison",
+        "Baseline stale",
+        "Pending restore locks navigation"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px nearly full viewport (100vw-12px x 100dvh-12px), mobile version picker and stacked chrome; <=360px compact diff tabs/tools; desktop split version list + diff (NoteHistoryDialog.vue:1671,1859)."
+      },
+      "testRefs": [
+        "tests/note-history.test.ts",
+        "tests/e2e/unified-note-history.spec.ts",
+        "tests/note-history-context.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-064",
+      "parentId": "WS-024",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-064",
+  "stateCoverageRefs": [],
+  "statePatternRefs": [
+    {
+      "sourceId": "WS-064",
+      "assetId": "WS-M009",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-064",
+      "assetId": "WS-D046",
+      "representation": "nonvisual-data-rule"
+    },
+    {
+      "sourceId": "WS-064",
+      "assetId": "WS-M009",
+      "representation": "visible"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review. IMPORTANT renderer branch boundary: any drawn Git source has commit diff/raw-diff only; historical-original/current-fragment/copy/paging belongs exclusively to saved-record source. Other source variants mapped by this family keep their exact guards; do not merge branches.",
+  "sourceBranchConstraints": [
+    {
+      "sourceId": "WS-066",
+      "branch": "git",
+      "forbiddenControls": [
+        "历史原文",
+        "当前片段",
+        "复制历史原文",
+        "下一片段"
+      ],
+      "actualContent": "commit diff or original-diff fallback"
+    },
+    {
+      "sourceId": "WS-065",
+      "branch": "saved",
+      "actualContent": "historical original / current fragment / copy / paging, with exact existing guards"
+    }
+  ],
+  "assetId": "WS-R023",
+  "originalManifest": {
+    "id": "WS-R023",
+    "title": "Saved note history and diff modal",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-064"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-064",
+        "title": "Saved note history and diff modal",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar"
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-064",
+        "title": "Saved note history and diff modal",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar"
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "apps/web/components/NoteHistoryDialog.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/NoteHistoryDialog.vue:511, apps/web/components/NoteHistoryDialog.vue:587, apps/web/note-history.ts:1, apps/server/app.ts:445"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-064",
+        "label": "选择版本 / 加载更早版本",
+        "effect": "Fetch version list/source and compute difference",
+        "api": "GET /api/notes/:id/revisions; POST /api/notes/:id/revisions/:revisionId/read",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-064",
+        "label": "恢复此版本",
+        "effect": "Enter explicit second confirmation",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-064",
+        "label": "关闭",
+        "effect": "Close when history not locked",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI.",
+      "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+      "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-R023",
+        "representation": "direct",
+        "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "<=720px nearly full viewport (100vw-12px x 100dvh-12px), mobile version picker and stacked chrome; <=360px compact diff tabs/tools; desktop split version list + diff (NoteHistoryDialog.vue:1671,1859)."
+        },
+        "requiredFieldOrder": [
+          "历史版本",
+          "历史内容视图"
+        ],
+        "requiredFields": [
+          {
+            "name": "历史版本",
+            "type": "version-select",
+            "required": true,
+            "constraints": "Saved revisions, 50 per server page; mobile select replaces list.",
+            "sensitive": false
+          },
+          {
+            "name": "历史内容视图",
+            "type": "tabs",
+            "required": true,
+            "constraints": "差异对比 | 历史原文",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "选择版本 / 加载更早版本",
+            "effect": "Fetch version list/source and compute difference",
+            "api": "GET /api/notes/:id/revisions; POST /api/notes/:id/revisions/:revisionId/read",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "恢复此版本",
+            "effect": "Enter explicit second confirmation",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "关闭",
+            "effect": "Close when history not locked",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-064"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R023 Saved note history and diff modal\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-064\", \"title\": \"Saved note history and diff modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar\"}, {\"label\": \"B\", \"sourceId\": \"WS-064\", \"title\": \"Saved note history and diff modal\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. near-fullviewport with mobile version select and compact<=360px diff/raw toolbar\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-064\", \"fieldsInOrder\": [{\"name\": \"历史版本\", \"type\": \"version-select\", \"required\": true, \"constraints\": \"Saved revisions, 50 per server page; mobile select replaces list.\", \"sensitive\": false}, {\"name\": \"历史内容视图\", \"type\": \"tabs\", \"required\": true, \"constraints\": \"差异对比 | 历史原文\", \"sensitive\": false}], \"actions\": [{\"label\": \"选择版本 / 加载更早版本\", \"effect\": \"Fetch version list/source and compute difference\", \"api\": \"GET /api/notes/:id/revisions; POST /api/notes/:id/revisions/:revisionId/read\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"恢复此版本\", \"effect\": \"Enter explicit second confirmation\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"关闭\", \"effect\": \"Close when history not locked\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading/empty/error/retry\", \"Read/diff computing\", \"Renderer loading/failure with raw-diff fallback\", \"Unsaved draft excluded from comparison\", \"Baseline stale\", \"Pending restore locks navigation\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-064\", \"fieldsInOrder\": [{\"name\": \"历史版本\", \"type\": \"version-select\", \"required\": true, \"constraints\": \"Saved revisions, 50 per server page; mobile select replaces list.\", \"sensitive\": false}, {\"name\": \"历史内容视图\", \"type\": \"tabs\", \"required\": true, \"constraints\": \"差异对比 | 历史原文\", \"sensitive\": false}], \"actions\": [{\"label\": \"选择版本 / 加载更早版本\", \"effect\": \"Fetch version list/source and compute difference\", \"api\": \"GET /api/notes/:id/revisions; POST /api/notes/:id/revisions/:revisionId/read\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"恢复此版本\", \"effect\": \"Enter explicit second confirmation\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"关闭\", \"effect\": \"Close when history not locked\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading/empty/error/retry\", \"Read/diff computing\", \"Renderer loading/failure with raw-diff fallback\", \"Unsaved draft excluded from comparison\", \"Baseline stale\", \"Pending restore locks navigation\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R023.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-064",
+        "title": "Saved note history and diff modal",
+        "kind": "dialog",
+        "module": "history",
+        "entry": {
+          "route": "/?note=:id",
+          "trigger": "历史版本",
+          "parentId": "WS-024"
+        },
+        "sourceRefs": [
+          "apps/web/components/NoteHistoryDialog.vue:511",
+          "apps/web/components/NoteHistoryDialog.vue:587",
+          "apps/web/note-history.ts:1",
+          "apps/server/app.ts:445"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "fields": [
+          {
+            "name": "历史版本",
+            "type": "version-select",
+            "required": true,
+            "constraints": "Saved revisions, 50 per server page; mobile select replaces list.",
+            "sensitive": false
+          },
+          {
+            "name": "历史内容视图",
+            "type": "tabs",
+            "required": true,
+            "constraints": "差异对比 | 历史原文",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "选择版本 / 加载更早版本",
+            "effect": "Fetch version list/source and compute difference",
+            "api": "GET /api/notes/:id/revisions; POST /api/notes/:id/revisions/:revisionId/read",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "恢复此版本",
+            "effect": "Enter explicit second confirmation",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "关闭",
+            "effect": "Close when history not locked",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Loading/empty/error/retry",
+          "Read/diff computing",
+          "Renderer loading/failure with raw-diff fallback",
+          "Unsaved draft excluded from comparison",
+          "Baseline stale",
+          "Pending restore locks navigation"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "<=720px nearly full viewport (100vw-12px x 100dvh-12px), mobile version picker and stacked chrome; <=360px compact diff tabs/tools; desktop split version list + diff (NoteHistoryDialog.vue:1671,1859)."
+        },
+        "testRefs": [
+          "tests/note-history.test.ts",
+          "tests/e2e/unified-note-history.spec.ts",
+          "tests/note-history-context.test.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-064",
+        "parentId": "WS-024",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-064",
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "WS-064",
+        "assetId": "WS-M009",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-064",
+        "assetId": "WS-D046",
+        "representation": "nonvisual-data-rule"
+      },
+      {
+        "sourceId": "WS-064",
+        "assetId": "WS-M009",
+        "representation": "visible"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review. IMPORTANT renderer branch boundary: any drawn Git source has commit diff/raw-diff only; historical-original/current-fragment/copy/paging belongs exclusively to saved-record source. Other source variants mapped by this family keep their exact guards; do not merge branches.",
+    "sourceBranchConstraints": [
+      {
+        "sourceId": "WS-066",
+        "branch": "git",
+        "forbiddenControls": [
+          "历史原文",
+          "当前片段",
+          "复制历史原文",
+          "下一片段"
+        ],
+        "actualContent": "commit diff or original-diff fallback"
+      },
+      {
+        "sourceId": "WS-065",
+        "branch": "saved",
+        "actualContent": "historical original / current fragment / copy / paging, with exact existing guards"
+      }
+    ]
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作中文“历史版本”手机弹窗两独立面板A/B，A390、B320窄屏比例，正常字号，近乎填满可用视口，白底细边线8px圆角、浅灰外背景，不画手机壳、宿主导航或系统栏。两屏标题时钟图标“历史版本”、小字文件名“知识与行动”、可达关闭X；下面只有来源标签“保存记录”选中，Git不可用所以不画Git提交。正文顶部手机下拉“11/04 10:00 · 69 B”，不画桌面版本侧栏。下面对比参照“历史版本 11/04 10:00 → 当前已保存版本 11/05 12:00”。A为“历史原文”标签选中、“差异对比”未选中；真实内容工具行左“完整原文”右“复制全文”；正文可滚动等宽原文“# 知识与行动”空行后“用于平台界面盘点的隔离示例。”。B为独立差异视图回退状态：“差异对比”选中、“历史原文”未选中；提示“差异视图暂不可用，仍可查看原始差异。”及按钮“重试差异视图”；原生details展开“原始差异”，等宽两行“- 旧正文”（浅红）、“+ 新正文”（浅绿），原始差异内部横向滚动。两屏底部保留真实保护提示“恢复前会保留当前原文，并检查版本是否变化。”，及“关闭”、蓝色“恢复此版本”按钮，均当前可用，未进入确认恢复阶段。不添加恢复成功、版本协议ID、删除历史、额外下载或其他权限。",
+  "actualToolArguments": {
+    "prompt": "制作中文“历史版本”手机弹窗两独立面板A/B，A390、B320窄屏比例，正常字号，近乎填满可用视口，白底细边线8px圆角、浅灰外背景，不画手机壳、宿主导航或系统栏。两屏标题时钟图标“历史版本”、小字文件名“知识与行动”、可达关闭X；下面只有来源标签“保存记录”选中，Git不可用所以不画Git提交。正文顶部手机下拉“11/04 10:00 · 69 B”，不画桌面版本侧栏。下面对比参照“历史版本 11/04 10:00 → 当前已保存版本 11/05 12:00”。A为“历史原文”标签选中、“差异对比”未选中；真实内容工具行左“完整原文”右“复制全文”；正文可滚动等宽原文“# 知识与行动”空行后“用于平台界面盘点的隔离示例。”。B为独立差异视图回退状态：“差异对比”选中、“历史原文”未选中；提示“差异视图暂不可用，仍可查看原始差异。”及按钮“重试差异视图”；原生details展开“原始差异”，等宽两行“- 旧正文”（浅红）、“+ 新正文”（浅绿），原始差异内部横向滚动。两屏底部保留真实保护提示“恢复前会保留当前原文，并检查版本是否变化。”，及“关闭”、蓝色“恢复此版本”按钮，均当前可用，未进入确认恢复阶段。不添加恢复成功、版本协议ID、删除历史、额外下载或其他权限。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D046.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D046.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D046.png",
+      "order": 1,
+      "role": "source-owned modal framing only; selected nonempty states from actual template",
+      "sha256": "d6471a1732da6ab1b9b32ac3ea8aecd3fb40fd4da891e36703d70eaefe239626",
+      "bytes": 1045116,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/NoteHistoryDialog.vue",
+      "sha256": "687110978833956f95c6b68ebd7c0bfbc058d548bbd9dc49380ee1a07783314d",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/note-history.ts",
+      "sha256": "1887e53835f9336db19dbe13b919abd29e631c7d27e49acd180048644288635f",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/server/app.ts",
+      "sha256": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+      "role": "actual source template/behavior authority; read before generation"
+    }
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "fallbackUsed": false,
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "url": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "verifiedModel": "gpt-image-2",
+      "scope": "Codex built-in image generation",
+      "date": "2026-11-05",
+      "apiReference": "https://developers.openai.com/api/reference/resources/images/methods/generate",
+      "apiModelSupported": true,
+      "apiReferenceDoesNotProveBuiltinRouteAlone": true
+    }
+  },
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-17ee1d1c-632c-4b9b-9f74-488fba4eda13.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-17ee1d1c-632c-4b9b-9f74-488fba4eda13.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generatedAtUtc": "2026-11-05T09:03:23.048Z",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R023.png",
+  "generationCalls": [
+    {
+      "status": "completed-with-tool-receipt",
+      "actualToolArguments": {
+        "prompt": "制作中文“历史版本”手机弹窗两独立面板A/B，A390、B320窄屏比例，正常字号，近乎填满可用视口，白底细边线8px圆角、浅灰外背景，不画手机壳、宿主导航或系统栏。两屏标题时钟图标“历史版本”、小字文件名“知识与行动”、可达关闭X；下面只有来源标签“保存记录”选中，Git不可用所以不画Git提交。正文顶部手机下拉“11/04 10:00 · 69 B”，不画桌面版本侧栏。下面对比参照“历史版本 11/04 10:00 → 当前已保存版本 11/05 12:00”。A为“历史原文”标签选中、“差异对比”未选中；真实内容工具行左“完整原文”右“复制全文”；正文可滚动等宽原文“# 知识与行动”空行后“用于平台界面盘点的隔离示例。”。B为独立差异视图回退状态：“差异对比”选中、“历史原文”未选中；提示“差异视图暂不可用，仍可查看原始差异。”及按钮“重试差异视图”；原生details展开“原始差异”，等宽两行“- 旧正文”（浅红）、“+ 新正文”（浅绿），原始差异内部横向滚动。两屏底部保留真实保护提示“恢复前会保留当前原文，并检查版本是否变化。”，及“关闭”、蓝色“恢复此版本”按钮，均当前可用，未进入确认恢复阶段。不添加恢复成功、版本协议ID、删除历史、额外下载或其他权限。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D046.png",
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-17ee1d1c-632c-4b9b-9f74-488fba4eda13.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    }
+  ],
+  "generationCallCount": 1,
+  "selfInspection": {
+    "status": "pending-independent-review",
+    "method": "Native PNG inspected against component template/role and selected state",
+    "concerns": [
+      "Raster geometry approximate; runtime scroll/actions remain unverified."
+    ]
+  },
+  "sha256": "b1c5d42124c21df7f18feb48a367b4a8b14f8faa9ad933a0916ec89e8b8e82fe",
+  "bytes": 1212775,
+  "dimensions": {
+    "width": 1448,
+    "height": 1086
+  },
+  "selectedState": [
+    "390 saved source complete readable historical plaintext",
+    "320 renderer fallback compare with raw patch details; selection stable"
+  ],
+  "unscreenedControlsBinding": {
+    "assetId": "WS-M009",
+    "fieldOrder": [
+      "source tabs",
+      "revision picker",
+      "references",
+      "compare/source tabs",
+      "content",
+      "footer protection",
+      "close",
+      "restore"
+    ],
+    "sha256": "2de0be6fee427a11c57b8c2af1f0d5dac09ba717b3feda33df26e7d43dae6eac",
+    "path": "docs/design/platform-unification-2026-11-05/design/images/WS-M009.png"
+  },
+  "runtimeResponsiveVerified": false,
+  "responsiveTargetCssWidths": [
+    390,
+    320
+  ],
+  "currentGenerationReceipt": {
+    "toolResultReceiptObserved": true,
+    "receiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-5.json",
+    "actualToolArguments": {
+      "prompt": "制作中文“历史版本”手机弹窗两独立面板A/B，A390、B320窄屏比例，正常字号，近乎填满可用视口，白底细边线8px圆角、浅灰外背景，不画手机壳、宿主导航或系统栏。两屏标题时钟图标“历史版本”、小字文件名“知识与行动”、可达关闭X；下面只有来源标签“保存记录”选中，Git不可用所以不画Git提交。正文顶部手机下拉“11/04 10:00 · 69 B”，不画桌面版本侧栏。下面对比参照“历史版本 11/04 10:00 → 当前已保存版本 11/05 12:00”。A为“历史原文”标签选中、“差异对比”未选中；真实内容工具行左“完整原文”右“复制全文”；正文可滚动等宽原文“# 知识与行动”空行后“用于平台界面盘点的隔离示例。”。B为独立差异视图回退状态：“差异对比”选中、“历史原文”未选中；提示“差异视图暂不可用，仍可查看原始差异。”及按钮“重试差异视图”；原生details展开“原始差异”，等宽两行“- 旧正文”（浅红）、“+ 新正文”（浅绿），原始差异内部横向滚动。两屏底部保留真实保护提示“恢复前会保留当前原文，并检查版本是否变化。”，及“关闭”、蓝色“恢复此版本”按钮，均当前可用，未进入确认恢复阶段。不添加恢复成功、版本协议ID、删除历史、额外下载或其他权限。",
+      "referenced_image_paths": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D046.png",
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "transparent_background": false
+    },
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-17ee1d1c-632c-4b9b-9f74-488fba4eda13.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-17ee1d1c-632c-4b9b-9f74-488fba4eda13.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "completionObservedAtUtc": "2026-11-05T09:03:23.048Z",
+    "exactToolServerCompletionTimestampExposed": false
+  },
+  "generatedAtUtcBasis": "Local observation after awaited callback; tool does not expose exact server completion timestamp.",
+  "sourceImageSha256": "b1c5d42124c21df7f18feb48a367b4a8b14f8faa9ad933a0916ec89e8b8e82fe",
+  "metadataAmendments": [
+    {
+      "atUtc": "2026-11-05T09:18:09.836367+00:00",
+      "reason": "Attach observed current receipt, source byte verification and full prior revision chain without changing PNG or rewriting historical no-receipt status."
+    }
+  ]
+}

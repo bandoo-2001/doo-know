@@ -1,0 +1,45 @@
+{
+  "assetId": "WS-D081",
+  "sourceIds": [
+    "WS-107"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:23:01.835041+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Actual empty first trash page with no selection",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Search/page-availability filter/find/refresh, source description/back and empty copy retained. Count0/selected0, disabled select-all/restore/purge and disabled first/last pagination agree.",
+    "Folder restore/no-purge and permanent-file-only retention explanation preserved; no fictitious file/date/size/result/rename/strong confirmation appears in empty state. Actual owner rail/tree/context kept with trash active."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-009.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D081.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/TrashWorkspace.vue:417",
+    "apps/web/components/TrashWorkspace.vue:450",
+    "apps/web/components/TrashWorkspace.vue:592",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-trash.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "ce659bf569a640dca0fec5a688e131ae162ad634b51698bbea5491564ca039af",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D081.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

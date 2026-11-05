@@ -1,0 +1,51 @@
+{
+  "assetId": "MP-D007",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:26:13.892468+00:00",
+  "method": "Actual generated PNG and matching real baseline viewed; exact sidecar actual submitted prompt, GEN-004 manifest and current templates checked under review-execution-contract.",
+  "selectedState": "Owner account/security; one current device, password overlay closed, no cursor",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Read-only owner account and owner explanation retained, with distinct current-device logout and password-change action. Password success/fields are correctly absent in closed base state.",
+    "Current-device row contains baseline device/times and current badge, with no forbidden per-row self-revoke. Refresh devices and revoke-other-devices action remain; pagination is absent because selected baseline has no cursor.",
+    "Real eight settings destinations, current account/security selection, owner account/rail/back actions and shared DooKnow settings header retained."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-004.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D007.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/AccountSettings.vue:125",
+    "apps/web/components/settings/AccountSettings.vue:212",
+    "apps/web/components/settings/SettingsWorkspace.vue:29",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-settings-account.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "88aa57d804cbeab96f478b8c5c1157db2e73e702bbe42b246f41757404ca022c",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D007.png",
+  "sourceIds": [
+    "ST-007"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

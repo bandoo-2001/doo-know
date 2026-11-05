@@ -1,0 +1,993 @@
+{
+  "id": "MP-S003",
+  "title": "Component state matrix: owner-private / SearchRuntimeSettings.vue",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-003",
+    "ST-040",
+    "ST-038",
+    "ST-039"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-003",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-search.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-003",
+      "route": "/?view=settings&section=search",
+      "trigger": "设置→搜索与索引 / 直接地址",
+      "parentId": null,
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "首次读取",
+        "文本/语义分别可用",
+        "未准备",
+        "下载/安装",
+        "由部署配置管理",
+        "安装源不可用",
+        "失败/取消/中断"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "完整搜索与索引页：本地检索准备/检查、文本和语义独立状态、索引说明；外部管理或无发行源时不出现可准备假操作。"
+      ]
+    },
+    {
+      "sourceId": "ST-040",
+      "route": "/?view=settings&section=search",
+      "trigger": "状态失败/部署管理/不可下载源",
+      "parentId": "ST-038",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "状态未知warning",
+        "task failed/interrupted/cancelled",
+        "PROCESS_CONTAINMENT_UNAVAILABLE说明",
+        "外部组件不显示准备按钮",
+        "无下载源",
+        "原文仍可浏览编辑"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "sourceId": "ST-038",
+      "route": "/?view=settings&section=search",
+      "trigger": "本地检索卡片",
+      "parentId": "ST-003",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "首次spinner",
+        "文本与语义独立可用标记",
+        "高级运行信息details",
+        "应用管理/外部部署管理",
+        "安装包下载大小"
+      ],
+      "notes": [
+        "SetupWizard的onboarding=true变体由首启模块负责；此处覆盖常规设置。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "检索组件完整状态：文本/语义独立、本机/外部部署管理、发行源/下载大小与检查/准备。"
+      ]
+    },
+    {
+      "sourceId": "ST-039",
+      "route": "/?view=settings&section=search | /?view=settings&section=status",
+      "trigger": "提交搜索准备任务",
+      "parentId": "ST-038",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "queued/downloading/verifying/creating_venv/installing/validating_model/starting/ready",
+        "下载MiB及progress",
+        "每2秒状态刷新",
+        "状态页4秒刷新"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/web/components/SearchRuntimeSettings.vue",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-003",
+      "label": "准备本地检索",
+      "effect": "下载并安装可用搜索组件",
+      "api": "POST /api/platform/search-runtime/prepare",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-003",
+      "label": "检查检索状态",
+      "effect": "重新读取组件及任务状态",
+      "api": "GET /api/platform/search-runtime",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-040",
+      "label": "重新准备",
+      "effect": "复用已校验下载重试",
+      "api": "POST /api/platform/search-runtime/prepare",
+      "guard": "应用可管理且distributionAvailable"
+    },
+    {
+      "sourceId": "ST-040",
+      "label": "检查检索状态",
+      "effect": "刷新读取",
+      "api": "GET /api/platform/search-runtime",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-038",
+      "label": "检查检索状态",
+      "effect": "重读状态",
+      "api": "GET /api/platform/search-runtime",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-038",
+      "label": "准备本地检索 / 重新准备",
+      "effect": "启动准备任务",
+      "api": "POST /api/platform/search-runtime/prepare",
+      "guard": "非externallyManaged、distributionAvailable且文本/语义至少一项未就绪"
+    },
+    {
+      "sourceId": "ST-039",
+      "label": "取消检索准备",
+      "effect": "请求取消当前任务",
+      "api": "POST /api/platform/search-runtime/tasks/:id/cancel",
+      "guard": "task.state queued/running；不busy/checking"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-003",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-040",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-038",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-039",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "保留这张图现有六个互相独立的局部样例及所有文字和按钮，在最下方新增第七个独立紧凑样例，用细线/留白分开，画布可以变长但字号保持清晰。新样例只画准备任务失败局部：标题“准备失败”，黄色警告“搜索组件暂时没有准备好，可以重试。已校验的下载会保留。”；警告内折叠项“查看详细信息”收起；下方蓝色“重新准备”按钮与普通“检查检索状态”按钮均可用。不要把失败提示放到第一条“没有可下载组件”的样例内，两者必须独立。不要增加其它状态、元信息或控件。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S003-v2.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-003",
+      "title": "安装源不可用",
+      "renderer": "apps/web/components/SearchRuntimeSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/SearchSettings.vue:5",
+        "apps/web/components/SearchRuntimeSettings.vue:95"
+      ],
+      "guardBindings": [
+        {
+          "label": "准备本地检索",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "检查检索状态",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "安装源不可用",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-003",
+        "ST-040"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-038",
+      "title": "首次spinner",
+      "renderer": "apps/web/components/SearchRuntimeSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/SearchRuntimeSettings.vue:95",
+        "apps/server/app.ts:266"
+      ],
+      "guardBindings": [
+        {
+          "label": "检查检索状态",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "准备本地检索 / 重新准备",
+          "guard": "非externallyManaged、distributionAvailable且文本/语义至少一项未就绪"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "首次spinner",
+          "variant": "首次spinner",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-038",
+        "ST-039"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-038",
+      "title": "文本与语义独立可用标记",
+      "renderer": "apps/web/components/SearchRuntimeSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/SearchRuntimeSettings.vue:95",
+        "apps/server/app.ts:266"
+      ],
+      "guardBindings": [
+        {
+          "label": "检查检索状态",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "准备本地检索 / 重新准备",
+          "guard": "非externallyManaged、distributionAvailable且文本/语义至少一项未就绪"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "文本与语义独立可用标记",
+          "variant": "文本与语义独立可用标记",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-038"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "ST-038",
+      "title": "高级运行信息details",
+      "renderer": "apps/web/components/SearchRuntimeSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/SearchRuntimeSettings.vue:95",
+        "apps/server/app.ts:266"
+      ],
+      "guardBindings": [
+        {
+          "label": "检查检索状态",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "准备本地检索 / 重新准备",
+          "guard": "非externallyManaged、distributionAvailable且文本/语义至少一项未就绪"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "高级运行信息details",
+          "variant": "高级运行信息details",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-038"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "ST-040",
+      "title": "原文仍可浏览编辑",
+      "renderer": "apps/web/components/SearchRuntimeSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/SearchRuntimeSettings.vue:36",
+        "apps/web/components/SearchRuntimeSettings.vue:110",
+        "apps/web/components/SearchRuntimeSettings.vue:166"
+      ],
+      "guardBindings": [
+        {
+          "label": "重新准备",
+          "guard": "应用可管理且distributionAvailable"
+        },
+        {
+          "label": "检查检索状态",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "原文仍可浏览编辑",
+          "variant": "原文仍可浏览编辑",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-040"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r6",
+      "sourceId": "ST-039",
+      "title": "downloading阶段的完整准备进度条/MiB与可取消动作，其余phase只换data/guard",
+      "renderer": "apps/web/components/SearchRuntimeSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/SearchRuntimeSettings.vue:17",
+        "apps/web/components/SearchRuntimeSettings.vue:172",
+        "apps/web/components/settings/StatusSettings.vue:223"
+      ],
+      "guardBindings": [
+        {
+          "label": "取消检索准备",
+          "guard": "task.state queued/running；不busy/checking"
+        }
+      ],
+      "presentation": "完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。",
+      "coveredSourceIds": [
+        "ST-039"
+      ]
+    },
+    {
+      "row": "r7",
+      "sourceId": "ST-040",
+      "title": "任务准备失败",
+      "coveredStates": [
+        {
+          "state": "失败",
+          "representation": "visible"
+        },
+        {
+          "state": "取消",
+          "representation": "same-renderer exact conditional binding only"
+        },
+        {
+          "state": "中断",
+          "representation": "same-renderer exact conditional binding only"
+        }
+      ]
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-003",
+      "parentId": null,
+      "route": "/?view=settings&section=search",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/SearchSettings.vue:5",
+        "apps/web/components/SearchRuntimeSettings.vue:95"
+      ]
+    },
+    {
+      "sourceId": "ST-040",
+      "parentId": "ST-038",
+      "route": "/?view=settings&section=search",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SearchRuntimeSettings.vue:36",
+        "apps/web/components/SearchRuntimeSettings.vue:110",
+        "apps/web/components/SearchRuntimeSettings.vue:166"
+      ]
+    },
+    {
+      "sourceId": "ST-038",
+      "parentId": "ST-003",
+      "route": "/?view=settings&section=search",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SearchRuntimeSettings.vue:95",
+        "apps/server/app.ts:266"
+      ]
+    },
+    {
+      "sourceId": "ST-039",
+      "parentId": "ST-038",
+      "route": "/?view=settings&section=search | /?view=settings&section=status",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SearchRuntimeSettings.vue:17",
+        "apps/web/components/SearchRuntimeSettings.vue:172",
+        "apps/web/components/settings/StatusSettings.vue:223"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-003",
+      "title": "搜索与索引",
+      "kind": "page",
+      "module": "settings/search",
+      "entry": {
+        "route": "/?view=settings&section=search",
+        "trigger": "设置→搜索与索引 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/SearchSettings.vue:5",
+        "apps/web/components/SearchRuntimeSettings.vue:95"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "准备本地检索",
+          "effect": "下载并安装可用搜索组件",
+          "api": "POST /api/platform/search-runtime/prepare",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "检查检索状态",
+          "effect": "重新读取组件及任务状态",
+          "api": "GET /api/platform/search-runtime",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "首次读取",
+        "文本/语义分别可用",
+        "未准备",
+        "下载/安装",
+        "由部署配置管理",
+        "安装源不可用",
+        "失败/取消/中断"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/search-runtime.spec.ts:4",
+        "tests/status-summary.test.ts:3"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-040",
+      "title": "搜索准备失败、中断、取消与不可用",
+      "kind": "state",
+      "module": "settings/search-runtime",
+      "entry": {
+        "route": "/?view=settings&section=search",
+        "trigger": "状态失败/部署管理/不可下载源",
+        "parentId": "ST-038"
+      },
+      "sourceRefs": [
+        "apps/web/components/SearchRuntimeSettings.vue:36",
+        "apps/web/components/SearchRuntimeSettings.vue:110",
+        "apps/web/components/SearchRuntimeSettings.vue:166"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新准备",
+          "effect": "复用已校验下载重试",
+          "api": "POST /api/platform/search-runtime/prepare",
+          "guard": "应用可管理且distributionAvailable"
+        },
+        {
+          "label": "检查检索状态",
+          "effect": "刷新读取",
+          "api": "GET /api/platform/search-runtime",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "状态未知warning",
+        "task failed/interrupted/cancelled",
+        "PROCESS_CONTAINMENT_UNAVAILABLE说明",
+        "外部组件不显示准备按钮",
+        "无下载源",
+        "原文仍可浏览编辑"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/search-runtime-process-identity.test.ts:1",
+        "tests/search-runtime-pause.test.ts:1",
+        "tests/e2e/status-settings.spec.ts:206"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-038",
+      "title": "本地检索组件状态",
+      "kind": "state",
+      "module": "settings/search-runtime",
+      "entry": {
+        "route": "/?view=settings&section=search",
+        "trigger": "本地检索卡片",
+        "parentId": "ST-003"
+      },
+      "sourceRefs": [
+        "apps/web/components/SearchRuntimeSettings.vue:95",
+        "apps/server/app.ts:266"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "检查检索状态",
+          "effect": "重读状态",
+          "api": "GET /api/platform/search-runtime",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "准备本地检索 / 重新准备",
+          "effect": "启动准备任务",
+          "api": "POST /api/platform/search-runtime/prepare",
+          "guard": "非externallyManaged、distributionAvailable且文本/语义至少一项未就绪"
+        }
+      ],
+      "importantStates": [
+        "首次spinner",
+        "文本与语义独立可用标记",
+        "高级运行信息details",
+        "应用管理/外部部署管理",
+        "安装包下载大小"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/search-runtime.spec.ts:4",
+        "tests/search-runtime-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "SetupWizard的onboarding=true变体由首启模块负责；此处覆盖常规设置。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-039",
+      "title": "搜索准备进行中",
+      "kind": "state",
+      "module": "settings/search-runtime",
+      "entry": {
+        "route": "/?view=settings&section=search | /?view=settings&section=status",
+        "trigger": "提交搜索准备任务",
+        "parentId": "ST-038"
+      },
+      "sourceRefs": [
+        "apps/web/components/SearchRuntimeSettings.vue:17",
+        "apps/web/components/SearchRuntimeSettings.vue:172",
+        "apps/web/components/settings/StatusSettings.vue:223"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "取消检索准备",
+          "effect": "请求取消当前任务",
+          "api": "POST /api/platform/search-runtime/tasks/:id/cancel",
+          "guard": "task.state queued/running；不busy/checking"
+        }
+      ],
+      "importantStates": [
+        "queued/downloading/verifying/creating_venv/installing/validating_model/starting/ready",
+        "下载MiB及progress",
+        "每2秒状态刷新",
+        "状态页4秒刷新"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/search-runtime.spec.ts:4",
+        "tests/search-runtime-cancel.test.ts:1",
+        "tests/search-runtime-download.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S003",
+  "roles": [
+    "owner-private"
+  ],
+  "selectedState": [
+    "r1 no distribution",
+    "r2 initial spinner",
+    "r3 text ready/semantic unavailable",
+    "r4 advanced runtime info",
+    "r5 status read failed",
+    "r6 downloading40/200MiB with cancel",
+    "r7 real failed task phase + task-error alert + retry"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "保留这张图现有六个互相独立的局部样例及所有文字和按钮，在最下方新增第七个独立紧凑样例，用细线/留白分开，画布可以变长但字号保持清晰。新样例只画准备任务失败局部：标题“准备失败”，黄色警告“搜索组件暂时没有准备好，可以重试。已校验的下载会保留。”；警告内折叠项“查看详细信息”收起；下方蓝色“重新准备”按钮与普通“检查检索状态”按钮均可用。不要把失败提示放到第一条“没有可下载组件”的样例内，两者必须独立。不要增加其它状态、元信息或控件。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S003 Component state matrix: owner-private / SearchRuntimeSettings.vue\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | ST-003 | 真实组件局部状态矩阵 | role=owner-private | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n完整搜索与索引页：本地检索准备/检查、文本和语义独立状态、索引说明；外部管理或无发行源时不出现可准备假操作。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n检索组件完整状态：文本/语义独立、本机/外部部署管理、发行源/下载大小与检查/准备。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n局部矩阵（≤7行/卡）：\nr1 | ST-003 | 实际只画代表：安装源不可用 | 已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。 | renderer=apps/web/components/SearchRuntimeSettings.vue\nr2 | ST-038 | 实际只画代表：首次spinner | 既有busy/spinner/禁用控件模式，按原guard锁定。 | renderer=apps/web/components/SearchRuntimeSettings.vue\nr3 | ST-038 | 实际只画代表：文本与语义独立可用标记 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/SearchRuntimeSettings.vue\nr4 | ST-038 | 实际只画代表：高级运行信息details | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/SearchRuntimeSettings.vue\nr5 | ST-040 | 实际只画代表：原文仍可浏览编辑 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/SearchRuntimeSettings.vue\nr6 | ST-039 | 实际只画代表：downloading阶段的完整准备进度条/MiB与可取消动作，其余phase只换data/guard | 完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。 | renderer=apps/web/components/SearchRuntimeSettings.vue\n\n精确功能/字段/动作guard合同：\nST-003/ST-040/ST-038/ST-039权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-003/ST-040/ST-038/ST-039字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-003白名单：准备本地检索 => 下载并安装可用搜索组件；guard=已登录所有者；请求期间禁用重复操作；接口约束=POST /api/platform/search-runtime/prepare\nST-003白名单：检查检索状态 => 重新读取组件及任务状态；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/platform/search-runtime\nST-040白名单：重新准备 => 复用已校验下载重试；guard=应用可管理且distributionAvailable；接口约束=POST /api/platform/search-runtime/prepare\nST-040白名单：检查检索状态 => 刷新读取；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/platform/search-runtime\nST-038白名单：检查检索状态 => 重读状态；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/platform/search-runtime\nST-038白名单：准备本地检索 / 重新准备 => 启动准备任务；guard=非externallyManaged、distributionAvailable且文本/语义至少一项未就绪；接口约束=POST /api/platform/search-runtime/prepare\nST-039白名单：取消检索准备 => 请求取消当前任务；guard=task.state queued/running；不busy/checking；接口约束=POST /api/platform/search-runtime/tasks/:id/cancel\n\n响应式合同：\n1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-search.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "942d4e3839184ff0cddeb9e24b9b1ab09f887faa10597afa0387967db47cfa39",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 98859
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S003.png",
+      "role": "previous generated design edit target",
+      "responsibility": "Preserve valid independent specimens, add missing source-defined error branch",
+      "sha256": "fdb9059d4f40d9e411ec137e57cbd10ac58a58f60830971fb90bf9b3368ab9af",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      },
+      "bytes": 1199028
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S003.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S003-v2.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-df704369-089b-4115-aa99-45c3d6d13eed.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-df704369-089b-4115-aa99-45c3d6d13eed.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T04:05:11.507Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "concerns": [],
+    "pageSpecific": "Original valid specimens retained; actual template error branch added with correct readonly data and actions."
+  },
+  "sha256": "38849623bad61746be1102131b70f2de60bc85a0dd70c6784dcafdeb6da9476f",
+  "dimensions": {
+    "width": 979,
+    "height": 1606
+  },
+  "bytes": 1259388,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/settings/SearchSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "93e82107c67cac1c383c5a1cfc1d64395f42569ff0e69ec4036084de9be05c1c"
+    },
+    {
+      "path": "apps/web/components/SearchRuntimeSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "02be2aec605cd6dded7d181e6304f3cdc77a54b0ca273c381950c8ffdfb63564"
+    },
+    {
+      "path": "apps/web/components/SearchRuntimeSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "02be2aec605cd6dded7d181e6304f3cdc77a54b0ca273c381950c8ffdfb63564"
+    },
+    {
+      "path": "apps/web/components/SearchRuntimeSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "02be2aec605cd6dded7d181e6304f3cdc77a54b0ca273c381950c8ffdfb63564"
+    },
+    {
+      "path": "apps/web/components/SearchRuntimeSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "02be2aec605cd6dded7d181e6304f3cdc77a54b0ca273c381950c8ffdfb63564"
+    },
+    {
+      "path": "apps/server/app.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f"
+    },
+    {
+      "path": "apps/web/components/SearchRuntimeSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "02be2aec605cd6dded7d181e6304f3cdc77a54b0ca273c381950c8ffdfb63564"
+    },
+    {
+      "path": "apps/web/components/SearchRuntimeSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "02be2aec605cd6dded7d181e6304f3cdc77a54b0ca273c381950c8ffdfb63564"
+    },
+    {
+      "path": "apps/web/components/settings/StatusSettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d860b4659555ae4a20ba153a7b66444de5de69b97b8513a4196a5b0c64412df4"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Independent source-defined local specimens. Exact child states not runtime captured; source roles and guards preserved; raster does not prove responsive/keyboard/API acceptance.",
+  "priorGeneration": {
+    "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排六个互相独立的本地检索局部样例，正常清楚字号，足够长的画布，细线与留白分开，无额外说明标题。\n第一行：普通提示“当前暂时没有可下载的搜索组件。你可以继续使用知识库。”，下方“检查检索状态”按钮可用，不显示准备按钮。\n第二行：小转圈和“正在检查检索状态…”，下方“检查检索状态”按钮禁用并转圈。\n第三行：两张相邻小状态卡“文本检索 / 可用”（绿点）、“语义检索 / 暂不可用”（灰点），下方“准备本地检索”蓝色按钮和“检查检索状态”按钮均可用，不显示已准备成功全局结论。\n第四行：展开“高级运行信息”，普通只读段落“搜索组件由应用准备与管理。”“当前安装源提供可下载的搜索组件。下载大小约 200 MiB。”“最近准备阶段：下载检索包。任务编号：example-search-task”。不要把信息画成编辑框。\n第五行：检索区域小标题“本地检索”，说明“查看关键词与语义搜索的可用情况。准备期间仍可浏览和编辑笔记。”，黄色提示“暂时无法获取检索状态”，说明“请检查连接后重试，当前笔记仍可继续使用。”，收起的“查看详细信息”；“检查检索状态”按钮可用，不加准备或取消。\n第六行：任务标题“下载检索包”，右侧只读“40 / 200 MiB”，下方一条20%蓝色细进度条，不显示额外百分比；下方“取消检索准备”和“检查检索状态”按钮均可用。不加宿主导航、请求编辑字段或已安装成功提示。",
+    "actualImageInputOrder": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-5f713b09-3b33-4b46-9772-24c96b84937b.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-5f713b09-3b33-4b46-9772-24c96b84937b.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "sha256": "fdb9059d4f40d9e411ec137e57cbd10ac58a58f60830971fb90bf9b3368ab9af",
+    "dimensions": {
+      "width": 1024,
+      "height": 1536
+    },
+    "generationCallCount": 1
+  },
+  "revision": 2,
+  "revises": "docs/design/platform-unification-2026-11-05/design/images/MP-S003.json",
+  "revisionReason": "MP-S003-F1 verified against template",
+  "exactTaskErrorBindings": {
+    "renderer": "SearchRuntimeSettings.vue runtime-task",
+    "failed": {
+      "visible": true,
+      "phaseLabel": "准备失败",
+      "alertType": "warning",
+      "message": "搜索组件暂时没有准备好，可以重试。已校验的下载会保留。",
+      "details": "查看详细信息 collapsed; task.error readonly",
+      "actions": [
+        "重新准备",
+        "检查检索状态"
+      ],
+      "guard": "task.state failed, distributionAvailable=true, externallyManaged=false, component not fully ready; busy=false checking=false"
+    },
+    "cancelled": {
+      "visible": false,
+      "phaseLabel": "已取消",
+      "alertType": "info",
+      "message": "已停止准备，之后可继续。已校验的下载会保留。",
+      "details": "none for cancelled",
+      "actions": [
+        "重新准备",
+        "检查检索状态"
+      ],
+      "guard": "task.state cancelled, PREPARATION_CANCELLED, same prepare eligibility; not active task"
+    },
+    "interrupted": {
+      "visible": false,
+      "phaseLabel": "上次准备被中断",
+      "alertType": "warning",
+      "message": "上次准备未完成，可以重新准备。已校验的下载会复用。",
+      "details": "查看详细信息 with task.error",
+      "actions": [
+        "重新准备",
+        "检查检索状态"
+      ],
+      "guard": "task.state interrupted, PREPARATION_INTERRUPTED, same prepare eligibility; not active task"
+    },
+    "separation": "No-distribution note and statusError alert do not represent task-error states."
+  }
+}

@@ -1,0 +1,657 @@
+{
+  "id": "WS-D004",
+  "title": "Owner create/import, row context and account menus",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-004",
+    "WS-005",
+    "WS-097"
+  ],
+  "panels": [
+    {
+      "label": "create-import",
+      "sourceId": "WS-004",
+      "title": "Create and import dropdown",
+      "role": "authenticated owner",
+      "state": "Exact create/import entries; treeLoaded creation guard."
+    },
+    {
+      "label": "row-context",
+      "sourceId": "WS-005",
+      "title": "Notebook / folder / collection context menu",
+      "role": "authenticated owner",
+      "state": "Actual note/folder/collection context menu; preserve conditional actions and busy row state."
+    },
+    {
+      "label": "account",
+      "sourceId": "WS-097",
+      "title": "Workspace account menu",
+      "role": "authenticated owner",
+      "state": "Actual username/avatar and account actions. Existing top-start/bottom-start placement is a host contract."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:2747"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-create-menu.png",
+      "role": "Additional ACTUAL before-change matching component/role reference; actual visible state only, not all alternative states."
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-004",
+      "label": "新建笔记 / 白板 / 脑图 / 流程图 / 文件夹",
+      "effect": "Open matching create modal",
+      "api": "none",
+      "guard": "Tree must be loaded"
+    },
+    {
+      "sourceId": "WS-004",
+      "label": "导入 Markdown",
+      "effect": "Open import modal",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-005",
+      "label": "打开 / 收藏 / 复制路径 / 下载",
+      "effect": "Open, toggle favorite, clipboard path, or download selected note",
+      "api": "PUT /api/notes/:id/favorite; GET /api/notes/:id/download",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-005",
+      "label": "新建 / 导入",
+      "effect": "Folder-specific create/import",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-005",
+      "label": "重命名或移动 / 创建副本 / 移入回收站",
+      "effect": "Open corresponding operation window",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-097",
+      "label": "账户设置",
+      "effect": "Navigate account settings",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-097",
+      "label": "帮助与快捷键",
+      "effect": "Navigate about settings",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-097",
+      "label": "退出登录",
+      "effect": "Run workspace leave/save guard then sign out",
+      "api": "POST /api/auth/sign-out",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R001",
+      "reuseSourceId": "WS-001",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "新建笔记 / 白板 / 脑图 / 流程图 / 文件夹",
+          "effect": "Open matching create modal",
+          "api": "none",
+          "guard": "Tree must be loaded"
+        },
+        {
+          "label": "导入 Markdown",
+          "effect": "Open import modal",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-004"
+    },
+    {
+      "assetId": "WS-R003",
+      "reuseSourceId": "WS-006",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "打开 / 收藏 / 复制路径 / 下载",
+          "effect": "Open, toggle favorite, clipboard path, or download selected note",
+          "api": "PUT /api/notes/:id/favorite; GET /api/notes/:id/download",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "新建 / 导入",
+          "effect": "Folder-specific create/import",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "重命名或移动 / 创建副本 / 移入回收站",
+          "effect": "Open corresponding operation window",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Folder delete menu is hidden for 90-Archive, 99-System and 99-System descendants; note delete remains exposed. This is a UI rule, not an inferred authorization role."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-005"
+    },
+    {
+      "assetId": "WS-D074",
+      "reuseSourceId": "WS-098",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "账户设置",
+          "effect": "Navigate account settings",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "帮助与快捷键",
+          "effect": "Navigate about settings",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "退出登录",
+          "effect": "Run workspace leave/save guard then sign out",
+          "api": "POST /api/auth/sign-out",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-097"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. ONE DESIGN BOARD with exactly3 independent existing DooKnow owner-menu specimens, clearly external labels A创建与导入 / B笔记操作 / C账户菜单 under DESIGN BOARD. Do not make them appear simultaneously open in one app screen. PILOT STYLE ONLY: flat white/light-gray, #272b3a/#657084, thin#e6e9f1, blue#4566c6/pale#edf1ff, compact readable13px-scale menu rows and8px corners. No full owner rail/tree/page or new features. A actual matching create dropdown screenshot is control/content authority; B/C are source-derived from actual templates.\nA: small truthful “新建 | ˅” split-button cue and its open create/import dropdown below right chevron. Exactly source6 icon rows in order 新建笔记, 新建白板, 新建脑图, 新建流程图, 新建文件夹, 导入 Markdown. Tree loaded=true, creation enabled, no extra command.\nB: actual NOTE context menu, header示例记录.md, source text-only rows in order 打开, 收藏, 重命名或移动, 创建副本, 下载 Markdown, 复制路径, 移入回收站 (red). Entry is Markdown note00-Inbox/示例记录.md, notfavorite, favoriteBusyfalse. Do not add folder-specific new/import rows, download-whiteboard wording, checkboxes or a submenu. Only current note condition, no actual private file content.\nC: actual account popup placed TOP-START ABOVE its small owner account-trigger cue “O  owner  ˅”, respecting desktop placement. Popup strong usernameowner and exactly3 source icon rows 账户设置(lock), 帮助与快捷键(book), 退出登录(logout/red). No teams/workspace-switcher/user email/admin role, profile editor, billing or app navigation. Username is isolated fixtureowner. Source keyboard focus/Escape/leave-save signout guards remain metadata, no immediate signout success/confirmation shown.\nAll menus preserve actual labels and role, no ToDoo task menus, API/protocol inputs, fake busy/error/success states, titles or OS chrome. All3 complete local surfaces with every row readable, no invented closeX or footer.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D004.png",
+  "reviewStatus": "pending-independent-review",
+  "geometryFamily": "owner shell anchored menus; each retains its own renderer/action list",
+  "sourceContracts": [
+    {
+      "id": "WS-004",
+      "title": "Create and import dropdown",
+      "kind": "popover",
+      "module": "knowledge",
+      "entry": {
+        "route": "/",
+        "trigger": "创建与导入 chevron",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:2747"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "新建笔记 / 白板 / 脑图 / 流程图 / 文件夹",
+          "effect": "Open matching create modal",
+          "api": "none",
+          "guard": "Tree must be loaded"
+        },
+        {
+          "label": "导入 Markdown",
+          "effect": "Open import modal",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Tree unavailable disables creation"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Trivial menu choices covered together; each user-significant modal is separately inventoried."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-005",
+      "title": "Notebook / folder / collection context menu",
+      "kind": "popover",
+      "module": "files",
+      "entry": {
+        "route": "/?folder=:path or /?note=:id",
+        "trigger": "Right-click, more button, ContextMenu or Shift+F10",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/TreeContextMenu.vue:42",
+        "apps/web/components/TreeBranch.vue:1",
+        "apps/web/components/Workspace.vue:3499"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Folder delete menu is hidden for 90-Archive, 99-System and 99-System descendants; note delete remains exposed. This is a UI rule, not an inferred authorization role."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "打开 / 收藏 / 复制路径 / 下载",
+          "effect": "Open, toggle favorite, clipboard path, or download selected note",
+          "api": "PUT /api/notes/:id/favorite; GET /api/notes/:id/download",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "新建 / 导入",
+          "effect": "Folder-specific create/import",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "重命名或移动 / 创建副本 / 移入回收站",
+          "effect": "Open corresponding operation window",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Folder versus note actions",
+        "Favorite busy",
+        "Selected-row menu open",
+        "Viewport-positioned keyboard menu"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/note-collections.test.ts",
+        "tests/e2e/notes-first.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-097",
+      "title": "Workspace account menu",
+      "kind": "popover",
+      "module": "navigation",
+      "entry": {
+        "route": "/ (workspace shell)",
+        "trigger": "个人账户",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/WorkspaceFooter.vue:115"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "账户设置",
+          "effect": "Navigate account settings",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "帮助与快捷键",
+          "effect": "Navigate about settings",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "退出登录",
+          "effect": "Run workspace leave/save guard then sign out",
+          "api": "POST /api/auth/sign-out",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Desktop top-start vs compact bottom-start placement",
+        "Username/avatar",
+        "Tab focus loop and Escape restores trigger"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/workspace-main-menu.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Account settings interior owned by settings inventory."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-004",
+      "parentId": "WS-001",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-005",
+      "parentId": "WS-001",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-097",
+      "parentId": "WS-001",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-004",
+      "state": "Tree unavailable disables creation",
+      "representation": "visible"
+    },
+    {
+      "sourceId": "WS-005",
+      "state": "Folder versus note actions",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-005",
+      "state": "Favorite busy",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-005",
+      "state": "Selected-row menu open",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-005",
+      "state": "Viewport-positioned keyboard menu",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-097",
+      "state": "Desktop top-start vs compact bottom-start placement",
+      "representation": "visible"
+    },
+    {
+      "sourceId": "WS-097",
+      "state": "Username/avatar",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-097",
+      "state": "Tab focus loop and Escape restores trigger",
+      "representation": "nonvisual-data-rule"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D004",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "actual create-menu ready plus source-derived note context notfavorite/idle and desktop owner account menu"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. ONE DESIGN BOARD with exactly3 independent existing DooKnow owner-menu specimens, clearly external labels A创建与导入 / B笔记操作 / C账户菜单 under DESIGN BOARD. Do not make them appear simultaneously open in one app screen. PILOT STYLE ONLY: flat white/light-gray, #272b3a/#657084, thin#e6e9f1, blue#4566c6/pale#edf1ff, compact readable13px-scale menu rows and8px corners. No full owner rail/tree/page or new features. A actual matching create dropdown screenshot is control/content authority; B/C are source-derived from actual templates.\nA: small truthful “新建 | ˅” split-button cue and its open create/import dropdown below right chevron. Exactly source6 icon rows in order 新建笔记, 新建白板, 新建脑图, 新建流程图, 新建文件夹, 导入 Markdown. Tree loaded=true, creation enabled, no extra command.\nB: actual NOTE context menu, header示例记录.md, source text-only rows in order 打开, 收藏, 重命名或移动, 创建副本, 下载 Markdown, 复制路径, 移入回收站 (red). Entry is Markdown note00-Inbox/示例记录.md, notfavorite, favoriteBusyfalse. Do not add folder-specific new/import rows, download-whiteboard wording, checkboxes or a submenu. Only current note condition, no actual private file content.\nC: actual account popup placed TOP-START ABOVE its small owner account-trigger cue “O  owner  ˅”, respecting desktop placement. Popup strong usernameowner and exactly3 source icon rows 账户设置(lock), 帮助与快捷键(book), 退出登录(logout/red). No teams/workspace-switcher/user email/admin role, profile editor, billing or app navigation. Username is isolated fixtureowner. Source keyboard focus/Escape/leave-save signout guards remain metadata, no immediate signout success/confirmation shown.\nAll menus preserve actual labels and role, no ToDoo task menus, API/protocol inputs, fake busy/error/success states, titles or OS chrome. All3 complete local surfaces with every row readable, no invented closeX or footer.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D004 Owner create/import, row context and account menus\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"create-import\", \"sourceId\": \"WS-004\", \"title\": \"Create and import dropdown\", \"role\": \"authenticated owner\", \"state\": \"Exact create/import entries; treeLoaded creation guard.\"}, {\"label\": \"row-context\", \"sourceId\": \"WS-005\", \"title\": \"Notebook / folder / collection context menu\", \"role\": \"authenticated owner\", \"state\": \"Actual note/folder/collection context menu; preserve conditional actions and busy row state.\"}, {\"label\": \"account\", \"sourceId\": \"WS-097\", \"title\": \"Workspace account menu\", \"role\": \"authenticated owner\", \"state\": \"Actual username/avatar and account actions. Existing top-start/bottom-start placement is a host contract.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"create-import\", \"sourceId\": \"WS-004\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"新建笔记 / 白板 / 脑图 / 流程图 / 文件夹\", \"effect\": \"Open matching create modal\", \"api\": \"none\", \"guard\": \"Tree must be loaded\"}, {\"label\": \"导入 Markdown\", \"effect\": \"Open import modal\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Tree unavailable disables creation\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"row-context\", \"sourceId\": \"WS-005\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"打开 / 收藏 / 复制路径 / 下载\", \"effect\": \"Open, toggle favorite, clipboard path, or download selected note\", \"api\": \"PUT /api/notes/:id/favorite; GET /api/notes/:id/download\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"新建 / 导入\", \"effect\": \"Folder-specific create/import\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"重命名或移动 / 创建副本 / 移入回收站\", \"effect\": \"Open corresponding operation window\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Folder versus note actions\", \"Favorite busy\", \"Selected-row menu open\", \"Viewport-positioned keyboard menu\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Folder delete menu is hidden for 90-Archive, 99-System and 99-System descendants; note delete remains exposed. This is a UI rule, not an inferred authorization role.\"]}, {\"panel\": \"account\", \"sourceId\": \"WS-097\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"账户设置\", \"effect\": \"Navigate account settings\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"帮助与快捷键\", \"effect\": \"Navigate about settings\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"退出登录\", \"effect\": \"Run workspace leave/save guard then sign out\", \"api\": \"POST /api/auth/sign-out\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Desktop top-start vs compact bottom-start placement\", \"Username/avatar\", \"Tab focus loop and Escape restores trigger\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:2747",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:2747",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-create-menu.png",
+      "role": "Additional ACTUAL before-change matching component/role reference; actual visible state only, not all alternative states.",
+      "responsibility": "Additional ACTUAL before-change matching component/role reference; actual visible state only, not all alternative states.",
+      "sha256": "8c8af09025d22457d3bd6f56c2202d5c22eceaad15ddfbd379cf98963a571639",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 80218
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/windows/1440-create-menu.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D004.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-4416a597-449f-4efd-a1f3-0d8161f7f2b0.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-4416a597-449f-4efd-a1f3-0d8161f7f2b0.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T02:48:39.083Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Three independent create/note/account menu specimens preserve source action sets and conditional note/desktop-account context; no full owner host.",
+    "concerns": [
+      "Static design does not prove native commands, task receipt integrity or menu/focus/navigation guards.",
+      "Native shortcut glyphs/menu icon decoration and popover pointers are approximate; actual CSS/component props remain authority."
+    ]
+  },
+  "sha256": "a6ba10e6f1673a466e4590453d4b99aa3075663cf8715976ef2949aef23660b1",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1242669,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/TreeContextMenu.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "b1723ad37686524f96527fe4aca370d79009c323eab9a159000d501746d270f9"
+    },
+    {
+      "path": "apps/web/components/TreeBranch.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cea253a7c67d08379c7b56dcf5e0495753a8b6c669612fd15728ecf166cdaf6d"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/WorkspaceFooter.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "775776fc1d019cb0ddc96330fadb57add0bdc4ff406d6df1c518159ccccf683b"
+    }
+  ]
+}

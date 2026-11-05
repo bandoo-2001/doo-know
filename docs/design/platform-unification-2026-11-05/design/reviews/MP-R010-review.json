@@ -1,0 +1,58 @@
+{
+  "assetId": "MP-R010",
+  "sourceIds": [
+    "ST-019"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T06:57:57.364073+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "A390/B320 step2 import preview; C390 same preview plus missing-reference warning",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "finding": "All three panels label attachment target00-Inbox/assets/example-2.png as 使用新名称, but actual importPreview rename algorithm always appends a space and parenthesized number before extension, e.g. example-2 (2).png. The depicted response cannot be produced by current rename branch.",
+      "sourceEvidence": "apps/server/platform/transfer-import.ts:153..164 suffix=` (${count++})${ext}` with initial count2, appended to original basename. :181..186 missing-reference warnings compare original input paths, independently of renamed targets."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed all three full narrow preview windows/full prompt/contracts and API importPreview. Header/close/step2, three real table columns, two-file64KiB summary and existing cancel/back/next actions retained. Next only advances step3; no direct execution/file chooser/new protocol field.",
+    "Long target paths wrap inside intended table boundaries; actual horizontal scroll/container height/focus/dirtyclose still implementation constraints. Warning and preview content can coexist, not a success receipt.",
+    "Rename example target path is inconsistent with actual API filename generator, so synthetic preview data requires minimal correction while retaining valid layout/actions."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-036.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R010.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/TransferPanel.vue:249",
+    "apps/web/components/settings/TransferPanel.vue:601",
+    "apps/web/components/settings/TransferPanel.vue:679",
+    "apps/server/platform/transfer-import.ts:153",
+    "apps/server/platform/transfer-import.ts:181",
+    "apps/web/components/settings/SettingsOverlay.vue"
+  ],
+  "requiredCorrections": [
+    "Change the three attachment target cells to a source-coherent renamed path, e.g.00-Inbox/assets/example-2 (2).png. Bind original incoming path assets/example-2.png and preexisting same target, decisionrename; then C note reference to distinct assets/example.png is legitimately absent from this batch and its warning remains coherent.",
+    "Preserve all three columns, wrapping/local scroll, step2/current counts and cancel/back/next actions. Do not change to a fake immediate import or drop source rename capability to avoid correction."
+  ],
+  "reviewedImageSha256": "145a5db7e3b3b598c9a028bab4640bd74d7f1974088719f53c63d0cc5bfff42d",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R010.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

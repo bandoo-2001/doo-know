@@ -1,0 +1,50 @@
+{
+  "assetId": "MP-D115",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:56:44.233909+00:00",
+  "method": "Actual PNG viewed; complete actual submitted prompt and exact batch source contracts compared with current component/renderer/wrapper templates and matching real baseline where one exists. Source-derived configurations are not runtime captures.",
+  "selectedState": "Anonymous journal home; six configured modules with immutable fixture snapshots",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual configured brand/green/nav/footer and journal single-column identity/time stream preserved, no magazine grid or profile sidebar substituted.",
+    "Two actual fixture entries in each featured/latest section, one available collection and empty projects/friends preserved in module order, with source article/RSS links. No invented media/social or authoring control.",
+    "Full long continuation is source/fixture-derived beyond real first viewport, not private draft preview or runtime evidence."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Preserve configured user green accent/template-specific hierarchy alongside shared flat surfaces, typography/borders and spacing. Raster shading/approximate dimensions are illustrative; no exact CSS, dynamic theme or responsive fit claim."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-006.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D115.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/blog/render.ts:109",
+    "apps/server/blog/styles.ts:168",
+    "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-home-journal.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "017fb2e7ef935582537591673fc4b2d63ff941420fcc577bf119b56eca1ef2d7",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D115.png",
+  "sourceIds": [
+    "PB-050"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

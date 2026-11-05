@@ -1,0 +1,527 @@
+{
+  "assetId": "MP-R076",
+  "sourceIds": [
+    "PB-050"
+  ],
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "responsive-board",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-050",
+      "title": "公开博客：文字博客主页390px",
+      "role": "anonymous guest",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-050",
+      "title": "公开博客：文字博客主页320px",
+      "role": "anonymous guest",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-050",
+      "title": "公开博客：文字博客主页320px guard",
+      "role": "anonymous guest",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "roles": [
+    "anonymous guest"
+  ],
+  "selectedState": "Generate high fidelity Chinese UI mobile design board, two independent full public blog pages at 390px and 320px, no device frame, normal readable typography and vertical page scroll. Use image1 only for flat surfaces/hierarchy: white #fff, lightgray #f7f8fa, fine borders and 8px corners; public blog accent stays #44684f. Image2 is actual journal-template page content. Both pages show site header 隔离示例手记, description 真实接口驱动的界面盘点样例。, nav 首页/文章/专题/归档/关于/RSS wrapping as needed, no owner navigation or private-preview banner. Journal single stream, no masthead display headline and no grids/sidebar. Modules in order: 关于我 with tagline 记录、连接与行动, 示例作者 and 浏览文章 →; 精选文章 with one pinned article 让知识保持可用 dated2026-11-04 · 方法 and summary 用于页面盘点的隔离发布快照。; 最近更新 with article 记录与回顾 and 查看全部文章 →; 专题合集 with 知识与记录; 我的项目 with 示例项目 public link; 友情链接 with 示例站点. Footer site identity 示例作者 and 订阅 RSS. On320 use long title wrap naturally, preserve order and all belowfold sections via true page scroll rather than shrinking. Do not invent search/edit/login controls.",
+  "sourceContracts": [
+    {
+      "id": "PB-050",
+      "title": "公开博客：文字博客主页",
+      "kind": "page",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog",
+        "trigger": "Public enabled site + published design.template=journal",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:195",
+        "apps/server/blog/render.ts:109",
+        "apps/server/blog/styles.ts:1",
+        "shared/blog-design.ts:102"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "导航 / 浏览文章 / 查看全部文章",
+          "effect": "Open public pages",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "文章卡",
+          "effect": "Read published article",
+          "api": "GET /blog/:slug",
+          "guard": ""
+        },
+        {
+          "label": "专题卡",
+          "effect": "Read collection",
+          "api": "GET /blog/-/collections/:slug",
+          "guard": ""
+        },
+        {
+          "label": "项目/社交/友情链接",
+          "effect": "Open validated destination",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "订阅 RSS",
+          "effect": "Open feed",
+          "api": "GET /blog/rss.xml",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "all configured enabled modules; module ordering/limits",
+        "modules with no published posts/projects/friends/collections show existing empty copy",
+        "with/without avatar/banner/cover; long name/intro/link text",
+        "system/light theme; font/width/card/accent settings"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/e2e/blog-public-redesign.spec.ts:188",
+        "tests/e2e/blog-public-polish.spec.ts:68",
+        "tests/e2e/blog-studio.spec.ts:212"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Single journal stream; default profile intro plus configurable article/collection/project/link modules.",
+        "/blog/ redirects /blog; /blog query/category/tag/page uses article-list presentation instead of homepage."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "originalManifestContract": {
+    "id": "MP-R076",
+    "title": "Responsive family: render.ts journal public homepage template",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "PB-050"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "PB-050",
+        "title": "公开博客：文字博客主页390px",
+        "role": "anonymous guest",
+        "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        }
+      },
+      {
+        "label": "B",
+        "sourceId": "PB-050",
+        "title": "公开博客：文字博客主页320px",
+        "role": "anonymous guest",
+        "state": "320px字段/长值/内层滚动与操作可达",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        }
+      },
+      {
+        "label": "C",
+        "sourceId": "PB-050",
+        "title": "公开博客：文字博客主页320px guard",
+        "role": "anonymous guest",
+        "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        }
+      }
+    ],
+    "viewportIntent": "390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/public/390-public-home-journal.png",
+        "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+        "role": "精确sourceId字段/动作/权限合同；非图片输入"
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+        "role": "已复核边界与尚未验证运行项；非图片输入"
+      }
+    ],
+    "functionalInvariants": [
+      {
+        "sourceId": "PB-050",
+        "route": "/blog",
+        "trigger": "Public enabled site + published design.template=journal",
+        "parentId": null,
+        "roles": [
+          "anonymous guest"
+        ],
+        "permissionRules": [
+          "No owner session required. Site must be enabled and requested publication must be publicly available.",
+          "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+        ],
+        "fields": [],
+        "importantStates": [
+          "all configured enabled modules; module ordering/limits",
+          "modules with no published posts/projects/friends/collections show existing empty copy",
+          "with/without avatar/banner/cover; long name/intro/link text",
+          "system/light theme; font/width/card/accent settings"
+        ],
+        "notes": [
+          "Single journal stream; default profile intro plus configurable article/collection/project/link modules.",
+          "/blog/ redirects /blog; /blog query/category/tag/page uses article-list presentation instead of homepage."
+        ]
+      },
+      {
+        "type": "composition",
+        "details": [
+          "公开journal文字博客完整长页：真正文字/时间线与留白、简介/精选/最新/合集/项目/链接，按已发布模块顺序/启用情况；六项公开导航及RSS。"
+        ]
+      },
+      {
+        "type": "role-shell",
+        "rule": "匿名公开博客壳，仅真实首页/文章/专题/归档/关于/RSS导航；数据来自不可变手动发布快照，无草稿/私有路径。"
+      },
+      {
+        "type": "responsive-family-reuse",
+        "renderer": "render.ts journal public homepage template",
+        "allSourceIds": [
+          "PB-050"
+        ],
+        "rule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+      },
+      {
+        "type": "local-component-composition",
+        "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+      }
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "PB-050",
+        "label": "导航 / 浏览文章 / 查看全部文章",
+        "effect": "Open public pages",
+        "api": "",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-050",
+        "label": "文章卡",
+        "effect": "Read published article",
+        "api": "GET /blog/:slug",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-050",
+        "label": "专题卡",
+        "effect": "Read collection",
+        "api": "GET /blog/-/collections/:slug",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-050",
+        "label": "项目/社交/友情链接",
+        "effect": "Open validated destination",
+        "api": "",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-050",
+        "label": "订阅 RSS",
+        "effect": "Open feed",
+        "api": "GET /blog/rss.xml",
+        "guard": ""
+      }
+    ],
+    "forbiddenAdditions": [
+      "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+      "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+      "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+      "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+      "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+      "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+      "认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。"
+    ],
+    "responsiveContract": [
+      {
+        "sourceId": "PB-050",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it.",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      }
+    ],
+    "prompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-R076 Responsive family: render.ts journal public homepage template\n\n390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。\n\n角色壳：匿名公开博客壳，仅真实首页/文章/专题/归档/关于/RSS导航；数据来自不可变手动发布快照，无草稿/私有路径。\n\n独立场景：\nA | PB-050 | 公开博客：文字博客主页390px | role=anonymous guest | 390px完整可读代表：字段按登记顺序，动作保持源guard\nB | PB-050 | 公开博客：文字博客主页320px | role=anonymous guest | 320px字段/长值/内层滚动与操作可达\nC | PB-050 | 公开博客：文字博客主页320px guard | role=anonymous guest | 同源关键禁用/错误/长标签状态，使用已有组件且保留输入\n\n完整构图：\n公开journal文字博客完整长页：真正文字/时间线与留白、简介/精选/最新/合集/项目/链接，按已发布模块顺序/启用情况；六项公开导航及RSS。\n\n精确功能/字段/动作guard合同：\nPB-050权限：No owner session required. Site must be enabled and requested publication must be publicly available. / Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded.\nPB-050字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nPB-050白名单：导航 / 浏览文章 / 查看全部文章 => Open public pages；guard=既有上下文\nPB-050白名单：文章卡 => Read published article；guard=既有上下文；接口约束=GET /blog/:slug\nPB-050白名单：专题卡 => Read collection；guard=既有上下文；接口约束=GET /blog/-/collections/:slug\nPB-050白名单：项目/社交/友情链接 => Open validated destination；guard=既有上下文\nPB-050白名单：订阅 RSS => Open feed；guard=既有上下文；接口约束=GET /blog/rss.xml\n\n响应式合同：\nServer HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R076.png",
+    "reviewStatus": "pending-generation",
+    "responsiveFamily": {
+      "id": "MP-RF076",
+      "actualComponent": "render.ts journal public homepage template",
+      "sourceIds": [
+        "PB-050"
+      ],
+      "roleBoundary": "anonymous-blog",
+      "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+    },
+    "parentBindings": [
+      {
+        "sourceId": "PB-050",
+        "parentId": null,
+        "route": "/blog",
+        "roles": [
+          "anonymous guest"
+        ],
+        "sourceRefs": [
+          "apps/server/blog/routes.ts:195",
+          "apps/server/blog/render.ts:109",
+          "apps/server/blog/styles.ts:1",
+          "shared/blog-design.ts:102"
+        ]
+      }
+    ],
+    "sourceContracts": [
+      {
+        "id": "PB-050",
+        "title": "公开博客：文字博客主页",
+        "kind": "page",
+        "module": "blog-public",
+        "entry": {
+          "route": "/blog",
+          "trigger": "Public enabled site + published design.template=journal",
+          "parentId": null
+        },
+        "sourceRefs": [
+          "apps/server/blog/routes.ts:195",
+          "apps/server/blog/render.ts:109",
+          "apps/server/blog/styles.ts:1",
+          "shared/blog-design.ts:102"
+        ],
+        "roles": [
+          "anonymous guest"
+        ],
+        "permissionRules": [
+          "No owner session required. Site must be enabled and requested publication must be publicly available.",
+          "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+        ],
+        "fields": [],
+        "actions": [
+          {
+            "label": "导航 / 浏览文章 / 查看全部文章",
+            "effect": "Open public pages",
+            "api": "",
+            "guard": ""
+          },
+          {
+            "label": "文章卡",
+            "effect": "Read published article",
+            "api": "GET /blog/:slug",
+            "guard": ""
+          },
+          {
+            "label": "专题卡",
+            "effect": "Read collection",
+            "api": "GET /blog/-/collections/:slug",
+            "guard": ""
+          },
+          {
+            "label": "项目/社交/友情链接",
+            "effect": "Open validated destination",
+            "api": "",
+            "guard": ""
+          },
+          {
+            "label": "订阅 RSS",
+            "effect": "Open feed",
+            "api": "GET /blog/rss.xml",
+            "guard": ""
+          }
+        ],
+        "importantStates": [
+          "all configured enabled modules; module ordering/limits",
+          "modules with no published posts/projects/friends/collections show existing empty copy",
+          "with/without avatar/banner/cover; long name/intro/link text",
+          "system/light theme; font/width/card/accent settings"
+        ],
+        "responsive": {
+          "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+        },
+        "testRefs": [
+          "tests/e2e/blog-public-redesign.spec.ts:188",
+          "tests/e2e/blog-public-polish.spec.ts:68",
+          "tests/e2e/blog-studio.spec.ts:212"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+        "notes": [
+          "Single journal stream; default profile intro plus configurable article/collection/project/link modules.",
+          "/blog/ redirects /blog; /blog query/category/tag/page uses article-list presentation instead of homepage."
+        ],
+        "inventoryFile": "coverage/public-and-blog.json"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "manifestReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-043.json",
+  "sourceDerived": true,
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "Generate high fidelity Chinese UI mobile design board, two independent full public blog pages at 390px and 320px, no device frame, normal readable typography and vertical page scroll. Use image1 only for flat surfaces/hierarchy: white #fff, lightgray #f7f8fa, fine borders and 8px corners; public blog accent stays #44684f. Image2 is actual journal-template page content. Both pages show site header 隔离示例手记, description 真实接口驱动的界面盘点样例。, nav 首页/文章/专题/归档/关于/RSS wrapping as needed, no owner navigation or private-preview banner. Journal single stream, no masthead display headline and no grids/sidebar. Modules in order: 关于我 with tagline 记录、连接与行动, 示例作者 and 浏览文章 →; 精选文章 with one pinned article 让知识保持可用 dated2026-11-04 · 方法 and summary 用于页面盘点的隔离发布快照。; 最近更新 with article 记录与回顾 and 查看全部文章 →; 专题合集 with 知识与记录; 我的项目 with 示例项目 public link; 友情链接 with 示例站点. Footer site identity 示例作者 and 订阅 RSS. On320 use long title wrap naturally, preserve order and all belowfold sections via true page scroll rather than shrinking. Do not invent search/edit/login controls.",
+  "actualToolArguments": {
+    "prompt": "Generate high fidelity Chinese UI mobile design board, two independent full public blog pages at 390px and 320px, no device frame, normal readable typography and vertical page scroll. Use image1 only for flat surfaces/hierarchy: white #fff, lightgray #f7f8fa, fine borders and 8px corners; public blog accent stays #44684f. Image2 is actual journal-template page content. Both pages show site header 隔离示例手记, description 真实接口驱动的界面盘点样例。, nav 首页/文章/专题/归档/关于/RSS wrapping as needed, no owner navigation or private-preview banner. Journal single stream, no masthead display headline and no grids/sidebar. Modules in order: 关于我 with tagline 记录、连接与行动, 示例作者 and 浏览文章 →; 精选文章 with one pinned article 让知识保持可用 dated2026-11-04 · 方法 and summary 用于页面盘点的隔离发布快照。; 最近更新 with article 记录与回顾 and 查看全部文章 →; 专题合集 with 知识与记录; 我的项目 with 示例项目 public link; 友情链接 with 示例站点. Footer site identity 示例作者 and 订阅 RSS. On320 use long title wrap naturally, preserve order and all belowfold sections via true page scroll rather than shrinking. Do not invent search/edit/login controls.",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-public-home-journal.png"
+    ],
+    "transparent_background": false
+  },
+  "inputs": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    },
+    {
+      "order": 2,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-public-home-journal.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "5dfb0cf223ef2b936ba83d8dbaaaef7dde495f380ceee4060ca65cdfe50d12bb",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "inputReferences": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    },
+    {
+      "order": 2,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-public-home-journal.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "5dfb0cf223ef2b936ba83d8dbaaaef7dde495f380ceee4060ca65cdfe50d12bb",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-836c2e29-0792-463e-9c00-84d66dfda204.png",
+  "toolDefaultOutputSource": "$CODEX_HOME/generated_images (actual path in toolOutputFile)",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R076.png",
+  "sha256": "6ee2b05bb9afe5cd97441f062d498a8a99594bd3f75110e9cfed223d09ee1e32",
+  "bytes": 1219441,
+  "dimensions": {
+    "width": 1435,
+    "height": 1096
+  },
+  "generatedAtUtc": "2026-11-05T08:35:44.846347+00:00",
+  "revisionOf": null,
+  "generationAttempts": [
+    {
+      "actualToolArguments": {
+        "prompt": "Generate high fidelity Chinese UI mobile design board, two independent full public blog pages at 390px and 320px, no device frame, normal readable typography and vertical page scroll. Use image1 only for flat surfaces/hierarchy: white #fff, lightgray #f7f8fa, fine borders and 8px corners; public blog accent stays #44684f. Image2 is actual journal-template page content. Both pages show site header 隔离示例手记, description 真实接口驱动的界面盘点样例。, nav 首页/文章/专题/归档/关于/RSS wrapping as needed, no owner navigation or private-preview banner. Journal single stream, no masthead display headline and no grids/sidebar. Modules in order: 关于我 with tagline 记录、连接与行动, 示例作者 and 浏览文章 →; 精选文章 with one pinned article 让知识保持可用 dated2026-11-04 · 方法 and summary 用于页面盘点的隔离发布快照。; 最近更新 with article 记录与回顾 and 查看全部文章 →; 专题合集 with 知识与记录; 我的项目 with 示例项目 public link; 友情链接 with 示例站点. Footer site identity 示例作者 and 订阅 RSS. On320 use long title wrap naturally, preserve order and all belowfold sections via true page scroll rather than shrinking. Do not invent search/edit/login controls.",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-public-home-journal.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-836c2e29-0792-463e-9c00-84d66dfda204.png",
+      "status": "saved"
+    }
+  ],
+  "postprocessing": "original PNG copied without pixel modification",
+  "selfInspection": {
+    "method": "Viewed actual inputs and generated native preview; compared selected state to source contracts",
+    "concerns": [
+      "Static mockup; source-derived isolated examples; no runtime fit, focus or scrolling verified."
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "reviewStatus": "pending-independent-review",
+  "pendingReview": true
+}

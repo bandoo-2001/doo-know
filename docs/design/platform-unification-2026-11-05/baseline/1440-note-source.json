@@ -1,0 +1,16 @@
+{
+  "id": "note-source",
+  "title": "Markdown 源码",
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "1440-note-source.png",
+  "sha256": "05e844e7237489b6facc5bbfa32cf37e3d3b68b9732c5f00643be8ee18a907a9",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

@@ -1,0 +1,605 @@
+{
+  "status": "preflight-open-reference-corrections",
+  "reviewedAtUtc": "2026-11-05T10:10:32.040856+00:00",
+  "snapshotCoverageDigest": "23ef039c8e4506c31ce3a0ebc2c3bad40ce7bcd2911644cafcc291d9035a64a1",
+  "snapshotSummary": {
+    "sourceRecords": 275,
+    "dormantRecords": 5,
+    "plannedAssets": 389,
+    "generatedPlannedAssets": 389,
+    "acceptedAssets": 389,
+    "staticContentReviewedAssets": 389,
+    "provenanceUnresolvedAssets": 0,
+    "pendingReview": 0,
+    "needsRevision": 0,
+    "missingAssets": 0,
+    "allGeneratedPNGsIncludingHistorical": 505,
+    "mappingProblems": 0
+  },
+  "actualViewMethod": "Read current local original PNG bytes from catalog; decode with isolated Chromium img.decode; inspect small side-by-side sets. Browser displayed static pictures only. No product/test started.",
+  "actualReference": {
+    "path": "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-01-overview.png",
+    "sha256": "92f53304c91d23e6a712b8f13276861ccd3a78c9b2cb6f24c6edf67493d5b5bc"
+  },
+  "viewedAssets": [
+    {
+      "assetId": "WS-D001",
+      "file": "design/images/PILOT-WS-001.png",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "reason": "implemented reference and role shells"
+    },
+    {
+      "assetId": "MP-D001",
+      "file": "design/images/MP-D001.png",
+      "sha256": "d548859866aceb14252cf76ca11a86439815aac67b31db5fee2008848c2691cc",
+      "reason": "implemented reference and role shells"
+    },
+    {
+      "assetId": "MP-D071",
+      "file": "design/images/MP-D071.png",
+      "sha256": "77bf20e1e822efa2641ab91ccd4408df4e49462a3408e9e3ec853a27f1a98dae",
+      "reason": "implemented reference and role shells"
+    },
+    {
+      "assetId": "MP-D089",
+      "file": "design/images/MP-D089.png",
+      "sha256": "039fe9407eb83cedc59cb0626bcc007269cca96fafffaa1131f2d02d30e67d4f",
+      "reason": "implemented reference and role shells"
+    },
+    {
+      "assetId": "MP-D096",
+      "file": "design/images/MP-D096.png",
+      "sha256": "f3b901f3127770b7bc256bba72b66e3411a344645ad99924e5020bd73f51352f",
+      "reason": "implemented reference and role shells"
+    },
+    {
+      "assetId": "MP-D115",
+      "file": "design/images/MP-D115.png",
+      "sha256": "017fb2e7ef935582537591673fc4b2d63ff941420fcc577bf119b56eca1ef2d7",
+      "reason": "SSR templates and diagram engines"
+    },
+    {
+      "assetId": "MP-D116",
+      "file": "design/images/MP-D116.png",
+      "sha256": "c381fe49a61a4cf5fed10424e1c1801a5adcac75244b2f1f71b857faf2f4ba92",
+      "reason": "SSR templates and diagram engines"
+    },
+    {
+      "assetId": "MP-D117",
+      "file": "design/images/MP-D117.png",
+      "sha256": "933ae65808c80417ef4898eb3b631ad78ac2f13297a4fe41ffc5ffed799c7b09",
+      "reason": "SSR templates and diagram engines"
+    },
+    {
+      "assetId": "WS-D048",
+      "file": "design/images/WS-D048.png",
+      "sha256": "ee7bffb990362d0d2cb1235bf3771d097cab0fb5871e975dd1ae07784ff94cf3",
+      "reason": "SSR templates and diagram engines"
+    },
+    {
+      "assetId": "WS-D049",
+      "file": "design/images/WS-D049.png",
+      "sha256": "d0e25a4067474bda3b4ac5bede8c6bfdf2e84f30953b802021af1610f617481d",
+      "reason": "SSR templates and diagram engines"
+    },
+    {
+      "assetId": "WS-D050",
+      "file": "design/images/WS-D050.png",
+      "sha256": "064c3b03347ce8d1a541f929d3388757d92b4599d4058b3eb45d67c802b4126d",
+      "reason": "SSR templates and diagram engines"
+    },
+    {
+      "assetId": "MP-S001",
+      "file": "design/images/MP-S001.png",
+      "sha256": "dc98d0400d09b3184025aff4094dcce0f0a057b12ce2665967b4bf472ad0381c",
+      "reason": "narrow form actions, resource policy, capability and light/dark control sample"
+    },
+    {
+      "assetId": "WS-R010",
+      "file": "design/images/WS-R010-v3.png",
+      "sha256": "c52d934684f4b014be2bcc4a2b2453c0ccd66a85a9426d9fe6fef77beebbe187",
+      "reason": "narrow form actions, resource policy, capability and light/dark control sample"
+    },
+    {
+      "assetId": "MP-R029",
+      "file": "design/images/MP-R029.png",
+      "sha256": "143bb7acb18683dcedf2f5d29c438eafca296387e5f55861b4e509d2bd02a9a4",
+      "reason": "narrow form actions, resource policy, capability and light/dark control sample"
+    },
+    {
+      "assetId": "MP-R036",
+      "file": "design/images/MP-R036-v2.png",
+      "sha256": "09fd0b3493a5dc1773dc5f38ebc32acb9aecb94c1bf86a9ce1ec9fc4a94a2551",
+      "reason": "narrow form actions, resource policy, capability and light/dark control sample"
+    },
+    {
+      "assetId": "MP-R051",
+      "file": "design/images/MP-R051.png",
+      "sha256": "324926f3e817376a4b3189c620d84702d8a205cf012085b16f635875be36d220",
+      "reason": "narrow form actions, resource policy, capability and light/dark control sample"
+    },
+    {
+      "assetId": "MP-R056",
+      "file": "design/images/MP-R056.png",
+      "sha256": "56e756dfdb73e19e3142d9f6a0d24267c53b6ab6ffc7ea232dd32b99ed2f8750",
+      "reason": "narrow form actions, resource policy, capability and light/dark control sample"
+    },
+    {
+      "assetId": "WS-D008",
+      "file": "design/images/WS-D008-v2.png",
+      "sha256": "7715a67ce591c579dbc9cf7e0a5458a920ca267a47a1251fa23d16a95615159e",
+      "reason": "separate Git/saved restore, loaded diff, loading versus retained feed error"
+    },
+    {
+      "assetId": "WS-D009",
+      "file": "design/images/WS-D009-v2.png",
+      "sha256": "cbdd41481c5765fe964b118994994fa97d0ee4e6ca223443bf5a5e7812a14f7d",
+      "reason": "separate Git/saved restore, loaded diff, loading versus retained feed error"
+    },
+    {
+      "assetId": "WS-M009",
+      "file": "design/images/WS-M009.png",
+      "sha256": "2de0be6fee427a11c57b8c2af1f0d5dac09ba717b3feda33df26e7d43dae6eac",
+      "reason": "separate Git/saved restore, loaded diff, loading versus retained feed error"
+    },
+    {
+      "assetId": "WS-D047",
+      "file": "design/images/WS-D047.png",
+      "sha256": "779b88d9eb616b0e0c060707e4def74ea67d7b865388eb9d625d2c74c7594056",
+      "reason": "separate Git/saved restore, loaded diff, loading versus retained feed error"
+    },
+    {
+      "assetId": "WS-D091",
+      "file": "design/images/WS-D091-v3.png",
+      "sha256": "51a9728238ad827129fd7380edeee7eea2c9dc736e70bd1ae9cf506c280c6d6b",
+      "reason": "separate Git/saved restore, loaded diff, loading versus retained feed error"
+    },
+    {
+      "assetId": "WS-M019",
+      "file": "design/images/WS-M019.png",
+      "sha256": "05506403913377ee0bbc643af04781ab7057bc489e17c21d72f5ddb8e815d89e",
+      "reason": "separate Git/saved restore, loaded diff, loading versus retained feed error"
+    },
+    {
+      "assetId": "WS-M011",
+      "file": "design/images/WS-M011-v2.png",
+      "sha256": "97135fad44dbb49ac77839c0b8d6badd4e4b1bbfd8008f091f8c2fbe9c872ace",
+      "reason": "long-task progress/continuation, effective vs granted authorization, draft-only restoration"
+    },
+    {
+      "assetId": "MP-S012",
+      "file": "design/images/MP-S012-v3.png",
+      "sha256": "449cc9b8bba96a21632fe8ca8763db86c0b92cac403037d3ae2b938f732914ea",
+      "reason": "long-task progress/continuation, effective vs granted authorization, draft-only restoration"
+    },
+    {
+      "assetId": "MP-S014",
+      "file": "design/images/MP-S014-v2.png",
+      "sha256": "8345b66c732b89d5417a77ab3042a4f7701062682c3a126f6547fc66789c8ba3",
+      "reason": "long-task progress/continuation, effective vs granted authorization, draft-only restoration"
+    },
+    {
+      "assetId": "MP-S021",
+      "file": "design/images/MP-S021-v2.png",
+      "sha256": "ebcc518a7df88c89789b167495b82f225f79e33abcaebdf2b0723106e4abe11a",
+      "reason": "long-task progress/continuation, effective vs granted authorization, draft-only restoration"
+    },
+    {
+      "assetId": "MP-D047",
+      "file": "design/images/MP-D047-v2.png",
+      "sha256": "1a84b35a8b3a391a3d85d6d7a219478e940197d91469c3c468b17eb708b654de",
+      "reason": "long-task progress/continuation, effective vs granted authorization, draft-only restoration"
+    },
+    {
+      "assetId": "MP-R074",
+      "file": "design/images/MP-R074.png",
+      "sha256": "e0491286d614c7f2ebadc16749e2d0025ef81839ccb46f8530f87665ad843578",
+      "reason": "long-task progress/continuation, effective vs granted authorization, draft-only restoration"
+    },
+    {
+      "assetId": "WS-D004",
+      "file": "design/images/WS-D004.png",
+      "sha256": "a6ba10e6f1673a466e4590453d4b99aa3075663cf8715976ef2949aef23660b1",
+      "reason": "direct verification of claimed visible labels and current sidebar feedback"
+    },
+    {
+      "assetId": "WS-D007",
+      "file": "design/images/WS-D007-v2.png",
+      "sha256": "ac8d25731f068c9173372cdc536363be0bc4da4ebb9182183171963d80dba85d",
+      "reason": "direct verification of claimed visible labels and current sidebar feedback"
+    },
+    {
+      "assetId": "WS-D039",
+      "file": "design/images/WS-D039.png",
+      "sha256": "1767a45805b181597a1f3e1ec52341321e84a15b65a0f3d388dbc6fd653ac64c",
+      "reason": "direct verification of claimed visible labels and current sidebar feedback"
+    },
+    {
+      "assetId": "WS-D041",
+      "file": "design/images/WS-D041.png",
+      "sha256": "3ac5968457c283d33c50e76efdc4cd95623db6bbd4df80df178467d424c00493",
+      "reason": "direct verification of claimed visible labels and current sidebar feedback"
+    },
+    {
+      "assetId": "WS-D029",
+      "file": "design/images/WS-D029-v3.png",
+      "sha256": "e34b52c952997fae374355e207f4715a186e923426360d4603483c5c188b1203",
+      "reason": "direct verification of claimed visible labels and current sidebar feedback"
+    },
+    {
+      "assetId": "WS-M018",
+      "file": "design/images/WS-M018.png",
+      "sha256": "07d42d922741525ee5deabbf8cc343871a2c17147c3b921e671c516720d31fa9",
+      "reason": "direct verification of claimed visible labels and current sidebar feedback"
+    },
+    {
+      "assetId": "WS-R022",
+      "file": "design/images/WS-R022-v2.png",
+      "sha256": "d379fa7c03f9d37176211112d0ee834a1faa090b2b3e3aeb41218f96a7a70694",
+      "reason": "large-fragment host, feed end and empty favorites, recovery, invalid inputs, mobile editor"
+    },
+    {
+      "assetId": "WS-D037",
+      "file": "design/images/WS-D037.png",
+      "sha256": "4a5ba23af3510c89f9ed53b2b866f3379e407655b6626d048fec488cdcd97e6e",
+      "reason": "large-fragment host, feed end and empty favorites, recovery, invalid inputs, mobile editor"
+    },
+    {
+      "assetId": "WS-R004",
+      "file": "design/images/WS-R004-v2.png",
+      "sha256": "f9f16dcb6c45688edabe561d4f0805b9043e084af858311acc2e00808efa86c9",
+      "reason": "large-fragment host, feed end and empty favorites, recovery, invalid inputs, mobile editor"
+    },
+    {
+      "assetId": "WS-M005",
+      "file": "design/images/WS-M005.png",
+      "sha256": "040754744cd6ad48dd7a119c5d846e587b896f3bbc2ca9f9e11264609496c7ef",
+      "reason": "large-fragment host, feed end and empty favorites, recovery, invalid inputs, mobile editor"
+    },
+    {
+      "assetId": "WS-D026",
+      "file": "design/images/WS-D026-v3.png",
+      "sha256": "f7608ebf79c28594fdb4c5330a795d9bf763d72c3a3e06efb2d5e033fc44926a",
+      "reason": "large-fragment host, feed end and empty favorites, recovery, invalid inputs, mobile editor"
+    },
+    {
+      "assetId": "WS-R011",
+      "file": "design/images/WS-R011-v3.png",
+      "sha256": "8d6757fffe2ee43365fff6a5a6227efbbd4355de0c3844aeed00271cf1872bb9",
+      "reason": "large-fragment host, feed end and empty favorites, recovery, invalid inputs, mobile editor"
+    },
+    {
+      "assetId": "MP-R078",
+      "file": "design/images/MP-R078-v2.png",
+      "sha256": "10c4e6084b1e64efd19e18aaf804858bcddcbea46002374e7a95678b953e4bc2",
+      "reason": "controlled regeneration and capability-only print / embedded vendor sidebar geometry"
+    },
+    {
+      "assetId": "MP-R081",
+      "file": "design/images/MP-R081-v2.png",
+      "sha256": "bc9f8d56aa457f251da8ae79130eeb491ebfd4fc7768b17b03a01a924b88fa1c",
+      "reason": "controlled regeneration and capability-only print / embedded vendor sidebar geometry"
+    },
+    {
+      "assetId": "MP-R082",
+      "file": "design/images/MP-R082-v2.png",
+      "sha256": "4dff2f6ff119f500d28fbe011768921e816750b3a92b6accff8b33bf739d0e5c",
+      "reason": "controlled regeneration and capability-only print / embedded vendor sidebar geometry"
+    },
+    {
+      "assetId": "MP-R083",
+      "file": "design/images/MP-R083-v2.png",
+      "sha256": "f98f5294f60f69a339fe5089bfed6efad0025f72a6ec9486dffdfc5d1bfb26e8",
+      "reason": "controlled regeneration and capability-only print / embedded vendor sidebar geometry"
+    },
+    {
+      "assetId": "WS-VR002",
+      "file": "design/images/WS-VR002.png",
+      "sha256": "e1beefd35e667389ccfefbcc4f9e35a598e99b4b7e156a9a6cf95d111bd0c50d",
+      "reason": "controlled regeneration and capability-only print / embedded vendor sidebar geometry"
+    },
+    {
+      "assetId": "WS-R049",
+      "file": "design/images/WS-R049.png",
+      "sha256": "9b63bf7722b335ac37311acfc8e8d9916ad90ad9cfd92edc4a71b8f70c1fe5af",
+      "reason": "controlled regeneration and capability-only print / embedded vendor sidebar geometry"
+    },
+    {
+      "assetId": "WS-D074",
+      "file": "design/images/WS-D074-v2.png",
+      "sha256": "6dc9bd5473fb0529272fe08e01db9f732019c6c0537d534d72400e3967cd01da",
+      "reason": "shared article, graph projection, guest loading/CAS, cover validation and compact identity anchor"
+    },
+    {
+      "assetId": "WS-R034",
+      "file": "design/images/WS-R034.png",
+      "sha256": "87928065849d2b43a6cf18154f046f5ce573784427dd5f51bd3fdb0526131dd8",
+      "reason": "shared article, graph projection, guest loading/CAS, cover validation and compact identity anchor"
+    },
+    {
+      "assetId": "WS-R050",
+      "file": "design/images/WS-R050.png",
+      "sha256": "306abc1aaa378041757b8c15c03871c436e26be531ddbd1d445b788682f946aa",
+      "reason": "shared article, graph projection, guest loading/CAS, cover validation and compact identity anchor"
+    },
+    {
+      "assetId": "MP-S049",
+      "file": "design/images/MP-S049-v3.png",
+      "sha256": "820cc849cd833312889f6926204e320e38a0900c02d5caff929694e93771ae3e",
+      "reason": "shared article, graph projection, guest loading/CAS, cover validation and compact identity anchor"
+    },
+    {
+      "assetId": "MP-S051",
+      "file": "design/images/MP-S051.png",
+      "sha256": "8a70e609b1702a469127c206eca7a257065bc375d20d8c36ef8bbe978ea15cfa",
+      "reason": "shared article, graph projection, guest loading/CAS, cover validation and compact identity anchor"
+    },
+    {
+      "assetId": "MP-S058",
+      "file": "design/images/MP-S058-v2.png",
+      "sha256": "88aede9da38ecfda46db95f6269dc8c38d0c3769827ac8f9573ff819a0954b68",
+      "reason": "shared article, graph projection, guest loading/CAS, cover validation and compact identity anchor"
+    },
+    {
+      "assetId": "WS-M003",
+      "file": "design/images/WS-M003-v2.png",
+      "sha256": "1b6a5047686e62617cf25ab416ae597e2d4bad43cb597ccf3e8b6850bf789481",
+      "reason": "startup, dirty/receipt, dynamic model, graph and diagram status projections"
+    },
+    {
+      "assetId": "WS-M006",
+      "file": "design/images/WS-M006.png",
+      "sha256": "bae8d19d9b52d2719b0ddb96a1be845e2a091946fc77649275fab2f982ea7c43",
+      "reason": "startup, dirty/receipt, dynamic model, graph and diagram status projections"
+    },
+    {
+      "assetId": "WS-M010",
+      "file": "design/images/WS-M010.png",
+      "sha256": "b368997a6e90a842c58deca201ead0b672707239c9bfde3ff0261748e98c93cf",
+      "reason": "startup, dirty/receipt, dynamic model, graph and diagram status projections"
+    },
+    {
+      "assetId": "WS-M012",
+      "file": "design/images/WS-M012.png",
+      "sha256": "7bd035134b51a6e8450c2279c234830f55bdc5c2e67b74fec4ebf5f161d060bf",
+      "reason": "startup, dirty/receipt, dynamic model, graph and diagram status projections"
+    },
+    {
+      "assetId": "WS-M013",
+      "file": "design/images/WS-M013.png",
+      "sha256": "89703c90cd65342e2ebe7e382a3bfcdd8c6ad0c1855fa46f528b883ab9a68869",
+      "reason": "startup, dirty/receipt, dynamic model, graph and diagram status projections"
+    },
+    {
+      "assetId": "WS-D054",
+      "file": "design/images/WS-D054.png",
+      "sha256": "2c374a4c5ae3878329e7e8ecad8d4720a36ff5644a18a79f9827250acd4fd33c",
+      "reason": "startup, dirty/receipt, dynamic model, graph and diagram status projections"
+    },
+    {
+      "assetId": "MP-R015",
+      "file": "design/images/MP-R015.png",
+      "sha256": "b9f3d8f2bf9a52b5746dbefb1c930f15edf529835831d2bd50a9d001e1a981bf",
+      "reason": "mobile compact/dense form comparison; source-specific field additions and form guards"
+    },
+    {
+      "assetId": "MP-D034",
+      "file": "design/images/MP-D034.png",
+      "sha256": "9d82fc6ee5c766e5bdbba2d206738288c21004c10d5d3ae3102ca59aced9c4db",
+      "reason": "mobile compact/dense form comparison; source-specific field additions and form guards"
+    },
+    {
+      "assetId": "MP-R016",
+      "file": "design/images/MP-R016.png",
+      "sha256": "b53c309244d7f6b0a95ceba20de275cacbff76ca33279dc9176dd504ff1497cc",
+      "reason": "mobile compact/dense form comparison; source-specific field additions and form guards"
+    },
+    {
+      "assetId": "MP-R072",
+      "file": "design/images/MP-R072.png",
+      "sha256": "52979f74a5071db7cc3a902fd6ec605afea324d92512259d9d70336952673a41",
+      "reason": "mobile compact/dense form comparison; source-specific field additions and form guards"
+    },
+    {
+      "assetId": "MP-R003",
+      "file": "design/images/MP-R003-v2.png",
+      "sha256": "9459fec13a9156784a395f509f931b4232166d97b4c365fe8665b51512a3d2a5",
+      "reason": "mobile compact/dense form comparison; source-specific field additions and form guards"
+    },
+    {
+      "assetId": "MP-R030",
+      "file": "design/images/MP-R030.png",
+      "sha256": "5f716267d2c14ceab8b421ce5d87059326bfedd683a2555ad1725787ae9e5cb9",
+      "reason": "mobile compact/dense form comparison; source-specific field additions and form guards"
+    },
+    {
+      "assetId": "WS-VR001",
+      "file": "design/images/WS-VR001-v2.png",
+      "sha256": "c2b36fa3cb5316dcc1e2b07a41c0f3f67c16f8a95a3bb8803b5a10c8b5001b35",
+      "reason": "corrected mobile vendor HEX, diagram chrome, private HTTP preview, separate public publishing review"
+    },
+    {
+      "assetId": "WS-VR006",
+      "file": "design/images/WS-VR006.png",
+      "sha256": "3f967f3f306b0ce15c0d28456de79f71069a9a103eeea943f42138ad1d7706c9",
+      "reason": "corrected mobile vendor HEX, diagram chrome, private HTTP preview, separate public publishing review"
+    },
+    {
+      "assetId": "WS-R028",
+      "file": "design/images/WS-R028-v2.png",
+      "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03",
+      "reason": "corrected mobile vendor HEX, diagram chrome, private HTTP preview, separate public publishing review"
+    },
+    {
+      "assetId": "MP-D126",
+      "file": "design/images/MP-D126.png",
+      "sha256": "967ca49f271c4c91c646db1f71cc278be2cee179682cf0d07b37ac04c9029f9f",
+      "reason": "corrected mobile vendor HEX, diagram chrome, private HTTP preview, separate public publishing review"
+    },
+    {
+      "assetId": "MP-R-GET046",
+      "file": "design/images/MP-R-GET046.png",
+      "sha256": "900a9f6a22d265ee403e4419501deee6eaa092e9af3cfbb1b93f0f65e67c31ce",
+      "reason": "corrected mobile vendor HEX, diagram chrome, private HTTP preview, separate public publishing review"
+    },
+    {
+      "assetId": "MP-R065",
+      "file": "design/images/MP-R065.png",
+      "sha256": "121f0d2bf9d36016af3a717394c3c15d94f4731fe316f7efb3c9f42efcf0733f",
+      "reason": "corrected mobile vendor HEX, diagram chrome, private HTTP preview, separate public publishing review"
+    }
+  ],
+  "requiredCorrections": [
+    {
+      "id": "G1",
+      "scope": "workspace-asset-plan.json stateCoverage visibility and row references",
+      "finding": "Direct visible currently contradicts the approved PNG or points at a different numbered row. Preserve accepted art; fix effective mapping to visible, typed substitution or nonvisual guard according to each source.",
+      "exactCases": [
+        {
+          "source": "WS-004",
+          "actual": "D004 A tree loaded/enabled",
+          "correct": "Workspace.vue:2742-2785 unloaded disables main plus five create rows; import and more trigger retain own behavior. Bind exact conditional enabled→disabled same menu; do not call unloaded menu pictured."
+        },
+        {
+          "source": "WS-009",
+          "actual": "D009 retained page-error not initial skeleton/matrix. patternRows still points to retired WS-M002.",
+          "correct": "CollectionWorkspace.vue:172-191 six skeletons visible D007/D008; retained list/error visible D009; favorites empty and end of list visible R004. Bind remaining update/refresh/empty conditions to concrete source-specific regions. Check collection-update refresh action currently missing from these pictures."
+        },
+        {
+          "source": "WS-037",
+          "actual": "D029 valid one-line URL, no error line",
+          "correct": "DocumentEditor.vue:822-833,1300-1310 existing error span directly below URL input; three messages share one span. D026 C supplies analogous inline field error only; URL host/save guard from D029 and actual source (do not transplant disabled HEX apply guard). If exact composition cannot be demonstrated, add a bounded invalid-link specimen."
+        },
+        {
+          "source": "WS-053",
+          "actual": "D039 A idle fragment leave, error absent inside dialog",
+          "correct": "LargeFileWorkspace.vue:313-315,376-386,502-504,553-557 on failed save dirty guard leaves exact modal open. A retained fragment and parent NAlert exist behind modal, check receipt only with requestId. Distinguish unchanged modal geometry from source-derived behavior/parent alert."
+        },
+        {
+          "source": "WS-055",
+          "actual": "D041 A clipboard failed, same copyOpen true readonly textarea",
+          "correct": "DraftRecovery.vue:27-34,72-84 status changes to 恢复文本已复制。 on success in exact same p; select-on-focus textarea remains. Use actual D041 current and substitution for success; classify fallback visible."
+        },
+        {
+          "source": "WS-097",
+          "actual": "D004 C explicitly desktop top-start only",
+          "correct": "WorkspaceFooter.vue:119 compact bottom-start/inline anchor needs actual narrow identity anchor or precise source position rule. Do not claim both placements visible in desktop C."
+        },
+        {
+          "source": "WS-003 / 064 / 089",
+          "actual": "M018 r4/5/6 retain contradictory legacy row-1 alongside correct matrixRow; M009 pending restore is seventh specimen, not row-6; M012 load/reload is seventh, not row-1.",
+          "correct": "Identify single authoritative effective current row, retain old patternRows separately only as original plan history; normalize all active visible rows against current independent reports."
+        }
+      ]
+    },
+    {
+      "id": "G2",
+      "scope": "responsive lookup",
+      "exactCases": [
+        "ST015 pending WS023 alias resolves desktop WS-D019 only in catalog; bind WS-R010 at its stated widths and exact host root/writable+organizable guards.",
+        "WS074 mobile reading: R050 inner article body only, combine R028 nonembedded diagram chrome and D054 actual projection. WS106 R034 A/B knowledge-list geometry only. Both carried empty panel arrays.",
+        "ST043 actual 3 password fields in D034 with R015 repeated password geometry; PB045 project-specific textarea D110, R072 only common ordered item. Keep this as composition rather than claiming one-field or links-only images draw all controls."
+      ]
+    }
+  ],
+  "scopeBoundary": "Only design evidence. Aggregate field/action strings and per-image approvals do not resolve erroneous source→visible pointers. No implementation, service, data, release or device verification.",
+  "interimMachineRecheck": {
+    "checkedAtUtc": "2026-11-05T10:13:10.067541+00:00",
+    "digest": "23ef039c8e4506c31ce3a0ebc2c3bad40ce7bcd2911644cafcc291d9035a64a1",
+    "records": 275,
+    "activeOriginalImportantStateOccurrences": 1160,
+    "actualMatchedCurrentPngReviewMetadataAndPrompt": 389,
+    "discrepancies": [],
+    "perDesignPassOnly": true
+  },
+  "comparisons": [
+    {
+      "family": "Owner workspace/settings",
+      "assets": [
+        "WS-D001",
+        "MP-D001",
+        "WS-D004",
+        "WS-D074"
+      ],
+      "finding": "Compare actual ToDoo overview against notebook and settings: corresponding slim persistent primary rail, workspace context column, vertical alignment, light rows, blue/tinted selection and small controls. Keep 64/56/208 as style reference with actual user-resizable knowledge tree and compact drawer/identity trigger. Use token CSS for normalized chroma, focus, borders and padding."
+    },
+    {
+      "family": "Theme",
+      "assets": [
+        "MP-S001",
+        "WS-D001",
+        "MP-D001",
+        "MP-R003"
+      ],
+      "finding": "S001 visibly has light and dark preference preview blocks, other sampled full hosts primarily light. Exact light/dark ink, paper, accent and focus colors come from apps/web/to-doo-tokens.css. Whole-app dark contrast in Ant, Naive and rendering engines is an implementation/runtime check. Specimen gradients/shading and raster blue variation have no CSS numeric authority."
+    },
+    {
+      "family": "Auth, role ceilings, guest",
+      "assets": [
+        "MP-D071",
+        "MP-D089",
+        "MP-R051",
+        "MP-R056",
+        "MP-S049",
+        "MP-S051",
+        "MP-D047",
+        "MP-S021"
+      ],
+      "finding": "Login required fields and single submit; OAuth domain form uses allowedPolicy and optional offline_access only, with distinct legacy/non-policy rendering, allow/deny disabled while busy. Read-only guest has article and TOC; valid editable share has its own small toolbar. Blank dirty content may be saved; readonly/403, missing/404, expectedModifiedAt/409 and conditional retry/reload retain the draft as specified. Actual grants and HTTP capability execution remain untested."
+    },
+    {
+      "family": "Manager and public SSR",
+      "assets": [
+        "MP-D096",
+        "MP-D115",
+        "MP-D116",
+        "MP-D117",
+        "MP-R074",
+        "MP-R078",
+        "MP-D126",
+        "MP-R-GET046"
+      ],
+      "finding": "Owner blog has its local overview and actions. Journal uses a single text feed, magazine uses broad headline/card grid, profile separates author and editorial modules. Green example accent/serif/spacing belong to blog settings; retain custom accent, type scale, reading width, templates and privacy. Publishing history restores drafts only. Authenticated GET private preview has private banner and standalone SSR canvas, distinct from viewport controls and public home."
+    },
+    {
+      "family": "Diagrams and narrow vendor windows",
+      "assets": [
+        "WS-D048",
+        "WS-D049",
+        "WS-D050",
+        "WS-R028",
+        "WS-VR001",
+        "WS-VR002",
+        "WS-VR006"
+      ],
+      "finding": "Shared private host and mode group surround distinct whiteboard tools, colored mindmap and Mermaid authoring/preview. Stamp UI tokens on common chrome, preserve user/content colors and vendor controls. No phone eyedropper on VR001 v2. Reachable drawing geometry is a target; historical find/library offscreen at 390, CommandPalette unmounted and mobile stats not rendered stay explicit."
+    },
+    {
+      "family": "Reusable windows and long states",
+      "assets": [
+        "WS-R010",
+        "MP-R015",
+        "MP-D034",
+        "MP-R036",
+        "MP-R029",
+        "MP-R030",
+        "WS-M011",
+        "MP-S012",
+        "MP-S014",
+        "WS-D047",
+        "WS-M019",
+        "WS-D091",
+        "WS-R049"
+      ],
+      "finding": "Tree placement/empty result remain actual selector. Dense SSH/client/permission forms have dedicated error/disabled examples and bottom actions. Rename and rotation differ from issuance; do not transplant name to expiry-only or restore to nonrestorable mode. Transfer/data jobs preserve state-specific cancellation, resume, download and output reconciliation. Git raw/inline diff, saved revision tabs/source, loaded split/narrow unified table and footer receipt are distinct regions. Standalone print/HTML has independent reading surface."
+    }
+  ],
+  "knownBoundaries": [
+    "No product/server or real Git/plugin/backup integration started; no inferred request success, credentials, permission execution, scroll, hit testing, keyboard, focus or device support.",
+    "PB060 HTTP-only; PB016 conditional setup notice; no account registration, forgot-password, share password gate, team roles or additional AI features. Exact command-palette and mobile stats absence based on locked package, preserved negative runtime attempts.",
+    "Visual cross-review is a representative set of independently SHA-verified current PNGs; remaining assets have their own source-bound per-image reviews. Source-only CSS and component guards supplement visible data.",
+    "ST015 uses same DirectoryTreeSelect with independent ST014 writable-organizable restriction; public templates, blogs, print and OAuth do not inherit private navigation.",
+    "History diff toolbar placement differs in Git vs saved branch; renderer fallback/raw diff is not loaded parsed grid. Reconciliation and restore guards, CAS, retained guest draft, public capability permissions require separate runtime proof.",
+    "Device keyboard/focus trapping & return, full-page dark contrasts, long form inner scrolling, actual responsive hit boxes incl. 390 offscreen vendor sidebar remain open implementation acceptance criteria."
+  ]
+}

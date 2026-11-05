@@ -1,0 +1,15 @@
+{
+  "id": "oauth-consent",
+  "title": "真实 OAuth 所有者授权页",
+  "width": 390,
+  "audience": "owner",
+  "route": "/oauth/consent?<isolated-request>",
+  "file": "390-oauth-consent.png",
+  "sha256": "728c3aeae54f202172c642aa4075681d69630c5fb4023e7b22b9c1cd05f927ae",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "pageErrors": [],
+  "outerOverflow": 0
+}

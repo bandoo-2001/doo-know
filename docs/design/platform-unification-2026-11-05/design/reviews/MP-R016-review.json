@@ -1,0 +1,45 @@
+{
+  "assetId": "MP-R016",
+  "sourceIds": [
+    "ST-031"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T07:39:47.649136+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Three narrow existing-backup independent restore review drawers: idle/error/busy",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed complete server-record restore drawers/full prompt/source. Existing backup summary time/12MiB/readonly id and longer id, actual independent-new-directory/verification/current-service guidance and collapsed CLI help retained. No upload/secret/path inputs/step-back or live deployment switch invented.",
+    "Retryable failed submission keeps summary and same per-backup requestId, X/cancel/start available; submitting locks X/cancel and spins start, later accepted request closes drawer while job continues. No restore execution/current deployment change or runtime mobile fit claimed."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-037.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R016.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/BackupSettings.vue:121",
+    "apps/web/components/settings/BackupSettings.vue:348",
+    "apps/web/components/settings/BackupSettings.vue:387",
+    "apps/web/components/settings/SettingsOverlay.vue"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "b53c309244d7f6b0a95ceba20de275cacbff76ca33279dc9176dd504ff1497cc",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R016.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

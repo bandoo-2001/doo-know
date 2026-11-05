@@ -1,0 +1,47 @@
+{
+  "assetId": "MP-S042-v2",
+  "sourceIds": [
+    "PB-011"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:43:37.655072+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Seven independent Git import form/job/test/failure/cancel/unresolved snippets",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed v2 and original/edit prompts. Three empty inputs retain precise source placeholders; URL absent disables test/import while add credential is available and synthetic knowledge name present. No saved secret or protocol input.",
+    "Running job offers refresh/cancel; failed job offers refresh/reconcile-retry; cancelled job only refresh; unresolved issuance only 核对请求结果. Individual messages/needs_reconciliation variants retain original bindings and real handler guards rather than pretending all states coexist.",
+    "Existing target folder stops import; connection test explicitly does not prove push permission. Clone remains independent new server folder; no overwrite/force/automatic retry invented."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-027.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S042-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/GitRepositoryImport.vue:7",
+    "apps/web/components/GitRemotePanel.vue:504",
+    "apps/web/components/GitRemotePanel.vue:896",
+    "apps/web/components/GitRemotePanel.vue:990",
+    "apps/web/git-sync.ts"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "5570fa184e24ec72d032e47e3d89fbdfa710ff8bed6a4a1061c0b2aba8db7dbb",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S042-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

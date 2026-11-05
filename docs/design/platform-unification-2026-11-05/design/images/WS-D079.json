@@ -1,0 +1,530 @@
+{
+  "id": "WS-D079",
+  "title": "Preserved unsupported Markdown and knowledge preview card / Owner rich-editor eligibility fallback / source-only configuration",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-104",
+    "WS-105"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-104",
+      "title": "Preserved unsupported Markdown and knowledge preview card",
+      "role": "authenticated owner",
+      "state": "A original-preserved card; B owner rich flag/eligibility source-only fallback retains draft. Public guest eligibility remains separate.",
+      "presentationInstruction": "A original-preserved card; B owner rich flag/eligibility source-only fallback retains draft. Public guest eligibility remains separate."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-105",
+      "title": "Owner rich-editor eligibility fallback / source-only configuration",
+      "role": "authenticated owner",
+      "state": "A original-preserved card; B owner rich flag/eligibility source-only fallback retains draft. Public guest eligibility remains separate.",
+      "presentationInstruction": "A original-preserved card; B owner rich flag/eligibility source-only fallback retains draft. Public guest eligibility remains separate."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/editor/extensions/opaque-source.ts",
+      "role": "AUTHORITATIVE SOURCE: apps/web/editor/extensions/opaque-source.ts:25, apps/web/editor/extensions/opaque-source.ts:81"
+    },
+    {
+      "path": "apps/web/editor/compatibility.ts",
+      "role": "AUTHORITATIVE SOURCE: apps/web/editor/compatibility.ts:1, apps/web/components/NoteEditorHost.vue:161, apps/web/components/Workspace.vue:3190, apps/web/components/Workspace.vue:3304"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-104",
+      "label": "在源码中编辑",
+      "effect": "Switch to exact original source block",
+      "api": "none (local UI)",
+      "guard": "Owner session; relevant editor and busy guards apply."
+    },
+    {
+      "sourceId": "WS-104",
+      "label": "复制原文",
+      "effect": "Open source-copy modal WS-039",
+      "api": "none (local UI)",
+      "guard": "Owner session; relevant editor and busy guards apply."
+    },
+    {
+      "sourceId": "WS-104",
+      "label": "删除此内容",
+      "effect": "Open explicit deletion WS-040",
+      "api": "none (local UI)",
+      "guard": "Owner session; relevant editor and busy guards apply."
+    },
+    {
+      "sourceId": "WS-105",
+      "label": "Markdown 源码",
+      "effect": "Use original lossless source editor",
+      "api": "none (local UI)",
+      "guard": "Owner session; relevant editor and busy guards apply."
+    },
+    {
+      "sourceId": "WS-105",
+      "label": "编辑/预览/双栏 legacy tabs",
+      "effect": "Use source/preview modes when document editor build flag is off",
+      "api": "none (local UI)",
+      "guard": "Owner session; relevant editor and busy guards apply."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R011",
+      "reuseSourceId": "WS-024",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Opaque card controls flex-wrap; <=720px card wraps and content context styles compact. Sanitized preview max width follows document area."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "在源码中编辑",
+          "effect": "Switch to exact original source block",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        },
+        {
+          "label": "复制原文",
+          "effect": "Open source-copy modal WS-039",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        },
+        {
+          "label": "删除此内容",
+          "effect": "Open explicit deletion WS-040",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-104"
+    },
+    {
+      "assetId": "WS-R011",
+      "reuseSourceId": "WS-024",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Same source editor mobile/desktop rules. Build flag availability must be verified from isolated runtime; do not assume rich editor deployed merely because component exists."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "Markdown 源码",
+          "effect": "Use original lossless source editor",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        },
+        {
+          "label": "编辑/预览/双栏 legacy tabs",
+          "effect": "Use source/preview modes when document editor build flag is off",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-105"
+    }
+  ],
+  "prompt": "保留A、B两个分组和所有独立局部样例。只在B下半部分的“文档编辑 / Markdown 源码 / 阅读”三个标签旁加回源码模式的真实控件：一个未勾选且可用的复选框，文字“同时预览”。它属于B下半部分当前Markdown源码模式，B上半部分旧版“编辑 / 预览 / 分屏”不能出现此复选框。其余文字、警告、原文保留卡、按钮和布局都不变，不加任何解释标题。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D079.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-104",
+      "title": "Preserved unsupported Markdown and knowledge preview card",
+      "kind": "state",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Rich editor encounters opaque source unit",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/editor/extensions/opaque-source.ts:25",
+        "apps/web/editor/extensions/opaque-source.ts:81"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "在源码中编辑",
+          "effect": "Switch to exact original source block",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        },
+        {
+          "label": "复制原文",
+          "effect": "Open source-copy modal WS-039",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        },
+        {
+          "label": "删除此内容",
+          "effect": "Open explicit deletion WS-040",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        }
+      ],
+      "importantStates": [
+        "Sanitized preview for supported knowledge markup/math",
+        "Plain original-preserved card when no preview",
+        "Internal source units hidden",
+        "Images resolved only through authorized asset path"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Opaque card controls flex-wrap; <=720px card wraps and content context styles compact. Sanitized preview max width follows document area."
+      },
+      "testRefs": [
+        "tests/editor-opaque-source.test.ts",
+        "tests/editor-knowledge-dom.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-105",
+      "title": "Owner rich-editor eligibility fallback / source-only configuration",
+      "kind": "state",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Rich view disabled by build flag or source eligibility fails",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/editor/compatibility.ts:1",
+        "apps/web/components/NoteEditorHost.vue:161",
+        "apps/web/components/Workspace.vue:3190",
+        "apps/web/components/Workspace.vue:3304"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "Markdown 源码",
+          "effect": "Use original lossless source editor",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        },
+        {
+          "label": "编辑/预览/双栏 legacy tabs",
+          "effect": "Use source/preview modes when document editor build flag is off",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        }
+      ],
+      "importantStates": [
+        "Owner Workspace only: VITE_DOCUMENT_EDITOR_ENABLED not1 means rich tabs absent; public guest host has separate configuration",
+        "Rich Markdown>262144 UTF-8 bytes",
+        "Units>5000 or depth>32",
+        "Server editorMode notfull",
+        "Fallback warning retains source and current draft"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Same source editor mobile/desktop rules. Build flag availability must be verified from isolated runtime; do not assume rich editor deployed merely because component exists."
+      },
+      "testRefs": [
+        "tests/editor-compatibility.test.ts",
+        "tests/e2e/editor-mode-switch.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-104",
+      "parentId": "WS-024",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-105",
+      "parentId": "WS-024",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-104,WS-105",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-104",
+      "state": "Sanitized preview for supported knowledge markup/math",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-104",
+      "state": "Plain original-preserved card when no preview",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-104",
+      "state": "Internal source units hidden",
+      "representation": "nonvisual-data-rule"
+    },
+    {
+      "sourceId": "WS-104",
+      "state": "Images resolved only through authorized asset path",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-105",
+      "state": "Owner Workspace only: VITE_DOCUMENT_EDITOR_ENABLED not1 means rich tabs absent; public guest host has separate configuration",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-105",
+      "state": "Rich Markdown>262144 UTF-8 bytes",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-105",
+      "state": "Units>5000 or depth>32",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-105",
+      "state": "Server editorMode notfull",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-105",
+      "state": "Fallback warning retains source and current draft",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D079",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "A plain opaque card and supported sanitized knowledge preview card independently",
+    "B owner build-flag-off legacy source tabs; independent eligible-flag-on size fallback source tabs with simultaneous preview toggle"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "保留A、B两个分组和所有独立局部样例。只在B下半部分的“文档编辑 / Markdown 源码 / 阅读”三个标签旁加回源码模式的真实控件：一个未勾选且可用的复选框，文字“同时预览”。它属于B下半部分当前Markdown源码模式，B上半部分旧版“编辑 / 预览 / 分屏”不能出现此复选框。其余文字、警告、原文保留卡、按钮和布局都不变，不加任何解释标题。",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D079 Preserved unsupported Markdown and knowledge preview card / Owner rich-editor eligibility fallback / source-only configuration\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-104\", \"title\": \"Preserved unsupported Markdown and knowledge preview card\", \"role\": \"authenticated owner\", \"state\": \"A original-preserved card; B owner rich flag/eligibility source-only fallback retains draft. Public guest eligibility remains separate.\", \"presentationInstruction\": \"A original-preserved card; B owner rich flag/eligibility source-only fallback retains draft. Public guest eligibility remains separate.\"}, {\"label\": \"B\", \"sourceId\": \"WS-105\", \"title\": \"Owner rich-editor eligibility fallback / source-only configuration\", \"role\": \"authenticated owner\", \"state\": \"A original-preserved card; B owner rich flag/eligibility source-only fallback retains draft. Public guest eligibility remains separate.\", \"presentationInstruction\": \"A original-preserved card; B owner rich flag/eligibility source-only fallback retains draft. Public guest eligibility remains separate.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-104\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"在源码中编辑\", \"effect\": \"Switch to exact original source block\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}, {\"label\": \"复制原文\", \"effect\": \"Open source-copy modal WS-039\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}, {\"label\": \"删除此内容\", \"effect\": \"Open explicit deletion WS-040\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}], \"importantStates\": [\"Sanitized preview for supported knowledge markup/math\", \"Plain original-preserved card when no preview\", \"Internal source units hidden\", \"Images resolved only through authorized asset path\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-105\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"Markdown 源码\", \"effect\": \"Use original lossless source editor\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}, {\"label\": \"编辑/预览/双栏 legacy tabs\", \"effect\": \"Use source/preview modes when document editor build flag is off\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}], \"importantStates\": [\"Owner Workspace only: VITE_DOCUMENT_EDITOR_ENABLED not1 means rich tabs absent; public guest host has separate configuration\", \"Rich Markdown>262144 UTF-8 bytes\", \"Units>5000 or depth>32\", \"Server editorMode notfull\", \"Fallback warning retains source and current draft\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/editor/extensions/opaque-source.ts",
+      "role": "AUTHORITATIVE SOURCE: apps/web/editor/extensions/opaque-source.ts:25, apps/web/editor/extensions/opaque-source.ts:81",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/editor/extensions/opaque-source.ts:25, apps/web/editor/extensions/opaque-source.ts:81",
+      "sha256": "80d44b2fe0cc9d4a54c2c24e55b9802282fff1e83f2630e7a45960bc8f7b5936"
+    },
+    {
+      "path": "apps/web/editor/compatibility.ts",
+      "role": "AUTHORITATIVE SOURCE: apps/web/editor/compatibility.ts:1, apps/web/components/NoteEditorHost.vue:161, apps/web/components/Workspace.vue:3190, apps/web/components/Workspace.vue:3304",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/editor/compatibility.ts:1, apps/web/components/NoteEditorHost.vue:161, apps/web/components/Workspace.vue:3190, apps/web/components/Workspace.vue:3304",
+      "sha256": "a49140712eeacbacbb00260bfa688512176ee1fed98acc078c18f9686e155ee3"
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-d352fa41-872d-452e-be22-177eceed461e.png",
+      "role": "initial generated candidate targeted edit",
+      "responsibility": "Restore actual conditional simultaneous-preview toggle / search label while preserving valid states",
+      "sha256": "99e7af16445c6cfd9d6b91517937635ad2168ab208104c7e7754c4cd11ad2800",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1064349
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-d352fa41-872d-452e-be22-177eceed461e.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D079.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-05d37b6e-4315-468f-9095-e6e3c0111cc5.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-05d37b6e-4315-468f-9095-e6e3c0111cc5.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T05:35:57.085Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Source controls checked; source-only owner modes separate, retained draft and original-parent restore/pending guards intact.",
+    "concerns": []
+  },
+  "sha256": "f37aa01468667902397e10905cf43b4dc1cf2b4b62baf6b0310f82478d3e6e6c",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1545048,
+  "sourceInspection": [
+    {
+      "path": "apps/web/editor/extensions/opaque-source.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "80d44b2fe0cc9d4a54c2c24e55b9802282fff1e83f2630e7a45960bc8f7b5936"
+    },
+    {
+      "path": "apps/web/editor/extensions/opaque-source.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "80d44b2fe0cc9d4a54c2c24e55b9802282fff1e83f2630e7a45960bc8f7b5936"
+    },
+    {
+      "path": "apps/web/editor/compatibility.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "a49140712eeacbacbb00260bfa688512176ee1fed98acc078c18f9686e155ee3"
+    },
+    {
+      "path": "apps/web/components/NoteEditorHost.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d56fb03aebf95c3b973f743b4ac7582cf3469b448b1ac5b2bc27c3b9e8c029b7"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Exact child states source-derived, actual parent baselines checked. No editor fallback/rename/restore/pending recovery runtime verified.",
+  "sourceGuardBinding": "Owner VITE_DOCUMENT_EDITOR_ENABLED off omits rich tabs, not public eligibility. Separate large-source fallback selected with flag on; current viewport shows only start of retained source, no fake total count. Public eligibility independent.",
+  "generationHistoryFiles": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-032-WS-D079-call-01-output.json",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-032-WS-D079-call-02-output.json"
+  ]
+}

@@ -1,0 +1,345 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S009",
+  "assetId": "MP-S009",
+  "sourceIds": [
+    "ST-013"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-013",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Four independent compact rows per matrix: category table; initial read failure; partial count slice; full seven-row table plus expanded bounds/details. All counts/limits synthetic"
+    }
+  ],
+  "selectedState": "Four independent compact rows per matrix: category table; initial read failure; partial count slice; full seven-row table plus expanded bounds/details. All counts/limits synthetic",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作中文网页组件局部对照板：白底、浅灰面、蓝色动作、细边框小圆角、文字清晰紧凑。每个指定行是独立场景，只画受影响的控件/提示/局部列表，不画外部页面导航、全页头、审查编号或解释性标题。各行用留白和细线明确分离，不能混成一个产品状态。四个纵向独立局部区，画布可加高。1 “存储占用”，说明“按类别统计当前可读取的文件。”、按钮“刷新统计”，三列表“类别 / 占用 / 文件数量”，七行“笔记原文 /80.0 KiB/12 个文件”“附件与其他文件/2.0 MiB/5 个文件”“历史版本/0 B/0 个文件”“回收站/0 B/0 个文件”“搜索索引/3.0 MiB/120 个文件”“检索模型/0 B/0 个文件”“升级备份/0 B/0 个文件”，统计时间2026/11/5 12:00。2 仅红色提示“暂时无法读取空间统计，请重试。”和“刷新统计”按钮。3 仅表格行“搜索索引 / 3.0 MiB /120 个文件”，文件数量下小字“部分统计”。4 另一完整存储卡片，七个同名类别均0 B和0 个文件，搜索索引数量旁“部分统计”；统计时间2026/11/5 12:00，提示“统计可能不完整，查看统计范围与提示。”；展开“统计范围 · 1 条提示”，说明“统计有数量和深度上限，不能作为完整备份证明。每类最多检查 10000 个条目，目录深度上限 20。升级备份仅指程序维护留下的副本；加密备份在「备份与恢复」中管理。无法读取或超出上限的项目不计入完整总量。”，提示项“搜索索引统计达到检查上限。”。长表内部滚动，不能添加清理或删除。",
+  "prompt": "制作中文网页组件局部对照板：白底、浅灰面、蓝色动作、细边框小圆角、文字清晰紧凑。每个指定行是独立场景，只画受影响的控件/提示/局部列表，不画外部页面导航、全页头、审查编号或解释性标题。各行用留白和细线明确分离，不能混成一个产品状态。四个纵向独立局部区，画布可加高。1 “存储占用”，说明“按类别统计当前可读取的文件。”、按钮“刷新统计”，三列表“类别 / 占用 / 文件数量”，七行“笔记原文 /80.0 KiB/12 个文件”“附件与其他文件/2.0 MiB/5 个文件”“历史版本/0 B/0 个文件”“回收站/0 B/0 个文件”“搜索索引/3.0 MiB/120 个文件”“检索模型/0 B/0 个文件”“升级备份/0 B/0 个文件”，统计时间2026/11/5 12:00。2 仅红色提示“暂时无法读取空间统计，请重试。”和“刷新统计”按钮。3 仅表格行“搜索索引 / 3.0 MiB /120 个文件”，文件数量下小字“部分统计”。4 另一完整存储卡片，七个同名类别均0 B和0 个文件，搜索索引数量旁“部分统计”；统计时间2026/11/5 12:00，提示“统计可能不完整，查看统计范围与提示。”；展开“统计范围 · 1 条提示”，说明“统计有数量和深度上限，不能作为完整备份证明。每类最多检查 10000 个条目，目录深度上限 20。升级备份仅指程序维护留下的副本；加密备份在「备份与恢复」中管理。无法读取或超出上限的项目不计入完整总量。”，提示项“搜索索引统计达到检查上限。”。长表内部滚动，不能添加清理或删除。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual matching owner settings parent baseline; selected local state matrix source-derived",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; local matrix has no owner shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual matching owner settings parent baseline; selected local state matrix source-derived",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; local matrix has no owner shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作中文网页组件局部对照板：白底、浅灰面、蓝色动作、细边框小圆角、文字清晰紧凑。每个指定行是独立场景，只画受影响的控件/提示/局部列表，不画外部页面导航、全页头、审查编号或解释性标题。各行用留白和细线明确分离，不能混成一个产品状态。四个纵向独立局部区，画布可加高。1 “存储占用”，说明“按类别统计当前可读取的文件。”、按钮“刷新统计”，三列表“类别 / 占用 / 文件数量”，七行“笔记原文 /80.0 KiB/12 个文件”“附件与其他文件/2.0 MiB/5 个文件”“历史版本/0 B/0 个文件”“回收站/0 B/0 个文件”“搜索索引/3.0 MiB/120 个文件”“检索模型/0 B/0 个文件”“升级备份/0 B/0 个文件”，统计时间2026/11/5 12:00。2 仅红色提示“暂时无法读取空间统计，请重试。”和“刷新统计”按钮。3 仅表格行“搜索索引 / 3.0 MiB /120 个文件”，文件数量下小字“部分统计”。4 另一完整存储卡片，七个同名类别均0 B和0 个文件，搜索索引数量旁“部分统计”；统计时间2026/11/5 12:00，提示“统计可能不完整，查看统计范围与提示。”；展开“统计范围 · 1 条提示”，说明“统计有数量和深度上限，不能作为完整备份证明。每类最多检查 10000 个条目，目录深度上限 20。升级备份仅指程序维护留下的副本；加密备份在「备份与恢复」中管理。无法读取或超出上限的项目不计入完整总量。”，提示项“搜索索引统计达到检查上限。”。长表内部滚动，不能添加清理或删除。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作中文网页组件局部对照板：白底、浅灰面、蓝色动作、细边框小圆角、文字清晰紧凑。每个指定行是独立场景，只画受影响的控件/提示/局部列表，不画外部页面导航、全页头、审查编号或解释性标题。各行用留白和细线明确分离，不能混成一个产品状态。四个纵向独立局部区，画布可加高。1 “存储占用”，说明“按类别统计当前可读取的文件。”、按钮“刷新统计”，三列表“类别 / 占用 / 文件数量”，七行“笔记原文 /80.0 KiB/12 个文件”“附件与其他文件/2.0 MiB/5 个文件”“历史版本/0 B/0 个文件”“回收站/0 B/0 个文件”“搜索索引/3.0 MiB/120 个文件”“检索模型/0 B/0 个文件”“升级备份/0 B/0 个文件”，统计时间2026/11/5 12:00。2 仅红色提示“暂时无法读取空间统计，请重试。”和“刷新统计”按钮。3 仅表格行“搜索索引 / 3.0 MiB /120 个文件”，文件数量下小字“部分统计”。4 另一完整存储卡片，七个同名类别均0 B和0 个文件，搜索索引数量旁“部分统计”；统计时间2026/11/5 12:00，提示“统计可能不完整，查看统计范围与提示。”；展开“统计范围 · 1 条提示”，说明“统计有数量和深度上限，不能作为完整备份证明。每类最多检查 10000 个条目，目录深度上限 20。升级备份仅指程序维护留下的副本；加密备份在「备份与恢复」中管理。无法读取或超出上限的项目不计入完整总量。”，提示项“搜索索引统计达到检查上限。”。长表内部滚动，不能添加清理或删除。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+          "role": "Actual matching owner settings parent baseline; selected local state matrix source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only; local matrix has no owner shell"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-fafe8602-eb56-4018-a566-247edd59634e.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-013",
+      "title": "存储占用与不完整统计",
+      "kind": "state",
+      "module": "settings/storage",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "存储占用卡片；统计范围details",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/StorageSettings.vue:13",
+        "apps/web/components/StorageSettings.vue:42",
+        "apps/server/platform/management.ts:180"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新统计",
+          "effect": "有界扫描可读取文件",
+          "api": "GET /api/manage/storage",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "7类别表：原文/附件/历史/回收站/索引/模型/升级备份",
+        "加载/读取失败",
+        "部分统计标记",
+        "数量与深度上限/警告列表",
+        "统计时间"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-layout.spec.ts:69",
+        "tests/management-api.test.ts:92",
+        "tests/maintenance-storage.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "仅有读取统计，无删除缓存/数据操作；加密备份由备份页管理。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-013",
+      "parentId": "ST-002",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/StorageSettings.vue:13",
+        "apps/web/components/StorageSettings.vue:42",
+        "apps/server/platform/management.ts:180"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-023.json#MP-S009",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S009",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-fafe8602-eb56-4018-a566-247edd59634e.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S009.png",
+  "sha256": "d94bd71bf3f160fcf94285ea9e8c3ce85093242610d3405663b3f973ddd02012",
+  "bytes": 1147014,
+  "dimensions": {
+    "width": 1024,
+    "height": 1536
+  },
+  "generatedAtUtc": "2026-11-05T04:19:54.423380+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / StorageSettings.vue",
+    "sourceIds": [
+      "ST-013"
+    ],
+    "roles": [
+      "authenticated-owner",
+      "owner-private"
+    ],
+    "state": "Four independent compact rows per matrix: category table; initial read failure; partial count slice; full seven-row table plus expanded bounds/details. All counts/limits synthetic",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-013",
+      "title": "7类别表：原文/附件/历史/回收站/索引/模型/升级备份",
+      "renderer": "apps/web/components/StorageSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/StorageSettings.vue:13",
+        "apps/web/components/StorageSettings.vue:42",
+        "apps/server/platform/management.ts:180"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新统计",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "7类别表：原文/附件/历史/回收站/索引/模型/升级备份",
+          "variant": "7类别表：原文/附件/历史/回收站/索引/模型/升级备份",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-013"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-013",
+      "title": "读取失败",
+      "renderer": "apps/web/components/StorageSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/StorageSettings.vue:13",
+        "apps/web/components/StorageSettings.vue:42",
+        "apps/server/platform/management.ts:180"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新统计",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "加载/读取失败",
+          "variant": "读取失败",
+          "representation": "visible"
+        },
+        {
+          "state": "数量与深度上限/警告列表",
+          "variant": "数量与深度上限/警告列表",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-013"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-013",
+      "title": "部分统计标记",
+      "renderer": "apps/web/components/StorageSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/StorageSettings.vue:13",
+        "apps/web/components/StorageSettings.vue:42",
+        "apps/server/platform/management.ts:180"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新统计",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "部分统计标记",
+          "variant": "部分统计标记",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-013"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "ST-013",
+      "title": "完整存储只读类别表：7类名称/占用/统计时间/partial标记，长表内部滚动",
+      "renderer": "apps/web/components/StorageSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/StorageSettings.vue:13",
+        "apps/web/components/StorageSettings.vue:42",
+        "apps/server/platform/management.ts:180"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新统计",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。",
+      "coveredSourceIds": [
+        "ST-013"
+      ]
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": []
+}

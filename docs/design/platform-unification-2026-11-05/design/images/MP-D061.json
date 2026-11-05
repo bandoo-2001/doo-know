@@ -1,0 +1,396 @@
+{
+  "id": "MP-D061",
+  "title": "SSH凭据与主机指纹确认",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-077"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-077",
+      "title": "SSH凭据与主机指纹确认",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    }
+  ],
+  "viewportIntent": "1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-077",
+      "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+      "trigger": "凭据编辑→SSH私钥（高级）",
+      "parentId": "ST-076",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "SSH私钥",
+          "type": "textarea",
+          "required": false,
+          "constraints": "新增必填；更换留空保留；服务端≤65536及PEM/OpenSSH格式验证",
+          "sensitive": true
+        },
+        {
+          "name": "私钥口令",
+          "type": "password",
+          "required": false,
+          "constraints": "可选；服务端≤4096字符且无控制字符；留空保留仅适用原绑定且复用私钥；秘密不回显",
+          "sensitive": true
+        },
+        {
+          "name": "已核对known_hosts",
+          "type": "textarea",
+          "required": true,
+          "constraints": "服务端≤65536，1–20非注释行；仅所选exact host及支持公钥类型",
+          "sensitive": false
+        },
+        {
+          "name": "已对照官方文档核对并信任主机",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "更改known_hosts/平台即重置；不能仅依赖扫描",
+          "sensitive": false
+        },
+        {
+          "name": "服务器加密保存凭据",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "false仅30分钟",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "指纹扫描任务",
+        "扫描失败可粘贴已核对known_hosts",
+        "信任未勾选禁保存",
+        "主机变更警告",
+        "秘密不回显"
+      ],
+      "notes": [
+        "非新窗口实例；与HTTPS共用编辑modal，但结构/安全动作显著不同，需要独立设计图。",
+        "统计为ST-076同一凭据窗口的SSH变体，不增加窗口数。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "完整SSH凭据表单：私钥/口令/known_hosts、扫描指纹、对照官方信任勾选、加密保存/30分钟、保存取消；扫描不等于信任。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。"
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-077",
+      "label": "读取SSH主机指纹",
+      "effect": "服务器扫描所选平台并显示公钥指纹",
+      "api": "POST /api/platform/git/jobs kind:ssh-host",
+      "guard": "非running且workspace不忙"
+    },
+    {
+      "sourceId": "ST-077",
+      "label": "保存仓库凭据",
+      "effect": "保存私钥和显式host trust",
+      "api": "POST /api/platform/git/credentials",
+      "guard": "knownHosts非空、trustHost=true"
+    },
+    {
+      "sourceId": "ST-077",
+      "label": "GitHub/Gitee官方指纹帮助",
+      "effect": "外部帮助链接",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "Git本地commit成功即使push失败仍存在；unknown沿原request核对，干净已保存才pull，分歧停止。PluginPanel不凭空添加busy/dirty关闭保护。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-077",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n只画一个新增仓库凭据模态窗口，使用完整可滚动长表单与可达底部操作，正常清楚字号。标题“添加凭据”，说明“凭据只供当前账号使用，秘密内容不会回显。”，右上关闭X可用。依次字段：“凭据名称”值“示例 SSH”，“服务平台”下拉选“GitHub”，“认证方式”下拉选“SSH 私钥（高级）”；帮助“SSH 高级设置：私钥只会发给当前 DooKnow 服务。请先与官方公布的主机指纹核对，不能仅凭扫描结果信任主机。”；“SSH 私钥”四行文本框，值只用“••••••••••••••••••••”；“私钥口令（选填）”密码框值“••••••••”；按钮“读取 SSH 主机指纹”可用；“已核对的 known_hosts”四行文本框为空；帮助“扫描被网络阻止时，也可以粘贴经过核对的 known_hosts。”；未勾选复选框“我已对照官方文档核对指纹，确认信任此主机”；已勾选复选框“在服务器加密保存凭据（取消后仅保留 30 分钟）”；底部“保存仓库凭据”灰色禁用，“取消编辑凭据”可用。不显示扫描成功/指纹结果、HTTPS令牌字段或外部帮助区，不加协议输入。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D061.png",
+  "reviewStatus": "pending-independent-review",
+  "parentBindings": [
+    {
+      "sourceId": "ST-077",
+      "parentId": "ST-076",
+      "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:1166",
+        "apps/server/git/credentials.ts:42",
+        "apps/server/git/credentials.ts:70",
+        "apps/server/git/credentials.ts:205"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-077",
+      "title": "SSH凭据与主机指纹确认",
+      "kind": "state",
+      "module": "settings/git-credentials",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "凭据编辑→SSH私钥（高级）",
+        "parentId": "ST-076"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:1166",
+        "apps/server/git/credentials.ts:42",
+        "apps/server/git/credentials.ts:70",
+        "apps/server/git/credentials.ts:205"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "SSH私钥",
+          "type": "textarea",
+          "required": false,
+          "constraints": "新增必填；更换留空保留；服务端≤65536及PEM/OpenSSH格式验证",
+          "sensitive": true
+        },
+        {
+          "name": "私钥口令",
+          "type": "password",
+          "required": false,
+          "constraints": "可选；服务端≤4096字符且无控制字符；留空保留仅适用原绑定且复用私钥；秘密不回显",
+          "sensitive": true
+        },
+        {
+          "name": "已核对known_hosts",
+          "type": "textarea",
+          "required": true,
+          "constraints": "服务端≤65536，1–20非注释行；仅所选exact host及支持公钥类型",
+          "sensitive": false
+        },
+        {
+          "name": "已对照官方文档核对并信任主机",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "更改known_hosts/平台即重置；不能仅依赖扫描",
+          "sensitive": false
+        },
+        {
+          "name": "服务器加密保存凭据",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "false仅30分钟",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "读取SSH主机指纹",
+          "effect": "服务器扫描所选平台并显示公钥指纹",
+          "api": "POST /api/platform/git/jobs kind:ssh-host",
+          "guard": "非running且workspace不忙"
+        },
+        {
+          "label": "保存仓库凭据",
+          "effect": "保存私钥和显式host trust",
+          "api": "POST /api/platform/git/credentials",
+          "guard": "knownHosts非空、trustHost=true"
+        },
+        {
+          "label": "GitHub/Gitee官方指纹帮助",
+          "effect": "外部帮助链接",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "指纹扫描任务",
+        "扫描失败可粘贴已核对known_hosts",
+        "信任未勾选禁保存",
+        "主机变更警告",
+        "秘密不回显"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/git-credentials.test.ts:1",
+        "tests/git-transport.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "非新窗口实例；与HTTPS共用编辑modal，但结构/安全动作显著不同，需要独立设计图。",
+        "统计为ST-076同一凭据窗口的SSH变体，不增加窗口数。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-D061",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "selectedState": [
+    "new SSH credential, GitHub, trust unchecked, known_hosts empty, encrypted server storage checked, idle dirty form"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n只画一个新增仓库凭据模态窗口，使用完整可滚动长表单与可达底部操作，正常清楚字号。标题“添加凭据”，说明“凭据只供当前账号使用，秘密内容不会回显。”，右上关闭X可用。依次字段：“凭据名称”值“示例 SSH”，“服务平台”下拉选“GitHub”，“认证方式”下拉选“SSH 私钥（高级）”；帮助“SSH 高级设置：私钥只会发给当前 DooKnow 服务。请先与官方公布的主机指纹核对，不能仅凭扫描结果信任主机。”；“SSH 私钥”四行文本框，值只用“••••••••••••••••••••”；“私钥口令（选填）”密码框值“••••••••”；按钮“读取 SSH 主机指纹”可用；“已核对的 known_hosts”四行文本框为空；帮助“扫描被网络阻止时，也可以粘贴经过核对的 known_hosts。”；未勾选复选框“我已对照官方文档核对指纹，确认信任此主机”；已勾选复选框“在服务器加密保存凭据（取消后仅保留 30 分钟）”；底部“保存仓库凭据”灰色禁用，“取消编辑凭据”可用。不显示扫描成功/指纹结果、HTTPS令牌字段或外部帮助区，不加协议输入。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-D061 SSH凭据与主机指纹确认\n\n1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。\n\n角色壳：所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。\n\n独立场景：\nA | ST-077 | SSH凭据与主机指纹确认 | role=authenticated-owner | 实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\n\n完整构图：\n完整SSH凭据表单：私钥/口令/known_hosts、扫描指纹、对照官方信任勾选、加密保存/30分钟、保存取消；扫描不等于信任。\n\n精确功能/字段/动作guard合同：\nST-077权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-077字段顺序：SSH私钥 [textarea; 可选]: 新增必填；更换留空保留；服务端≤65536及PEM/OpenSSH格式验证；仅合成掩码 | 私钥口令 [password; 可选]: 可选；服务端≤4096字符且无控制字符；留空保留仅适用原绑定且复用私钥；秘密不回显；仅合成掩码 | 已核对known_hosts [textarea; 必填]: 服务端≤65536，1–20非注释行；仅所选exact host及支持公钥类型 | 已对照官方文档核对并信任主机 [checkbox; 必填]: 更改known_hosts/平台即重置；不能仅依赖扫描 | 服务器加密保存凭据 [checkbox; 可选]: false仅30分钟\nST-077白名单：读取SSH主机指纹 => 服务器扫描所选平台并显示公钥指纹；guard=非running且workspace不忙；接口约束=POST /api/platform/git/jobs kind:ssh-host\nST-077白名单：保存仓库凭据 => 保存私钥和显式host trust；guard=knownHosts非空、trustHost=true；接口约束=POST /api/platform/git/credentials\nST-077白名单：GitHub/Gitee官方指纹帮助 => 外部帮助链接；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\nSettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\nGit本地commit成功即使push失败仍存在；unknown沿原request核对，干净已保存才pull，分歧停止。PluginPanel不凭空添加busy/dirty关闭保护。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 120942
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D061.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c09c24ed-6a8c-4376-9920-0a1db3d0bd5e.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c09c24ed-6a8c-4376-9920-0a1db3d0bd5e.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T03:48:48.184Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "SSH fields and order preserved, secrets masked, trust unchecked and save disabled, close available with dirty protection metadata.",
+    "concerns": []
+  },
+  "sha256": "9f491ac861114c9f7e6383184bb7e92afcab14334dfeacc41e6130736eeb6db9",
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  },
+  "bytes": 1127879,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/GitRemotePanel.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1ef7dbfc441518f0aaed509633413592b74a170897c602f802e9c2492ff9fe4c"
+    },
+    {
+      "path": "apps/server/git/credentials.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e103ef3c6f04d9180ceea5b63387485e95a3c357ae73b485e8ea32c45a81d881"
+    },
+    {
+      "path": "apps/server/git/credentials.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e103ef3c6f04d9180ceea5b63387485e95a3c357ae73b485e8ea32c45a81d881"
+    },
+    {
+      "path": "apps/server/git/credentials.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e103ef3c6f04d9180ceea5b63387485e95a3c357ae73b485e8ea32c45a81d881"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Exact child state is source-derived, not captured in parent settings baseline. No network/Git/credential execution performed.",
+  "closeProtection": "SettingsOverlay busy=false allows close request; dirty form then requires actual discard confirmation, not simultaneously open."
+}

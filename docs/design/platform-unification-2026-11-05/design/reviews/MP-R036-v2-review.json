@@ -1,0 +1,46 @@
+{
+  "assetId": "MP-R036-v2",
+  "sourceIds": [
+    "ST-077"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T07:59:50.556508+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Three narrow SSH credential forms: untrusted new/edit preserved/scanner error manual recovery",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed currentv2/new SHA and initial+cleanup prompts/source. Full native fields, warning/manual-knownHosts/explicit official-fingerprint trust/store controls retained, plain empty passphrase inputs without fake eye/stars/placeholders.",
+    "New empty SSH/trustfalse disables save. Edit same binding may leave privatekey/passphrase blank to preserve; public knownHosts placeholder and trustchecked enables client save but does not claim backend key validation/trust verification. Failed scanner retains manual input/retryexisting scan and trustfalse/save-disabled, no auto trust/nativeSSHwindow or successful scanned fingerprint."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-039.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R036-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/GitRemotePanel.vue:1166",
+    "apps/web/components/GitRemotePanel.vue:585",
+    "apps/server/git/credentials.ts:42",
+    "apps/server/git/credentials.ts:70",
+    "apps/server/git/credentials.ts:205"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "09fd0b3493a5dc1773dc5f38ebc32acb9aecb94c1bf86a9ce1ec9fc4a94a2551",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R036-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

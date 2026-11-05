@@ -1,0 +1,305 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D103",
+  "assetId": "MP-D103",
+  "sourceIds": [
+    "PB-037",
+    "PB-038"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-037",
+      "title": "博客文章：下架确认",
+      "role": "authenticated owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Two independent idle inline alertdialogs: withdraw published snapshot vs remove blog selection; original note retained, captured selection unchanged"
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-038",
+      "title": "博客文章：移除选稿确认",
+      "role": "authenticated owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Two independent idle inline alertdialogs: withdraw published snapshot vs remove blog selection; original note retained, captured selection unchanged"
+    }
+  ],
+  "selectedState": "Two independent idle inline alertdialogs: withdraw published snapshot vs remove blog selection; original note retained, captured selection unchanged",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。两个独立紧凑确认框横向分离。左框标题“下架这篇文章？”，说明“公开文章将无法访问。知识库中的原笔记会保留。”，底部普通按钮“取消”和红色危险按钮“确认下架”。右框标题“移除这篇博客选稿？”，完全相同说明“公开文章将无法访问。知识库中的原笔记会保留。”，按钮“取消”“确认移除”。没有关闭X、输入、额外复选框、删除原笔记操作或导航。",
+  "prompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。两个独立紧凑确认框横向分离。左框标题“下架这篇文章？”，说明“公开文章将无法访问。知识库中的原笔记会保留。”，底部普通按钮“取消”和红色危险按钮“确认下架”。右框标题“移除这篇博客选稿？”，完全相同说明“公开文章将无法访问。知识库中的原笔记会保留。”，按钮“取消”“确认移除”。没有关闭X、输入、额外复选框、删除原笔记操作或导航。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "role": "Actual matching parent/content reference; selected local substate follows source template",
+      "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette and density only; no feature or owner chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "role": "Actual matching parent/content reference; selected local substate follows source template",
+      "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette and density only; no feature or owner chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。两个独立紧凑确认框横向分离。左框标题“下架这篇文章？”，说明“公开文章将无法访问。知识库中的原笔记会保留。”，底部普通按钮“取消”和红色危险按钮“确认下架”。右框标题“移除这篇博客选稿？”，完全相同说明“公开文章将无法访问。知识库中的原笔记会保留。”，按钮“取消”“确认移除”。没有关闭X、输入、额外复选框、删除原笔记操作或导航。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。两个独立紧凑确认框横向分离。左框标题“下架这篇文章？”，说明“公开文章将无法访问。知识库中的原笔记会保留。”，底部普通按钮“取消”和红色危险按钮“确认下架”。右框标题“移除这篇博客选稿？”，完全相同说明“公开文章将无法访问。知识库中的原笔记会保留。”，按钮“取消”“确认移除”。没有关闭X、输入、额外复选框、删除原笔记操作或导航。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+          "role": "Actual matching parent/content reference; selected local substate follows source template"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette and density only; no feature or owner chrome authority"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-b91175a8-8be0-4a99-81b1-f58e138ec824.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-037",
+      "title": "博客文章：下架确认",
+      "kind": "dialog",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "下架文章 on published post",
+        "parentId": "PB-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:230",
+        "apps/web/components/BlogWorkspace.vue:705",
+        "apps/web/components/BlogWorkspace.vue:725",
+        "apps/web/blog-workbench.ts:286"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "取消",
+          "effect": "Close confirmation",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "确认下架",
+          "effect": "Withdraw public snapshot",
+          "api": "POST /api/blog/unpublish",
+          "guard": "same selected article captured at opening; not busy/reading"
+        }
+      ],
+      "importantStates": [
+        "inline alertdialog; source note retained",
+        "busy/read guards; Escape cancellation; restore focus",
+        "CAS conflict/error remains on article"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-polish.spec.ts:74"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete dialog with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-038",
+      "title": "博客文章：移除选稿确认",
+      "kind": "dialog",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "移除选稿",
+        "parentId": "PB-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:713",
+        "apps/web/components/BlogWorkspace.vue:725",
+        "apps/web/blog-workbench.ts:303"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "取消",
+          "effect": "Close confirmation",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "确认移除",
+          "effect": "Delete selected blog article and public availability",
+          "api": "DELETE /api/blog/posts/:id",
+          "guard": "same captured selection; CAS expectedVersion; not busy/reading"
+        }
+      ],
+      "importantStates": [
+        "inline alertdialog; original note retained",
+        "successful removal clears article-specific forms/selection",
+        "busy/version conflict/error"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-polish.spec.ts:74"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete dialog with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-037",
+      "parentId": "PB-032",
+      "route": "/?view=apps&app=blog&appSection=articles",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:230",
+        "apps/web/components/BlogWorkspace.vue:705",
+        "apps/web/components/BlogWorkspace.vue:725",
+        "apps/web/blog-workbench.ts:286"
+      ]
+    },
+    {
+      "sourceId": "PB-038",
+      "parentId": "PB-032",
+      "route": "/?view=apps&app=blog&appSection=articles",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:713",
+        "apps/web/components/BlogWorkspace.vue:725",
+        "apps/web/blog-workbench.ts:303"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-021.json#MP-D103",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D103",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-b91175a8-8be0-4a99-81b1-f58e138ec824.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D103.png",
+  "sha256": "b17d07cf3cf36ffaa65194bbc1733724bbe7b917378592bc4b21074ac3f3bc90",
+  "bytes": 977855,
+  "dimensions": {
+    "width": 2172,
+    "height": 724
+  },
+  "generatedAtUtc": "2026-11-05T04:10:58.345399+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "博客文章：下架确认 / 博客文章：移除选稿确认",
+    "sourceIds": [
+      "PB-037",
+      "PB-038"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Two independent idle inline alertdialogs: withdraw published snapshot vs remove blog selection; original note retained, captured selection unchanged",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "renderedVariants": []
+}

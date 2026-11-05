@@ -1,0 +1,49 @@
+{
+  "assetId": "MP-D122",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:44:51.406605+00:00",
+  "method": "Actual PNG and matching real baseline viewed; complete actual sidecar prompt, GEN-007 source contracts, current public server renderer/routes and template CSS checked.",
+  "selectedState": "Anonymous collection index with one available-member collection",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "One actual left-column collection card retains accessible published-member count 1, title/description and link; no fake second card, search/sort/admin or empty branch.",
+    "Configured text brand/green/author/footer retained; 专题 active corresponds to exact index route and actual public navigation."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Preserve configured user green accent/template-specific hierarchy alongside shared flat surfaces, typography/borders and spacing. Raster shading/approximate dimensions are illustrative; no exact CSS, dynamic theme or responsive fit claim."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-007.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D122.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/blog/routes.ts:247",
+    "apps/server/blog/render.ts:94",
+    "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-collections.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "efdfcde7f00c2631ad436d55a9171c3a9b1a060f6fee611c85d7b5bbcb18ae70",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D122.png",
+  "sourceIds": [
+    "PB-057"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

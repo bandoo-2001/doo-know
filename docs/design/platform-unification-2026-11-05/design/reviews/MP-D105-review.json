@@ -1,0 +1,53 @@
+{
+  "assetId": "MP-D105",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:48:33.035002+00:00",
+  "method": "Actual final PNG viewed against real corresponding blog baseline, complete actual prompt/history, GEN-006 contracts and current BlogWorkspace template/model conditions.",
+  "selectedState": "Owner clean saved site settings, disabled site and local toggle off, source-completed about area",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "All enabled/title/description/author/baseURL/theme/about fields preserved in source order/groups; saved site-off badge and local off toggle agree, no unsaved-status mix.",
+    "Source empty placeholders, light theme and design-entry helper retained. No invented dark option, in-page publish, version/CAS input or error-only reread action.",
+    "Full long about textarea and savebar accessible. Saved-state save remains enabled because actual settings button is disabled only during busy; site-enable takes effect through explicit saved settings, separate from publication."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-006.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D105.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/BlogWorkspace.vue:897",
+    "apps/web/components/BlogWorkspace.vue:973",
+    "apps/web/components/BlogWorkspace.vue:1017",
+    "apps/web/blog-workbench.ts:324",
+    "packages/core/blog/service.ts:568",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-blog-settings.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "963aae4ee08561e0bf3b1258104d108305f4eeeadb40347092801ba77d6a2d49",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D105.png",
+  "sourceIds": [
+    "PB-040"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

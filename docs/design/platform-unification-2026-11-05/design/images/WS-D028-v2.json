@@ -1,0 +1,449 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D028-v2",
+  "assetId": "WS-D028",
+  "sourceIds": [
+    "WS-034",
+    "WS-035",
+    "WS-036"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-034",
+      "title": "Contextual table toolbar",
+      "role": "authenticated owner",
+      "state": "A active table toolbar; B selected-image form; C linked-text actions. Separate content selections.",
+      "presentationInstruction": "A active table toolbar; B selected-image form; C linked-text actions. Separate content selections.",
+      "selectedState": "Three independent writable editor selections: top-left cell3x3 table with up/left move disabled, column center alignment; selected image alt/title metadata with actual actions; linked text actions URL readonly display. No simultaneous active selection asserted."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-035",
+      "title": "Contextual image settings",
+      "role": "authenticated owner",
+      "state": "A active table toolbar; B selected-image form; C linked-text actions. Separate content selections.",
+      "presentationInstruction": "A active table toolbar; B selected-image form; C linked-text actions. Separate content selections.",
+      "selectedState": "Three independent writable editor selections: top-left cell3x3 table with up/left move disabled, column center alignment; selected image alt/title metadata with actual actions; linked text actions URL readonly display. No simultaneous active selection asserted."
+    },
+    {
+      "label": "C",
+      "sourceId": "WS-036",
+      "title": "Contextual link actions",
+      "role": "authenticated owner",
+      "state": "A active table toolbar; B selected-image form; C linked-text actions. Separate content selections.",
+      "presentationInstruction": "A active table toolbar; B selected-image form; C linked-text actions. Separate content selections.",
+      "selectedState": "Three independent writable editor selections: top-left cell3x3 table with up/left move disabled, column center alignment; selected image alt/title metadata with actual actions; linked text actions URL readonly display. No simultaneous active selection asserted."
+    }
+  ],
+  "selectedState": "Three independent writable editor selections: top-left cell3x3 table with up/left move disabled, column center alignment; selected image alt/title metadata with actual actions; linked text actions URL readonly display. No simultaneous active selection asserted.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅在最上方表格工具条左侧表格图标后、“行”分组前，补回真实只读尺寸文字“3 × 3”。可以微调该条内部横向间距容纳，不能删除或改动任何14个图标按钮及分组“行”“列”“对齐”，禁用的上移行/左移列和居中选中保持。下方图片设置/两个字段值/应用说明和3动作、链接URL和3动作以及整体布局全部不变，不新增其他文字或控件。",
+  "prompt": "仅在最上方表格工具条左侧表格图标后、“行”分组前，补回真实只读尺寸文字“3 × 3”。可以微调该条内部横向间距容纳，不能删除或改动任何14个图标按钮及分组“行”“列”“对齐”，禁用的上移行/左移列和居中选中保持。下方图片设置/两个字段值/应用说明和3动作、链接URL和3动作以及整体布局全部不变，不新增其他文字或控件。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D028.png",
+      "role": "Edit target; restore genuine readonly rows×columns caption in table toolbar",
+      "sha256": "35e47ab9dd5501ea8a69e41e6cd309645b84775aee8bbda322e64ce60050aed4",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D028.png",
+      "role": "Edit target; restore genuine readonly rows×columns caption in table toolbar",
+      "sha256": "35e47ab9dd5501ea8a69e41e6cd309645b84775aee8bbda322e64ce60050aed4",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅在最上方表格工具条左侧表格图标后、“行”分组前，补回真实只读尺寸文字“3 × 3”。可以微调该条内部横向间距容纳，不能删除或改动任何14个图标按钮及分组“行”“列”“对齐”，禁用的上移行/左移列和居中选中保持。下方图片设置/两个字段值/应用说明和3动作、链接URL和3动作以及整体布局全部不变，不新增其他文字或控件。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D028.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅在最上方表格工具条左侧表格图标后、“行”分组前，补回真实只读尺寸文字“3 × 3”。可以微调该条内部横向间距容纳，不能删除或改动任何14个图标按钮及分组“行”“列”“对齐”，禁用的上移行/左移列和居中选中保持。下方图片设置/两个字段值/应用说明和3动作、链接URL和3动作以及整体布局全部不变，不新增其他文字或控件。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D028.png",
+          "role": "Edit target; restore genuine readonly rows×columns caption in table toolbar"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-9b0837e0-ccdb-4f2b-834f-306806f1d148.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-034",
+      "title": "Contextual table toolbar",
+      "kind": "popover",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Focus table cell",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/DocumentEditor.vue:1133",
+        "apps/web/components/DocumentTableTools.vue:12",
+        "apps/web/components/DocumentTableTools.vue:75"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "上/下插入行、左右插入列、移动行列",
+          "effect": "Mutate selected table structure",
+          "api": "none",
+          "guard": "!readOnly and action not in disabledActions"
+        },
+        {
+          "label": "删除行/列/表格",
+          "effect": "Remove selection table structure",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "列对齐",
+          "effect": "Set left/center/right column alignment",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Only visible for active/focused table",
+        "Boundary move actions disabled",
+        "Rows×columns caption"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "testRefs": [
+        "tests/editor-table-move.test.ts",
+        "tests/e2e/editor-controls-enhanced.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-035",
+      "title": "Contextual image settings",
+      "kind": "popover",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Select image",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/DocumentEditor.vue:1146"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "替代文字",
+          "type": "text",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "图片标题",
+          "type": "text",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "应用图片说明",
+          "effect": "Update alt/title at current image selection",
+          "api": "none",
+          "guard": "!readOnly"
+        },
+        {
+          "label": "预览图片",
+          "effect": "Open image preview modal",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "替换图片",
+          "effect": "Upload replacement at captured image target",
+          "api": "POST /api/notes/:id/assets",
+          "guard": "!readOnly; async bookmark guards"
+        },
+        {
+          "label": "删除图片",
+          "effect": "Remove selected image",
+          "api": "none",
+          "guard": "!readOnly"
+        }
+      ],
+      "importantStates": [
+        "Selected image",
+        "Readonly controls disabled",
+        "Stale image replacement target rejected"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "testRefs": [
+        "tests/editor-image-navigation.test.ts",
+        "tests/editor-asset-bookmark.test.ts",
+        "tests/e2e/document-editor-controls.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-036",
+      "title": "Contextual link actions",
+      "kind": "popover",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Select linked text",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/DocumentEditor.vue:1202"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "打开链接",
+          "effect": "Open route/attachment/external destination",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "编辑链接",
+          "effect": "Open editing modal",
+          "api": "none",
+          "guard": "!readOnly"
+        },
+        {
+          "label": "移除链接",
+          "effect": "Unset link mark",
+          "api": "none",
+          "guard": "!readOnly"
+        }
+      ],
+      "importantStates": [
+        "URL shown",
+        "Readonly retains open action"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "testRefs": [
+        "tests/note-links.test.ts",
+        "tests/e2e/document-editor-controls.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-034",
+      "parentId": "WS-024",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/DocumentEditor.vue:1133",
+        "apps/web/components/DocumentTableTools.vue:12",
+        "apps/web/components/DocumentTableTools.vue:75"
+      ]
+    },
+    {
+      "sourceId": "WS-035",
+      "parentId": "WS-024",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/DocumentEditor.vue:1146"
+      ]
+    },
+    {
+      "sourceId": "WS-036",
+      "parentId": "WS-024",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/DocumentEditor.vue:1202"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-031.json#WS-D028",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D028",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-9b0837e0-ccdb-4f2b-834f-306806f1d148.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D028-v2.png",
+  "sha256": "22835d30ffaf69a558ac7223b569b4ed41a2904b815c6865cdf9dbbac7cece5f",
+  "bytes": 1520337,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T06:24:45.020244+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D028.png",
+    "sha256": "35e47ab9dd5501ea8a69e41e6cd309645b84775aee8bbda322e64ce60050aed4",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D028-review.json"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Contextual table toolbar / Contextual image settings / Contextual link actions",
+    "sourceIds": [
+      "WS-034",
+      "WS-035",
+      "WS-036"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Three independent writable editor selections: top-left cell3x3 table with up/left move disabled, column center alignment; selected image alt/title metadata with actual actions; linked text actions URL readonly display. No simultaneous active selection asserted.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "sourceId": "WS-034",
+      "tableActive": true,
+      "tableFocused": true,
+      "readOnly": false,
+      "rows": 3,
+      "columns": 3,
+      "alignment": "center",
+      "disabledActions": [
+        "moveRowUp",
+        "moveColumnLeft"
+      ],
+      "iconButtonsOnly": true
+    },
+    {
+      "panel": "B",
+      "sourceId": "WS-035",
+      "imageActive": true,
+      "readOnly": false,
+      "imageAlt": "山景",
+      "imageTitle": "示例封面",
+      "actions": [
+        "应用图片说明",
+        "预览图片",
+        "替换图片",
+        "删除图片"
+      ]
+    },
+    {
+      "panel": "C",
+      "sourceId": "WS-036",
+      "activeLink": "https://example.com",
+      "readOnly": false,
+      "actions": [
+        "打开链接",
+        "编辑链接",
+        "移除链接"
+      ]
+    }
+  ]
+}

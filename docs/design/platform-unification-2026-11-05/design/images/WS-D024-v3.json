@@ -1,0 +1,447 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D024-v3",
+  "assetId": "WS-D024",
+  "sourceIds": [
+    "WS-028",
+    "WS-047",
+    "WS-048"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-028",
+      "title": "Note more-actions menu",
+      "role": "authenticated owner",
+      "state": "A more-actions; B narrow/split outline popup; C persistent docked outline with200–420px resize. Never show both outline presentations open together.",
+      "presentationInstruction": "A more-actions; B narrow/split outline popup; C persistent docked outline with200–420px resize. Never show both outline presentations open together.",
+      "selectedState": "Original three component surfaces/independent empty body preserved; full source NoteActions includes Workspace builtin 创建关联任务 slot, no Git plugin contribution; lineNumbers enabled."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-047",
+      "title": "Document outline popup",
+      "role": "authenticated owner",
+      "state": "A more-actions; B narrow/split outline popup; C persistent docked outline with200–420px resize. Never show both outline presentations open together.",
+      "presentationInstruction": "A more-actions; B narrow/split outline popup; C persistent docked outline with200–420px resize. Never show both outline presentations open together.",
+      "selectedState": "Original three component surfaces/independent empty body preserved; full source NoteActions includes Workspace builtin 创建关联任务 slot, no Git plugin contribution; lineNumbers enabled."
+    },
+    {
+      "label": "C",
+      "sourceId": "WS-048",
+      "title": "Docked document outline",
+      "role": "authenticated owner",
+      "state": "A more-actions; B narrow/split outline popup; C persistent docked outline with200–420px resize. Never show both outline presentations open together.",
+      "presentationInstruction": "A more-actions; B narrow/split outline popup; C persistent docked outline with200–420px resize. Never show both outline presentations open together.",
+      "selectedState": "Original three component surfaces/independent empty body preserved; full source NoteActions includes Workspace builtin 创建关联任务 slot, no Git plugin contribution; lineNumbers enabled."
+    }
+  ],
+  "selectedState": "Original three component surfaces/independent empty body preserved; full source NoteActions includes Workspace builtin 创建关联任务 slot, no Git plugin contribution; lineNumbers enabled.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅在最左侧笔记更多操作菜单中补回真实一项“创建关联任务”，带任务样式图标，位置精确在“插入图片或 PDF”之后、“显示行号”复选框之前。新增这一项可用，不能新增To Doo品牌、任务列表、其他菜单或全页导航。左菜单其余全部条目/顺序/勾选/红色删除笔记保持不变；中间目录浮层、右侧已拆开的停靠目录和空目录小卡所有内容/边界完全不变。可只适当增高左菜单容纳这一项。",
+  "prompt": "仅在最左侧笔记更多操作菜单中补回真实一项“创建关联任务”，带任务样式图标，位置精确在“插入图片或 PDF”之后、“显示行号”复选框之前。新增这一项可用，不能新增To Doo品牌、任务列表、其他菜单或全页导航。左菜单其余全部条目/顺序/勾选/红色删除笔记保持不变；中间目录浮层、右侧已拆开的停靠目录和空目录小卡所有内容/边界完全不变。可只适当增高左菜单容纳这一项。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D024-v2.png",
+      "role": "Edit target; restore Workspace builtin 创建关联任务 slot in NoteActions before line-number checkbox",
+      "sha256": "cb2366b7c604e4aac6c29b9fd9bc99bf9cfd89309c205ea7e3a5b897bcf44bb8",
+      "dimensions": {
+        "width": 1774,
+        "height": 887
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D024-v2.png",
+      "role": "Edit target; restore Workspace builtin 创建关联任务 slot in NoteActions before line-number checkbox",
+      "sha256": "cb2366b7c604e4aac6c29b9fd9bc99bf9cfd89309c205ea7e3a5b897bcf44bb8",
+      "dimensions": {
+        "width": 1774,
+        "height": 887
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅在最左侧笔记更多操作菜单中补回真实一项“创建关联任务”，带任务样式图标，位置精确在“插入图片或 PDF”之后、“显示行号”复选框之前。新增这一项可用，不能新增To Doo品牌、任务列表、其他菜单或全页导航。左菜单其余全部条目/顺序/勾选/红色删除笔记保持不变；中间目录浮层、右侧已拆开的停靠目录和空目录小卡所有内容/边界完全不变。可只适当增高左菜单容纳这一项。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D024-v2.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅在最左侧笔记更多操作菜单中补回真实一项“创建关联任务”，带任务样式图标，位置精确在“插入图片或 PDF”之后、“显示行号”复选框之前。新增这一项可用，不能新增To Doo品牌、任务列表、其他菜单或全页导航。左菜单其余全部条目/顺序/勾选/红色删除笔记保持不变；中间目录浮层、右侧已拆开的停靠目录和空目录小卡所有内容/边界完全不变。可只适当增高左菜单容纳这一项。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D024-v2.png",
+          "role": "Edit target; restore Workspace builtin 创建关联任务 slot in NoteActions before line-number checkbox"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-f0f6c1af-52be-4b57-ba88-3558fa3712af.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-028",
+      "title": "Note more-actions menu",
+      "kind": "popover",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "更多操作",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/NoteActions.vue:51",
+        "apps/web/components/NoteActions.vue:85",
+        "apps/web/components/Workspace.vue:3139",
+        "apps/web/diagrams/portable-download.ts:4"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "显示行号",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "Only full-mode active source editor.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "移动或重命名 / 历史版本 / 删除笔记",
+          "effect": "Open corresponding windows",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "下载完整文档 / Markdown 原文",
+          "effect": "Export full portable package or Markdown-only saved source",
+          "api": "POST /api/portable-deliveries; GET returned frozen delivery.downloadUrl",
+          "guard": "Downloads exposed only fullEditor"
+        },
+        {
+          "label": "插入图片或 PDF",
+          "effect": "Open actual upload picker",
+          "api": "POST /api/notes/:id/assets",
+          "guard": "Disabled while uploading"
+        },
+        {
+          "label": "创建关联任务",
+          "effect": "Open note-to-task capture window",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Full versus large editor actions",
+        "Upload busy",
+        "Plugin note action slots"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Measures above/below; clamps menu height 48–360px and scrolls; focuses first control and restores trigger."
+      },
+      "testRefs": [
+        "tests/e2e/editor-secondary-menus.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-047",
+      "title": "Document outline popup",
+      "kind": "popover",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "大纲 when outlineUsesPopup",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3211",
+        "apps/web/components/DocumentOutline.vue:1"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "标题 / 折叠分支",
+          "effect": "Reveal heading in current document or collapse outline branch. Popup is selected when main document width<=900px or mode=split.",
+          "api": "none (local UI)",
+          "guard": "Available headings; preserve current document context."
+        }
+      ],
+      "importantStates": [
+        "No headings",
+        "Active heading",
+        "Collapsed branches"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "testRefs": [
+        "tests/e2e/document-editor-controls.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-048",
+      "title": "Docked document outline",
+      "kind": "drawer",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Open/dock outline on wide document area",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3334",
+        "apps/web/components/DocumentOutline.vue:1",
+        "apps/web/document.css:440"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "章节目录宽度",
+          "type": "separator",
+          "required": false,
+          "constraints": "200–420px, default228; drag, Left/Right16px, Home/End min/max, double click reset.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "标题",
+          "effect": "Reveal heading",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "收起/展开 / 调整宽度",
+          "effect": "Toggle dock with header button; resize200–420px, default228px, keyboard16px steps; persist browser preference.",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Heading tree",
+        "Popup fallback when area narrows"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "testRefs": [
+        "tests/e2e/document-editor-controls.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Rendered aside, not modal drawer; kind drawer describes persistent side surface."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-028",
+      "parentId": "WS-024",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/NoteActions.vue:51",
+        "apps/web/components/NoteActions.vue:85",
+        "apps/web/components/Workspace.vue:3139",
+        "apps/web/diagrams/portable-download.ts:4"
+      ]
+    },
+    {
+      "sourceId": "WS-047",
+      "parentId": "WS-024",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3211",
+        "apps/web/components/DocumentOutline.vue:1"
+      ]
+    },
+    {
+      "sourceId": "WS-048",
+      "parentId": "WS-024",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3334",
+        "apps/web/components/DocumentOutline.vue:1",
+        "apps/web/document.css:440"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-031.json#WS-D024",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D024",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-f0f6c1af-52be-4b57-ba88-3558fa3712af.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D024-v3.png",
+  "sha256": "915d4461e2dec0e0474135a5be1d29b56d2c99a8c96017326e96e65ac2a6ab03",
+  "bytes": 1464971,
+  "dimensions": {
+    "width": 1774,
+    "height": 887
+  },
+  "generatedAtUtc": "2026-11-05T07:04:20.580777+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D024-v2.png",
+    "sha256": "cb2366b7c604e4aac6c29b9fd9bc99bf9cfd89309c205ea7e3a5b897bcf44bb8",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D024-v2-review.json"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Note more-actions menu / Document outline popup / Docked document outline",
+    "sourceIds": [
+      "WS-028",
+      "WS-047",
+      "WS-048"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Original three component surfaces/independent empty body preserved; full source NoteActions includes Workspace builtin 创建关联任务 slot, no Git plugin contribution; lineNumbers enabled.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "sourceId": "WS-028",
+      "fullEditor": true,
+      "sourceEditor": true,
+      "lineNumbers": true,
+      "uploading": false,
+      "pluginNoteActionSlots": [],
+      "builtInNoteActions": [
+        "创建关联任务"
+      ]
+    },
+    {
+      "panel": "B",
+      "sourceId": "WS-047",
+      "outlineUsesPopup": true,
+      "headings": [
+        {
+          "title": "知识与行动",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "title": "记录方法",
+          "level": 2,
+          "line": 5
+        }
+      ],
+      "activeLine": 5,
+      "collapsed": []
+    },
+    {
+      "panel": "C",
+      "sourceId": "WS-048",
+      "outlineUsesPopup": false,
+      "outlineDocked": true,
+      "width": 228,
+      "min": 200,
+      "max": 420,
+      "collapsed": [
+        "知识与行动"
+      ],
+      "activeLine": 1
+    },
+    {
+      "portion": "empty-body excerpt",
+      "renderer": "DocumentOutline.vue p.outline-empty",
+      "value": "添加标题后，章节将显示在这里。",
+      "independent": true
+    }
+  ]
+}

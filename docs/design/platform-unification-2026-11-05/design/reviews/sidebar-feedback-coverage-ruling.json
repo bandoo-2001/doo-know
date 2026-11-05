@@ -1,0 +1,194 @@
+{
+  "recordedAtUtc": "2026-11-05T08:46:44.838Z",
+  "status": "Required design addition pending generation and independent review; not global approval",
+  "sourceReview": "design/reviews/workspace-sidebar-error-mapping-review.json",
+  "sourceRefs": [
+    "apps/web/components/Workspace.vue:528",
+    "apps/web/components/Workspace.vue:2492",
+    "apps/web/components/Workspace.vue:2812",
+    "apps/web/components/Workspace.vue:2850",
+    "apps/web/components/Workspace.vue:2899"
+  ],
+  "originalUndrawnPanel": {
+    "label": "status-matrix",
+    "sourceId": "WS-003",
+    "title": "Sidebar notebook and directory search — compact component state matrix",
+    "role": "authenticated owner",
+    "state": "Existing Workspace.vue notebook-search result/status region. Query/mode/directory form is shown once in its canonical job.",
+    "presentation": "ONE compact component matrix, not multiple simultaneously open full windows",
+    "rows": [
+      {
+        "label": "row-1",
+        "sourceId": "WS-003",
+        "title": "Sidebar notebook and directory search",
+        "role": "authenticated owner",
+        "state": "Searching",
+        "actionPresentation": "Keep source 搜索/加载更多, result-open, retry and search-settings actions; only actual busy/vector/search conditions affect existing controls.",
+        "sourceComponent": "apps/web/components/Workspace.vue"
+      },
+      {
+        "label": "row-2",
+        "sourceId": "WS-003",
+        "title": "Sidebar notebook and directory search",
+        "role": "authenticated owner",
+        "state": "Index updating/waiting",
+        "actionPresentation": "Keep source 搜索/加载更多, result-open, retry and search-settings actions; only actual busy/vector/search conditions affect existing controls.",
+        "sourceComponent": "apps/web/components/Workspace.vue"
+      },
+      {
+        "label": "row-3",
+        "sourceId": "WS-003",
+        "title": "Sidebar notebook and directory search",
+        "role": "authenticated owner",
+        "state": "No matches",
+        "actionPresentation": "Keep source 搜索/加载更多, result-open, retry and search-settings actions; only actual busy/vector/search conditions affect existing controls.",
+        "sourceComponent": "apps/web/components/Workspace.vue"
+      },
+      {
+        "label": "row-4",
+        "sourceId": "WS-003",
+        "title": "Sidebar notebook and directory search",
+        "role": "authenticated owner",
+        "state": "Degraded hybrid/semantic explanation",
+        "actionPresentation": "Keep source 搜索/加载更多, result-open, retry and search-settings actions; only actual busy/vector/search conditions affect existing controls.",
+        "sourceComponent": "apps/web/components/Workspace.vue"
+      },
+      {
+        "label": "row-5",
+        "sourceId": "WS-003",
+        "title": "Sidebar notebook and directory search",
+        "role": "authenticated owner",
+        "state": "Error with retry",
+        "actionPresentation": "Keep source 搜索/加载更多, result-open, retry and search-settings actions; only actual busy/vector/search conditions affect existing controls.",
+        "sourceComponent": "apps/web/components/Workspace.vue"
+      },
+      {
+        "label": "row-6",
+        "sourceId": "WS-003",
+        "title": "Sidebar notebook and directory search",
+        "role": "authenticated owner",
+        "state": "Paginated folder/filename/content results",
+        "actionPresentation": "Keep source 搜索/加载更多, result-open, retry and search-settings actions; only actual busy/vector/search conditions affect existing controls.",
+        "sourceComponent": "apps/web/components/Workspace.vue"
+      }
+    ]
+  },
+  "newAssetId": "WS-M018",
+  "rows": [
+    {
+      "label": "row-1",
+      "sourceId": "WS-003",
+      "state": "Searching",
+      "condition": "query && searchBusy; crop only the existing progress region",
+      "renderer": "p.search-feedback > span.loading-dot + text",
+      "visibleText": [
+        "正在搜索…"
+      ],
+      "actions": [],
+      "role": "authenticated owner",
+      "sourceComponent": "apps/web/components/Workspace.vue",
+      "presentation": "Independent exact local feedback fragment, not simultaneous states or a new card workflow"
+    },
+    {
+      "label": "row-2",
+      "sourceId": "WS-003",
+      "state": "Index updating/waiting",
+      "condition": "query && !searchBusy && searchWaiting",
+      "renderer": "p.search-feedback > span.loading-dot + text",
+      "visibleText": [
+        "搜索索引正在更新，请稍候…"
+      ],
+      "actions": [],
+      "role": "authenticated owner",
+      "sourceComponent": "apps/web/components/Workspace.vue",
+      "presentation": "Independent exact local feedback fragment, not simultaneous states or a new card workflow"
+    },
+    {
+      "label": "row-3",
+      "sourceId": "WS-003",
+      "state": "No matches",
+      "condition": "query && !results.length && !searchBusy && !searchWaiting && !searchError && !searchDegraded",
+      "renderer": "p.muted.empty-search",
+      "visibleText": [
+        "没有匹配的笔记"
+      ],
+      "actions": [],
+      "role": "authenticated owner",
+      "sourceComponent": "apps/web/components/Workspace.vue",
+      "presentation": "Independent exact local feedback fragment, not simultaneous states or a new card workflow"
+    },
+    {
+      "label": "row-4",
+      "sourceId": "WS-003",
+      "state": "Degraded hybrid/semantic explanation",
+      "condition": "query && searchDegraded && !searchError && !searchRecallLimited; showSearchSettings true",
+      "renderer": "p.search-feedback with inline text-link",
+      "visibleText": [
+        "部分内容搜索或索引尚未准备好，结果可能不完整。"
+      ],
+      "actions": [
+        "检查搜索设置"
+      ],
+      "effect": "settings(search)",
+      "role": "authenticated owner",
+      "sourceComponent": "apps/web/components/Workspace.vue",
+      "presentation": "Independent exact local feedback fragment, not simultaneous states or a new card workflow"
+    },
+    {
+      "label": "row-5",
+      "sourceId": "WS-003",
+      "state": "Error with retry",
+      "condition": "query && searchError, example NOT_PREPARED mapped by describeSearchFailure",
+      "renderer": "div.search-feedback > AAlert type=error (no showIcon/close) + two small AButtons",
+      "visibleText": [
+        "内容搜索组件还未准备好，文件名搜索仍可使用。"
+      ],
+      "actions": [
+        "重试搜索",
+        "检查搜索设置"
+      ],
+      "effect": "searchCursor ? moreSearch() : beginSearch(query); settings(search)",
+      "role": "authenticated owner",
+      "sourceComponent": "apps/web/components/Workspace.vue",
+      "presentation": "Independent exact local feedback fragment, not simultaneous states or a new card workflow"
+    },
+    {
+      "label": "row-6",
+      "sourceId": "WS-003",
+      "state": "Paginated folder/filename/content results",
+      "condition": "query && results.length=3 with a folder && searchCursor && !searchError && !searchBusy; full result types remain in the reviewed mother page",
+      "renderer": "p.muted.search-results-count + AButton",
+      "visibleText": [
+        "已显示 3 项"
+      ],
+      "actions": [
+        "加载更多搜索结果"
+      ],
+      "effect": "moreSearch(); loading/disabled bind searchBusy",
+      "role": "authenticated owner",
+      "sourceComponent": "apps/web/components/Workspace.vue",
+      "presentation": "Independent exact local feedback fragment, not simultaneous states or a new card workflow"
+    },
+    {
+      "label": "row-7",
+      "sourceId": "WS-002",
+      "state": "Sidebar tree unavailable with reload",
+      "condition": "!query && !treeLoaded && !treeRefreshing, after the preceding list loader branch",
+      "renderer": "div.tree-load-error > p.muted + AButton size=small",
+      "visibleText": [
+        "目录暂时无法读取"
+      ],
+      "actions": [
+        "重新加载目录"
+      ],
+      "effect": "run(refresh), existing GET /api/tree; not the main-content unavailable landing",
+      "role": "authenticated owner",
+      "sourceComponent": "apps/web/components/Workspace.vue",
+      "presentation": "Independent exact local feedback fragment, not simultaneous states or a new card workflow"
+    }
+  ],
+  "sourceStatesRetained": true,
+  "existingImageUnchanged": true,
+  "productSourceModified": false,
+  "reason": "Current reviewed v3 depicts only the coherent full query result page; its planned status matrix was not drawn and is now required separately."
+}

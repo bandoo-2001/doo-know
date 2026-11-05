@@ -1,0 +1,342 @@
+{
+  "id": "MP-D065",
+  "title": "Git仓库导入复用内页",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-081"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-081",
+      "title": "Git仓库导入复用内页",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    }
+  ],
+  "viewportIntent": "1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-081",
+      "route": "首启SetupWizard/已有公共导入流程",
+      "trigger": "GitRepositoryImport包装GitRemotePanel mode=import",
+      "parentId": null,
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。",
+        "clone仅未绑定知识库时允许，否则SETUP_ALREADY_COMPLETE；目标已存在停，父目录可写且至少512MiB可用。"
+      ],
+      "fields": [
+        {
+          "name": "仓库克隆地址 / 分支 / 认证",
+          "type": "same-as-ST-075",
+          "required": true,
+          "constraints": "相同远端白名单与凭据限制",
+          "sensitive": false
+        },
+        {
+          "name": "导入后的知识库名称",
+          "type": "text",
+          "required": true,
+          "constraints": "UI maxlength40；服务器UTF8≤120字节；trim非空、不得以.开头、不得含路径分隔/控制字符",
+          "sensitive": false
+        },
+        {
+          "name": "导入保存位置",
+          "type": "text",
+          "required": false,
+          "constraints": "服务器位置；空用推荐parent；目标为新的独立目录，必须通过allowedKnowledgeBases政策且非系统/数据/密钥等保护目录、无隐藏或链接组件",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "同名文件夹停止",
+        "私有仓库认证错误",
+        "clone阶段/取消/结果未知",
+        "新知识库成功导入",
+        "库已绑定不可再次clone",
+        "目标位置不被允许/不可写",
+        "剩余磁盘不足512MiB"
+      ],
+      "notes": [
+        "仅记录仓库控件的复用内容；首启路由/宿主页面由public inventory负责，不能额外计为设置页面。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "完整仓库导入复用表单：URL/branch/auth、库名/允许新位置、测试导入、任务核对；需新独立目录及>=512MiB空闲。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。"
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-081",
+      "label": "导入并继续",
+      "effect": "创建clone任务；成功发出imported事件",
+      "api": "POST /api/platform/git/jobs kind:clone",
+      "guard": "URL/name非空、非running、workspace不忙"
+    },
+    {
+      "sourceId": "ST-081",
+      "label": "测试读取连接 / 添加凭据",
+      "effect": "复用ST-075至ST-077",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "Git本地commit成功即使push失败仍存在；unknown沿原request核对，干净已保存才pull，分歧停止。PluginPanel不凭空添加busy/dirty关闭保护。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-081",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n只画完整Git仓库导入内页内容区域，不加弹窗X或背景导航。标题云图标“从 GitHub／Gitee 导入”，说明“保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。”；右侧按钮“刷新同步状态”可用。正文提示“此操作会安装并启用 Git 插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。”。依次字段：“仓库克隆地址”值“https://github.com/example/knowledge.git”；帮助“请复制仓库页面的 HTTPS 或 SSH 克隆地址。公开 HTTPS 仓库可不配置认证。”；“云端分支（选填）”空，placeholder“留空使用默认分支”；“仓库认证”下拉选“不使用凭据（公开仓库读取）”；按钮“添加凭据”“测试读取连接”均可用；“导入后的知识库名称”值“示例知识库”；“导入保存位置（选填）”空，placeholder“留空使用推荐位置，路径位于服务器上”；帮助“下载到独立的新文件夹。已有同名文件夹时会停止，请另选名称或位置。”；蓝色按钮“导入并继续”可用。下方保留“管理仓库凭据”标题、说明“凭据只供登录账号使用，秘密内容不会回显。移除凭据不会删除资料。”与“添加新的凭据”按钮，无凭据列表项。最下方折叠项“GitHub／Gitee 认证与 SSH 帮助”关闭。不画任务结果/连接状态/成功结果或凭据编辑窗口。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D065.png",
+  "reviewStatus": "pending-independent-review",
+  "parentBindings": [
+    {
+      "sourceId": "ST-081",
+      "parentId": null,
+      "route": "首启SetupWizard/已有公共导入流程",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GitRepositoryImport.vue:1",
+        "apps/web/components/GitRemotePanel.vue:1030",
+        "apps/server/git/service.ts:540",
+        "apps/server/platform/setup-directories.ts:6"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-081",
+      "title": "Git仓库导入复用内页",
+      "kind": "state",
+      "module": "settings/git-import",
+      "entry": {
+        "route": "首启SetupWizard/已有公共导入流程",
+        "trigger": "GitRepositoryImport包装GitRemotePanel mode=import",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRepositoryImport.vue:1",
+        "apps/web/components/GitRemotePanel.vue:1030",
+        "apps/server/git/service.ts:540",
+        "apps/server/platform/setup-directories.ts:6"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。",
+        "clone仅未绑定知识库时允许，否则SETUP_ALREADY_COMPLETE；目标已存在停，父目录可写且至少512MiB可用。"
+      ],
+      "fields": [
+        {
+          "name": "仓库克隆地址 / 分支 / 认证",
+          "type": "same-as-ST-075",
+          "required": true,
+          "constraints": "相同远端白名单与凭据限制",
+          "sensitive": false
+        },
+        {
+          "name": "导入后的知识库名称",
+          "type": "text",
+          "required": true,
+          "constraints": "UI maxlength40；服务器UTF8≤120字节；trim非空、不得以.开头、不得含路径分隔/控制字符",
+          "sensitive": false
+        },
+        {
+          "name": "导入保存位置",
+          "type": "text",
+          "required": false,
+          "constraints": "服务器位置；空用推荐parent；目标为新的独立目录，必须通过allowedKnowledgeBases政策且非系统/数据/密钥等保护目录、无隐藏或链接组件",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "导入并继续",
+          "effect": "创建clone任务；成功发出imported事件",
+          "api": "POST /api/platform/git/jobs kind:clone",
+          "guard": "URL/name非空、非running、workspace不忙"
+        },
+        {
+          "label": "测试读取连接 / 添加凭据",
+          "effect": "复用ST-075至ST-077",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "同名文件夹停止",
+        "私有仓库认证错误",
+        "clone阶段/取消/结果未知",
+        "新知识库成功导入",
+        "库已绑定不可再次clone",
+        "目标位置不被允许/不可写",
+        "剩余磁盘不足512MiB"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/z-git-remote.spec.ts:182"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "仅记录仓库控件的复用内容；首启路由/宿主页面由public inventory负责，不能额外计为设置页面。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-D065",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "selectedState": [
+    "import mode, public HTTPS repository with no credential, name set, branch/parent empty, idle, no jobs"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n只画完整Git仓库导入内页内容区域，不加弹窗X或背景导航。标题云图标“从 GitHub／Gitee 导入”，说明“保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。”；右侧按钮“刷新同步状态”可用。正文提示“此操作会安装并启用 Git 插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。”。依次字段：“仓库克隆地址”值“https://github.com/example/knowledge.git”；帮助“请复制仓库页面的 HTTPS 或 SSH 克隆地址。公开 HTTPS 仓库可不配置认证。”；“云端分支（选填）”空，placeholder“留空使用默认分支”；“仓库认证”下拉选“不使用凭据（公开仓库读取）”；按钮“添加凭据”“测试读取连接”均可用；“导入后的知识库名称”值“示例知识库”；“导入保存位置（选填）”空，placeholder“留空使用推荐位置，路径位于服务器上”；帮助“下载到独立的新文件夹。已有同名文件夹时会停止，请另选名称或位置。”；蓝色按钮“导入并继续”可用。下方保留“管理仓库凭据”标题、说明“凭据只供登录账号使用，秘密内容不会回显。移除凭据不会删除资料。”与“添加新的凭据”按钮，无凭据列表项。最下方折叠项“GitHub／Gitee 认证与 SSH 帮助”关闭。不画任务结果/连接状态/成功结果或凭据编辑窗口。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-D065 Git仓库导入复用内页\n\n1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。\n\n角色壳：所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。\n\n独立场景：\nA | ST-081 | Git仓库导入复用内页 | role=authenticated-owner | 实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\n\n完整构图：\n完整仓库导入复用表单：URL/branch/auth、库名/允许新位置、测试导入、任务核对；需新独立目录及>=512MiB空闲。\n\n精确功能/字段/动作guard合同：\nST-081权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。 / clone仅未绑定知识库时允许，否则SETUP_ALREADY_COMPLETE；目标已存在停，父目录可写且至少512MiB可用。\nST-081字段顺序：仓库克隆地址 / 分支 / 认证 [same-as-ST-075; 必填]: 相同远端白名单与凭据限制 | 导入后的知识库名称 [text; 必填]: UI maxlength40；服务器UTF8≤120字节；trim非空、不得以.开头、不得含路径分隔/控制字符 | 导入保存位置 [text; 可选]: 服务器位置；空用推荐parent；目标为新的独立目录，必须通过allowedKnowledgeBases政策且非系统/数据/密钥等保护目录、无隐藏或链接组件\nST-081白名单：导入并继续 => 创建clone任务；成功发出imported事件；guard=URL/name非空、非running、workspace不忙；接口约束=POST /api/platform/git/jobs kind:clone\nST-081白名单：测试读取连接 / 添加凭据 => 复用ST-075至ST-077；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\n1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\nGit本地commit成功即使push失败仍存在；unknown沿原request核对，干净已保存才pull，分歧停止。PluginPanel不凭空添加busy/dirty关闭保护。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D065.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-62c7668e-40c6-443d-882e-4f48f67d4b19.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-62c7668e-40c6-443d-882e-4f48f67d4b19.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T03:50:32.359Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Exact import fields/order and no-credential controls, no successful job or owner navigation.",
+    "concerns": []
+  },
+  "sha256": "26d909d8b3e7f891b09bf272e162a74acbd9dcb655e0e047c62a503ed417d3e0",
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  },
+  "bytes": 1265079,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/GitRepositoryImport.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d21fac10b112385e6fc20794cc0ea8401597f2f68d563f9ab90e466bf1b6ee60"
+    },
+    {
+      "path": "apps/web/components/GitRemotePanel.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1ef7dbfc441518f0aaed509633413592b74a170897c602f802e9c2492ff9fe4c"
+    },
+    {
+      "path": "apps/server/git/service.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ece8679fbf9ebfeba6fb3b9f8066887f7e7b0e031d6bf53304d7cffba14c3802"
+    },
+    {
+      "path": "apps/server/platform/setup-directories.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "6a77753b5249eb2ed760d1e2cf8e1d0f0b23f12c0e1ed895812ff4459a29e2f9"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived from GitRepositoryImport and GitRemotePanel import branch; not runtime import/setup acceptance."
+}

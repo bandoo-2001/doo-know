@@ -1,0 +1,44 @@
+{
+  "assetId": "MP-S027",
+  "sourceIds": [
+    "ST-073"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:05:10.393434+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "MCP plugin contributed client effective-policy row and independent loaderror/refresh.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Active enabled-plugin contribution can show effective read/all policy with revoke; this is not uninstalled retained manager.",
+    "Exact plugin-specific policy wording and existing refresh/error retained, no current-online/success/endpoint claim or extra control."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-025.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S027.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "plugins/mcp/web/index.ts:45",
+    "plugins/mcp/web/index.ts:120",
+    "apps/server/platform/mcp-management.ts:44"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "2f06d158be2706ff9e6cf37eea9cd2be390e40d23f43331200308922aca8f9f5",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S027.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

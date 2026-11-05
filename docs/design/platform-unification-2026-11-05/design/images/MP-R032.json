@@ -1,0 +1,382 @@
+{
+  "id": "MP-R032",
+  "title": "Responsive family: plugins/mcp/web/index.ts Naive connection/call list",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-073"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-073",
+      "title": "MCP实际插件连接与调用面板390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-073",
+      "title": "MCP实际插件连接与调用面板320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-073",
+      "title": "MCP实际插件连接与调用面板320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "viewportIntent": "390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-073",
+      "route": "当前工作区路由或设置插件内页",
+      "trigger": "MCP配置内settingsPage内嵌；sidebar navigation→ST-091桥接窗口→MCP连接按钮打开mcp.settings",
+      "parentId": "ST-056",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "加载连接",
+        "OAuth/API服务本机条件与外部连接未验证",
+        "无授权客户端",
+        "无调用记录",
+        "当前有效policy或scopes",
+        "工具名/结果码/时间/客户端/耗时",
+        "错误alert"
+      ],
+      "notes": [
+        "同一Settings组件既内嵌也通过PluginPanel弹窗显示；10秒刷新。more()没有本地try/catch与busy锁，错误展示实际行为未运行验证。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "真实MCP插件完整连接调用窗口：本机条件、授权身份/当前policy、tool/code/time/client/duration、直接撤销/刷新/更早调用，无额外确认。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。"
+    },
+    {
+      "type": "responsive-family-reuse",
+      "renderer": "plugins/mcp/web/index.ts Naive connection/call list",
+      "allSourceIds": [
+        "ST-073"
+      ],
+      "rule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-073",
+      "label": "撤销",
+      "effect": "撤销OAuth客户端授权",
+      "api": "POST /api/plugins/mcp/call command:mcp.revoke",
+      "guard": "active；实际UI无二次确认"
+    },
+    {
+      "sourceId": "ST-073",
+      "label": "加载更早调用",
+      "effect": "按cursor读取调用",
+      "api": "POST /api/plugins/mcp/call provider:mcp.calls",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-073",
+      "label": "刷新连接与调用",
+      "effect": "刷新状态与记录",
+      "api": "POST /api/plugins/mcp/call provider:mcp.status / mcp.calls",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-073",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n制作三个并排独立的窄屏内容面板，外部只标A、B、C，不画手机外壳、宽度数字或额外说明。A按390宽、B和C按320宽的相同比例布局；窄屏字段和操作自然换行，文本不省略，画布可纵向延长保持正常字号。不画全局header/底栏/侧栏或虚构宿主，每个只画指定真实组件。\nA/B同款完整局部组件：标题“连接与授权”；两段浅灰条件条，第一“网页授权本机条件已满足（外部连接未验证）：https://example.invalid/mcp”，第二“API Key 服务（外部连接未验证）：https://example.invalid/mcp/api-key”，用蓝色小点表示本机条件，不要在线或连接成功标签。小标题“OAuth 授权客户端”；说明“博客公开发布默认关闭，需在功能配置中开启并单独授权；修改笔记不会自动更新公开文章。”；一条客户端“example-client-with-a-long-name”，标签“已授权”，描述“知识库：读取（全部业务资源）”，可用小按钮“撤销”（直接按钮无二次确认）。下面标题“最近调用”，说明“仅保留工具名、客户端、耗时和结果；不记录查询或正文。”；一条调用工具名“search”，结果码“OK”，只读元信息“2026-11-05T12:00:00Z”“example-client-with-a-long-name”“12 ms”；底部依次可用“加载更早调用”“刷新连接与调用”。\nC同款完整组件，上方红色错误提示“请求失败”；标题“连接与授权”与两条件条保留，替换成“网页授权尚未就绪：OAuth 连接方式未启用”和“API Key 服务（外部连接未验证）：API Key 连接方式未启用”，小点灰色；OAuth小标题和博客说明保留；空态“暂无授权客户端。连接后可在这里管理访问权限。”；最近调用标题/隐私说明保留，空态“暂无调用记录。”；只有可用“刷新连接与调用”，无加载更早调用。没有控件忙态、额外确认、开关、输入框、导航或宿主关闭X。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R032.png",
+  "reviewStatus": "pending-independent-review",
+  "responsiveFamily": {
+    "id": "MP-RF032",
+    "actualComponent": "plugins/mcp/web/index.ts Naive connection/call list",
+    "sourceIds": [
+      "ST-073"
+    ],
+    "roleBoundary": "owner-private",
+    "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+  },
+  "parentBindings": [
+    {
+      "sourceId": "ST-073",
+      "parentId": "ST-056",
+      "route": "当前工作区路由或设置插件内页",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "plugins/mcp/web/index.ts:43",
+        "plugins/mcp/web/index.ts:81",
+        "plugins/mcp/web/index.ts:184",
+        "plugins/mcp/manifest.json:149",
+        "apps/web/components/PluginSlot.vue:16",
+        "plugins/mcp/web/index.ts:185"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-073",
+      "title": "MCP实际插件连接与调用面板",
+      "kind": "dialog",
+      "module": "plugins/mcp",
+      "entry": {
+        "route": "当前工作区路由或设置插件内页",
+        "trigger": "MCP配置内settingsPage内嵌；sidebar navigation→ST-091桥接窗口→MCP连接按钮打开mcp.settings",
+        "parentId": "ST-056"
+      },
+      "sourceRefs": [
+        "plugins/mcp/web/index.ts:43",
+        "plugins/mcp/web/index.ts:81",
+        "plugins/mcp/web/index.ts:184",
+        "plugins/mcp/manifest.json:149",
+        "apps/web/components/PluginSlot.vue:16",
+        "plugins/mcp/web/index.ts:185"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "撤销",
+          "effect": "撤销OAuth客户端授权",
+          "api": "POST /api/plugins/mcp/call command:mcp.revoke",
+          "guard": "active；实际UI无二次确认"
+        },
+        {
+          "label": "加载更早调用",
+          "effect": "按cursor读取调用",
+          "api": "POST /api/plugins/mcp/call provider:mcp.calls",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新连接与调用",
+          "effect": "刷新状态与记录",
+          "api": "POST /api/plugins/mcp/call provider:mcp.status / mcp.calls",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "加载连接",
+        "OAuth/API服务本机条件与外部连接未验证",
+        "无授权客户端",
+        "无调用记录",
+        "当前有效policy或scopes",
+        "工具名/结果码/时间/客户端/耗时",
+        "错误alert"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp.spec.ts:1",
+        "tests/mcp-plugin-operations.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "同一Settings组件既内嵌也通过PluginPanel弹窗显示；10秒刷新。more()没有本地try/catch与busy锁，错误展示实际行为未运行验证。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-R032",
+  "roles": [
+    "authenticated-owner",
+    "authenticated-owner",
+    "authenticated-owner"
+  ],
+  "selectedState": [
+    "plugin Settings embedded local content: ready local conditions, one effective-policy client, one search/OK log, nextCursor present",
+    "same target320",
+    "status obtained with OAuth/API channels off; clients empty; logs read throws; prior rows empty; error Request failure; cursor absent"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n制作三个并排独立的窄屏内容面板，外部只标A、B、C，不画手机外壳、宽度数字或额外说明。A按390宽、B和C按320宽的相同比例布局；窄屏字段和操作自然换行，文本不省略，画布可纵向延长保持正常字号。不画全局header/底栏/侧栏或虚构宿主，每个只画指定真实组件。\nA/B同款完整局部组件：标题“连接与授权”；两段浅灰条件条，第一“网页授权本机条件已满足（外部连接未验证）：https://example.invalid/mcp”，第二“API Key 服务（外部连接未验证）：https://example.invalid/mcp/api-key”，用蓝色小点表示本机条件，不要在线或连接成功标签。小标题“OAuth 授权客户端”；说明“博客公开发布默认关闭，需在功能配置中开启并单独授权；修改笔记不会自动更新公开文章。”；一条客户端“example-client-with-a-long-name”，标签“已授权”，描述“知识库：读取（全部业务资源）”，可用小按钮“撤销”（直接按钮无二次确认）。下面标题“最近调用”，说明“仅保留工具名、客户端、耗时和结果；不记录查询或正文。”；一条调用工具名“search”，结果码“OK”，只读元信息“2026-11-05T12:00:00Z”“example-client-with-a-long-name”“12 ms”；底部依次可用“加载更早调用”“刷新连接与调用”。\nC同款完整组件，上方红色错误提示“请求失败”；标题“连接与授权”与两条件条保留，替换成“网页授权尚未就绪：OAuth 连接方式未启用”和“API Key 服务（外部连接未验证）：API Key 连接方式未启用”，小点灰色；OAuth小标题和博客说明保留；空态“暂无授权客户端。连接后可在这里管理访问权限。”；最近调用标题/隐私说明保留，空态“暂无调用记录。”；只有可用“刷新连接与调用”，无加载更早调用。没有控件忙态、额外确认、开关、输入框、导航或宿主关闭X。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-R032 Responsive family: plugins/mcp/web/index.ts Naive connection/call list\n\n390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。\n\n角色壳：所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。\n\n独立场景：\nA | ST-073 | MCP实际插件连接与调用面板390px | role=authenticated-owner | 390px完整可读代表：字段按登记顺序，动作保持源guard\nB | ST-073 | MCP实际插件连接与调用面板320px | role=authenticated-owner | 320px字段/长值/内层滚动与操作可达\nC | ST-073 | MCP实际插件连接与调用面板320px guard | role=authenticated-owner | 同源关键禁用/错误/长标签状态，使用已有组件且保留输入\n\n完整构图：\n真实MCP插件完整连接调用窗口：本机条件、授权身份/当前policy、tool/code/time/client/duration、直接撤销/刷新/更早调用，无额外确认。\n\n精确功能/字段/动作guard合同：\nST-073权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-073字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-073白名单：撤销 => 撤销OAuth客户端授权；guard=active；实际UI无二次确认；接口约束=POST /api/plugins/mcp/call command:mcp.revoke\nST-073白名单：加载更早调用 => 按cursor读取调用；guard=已登录所有者；请求期间禁用重复操作；接口约束=POST /api/plugins/mcp/call provider:mcp.calls\nST-073白名单：刷新连接与调用 => 刷新状态与记录；guard=已登录所有者；请求期间禁用重复操作；接口约束=POST /api/plugins/mcp/call provider:mcp.status / mcp.calls\n\n响应式合同：\n插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R032.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-8c0ff5c5-fc44-424b-bb9e-cb7c161108e0.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-8c0ff5c5-fc44-424b-bb9e-cb7c161108e0.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T07:14:21.260Z",
+  "selfInspection": {
+    "method": "Native generated image inspected in delegated child thread against actual plugin Settings renderer, transport readiness and recorded operation names/code",
+    "status": "pending-independent-review",
+    "pageSpecific": "A/B loaded plugin connection + OAuth row + real search/OK call and cursor action; public connectivity explicitly unverified. C retained status with disabled-channel reasons, error, actual client/call empty states and refresh only. No invented busy locks or confirm.",
+    "concerns": []
+  },
+  "sha256": "7af2f4ac36966f9c8033deac9446ee195946030f2bd0a5ab00ffe54e6bf94ca9",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1395100,
+  "sourceInspection": [
+    {
+      "path": "plugins/mcp/web/index.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "a8d82ecdf51540f1385d904251163761d403479d29fc9cf613674f64ec8a221e"
+    },
+    {
+      "path": "plugins/mcp/web/index.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "a8d82ecdf51540f1385d904251163761d403479d29fc9cf613674f64ec8a221e"
+    },
+    {
+      "path": "plugins/mcp/web/index.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "a8d82ecdf51540f1385d904251163761d403479d29fc9cf613674f64ec8a221e"
+    },
+    {
+      "path": "plugins/mcp/manifest.json",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "03c6fba6ae3a53d7fe30ed61f2e98fe99ee622b1716f54a077b33381e7c43ba3"
+    },
+    {
+      "path": "apps/web/components/PluginSlot.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "64f14d59281c6d9918d5ac3f4393ae9a8a909f86f8ef26fa7e0bdfe27f557a4c"
+    },
+    {
+      "path": "plugins/mcp/web/index.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "a8d82ecdf51540f1385d904251163761d403479d29fc9cf613674f64ec8a221e"
+    }
+  ],
+  "responsiveTargetCssWidths": [
+    390,
+    320,
+    320
+  ],
+  "runtimeResponsiveVerified": false,
+  "sourceDerivedUnverifiedScope": "Synthetic source-derived status/client/call rows. HTTPS example.invalid is illustrative; no public verification, client connectivity or tool execution performed.",
+  "additionalSourceAuthority": [
+    "apps/server/plugins/mcp-transport.ts:134-146",
+    "plugins/mcp/server/index.ts:22-31",
+    "plugins/mcp/server/operations.ts:203"
+  ]
+}

@@ -1,0 +1,311 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R053",
+  "assetId": "MP-R053",
+  "sourceIds": [
+    "PB-020"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-020",
+      "title": "OAuth 无效/过期与提交失败390px",
+      "role": "authenticated owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three standalone authenticated-owner OAuth error pages at390/320/320: A invalid request no controls; B loaded legacy knowledge-read with9 checked prefixes, submission failure below retained actions; C same loaded request prefixes all unchecked after failure, allow disabled refuse enabled. No modern policy combined with legacy, no request restart button or login fields. Invalid baseline actually visitor login, not matching selected role."
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-020",
+      "title": "OAuth 无效/过期与提交失败320px",
+      "role": "authenticated owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three standalone authenticated-owner OAuth error pages at390/320/320: A invalid request no controls; B loaded legacy knowledge-read with9 checked prefixes, submission failure below retained actions; C same loaded request prefixes all unchecked after failure, allow disabled refuse enabled. No modern policy combined with legacy, no request restart button or login fields. Invalid baseline actually visitor login, not matching selected role."
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-020",
+      "title": "OAuth 无效/过期与提交失败320px guard",
+      "role": "authenticated owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three standalone authenticated-owner OAuth error pages at390/320/320: A invalid request no controls; B loaded legacy knowledge-read with9 checked prefixes, submission failure below retained actions; C same loaded request prefixes all unchecked after failure, allow disabled refuse enabled. No modern policy combined with legacy, no request restart button or login fields. Invalid baseline actually visitor login, not matching selected role."
+    }
+  ],
+  "selectedState": "Three standalone authenticated-owner OAuth error pages at390/320/320: A invalid request no controls; B loaded legacy knowledge-read with9 checked prefixes, submission failure below retained actions; C same loaded request prefixes all unchecked after failure, allow disabled refuse enabled. No modern policy combined with legacy, no request restart button or login fields. Invalid baseline actually visitor login, not matching selected role.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制并排三个独立窄网页OAuth页面，宽比例390、320、320，白灰蓝平面，顶部只有蓝书本DooKnow，不画主人导航或登录框。左页卡片标题“连接 DooKnow”，仅红色“授权请求无效或已过期，请回到连接客户端重新发起授权。”，卡片下文案“仅在你确认后，连接才能访问所选资料。”，没有按钮或权限表。中页同标题，连接请求来自/隔离界面盘点客户端，说明请选择此连接允许的业务能力与资源范围。；允许的操作只有勾选“读取所选目录中的资料”；允许的资料目录九个checkbox全部勾选，完整顺序README.md、00-Inbox、10-Projects、20-Areas、30-Knowledge、40-Resources、50-Journal、90-Archive、99-System。下面锁提示未选择的业务能力和资源不会开放。可随时在 MCP 设置中收窄或撤销连接。；拒绝可用、允许访问蓝可用；按钮下方红色“授权未完成，请重新发起连接。”，卡外同确认文案。右页同中完整九个目录与read操作，read勾选，九个目录均未选，拒绝可用、允许访问灰禁用，底部仍同授权未完成红色提示。长页面可纵向滚动、动作换行，保留所有九行；不新增重新发起按钮、密码、请求ID或现代分域权限控件。",
+  "prompt": "绘制并排三个独立窄网页OAuth页面，宽比例390、320、320，白灰蓝平面，顶部只有蓝书本DooKnow，不画主人导航或登录框。左页卡片标题“连接 DooKnow”，仅红色“授权请求无效或已过期，请回到连接客户端重新发起授权。”，卡片下文案“仅在你确认后，连接才能访问所选资料。”，没有按钮或权限表。中页同标题，连接请求来自/隔离界面盘点客户端，说明请选择此连接允许的业务能力与资源范围。；允许的操作只有勾选“读取所选目录中的资料”；允许的资料目录九个checkbox全部勾选，完整顺序README.md、00-Inbox、10-Projects、20-Areas、30-Knowledge、40-Resources、50-Journal、90-Archive、99-System。下面锁提示未选择的业务能力和资源不会开放。可随时在 MCP 设置中收窄或撤销连接。；拒绝可用、允许访问蓝可用；按钮下方红色“授权未完成，请重新发起连接。”，卡外同确认文案。右页同中完整九个目录与read操作，read勾选，九个目录均未选，拒绝可用、允许访问灰禁用，底部仍同授权未完成红色提示。长页面可纵向滚动、动作换行，保留所有九行；不新增重新发起按钮、密码、请求ID或现代分域权限控件。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; standalone OAuth shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-oauth-invalid.png",
+      "role": "Observed unauthenticated login parent only, not selected authenticated OAuth invalid content",
+      "sha256": "b35312b4dc5aebecf813d2fd87916f485eb08b69f44e8951dbe064f958920571",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-oauth-consent.png",
+      "role": "Actual legacy request controls and9 prefixes; submission failure source-derived",
+      "sha256": "728c3aeae54f202172c642aa4075681d69630c5fb4023e7b22b9c1cd05f927ae",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; standalone OAuth shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-oauth-invalid.png",
+      "role": "Observed unauthenticated login parent only, not selected authenticated OAuth invalid content",
+      "sha256": "b35312b4dc5aebecf813d2fd87916f485eb08b69f44e8951dbe064f958920571",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-oauth-consent.png",
+      "role": "Actual legacy request controls and9 prefixes; submission failure source-derived",
+      "sha256": "728c3aeae54f202172c642aa4075681d69630c5fb4023e7b22b9c1cd05f927ae",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制并排三个独立窄网页OAuth页面，宽比例390、320、320，白灰蓝平面，顶部只有蓝书本DooKnow，不画主人导航或登录框。左页卡片标题“连接 DooKnow”，仅红色“授权请求无效或已过期，请回到连接客户端重新发起授权。”，卡片下文案“仅在你确认后，连接才能访问所选资料。”，没有按钮或权限表。中页同标题，连接请求来自/隔离界面盘点客户端，说明请选择此连接允许的业务能力与资源范围。；允许的操作只有勾选“读取所选目录中的资料”；允许的资料目录九个checkbox全部勾选，完整顺序README.md、00-Inbox、10-Projects、20-Areas、30-Knowledge、40-Resources、50-Journal、90-Archive、99-System。下面锁提示未选择的业务能力和资源不会开放。可随时在 MCP 设置中收窄或撤销连接。；拒绝可用、允许访问蓝可用；按钮下方红色“授权未完成，请重新发起连接。”，卡外同确认文案。右页同中完整九个目录与read操作，read勾选，九个目录均未选，拒绝可用、允许访问灰禁用，底部仍同授权未完成红色提示。长页面可纵向滚动、动作换行，保留所有九行；不新增重新发起按钮、密码、请求ID或现代分域权限控件。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-oauth-invalid.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-oauth-consent.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制并排三个独立窄网页OAuth页面，宽比例390、320、320，白灰蓝平面，顶部只有蓝书本DooKnow，不画主人导航或登录框。左页卡片标题“连接 DooKnow”，仅红色“授权请求无效或已过期，请回到连接客户端重新发起授权。”，卡片下文案“仅在你确认后，连接才能访问所选资料。”，没有按钮或权限表。中页同标题，连接请求来自/隔离界面盘点客户端，说明请选择此连接允许的业务能力与资源范围。；允许的操作只有勾选“读取所选目录中的资料”；允许的资料目录九个checkbox全部勾选，完整顺序README.md、00-Inbox、10-Projects、20-Areas、30-Knowledge、40-Resources、50-Journal、90-Archive、99-System。下面锁提示未选择的业务能力和资源不会开放。可随时在 MCP 设置中收窄或撤销连接。；拒绝可用、允许访问蓝可用；按钮下方红色“授权未完成，请重新发起连接。”，卡外同确认文案。右页同中完整九个目录与read操作，read勾选，九个目录均未选，拒绝可用、允许访问灰禁用，底部仍同授权未完成红色提示。长页面可纵向滚动、动作换行，保留所有九行；不新增重新发起按钮、密码、请求ID或现代分域权限控件。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; standalone OAuth shell"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-oauth-invalid.png",
+          "role": "Observed unauthenticated login parent only, not selected authenticated OAuth invalid content"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-oauth-consent.png",
+          "role": "Actual legacy request controls and9 prefixes; submission failure source-derived"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-418449f5-2535-4e30-a4e1-94ccea1a30b1.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-020",
+      "title": "OAuth 无效/过期与提交失败",
+      "kind": "state",
+      "module": "oauth",
+      "entry": {
+        "route": "/oauth/consent?oauth_query=…",
+        "trigger": "Request lookup or consent submission rejects",
+        "parentId": "PB-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:45",
+        "apps/web/components/OAuthConsent.vue:71",
+        "apps/web/components/OAuthConsent.vue:137"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session and ready, completed onboarding required. Signed client request and server policy ceiling remain authoritative."
+      ],
+      "fields": [],
+      "actions": [],
+      "importantStates": [
+        "invalid/expired request tells user to restart from client",
+        "consent failure alert with loaded controls retained"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Max 640px; <=600px reduces padding, wraps scope text and gives actions equal flexible widths (OAuthConsent.vue:339). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/oauth-routes.test.ts:1",
+        "tests/oauth-provider.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "No dedicated in-page new-request action exists; user returns to originating client."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-020",
+      "parentId": "PB-018",
+      "route": "/oauth/consent?oauth_query=…",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:45",
+        "apps/web/components/OAuthConsent.vue:71",
+        "apps/web/components/OAuthConsent.vue:137"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-041.json#MP-R053",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R053",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-418449f5-2535-4e30-a4e1-94ccea1a30b1.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R053.png",
+  "sha256": "96ca6748595b7b509283a43cb7dd11608c37827cc55a0b4dc282fcffbddd5681",
+  "bytes": 1296819,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T08:00:01.069452+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: App/OAuthConsent standalone consent-error/continuation shell",
+    "sourceIds": [
+      "PB-020"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Three standalone authenticated-owner OAuth error pages at390/320/320: A invalid request no controls; B loaded legacy knowledge-read with9 checked prefixes, submission failure below retained actions; C same loaded request prefixes all unchecked after failure, allow disabled refuse enabled. No modern policy combined with legacy, no request restart button or login fields. Invalid baseline actually visitor login, not matching selected role.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "request": null,
+      "error": "授权请求无效或已过期，请回到连接客户端重新发起授权。",
+      "role": "authenticated owner"
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "request": "legacy knowledge:read only",
+      "clientName": "隔离界面盘点客户端",
+      "allowedPrefixes": [
+        "README.md",
+        "00-Inbox",
+        "10-Projects",
+        "20-Areas",
+        "30-Knowledge",
+        "40-Resources",
+        "50-Journal",
+        "90-Archive",
+        "99-System"
+      ],
+      "allPrefixesChecked": true,
+      "busy": false,
+      "error": "授权未完成，请重新发起连接。",
+      "canAccept": true
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "request": "same legacy B",
+      "selectedPrefixes": [],
+      "busy": false,
+      "error": "授权未完成，请重新发起连接。",
+      "canAccept": false
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "share-editor-source-search",
+  "title": "访客源码与查找",
+  "width": 1440,
+  "audience": "public",
+  "route": "/s/<isolated-capability>",
+  "file": "1440-share-editor-source-search.png",
+  "sha256": "786f67c8c0b5e24e91e4c3db87756e4ec929f3db290bb833cb60e8fdecdca3d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "pageErrors": [],
+  "outerOverflow": 0
+}

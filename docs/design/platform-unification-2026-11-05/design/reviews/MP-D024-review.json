@@ -1,0 +1,44 @@
+{
+  "assetId": "MP-D024",
+  "sourceIds": [
+    "ST-030"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:26:39.020283+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner recovery-key password modal, synthetic masked current password, no attempt/error",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Exactly current password field with mask/eye, real title/effects explanation, cancel and verify-download; no key contents/fingerprint/backup choice/extra credential field or false success.",
+    "Idle entered-password action available; dirty close and password clearing/server verification remain source contracts. No secret used or newly added password gate."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-010.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D024.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/BackupSettings.vue:142",
+    "apps/web/components/settings/BackupSettings.vue:313",
+    "apps/web/components/settings/SettingsOverlay.vue:40"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "5c18a980d72c07db7f8594d0008bbf6ac572bcae7e4a92bbbfc6e34d75202e42",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D024.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

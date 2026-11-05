@@ -1,0 +1,124 @@
+{
+  "id": "workspace-global-feedback-explicit-specimens",
+  "recordedAtUtc": "2026-11-05T08:18:01.534Z",
+  "decision": "Bind parent startup/availability state entries to the already reviewed exact WS-M003-v2 rows; preserve every original state and shell mapping.",
+  "independentConfirmation": {
+    "reviewer": "platform_review_ws01",
+    "channel": "Agent message to root after current template/source check; not a new raster review",
+    "facts": [
+      "r1 inline, r6 document and r7 sidebar list are distinct existing LoadingState variants",
+      "r2 matches Workspace main unavailable landing at3369 only",
+      "Sidebar2899 unavailable message/renderer is different and is not claimed by r2",
+      "r3 service, r4 dismissible error and r5 success toast match current source"
+    ],
+    "existingImageReview": "design/reviews/WS-M003-v2-review.json"
+  },
+  "changes": [
+    {
+      "sourceId": "WS-001",
+      "state": "Initial tree/note load progress",
+      "visualParts": [
+        {
+          "assetId": "WS-M003",
+          "panel": "A",
+          "matrixRow": "row-1",
+          "scope": "Inline progress preserving already mounted content, conditional branch"
+        },
+        {
+          "assetId": "WS-M003",
+          "panel": "A",
+          "matrixRow": "row-6",
+          "scope": "Main initial/document opening document skeleton, conditional branch"
+        },
+        {
+          "assetId": "WS-M003",
+          "panel": "A",
+          "matrixRow": "row-7",
+          "scope": "Sidebar LoadingState list while tree is initially loading; distinct from unavailable sidebar"
+        }
+      ]
+    },
+    {
+      "sourceId": "WS-001",
+      "state": "Tree unavailable with retry",
+      "visualParts": [
+        {
+          "assetId": "WS-M003",
+          "panel": "A",
+          "matrixRow": "row-2",
+          "scope": "Main-content unavailable landing and retry only; does not cover the separate sidebar directory error"
+        }
+      ]
+    },
+    {
+      "sourceId": "WS-001",
+      "state": "Service unavailable global banner",
+      "visualParts": [
+        {
+          "assetId": "WS-M003",
+          "panel": "A",
+          "matrixRow": "row-3",
+          "scope": "Existing owner service banner and retry action"
+        }
+      ]
+    },
+    {
+      "sourceId": "WS-001",
+      "state": "Global error and toast",
+      "visualParts": [
+        {
+          "assetId": "WS-M003",
+          "panel": "A",
+          "matrixRow": "row-4",
+          "scope": "Existing dismissible global error"
+        },
+        {
+          "assetId": "WS-M003",
+          "panel": "A",
+          "matrixRow": "row-5",
+          "scope": "Existing success toast; separate state"
+        }
+      ]
+    },
+    {
+      "sourceId": "WS-010",
+      "state": "Unavailable service alert",
+      "visualParts": [
+        {
+          "assetId": "WS-M003",
+          "panel": "A",
+          "matrixRow": "row-3",
+          "scope": "Existing owner service banner"
+        }
+      ]
+    },
+    {
+      "sourceId": "WS-010",
+      "state": "Tree unavailable landing",
+      "visualParts": [
+        {
+          "assetId": "WS-M003",
+          "panel": "A",
+          "matrixRow": "row-2",
+          "scope": "Main-content unavailable landing, not sidebar error"
+        }
+      ]
+    },
+    {
+      "sourceId": "WS-010",
+      "state": "Note-opening progress preserves existing content",
+      "visualParts": [
+        {
+          "assetId": "WS-M003",
+          "panel": "A",
+          "matrixRow": "row-1",
+          "scope": "Existing inline progress while content remains mounted"
+        }
+      ]
+    }
+  ],
+  "assetCountChanged": false,
+  "newImageRequired": false,
+  "productChanges": false,
+  "globalApproval": false
+}

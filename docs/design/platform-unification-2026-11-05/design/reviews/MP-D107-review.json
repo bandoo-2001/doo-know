@@ -1,0 +1,71 @@
+{
+  "assetId": "MP-D107",
+  "verdict": "needs-revision",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:50:08.675217+00:00",
+  "method": "Actual final PNG viewed; real appearance baseline, initial/correction prompts when present, exact GEN-006 source contracts and all selected Studio/Appearance/Modules template controls/guards checked. Alternate tabs and lower source-derived layout are not runtime captures.",
+  "selectedState": "Source-derived owner clean saved modules tab; six default visible modules, no preview HTML",
+  "functionalFindings": [
+    {
+      "id": "MP-D107-F01",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The new-module kind selector at the bottom is missing the source visible 新模块 label. Existing value 最近更新 and adjacent 添加模块 button are shown, but the field label/association from BlogDesignModules is omitted. This is a missing source form label rather than an approximate raster-size issue.",
+      "evidence": [
+        "apps/web/components/blog/BlogDesignModules.vue:109"
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Six default row types/titles/limits and checked display controls preserved in source order; kind remains read-only per row. First up/last down disabled, other moves/delete visible as equivalent icons.",
+    "Add-kind selector and add action present; source structural field-label omission identified below. No hidden/dirty/empty module state mixed in.",
+    "Studio saved/online-matched/history-zero and disabled draft-save/publish agree; private empty preview and device/live/refresh controls retained, no success or public-enable claim."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Preview note retains a raster prefix 下方 while actual source says 预览仅自己可见。发布主页后访客才能看到更改。 Privacy/publication meaning remains correct; use exact source wording without a direction prefix in implementation. No new bitmap iteration required for this minor copy alone."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-006.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D107.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/blog/BlogDesignStudio.vue:53",
+    "apps/web/components/blog/BlogDesignStudio.vue:177",
+    "apps/web/components/blog/BlogDesignStudio.vue:238",
+    "apps/web/components/blog/BlogDesignModules.vue:5",
+    "apps/web/components/blog/BlogDesignModules.vue:98",
+    "shared/blog-design.ts:102",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-blog-design.png"
+  ],
+  "requiredCorrections": [
+    "Add the visible source 新模块 label beside/above the existing add-kind selector, preserving its current 最近更新 value and 添加模块 action. No change needed to the six rows, current guards or other studio layout."
+  ],
+  "reviewedImageSha256": "4c86d31234942b6815d824374ba033eed3d606ac10f8de66010525a9bfdd16ac",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D107.png",
+  "sourceIds": [
+    "PB-042"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

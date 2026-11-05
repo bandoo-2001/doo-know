@@ -1,0 +1,47 @@
+{
+  "assetId": "MP-R032",
+  "sourceIds": [
+    "ST-073"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T07:30:08.296428+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Three narrow MCP plugin Settings contribution connection/client/call-log branches",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed all panels/full prompt/contracts and exact plugin renderer. A/B local ready-condition lines explicitly external-unverified; effective-policy description uses plugin actual 全部业务资源 wording and real direct撤销 without invented confirmation. Calls expose only tool/code/time/client/ms; cursor shows older logs.",
+    "C assigned channel-off status before log read failure permits exact unready conditions/empty clients/calls plus global error; no cursor ->no older button, real refresh still available and no fake busy lock. Plugin-specific renderer stays distinct from MCPConnectionGuide/Manager and proves no external online/current connection success.",
+    "No secret/query/body logging or owner shell/new route; long values wrap in intended narrow local contribution. Static target design does not execute plugin calls or certify runtime fit."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-038.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R032.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "plugins/mcp/web/index.ts:43",
+    "plugins/mcp/web/index.ts:81",
+    "plugins/mcp/web/index.ts:184",
+    "apps/server/plugins/mcp-transport.ts:131",
+    "apps/web/components/PluginSlot.vue:16"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "7af2f4ac36966f9c8033deac9446ee195946030f2bd0a5ab00ffe54e6bf94ca9",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R032.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

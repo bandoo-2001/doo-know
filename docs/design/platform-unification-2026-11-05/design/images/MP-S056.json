@@ -1,0 +1,925 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S056",
+  "assetId": "MP-S056",
+  "sourceIds": [
+    "PB-037",
+    "PB-038",
+    "PB-039",
+    "PB-040",
+    "PB-049"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-037",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Seven BlogWorkspace local slices: withdraw CASerror retained article/recheck; remove busy after confirmation already closed; taxonomy no matches; site enabled receipt; settings conflict with recheck; source/version changed abort publish; reviewed settings keeps local edits. Actual source guards."
+    }
+  ],
+  "selectedState": "Seven BlogWorkspace local slices: withdraw CASerror retained article/recheck; remove busy after confirmation already closed; taxonomy no matches; site enabled receipt; settings conflict with recheck; source/version changed abort publish; reviewed settings keeps local edits. Actual source guards.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制中文博客网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、字体清晰紧凑。各行独立，细线留白分隔，只画指定局部、不画外部导航/全页头或审查注释。七行独立局部。1 文章红色错误“博客记录已变化”，按钮“重新核对”，下方保留“关联原稿 示例笔记”和“编辑原稿”按钮。2 移除选稿处理中只画文章操作栏：状态“文章信息已保存，可预览并手动发布”，三个按钮依序灰色禁用“处理中…”、“预览文章”、“处理中…”；下方“下架文章”“移除选稿”灰色禁用。确认窗已经关闭，不能画确认取消。3 分类标签搜索片段：输入框不存在、按钮“清除分类标签搜索”，统计“0 个分类 · 0 个标签”；并排两卡“分类 1”“标签 1”，分别“没有匹配的分类”“没有匹配的标签”，左卡说明“试试其他关键词，或清除搜索查看全部分类。”，右卡说明“试试其他关键词，或清除搜索查看全部标签。”，可点按钮“查看全部分类”“查看全部标签”。4 绿色“站点已开启，已发布文章可公开访问。”，公开访问标记“站点已公开”，开关开启。5 红色“站点设置已变化”，按钮“重新核对设置”，下面保留“站点名称”输入框“我的新博客”和可用“保存站点设置”。6 红色“原稿或文章信息已变化，已刷新预览，请重新核对后发布。”，按钮“重新核对”，无发布成功。7 绿色核对回执“已核对当前版本，并保留你的修改。请检查后再次保存。”，站点名称输入“我的新博客”，状态“有未保存修改，保存后生效”，按钮“保存站点设置”可用。不加自动保存或新按钮。",
+  "prompt": "绘制中文博客网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、字体清晰紧凑。各行独立，细线留白分隔，只画指定局部、不画外部导航/全页头或审查注释。七行独立局部。1 文章红色错误“博客记录已变化”，按钮“重新核对”，下方保留“关联原稿 示例笔记”和“编辑原稿”按钮。2 移除选稿处理中只画文章操作栏：状态“文章信息已保存，可预览并手动发布”，三个按钮依序灰色禁用“处理中…”、“预览文章”、“处理中…”；下方“下架文章”“移除选稿”灰色禁用。确认窗已经关闭，不能画确认取消。3 分类标签搜索片段：输入框不存在、按钮“清除分类标签搜索”，统计“0 个分类 · 0 个标签”；并排两卡“分类 1”“标签 1”，分别“没有匹配的分类”“没有匹配的标签”，左卡说明“试试其他关键词，或清除搜索查看全部分类。”，右卡说明“试试其他关键词，或清除搜索查看全部标签。”，可点按钮“查看全部分类”“查看全部标签”。4 绿色“站点已开启，已发布文章可公开访问。”，公开访问标记“站点已公开”，开关开启。5 红色“站点设置已变化”，按钮“重新核对设置”，下面保留“站点名称”输入框“我的新博客”和可用“保存站点设置”。6 红色“原稿或文章信息已变化，已刷新预览，请重新核对后发布。”，按钮“重新核对”，无发布成功。7 绿色核对回执“已核对当前版本，并保留你的修改。请检查后再次保存。”，站点名称输入“我的新博客”，状态“有未保存修改，保存后生效”，按钮“保存站点设置”可用。不加自动保存或新按钮。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "role": "Actual matching owner blog host baseline; requested error/selected local state source-derived",
+      "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-taxonomy.png",
+      "role": "Actual matching owner blog host baseline; requested error/selected local state source-derived",
+      "sha256": "ca78d354658d4b7842efdcbd1d479d9dcc7b4e315c1621cede8c3619a6c9435b",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-settings.png",
+      "role": "Actual matching owner blog host baseline; requested error/selected local state source-derived",
+      "sha256": "eccd7d09c3724a2577a6bbdc69b5314a8bee7880ff21584827f52139e7307f70",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only, not blog navigation/content authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "role": "Actual matching owner blog host baseline; requested error/selected local state source-derived",
+      "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-taxonomy.png",
+      "role": "Actual matching owner blog host baseline; requested error/selected local state source-derived",
+      "sha256": "ca78d354658d4b7842efdcbd1d479d9dcc7b4e315c1621cede8c3619a6c9435b",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-settings.png",
+      "role": "Actual matching owner blog host baseline; requested error/selected local state source-derived",
+      "sha256": "eccd7d09c3724a2577a6bbdc69b5314a8bee7880ff21584827f52139e7307f70",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only, not blog navigation/content authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制中文博客网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、字体清晰紧凑。各行独立，细线留白分隔，只画指定局部、不画外部导航/全页头或审查注释。七行独立局部。1 文章红色错误“博客记录已变化”，按钮“重新核对”，下方保留“关联原稿 示例笔记”和“编辑原稿”按钮。2 移除选稿处理中只画文章操作栏：状态“文章信息已保存，可预览并手动发布”，三个按钮依序灰色禁用“处理中…”、“预览文章”、“处理中…”；下方“下架文章”“移除选稿”灰色禁用。确认窗已经关闭，不能画确认取消。3 分类标签搜索片段：输入框不存在、按钮“清除分类标签搜索”，统计“0 个分类 · 0 个标签”；并排两卡“分类 1”“标签 1”，分别“没有匹配的分类”“没有匹配的标签”，左卡说明“试试其他关键词，或清除搜索查看全部分类。”，右卡说明“试试其他关键词，或清除搜索查看全部标签。”，可点按钮“查看全部分类”“查看全部标签”。4 绿色“站点已开启，已发布文章可公开访问。”，公开访问标记“站点已公开”，开关开启。5 红色“站点设置已变化”，按钮“重新核对设置”，下面保留“站点名称”输入框“我的新博客”和可用“保存站点设置”。6 红色“原稿或文章信息已变化，已刷新预览，请重新核对后发布。”，按钮“重新核对”，无发布成功。7 绿色核对回执“已核对当前版本，并保留你的修改。请检查后再次保存。”，站点名称输入“我的新博客”，状态“有未保存修改，保存后生效”，按钮“保存站点设置”可用。不加自动保存或新按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-taxonomy.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-settings.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制中文博客网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、字体清晰紧凑。各行独立，细线留白分隔，只画指定局部、不画外部导航/全页头或审查注释。七行独立局部。1 文章红色错误“博客记录已变化”，按钮“重新核对”，下方保留“关联原稿 示例笔记”和“编辑原稿”按钮。2 移除选稿处理中只画文章操作栏：状态“文章信息已保存，可预览并手动发布”，三个按钮依序灰色禁用“处理中…”、“预览文章”、“处理中…”；下方“下架文章”“移除选稿”灰色禁用。确认窗已经关闭，不能画确认取消。3 分类标签搜索片段：输入框不存在、按钮“清除分类标签搜索”，统计“0 个分类 · 0 个标签”；并排两卡“分类 1”“标签 1”，分别“没有匹配的分类”“没有匹配的标签”，左卡说明“试试其他关键词，或清除搜索查看全部分类。”，右卡说明“试试其他关键词，或清除搜索查看全部标签。”，可点按钮“查看全部分类”“查看全部标签”。4 绿色“站点已开启，已发布文章可公开访问。”，公开访问标记“站点已公开”，开关开启。5 红色“站点设置已变化”，按钮“重新核对设置”，下面保留“站点名称”输入框“我的新博客”和可用“保存站点设置”。6 红色“原稿或文章信息已变化，已刷新预览，请重新核对后发布。”，按钮“重新核对”，无发布成功。7 绿色核对回执“已核对当前版本，并保留你的修改。请检查后再次保存。”，站点名称输入“我的新博客”，状态“有未保存修改，保存后生效”，按钮“保存站点设置”可用。不加自动保存或新按钮。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+          "role": "Actual matching owner blog host baseline; requested error/selected local state source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-taxonomy.png",
+          "role": "Actual matching owner blog host baseline; requested error/selected local state source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-settings.png",
+          "role": "Actual matching owner blog host baseline; requested error/selected local state source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only, not blog navigation/content authority"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-9d3c4e5d-f158-4d9b-b3c3-ed892c60f68b.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-037",
+      "title": "博客文章：下架确认",
+      "kind": "dialog",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "下架文章 on published post",
+        "parentId": "PB-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:230",
+        "apps/web/components/BlogWorkspace.vue:705",
+        "apps/web/components/BlogWorkspace.vue:725",
+        "apps/web/blog-workbench.ts:286"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "取消",
+          "effect": "Close confirmation",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "确认下架",
+          "effect": "Withdraw public snapshot",
+          "api": "POST /api/blog/unpublish",
+          "guard": "same selected article captured at opening; not busy/reading"
+        }
+      ],
+      "importantStates": [
+        "inline alertdialog; source note retained",
+        "busy/read guards; Escape cancellation; restore focus",
+        "CAS conflict/error remains on article"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-polish.spec.ts:74"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete dialog with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-038",
+      "title": "博客文章：移除选稿确认",
+      "kind": "dialog",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "移除选稿",
+        "parentId": "PB-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:713",
+        "apps/web/components/BlogWorkspace.vue:725",
+        "apps/web/blog-workbench.ts:303"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "取消",
+          "effect": "Close confirmation",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "确认移除",
+          "effect": "Delete selected blog article and public availability",
+          "api": "DELETE /api/blog/posts/:id",
+          "guard": "same captured selection; CAS expectedVersion; not busy/reading"
+        }
+      ],
+      "importantStates": [
+        "inline alertdialog; original note retained",
+        "successful removal clears article-specific forms/selection",
+        "busy/version conflict/error"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-polish.spec.ts:74"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete dialog with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-039",
+      "title": "博客管理：分类与标签",
+      "kind": "page",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=taxonomy",
+        "trigger": "Blog navigation",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:92",
+        "apps/web/components/BlogWorkspace.vue:776"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "taxonomyQuery",
+          "type": "search",
+          "required": false,
+          "constraints": "case-insensitive category/tag name filter",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "分类 / 标签",
+          "effect": "Navigate articles with one taxonomy filter and clear unrelated query/state",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "清除分类标签搜索 / 查看全部分类 / 查看全部标签",
+          "effect": "Clear taxonomy search",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "整理文章分类 / 整理文章标签",
+          "effect": "Open article list",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "从笔记中选稿",
+          "effect": "Open picker when no articles",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "no category/tag guidance depends on article existence",
+        "categories/tags aggregate all owner article metadata",
+        "search no matches distinct from absent taxonomy",
+        "category/tag count and article filter links"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-admin-content.spec.ts:4",
+        "tests/e2e/blog-admin-content.spec.ts:43"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "No create/rename/delete taxonomy management dialog; taxonomy is edited in article information and reaches public site only after manual republish."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-040",
+      "title": "博客管理：站点设置",
+      "kind": "page",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=settings",
+        "trigger": "Blog navigation or site-off banner",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:897",
+        "apps/web/blog-workbench.ts:324",
+        "packages/core/blog/service.ts:568"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "enabled",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "takes effect on save; closes all public blog pages when false",
+          "sensitive": false
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "required": true,
+          "constraints": "UI<=120; API<=256",
+          "sensitive": false
+        },
+        {
+          "name": "description",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=500; API<=2000",
+          "sensitive": false
+        },
+        {
+          "name": "author",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; API<=256",
+          "sensitive": false
+        },
+        {
+          "name": "baseUrl",
+          "type": "url",
+          "required": false,
+          "constraints": "API<=2048; HTTP(S) origin only; no credentials/path/query/hash",
+          "sensitive": false
+        },
+        {
+          "name": "theme",
+          "type": "select",
+          "required": true,
+          "constraints": "system or light only",
+          "sensitive": false
+        },
+        {
+          "name": "about",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=10000; API<=50000; sanitized Markdown for public about",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存站点设置",
+          "effect": "CAS save full settings",
+          "api": "PATCH /api/blog/settings",
+          "guard": "not settingsBusy; version matches"
+        },
+        {
+          "label": "重新核对设置",
+          "effect": "Reload latest and merge retained draft",
+          "api": "GET /api/blog/settings",
+          "guard": "not settingsBusy"
+        },
+        {
+          "label": "前往装修主页",
+          "effect": "Navigate design section",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "saved enabled badge and independently edited toggle",
+        "dirty status; saving; successful enabled/disabled receipt",
+        "version conflict/error; review latest preserves local changes"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-admin-visual.spec.ts:6",
+        "tests/blog-workbench.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Blog site settings are separate from platform/account settings. No unsupported explicit dark option: system can follow OS dark."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-049",
+      "title": "博客管理：冲突与保留修改恢复",
+      "kind": "state",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles|settings|design",
+        "trigger": "Concurrent remote change, failed request or post-save read failure",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/blog-workbench.ts:164",
+        "apps/web/blog-workbench.ts:249",
+        "apps/web/blog-workbench.ts:351",
+        "apps/web/blog-workbench.ts:374",
+        "apps/web/components/BlogWorkspace.vue:537",
+        "apps/web/components/blog/BlogDesignStudio.vue:123"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新核对 / 重新核对设置 / 重新核对版本",
+          "effect": "Read latest corresponding resource and preserve applicable local fields",
+          "api": "GET /api/blog/posts/:id; /api/blog/settings; /api/blog/design",
+          "guard": "per-surface busy guards"
+        }
+      ],
+      "importantStates": [
+        "article/version/source changed blocks publish and refreshes detail",
+        "failed metadata save retains local form",
+        "post-save read failure must be reviewed before next publish",
+        "settings conflict; review merges edits",
+        "design save/publish/restore error retains draft and version-review entry",
+        "dashboard/preview/review failures expose separate recovery"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog.spec.ts:196",
+        "tests/e2e/blog.spec.ts:336",
+        "tests/blog-studio-workbench.test.ts:85"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "There is no custom global offline mode; these are concrete request-failure alerts and preserved-memory drafts. Browser reload durability for article/design forms is not established here."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-037",
+      "parentId": "PB-032",
+      "route": "/?view=apps&app=blog&appSection=articles",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:230",
+        "apps/web/components/BlogWorkspace.vue:705",
+        "apps/web/components/BlogWorkspace.vue:725",
+        "apps/web/blog-workbench.ts:286"
+      ]
+    },
+    {
+      "sourceId": "PB-038",
+      "parentId": "PB-032",
+      "route": "/?view=apps&app=blog&appSection=articles",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:713",
+        "apps/web/components/BlogWorkspace.vue:725",
+        "apps/web/blog-workbench.ts:303"
+      ]
+    },
+    {
+      "sourceId": "PB-039",
+      "parentId": "PB-030",
+      "route": "/?view=apps&app=blog&appSection=taxonomy",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:92",
+        "apps/web/components/BlogWorkspace.vue:776"
+      ]
+    },
+    {
+      "sourceId": "PB-040",
+      "parentId": "PB-030",
+      "route": "/?view=apps&app=blog&appSection=settings",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:897",
+        "apps/web/blog-workbench.ts:324",
+        "packages/core/blog/service.ts:568"
+      ]
+    },
+    {
+      "sourceId": "PB-049",
+      "parentId": "PB-030",
+      "route": "/?view=apps&app=blog&appSection=articles|settings|design",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/blog-workbench.ts:164",
+        "apps/web/blog-workbench.ts:249",
+        "apps/web/blog-workbench.ts:351",
+        "apps/web/blog-workbench.ts:374",
+        "apps/web/components/BlogWorkspace.vue:537",
+        "apps/web/components/blog/BlogDesignStudio.vue:123"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-029.json#MP-S056",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S056",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-9d3c4e5d-f158-4d9b-b3c3-ed892c60f68b.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S056.png",
+  "sha256": "c37407e36e34abebfd4992e5f089a88ab892da1961d1de41eb580f66119e698c",
+  "bytes": 1227917,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T05:42:00.288992+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / BlogWorkspace.vue",
+    "sourceIds": [
+      "PB-037",
+      "PB-038",
+      "PB-039",
+      "PB-040",
+      "PB-049"
+    ],
+    "roles": [
+      "authenticated owner",
+      "owner-private"
+    ],
+    "state": "Seven BlogWorkspace local slices: withdraw CASerror retained article/recheck; remove busy after confirmation already closed; taxonomy no matches; site enabled receipt; settings conflict with recheck; source/version changed abort publish; reviewed settings keeps local edits. Actual source guards.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-037",
+      "title": "CAS conflict/error remains on article",
+      "renderer": "apps/web/components/BlogWorkspace.vue",
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:230",
+        "apps/web/components/BlogWorkspace.vue:705",
+        "apps/web/components/BlogWorkspace.vue:725",
+        "apps/web/blog-workbench.ts:286"
+      ],
+      "guardBindings": [
+        {
+          "label": "取消",
+          "guard": ""
+        },
+        {
+          "label": "确认下架",
+          "guard": "same selected article captured at opening; not busy/reading"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "CAS conflict/error remains on article",
+          "variant": "CAS conflict/error remains on article",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-037"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "PB-038",
+      "title": "移除选稿处理中",
+      "renderer": "apps/web/components/BlogWorkspace.vue",
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:713",
+        "apps/web/components/BlogWorkspace.vue:725",
+        "apps/web/blog-workbench.ts:303"
+      ],
+      "guardBindings": [
+        {
+          "label": "取消",
+          "guard": ""
+        },
+        {
+          "label": "确认移除",
+          "guard": "same captured selection; CAS expectedVersion; not busy/reading"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "busy/version conflict/error",
+          "variant": "busy/version conflict/error",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-038"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "PB-039",
+      "title": "search no matches distinct from absent taxonomy",
+      "renderer": "apps/web/components/BlogWorkspace.vue",
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:92",
+        "apps/web/components/BlogWorkspace.vue:776"
+      ],
+      "guardBindings": [
+        {
+          "label": "分类 / 标签",
+          "guard": ""
+        },
+        {
+          "label": "清除分类标签搜索 / 查看全部分类 / 查看全部标签",
+          "guard": ""
+        },
+        {
+          "label": "整理文章分类 / 整理文章标签",
+          "guard": ""
+        },
+        {
+          "label": "从笔记中选稿",
+          "guard": ""
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "search no matches distinct from absent taxonomy",
+          "variant": "search no matches distinct from absent taxonomy",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-039"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "PB-040",
+      "title": "successful enabled/disabled receipt",
+      "renderer": "apps/web/components/BlogWorkspace.vue",
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:897",
+        "apps/web/blog-workbench.ts:324",
+        "packages/core/blog/service.ts:568"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存站点设置",
+          "guard": "not settingsBusy; version matches"
+        },
+        {
+          "label": "重新核对设置",
+          "guard": "not settingsBusy"
+        },
+        {
+          "label": "前往装修主页",
+          "guard": ""
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "dirty status; saving; successful enabled/disabled receipt",
+          "variant": "successful enabled/disabled receipt",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-040"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "PB-040",
+      "title": "version conflict/error",
+      "renderer": "apps/web/components/BlogWorkspace.vue",
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:897",
+        "apps/web/blog-workbench.ts:324",
+        "packages/core/blog/service.ts:568"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存站点设置",
+          "guard": "not settingsBusy; version matches"
+        },
+        {
+          "label": "重新核对设置",
+          "guard": "not settingsBusy"
+        },
+        {
+          "label": "前往装修主页",
+          "guard": ""
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "version conflict/error; review latest preserves local changes",
+          "variant": "version conflict/error",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-040"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r6",
+      "sourceId": "PB-049",
+      "title": "article/version/source changed blocks publish and refreshes detail",
+      "renderer": "apps/web/components/BlogWorkspace.vue",
+      "sourceRefs": [
+        "apps/web/blog-workbench.ts:164",
+        "apps/web/blog-workbench.ts:249",
+        "apps/web/blog-workbench.ts:351",
+        "apps/web/blog-workbench.ts:374",
+        "apps/web/components/BlogWorkspace.vue:537",
+        "apps/web/components/blog/BlogDesignStudio.vue:123"
+      ],
+      "guardBindings": [
+        {
+          "label": "重新核对 / 重新核对设置 / 重新核对版本",
+          "guard": "per-surface busy guards"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "article/version/source changed blocks publish and refreshes detail",
+          "variant": "article/version/source changed blocks publish and refreshes detail",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-049"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r7",
+      "sourceId": "PB-049",
+      "title": "settings conflict",
+      "renderer": "apps/web/components/BlogWorkspace.vue",
+      "sourceRefs": [
+        "apps/web/blog-workbench.ts:164",
+        "apps/web/blog-workbench.ts:249",
+        "apps/web/blog-workbench.ts:351",
+        "apps/web/blog-workbench.ts:374",
+        "apps/web/components/BlogWorkspace.vue:537",
+        "apps/web/components/blog/BlogDesignStudio.vue:123"
+      ],
+      "guardBindings": [
+        {
+          "label": "重新核对 / 重新核对设置 / 重新核对版本",
+          "guard": "per-surface busy guards"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "settings conflict; review merges edits",
+          "variant": "settings conflict",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-049"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": [
+    {
+      "row": "r2",
+      "sourceId": "PB-038",
+      "confirm": null,
+      "busy": true,
+      "reading": false,
+      "note": "confirmAction closes dialog before awaiting remove; do not display a busy confirmation window"
+    },
+    {
+      "row": "r3",
+      "taxonomy": {
+        "categories": 1,
+        "tags": 1,
+        "visibleCategories": 0,
+        "visibleTags": 0
+      },
+      "query": "不存在"
+    },
+    {
+      "row": "r7",
+      "settingsNotice": "已核对当前版本，并保留你的修改。请检查后再次保存。",
+      "settingsLocalTitle": "我的新博客",
+      "dirty": true
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "assetId": "WS-D092",
+  "sourceIds": [
+    "WS-093",
+    "WS-094"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T03:45:27.987526+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Independent note inspector, suggested semantic-edge inspector, and similarity clue/no-evidence inspector.",
+  "functionalFindings": [
+    {
+      "id": "WS-D092-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Semantic predicate input displays literal input关联 instead of the actual value 关联. The English prompt type word has leaked into field content.",
+      "sourceEvidence": "GraphInspector edgePredicate initializes from edge.label; supplied synthetic label is 关联, not input关联."
+    },
+    {
+      "id": "WS-D092-F2",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Semantic review is split into independent 确认 and 保存 buttons. Source has one combined 确认 / 保存 action plus 忽略关系; separate controls imply a new distinction.",
+      "sourceEvidence": "GraphInspector semantic review AButton text is exactly 确认 / 保存 and emits one accept command."
+    },
+    {
+      "id": "WS-D092-F3",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Both evidence note-line sources are drawn as plain 来源 text instead of the existing actionable source-link button, hiding open-authorized-note affordance.",
+      "sourceEvidence": "GraphInspector evidence uses AButton type=link @click emit(open,ev.noteId,ev.startLine), label 示例笔记 · L3–4."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Node-only note/hop controls, semantic review fields, and similarity clue/no-fact warning/no-review branch correctly separated.",
+    "Evidence counts1/1/0 and method labels align with selected variants."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-017.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D092.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/graph/GraphInspector.vue:92",
+    "apps/web/components/graph/GraphInspector.vue:199",
+    "apps/web/components/graph/GraphInspector.vue:257",
+    "apps/web/components/graph/labels.ts:1"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "WS-D092-F1",
+      "correction": "Set predicate input to exact 关联; remove input prefix."
+    },
+    {
+      "findingId": "WS-D092-F2",
+      "correction": "Replace two 确认 / 保存 controls with one blue button labeled 确认 / 保存 and retain separate 忽略关系."
+    },
+    {
+      "findingId": "WS-D092-F3",
+      "correction": "Make 示例笔记 · L3–4 visibly actionable source links/buttons in note and semantic cards, preserving evidence text/method/count and similarity no-evidence branch."
+    }
+  ],
+  "reviewedImageSha256": "34dc38ae1b9d942405b18ccf5ad932b3522cc48778699487cc89d56513d9bb70",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D092.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "workspace-empty",
+  "title": "知识工作区未选择笔记",
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/",
+  "file": "1440-workspace-empty.png",
+  "sha256": "5b5f9e507269f8ff724ae65309a317dbace517722ffdc2bd8552d1001919a8a7",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

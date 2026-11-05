@@ -1,0 +1,60 @@
+{
+  "assetId": "WS-D015",
+  "sourceIds": [
+    "WS-017",
+    "WS-019",
+    "WS-018"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T03:07:28.193870+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Independent idle move, loaded saved-copy, and retained-parameter relative-reference review after rejected cross-directory move.",
+  "functionalFindings": [
+    {
+      "id": "WS-D015-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Review reset control is labeled 在原目录重命名 rather than source 改为在原目录重命名. The handler only resets the target-directory field; it does not rename immediately. The shortened imperative drops the form-change meaning on a sensitive move/retry surface.",
+      "sourceEvidence": "NoteMoveDialog.vue referenceReview AButton click assigns folder to original relativePath parent; actual mutation remains separate 确认移动."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Move/copy field sets and saved-identity/current-unsaved-draft boundaries retained, including loaded baseline and idle actions.",
+    "Review preserves rejection explanation, no-move notice, original-link/ref-rewrite/manual-check guidance, and target30-Knowledge/name for retry."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-015.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D015.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/NoteMoveDialog.vue:55",
+    "apps/web/components/NoteMoveDialog.vue:95",
+    "apps/web/components/NoteCopyDialog.vue:1",
+    "docs/design/platform-unification-2026-11-05/baseline/windows/1440-note-move.png"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "WS-D015-F1",
+      "correction": "Restore exact reset button label 改为在原目录重命名. Keep its meaning as changing the target form, preserve the separate 确认移动 submit, and keep all existing review fields/copy/actions."
+    }
+  ],
+  "reviewedImageSha256": "bf88fb9c3c633a19e95213f580f0f6c8e0e598bfe0a551be58a9c8b6a548afb7",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D015.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

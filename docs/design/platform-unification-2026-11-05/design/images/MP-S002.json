@@ -1,0 +1,593 @@
+{
+  "id": "MP-S002",
+  "title": "Component state matrix: owner-private / LibrarySettings.vue",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-002",
+    "ST-012"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-002",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-002",
+      "route": "/?view=settings&section=library",
+      "trigger": "设置→知识库与存储 / 直接地址",
+      "parentId": null,
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "知识库未绑定/不可用",
+        "分区独立读取失败",
+        "长目录路径",
+        "批量整理、存储、Git、共享链接、任务常驻区域"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "完整知识库与存储长页：当前库名称/时区/可用性/原文目录details；批量导入/便携导入/导出，便携任务与传输任务、批量整理、存储、云端Git同步、共享链接常驻区域。目录绑定由部署管理，无迁移路径输入。"
+      ]
+    },
+    {
+      "sourceId": "ST-012",
+      "route": "/?view=settings&section=library",
+      "trigger": "知识库信息加载或展开原文目录",
+      "parentId": "ST-002",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "知识库名称 / 可用性 / 时区 / 原文目录",
+          "type": "read-only",
+          "required": false,
+          "constraints": "服务端位置；目录绑定由部署配置管理",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "正在读取",
+        "尚未绑定知识库/目录",
+        "暂时不可用",
+        "错误alert",
+        "长路径details"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/web/components/settings/LibrarySettings.vue",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-002",
+      "label": "刷新信息",
+      "effect": "更新知识库路径、可用性与时区",
+      "api": "GET /api/manage/overview",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-002",
+      "label": "批量导入 / 导入便携包 / 导出资料",
+      "effect": "打开ST-018/ST-022/ST-024",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-012",
+      "label": "刷新信息",
+      "effect": "重新读取",
+      "api": "GET /api/manage/overview",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-002",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-012",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排五个互相独立的紧凑知识库信息样例，用细线和留白分开，无额外状态标题，每行只画指定局部。\n第一行：书本图标和小标题“当前知识库”，帮助“这里的目录位于运行知识库的服务器上。”，右侧“刷新信息”按钮。按钮可用。加粗“尚未绑定知识库”，下一行“知识库暂时不可用 · 时区 Asia/Shanghai”，收起的“服务器上的原文目录”。\n第二行：书本图标和小标题“当前知识库”，帮助“这里的目录位于运行知识库的服务器上。”，右侧“刷新信息”按钮。按钮可用。加粗“knowledge”，下一行“知识库暂时不可用 · 时区 Asia/Shanghai”，收起的“服务器上的原文目录”。\n第三行：书本图标和小标题“当前知识库”，帮助“这里的目录位于运行知识库的服务器上。”，右侧“刷新信息”按钮。按钮带读取中小转圈，正文仅“正在读取知识库信息…”，不画名称与目录。\n第四行：书本图标和小标题“当前知识库”，帮助“这里的目录位于运行知识库的服务器上。”，右侧“刷新信息”按钮。按钮可用。加粗“尚未绑定知识库”，下一行“知识库暂时不可用 · 时区 Asia/Shanghai”，展开“服务器上的原文目录”，普通只读代码“尚未绑定目录”；帮助“目录绑定由部署配置管理。迁移可以先导出或恢复到独立副本，核验后再更新服务配置。”。\n第五行：书本图标和小标题“当前知识库”，帮助“这里的目录位于运行知识库的服务器上。”，右侧“刷新信息”按钮。按钮可用。加粗“knowledge”，下一行“知识库可用 · 时区 Asia/Shanghai”，展开“服务器上的原文目录”，只读代码“/srv/example/knowledge/long-example-folder/reference-materials/source-notes”，长路径自然换行；相同目录绑定帮助。所有名称、状态、时区和路径均非可编辑输入，不画宿主导航。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S002.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-002",
+      "title": "知识库未绑定",
+      "renderer": "apps/web/components/settings/LibrarySettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:46",
+        "apps/web/components/settings/LibrarySettings.vue:29"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新信息",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "批量导入 / 导入便携包 / 导出资料",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "知识库未绑定/不可用",
+          "variant": "知识库未绑定",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-002"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-002",
+      "title": "知识库不可用",
+      "renderer": "apps/web/components/settings/LibrarySettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:46",
+        "apps/web/components/settings/LibrarySettings.vue:29"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新信息",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "批量导入 / 导入便携包 / 导出资料",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "知识库未绑定/不可用",
+          "variant": "知识库不可用",
+          "representation": "visible"
+        },
+        {
+          "state": "分区独立读取失败",
+          "variant": "分区独立读取失败",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-002",
+        "ST-012"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-012",
+      "title": "正在读取",
+      "renderer": "apps/web/components/settings/LibrarySettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/LibrarySettings.vue:16",
+        "apps/web/components/settings/LibrarySettings.vue:42"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新信息",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "正在读取",
+          "variant": "正在读取",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-012"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "ST-012",
+      "title": "尚未绑定知识库/目录",
+      "renderer": "apps/web/components/settings/LibrarySettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/LibrarySettings.vue:16",
+        "apps/web/components/settings/LibrarySettings.vue:42"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新信息",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "尚未绑定知识库/目录",
+          "variant": "尚未绑定知识库/目录",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-012"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "ST-012",
+      "title": "长路径details",
+      "renderer": "apps/web/components/settings/LibrarySettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/LibrarySettings.vue:16",
+        "apps/web/components/settings/LibrarySettings.vue:42"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新信息",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "长路径details",
+          "variant": "长路径details",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-012"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-002",
+      "parentId": null,
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:46",
+        "apps/web/components/settings/LibrarySettings.vue:29"
+      ]
+    },
+    {
+      "sourceId": "ST-012",
+      "parentId": "ST-002",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/LibrarySettings.vue:16",
+        "apps/web/components/settings/LibrarySettings.vue:42"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-002",
+      "title": "知识库与存储",
+      "kind": "page",
+      "module": "settings/library",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "设置→知识库与存储 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:46",
+        "apps/web/components/settings/LibrarySettings.vue:29"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新信息",
+          "effect": "更新知识库路径、可用性与时区",
+          "api": "GET /api/manage/overview",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "批量导入 / 导入便携包 / 导出资料",
+          "effect": "打开ST-018/ST-022/ST-024",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "知识库未绑定/不可用",
+        "分区独立读取失败",
+        "长目录路径",
+        "批量整理、存储、Git、共享链接、任务常驻区域"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-workspace.spec.ts:7",
+        "tests/e2e/settings-layout.spec.ts:69"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-012",
+      "title": "知识库信息：未绑定、不可用、读取失败",
+      "kind": "state",
+      "module": "settings/library",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "知识库信息加载或展开原文目录",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/LibrarySettings.vue:16",
+        "apps/web/components/settings/LibrarySettings.vue:42"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "知识库名称 / 可用性 / 时区 / 原文目录",
+          "type": "read-only",
+          "required": false,
+          "constraints": "服务端位置；目录绑定由部署配置管理",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "刷新信息",
+          "effect": "重新读取",
+          "api": "GET /api/manage/overview",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "正在读取",
+        "尚未绑定知识库/目录",
+        "暂时不可用",
+        "错误alert",
+        "长路径details"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/management-api.test.ts:292"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S002",
+  "roles": [
+    "owner-private"
+  ],
+  "selectedState": [
+    "r1 unbound collapsed",
+    "r2 unavailable collapsed",
+    "r3 initial load",
+    "r4 unbound directory expanded",
+    "r5 long readonly path expanded"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排五个互相独立的紧凑知识库信息样例，用细线和留白分开，无额外状态标题，每行只画指定局部。\n第一行：书本图标和小标题“当前知识库”，帮助“这里的目录位于运行知识库的服务器上。”，右侧“刷新信息”按钮。按钮可用。加粗“尚未绑定知识库”，下一行“知识库暂时不可用 · 时区 Asia/Shanghai”，收起的“服务器上的原文目录”。\n第二行：书本图标和小标题“当前知识库”，帮助“这里的目录位于运行知识库的服务器上。”，右侧“刷新信息”按钮。按钮可用。加粗“knowledge”，下一行“知识库暂时不可用 · 时区 Asia/Shanghai”，收起的“服务器上的原文目录”。\n第三行：书本图标和小标题“当前知识库”，帮助“这里的目录位于运行知识库的服务器上。”，右侧“刷新信息”按钮。按钮带读取中小转圈，正文仅“正在读取知识库信息…”，不画名称与目录。\n第四行：书本图标和小标题“当前知识库”，帮助“这里的目录位于运行知识库的服务器上。”，右侧“刷新信息”按钮。按钮可用。加粗“尚未绑定知识库”，下一行“知识库暂时不可用 · 时区 Asia/Shanghai”，展开“服务器上的原文目录”，普通只读代码“尚未绑定目录”；帮助“目录绑定由部署配置管理。迁移可以先导出或恢复到独立副本，核验后再更新服务配置。”。\n第五行：书本图标和小标题“当前知识库”，帮助“这里的目录位于运行知识库的服务器上。”，右侧“刷新信息”按钮。按钮可用。加粗“knowledge”，下一行“知识库可用 · 时区 Asia/Shanghai”，展开“服务器上的原文目录”，只读代码“/srv/example/knowledge/long-example-folder/reference-materials/source-notes”，长路径自然换行；相同目录绑定帮助。所有名称、状态、时区和路径均非可编辑输入，不画宿主导航。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S002 Component state matrix: owner-private / LibrarySettings.vue\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | ST-002 | 真实组件局部状态矩阵 | role=owner-private | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n完整知识库与存储长页：当前库名称/时区/可用性/原文目录details；批量导入/便携导入/导出，便携任务与传输任务、批量整理、存储、云端Git同步、共享链接常驻区域。目录绑定由部署管理，无迁移路径输入。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n局部矩阵（≤7行/卡）：\nr1 | ST-002 | 实际只画代表：知识库未绑定 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/LibrarySettings.vue\nr2 | ST-002 | 实际只画代表：知识库不可用 | 已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。 | renderer=apps/web/components/settings/LibrarySettings.vue\nr3 | ST-012 | 实际只画代表：正在读取 | 既有busy/spinner/禁用控件模式，按原guard锁定。 | renderer=apps/web/components/settings/LibrarySettings.vue\nr4 | ST-012 | 实际只画代表：尚未绑定知识库/目录 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/LibrarySettings.vue\nr5 | ST-012 | 实际只画代表：长路径details | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/settings/LibrarySettings.vue\n\n精确功能/字段/动作guard合同：\nST-002/ST-012权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-002字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-012字段顺序：知识库名称 / 可用性 / 时区 / 原文目录 [read-only; 可选]: 服务端位置；目录绑定由部署配置管理\nST-002白名单：刷新信息 => 更新知识库路径、可用性与时区；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/manage/overview\nST-002白名单：批量导入 / 导入便携包 / 导出资料 => 打开ST-018/ST-022/ST-024；guard=已登录所有者；请求期间禁用重复操作\nST-012白名单：刷新信息 => 重新读取；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/manage/overview\n\n响应式合同：\n1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 120942
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S002.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-0e345812-873d-4e5a-8f1b-fa9ddd828e66.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-0e345812-873d-4e5a-8f1b-fa9ddd828e66.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T03:57:42.166Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Five independent knowledge info states; no path editor; loading and unbound/long-path details retained.",
+    "concerns": []
+  },
+  "sha256": "08333415b0d849378446c81baa93906ca661a5fd78f02388d9fc8e5068fa7b8b",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1210779,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/settings/SettingsWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e9c0b0d2399cae094e29926dfbcf5dbf9a099857330f280e3d532cd1a8887fe7"
+    },
+    {
+      "path": "apps/web/components/settings/LibrarySettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "81955c3d16b30875946522fd7886d1217eea713f645681f8aaf1f3bfb0c868a5"
+    },
+    {
+      "path": "apps/web/components/settings/LibrarySettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "81955c3d16b30875946522fd7886d1217eea713f645681f8aaf1f3bfb0c868a5"
+    },
+    {
+      "path": "apps/web/components/settings/LibrarySettings.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "81955c3d16b30875946522fd7886d1217eea713f645681f8aaf1f3bfb0c868a5"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Independent source-defined local specimens. Exact child states not runtime captured; source roles and guards preserved; raster does not prove responsive/keyboard/API acceptance."
+}

@@ -1,0 +1,268 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D061",
+  "assetId": "WS-D061",
+  "sourceIds": [
+    "WS-085"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-085",
+      "title": "Knowledge graph canvas page",
+      "role": "authenticated owner",
+      "state": "Actual knowledge canvas baseline with 33 nodes/109 relations, basic analysis ready, no inspector/panel/search/filter/truncation state",
+      "presentationInstruction": "Complete authorized knowledge graph canvas, existing search/display/type/filter/overlay/actions, no fictitious relationships."
+    }
+  ],
+  "selectedState": "Actual knowledge canvas baseline with 33 nodes/109 relations, basic analysis ready, no inspector/panel/search/filter/truncation state",
+  "sourceDerived": false,
+  "baselineStatus": "actual-matching-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作清晰知识图谱UI设计图。完整主人知识图谱桌面页，约1440×1000。实际图1决定图谱宿主，图2只给共享平面配色密度，绝不借笔记owner rail/目录树。窄专属图谱rail顶部返回、知识图谱/笔记图谱/关系审核/后台分析/图谱问答/视图与导出，底部模型设置；页头现有返回、知识图谱、让资料中的联系清晰可见、分析模式badge、右侧后台分析状态入口。工具栏按序知识/笔记分段、搜索图谱输入placeholder搜索概念、实体或笔记及搜索图标、筛选、画布/列表分段。现有图谱问答只是入口，不画聊天窗口，不新增自动分析/自动配置模型。rail知识图谱选中，工具知识和画布选中。精确保留实际基线基础分析badge与右侧基础分析就绪状态；摘要33个节点、109条关系、右侧刷新。大白画布照图1现有知识节点/关系团簇构图、原标签与颜色，内容仅来自图1，不能新增概念/推测关系或伪造新分析；将重叠标签适度排开，连线关系保留作为示意。底部原放大+/缩小−/适应画布及图例笔记/概念/人物/组织/地点/事件/技术、虚线表示候选或相似线索。没有选中项，因此不画详情/打开原文按钮；这些通过选择节点的真实后续入口保留。没有error/相似告警/筛选/分析任务或问答弹窗。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。截图不证明API或分析执行，说明仅metadata。",
+  "prompt": "制作清晰知识图谱UI设计图。完整主人知识图谱桌面页，约1440×1000。实际图1决定图谱宿主，图2只给共享平面配色密度，绝不借笔记owner rail/目录树。窄专属图谱rail顶部返回、知识图谱/笔记图谱/关系审核/后台分析/图谱问答/视图与导出，底部模型设置；页头现有返回、知识图谱、让资料中的联系清晰可见、分析模式badge、右侧后台分析状态入口。工具栏按序知识/笔记分段、搜索图谱输入placeholder搜索概念、实体或笔记及搜索图标、筛选、画布/列表分段。现有图谱问答只是入口，不画聊天窗口，不新增自动分析/自动配置模型。rail知识图谱选中，工具知识和画布选中。精确保留实际基线基础分析badge与右侧基础分析就绪状态；摘要33个节点、109条关系、右侧刷新。大白画布照图1现有知识节点/关系团簇构图、原标签与颜色，内容仅来自图1，不能新增概念/推测关系或伪造新分析；将重叠标签适度排开，连线关系保留作为示意。底部原放大+/缩小−/适应画布及图例笔记/概念/人物/组织/地点/事件/技术、虚线表示候选或相似线索。没有选中项，因此不画详情/打开原文按钮；这些通过选择节点的真实后续入口保留。没有error/相似告警/筛选/分析任务或问答弹窗。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。截图不证明API或分析执行，说明仅metadata。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-graph.png",
+      "role": "Actual matching baseline: content/role/current visible controls and geometry",
+      "sha256": "b12c6d9f125032b6cd0f4c74d3badc16f098543f05d3baffa96f272df1a64cae",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Shared flat palette and density only; actual role-specific host takes precedence",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-graph.png",
+      "role": "Actual matching baseline: content/role/current visible controls and geometry",
+      "sha256": "b12c6d9f125032b6cd0f4c74d3badc16f098543f05d3baffa96f272df1a64cae",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Shared flat palette and density only; actual role-specific host takes precedence",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作清晰知识图谱UI设计图。完整主人知识图谱桌面页，约1440×1000。实际图1决定图谱宿主，图2只给共享平面配色密度，绝不借笔记owner rail/目录树。窄专属图谱rail顶部返回、知识图谱/笔记图谱/关系审核/后台分析/图谱问答/视图与导出，底部模型设置；页头现有返回、知识图谱、让资料中的联系清晰可见、分析模式badge、右侧后台分析状态入口。工具栏按序知识/笔记分段、搜索图谱输入placeholder搜索概念、实体或笔记及搜索图标、筛选、画布/列表分段。现有图谱问答只是入口，不画聊天窗口，不新增自动分析/自动配置模型。rail知识图谱选中，工具知识和画布选中。精确保留实际基线基础分析badge与右侧基础分析就绪状态；摘要33个节点、109条关系、右侧刷新。大白画布照图1现有知识节点/关系团簇构图、原标签与颜色，内容仅来自图1，不能新增概念/推测关系或伪造新分析；将重叠标签适度排开，连线关系保留作为示意。底部原放大+/缩小−/适应画布及图例笔记/概念/人物/组织/地点/事件/技术、虚线表示候选或相似线索。没有选中项，因此不画详情/打开原文按钮；这些通过选择节点的真实后续入口保留。没有error/相似告警/筛选/分析任务或问答弹窗。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。截图不证明API或分析执行，说明仅metadata。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-graph.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作清晰知识图谱UI设计图。完整主人知识图谱桌面页，约1440×1000。实际图1决定图谱宿主，图2只给共享平面配色密度，绝不借笔记owner rail/目录树。窄专属图谱rail顶部返回、知识图谱/笔记图谱/关系审核/后台分析/图谱问答/视图与导出，底部模型设置；页头现有返回、知识图谱、让资料中的联系清晰可见、分析模式badge、右侧后台分析状态入口。工具栏按序知识/笔记分段、搜索图谱输入placeholder搜索概念、实体或笔记及搜索图标、筛选、画布/列表分段。现有图谱问答只是入口，不画聊天窗口，不新增自动分析/自动配置模型。rail知识图谱选中，工具知识和画布选中。精确保留实际基线基础分析badge与右侧基础分析就绪状态；摘要33个节点、109条关系、右侧刷新。大白画布照图1现有知识节点/关系团簇构图、原标签与颜色，内容仅来自图1，不能新增概念/推测关系或伪造新分析；将重叠标签适度排开，连线关系保留作为示意。底部原放大+/缩小−/适应画布及图例笔记/概念/人物/组织/地点/事件/技术、虚线表示候选或相似线索。没有选中项，因此不画详情/打开原文按钮；这些通过选择节点的真实后续入口保留。没有error/相似告警/筛选/分析任务或问答弹窗。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中，清晰紧凑中文无衬线、8px圆角。无纹理渐变、浏览器外壳、开发说明或协议字段输入。截图不证明API或分析执行，说明仅metadata。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-graph.png",
+          "role": "Actual matching baseline: content/role/current visible controls and geometry"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Shared flat palette and density only; actual role-specific host takes precedence"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-d0ddfd23-c59d-4109-a8dd-65c94e8dbdcc.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-085",
+      "title": "Knowledge graph canvas page",
+      "kind": "page",
+      "module": "graph",
+      "entry": {
+        "route": "/?view=apps&app=graph",
+        "trigger": "Graph app card / pinned app shortcut",
+        "parentId": "WS-084"
+      },
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:573",
+        "apps/web/components/GraphWorkspace.vue:605",
+        "apps/web/components/GraphWorkspace.vue:705",
+        "apps/server/graph/semantic-routes.ts:124",
+        "packages/core/graph/analysis-source.ts:31"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Explore uses webPrincipal plus authenticated ownerId; knowledge/graph service filters authorized current source evidence. Export is limited to current visible result.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31)."
+      ],
+      "fields": [
+        {
+          "name": "图谱类型",
+          "type": "segmented",
+          "required": true,
+          "constraints": "knowledge | notes",
+          "sensitive": false
+        },
+        {
+          "name": "搜索图谱",
+          "type": "search",
+          "required": false,
+          "constraints": "Server filter value <=2048 characters; source q semantics in graph service.",
+          "sensitive": false
+        },
+        {
+          "name": "显示方式",
+          "type": "segmented",
+          "required": true,
+          "constraints": "graph | list",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "筛选 / 分析任务 / 关系审核 / 视图与导出 / 问答 / 模型设置",
+          "effect": "Open existing graph overlays",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "缩放 / 适应画布 / 节点关系选择",
+          "effect": "Explore Cytoscape canvas",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "刷新 / 清除局部路径",
+          "effect": "Refresh current authorized graph",
+          "api": "GET /api/graph/explore",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "打开原文",
+          "effect": "Open selected source note at line",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Loading/updating",
+        "Canvas renderer error",
+        "Truncated subgraph alert",
+        "Semantic similarity unavailable/pending/partial",
+        "Selected inspector",
+        "No matches"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "testRefs": [
+        "tests/e2e/knowledge-graph-full.spec.ts",
+        "tests/e2e/graph-hosted-navigation.spec.ts",
+        "tests/graph-workbench.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-085",
+      "parentId": "WS-084",
+      "route": "/?view=apps&app=graph",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:573",
+        "apps/web/components/GraphWorkspace.vue:605",
+        "apps/web/components/GraphWorkspace.vue:705",
+        "apps/server/graph/semantic-routes.ts:124",
+        "packages/core/graph/analysis-source.ts:31"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-009.json#WS-D061",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D061",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-d0ddfd23-c59d-4109-a8dd-65c94e8dbdcc.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D061.png",
+  "sha256": "2985b7c8fd321f61f0a6d60a50118be78be66a830d6c0cf3ae300f8098aa7200",
+  "bytes": 1278946,
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "generatedAtUtc": "2026-11-05T02:10:17.809356+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Knowledge graph canvas page",
+    "sourceIds": [
+      "WS-085"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Actual knowledge canvas baseline with 33 nodes/109 relations, basic analysis ready, no inspector/panel/search/filter/truncation state",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "33 nodes/109 relations and base-analysis status come from captured fixture. Raster layout is illustrative and cannot establish graph topology, analysis execution or new relationships."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

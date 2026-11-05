@@ -1,0 +1,124 @@
+{
+  "assetId": "WS-R033",
+  "sourceIds": [
+    "WS-085"
+  ],
+  "reviewer": "independent platform_review_gen048 child agent, exclusively assigned eight GEN048 responsive assets",
+  "reviewedAtUtc": "2026-11-05T09:25:24.930457+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual current PNG viewed using tools.view_image in this independent context; complete actual submittedPrompt and GEN048 source contracts compared with actual input mother/baseline images, matching existing mother SHA reviews, current Vue templates/handlers/CSS and server/API policy sources. Static content review only; no generation or runtime tests.",
+  "actualViewMethod": {
+    "tool": "tools.view_image",
+    "image": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R033.png",
+    "detail": "high",
+    "boardPanelsActuallyViewed": [
+      "A",
+      "B"
+    ]
+  },
+  "reviewedImageSha256": "63cc09067923f6579beb1cad951bff1d8dfb8fc1c88f4fc12648085ddd847518",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-R033.png",
+  "reviewedSidecarSha256": "dd1c9d6727847d46f79b9328acc43f9c9d905369b7631c51639369aa5bd05cef",
+  "reviewedManifestSha256": "7f3fc0492e62f25af38e6dc0c0135db54d73fed95d3c1554e71f632cfb9a2474",
+  "submissionReview": {
+    "completeSubmittedPromptRead": true,
+    "submittedPromptSha256": "46d29dcc9927199cd0aac61f4dde08593faa5eda4dfa9e93b5a2312ab8cb2810",
+    "actualToolArgumentsPromptMatchesReceipt": true,
+    "observedReceiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-5.json",
+    "receiptOutputBytesMatchReviewedPng": true
+  },
+  "inputImageChecks": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-graph.png",
+      "order": 1,
+      "role": "actual anonymous-free authorized owner mobile graph canvas content and real graph fixture",
+      "sha256": "869e72f5cf7e41543c74135e998600a23fd6b19a87b939e75aff0e2cac4ca516",
+      "bytes": 73363,
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "actualSha256": "869e72f5cf7e41543c74135e998600a23fd6b19a87b939e75aff0e2cac4ca516",
+      "actuallyViewed": true,
+      "roleChecked": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "actualSha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "actuallyViewed": true,
+      "roleChecked": true
+    }
+  ],
+  "selectedState": [
+    "390 owner hosted graph knowledge canvas, existing isolated baseline fixture, no selected object",
+    "same hosted graph state at320"
+  ],
+  "functionalFindings": [
+    {
+      "severity": "blocking",
+      "panel": "A and B, empty graph search",
+      "finding": "Empty search shows placeholder and an extra clear X. Ant InputSearch allow-clear is value-dependent; real empty baseline has only the search action. This draws an actionable control in an incompatible empty state.",
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:620",
+        "docs/design/platform-unification-2026-11-05/baseline/390-graph.png"
+      ],
+      "minimumCorrection": "Remove only the clear X from both empty search boxes; retain the search icon/action and all other existing controls. Do not add query text to disguise this selected empty-state mismatch."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "A/B retain real hosted owner graph header/back/status and graph navigation. Search on first mobile row is legitimate graph.css order:-1; knowledge/notes, filter and canvas/list retain mobile order and no nonhosted review/more duplicate is invented.",
+    "Canvas state uses baseline 33 nodes/109 relations and basic-analysis-ready status; zoom plus/minus/fit, refresh, full seven-kind legend and dashed-line meaning remain visible. No selected inspector, focus-path clear action, error, truncation or similarity warning is asserted.",
+    "Explore and evidence are source-authorized; share principals rejected by analysis-source.ts. Static graph rendering is illustrative and does not independently certify every edge/topology."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster shading, slight texture, rounded proportions and intended390/320 geometry are approximate. Implement flat shared CSS colors/borders/8px corners and readable source-sized text; do not reproduce raster gradients or infer exact responsive fit from this board."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-048.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R033.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/app.ts:141",
+    "apps/web/components/GraphWorkspace.vue:573",
+    "apps/web/components/GraphWorkspace.vue:605",
+    "apps/web/components/GraphWorkspace.vue:705",
+    "apps/server/graph/semantic-routes.ts:124",
+    "packages/core/graph/analysis-source.ts:31",
+    "apps/web/graph.css:394",
+    "apps/web/components/graph/GraphOverlay.vue:36"
+  ],
+  "currentSourceSha256": {
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    "apps/server/graph/semantic-routes.ts": "0f4d81250bee2aa5d27fdfd65bb5209f52525fdec1275f8ac680e17f7ea8f12a",
+    "apps/web/components/GraphWorkspace.vue": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e",
+    "apps/web/components/graph/GraphOverlay.vue": "0261e8d7dfde8c21c24a5793144b7ce2cb00fbbec49c05ec70d25d8af57439cd",
+    "apps/web/graph.css": "2caa5b70edcb0176dcef36821008e1997fca57e56488c890c9bfa513eaa9943b",
+    "packages/core/graph/analysis-source.ts": "c87083ae267c60d4d876a82ca93d7f51d87cb6156f7f325c778fe3e77362eca1"
+  },
+  "requiredCorrections": [
+    "Remove only the clear X from both empty search boxes; retain the search icon/action and all other existing controls. Do not add query text to disguise this selected empty-state mismatch."
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false,
+    "limitations": "The tool does not expose a per-call physical model identity receipt; none is claimed."
+  },
+  "limitations": [
+    "Only these actual image bytes and their declared compatible selected state received static content review. Source-derived data are examples, not captured API/model outcomes.",
+    "A static PNG cannot prove physical320/390 scrolling or safe viewport, source focus trapping/return, keyboard/Escape, busy/dirty/version guards, action execution, persistence, permissions enforcement, live model/clipboard behavior or exact canvas topology.",
+    "Unshown alternative loading/error/unavailable/conflict/role variants retain their individual source contracts and mother mappings; this verdict does not claim their simultaneous presence.",
+    "Per-image content verdict does not pass platform-wide consistency/coverage/provenance gates or authorize product implementation."
+  ]
+}

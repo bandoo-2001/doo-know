@@ -1,0 +1,423 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D015",
+  "assetId": "WS-D015",
+  "sourceIds": [
+    "WS-017",
+    "WS-019",
+    "WS-018"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-017",
+      "title": "Move or rename note",
+      "role": "authenticated owner",
+      "state": "Move/rename and saved-copy are separate forms; preserve unsaved draft and actual version/receipt guards.",
+      "presentationInstruction": "Move/rename and saved-copy are separate forms; preserve unsaved draft and actual version/receipt guards.",
+      "selectedState": "Three independent move/copy/reference-review windows; idle move/copy and retained-parameter relative-reference review with exact existing buttons"
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-019",
+      "title": "Create saved document copy",
+      "role": "authenticated owner",
+      "state": "Move/rename and saved-copy are separate forms; preserve unsaved draft and actual version/receipt guards.",
+      "presentationInstruction": "Move/rename and saved-copy are separate forms; preserve unsaved draft and actual version/receipt guards.",
+      "selectedState": "Three independent move/copy/reference-review windows; idle move/copy and retained-parameter relative-reference review with exact existing buttons"
+    },
+    {
+      "label": "reference-review",
+      "sourceId": "WS-018",
+      "title": "Move reference review block",
+      "role": "authenticated owner",
+      "state": "Actual retained-parameter relative-reference review block with open-original and rename-in-place actions.",
+      "selectedState": "Three independent move/copy/reference-review windows; idle move/copy and retained-parameter relative-reference review with exact existing buttons"
+    }
+  ],
+  "selectedState": "Three independent move/copy/reference-review windows; idle move/copy and retained-parameter relative-reference review with exact existing buttons",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作清晰三分区对照板，外部仅标“移动重命名”“保存版本副本”“引用核对”，三窗独立、纵向可延长保证文字/字段/页脚齐全。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。\n移动窗标题移动或重命名笔记、X；说明“保持笔记身份、历史版本和分享链接，不会覆盖已有文件。跨目录时会先核对相对引用。”；目标目录00-Inbox；文件名示例笔记.md；取消/蓝色确认移动可用，无错误。\n副本窗标题创建文档副本、X；说明“复制已保存的版本，分配新的文档身份。当前未保存的草稿仍保留。”；副本目录00-Inbox；副本文件名示例笔记-副本.md；取消/创建副本可用。\n引用核对窗仍为移动或重命名笔记、X。错误条“这篇笔记包含相对图片、附件或笔记链接。请先处理这些引用，再跨目录移动；也可以在原目录改名。”；保留同一身份说明和“本次没有移动笔记，下面的目标参数仍保留。”；完整核对块：链接在新标签页打开原笔记，核对正文中的图片、附件和笔记链接；相对地址会随目录变化失效，笔记链接可改平台笔记链接，图片和附件可通过插入图片或PDF重新插入平台资源链接，仅调整相对路径仍触发保护，不自动重写链接；保存处理后的笔记，再重开整理窗口核对版本并移动，较大笔记无法完整检查时联系部署者保留目录结构整理。现有按钮改为在原目录重命名；下方目标目录30-Knowledge、文件名示例笔记.md完整保留；取消/确认移动可用。不画已移动成功、覆盖或新协议字段。",
+  "prompt": "制作清晰三分区对照板，外部仅标“移动重命名”“保存版本副本”“引用核对”，三窗独立、纵向可延长保证文字/字段/页脚齐全。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。\n移动窗标题移动或重命名笔记、X；说明“保持笔记身份、历史版本和分享链接，不会覆盖已有文件。跨目录时会先核对相对引用。”；目标目录00-Inbox；文件名示例笔记.md；取消/蓝色确认移动可用，无错误。\n副本窗标题创建文档副本、X；说明“复制已保存的版本，分配新的文档身份。当前未保存的草稿仍保留。”；副本目录00-Inbox；副本文件名示例笔记-副本.md；取消/创建副本可用。\n引用核对窗仍为移动或重命名笔记、X。错误条“这篇笔记包含相对图片、附件或笔记链接。请先处理这些引用，再跨目录移动；也可以在原目录改名。”；保留同一身份说明和“本次没有移动笔记，下面的目标参数仍保留。”；完整核对块：链接在新标签页打开原笔记，核对正文中的图片、附件和笔记链接；相对地址会随目录变化失效，笔记链接可改平台笔记链接，图片和附件可通过插入图片或PDF重新插入平台资源链接，仅调整相对路径仍触发保护，不自动重写链接；保存处理后的笔记，再重开整理窗口核对版本并移动，较大笔记无法完整检查时联系部署者保留目录结构整理。现有按钮改为在原目录重命名；下方目标目录30-Knowledge、文件名示例笔记.md完整保留；取消/确认移动可用。不画已移动成功、覆盖或新协议字段。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/windows/1440-note-move.png",
+      "role": "Actual matching component/parent reference; only its captured visible state is runtime baseline",
+      "sha256": "b6a1867ee801fd267a4a8f6eddac23475a9fc2bca960ce8952a015fafff2e292",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; omit workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/windows/1440-note-move.png",
+      "role": "Actual matching component/parent reference; only its captured visible state is runtime baseline",
+      "sha256": "b6a1867ee801fd267a4a8f6eddac23475a9fc2bca960ce8952a015fafff2e292",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; omit workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作清晰三分区对照板，外部仅标“移动重命名”“保存版本副本”“引用核对”，三窗独立、纵向可延长保证文字/字段/页脚齐全。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。\n移动窗标题移动或重命名笔记、X；说明“保持笔记身份、历史版本和分享链接，不会覆盖已有文件。跨目录时会先核对相对引用。”；目标目录00-Inbox；文件名示例笔记.md；取消/蓝色确认移动可用，无错误。\n副本窗标题创建文档副本、X；说明“复制已保存的版本，分配新的文档身份。当前未保存的草稿仍保留。”；副本目录00-Inbox；副本文件名示例笔记-副本.md；取消/创建副本可用。\n引用核对窗仍为移动或重命名笔记、X。错误条“这篇笔记包含相对图片、附件或笔记链接。请先处理这些引用，再跨目录移动；也可以在原目录改名。”；保留同一身份说明和“本次没有移动笔记，下面的目标参数仍保留。”；完整核对块：链接在新标签页打开原笔记，核对正文中的图片、附件和笔记链接；相对地址会随目录变化失效，笔记链接可改平台笔记链接，图片和附件可通过插入图片或PDF重新插入平台资源链接，仅调整相对路径仍触发保护，不自动重写链接；保存处理后的笔记，再重开整理窗口核对版本并移动，较大笔记无法完整检查时联系部署者保留目录结构整理。现有按钮改为在原目录重命名；下方目标目录30-Knowledge、文件名示例笔记.md完整保留；取消/确认移动可用。不画已移动成功、覆盖或新协议字段。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/windows/1440-note-move.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作清晰三分区对照板，外部仅标“移动重命名”“保存版本副本”“引用核对”，三窗独立、纵向可延长保证文字/字段/页脚齐全。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。\n移动窗标题移动或重命名笔记、X；说明“保持笔记身份、历史版本和分享链接，不会覆盖已有文件。跨目录时会先核对相对引用。”；目标目录00-Inbox；文件名示例笔记.md；取消/蓝色确认移动可用，无错误。\n副本窗标题创建文档副本、X；说明“复制已保存的版本，分配新的文档身份。当前未保存的草稿仍保留。”；副本目录00-Inbox；副本文件名示例笔记-副本.md；取消/创建副本可用。\n引用核对窗仍为移动或重命名笔记、X。错误条“这篇笔记包含相对图片、附件或笔记链接。请先处理这些引用，再跨目录移动；也可以在原目录改名。”；保留同一身份说明和“本次没有移动笔记，下面的目标参数仍保留。”；完整核对块：链接在新标签页打开原笔记，核对正文中的图片、附件和笔记链接；相对地址会随目录变化失效，笔记链接可改平台笔记链接，图片和附件可通过插入图片或PDF重新插入平台资源链接，仅调整相对路径仍触发保护，不自动重写链接；保存处理后的笔记，再重开整理窗口核对版本并移动，较大笔记无法完整检查时联系部署者保留目录结构整理。现有按钮改为在原目录重命名；下方目标目录30-Knowledge、文件名示例笔记.md完整保留；取消/确认移动可用。不画已移动成功、覆盖或新协议字段。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/windows/1440-note-move.png",
+          "role": "Actual matching component/parent reference; only its captured visible state is runtime baseline"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; omit workspace shell"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-fa27c556-e741-461b-afc0-525bd8220d4e.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-017",
+      "title": "Move or rename note",
+      "kind": "dialog",
+      "module": "files",
+      "entry": {
+        "route": "/?note=:id (also tree entry)",
+        "trigger": "移动或重命名",
+        "parentId": "WS-005"
+      },
+      "sourceRefs": [
+        "apps/web/components/NoteMoveDialog.vue:1",
+        "apps/server/knowledge/web-routes.ts:32",
+        "packages/core/files.ts:20"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "目标目录",
+          "type": "directory",
+          "required": true,
+          "constraints": "Knowledge-library existing folder; root UI guidance says README.md only.",
+          "sensitive": false
+        },
+        {
+          "name": "文件名",
+          "type": "text",
+          "required": true,
+          "constraints": "Server validName: nonempty, <=180 UTF-8 bytes, no controls / \\ :, no leading dot, no trailing space, no . or .., and not AGENTS.md case-insensitively (packages/core/files.ts:20). .md autoappend; legacy .excalidraw retains/autoappends .excalidraw.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "确认移动",
+          "effect": "Preserve identity/history/share links; optimistic version + idempotent request",
+          "api": "POST /api/notes/:id/move",
+          "guard": "noteId and nonblank name; !busy; expectedModifiedAt is supplied"
+        },
+        {
+          "label": "取消",
+          "effect": "Close only while idle",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Busy disables inputs/dismiss",
+        "Name conflict",
+        "Version conflict",
+        "Move/reconciliation unknown outcome",
+        "Relative-reference review required"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/diagram-lifecycle-relocation.test.ts",
+        "tests/note-links.test.ts",
+        "tests/e2e/diagram-portability.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-019",
+      "title": "Create saved document copy",
+      "kind": "dialog",
+      "module": "files",
+      "entry": {
+        "route": "/?note=:id (also tree entry)",
+        "trigger": "创建副本",
+        "parentId": "WS-005"
+      },
+      "sourceRefs": [
+        "apps/web/components/NoteCopyDialog.vue:1",
+        "apps/server/knowledge/document-operation-routes.ts:13"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "副本目录",
+          "type": "directory",
+          "required": true,
+          "constraints": "Existing folder.",
+          "sensitive": false
+        },
+        {
+          "name": "副本文件名",
+          "type": "text",
+          "required": true,
+          "constraints": "Server validName: nonempty, <=180 UTF-8 bytes, no controls / \\ :, no leading dot, no trailing space, no . or .., and not AGENTS.md case-insensitively (packages/core/files.ts:20). Default original stem + -副本.md; .md added if missing.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "创建副本",
+          "effect": "Copy saved server version with new identity; retain current unsaved draft",
+          "api": "POST /api/notes/:id/copy",
+          "guard": "Loaded baseline required; expectedModifiedAt/contentHash and requestId; !busy/!loading"
+        },
+        {
+          "label": "取消",
+          "effect": "Close when idle",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Checking baseline",
+        "Load failure",
+        "Copy busy",
+        "Conflict/error retains draft"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/diagram-lifecycle-relocation.test.ts",
+        "tests/e2e/diagram-portability.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-018",
+      "title": "Move reference review block",
+      "kind": "state",
+      "module": "files",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Move returns RELATIVE_REFERENCES_REQUIRE_REVIEW or CROSS_DIRECTORY_MOVE_REQUIRES_REVIEW",
+        "parentId": "WS-017"
+      },
+      "sourceRefs": [
+        "apps/web/components/NoteMoveDialog.vue:55",
+        "apps/web/components/NoteMoveDialog.vue:95"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "在新标签页打开原笔记",
+          "effect": "Review source separately",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "改为在原目录重命名",
+          "effect": "Reset target folder to original",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Parameters retained; no move completed",
+        "Relative image/attachment/note-link instructions",
+        "Large-note reference review unsupported"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/note-links.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-017",
+      "parentId": "WS-005",
+      "route": "/?note=:id (also tree entry)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/NoteMoveDialog.vue:1",
+        "apps/server/knowledge/web-routes.ts:32",
+        "packages/core/files.ts:20"
+      ]
+    },
+    {
+      "sourceId": "WS-019",
+      "parentId": "WS-005",
+      "route": "/?note=:id (also tree entry)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/NoteCopyDialog.vue:1",
+        "apps/server/knowledge/document-operation-routes.ts:13"
+      ]
+    },
+    {
+      "sourceId": "WS-018",
+      "parentId": "WS-017",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/NoteMoveDialog.vue:55",
+        "apps/web/components/NoteMoveDialog.vue:95"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-015.json#WS-D015",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D015",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-fa27c556-e741-461b-afc0-525bd8220d4e.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D015.png",
+  "sha256": "bf88fb9c3c633a19e95213f580f0f6c8e0e598bfe0a551be58a9c8b6a548afb7",
+  "bytes": 1337268,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T03:04:24.401111+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Move or rename note / Create saved document copy",
+    "sourceIds": [
+      "WS-017",
+      "WS-019",
+      "WS-018"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Three independent move/copy/reference-review windows; idle move/copy and retained-parameter relative-reference review with exact existing buttons",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

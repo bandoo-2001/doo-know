@@ -1,0 +1,256 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D111",
+  "assetId": "MP-D111",
+  "sourceIds": [
+    "PB-046"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-046",
+      "title": "博客装修：实时私有预览",
+      "role": "authenticated owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Studio local live-preview aside, desktop selected/live true, prior successful private homepage HTML retained and no busy/error. Baseline direct GET HTML is content reference, POST studio wrapper source-derived."
+    }
+  ],
+  "selectedState": "Studio local live-preview aside, desktop selected/live true, prior successful private homepage HTML retained and no busy/error. Baseline direct GET HTML is content reference, POST studio wrapper source-derived.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。绘制一个宽的主页实时预览组件。顶部左“访客视角”，小字“未保存的修改也能预览”，右侧两个按钮“桌面”“手机”，桌面选中；下一行勾选“实时预览”，文字按钮“刷新预览”。下方嵌入桌面博客预览区，内容严格依博客参考：绿色强调色#44684f，顶部横条“装修草稿预览 · 仅你可见”，站名“隔离示例手记”，副标题“真实接口驱动的界面盘点样例。”；导航“首页”“文章”“专题”“归档”“关于”“RSS”，首页选中；左栏“关于我”“记录、连接与行动”“示例作者”“浏览文章 →”；右侧“精选文章”下面两条同样的文章“让知识保持可用”，日期2026-11-04、分类方法、置顶，摘要“用于页面盘点的隔离发布快照。”；下方“最近更新”同类列表在预览窗口内部可滚动。预览区域外底部提示“预览仅自己可见。发布主页后访客才能看到更改。”。不加工作室表单、发布/保存按钮、外部主人导航或浏览器边框。",
+  "prompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。绘制一个宽的主页实时预览组件。顶部左“访客视角”，小字“未保存的修改也能预览”，右侧两个按钮“桌面”“手机”，桌面选中；下一行勾选“实时预览”，文字按钮“刷新预览”。下方嵌入桌面博客预览区，内容严格依博客参考：绿色强调色#44684f，顶部横条“装修草稿预览 · 仅你可见”，站名“隔离示例手记”，副标题“真实接口驱动的界面盘点样例。”；导航“首页”“文章”“专题”“归档”“关于”“RSS”，首页选中；左栏“关于我”“记录、连接与行动”“示例作者”“浏览文章 →”；右侧“精选文章”下面两条同样的文章“让知识保持可用”，日期2026-11-04、分类方法、置顶，摘要“用于页面盘点的隔离发布快照。”；下方“最近更新”同类列表在预览窗口内部可滚动。预览区域外底部提示“预览仅自己可见。发布主页后访客才能看到更改。”。不加工作室表单、发布/保存按钮、外部主人导航或浏览器边框。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-private-blog-preview.png",
+      "role": "Actual matching parent/content reference; selected local substate follows source template",
+      "sha256": "e908356707edcf9689db9e52e1508e7c97ceea2e0e1f8e1e879c84fa10941588",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette and density only; no feature or owner chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-private-blog-preview.png",
+      "role": "Actual matching parent/content reference; selected local substate follows source template",
+      "sha256": "e908356707edcf9689db9e52e1508e7c97ceea2e0e1f8e1e879c84fa10941588",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette and density only; no feature or owner chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。绘制一个宽的主页实时预览组件。顶部左“访客视角”，小字“未保存的修改也能预览”，右侧两个按钮“桌面”“手机”，桌面选中；下一行勾选“实时预览”，文字按钮“刷新预览”。下方嵌入桌面博客预览区，内容严格依博客参考：绿色强调色#44684f，顶部横条“装修草稿预览 · 仅你可见”，站名“隔离示例手记”，副标题“真实接口驱动的界面盘点样例。”；导航“首页”“文章”“专题”“归档”“关于”“RSS”，首页选中；左栏“关于我”“记录、连接与行动”“示例作者”“浏览文章 →”；右侧“精选文章”下面两条同样的文章“让知识保持可用”，日期2026-11-04、分类方法、置顶，摘要“用于页面盘点的隔离发布快照。”；下方“最近更新”同类列表在预览窗口内部可滚动。预览区域外底部提示“预览仅自己可见。发布主页后访客才能看到更改。”。不加工作室表单、发布/保存按钮、外部主人导航或浏览器边框。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-private-blog-preview.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。绘制一个宽的主页实时预览组件。顶部左“访客视角”，小字“未保存的修改也能预览”，右侧两个按钮“桌面”“手机”，桌面选中；下一行勾选“实时预览”，文字按钮“刷新预览”。下方嵌入桌面博客预览区，内容严格依博客参考：绿色强调色#44684f，顶部横条“装修草稿预览 · 仅你可见”，站名“隔离示例手记”，副标题“真实接口驱动的界面盘点样例。”；导航“首页”“文章”“专题”“归档”“关于”“RSS”，首页选中；左栏“关于我”“记录、连接与行动”“示例作者”“浏览文章 →”；右侧“精选文章”下面两条同样的文章“让知识保持可用”，日期2026-11-04、分类方法、置顶，摘要“用于页面盘点的隔离发布快照。”；下方“最近更新”同类列表在预览窗口内部可滚动。预览区域外底部提示“预览仅自己可见。发布主页后访客才能看到更改。”。不加工作室表单、发布/保存按钮、外部主人导航或浏览器边框。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-private-blog-preview.png",
+          "role": "Actual matching parent/content reference; selected local substate follows source template"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette and density only; no feature or owner chrome authority"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ea927f16-f765-4d54-8831-a35cc8e1518a.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-046",
+      "title": "博客装修：实时私有预览",
+      "kind": "state",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design; GET /api/blog/design/preview (authenticated HTML alias)",
+        "trigger": "Design mounted; editor changes or manual refresh; direct authenticated GET /api/blog/design/preview",
+        "parentId": "PB-041"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:60",
+        "apps/web/components/blog/BlogDesignStudio.vue:238",
+        "apps/web/components/blog/BlogPreviewViewport.vue:34",
+        "apps/web/blog-workbench.ts:454",
+        "apps/server/blog/routes.ts:151",
+        "apps/server/blog/routes.ts:158",
+        "apps/server/app.ts:141",
+        "apps/server/blog/render.ts:74"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage.",
+        "GET /api/blog/design/preview is an owner-authenticated API route under the same /api/ session hook; it is not an anonymous /blog preview link. The preview service authorizes the owner principal and may preview a disabled public site."
+      ],
+      "fields": [
+        {
+          "name": "live",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "defaulttrue",
+          "sensitive": false
+        },
+        {
+          "name": "device",
+          "type": "segmented",
+          "required": true,
+          "constraints": "desktop1100|mobile375",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "桌面 / 手机",
+          "effect": "Switch internal preview viewport",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "刷新预览 / 重试预览 / 生成预览",
+          "effect": "Request current draft preview",
+          "api": "POST /api/blog/design/preview",
+          "guard": "refresh disabled while previewBusy"
+        }
+      ],
+      "importantStates": [
+        "450ms live debounce; unsaved design included",
+        "desktop1100/mobile375 viewport scaled to host",
+        "empty preview generation button",
+        "preview busy; latest-request wins; failure retains last successful HTML and retry",
+        "Direct authenticated GET /api/blog/design/preview returns the same private homepage template as standalone text/html with the private-preview banner, using the stored design draft; no studio form or embedded device controls wrap this response.",
+        "POST /api/blog/design/preview accepts current unsaved design and returns JSON {html}; this differs from the direct GET HTML route."
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio-workbench.test.ts:58",
+        "tests/blog-studio-workbench.test.ts:131",
+        "tests/e2e/blog-admin-preview.spec.ts:5"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Sandbox allow-same-origin only; no allow-scripts. Owner-only media endpoints; preview does not publish.",
+        "The direct GET is an alias/entry for this same owner homepage-preview surface, not another public route or invented UI button. Its HTML body uses homeHtml and previewSource; the studio POST is the live unsaved-design flow."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-046",
+      "parentId": "PB-041",
+      "route": "/?view=apps&app=blog&appSection=design; GET /api/blog/design/preview (authenticated HTML alias)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:60",
+        "apps/web/components/blog/BlogDesignStudio.vue:238",
+        "apps/web/components/blog/BlogPreviewViewport.vue:34",
+        "apps/web/blog-workbench.ts:454",
+        "apps/server/blog/routes.ts:151",
+        "apps/server/blog/routes.ts:158",
+        "apps/server/app.ts:141",
+        "apps/server/blog/render.ts:74"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-021.json#MP-D111",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D111",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ea927f16-f765-4d54-8831-a35cc8e1518a.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D111.png",
+  "sha256": "a139ff4a0f837b31dc9b9ef6c599a7f4b3d1bb99ad1547d086b84ccffb64aaf8",
+  "bytes": 1178885,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T04:10:58.469357+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "博客装修：实时私有预览",
+    "sourceIds": [
+      "PB-046"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Studio local live-preview aside, desktop selected/live true, prior successful private homepage HTML retained and no busy/error. Baseline direct GET HTML is content reference, POST studio wrapper source-derived.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "renderedVariants": []
+}

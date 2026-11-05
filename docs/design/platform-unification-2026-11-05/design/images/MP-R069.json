@@ -1,0 +1,676 @@
+{
+  "id": "MP-R069",
+  "title": "Responsive family: BlogDesignAppearance.vue template/profile/media full form",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-041"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-041",
+      "title": "博客装修：主题与个人资料390px",
+      "role": "authenticated owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-041",
+      "title": "博客装修：主题与个人资料320px",
+      "role": "authenticated owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-041",
+      "title": "博客装修：主题与个人资料320px guard",
+      "role": "authenticated owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "viewportIntent": "390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-blog-design.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-041",
+      "route": "/?view=apps&app=blog&appSection=design",
+      "trigger": "Design navigation; default appearance tab",
+      "parentId": "PB-030",
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "template",
+          "type": "choice",
+          "required": true,
+          "constraints": "journal文字博客; magazine卡片杂志; profile个人主页",
+          "sensitive": false
+        },
+        {
+          "name": "accent",
+          "type": "color+text",
+          "required": true,
+          "constraints": "#RRGGBB",
+          "sensitive": false
+        },
+        {
+          "name": "font",
+          "type": "select",
+          "required": true,
+          "constraints": "sans|serif",
+          "sensitive": false
+        },
+        {
+          "name": "width",
+          "type": "select",
+          "required": true,
+          "constraints": "comfortable|wide",
+          "sensitive": false
+        },
+        {
+          "name": "cardStyle",
+          "type": "select",
+          "required": true,
+          "constraints": "plain|bordered",
+          "sensitive": false
+        },
+        {
+          "name": "profile.name",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; server<=256",
+          "sensitive": false
+        },
+        {
+          "name": "profile.tagline",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=200; server<=1000",
+          "sensitive": false
+        },
+        {
+          "name": "profile.bio",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=5000; server<=50000",
+          "sensitive": false
+        },
+        {
+          "name": "profile.avatar/cover",
+          "type": "media",
+          "required": false,
+          "constraints": "only registered /blog/media/:hash references; referenced media must exist; total design images <=20MiB server-side",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "loading/error/retry config; local modifications preserved",
+        "saved draft/unpublished/online-matched badges",
+        "three templates selected state",
+        "missing avatar/banner placeholders; media selected"
+      ],
+      "notes": [
+        "Design save does not publish homepage. Dirty beforeunload guard is implemented.",
+        "Public profile bio is escaped plain text in profileIntro; public about page separately parses sanitized Markdown."
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "装修主题资料完整长页：journal/magazine/profile三模板、accent/font/width/cardStyle、name/tagline/bio/avatar/cover、私有预览、保存草稿/发布。所有字段可读且可滚动到。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。"
+    },
+    {
+      "type": "responsive-family-reuse",
+      "renderer": "BlogDesignAppearance.vue template/profile/media full form",
+      "allSourceIds": [
+        "PB-041"
+      ],
+      "rule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-041",
+      "label": "保存装修草稿",
+      "effect": "CAS save current draft",
+      "api": "PATCH /api/blog/design",
+      "guard": "dirty; not busy/loading"
+    },
+    {
+      "sourceId": "PB-041",
+      "label": "发布主页",
+      "effect": "Publish saved design revision",
+      "api": "POST /api/blog/design/publish",
+      "guard": "not dirty/busy/loading; unpublished changes exist"
+    },
+    {
+      "sourceId": "PB-041",
+      "label": "重新核对版本",
+      "effect": "Reload design and merge local changes",
+      "api": "GET /api/blog/design",
+      "guard": "not busy/loading"
+    },
+    {
+      "sourceId": "PB-041",
+      "label": "放大预览",
+      "effect": "Open modal viewport",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-041",
+      "label": "选择图片",
+      "effect": "Open shared crop UI",
+      "api": "",
+      "guard": ""
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-041",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "新绘制三个独立窄屏网页内容视口，不把长表单全部压进视口。A可视内容宽390、高844，B与C宽320、高844，A比B/C明显宽约22%。三个独立视口并排、外部只标A/B/C，不画手机壳或尺寸数字。文字正常清楚，中文正文字号约14px，蓝色动作、白浅灰平面、细边线小圆角，主题色输入仍绿色#44684f。三个页面各自有独立滚动边界和独立粘性保存栏，绝不跨面板合并任何底栏或预览。不要额外说明。\nA/B为同一表单顶部滚动位置：小字“主页设计”，标题“装修主页”，说明“选择主题、编排内容，预览你的下一版主页。”；徽章“与线上一致”与可用“放大预览”；五个换行标签：主题与个人资料（选中）、首页模块、专题合集、导航与链接、项目作品。标题“选择一种表达”，说明“从适合内容的版式开始，随时可以切换主题。”；三个单列模板卡带小型布局示意：“文字博客 / 留白与时间线，让文字自然流动”（选中）、“卡片杂志 / 用封面与精选，呈现丰富的主题”、“个人主页 / 从你出发，连接文章、项目与朋友”。模板按钮可用，接着字段“主题色”颜色块与文字输入#44684f；后续表单在下方滚动区域延续，不要缩小塞入。视口底部独立粘性栏：粗体“装修草稿已保存”，说明“当前装修已与线上主页同步。”，两个灰色禁用按钮“保存装修草稿”“发布主页”。底栏不遮住主题色字段，内容区域可滚动。\nC是另一独立页面滚到个人资料部分，不重复顶部header或模板卡。顶部可见标题“让读者认识你”，说明“个人资料会展示在主页介绍中。”；字段纵排：“姓名”输入“示例作者”，“一句话介绍”输入“让知识保持可用”，“个人简介”textarea“记录与回顾”。头像区只显示文字占位“你”、标题“头像”、可用“选择图片”，帮助“支持 JPEG、PNG、WebP，最大 10 MB。头像将裁切为正方形。”。主页横幅区只显示文字占位“给主页留一张风景”、标题“主页横幅”、可用“选择图片”，帮助“支持 JPEG、PNG、WebP，最大 10 MB。横幅将裁切为 3:1。”。独立底部粘性栏：粗体“有未保存修改”，说明“先保存草稿，再发布到主页。”，“保存装修草稿”蓝色可用、“发布主页”灰色禁用。C表单字段和图片按钮都可用，无移除、裁切表单或已选择图片。更下方的历史和主页预览在滚动区域之外，不在本图显示，也不要公共预览框。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R069.png",
+  "reviewStatus": "pending-independent-review",
+  "responsiveFamily": {
+    "id": "MP-RF069",
+    "actualComponent": "BlogDesignAppearance.vue template/profile/media full form",
+    "sourceIds": [
+      "PB-041"
+    ],
+    "roleBoundary": "owner-private",
+    "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-041",
+      "parentId": "PB-030",
+      "route": "/?view=apps&app=blog&appSection=design",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:53",
+        "apps/web/components/blog/BlogDesignStudio.vue:94",
+        "apps/web/components/blog/BlogDesignAppearance.vue:11",
+        "packages/core/blog/studio.ts:67",
+        "packages/core/blog/studio.ts:220"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-041",
+      "title": "博客装修：主题与个人资料",
+      "kind": "page",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design",
+        "trigger": "Design navigation; default appearance tab",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignStudio.vue:53",
+        "apps/web/components/blog/BlogDesignStudio.vue:94",
+        "apps/web/components/blog/BlogDesignAppearance.vue:11",
+        "packages/core/blog/studio.ts:67",
+        "packages/core/blog/studio.ts:220"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "template",
+          "type": "choice",
+          "required": true,
+          "constraints": "journal文字博客; magazine卡片杂志; profile个人主页",
+          "sensitive": false
+        },
+        {
+          "name": "accent",
+          "type": "color+text",
+          "required": true,
+          "constraints": "#RRGGBB",
+          "sensitive": false
+        },
+        {
+          "name": "font",
+          "type": "select",
+          "required": true,
+          "constraints": "sans|serif",
+          "sensitive": false
+        },
+        {
+          "name": "width",
+          "type": "select",
+          "required": true,
+          "constraints": "comfortable|wide",
+          "sensitive": false
+        },
+        {
+          "name": "cardStyle",
+          "type": "select",
+          "required": true,
+          "constraints": "plain|bordered",
+          "sensitive": false
+        },
+        {
+          "name": "profile.name",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; server<=256",
+          "sensitive": false
+        },
+        {
+          "name": "profile.tagline",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=200; server<=1000",
+          "sensitive": false
+        },
+        {
+          "name": "profile.bio",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=5000; server<=50000",
+          "sensitive": false
+        },
+        {
+          "name": "profile.avatar/cover",
+          "type": "media",
+          "required": false,
+          "constraints": "only registered /blog/media/:hash references; referenced media must exist; total design images <=20MiB server-side",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存装修草稿",
+          "effect": "CAS save current draft",
+          "api": "PATCH /api/blog/design",
+          "guard": "dirty; not busy/loading"
+        },
+        {
+          "label": "发布主页",
+          "effect": "Publish saved design revision",
+          "api": "POST /api/blog/design/publish",
+          "guard": "not dirty/busy/loading; unpublished changes exist"
+        },
+        {
+          "label": "重新核对版本",
+          "effect": "Reload design and merge local changes",
+          "api": "GET /api/blog/design",
+          "guard": "not busy/loading"
+        },
+        {
+          "label": "放大预览",
+          "effect": "Open modal viewport",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "选择图片",
+          "effect": "Open shared crop UI",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "loading/error/retry config; local modifications preserved",
+        "saved draft/unpublished/online-matched badges",
+        "three templates selected state",
+        "missing avatar/banner placeholders; media selected"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-studio.spec.ts:67",
+        "tests/blog-studio-workbench.test.ts:22",
+        "tests/blog-studio-workbench.test.ts:39"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Design save does not publish homepage. Dirty beforeunload guard is implemented.",
+        "Public profile bio is escaped plain text in profileIntro; public about page separately parses sanitized Markdown."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-R069",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "owner appearance top scroll position, journal selected/accent#44684f; saved matched online; no busy/loading; save/publish disabled",
+    "same target320, narrower layout with actual source tabs wrapping",
+    "independent profile scroll position; local draft magazine selected above fold; same accent/appearance values, sample profile text, avatar/cover absent; dirty true, save enabled/publish disabled"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "新绘制三个独立窄屏网页内容视口，不把长表单全部压进视口。A可视内容宽390、高844，B与C宽320、高844，A比B/C明显宽约22%。三个独立视口并排、外部只标A/B/C，不画手机壳或尺寸数字。文字正常清楚，中文正文字号约14px，蓝色动作、白浅灰平面、细边线小圆角，主题色输入仍绿色#44684f。三个页面各自有独立滚动边界和独立粘性保存栏，绝不跨面板合并任何底栏或预览。不要额外说明。\nA/B为同一表单顶部滚动位置：小字“主页设计”，标题“装修主页”，说明“选择主题、编排内容，预览你的下一版主页。”；徽章“与线上一致”与可用“放大预览”；五个换行标签：主题与个人资料（选中）、首页模块、专题合集、导航与链接、项目作品。标题“选择一种表达”，说明“从适合内容的版式开始，随时可以切换主题。”；三个单列模板卡带小型布局示意：“文字博客 / 留白与时间线，让文字自然流动”（选中）、“卡片杂志 / 用封面与精选，呈现丰富的主题”、“个人主页 / 从你出发，连接文章、项目与朋友”。模板按钮可用，接着字段“主题色”颜色块与文字输入#44684f；后续表单在下方滚动区域延续，不要缩小塞入。视口底部独立粘性栏：粗体“装修草稿已保存”，说明“当前装修已与线上主页同步。”，两个灰色禁用按钮“保存装修草稿”“发布主页”。底栏不遮住主题色字段，内容区域可滚动。\nC是另一独立页面滚到个人资料部分，不重复顶部header或模板卡。顶部可见标题“让读者认识你”，说明“个人资料会展示在主页介绍中。”；字段纵排：“姓名”输入“示例作者”，“一句话介绍”输入“让知识保持可用”，“个人简介”textarea“记录与回顾”。头像区只显示文字占位“你”、标题“头像”、可用“选择图片”，帮助“支持 JPEG、PNG、WebP，最大 10 MB。头像将裁切为正方形。”。主页横幅区只显示文字占位“给主页留一张风景”、标题“主页横幅”、可用“选择图片”，帮助“支持 JPEG、PNG、WebP，最大 10 MB。横幅将裁切为 3:1。”。独立底部粘性栏：粗体“有未保存修改”，说明“先保存草稿，再发布到主页。”，“保存装修草稿”蓝色可用、“发布主页”灰色禁用。C表单字段和图片按钮都可用，无移除、裁切表单或已选择图片。更下方的历史和主页预览在滚动区域之外，不在本图显示，也不要公共预览框。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-R069 Responsive family: BlogDesignAppearance.vue template/profile/media full form\n\n390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。\n\n角色壳：所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。\n\n独立场景：\nA | PB-041 | 博客装修：主题与个人资料390px | role=authenticated owner | 390px完整可读代表：字段按登记顺序，动作保持源guard\nB | PB-041 | 博客装修：主题与个人资料320px | role=authenticated owner | 320px字段/长值/内层滚动与操作可达\nC | PB-041 | 博客装修：主题与个人资料320px guard | role=authenticated owner | 同源关键禁用/错误/长标签状态，使用已有组件且保留输入\n\n完整构图：\n装修主题资料完整长页：journal/magazine/profile三模板、accent/font/width/cardStyle、name/tagline/bio/avatar/cover、私有预览、保存草稿/发布。所有字段可读且可滚动到。\n\n精确功能/字段/动作guard合同：\nPB-041权限：Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage.\nPB-041字段顺序：template [choice; 必填]: journal文字博客; magazine卡片杂志; profile个人主页 | accent [color+text; 必填]: #RRGGBB | font [select; 必填]: sans|serif | width [select; 必填]: comfortable|wide | cardStyle [select; 必填]: plain|bordered | profile.name [text; 可选]: UI<=120; server<=256 | profile.tagline [text; 可选]: UI<=200; server<=1000 | profile.bio [textarea; 可选]: UI<=5000; server<=50000 | profile.avatar/cover [media; 可选]: only registered /blog/media/:hash references; referenced media must exist; total design images <=20MiB server-side\nPB-041白名单：保存装修草稿 => CAS save current draft；guard=dirty; not busy/loading；接口约束=PATCH /api/blog/design\nPB-041白名单：发布主页 => Publish saved design revision；guard=not dirty/busy/loading; unpublished changes exist；接口约束=POST /api/blog/design/publish\nPB-041白名单：重新核对版本 => Reload design and merge local changes；guard=not busy/loading；接口约束=GET /api/blog/design\nPB-041白名单：放大预览 => Open modal viewport；guard=既有上下文\nPB-041白名单：选择图片 => Open shared crop UI；guard=既有上下文\n\n响应式合同：\n<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-blog-design.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "d0a053cc363367071784cb1ad843b65b8e8e46bf60b2e47c406bfce2d67aeffd",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "bytes": 69669
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D106.png",
+      "role": "reviewed-exact-full-renderer-master",
+      "responsibility": "Actual complete appearance field order and real image placeholders/save-preview controls; hidden scroll fields explicitly bound to same reviewed SHA. Do not copy private host rail into local responsive content.",
+      "sha256": "79bb05eac1df3c11fb9dc23e6a093b110e283efd011fae534ccbe97237b7d1e1",
+      "dimensions": {
+        "width": 1003,
+        "height": 1568
+      },
+      "independentReview": {
+        "path": "docs/design/platform-unification-2026-11-05/design/reviews/MP-D106-review.json",
+        "verdict": "pass",
+        "reviewedImageSha256": "79bb05eac1df3c11fb9dc23e6a093b110e283efd011fae534ccbe97237b7d1e1"
+      }
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-blog-design.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D106.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R069.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-88221d6c-a801-478d-997e-9c1fa3e852d8.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-88221d6c-a801-478d-997e-9c1fa3e852d8.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 4,
+  "generatedAtUtc": "2026-11-05T08:15:36.063Z",
+  "selfInspection": {
+    "method": "Final native generated PNG inspected against actual390 baseline, exact reviewed MP-D106 and current appearance/studio template; prior candidates retained in tool-output history but not published",
+    "status": "pending-independent-review",
+    "pageSpecific": "Readable A/B top scroll positions retain distinct narrower layout, genuine template cards/accent and independent saved/disabled sticky bars. C independent profile scroll position with exact placeholders/help and dirty/save-enabled/publish-disabled bar. Three contexts remain separate; hidden fields are explicitly bound to reviewed full master.",
+    "concerns": [
+      "Viewport dimensions and scrollbar geometry are design targets in a raster, not literal browser captures; actual responsive fit, focus and scrolling remain implementation acceptance work."
+    ]
+  },
+  "sha256": "a7f4cfdb6aea863449c4eddabd715366486bec89b7a618dc169bf510f5bec7a8",
+  "dimensions": {
+    "width": 1455,
+    "height": 1081
+  },
+  "bytes": 1402131,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/blog/BlogDesignStudio.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7e2b5e7438cdea44afef3897ae6bfc2605e6bed4fbc201f86c6cd13df495c789"
+    },
+    {
+      "path": "apps/web/components/blog/BlogDesignStudio.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7e2b5e7438cdea44afef3897ae6bfc2605e6bed4fbc201f86c6cd13df495c789"
+    },
+    {
+      "path": "apps/web/components/blog/BlogDesignAppearance.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ef8772c8ab13a3f73f963a0193917ffd51a3f10612dae38056de1ea891498bc6"
+    },
+    {
+      "path": "packages/core/blog/studio.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ea652fdfb4d1c86e5729a360dc43c9697156bec85753fa6be94d379c03e1c157"
+    },
+    {
+      "path": "packages/core/blog/studio.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ea652fdfb4d1c86e5729a360dc43c9697156bec85753fa6be94d379c03e1c157"
+    }
+  ],
+  "generationCalls": [
+    {
+      "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n制作三个并排独立的窄屏内容面板，外部只标A、B、C，不画手机外壳、宽度数字或额外说明。A按390宽、B和C按320宽的相同比例布局；窄屏字段和操作自然换行，文本不省略，画布可纵向延长保持正常字号。不画全局header/底栏/侧栏或虚构宿主，每个只画指定真实组件。\n完整局部装修编辑与预览区可以画很长，正常可读字号、字段与底部按钮全部可见，勿缩小成缩略图。三个面板顶部小字“主页设计”，标题“装修主页”，说明“选择主题、编排内容，预览你的下一版主页。”；状态徽章和可用“放大预览”。五个真实换行标签按钮“主题与个人资料”（选中）、“首页模块”“专题合集”“导航与链接”“项目作品”。小标题“选择一种表达”，说明“从适合内容的版式开始，随时可以切换主题。”；三个单列模板选项带简洁布局缩略示意：文字博客 / 留白与时间线，让文字自然流动；卡片杂志 / 用封面与精选，呈现丰富的主题；个人主页 / 从你出发，连接文章、项目与朋友。字段按顺序：主题色=绿色色块+文字输入“#44684f”，字体下拉“无衬线 · 清晰简洁”，内容宽度下拉“舒适阅读”，卡片样式下拉“轻盈留白”。第二卡小标题“让读者认识你”，说明“个人资料会展示在主页介绍中。”；姓名输入“示例作者”，一句话介绍输入“让知识保持可用”，个人简介textarea“记录与回顾”。头像区：占位“你”、粗体“头像”与“选择图片”，帮助“支持 JPEG、PNG、WebP，最大 10 MB。头像将裁切为正方形。”。主页横幅区：占位“给主页留一张风景”、粗体“主页横幅”与“选择图片”，帮助“支持 JPEG、PNG、WebP，最大 10 MB。横幅将裁切为 3:1。”。\nA/B文字博客选中，其它模板不选；顶部状态“与线上一致”。表单页脚粗体“装修草稿已保存”、文字“当前装修已与线上主页同步。”；“保存装修草稿”和“发布主页”都灰色禁用。C只将模板改成卡片杂志选中，文字博客不选，其它字段值不变；顶部状态“有未保存修改”，表单页脚粗体“有未保存修改”、文字“先保存草稿，再发布到主页。”；保存装修草稿可用，发布主页灰色禁用。\n三面板表单后折叠“发布历史 0”。再下方完整预览区标题“访客视角”、小字“未保存的修改也能预览”，按钮“桌面”（选中）/“手机”，未勾选“实时预览”、可用“刷新预览”；空预览框内“正在准备你的主页。”和可用“生成预览”；其下“预览仅自己可见。发布主页后访客才能看到更改。”。所有模板/字段/图片选择/页签及预览操作均可用。没有已选择图片、移除、裁切表单、额外直播/发布开关、暗色选项或宿主导航；主UI按钮蓝色，主题色字段值仍绿色。",
+      "actualImageInputOrder": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-blog-design.png",
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-e7ce20b5-e5d2-47ee-a80d-c5cf66c24866.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-e7ce20b5-e5d2-47ee-a80d-c5cf66c24866.png",
+      "purpose": "Initial full long-form candidate; valid field set but too dense",
+      "selectedForFinal": false
+    },
+    {
+      "submittedPrompt": "保持原图三个A/B/C面板所有真实文案、字段值、模板选中态、禁用/可用按钮和内容顺序不变，重新排版为明显更高的纵向长图。整图画布请约1536宽、2304高或更长，每个面板可自然长到2000像素以上，以保证中文字段标签、帮助和按钮文字清楚正常字号，约15至18像素，不把整套长表单缩进1024高度。每个字段label与输入纵排，模板卡/图片帮助/媒体区上下排列，不为压缩高度使用极小字体。保持三列独立并排和A/B/C，内容完整不删减，没有新字段、图标、说明或业务状态；主题色值仍#44684f，A/B文字博客选中且保存/发布禁用，C卡片杂志选中、保存可用发布禁用，底部预览控制与空预览全部保留。",
+      "actualImageInputOrder": [
+        "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-e7ce20b5-e5d2-47ee-a80d-c5cf66c24866.png"
+      ],
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c1c7abac-e61d-4569-b86b-36f30cd716c2.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c1c7abac-e61d-4569-b86b-36f30cd716c2.png",
+      "purpose": "Rejected layout edit; did not elongate and C badge drifted to online-matched",
+      "selectedForFinal": false
+    },
+    {
+      "submittedPrompt": "新绘制一张竖向长图，高宽比约3:2，宽1536、高2304或更高。三个并排独立的窄屏完整长表单，每列都纵向很长，文字清楚，标签/帮助约14至18像素，不可缩小压进1024像素高的横图。每个label在输入框上方，字段及图片帮助全部上下排，留足正常行高，页面可以很长。\n制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n制作三个并排独立的窄屏内容面板，外部只标A、B、C，不画手机外壳、宽度数字或额外说明。A按390宽、B和C按320宽的相同比例布局；窄屏字段和操作自然换行，文本不省略，画布可纵向延长保持正常字号。不画全局header/底栏/侧栏或虚构宿主，每个只画指定真实组件。\n完整局部装修编辑与预览区可以画很长，正常可读字号、字段与底部按钮全部可见，勿缩小成缩略图。三个面板顶部小字“主页设计”，标题“装修主页”，说明“选择主题、编排内容，预览你的下一版主页。”；状态徽章和可用“放大预览”。五个真实换行标签按钮“主题与个人资料”（选中）、“首页模块”“专题合集”“导航与链接”“项目作品”。小标题“选择一种表达”，说明“从适合内容的版式开始，随时可以切换主题。”；三个单列模板选项带简洁布局缩略示意：文字博客 / 留白与时间线，让文字自然流动；卡片杂志 / 用封面与精选，呈现丰富的主题；个人主页 / 从你出发，连接文章、项目与朋友。字段按顺序：主题色=绿色色块+文字输入“#44684f”，字体下拉“无衬线 · 清晰简洁”，内容宽度下拉“舒适阅读”，卡片样式下拉“轻盈留白”。第二卡小标题“让读者认识你”，说明“个人资料会展示在主页介绍中。”；姓名输入“示例作者”，一句话介绍输入“让知识保持可用”，个人简介textarea“记录与回顾”。头像区：占位“你”、粗体“头像”与“选择图片”，帮助“支持 JPEG、PNG、WebP，最大 10 MB。头像将裁切为正方形。”。主页横幅区：占位“给主页留一张风景”、粗体“主页横幅”与“选择图片”，帮助“支持 JPEG、PNG、WebP，最大 10 MB。横幅将裁切为 3:1。”。\nA/B文字博客选中，其它模板不选；顶部状态“与线上一致”。表单页脚粗体“装修草稿已保存”、文字“当前装修已与线上主页同步。”；“保存装修草稿”和“发布主页”都灰色禁用。C只将模板改成卡片杂志选中，文字博客不选，其它字段值不变；顶部状态“有未保存修改”，表单页脚粗体“有未保存修改”、文字“先保存草稿，再发布到主页。”；保存装修草稿可用，发布主页灰色禁用。\n三面板表单后折叠“发布历史 0”。再下方完整预览区标题“访客视角”、小字“未保存的修改也能预览”，按钮“桌面”（选中）/“手机”，未勾选“实时预览”、可用“刷新预览”；空预览框内“正在准备你的主页。”和可用“生成预览”；其下“预览仅自己可见。发布主页后访客才能看到更改。”。所有模板/字段/图片选择/页签及预览操作均可用。没有已选择图片、移除、裁切表单、额外直播/发布开关、暗色选项或宿主导航；主UI按钮蓝色，主题色字段值仍绿色。",
+      "actualImageInputOrder": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-blog-design.png",
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c141b61e-9c25-4ae9-be2d-1cef0635c42f.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c141b61e-9c25-4ae9-be2d-1cef0635c42f.png",
+      "purpose": "Rejected fresh long candidate; wrongly merged history/preview across independent panels",
+      "selectedForFinal": false
+    },
+    {
+      "submittedPrompt": "新绘制三个独立窄屏网页内容视口，不把长表单全部压进视口。A可视内容宽390、高844，B与C宽320、高844，A比B/C明显宽约22%。三个独立视口并排、外部只标A/B/C，不画手机壳或尺寸数字。文字正常清楚，中文正文字号约14px，蓝色动作、白浅灰平面、细边线小圆角，主题色输入仍绿色#44684f。三个页面各自有独立滚动边界和独立粘性保存栏，绝不跨面板合并任何底栏或预览。不要额外说明。\nA/B为同一表单顶部滚动位置：小字“主页设计”，标题“装修主页”，说明“选择主题、编排内容，预览你的下一版主页。”；徽章“与线上一致”与可用“放大预览”；五个换行标签：主题与个人资料（选中）、首页模块、专题合集、导航与链接、项目作品。标题“选择一种表达”，说明“从适合内容的版式开始，随时可以切换主题。”；三个单列模板卡带小型布局示意：“文字博客 / 留白与时间线，让文字自然流动”（选中）、“卡片杂志 / 用封面与精选，呈现丰富的主题”、“个人主页 / 从你出发，连接文章、项目与朋友”。模板按钮可用，接着字段“主题色”颜色块与文字输入#44684f；后续表单在下方滚动区域延续，不要缩小塞入。视口底部独立粘性栏：粗体“装修草稿已保存”，说明“当前装修已与线上主页同步。”，两个灰色禁用按钮“保存装修草稿”“发布主页”。底栏不遮住主题色字段，内容区域可滚动。\nC是另一独立页面滚到个人资料部分，不重复顶部header或模板卡。顶部可见标题“让读者认识你”，说明“个人资料会展示在主页介绍中。”；字段纵排：“姓名”输入“示例作者”，“一句话介绍”输入“让知识保持可用”，“个人简介”textarea“记录与回顾”。头像区只显示文字占位“你”、标题“头像”、可用“选择图片”，帮助“支持 JPEG、PNG、WebP，最大 10 MB。头像将裁切为正方形。”。主页横幅区只显示文字占位“给主页留一张风景”、标题“主页横幅”、可用“选择图片”，帮助“支持 JPEG、PNG、WebP，最大 10 MB。横幅将裁切为 3:1。”。独立底部粘性栏：粗体“有未保存修改”，说明“先保存草稿，再发布到主页。”，“保存装修草稿”蓝色可用、“发布主页”灰色禁用。C表单字段和图片按钮都可用，无移除、裁切表单或已选择图片。更下方的历史和主页预览在滚动区域之外，不在本图显示，也不要公共预览框。",
+      "actualImageInputOrder": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-blog-design.png",
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D106.png",
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-88221d6c-a801-478d-997e-9c1fa3e852d8.png",
+      "purpose": "Final parent-ruling readable390/320 viewport/scroll composition with independent source savebars",
+      "selectedForFinal": true
+    }
+  ],
+  "responsiveTargetCssWidths": [
+    390,
+    320,
+    320
+  ],
+  "responsiveTargetCssHeights": [
+    844,
+    844,
+    844
+  ],
+  "runtimeResponsiveVerified": false,
+  "baselineStatus": "actual390 design host seen; exact desktop master MP-D106 reviewed pass;320/profile draft scroll position source-derived",
+  "sourceDerivedUnverifiedScope": "No design save/publish, media upload/crop, preview request or actual scrolling performed. Three panes are independent selected scroll positions, not all fields simultaneously visible or literal viewport screenshots.",
+  "parentRuling": "Parent requested readable390/320 viewport + real scrolling and exact reviewed-master bindings rather than shrinking all long-form fields into844 height. Final call applies that ruling; unused attempts are retained.",
+  "hiddenFieldBindings": [
+    {
+      "panels": [
+        "A",
+        "B"
+      ],
+      "position": "immediately after visible accent, before profile",
+      "fields": [
+        "字体: sans -> 无衬线 · 清晰简洁",
+        "内容宽度: comfortable -> 舒适阅读",
+        "卡片样式: plain -> 轻盈留白"
+      ],
+      "source": "apps/web/components/blog/BlogDesignAppearance.vue:46-70",
+      "exactRendererMaster": "MP-D106.png",
+      "masterSha256": "79bb05eac1df3c11fb9dc23e6a093b110e283efd011fae534ccbe97237b7d1e1",
+      "masterReview": "MP-D106-review.json",
+      "binding": "Same actual fields and order; scalar values specified, renderer unchanged."
+    },
+    {
+      "panels": [
+        "A",
+        "B"
+      ],
+      "position": "after appearance controls; scroll to profile",
+      "fields": [
+        "姓名",
+        "一句话介绍",
+        "个人简介",
+        "头像 placeholder/选择图片/help",
+        "主页横幅 placeholder/选择图片/help"
+      ],
+      "source": "apps/web/components/blog/BlogDesignAppearance.vue:73-140",
+      "exactRendererMaster": "MP-D106.png",
+      "masterSha256": "79bb05eac1df3c11fb9dc23e6a093b110e283efd011fae534ccbe97237b7d1e1",
+      "additionallyVisibleHere": "C; same renderer with synthetic profile values"
+    },
+    {
+      "panels": [
+        "C"
+      ],
+      "position": "above current profile scroll position",
+      "fields": [
+        "three template choices, magazine selected in this independent draft",
+        "accent#44684f",
+        "font sans",
+        "width comfortable",
+        "cardStyle plain"
+      ],
+      "source": "apps/web/components/blog/BlogDesignAppearance.vue:11-70",
+      "exactRendererMaster": "MP-D106.png",
+      "masterSha256": "79bb05eac1df3c11fb9dc23e6a093b110e283efd011fae534ccbe97237b7d1e1",
+      "binding": "Template checked state/value-only difference; other identical fields."
+    },
+    {
+      "panels": [
+        "A",
+        "B",
+        "C"
+      ],
+      "position": "after form/savebar in actual document order",
+      "fields": [
+        "发布历史 details,0",
+        "访客视角/未保存的修改也能预览",
+        "桌面/手机",
+        "实时预览",
+        "刷新预览",
+        "empty preview/生成预览",
+        "预览仅自己可见。发布主页后访客才能看到更改。"
+      ],
+      "source": "apps/web/components/blog/BlogDesignStudio.vue:208-299",
+      "exactRendererMaster": "MP-D106.png",
+      "masterSha256": "79bb05eac1df3c11fb9dc23e6a093b110e283efd011fae534ccbe97237b7d1e1",
+      "binding": "Exact already-reviewed hidden controls/empty-preview renderer, not newly added controls or an all-visible assertion."
+    }
+  ]
+}

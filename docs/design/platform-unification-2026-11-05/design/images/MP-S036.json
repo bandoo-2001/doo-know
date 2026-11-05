@@ -1,0 +1,588 @@
+{
+  "id": "MP-S036",
+  "title": "Component state matrix: visitor-login / Login.vue",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-001",
+    "PB-002"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-001",
+      "title": "真实组件局部状态矩阵",
+      "role": "visitor-login",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-login.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-001",
+      "route": "/ (unauthenticated); /login",
+      "trigger": "App session resolves without an owner session",
+      "parentId": null,
+      "roles": [
+        "unauthenticated visitor"
+      ],
+      "permissionRules": [
+        "Single-owner installation; account creation is performed by installation/CLI, not this form."
+      ],
+      "fields": [
+        {
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "constraints": "trimmed nonempty submit guard; sent as entered; autocomplete=username",
+          "sensitive": false
+        },
+        {
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "constraints": "nonempty; current-password autocomplete",
+          "sensitive": true
+        }
+      ],
+      "importantStates": [
+        "empty required fields; submit disabled",
+        "busy locks inputs and submit",
+        "API error alert cleared on input",
+        "successful sign-in clears password, refreshes CSRF, then accepts session"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "独立居中400px登录卡：DooKnow、你的个人知识空间、用户名/密码、登录、默认私有说明、首用帮助折叠。无私有导航。"
+      ]
+    },
+    {
+      "sourceId": "PB-002",
+      "route": "/; /login",
+      "trigger": "Expand 第一次使用或还没有账号？",
+      "parentId": "PB-001",
+      "roles": [
+        "unauthenticated visitor"
+      ],
+      "permissionRules": [
+        "App selects this surface according to accepted session state; no browser self-registration exists."
+      ],
+      "fields": [],
+      "importantStates": [
+        "collapsed; expanded installation/deployer guidance"
+      ],
+      "notes": [
+        "No self-registration or password-reset form is implemented here."
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only visitor-login context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/web/components/Login.vue",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-001",
+      "label": "登录",
+      "effect": "Authenticate and open platform or OAuth continuation",
+      "api": "POST /api/auth/sign-in/username; GET /api/auth/get-session",
+      "guard": "not busy and username.trim() and password"
+    },
+    {
+      "sourceId": "PB-002",
+      "label": "查看安装说明",
+      "effect": "Open existing GitHub installation guide in new tab",
+      "api": "https://github.com/bandoo-2001/doo-know#安装",
+      "guard": ""
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-001",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "PB-002",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排五个独立登录局部样例，清楚字号，留白分隔，不画完整页面品牌或私有导航。\n第一行：标签“用户名”空输入placeholder“请输入用户名”，标签“密码”空密码框placeholder“请输入密码”与眼睛图标，下方“登录”灰色禁用。\n第二行：同样两个字段分别值“example”和掩码“••••••••”，两个字段灰色禁用，“登录”灰色禁用并转圈。\n第三行：红色错误提示“登录失败”，两个字段值“example”和掩码“••••••••”均可编辑，“登录”蓝色可用，不同时出现读取中。\n第四行：只有收起的“第一次使用或还没有账号？”折叠行。\n第五行：展开“第一次使用或还没有账号？”，依次帮助“账号在安装 DooKnow 时创建。”“如果由他人部署，请向部署者获取用户名和密码。”“如果由你部署，请在运行 DooKnow 的设备终端中继续完成安装，再回到这里登录。”，蓝色链接“查看安装说明”。不加注册/重置密码/记住我/社交登录按钮。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S036.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-001",
+      "title": "empty required fields; submit disabled",
+      "renderer": "apps/web/components/Login.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:264",
+        "apps/web/App.vue:360",
+        "apps/web/components/Login.vue:13",
+        "apps/web/components/Login.vue:38"
+      ],
+      "guardBindings": [
+        {
+          "label": "登录",
+          "guard": "not busy and username.trim() and password"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "empty required fields; submit disabled",
+          "variant": "empty required fields; submit disabled",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-001"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "PB-001",
+      "title": "busy locks inputs and submit",
+      "renderer": "apps/web/components/Login.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:264",
+        "apps/web/App.vue:360",
+        "apps/web/components/Login.vue:13",
+        "apps/web/components/Login.vue:38"
+      ],
+      "guardBindings": [
+        {
+          "label": "登录",
+          "guard": "not busy and username.trim() and password"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "busy locks inputs and submit",
+          "variant": "busy locks inputs and submit",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-001"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "PB-001",
+      "title": "API error alert cleared on input",
+      "renderer": "apps/web/components/Login.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:264",
+        "apps/web/App.vue:360",
+        "apps/web/components/Login.vue:13",
+        "apps/web/components/Login.vue:38"
+      ],
+      "guardBindings": [
+        {
+          "label": "登录",
+          "guard": "not busy and username.trim() and password"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "API error alert cleared on input",
+          "variant": "API error alert cleared on input",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-001"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "PB-002",
+      "title": "help collapsed",
+      "renderer": "apps/web/components/Login.vue",
+      "sourceRefs": [
+        "apps/web/components/Login.vue:81"
+      ],
+      "guardBindings": [
+        {
+          "label": "查看安装说明",
+          "guard": ""
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "collapsed; expanded installation/deployer guidance",
+          "variant": "help collapsed",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-002"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "PB-002",
+      "title": "help expanded; installer/deployer guidance",
+      "renderer": "apps/web/components/Login.vue",
+      "sourceRefs": [
+        "apps/web/components/Login.vue:81"
+      ],
+      "guardBindings": [
+        {
+          "label": "查看安装说明",
+          "guard": ""
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "collapsed; expanded installation/deployer guidance",
+          "variant": "help expanded; installer/deployer guidance",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-002"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-001",
+      "parentId": null,
+      "route": "/ (unauthenticated); /login",
+      "roles": [
+        "unauthenticated visitor"
+      ],
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:264",
+        "apps/web/App.vue:360",
+        "apps/web/components/Login.vue:13",
+        "apps/web/components/Login.vue:38"
+      ]
+    },
+    {
+      "sourceId": "PB-002",
+      "parentId": "PB-001",
+      "route": "/; /login",
+      "roles": [
+        "unauthenticated visitor"
+      ],
+      "sourceRefs": [
+        "apps/web/components/Login.vue:81"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-001",
+      "title": "登录 DooKnow",
+      "kind": "page",
+      "module": "auth",
+      "entry": {
+        "route": "/ (unauthenticated); /login",
+        "trigger": "App session resolves without an owner session",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:264",
+        "apps/web/App.vue:360",
+        "apps/web/components/Login.vue:13",
+        "apps/web/components/Login.vue:38"
+      ],
+      "roles": [
+        "unauthenticated visitor"
+      ],
+      "permissionRules": [
+        "Single-owner installation; account creation is performed by installation/CLI, not this form."
+      ],
+      "fields": [
+        {
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "constraints": "trimmed nonempty submit guard; sent as entered; autocomplete=username",
+          "sensitive": false
+        },
+        {
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "constraints": "nonempty; current-password autocomplete",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "登录",
+          "effect": "Authenticate and open platform or OAuth continuation",
+          "api": "POST /api/auth/sign-in/username; GET /api/auth/get-session",
+          "guard": "not busy and username.trim() and password"
+        }
+      ],
+      "importantStates": [
+        "empty required fields; submit disabled",
+        "busy locks inputs and submit",
+        "API error alert cleared on input",
+        "successful sign-in clears password, refreshes CSRF, then accepts session"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory."
+      },
+      "testRefs": [
+        "tests/e2e/login-help.spec.ts:3",
+        "tests/auth.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-002",
+      "title": "首次使用与账号来源帮助",
+      "kind": "state",
+      "module": "auth",
+      "entry": {
+        "route": "/; /login",
+        "trigger": "Expand 第一次使用或还没有账号？",
+        "parentId": "PB-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/Login.vue:81"
+      ],
+      "roles": [
+        "unauthenticated visitor"
+      ],
+      "permissionRules": [
+        "App selects this surface according to accepted session state; no browser self-registration exists."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "查看安装说明",
+          "effect": "Open existing GitHub installation guide in new tab",
+          "api": "https://github.com/bandoo-2001/doo-know#安装",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "collapsed; expanded installation/deployer guidance"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory."
+      },
+      "testRefs": [
+        "tests/e2e/login-help.spec.ts:3"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "No self-registration or password-reset form is implemented here."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S036",
+  "roles": [
+    "visitor-login"
+  ],
+  "selectedState": [
+    "r1 empty required",
+    "r2 busy",
+    "r3 error with retained input",
+    "r4 help closed",
+    "r5 help expanded"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内竖排五个独立登录局部样例，清楚字号，留白分隔，不画完整页面品牌或私有导航。\n第一行：标签“用户名”空输入placeholder“请输入用户名”，标签“密码”空密码框placeholder“请输入密码”与眼睛图标，下方“登录”灰色禁用。\n第二行：同样两个字段分别值“example”和掩码“••••••••”，两个字段灰色禁用，“登录”灰色禁用并转圈。\n第三行：红色错误提示“登录失败”，两个字段值“example”和掩码“••••••••”均可编辑，“登录”蓝色可用，不同时出现读取中。\n第四行：只有收起的“第一次使用或还没有账号？”折叠行。\n第五行：展开“第一次使用或还没有账号？”，依次帮助“账号在安装 DooKnow 时创建。”“如果由他人部署，请向部署者获取用户名和密码。”“如果由你部署，请在运行 DooKnow 的设备终端中继续完成安装，再回到这里登录。”，蓝色链接“查看安装说明”。不加注册/重置密码/记住我/社交登录按钮。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S036 Component state matrix: visitor-login / Login.vue\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only visitor-login context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | PB-001 | 真实组件局部状态矩阵 | role=visitor-login | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n独立居中400px登录卡：DooKnow、你的个人知识空间、用户名/密码、登录、默认私有说明、首用帮助折叠。无私有导航。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n局部矩阵（≤7行/卡）：\nr1 | PB-001 | 实际只画代表：empty required fields; submit disabled | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/Login.vue\nr2 | PB-001 | 实际只画代表：busy locks inputs and submit | 既有busy/spinner/禁用控件模式，按原guard锁定。 | renderer=apps/web/components/Login.vue\nr3 | PB-001 | 实际只画代表：API error alert cleared on input | 已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。 | renderer=apps/web/components/Login.vue\nr4 | PB-002 | 实际只画代表：help collapsed | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/Login.vue\nr5 | PB-002 | 实际只画代表：help expanded; installer/deployer guidance | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/Login.vue\n\n精确功能/字段/动作guard合同：\nPB-001权限：Single-owner installation; account creation is performed by installation/CLI, not this form.\nPB-002权限：App selects this surface according to accepted session state; no browser self-registration exists.\nPB-001字段顺序：username [text; 必填]: trimmed nonempty submit guard; sent as entered; autocomplete=username | password [password; 必填]: nonempty; current-password autocomplete；仅合成掩码\nPB-002字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nPB-001白名单：登录 => Authenticate and open platform or OAuth continuation；guard=not busy and username.trim() and password；接口约束=POST /api/auth/sign-in/username; GET /api/auth/get-session\nPB-002白名单：查看安装说明 => Open existing GitHub installation guide in new tab；guard=既有上下文；接口约束=https://github.com/bandoo-2001/doo-know#安装\n\n响应式合同：\nCentered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-login.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "10a6aff98a81ca91fdda5199d65590adaaa6426fbf5e4555fef45caa3c3214d4",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 36397
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S036.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-44bf6a42-a9ed-405f-978c-2c49a77432d8.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-44bf6a42-a9ed-405f-978c-2c49a77432d8.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T04:23:29.821Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Correct source guards and retained field values inspected; local specimens only, no public owner rail or extra controls.",
+    "concerns": []
+  },
+  "sha256": "72d0b066d5376cd243cf57703a89ce4899714a5286361d7b050126f44ab88170",
+  "dimensions": {
+    "width": 1024,
+    "height": 1536
+  },
+  "bytes": 1080585,
+  "sourceInspection": [
+    {
+      "path": "apps/web/App.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1161ad07a6926fac6bf51d8b81b2474f825755aca223bec10c443d2bf3047157"
+    },
+    {
+      "path": "apps/web/App.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1161ad07a6926fac6bf51d8b81b2474f825755aca223bec10c443d2bf3047157"
+    },
+    {
+      "path": "apps/web/App.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1161ad07a6926fac6bf51d8b81b2474f825755aca223bec10c443d2bf3047157"
+    },
+    {
+      "path": "apps/web/components/Login.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ebf1167ef06dee5cd4cb4e172fab6f9906d0ad5c7d19757848299d71b3043ec5"
+    },
+    {
+      "path": "apps/web/components/Login.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ebf1167ef06dee5cd4cb4e172fab6f9906d0ad5c7d19757848299d71b3043ec5"
+    },
+    {
+      "path": "apps/web/components/Login.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "ebf1167ef06dee5cd4cb4e172fab6f9906d0ad5c7d19757848299d71b3043ec5"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived compact states; no login/API/session expiry/mutation or close/focus runtime tests."
+}

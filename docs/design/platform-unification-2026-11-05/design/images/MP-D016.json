@@ -1,0 +1,394 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D016",
+  "assetId": "MP-D016",
+  "sourceIds": [
+    "ST-019",
+    "ST-020",
+    "ST-021"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-019",
+      "title": "批量导入：检查预览",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Three independent bulk-import drawer states: preview of two files; same frozen confirmation; changed destination invalidates old preview and returns to step1 preserving entries."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-020",
+      "title": "批量导入：确认提交",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Three independent bulk-import drawer states: preview of two files; same frozen confirmation; changed destination invalidates old preview and returns to step1 preserving entries."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-021",
+      "title": "导入预览失效、冲突与错误",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Three independent bulk-import drawer states: preview of two files; same frozen confirmation; changed destination invalidates old preview and returns to step1 preserving entries."
+    }
+  ],
+  "selectedState": "Three independent bulk-import drawer states: preview of two files; same frozen confirmation; changed destination invalidates old preview and returns to step1 preserving entries.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作三个独立“批量导入”窗口对照板，外部只标“检查预览”“确认导入”“重新预览”，长画布确保每份字段和页脚完整。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。每窗header批量导入、说明先选择资料，再检查预览，最后确认导入。、X；三步选择资料/检查预览/确认导入。\n检查预览窗第2步选中：标题检查导入预览，说明以下是知识库返回的预览。请检查导入位置与同名文件的处理方式。；表格列导入位置/类型/处理方式，两行00-Inbox/a.md/笔记/新建，00-Inbox/b-2.md/笔记/使用新名称；2 个文件 · 合计2.0 KiB。页脚取消、返回修改、下一步：确认导入。\n确认窗第3步选中：标题确认本次导入；摘要导入位置00-Inbox，资料数量2个文件，处理结果新建1个 · 使用新名称1个 · 跳过0个，同名处理自动使用新文件名；说明确认后创建后台任务，关闭面板后可在「任务与结果」查看进度。页脚取消、返回预览、确认导入 2 个文件。没有提交成功或正在导入。\n重新预览窗第1步选中：标题选择资料与导入位置；说明选择Markdown、Excalidraw白板与附件，或选择整个目录保留目录内结构。每批最多200个文件、合计20 MiB。选择后先预览。；label选择文件+普通网页file控件，选择目录（保留目录内结构）+directory控件；选择已有目录（可选）combobox30-Knowledge；导入到知识库目录input30-Knowledge及帮助可选择已有目录，也可填写新的相对目录。留空适用于从完整导出恢复目录结构。；遇到同名文件select自动使用新文件名；已选择2个文件 · 2.0 KiB，展开列a.md/b.md；灰色提示“导入设置已改变，原预览已失效，请重新预览。”。页脚取消、清除选择、预览导入。没有覆盖同名原文选项/预览表混入/原生OS文件选择器。",
+  "prompt": "制作三个独立“批量导入”窗口对照板，外部只标“检查预览”“确认导入”“重新预览”，长画布确保每份字段和页脚完整。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。每窗header批量导入、说明先选择资料，再检查预览，最后确认导入。、X；三步选择资料/检查预览/确认导入。\n检查预览窗第2步选中：标题检查导入预览，说明以下是知识库返回的预览。请检查导入位置与同名文件的处理方式。；表格列导入位置/类型/处理方式，两行00-Inbox/a.md/笔记/新建，00-Inbox/b-2.md/笔记/使用新名称；2 个文件 · 合计2.0 KiB。页脚取消、返回修改、下一步：确认导入。\n确认窗第3步选中：标题确认本次导入；摘要导入位置00-Inbox，资料数量2个文件，处理结果新建1个 · 使用新名称1个 · 跳过0个，同名处理自动使用新文件名；说明确认后创建后台任务，关闭面板后可在「任务与结果」查看进度。页脚取消、返回预览、确认导入 2 个文件。没有提交成功或正在导入。\n重新预览窗第1步选中：标题选择资料与导入位置；说明选择Markdown、Excalidraw白板与附件，或选择整个目录保留目录内结构。每批最多200个文件、合计20 MiB。选择后先预览。；label选择文件+普通网页file控件，选择目录（保留目录内结构）+directory控件；选择已有目录（可选）combobox30-Knowledge；导入到知识库目录input30-Knowledge及帮助可选择已有目录，也可填写新的相对目录。留空适用于从完整导出恢复目录结构。；遇到同名文件select自动使用新文件名；已选择2个文件 · 2.0 KiB，展开列a.md/b.md；灰色提示“导入设置已改变，原预览已失效，请重新预览。”。页脚取消、清除选择、预览导入。没有覆盖同名原文选项/预览表混入/原生OS文件选择器。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exclude owner workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exclude owner workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作三个独立“批量导入”窗口对照板，外部只标“检查预览”“确认导入”“重新预览”，长画布确保每份字段和页脚完整。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。每窗header批量导入、说明先选择资料，再检查预览，最后确认导入。、X；三步选择资料/检查预览/确认导入。\n检查预览窗第2步选中：标题检查导入预览，说明以下是知识库返回的预览。请检查导入位置与同名文件的处理方式。；表格列导入位置/类型/处理方式，两行00-Inbox/a.md/笔记/新建，00-Inbox/b-2.md/笔记/使用新名称；2 个文件 · 合计2.0 KiB。页脚取消、返回修改、下一步：确认导入。\n确认窗第3步选中：标题确认本次导入；摘要导入位置00-Inbox，资料数量2个文件，处理结果新建1个 · 使用新名称1个 · 跳过0个，同名处理自动使用新文件名；说明确认后创建后台任务，关闭面板后可在「任务与结果」查看进度。页脚取消、返回预览、确认导入 2 个文件。没有提交成功或正在导入。\n重新预览窗第1步选中：标题选择资料与导入位置；说明选择Markdown、Excalidraw白板与附件，或选择整个目录保留目录内结构。每批最多200个文件、合计20 MiB。选择后先预览。；label选择文件+普通网页file控件，选择目录（保留目录内结构）+directory控件；选择已有目录（可选）combobox30-Knowledge；导入到知识库目录input30-Knowledge及帮助可选择已有目录，也可填写新的相对目录。留空适用于从完整导出恢复目录结构。；遇到同名文件select自动使用新文件名；已选择2个文件 · 2.0 KiB，展开列a.md/b.md；灰色提示“导入设置已改变，原预览已失效，请重新预览。”。页脚取消、清除选择、预览导入。没有覆盖同名原文选项/预览表混入/原生OS文件选择器。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作三个独立“批量导入”窗口对照板，外部只标“检查预览”“确认导入”“重新预览”，长画布确保每份字段和页脚完整。只画下面明确列出的组件和文字，不附加其他说明或父页导航。白/浅灰平面、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文。每窗header批量导入、说明先选择资料，再检查预览，最后确认导入。、X；三步选择资料/检查预览/确认导入。\n检查预览窗第2步选中：标题检查导入预览，说明以下是知识库返回的预览。请检查导入位置与同名文件的处理方式。；表格列导入位置/类型/处理方式，两行00-Inbox/a.md/笔记/新建，00-Inbox/b-2.md/笔记/使用新名称；2 个文件 · 合计2.0 KiB。页脚取消、返回修改、下一步：确认导入。\n确认窗第3步选中：标题确认本次导入；摘要导入位置00-Inbox，资料数量2个文件，处理结果新建1个 · 使用新名称1个 · 跳过0个，同名处理自动使用新文件名；说明确认后创建后台任务，关闭面板后可在「任务与结果」查看进度。页脚取消、返回预览、确认导入 2 个文件。没有提交成功或正在导入。\n重新预览窗第1步选中：标题选择资料与导入位置；说明选择Markdown、Excalidraw白板与附件，或选择整个目录保留目录内结构。每批最多200个文件、合计20 MiB。选择后先预览。；label选择文件+普通网页file控件，选择目录（保留目录内结构）+directory控件；选择已有目录（可选）combobox30-Knowledge；导入到知识库目录input30-Knowledge及帮助可选择已有目录，也可填写新的相对目录。留空适用于从完整导出恢复目录结构。；遇到同名文件select自动使用新文件名；已选择2个文件 · 2.0 KiB，展开列a.md/b.md；灰色提示“导入设置已改变，原预览已失效，请重新预览。”。页脚取消、清除选择、预览导入。没有覆盖同名原文选项/预览表混入/原生OS文件选择器。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+          "role": "Actual matching renderer/parent reference; selected variation derived from exact template where not captured"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; exclude owner workspace shell"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-69a81bd7-5d67-4906-8771-775e2efd6914.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-019",
+      "title": "批量导入：检查预览",
+      "kind": "state",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "预览导入成功",
+        "parentId": "ST-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:249",
+        "apps/web/components/settings/TransferPanel.vue:601"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "返回修改",
+          "effect": "使旧预览失效并返回选择",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "下一步：确认导入",
+          "effect": "进入ST-020；不请求提交",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "导入位置/类型/新建跳过改名表格",
+        "总文件/字节数",
+        "服务端warning",
+        "横向滚动表"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:141",
+        "tests/e2e/management-features.spec.ts:232"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-020",
+      "title": "批量导入：确认提交",
+      "kind": "state",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "检查预览→下一步",
+        "parentId": "ST-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:271",
+        "apps/web/components/settings/TransferPanel.vue:632"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "返回预览",
+          "effect": "保留预览回到第二步",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "确认导入N个文件",
+          "effect": "创建后台任务；关闭抽屉并保留页面任务列表",
+          "api": "POST /api/manage/import",
+          "guard": "step=3且preview存在；稳定requestId；busy防重"
+        }
+      ],
+      "importantStates": [
+        "目录/数量/处理结果/同名策略摘要",
+        "提交中锁输入及关闭",
+        "成功关闭，任务常驻",
+        "错误可按原requestId重试"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:141"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-021",
+      "title": "导入预览失效、冲突与错误",
+      "kind": "state",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "修改目录/同名策略或请求失败",
+        "parentId": "ST-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:177",
+        "apps/web/components/settings/TransferPanel.vue:249"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新预览",
+          "effect": "从当前选择生成新预览",
+          "api": "POST /api/manage/import/preview",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "原预览失效回到第一步",
+        "进行中修改仍以原位置提交的提示",
+        "旧响应忽略",
+        "文件验证/路径验证/目录读取/提交错误"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/settings-transfer-regressions.test.ts:1",
+        "tests/e2e/settings-overlays.spec.ts:141"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "没有覆盖同名已有原文选项，只提供跳过/改名。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-019",
+      "parentId": "ST-018",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:249",
+        "apps/web/components/settings/TransferPanel.vue:601"
+      ]
+    },
+    {
+      "sourceId": "ST-020",
+      "parentId": "ST-018",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:271",
+        "apps/web/components/settings/TransferPanel.vue:632"
+      ]
+    },
+    {
+      "sourceId": "ST-021",
+      "parentId": "ST-018",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:177",
+        "apps/web/components/settings/TransferPanel.vue:249"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-017.json#MP-D016",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D016",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-69a81bd7-5d67-4906-8771-775e2efd6914.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D016.png",
+  "sha256": "b639858d22027954d6e28068ac2f0ee32c3fe0b8e47a2259ff5162d9f8deb469",
+  "bytes": 1179960,
+  "dimensions": {
+    "width": 2172,
+    "height": 724
+  },
+  "generatedAtUtc": "2026-11-05T03:49:28.538675+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "批量导入：检查预览 / 批量导入：确认提交 / 导入预览失效、冲突与错误",
+    "sourceIds": [
+      "ST-019",
+      "ST-020",
+      "ST-021"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent bulk-import drawer states: preview of two files; same frozen confirmation; changed destination invalidates old preview and returns to step1 preserving entries.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "renderedVariants": []
+}

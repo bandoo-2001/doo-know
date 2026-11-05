@@ -1,0 +1,29 @@
+{
+  "id": "note-more",
+  "title": "note-more",
+  "sourceIds": [
+    "WS-028"
+  ],
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "1440-note-more.png",
+  "sha256": "37fb6a3376e39ef2488b58aa099e717b89360a2324f68aa698d01c94c919d7ed",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "buildFlags": {
+    "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+  },
+  "status": "captured",
+  "pageErrors": [],
+  "targetBounds": {
+    "x": 1188,
+    "y": 53,
+    "width": 216,
+    "height": 314
+  },
+  "targetWithinViewport": true,
+  "outerOverflow": 0
+}

@@ -1,0 +1,749 @@
+{
+  "id": "WS-R011",
+  "title": "Rich document note editor",
+  "kind": "responsive-board",
+  "sourceIds": [
+    "WS-024"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-024",
+      "title": "Rich document note editor",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-024",
+      "title": "Rich document note editor",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-note-document.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3046, apps/web/components/Workspace.vue:3270, apps/web/components/NoteEditorHost.vue:443, apps/web/components/DocumentEditor.vue:1125, packages/core/knowledge/limits.ts:1, apps/web/editor/compatibility.ts:1, apps/web/editor/source-codec.ts:1"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-024",
+      "label": "保存 / Ctrl+S",
+      "effect": "Flush session and save original Markdown with version/requestId",
+      "api": "PUT /api/notes/:id",
+      "guard": "!busy, service available, dirty or pending save"
+    },
+    {
+      "sourceId": "WS-024",
+      "label": "撤销 / 重做",
+      "effect": "Shared session history",
+      "api": "none",
+      "guard": "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627)."
+    },
+    {
+      "sourceId": "WS-024",
+      "label": "收藏 / 分享 / 更多",
+      "effect": "Toggle favorite or open operation windows",
+      "api": "PUT /api/notes/:id/favorite; GET /api/notes/:id/share",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-024",
+      "label": "文档编辑 / Markdown 源码 / 阅读",
+      "effect": "Switch existing views",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R011",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "requiredFieldOrder": [
+        "正文"
+      ],
+      "requiredFields": [
+        {
+          "name": "正文",
+          "type": "rich-document",
+          "required": true,
+          "constraints": "Lossless Markdown-backed rich editor. Rich eligibility: feature flag VITE_DOCUMENT_EDITOR_ENABLED=1, full server mode, <=262144 UTF-8 bytes, <=5000 units, depth<=32. Server ordinary cutoff1MiB/long-line32768 routes larger files to large mode. Unsupported syntax is preserved, not discarded.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "保存 / Ctrl+S",
+          "effect": "Flush session and save original Markdown with version/requestId",
+          "api": "PUT /api/notes/:id",
+          "guard": "!busy, service available, dirty or pending save"
+        },
+        {
+          "label": "撤销 / 重做",
+          "effect": "Shared session history",
+          "api": "none",
+          "guard": "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627)."
+        },
+        {
+          "label": "收藏 / 分享 / 更多",
+          "effect": "Toggle favorite or open operation windows",
+          "api": "PUT /api/notes/:id/favorite; GET /api/notes/:id/share",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "文档编辑 / Markdown 源码 / 阅读",
+          "effect": "Switch existing views",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).",
+        "Owner workspace rich editing tabs exist only when VITE_DOCUMENT_EDITOR_ENABLED=1. Actual deployed build flag is unverified. Eligibility additionally caps rich Markdown at262144 UTF-8 bytes,5000 units, depth32; fallback uses existing source editor."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-024"
+    }
+  ],
+  "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R011 Rich document note editor\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-024\", \"title\": \"Rich document note editor\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied.\"}, {\"label\": \"B\", \"sourceId\": \"WS-024\", \"title\": \"Rich document note editor\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-024\", \"fieldsInOrder\": [{\"name\": \"正文\", \"type\": \"rich-document\", \"required\": true, \"constraints\": \"Lossless Markdown-backed rich editor. Rich eligibility: feature flag VITE_DOCUMENT_EDITOR_ENABLED=1, full server mode, <=262144 UTF-8 bytes, <=5000 units, depth<=32. Server ordinary cutoff1MiB/long-line32768 routes larger files to large mode. Unsupported syntax is preserved, not discarded.\", \"sensitive\": false}], \"actions\": [{\"label\": \"保存 / Ctrl+S\", \"effect\": \"Flush session and save original Markdown with version/requestId\", \"api\": \"PUT /api/notes/:id\", \"guard\": \"!busy, service available, dirty or pending save\"}, {\"label\": \"撤销 / 重做\", \"effect\": \"Shared session history\", \"api\": \"none\", \"guard\": \"Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).\"}, {\"label\": \"收藏 / 分享 / 更多\", \"effect\": \"Toggle favorite or open operation windows\", \"api\": \"PUT /api/notes/:id/favorite; GET /api/notes/:id/share\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"文档编辑 / Markdown 源码 / 阅读\", \"effect\": \"Switch existing views\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Saved/dirty/saving\", \"Shared status warns saved changes publish\", \"Composition/selection\", \"Recoverable opaque source\", \"Read-only during draft recovery/transfer\", \"Contextual image/link/table tools\", \"Local draft saved timestamp\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).\", \"Owner workspace rich editing tabs exist only when VITE_DOCUMENT_EDITOR_ENABLED=1. Actual deployed build flag is unverified. Eligibility additionally caps rich Markdown at262144 UTF-8 bytes,5000 units, depth32; fallback uses existing source editor.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-024\", \"fieldsInOrder\": [{\"name\": \"正文\", \"type\": \"rich-document\", \"required\": true, \"constraints\": \"Lossless Markdown-backed rich editor. Rich eligibility: feature flag VITE_DOCUMENT_EDITOR_ENABLED=1, full server mode, <=262144 UTF-8 bytes, <=5000 units, depth<=32. Server ordinary cutoff1MiB/long-line32768 routes larger files to large mode. Unsupported syntax is preserved, not discarded.\", \"sensitive\": false}], \"actions\": [{\"label\": \"保存 / Ctrl+S\", \"effect\": \"Flush session and save original Markdown with version/requestId\", \"api\": \"PUT /api/notes/:id\", \"guard\": \"!busy, service available, dirty or pending save\"}, {\"label\": \"撤销 / 重做\", \"effect\": \"Shared session history\", \"api\": \"none\", \"guard\": \"Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).\"}, {\"label\": \"收藏 / 分享 / 更多\", \"effect\": \"Toggle favorite or open operation windows\", \"api\": \"PUT /api/notes/:id/favorite; GET /api/notes/:id/share\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"文档编辑 / Markdown 源码 / 阅读\", \"effect\": \"Switch existing views\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Saved/dirty/saving\", \"Shared status warns saved changes publish\", \"Composition/selection\", \"Recoverable opaque source\", \"Read-only during draft recovery/transfer\", \"Contextual image/link/table tools\", \"Local draft saved timestamp\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).\", \"Owner workspace rich editing tabs exist only when VITE_DOCUMENT_EDITOR_ENABLED=1. Actual deployed build flag is unverified. Eligibility additionally caps rich Markdown at262144 UTF-8 bytes,5000 units, depth32; fallback uses existing source editor.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R011.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-024",
+      "title": "Rich document note editor",
+      "kind": "page",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Open ordinary full-mode Markdown note",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3046",
+        "apps/web/components/Workspace.vue:3270",
+        "apps/web/components/NoteEditorHost.vue:443",
+        "apps/web/components/DocumentEditor.vue:1125",
+        "packages/core/knowledge/limits.ts:1",
+        "apps/web/editor/compatibility.ts:1",
+        "apps/web/editor/source-codec.ts:1"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).",
+        "Owner workspace rich editing tabs exist only when VITE_DOCUMENT_EDITOR_ENABLED=1. Actual deployed build flag is unverified. Eligibility additionally caps rich Markdown at262144 UTF-8 bytes,5000 units, depth32; fallback uses existing source editor."
+      ],
+      "fields": [
+        {
+          "name": "正文",
+          "type": "rich-document",
+          "required": true,
+          "constraints": "Lossless Markdown-backed rich editor. Rich eligibility: feature flag VITE_DOCUMENT_EDITOR_ENABLED=1, full server mode, <=262144 UTF-8 bytes, <=5000 units, depth<=32. Server ordinary cutoff1MiB/long-line32768 routes larger files to large mode. Unsupported syntax is preserved, not discarded.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存 / Ctrl+S",
+          "effect": "Flush session and save original Markdown with version/requestId",
+          "api": "PUT /api/notes/:id",
+          "guard": "!busy, service available, dirty or pending save"
+        },
+        {
+          "label": "撤销 / 重做",
+          "effect": "Shared session history",
+          "api": "none",
+          "guard": "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627)."
+        },
+        {
+          "label": "收藏 / 分享 / 更多",
+          "effect": "Toggle favorite or open operation windows",
+          "api": "PUT /api/notes/:id/favorite; GET /api/notes/:id/share",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "文档编辑 / Markdown 源码 / 阅读",
+          "effect": "Switch existing views",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Saved/dirty/saving",
+        "Shared status warns saved changes publish",
+        "Composition/selection",
+        "Recoverable opaque source",
+        "Read-only during draft recovery/transfer",
+        "Contextual image/link/table tools",
+        "Local draft saved timestamp"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "testRefs": [
+        "tests/e2e/document-editor-basic.spec.ts",
+        "tests/e2e/document-editor-recovery.spec.ts",
+        "tests/editor-session.test.ts",
+        "tests/editor-compatibility.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Owner workspace VITE_DOCUMENT_EDITOR_ENABLED gate is not the public guest host configuration; PB-026/PB-027 own guest document/source modes."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-024",
+      "parentId": "WS-001",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-024",
+  "stateCoverageRefs": [],
+  "statePatternRefs": [
+    {
+      "sourceId": "WS-024",
+      "assetId": "WS-D020",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-R011",
+  "originalManifest": {
+    "id": "WS-R011",
+    "title": "Rich document note editor",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-024"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-024",
+        "title": "Rich document note editor",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied.",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied."
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-024",
+        "title": "Rich document note editor",
+        "role": "authenticated owner",
+        "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied.",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied."
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/390-note-document.png",
+        "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+      },
+      {
+        "path": "apps/web/components/Workspace.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3046, apps/web/components/Workspace.vue:3270, apps/web/components/NoteEditorHost.vue:443, apps/web/components/DocumentEditor.vue:1125, packages/core/knowledge/limits.ts:1, apps/web/editor/compatibility.ts:1, apps/web/editor/source-codec.ts:1"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-024",
+        "label": "保存 / Ctrl+S",
+        "effect": "Flush session and save original Markdown with version/requestId",
+        "api": "PUT /api/notes/:id",
+        "guard": "!busy, service available, dirty or pending save"
+      },
+      {
+        "sourceId": "WS-024",
+        "label": "撤销 / 重做",
+        "effect": "Shared session history",
+        "api": "none",
+        "guard": "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627)."
+      },
+      {
+        "sourceId": "WS-024",
+        "label": "收藏 / 分享 / 更多",
+        "effect": "Toggle favorite or open operation windows",
+        "api": "PUT /api/notes/:id/favorite; GET /api/notes/:id/share",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-024",
+        "label": "文档编辑 / Markdown 源码 / 阅读",
+        "effect": "Switch existing views",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-R011",
+        "representation": "direct",
+        "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+        },
+        "requiredFieldOrder": [
+          "正文"
+        ],
+        "requiredFields": [
+          {
+            "name": "正文",
+            "type": "rich-document",
+            "required": true,
+            "constraints": "Lossless Markdown-backed rich editor. Rich eligibility: feature flag VITE_DOCUMENT_EDITOR_ENABLED=1, full server mode, <=262144 UTF-8 bytes, <=5000 units, depth<=32. Server ordinary cutoff1MiB/long-line32768 routes larger files to large mode. Unsupported syntax is preserved, not discarded.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "保存 / Ctrl+S",
+            "effect": "Flush session and save original Markdown with version/requestId",
+            "api": "PUT /api/notes/:id",
+            "guard": "!busy, service available, dirty or pending save"
+          },
+          {
+            "label": "撤销 / 重做",
+            "effect": "Shared session history",
+            "api": "none",
+            "guard": "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627)."
+          },
+          {
+            "label": "收藏 / 分享 / 更多",
+            "effect": "Toggle favorite or open operation windows",
+            "api": "PUT /api/notes/:id/favorite; GET /api/notes/:id/share",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "文档编辑 / Markdown 源码 / 阅读",
+            "effect": "Switch existing views",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).",
+          "Owner workspace rich editing tabs exist only when VITE_DOCUMENT_EDITOR_ENABLED=1. Actual deployed build flag is unverified. Eligibility additionally caps rich Markdown at262144 UTF-8 bytes,5000 units, depth32; fallback uses existing source editor."
+        ],
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-024"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R011 Rich document note editor\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-024\", \"title\": \"Rich document note editor\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied.\"}, {\"label\": \"B\", \"sourceId\": \"WS-024\", \"title\": \"Rich document note editor\", \"role\": \"authenticated owner\", \"state\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. Owner flag-enabled eligible full rich editor; existing headings/table/link/image, manual save/shared modes and formatting toolbar. No guest permissions implied.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-024\", \"fieldsInOrder\": [{\"name\": \"正文\", \"type\": \"rich-document\", \"required\": true, \"constraints\": \"Lossless Markdown-backed rich editor. Rich eligibility: feature flag VITE_DOCUMENT_EDITOR_ENABLED=1, full server mode, <=262144 UTF-8 bytes, <=5000 units, depth<=32. Server ordinary cutoff1MiB/long-line32768 routes larger files to large mode. Unsupported syntax is preserved, not discarded.\", \"sensitive\": false}], \"actions\": [{\"label\": \"保存 / Ctrl+S\", \"effect\": \"Flush session and save original Markdown with version/requestId\", \"api\": \"PUT /api/notes/:id\", \"guard\": \"!busy, service available, dirty or pending save\"}, {\"label\": \"撤销 / 重做\", \"effect\": \"Shared session history\", \"api\": \"none\", \"guard\": \"Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).\"}, {\"label\": \"收藏 / 分享 / 更多\", \"effect\": \"Toggle favorite or open operation windows\", \"api\": \"PUT /api/notes/:id/favorite; GET /api/notes/:id/share\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"文档编辑 / Markdown 源码 / 阅读\", \"effect\": \"Switch existing views\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Saved/dirty/saving\", \"Shared status warns saved changes publish\", \"Composition/selection\", \"Recoverable opaque source\", \"Read-only during draft recovery/transfer\", \"Contextual image/link/table tools\", \"Local draft saved timestamp\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).\", \"Owner workspace rich editing tabs exist only when VITE_DOCUMENT_EDITOR_ENABLED=1. Actual deployed build flag is unverified. Eligibility additionally caps rich Markdown at262144 UTF-8 bytes,5000 units, depth32; fallback uses existing source editor.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-024\", \"fieldsInOrder\": [{\"name\": \"正文\", \"type\": \"rich-document\", \"required\": true, \"constraints\": \"Lossless Markdown-backed rich editor. Rich eligibility: feature flag VITE_DOCUMENT_EDITOR_ENABLED=1, full server mode, <=262144 UTF-8 bytes, <=5000 units, depth<=32. Server ordinary cutoff1MiB/long-line32768 routes larger files to large mode. Unsupported syntax is preserved, not discarded.\", \"sensitive\": false}], \"actions\": [{\"label\": \"保存 / Ctrl+S\", \"effect\": \"Flush session and save original Markdown with version/requestId\", \"api\": \"PUT /api/notes/:id\", \"guard\": \"!busy, service available, dirty or pending save\"}, {\"label\": \"撤销 / 重做\", \"effect\": \"Shared session history\", \"api\": \"none\", \"guard\": \"Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).\"}, {\"label\": \"收藏 / 分享 / 更多\", \"effect\": \"Toggle favorite or open operation windows\", \"api\": \"PUT /api/notes/:id/favorite; GET /api/notes/:id/share\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"文档编辑 / Markdown 源码 / 阅读\", \"effect\": \"Switch existing views\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Saved/dirty/saving\", \"Shared status warns saved changes publish\", \"Composition/selection\", \"Recoverable opaque source\", \"Read-only during draft recovery/transfer\", \"Contextual image/link/table tools\", \"Local draft saved timestamp\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).\", \"Owner workspace rich editing tabs exist only when VITE_DOCUMENT_EDITOR_ENABLED=1. Actual deployed build flag is unverified. Eligibility additionally caps rich Markdown at262144 UTF-8 bytes,5000 units, depth32; fallback uses existing source editor.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R011.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-024",
+        "title": "Rich document note editor",
+        "kind": "page",
+        "module": "editor",
+        "entry": {
+          "route": "/?note=:id",
+          "trigger": "Open ordinary full-mode Markdown note",
+          "parentId": "WS-001"
+        },
+        "sourceRefs": [
+          "apps/web/components/Workspace.vue:3046",
+          "apps/web/components/Workspace.vue:3270",
+          "apps/web/components/NoteEditorHost.vue:443",
+          "apps/web/components/DocumentEditor.vue:1125",
+          "packages/core/knowledge/limits.ts:1",
+          "apps/web/editor/compatibility.ts:1",
+          "apps/web/editor/source-codec.ts:1"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).",
+          "Owner workspace rich editing tabs exist only when VITE_DOCUMENT_EDITOR_ENABLED=1. Actual deployed build flag is unverified. Eligibility additionally caps rich Markdown at262144 UTF-8 bytes,5000 units, depth32; fallback uses existing source editor."
+        ],
+        "fields": [
+          {
+            "name": "正文",
+            "type": "rich-document",
+            "required": true,
+            "constraints": "Lossless Markdown-backed rich editor. Rich eligibility: feature flag VITE_DOCUMENT_EDITOR_ENABLED=1, full server mode, <=262144 UTF-8 bytes, <=5000 units, depth<=32. Server ordinary cutoff1MiB/long-line32768 routes larger files to large mode. Unsupported syntax is preserved, not discarded.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "保存 / Ctrl+S",
+            "effect": "Flush session and save original Markdown with version/requestId",
+            "api": "PUT /api/notes/:id",
+            "guard": "!busy, service available, dirty or pending save"
+          },
+          {
+            "label": "撤销 / 重做",
+            "effect": "Shared session history",
+            "api": "none",
+            "guard": "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627)."
+          },
+          {
+            "label": "收藏 / 分享 / 更多",
+            "effect": "Toggle favorite or open operation windows",
+            "api": "PUT /api/notes/:id/favorite; GET /api/notes/:id/share",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "文档编辑 / Markdown 源码 / 阅读",
+            "effect": "Switch existing views",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Saved/dirty/saving",
+          "Shared status warns saved changes publish",
+          "Composition/selection",
+          "Recoverable opaque source",
+          "Read-only during draft recovery/transfer",
+          "Contextual image/link/table tools",
+          "Local draft saved timestamp"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+        },
+        "testRefs": [
+          "tests/e2e/document-editor-basic.spec.ts",
+          "tests/e2e/document-editor-recovery.spec.ts",
+          "tests/editor-session.test.ts",
+          "tests/editor-compatibility.test.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted.",
+          "Owner workspace VITE_DOCUMENT_EDITOR_ENABLED gate is not the public guest host configuration; PB-026/PB-027 own guest document/source modes."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-024",
+        "parentId": "WS-001",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-024",
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "WS-024",
+        "assetId": "WS-D020",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "只定点修正这张手机设计图的顶部与工具栏：两个手机面板中删除笔记页头的后退/前进两个箭头（手机源码隐藏DocumentNavigation）；面包屑只保留书本根图标、…路径溢出按钮、当前笔记名，不把00-Inbox完整路径写出来；保存状态只保留一个灰点，不显示“已保存”文字；分享与保存按钮只用图标无文字；章节目录按钮只留列表图标无“章节目录”文字。把模式选择行移到格式工具栏上方，格式工具栏仍单行横向滚动，正常字号不缩小。其余正文、模式种类、内容、操作、底部统计与手机底栏完全保持。不要发明新操作。",
+  "actualToolArguments": {
+    "prompt": "只定点修正这张手机设计图的顶部与工具栏：两个手机面板中删除笔记页头的后退/前进两个箭头（手机源码隐藏DocumentNavigation）；面包屑只保留书本根图标、…路径溢出按钮、当前笔记名，不把00-Inbox完整路径写出来；保存状态只保留一个灰点，不显示“已保存”文字；分享与保存按钮只用图标无文字；章节目录按钮只留列表图标无“章节目录”文字。把模式选择行移到格式工具栏上方，格式工具栏仍单行横向滚动，正常字号不缩小。其余正文、模式种类、内容、操作、底部统计与手机底栏完全保持。不要发明新操作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R011.png"
+    ],
+    "transparent_background": false
+  },
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R011.png"
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R011.png",
+      "order": 1,
+      "role": "edit target; preserve all except exact mobile header/source layout fixes",
+      "sha256": "c51764468a9dcf026c1b6ea202c3a805044fa42253985a919f088abfee10592b",
+      "bytes": 1191818,
+      "dimensions": {
+        "width": 1448,
+        "height": 1086
+      }
+    }
+  ],
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/components/NoteEditorHost.vue",
+      "sha256": "d56fb03aebf95c3b973f743b4ac7582cf3469b448b1ac5b2bc27c3b9e8c029b7",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/components/DocumentEditor.vue",
+      "sha256": "59f28da8e35a8f806a4c3b3eef20d04332bc4272ddd03518d924183629acd774",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "packages/core/knowledge/limits.ts",
+      "sha256": "66fbf96c8c338c5524377068598cb53201a000e584beeeb8ed53033f1d97274e",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/editor/compatibility.ts",
+      "sha256": "a49140712eeacbacbb00260bfa688512176ee1fed98acc078c18f9686e155ee3",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/editor/source-codec.ts",
+      "sha256": "a220a0edf860c62ea478d4b34848a05397f48b1a0f84d676ed17ef26fbfd8f41",
+      "role": "actual source template/behavior authority; read before generation"
+    }
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "fallbackUsed": false,
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "url": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "verifiedModel": "gpt-image-2",
+      "scope": "Codex built-in image generation",
+      "date": "2026-11-05",
+      "apiReference": "https://developers.openai.com/api/reference/resources/images/methods/generate",
+      "apiModelSupported": true,
+      "apiReferenceDoesNotProveBuiltinRouteAlone": true
+    }
+  },
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-b2bb9d02-f9a8-4364-b906-f61ba93d3752.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-b2bb9d02-f9a8-4364-b906-f61ba93d3752.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generatedAtUtc": "2026-11-05T08:52:39.638Z",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R011-v2.png",
+  "generationCalls": [
+    {
+      "status": "completed-with-tool-receipt",
+      "actualToolArguments": {
+        "prompt": "只定点修正这张手机设计图的顶部与工具栏：两个手机面板中删除笔记页头的后退/前进两个箭头（手机源码隐藏DocumentNavigation）；面包屑只保留书本根图标、…路径溢出按钮、当前笔记名，不把00-Inbox完整路径写出来；保存状态只保留一个灰点，不显示“已保存”文字；分享与保存按钮只用图标无文字；章节目录按钮只留列表图标无“章节目录”文字。把模式选择行移到格式工具栏上方，格式工具栏仍单行横向滚动，正常字号不缩小。其余正文、模式种类、内容、操作、底部统计与手机底栏完全保持。不要发明新操作。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R011.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-b2bb9d02-f9a8-4364-b906-f61ba93d3752.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    }
+  ],
+  "generationCallCount": 1,
+  "selfInspection": {
+    "status": "requires-targeted-revision",
+    "method": "Native generated PNG compared against source phone CSS",
+    "concerns": [
+      "Edit incorrectly removed undo/redo and outline icon; restore in v3."
+    ]
+  },
+  "sha256": "8262d048707cb872e70da6a54caa4ccd0730b8e25d84baac33d292b70df2fb2f",
+  "bytes": 1577955,
+  "dimensions": {
+    "width": 1448,
+    "height": 1086
+  },
+  "revisionOf": "WS-R011.png",
+  "revisionReason": "Actual phone CSS hides navigation/text status and orders mode above formatting toolbar",
+  "runtimeResponsiveVerified": false,
+  "responsiveTargetCssWidths": [
+    390,
+    320
+  ],
+  "currentGenerationReceipt": {
+    "toolResultReceiptObserved": true,
+    "receiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-2.json",
+    "actualToolArguments": {
+      "prompt": "只定点修正这张手机设计图的顶部与工具栏：两个手机面板中删除笔记页头的后退/前进两个箭头（手机源码隐藏DocumentNavigation）；面包屑只保留书本根图标、…路径溢出按钮、当前笔记名，不把00-Inbox完整路径写出来；保存状态只保留一个灰点，不显示“已保存”文字；分享与保存按钮只用图标无文字；章节目录按钮只留列表图标无“章节目录”文字。把模式选择行移到格式工具栏上方，格式工具栏仍单行横向滚动，正常字号不缩小。其余正文、模式种类、内容、操作、底部统计与手机底栏完全保持。不要发明新操作。",
+      "referenced_image_paths": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R011.png"
+      ],
+      "transparent_background": false
+    },
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-b2bb9d02-f9a8-4364-b906-f61ba93d3752.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-b2bb9d02-f9a8-4364-b906-f61ba93d3752.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "completionObservedAtUtc": "2026-11-05T08:52:39.638Z",
+    "exactToolServerCompletionTimestampExposed": false,
+    "execCellId": "g33:20"
+  },
+  "generatedAtUtcBasis": "Local observation after awaited callback; tool does not expose exact server completion timestamp.",
+  "sourceImageSha256": "8262d048707cb872e70da6a54caa4ccd0730b8e25d84baac33d292b70df2fb2f",
+  "priorGenerationHistory": {
+    "sidecar": "docs/design/platform-unification-2026-11-05/design/images/WS-R011.json",
+    "sha256": "c51764468a9dcf026c1b6ea202c3a805044fa42253985a919f088abfee10592b",
+    "submittedPrompt": "制作两个清晰中文DooKnow手机完整页面并排，外部仅A/B，A390、B320窄屏比例，正常文字，不画壳或尺寸数字。平面白底浅灰分隔蓝色选中，沿用参考编辑器已有内容，侧栏在手机关闭、无桌面左轨/固定章节栏。顶部手机栏：菜单图标、DooKnow、私人笔记。下一层笔记页头：后退/前进图标（均灰禁用），书本根入口、面包屑“00-Inbox / 知识与行动”，长内容省略；可换行的操作区含灰点“已保存”、灰撤销/重做、星标、分享图标、灰禁用保存图标、更多…。格式工具栏是真实横向滚动单行，当前左端可见“标题 1”下拉、B、I、删除线S、行内代码、T×、文字颜色A、左对齐图标，底部细横向滚动条暗示后续工具；不缩小塞全部。下一行模式“文档编辑”（蓝色选中）“Markdown 源码”“阅读”，右侧或换行的“章节目录”图标按钮。正文顶栏“文档编辑”和小字“手动保存 · Ctrl+S”。富文本区域正常呈现大标题“知识与行动”、段落“用于富文本边界运行核验的隔离示例。”、二级标题“记录方法”、两条项目“收集想法”“保留下一步”、2列表格表头“项目 / 状态”及行“界面盘点 / 进行中”、蓝色链接“参考链接”，再一张很小的中性山景插图；正文内部正常纵向滚动，不把表格做成图片。底部正文统计“正文字符 61”和宿主底部导航“笔记”“最近”“收藏”“应用”“更多”，笔记选中。两屏保留同一现有编辑器布局，B自然换行而不丢动作。没有自动保存、访客入口、新功能、审查文字。",
+    "generationCalls": [
+      {
+        "status": "completed-with-tool-receipt",
+        "actualToolArguments": {
+          "prompt": "制作两个清晰中文DooKnow手机完整页面并排，外部仅A/B，A390、B320窄屏比例，正常文字，不画壳或尺寸数字。平面白底浅灰分隔蓝色选中，沿用参考编辑器已有内容，侧栏在手机关闭、无桌面左轨/固定章节栏。顶部手机栏：菜单图标、DooKnow、私人笔记。下一层笔记页头：后退/前进图标（均灰禁用），书本根入口、面包屑“00-Inbox / 知识与行动”，长内容省略；可换行的操作区含灰点“已保存”、灰撤销/重做、星标、分享图标、灰禁用保存图标、更多…。格式工具栏是真实横向滚动单行，当前左端可见“标题 1”下拉、B、I、删除线S、行内代码、T×、文字颜色A、左对齐图标，底部细横向滚动条暗示后续工具；不缩小塞全部。下一行模式“文档编辑”（蓝色选中）“Markdown 源码”“阅读”，右侧或换行的“章节目录”图标按钮。正文顶栏“文档编辑”和小字“手动保存 · Ctrl+S”。富文本区域正常呈现大标题“知识与行动”、段落“用于富文本边界运行核验的隔离示例。”、二级标题“记录方法”、两条项目“收集想法”“保留下一步”、2列表格表头“项目 / 状态”及行“界面盘点 / 进行中”、蓝色链接“参考链接”，再一张很小的中性山景插图；正文内部正常纵向滚动，不把表格做成图片。底部正文统计“正文字符 61”和宿主底部导航“笔记”“最近”“收藏”“应用”“更多”，笔记选中。两屏保留同一现有编辑器布局，B自然换行而不丢动作。没有自动保存、访客入口、新功能、审查文字。",
+          "referenced_image_paths": [
+            "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D020.png",
+            "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+          ],
+          "transparent_background": false
+        },
+        "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-ca492c1c-e1bc-40fc-9887-85039f770284.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+      }
+    ],
+    "priorGenerationHistory": null,
+    "interruptionRecovery": null
+  },
+  "metadataAmendments": [
+    {
+      "atUtc": "2026-11-05T09:18:09.836367+00:00",
+      "reason": "Attach observed current receipt, source byte verification and full prior revision chain without changing PNG or rewriting historical no-receipt status."
+    }
+  ]
+}

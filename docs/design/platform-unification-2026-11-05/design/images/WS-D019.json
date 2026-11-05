@@ -1,0 +1,71 @@
+{
+  "kind": "generated-design",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "reviewStatus": "pending-independent-review",
+  "generationCallCount": 1,
+  "postprocessing": "None. Tool-generated original copied exclusively with no pixel manipulation.",
+  "id": "WS-D019",
+  "sourceIds": [
+    "WS-023"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-023",
+      "title": "Canonical shared directory tree selector popup",
+      "role": "authenticated owner",
+      "state": "Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.",
+      "presentationInstruction": "Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints."
+    }
+  ],
+  "prompt": "Create an exact GPT Image 2 design mockup for existing DooKnow UI. Render one readable complete app-owned window with sufficient host context. Never pretend independent panels are simultaneously open. Captions outside app UI state source ID/title/role/state.\nASSET WS-D019 Canonical shared directory tree selector popup\nVIEWPORT Readable desktop full window/panel; independent board views each use a1440px desktop host or readable window crop.\nPANELS [{\"label\":\"full\",\"sourceId\":\"WS-023\",\"title\":\"Canonical shared directory tree selector popup\",\"role\":\"authenticated owner\",\"state\":\"Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.\",\"presentationInstruction\":\"Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.\"}]\nFOCUS Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.\nActual ToDoo screenshot is STYLE ONLY (hierarchy, palette, typography, spacing, density); brand DooKnow. Actual platform screenshot is CONTENT/ROLE reference, not target style. Fictional legal examples only; masked secrets and example.invalid URLs.\nCOMPLETE FIELDS IN SOURCE ORDER:\nWS-023 搜索目录 [search; optional]: No additional client constraint found; server validation not otherwise verified.\nWS-023 目录选择 [tree-select; required]: Root + supplied folder hierarchy; selecting a string emits new value.\nIMPLEMENTED ACTION WHITELIST:\nWS-023 选择目录: Change only caller target folder; guard: Owner session; control-specific guards described in permissionRules.\nWS-023 展开 / 搜索 / Escape: Browse/filter or close popup; guard: Owner session; control-specific guards described in permissionRules.\nPERMISSIONS:\nAuthenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\nThis row is the canonical shared DirectoryTreeSelect visual. Settings ST-015 references this image instead of duplicating the same widget. Each host supplies its own folders/root label/value/disabled state and retains its own selection/submit permission policy; the shared widget grants no additional directory authority.\nALL IMPORTANT STATES (stateCoverage maps visible/shared-pattern/nonvisual rules; never depict incompatible alternatives together):\nWS-023: Expanded ancestors of selection\nWS-023: Search expands all folders\nWS-023: Disabled while caller busy\nSOURCE NOTES:\nWS-023: Canonical visual owner WS-023; ST-015 is a host-context reference. Keep per-host valid root choices, existing-directory lists and busy guards distinct.\nRESPONSIVE Linked390/320 jobs handle compact field order/drawer/stacking and safe scrolling. \nFORBIDDEN:\nBrand is DooKnow; ToDoo is an existing app and style reference only.\nNo invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\nNo real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\nNever render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\nNo native OS/browser picker or print-dialog chrome.\nNo owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\nNo developer/source/API path or review-note text inside product UI.\nAll mockups and per-image/global functional reviews must pass before product development. Do not draw protocol metadata as form controls.\nEXACT SOURCE-HOST REALIZATION: Render a readable close crop of the actual Workspace search-sidebar directory selector, not a newly invented dialog. Enough host context consists of DooKnow brand above existing search controls and a small neutral adjacent main-pane edge. Selected visible state is enabled dropdown open, expanded ancestors of current selection, NOT busy. Actual host root label is 所有目录. Field order in the host: search query 知识; 搜索模式 set to 混合检索; 搜索目录 tree-select showing selected path 30-Knowledge / 方法. The ATreeSelect combobox supports optional text search; render its editable/searchable control directly above the anchored tree, no new standalone modal field. Popup root 所有目录 expanded, child 00-Inbox collapsed, child 30-Knowledge expanded, nested 方法 selected with a pale blue row and checkmark; nested 参考资料 and sibling Projects may appear as fictional supplied existing folders. The selected ancestors are expanded. Show chevrons and tree guide lines; popup list height is bounded and can internally scroll. Existing folder names are choices only, never editable management fields. Choose by row click; Escape closes the popup. Do NOT draw confirmation/cancel footer, new-folder/create/delete/rename buttons, upload buttons, directory management menus, permissions, native file picker or any toolbar inside the tree popup. No modal title '选择目录' or additional authority implied. Do not render source paths or implementation metadata. Do not add host New/Delete controls to this close crop. The disabled-busy and active-filter-expands-all states are separate unrendered contracts, not simultaneous visual claims.\nFLAT STYLE CONTRACT: Style authority is actual ToDoo screenshot ONLY; source authority is actual DooKnow components. No ToDoo task/goal actions. Solid #ffffff main/header; #f7f8fa sidebar; #272b3a text; #657084 muted; #e6e9f1 borders; #4566c6 primary; #edf1ff selected. Thin crisp line icons, clean sans-serif Chinese, 8px radii, minimal shadow. No gradient, texture, grain, glow, bevel, simulated paper or illustration. Include source ID/title/authenticated owner/selected visible state in a thin external margin, never inside product UI. No browser chrome or device frame. No invented save, AI, sharing or collaboration UI.",
+  "originalJobPrompt": "Create an exact GPT Image 2 design mockup for existing DooKnow UI. Render one readable complete app-owned window with sufficient host context. Never pretend independent panels are simultaneously open. Captions outside app UI state source ID/title/role/state.\nASSET WS-D019 Canonical shared directory tree selector popup\nVIEWPORT Readable desktop full window/panel; independent board views each use a1440px desktop host or readable window crop.\nPANELS [{\"label\":\"full\",\"sourceId\":\"WS-023\",\"title\":\"Canonical shared directory tree selector popup\",\"role\":\"authenticated owner\",\"state\":\"Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.\",\"presentationInstruction\":\"Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.\"}]\nFOCUS Canonical shared searchable DirectoryTreeSelect, expanded selected ancestors; retain per-host allowed roots/busy constraints.\nActual ToDoo screenshot is STYLE ONLY (hierarchy, palette, typography, spacing, density); brand DooKnow. Actual platform screenshot is CONTENT/ROLE reference, not target style. Fictional legal examples only; masked secrets and example.invalid URLs.\nCOMPLETE FIELDS IN SOURCE ORDER:\nWS-023 搜索目录 [search; optional]: No additional client constraint found; server validation not otherwise verified.\nWS-023 目录选择 [tree-select; required]: Root + supplied folder hierarchy; selecting a string emits new value.\nIMPLEMENTED ACTION WHITELIST:\nWS-023 选择目录: Change only caller target folder; guard: Owner session; control-specific guards described in permissionRules.\nWS-023 展开 / 搜索 / Escape: Browse/filter or close popup; guard: Owner session; control-specific guards described in permissionRules.\nPERMISSIONS:\nAuthenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\nThis row is the canonical shared DirectoryTreeSelect visual. Settings ST-015 references this image instead of duplicating the same widget. Each host supplies its own folders/root label/value/disabled state and retains its own selection/submit permission policy; the shared widget grants no additional directory authority.\nALL IMPORTANT STATES (stateCoverage maps visible/shared-pattern/nonvisual rules; never depict incompatible alternatives together):\nWS-023: Expanded ancestors of selection\nWS-023: Search expands all folders\nWS-023: Disabled while caller busy\nSOURCE NOTES:\nWS-023: Canonical visual owner WS-023; ST-015 is a host-context reference. Keep per-host valid root choices, existing-directory lists and busy guards distinct.\nRESPONSIVE Linked390/320 jobs handle compact field order/drawer/stacking and safe scrolling. \nFORBIDDEN:\nBrand is DooKnow; ToDoo is an existing app and style reference only.\nNo invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\nNo real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\nNever render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\nNo native OS/browser picker or print-dialog chrome.\nNo owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\nNo developer/source/API path or review-note text inside product UI.\nAll mockups and per-image/global functional reviews must pass before product development. Do not draw protocol metadata as form controls.",
+  "inputReferences": [
+    {
+      "path": "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-01-overview.png",
+      "role": "STYLE ONLY: actual implemented ToDoo hierarchy/palette/spacing/type density/theme. No task fields/actions or platform rebranding."
+    },
+    {
+      "path": "apps/web/components/DirectoryTreeSelect.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DirectoryTreeSelect.vue:1, apps/web/components/DirectoryTreeSelect.vue:126, apps/web/components/Workspace.vue:2828, apps/web/components/NoteMoveDialog.vue:130, apps/web/components/NoteCopyDialog.vue:105, apps/web/components/settings/TransferPanel.vue:520, apps/web/components/GraphWorkspace.vue:844"
+    }
+  ],
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D019.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a79f-db6d-7281-a29c-1887bb1f4ac3/exec-dce0b4e9-087d-49b5-9ae5-4fa30dd905a0.png",
+  "sha256": "afd46c771bb45d10be0db9bcf443962b117f50f0355669147beeddf0b1e67b3c",
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "bytes": 1371370,
+  "generatedAtUtc": "2026-11-04T17:40:48.329Z",
+  "selfInspection": {
+    "method": "Native generated preview inspected in child context against source and style reference.",
+    "behaviorVerified": false,
+    "independentReviewStatus": "pending",
+    "contentStatus": "major-source-authority-drift-needs-correction",
+    "notes": [
+      "Canonical popup shows correct root 所有目录, expanded 30-Knowledge ancestors, selected 方法, chevrons/tree lines and existing folders. No create/delete/rename/confirmation controls were invented inside popup.",
+      "Major host drift: generator added unsupported 首页/搜索/知识库/工作空间/标签 navigation and top 知识/行动/成果 labels from the style reference, with a ToDoo-like checkmark logo.",
+      "Requested close crop became a broad invented app host; neutral adjacent pane contains an unrequested skeleton card motif.",
+      "Current selected path is visible in editable tree-select; no explicit separate optional directory-search label/input appears. Active-search expansion, busy disable, bounded scrolling and Escape are not proven.",
+      "External source/role/state caption is present. Residual texture and approximate geometry remain; independent review required before any use."
+    ]
+  }
+}

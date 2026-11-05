@@ -1,0 +1,15 @@
+{
+  "id": "public-collection",
+  "title": "公开合集路线",
+  "width": 1440,
+  "audience": "public",
+  "route": "/blog/-/collections/baseline-series",
+  "file": "1440-public-collection.png",
+  "sha256": "4c9332807c7505be19ad89eeac6ef52ef878acecbb3d1fcf3dfd289b7de2fff6",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "pageErrors": [],
+  "outerOverflow": 0
+}

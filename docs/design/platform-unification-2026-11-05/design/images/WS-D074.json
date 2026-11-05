@@ -1,0 +1,443 @@
+{
+  "assetId": "WS-D074",
+  "sourceIds": [
+    "WS-098"
+  ],
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "responsive-board",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-098",
+      "title": "Compact more-navigation sheet",
+      "role": "authenticated owner",
+      "state": "Separate390/320 compact navigation and source-defined short-landscape/tablet/coarse-pointer portrait rules.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate390/320 compact navigation and source-defined short-landscape/tablet/coarse-pointer portrait rules."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-098",
+      "title": "Compact more-navigation sheet",
+      "role": "authenticated owner",
+      "state": "Separate390/320 compact navigation and source-defined short-landscape/tablet/coarse-pointer portrait rules.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate390/320 compact navigation and source-defined short-landscape/tablet/coarse-pointer portrait rules."
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "Use case: ui-mockup. 高清中文移动端组件设计板，三个独立可读面板，A为390px、B/C为320px宽；无设备外壳，普通字号，不将长表单压缩塞满。白底#fff、浅面#f7f8fa、文字#272b3a、蓝色#4566c6、细线#e6e9f1、8px圆角，参考图1仅作样式，图2仅作现有内容。只画局部组件，不重复外部导航。标题和控件真实自然，不把设计编号或技术合同画进UI。仅两个独立底部更多导航sheet：A390宽，顶部标题DooKnow、右上关闭×；账户按钮头像O与示例用户；导航笔记、最近、收藏、应用、知识图谱，知识图谱当前选中；分隔后回收站、设置；底部tabbar笔记/最近/收藏/应用/更多，更多被选中。B320宽为知识图谱的专用sheet，顶部知识图谱、右上关闭×，身份区返回按钮；主导航知识图谱、笔记图谱、关系审核带徽标2、后台分析带徽标1、图谱问答、视图与导出；工具模型设置。视图与导出当前选中，底部tabbar知识图谱/笔记图谱/关系审核徽标2/后台分析徽标1/更多，更多选中。B所有导航处于非busy可用。两个独立sheet后方仅浅色遮罩，不加其他弹窗；菜单正常字号、长名称换行，关闭始终可达。",
+  "sourceContracts": [
+    {
+      "id": "WS-098",
+      "title": "Compact more-navigation sheet",
+      "kind": "drawer",
+      "module": "navigation",
+      "entry": {
+        "route": "/ and hosted apps",
+        "trigger": "更多导航 bottom tab",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/WorkspaceMainMenu.vue:106",
+        "apps/web/components/WorkspaceFooter.vue:31",
+        "apps/web/workspace-tabbar.css:1",
+        "apps/web/components/WorkspaceMainMenu.vue:36",
+        "apps/web/workspace-tabbar.css:37"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "笔记 / 最近 / 收藏 / 应用 / 已固定应用 / 回收站 / 设置",
+          "effect": "Navigate existing destinations and close menu",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "关闭 / scrim / Escape",
+          "effect": "Dismiss compact navigation",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Overflow selected tab/badge",
+        "Graph hosted menu changes app-specific navigation",
+        "Compact role=dialog aria-modal",
+        "Short landscape compact navigation",
+        "Portrait tablet and coarse-pointer portrait compact navigation",
+        "Media-query switch closes menu and preserves navigation focus"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Exact compact condition: width<=720px OR(width<=960px AND height<=500px) OR(width<=1100px AND portrait) OR(width<=1366px AND portrait AND pointer:coarse). Matching CSS sets bottom inset68px+safe-area, uses tabbar/more sheet and shrinks main height. Menu closes on media change and focus moves to active visible navigation control. Actual320/390/1440 plus tablet/short-landscape conditions unverified."
+      },
+      "testRefs": [
+        "tests/workspace-main-menu.test.ts",
+        "tests/e2e/graph-hosted-navigation.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "originalManifestContract": {
+    "id": "WS-D074",
+    "title": "Compact more-navigation sheet",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-098"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-098",
+        "title": "Compact more-navigation sheet",
+        "role": "authenticated owner",
+        "state": "Separate390/320 compact navigation and source-defined short-landscape/tablet/coarse-pointer portrait rules.",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "presentationInstruction": "Separate390/320 compact navigation and source-defined short-landscape/tablet/coarse-pointer portrait rules."
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-098",
+        "title": "Compact more-navigation sheet",
+        "role": "authenticated owner",
+        "state": "Separate390/320 compact navigation and source-defined short-landscape/tablet/coarse-pointer portrait rules.",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "presentationInstruction": "Separate390/320 compact navigation and source-defined short-landscape/tablet/coarse-pointer portrait rules."
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "apps/web/components/WorkspaceMainMenu.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/WorkspaceMainMenu.vue:106, apps/web/components/WorkspaceFooter.vue:31, apps/web/workspace-tabbar.css:1, apps/web/components/WorkspaceMainMenu.vue:36, apps/web/workspace-tabbar.css:37"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-098",
+        "label": "笔记 / 最近 / 收藏 / 应用 / 已固定应用 / 回收站 / 设置",
+        "effect": "Navigate existing destinations and close menu",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-098",
+        "label": "关闭 / scrim / Escape",
+        "effect": "Dismiss compact navigation",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-D074",
+        "representation": "direct",
+        "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Exact compact condition: width<=720px OR(width<=960px AND height<=500px) OR(width<=1100px AND portrait) OR(width<=1366px AND portrait AND pointer:coarse). Matching CSS sets bottom inset68px+safe-area, uses tabbar/more sheet and shrinks main height. Menu closes on media change and focus moves to active visible navigation control. Actual320/390/1440 plus tablet/short-landscape conditions unverified."
+        },
+        "requiredFieldOrder": [],
+        "requiredFields": [],
+        "requiredActions": [
+          {
+            "label": "笔记 / 最近 / 收藏 / 应用 / 已固定应用 / 回收站 / 设置",
+            "effect": "Navigate existing destinations and close menu",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "关闭 / scrim / Escape",
+            "effect": "Dismiss compact navigation",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-098"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D074 Compact more-navigation sheet\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-098\", \"title\": \"Compact more-navigation sheet\", \"role\": \"authenticated owner\", \"state\": \"Separate390/320 compact navigation and source-defined short-landscape/tablet/coarse-pointer portrait rules.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate390/320 compact navigation and source-defined short-landscape/tablet/coarse-pointer portrait rules.\"}, {\"label\": \"B\", \"sourceId\": \"WS-098\", \"title\": \"Compact more-navigation sheet\", \"role\": \"authenticated owner\", \"state\": \"Separate390/320 compact navigation and source-defined short-landscape/tablet/coarse-pointer portrait rules.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate390/320 compact navigation and source-defined short-landscape/tablet/coarse-pointer portrait rules.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-098\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"笔记 / 最近 / 收藏 / 应用 / 已固定应用 / 回收站 / 设置\", \"effect\": \"Navigate existing destinations and close menu\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"关闭 / scrim / Escape\", \"effect\": \"Dismiss compact navigation\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Overflow selected tab/badge\", \"Graph hosted menu changes app-specific navigation\", \"Compact role=dialog aria-modal\", \"Short landscape compact navigation\", \"Portrait tablet and coarse-pointer portrait compact navigation\", \"Media-query switch closes menu and preserves navigation focus\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-098\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"笔记 / 最近 / 收藏 / 应用 / 已固定应用 / 回收站 / 设置\", \"effect\": \"Navigate existing destinations and close menu\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"关闭 / scrim / Escape\", \"effect\": \"Dismiss compact navigation\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Overflow selected tab/badge\", \"Graph hosted menu changes app-specific navigation\", \"Compact role=dialog aria-modal\", \"Short landscape compact navigation\", \"Portrait tablet and coarse-pointer portrait compact navigation\", \"Media-query switch closes menu and preserves navigation focus\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D074.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-098",
+        "title": "Compact more-navigation sheet",
+        "kind": "drawer",
+        "module": "navigation",
+        "entry": {
+          "route": "/ and hosted apps",
+          "trigger": "更多导航 bottom tab",
+          "parentId": "WS-001"
+        },
+        "sourceRefs": [
+          "apps/web/components/WorkspaceMainMenu.vue:106",
+          "apps/web/components/WorkspaceFooter.vue:31",
+          "apps/web/workspace-tabbar.css:1",
+          "apps/web/components/WorkspaceMainMenu.vue:36",
+          "apps/web/workspace-tabbar.css:37"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "fields": [],
+        "actions": [
+          {
+            "label": "笔记 / 最近 / 收藏 / 应用 / 已固定应用 / 回收站 / 设置",
+            "effect": "Navigate existing destinations and close menu",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "关闭 / scrim / Escape",
+            "effect": "Dismiss compact navigation",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Overflow selected tab/badge",
+          "Graph hosted menu changes app-specific navigation",
+          "Compact role=dialog aria-modal",
+          "Short landscape compact navigation",
+          "Portrait tablet and coarse-pointer portrait compact navigation",
+          "Media-query switch closes menu and preserves navigation focus"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Exact compact condition: width<=720px OR(width<=960px AND height<=500px) OR(width<=1100px AND portrait) OR(width<=1366px AND portrait AND pointer:coarse). Matching CSS sets bottom inset68px+safe-area, uses tabbar/more sheet and shrinks main height. Menu closes on media change and focus moves to active visible navigation control. Actual320/390/1440 plus tablet/short-landscape conditions unverified."
+        },
+        "testRefs": [
+          "tests/workspace-main-menu.test.ts",
+          "tests/e2e/graph-hosted-navigation.spec.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-098",
+        "parentId": "WS-001",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-098",
+    "stateCoverageRefs": [
+      {
+        "sourceId": "WS-098",
+        "state": "Overflow selected tab/badge",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-098",
+        "state": "Graph hosted menu changes app-specific navigation",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-098",
+        "state": "Compact role=dialog aria-modal",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-098",
+        "state": "Short landscape compact navigation",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-098",
+        "state": "Portrait tablet and coarse-pointer portrait compact navigation",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-098",
+        "state": "Media-query switch closes menu and preserves navigation focus",
+        "representation": "nonvisual-data-rule"
+      }
+    ],
+    "statePatternRefs": [],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "manifestReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-045.json",
+  "sourceDerived": true,
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "Use case: ui-mockup. 高清中文移动端组件设计板，三个独立可读面板，A为390px、B/C为320px宽；无设备外壳，普通字号，不将长表单压缩塞满。白底#fff、浅面#f7f8fa、文字#272b3a、蓝色#4566c6、细线#e6e9f1、8px圆角，参考图1仅作样式，图2仅作现有内容。只画局部组件，不重复外部导航。标题和控件真实自然，不把设计编号或技术合同画进UI。仅两个独立底部更多导航sheet：A390宽，顶部标题DooKnow、右上关闭×；账户按钮头像O与示例用户；导航笔记、最近、收藏、应用、知识图谱，知识图谱当前选中；分隔后回收站、设置；底部tabbar笔记/最近/收藏/应用/更多，更多被选中。B320宽为知识图谱的专用sheet，顶部知识图谱、右上关闭×，身份区返回按钮；主导航知识图谱、笔记图谱、关系审核带徽标2、后台分析带徽标1、图谱问答、视图与导出；工具模型设置。视图与导出当前选中，底部tabbar知识图谱/笔记图谱/关系审核徽标2/后台分析徽标1/更多，更多选中。B所有导航处于非busy可用。两个独立sheet后方仅浅色遮罩，不加其他弹窗；菜单正常字号、长名称换行，关闭始终可达。",
+  "actualToolArguments": {
+    "prompt": "Use case: ui-mockup. 高清中文移动端组件设计板，三个独立可读面板，A为390px、B/C为320px宽；无设备外壳，普通字号，不将长表单压缩塞满。白底#fff、浅面#f7f8fa、文字#272b3a、蓝色#4566c6、细线#e6e9f1、8px圆角，参考图1仅作样式，图2仅作现有内容。只画局部组件，不重复外部导航。标题和控件真实自然，不把设计编号或技术合同画进UI。仅两个独立底部更多导航sheet：A390宽，顶部标题DooKnow、右上关闭×；账户按钮头像O与示例用户；导航笔记、最近、收藏、应用、知识图谱，知识图谱当前选中；分隔后回收站、设置；底部tabbar笔记/最近/收藏/应用/更多，更多被选中。B320宽为知识图谱的专用sheet，顶部知识图谱、右上关闭×，身份区返回按钮；主导航知识图谱、笔记图谱、关系审核带徽标2、后台分析带徽标1、图谱问答、视图与导出；工具模型设置。视图与导出当前选中，底部tabbar知识图谱/笔记图谱/关系审核徽标2/后台分析徽标1/更多，更多选中。B所有导航处于非busy可用。两个独立sheet后方仅浅色遮罩，不加其他弹窗；菜单正常字号、长名称换行，关闭始终可达。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "inputs": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "inputReferences": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-a28239f0-b4d3-4aae-8bdc-a0632526c3dd.png",
+  "toolDefaultOutputSource": "$CODEX_HOME/generated_images (actual path in toolOutputFile)",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D074.png",
+  "sha256": "be3bdddeb5e8d398ee0227eff7d6fba103c0c8a02871f305abe35dc955e2e38b",
+  "bytes": 1168550,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T08:38:51.137440+00:00",
+  "revisionOf": null,
+  "generationAttempts": [
+    {
+      "actualToolArguments": {
+        "prompt": "Use case: ui-mockup. 高清中文移动端组件设计板，三个独立可读面板，A为390px、B/C为320px宽；无设备外壳，普通字号，不将长表单压缩塞满。白底#fff、浅面#f7f8fa、文字#272b3a、蓝色#4566c6、细线#e6e9f1、8px圆角，参考图1仅作样式，图2仅作现有内容。只画局部组件，不重复外部导航。标题和控件真实自然，不把设计编号或技术合同画进UI。仅两个独立底部更多导航sheet：A390宽，顶部标题DooKnow、右上关闭×；账户按钮头像O与示例用户；导航笔记、最近、收藏、应用、知识图谱，知识图谱当前选中；分隔后回收站、设置；底部tabbar笔记/最近/收藏/应用/更多，更多被选中。B320宽为知识图谱的专用sheet，顶部知识图谱、右上关闭×，身份区返回按钮；主导航知识图谱、笔记图谱、关系审核带徽标2、后台分析带徽标1、图谱问答、视图与导出；工具模型设置。视图与导出当前选中，底部tabbar知识图谱/笔记图谱/关系审核徽标2/后台分析徽标1/更多，更多选中。B所有导航处于非busy可用。两个独立sheet后方仅浅色遮罩，不加其他弹窗；菜单正常字号、长名称换行，关闭始终可达。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-a28239f0-b4d3-4aae-8bdc-a0632526c3dd.png",
+      "status": "saved"
+    }
+  ],
+  "postprocessing": "original PNG copied without pixel modification",
+  "selfInspection": {
+    "method": "Viewed actual inputs and generated native preview; compared selected state to source contracts",
+    "concerns": [
+      "Static design only; exact source controls retained, drawer scrolling/focus not runtime verified."
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "reviewStatus": "pending-independent-review",
+  "pendingReview": true
+}

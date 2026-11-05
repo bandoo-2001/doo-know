@@ -1,0 +1,434 @@
+{
+  "id": "WS-M019",
+  "title": "Loaded structured diff layout and narrow fallback geometry",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-064",
+    "WS-066"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-064",
+      "title": "Loaded saved-history diff, wide side-by-side",
+      "role": "authenticated owner",
+      "state": "Parsed ready one-file patch; viewport>=640 and renderer width>=600, user selected side-by-side. Existing saved compare/source control row with teleported layout controls, full parsed file heading/count/hunk/table, collapsed raw disclosure."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-064",
+      "title": "Loaded saved-history diff, narrow unified",
+      "role": "authenticated owner",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "state": "Same parsed patch at320; forced unified, side-by-side button disabled, three-column table, raw disclosure collapsed. History parent CSS hides generic narrow hint."
+    }
+  ],
+  "viewportIntent": "Two readable independent local comparison regions, not two complete dialogs; wide renderer>=600 and narrow320 equivalent.390 uses same forced unified branch.",
+  "referenceInputs": [
+    {
+      "path": "packages/plugin-ui/diff-view.ts",
+      "role": "Actual parsed renderer and layout guards; source text only"
+    },
+    {
+      "path": "apps/web/components/NoteHistoryDialog.vue",
+      "role": "Saved compare/original tabs and teleported toolbar host, parent narrow-hint suppression; source text only"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "label": "差异对比 / 历史原文",
+      "effect": "Existing saved-history mode switch",
+      "guard": "Existing busy/git.busy/savePending/git.pendingRestore protections; no Git source tab substitution"
+    },
+    {
+      "label": "逐行",
+      "effect": "preferredLayout=line-by-line",
+      "guard": "document.status ready"
+    },
+    {
+      "label": "左右对照",
+      "effect": "preferredLayout=side-by-side",
+      "guard": "document.status ready and !narrow"
+    },
+    {
+      "label": "原始差异",
+      "effect": "Toggle native details readonly raw patch",
+      "guard": "Ready starts collapsed"
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "widths": [
+        320,
+        390
+      ],
+      "representation": "exact-narrow-renderer",
+      "requiredActions": [
+        "逐行",
+        "左右对照 (disabled)",
+        "原始差异 disclosure"
+      ],
+      "sourceConstraint": "innerWidth<640 OR positive renderer width<600 forces unified; note-history parent hides narrow hint",
+      "requiresActualFitReview": true
+    }
+  ],
+  "prompt": "Use case: ui-mockup. Generate one new precise high-fidelity flat UI comparison board for an EXISTING saved-note-history structured diff component in DooKnow. Exactly two independent LOCAL component specimens side by side: A a wide content region at least600px-equivalent, B a320px-equivalent narrow content region. Only tiny A/B outside the product; no device/browser/complete modal/sidebar/navigation, no explanatory headings or dimensions in the UI. White/light gray flat surfaces, fine #e6e9f1 borders, restrained8px corners, #272b3a text, #657084 secondary, #4566c6 selection with pale #edf1ff. Normal readable typography; diff code uses monospace and naturally wraps; do not make the narrow specimen a tiny full-page thumbnail.\n\nBoth represent a successfully parsed READY comparison, same file label \"示例笔记\", exactly ONE deletion and ONE insertion. At top each has the real saved-history tab pair \"差异对比\" (active) then \"历史原文\" (inactive). Beside them the separate real layout buttons \"逐行\" and \"左右对照\"; can naturally wrap at narrow width.\nA: \"左右对照\" is selected and enabled, \"逐行\" unselected enabled.\nB: \"逐行\" selected, \"左右对照\" unselected and visibly DISABLED pale gray. Do NOT draw a narrow-window explanation: the actual history parent hides that hint.\nNext actual file heading \"示例笔记\" with computed count exact text \"新增 1 行，删除 1 行\".\nThen actual structured diff table:\nA has FOUR headers in this exact order: \"旧行\" | \"旧内容\" | \"新行\" | \"新内容\".\nOne hunk header row spans all4 columns: \"@@ -1 +1 @@\".\nOne paired change row: old line1 with exact code \"-旧内容\" on pale red; new line1 with exact code \"+新内容\" on pale green.\nB has THREE headers in order: \"旧行\" | \"新行\" | \"内容\".\nSame spanning hunk header \"@@ -1 +1 @@\".\nTwo actual unified rows: first old line1, new line empty, content \"-旧内容\" with pale red; second old line empty, new line1, content \"+新内容\" with pale green.\nKeep ASCII minus and plus as visible parts of the readonly code content. No double-count or context line. The same exact1-insert/1-delete count in both views.\nBelow each table retain one default-collapsed native disclosure, right-pointing marker and exact label \"原始差异\". Its raw code body is NOT visible while collapsed.\nNo copy/download/restore/close/OK/search/filter action. No progress, loading/error notice, parser unavailable or retry button: this is ready, not fallback. No Git commit selector, author, push control or saved-version picker in these local crops. No editable inputs, no source/API/role metadata. All buttons shown are existing layout/tab/disclosure controls, not invented functionality. Keep every table header, count, line number, source sign and control legible and inside its component. External comparison spacing is not a new application card workflow.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M019.png",
+  "reviewStatus": "pending-independent-review",
+  "geometryFamily": "DiffView parsed ready tables and layout controls in actual saved-history control-row, wide versus forced narrow",
+  "sourceContracts": [
+    {
+      "id": "WS-064",
+      "title": "Saved note history and diff modal",
+      "kind": "dialog",
+      "module": "history",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "历史版本",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/NoteHistoryDialog.vue:511",
+        "apps/web/components/NoteHistoryDialog.vue:587",
+        "apps/web/note-history.ts:1",
+        "apps/server/app.ts:445"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "历史版本",
+          "type": "version-select",
+          "required": true,
+          "constraints": "Saved revisions, 50 per server page; mobile select replaces list.",
+          "sensitive": false
+        },
+        {
+          "name": "历史内容视图",
+          "type": "tabs",
+          "required": true,
+          "constraints": "差异对比 | 历史原文",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "选择版本 / 加载更早版本",
+          "effect": "Fetch version list/source and compute difference",
+          "api": "GET /api/notes/:id/revisions; POST /api/notes/:id/revisions/:revisionId/read",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "恢复此版本",
+          "effect": "Enter explicit second confirmation",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "关闭",
+          "effect": "Close when history not locked",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Loading/empty/error/retry",
+        "Read/diff computing",
+        "Renderer loading/failure with raw-diff fallback",
+        "Unsaved draft excluded from comparison",
+        "Baseline stale",
+        "Pending restore locks navigation"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px nearly full viewport (100vw-12px x 100dvh-12px), mobile version picker and stacked chrome; <=360px compact diff tabs/tools; desktop split version list + diff (NoteHistoryDialog.vue:1671,1859)."
+      },
+      "testRefs": [
+        "tests/note-history.test.ts",
+        "tests/e2e/unified-note-history.spec.ts",
+        "tests/note-history-context.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-066",
+      "title": "Git commit history source in unified history",
+      "kind": "state",
+      "module": "history",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Git 提交 tab when plugin available",
+        "parentId": "WS-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/NoteHistoryDialog.vue:565",
+        "apps/web/components/NoteHistoryDialog.vue:767",
+        "apps/web/components/NoteHistoryDialog.vue:51"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "Git 提交",
+          "type": "select",
+          "required": true,
+          "constraints": "Commit list available only through installed git plugin.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "选择提交 / 重试读取",
+          "effect": "Read plugin note history/diff",
+          "api": "POST /api/plugins/git/call",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "恢复此版本 / 确认恢复笔记",
+          "effect": "Restore chosen note version through git plugin",
+          "api": "POST /api/plugins/git/call",
+          "guard": "Diff loaded; no restoreBlockedCode/needsReload; plugin available"
+        }
+      ],
+      "importantStates": [
+        "Plugin unavailable warning",
+        "Dirty draft retained",
+        "Prior-note pending restore context",
+        "Restore needs reload",
+        "Git diff fallback",
+        "Pending receipt verification"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/plugin-note-action-history.test.ts",
+        "tests/e2e/unified-note-history.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Git remote/sync management belongs to platform inventory; this is note-level history."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-064",
+      "parentId": "WS-024",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Local saved history comparison controls/body; full header/footer and source picker stay in parent assets"
+    },
+    {
+      "sourceId": "WS-066",
+      "parentId": "WS-064",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Reuse parsed table and inline layout controls only; no saved tabs, no toolbarTarget, Git commit baseline and guards retained"
+    }
+  ],
+  "presentationScope": "actual-local-loaded-comparison-control-row-and-body",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 2,
+    "maxCompactRowsPerRenderer": 0
+  },
+  "stateCoverageRefs": [],
+  "statePatternRefs": [],
+  "sourceRefs": [
+    "packages/plugin-ui/diff-view.ts:27",
+    "packages/plugin-ui/diff-view.ts:115",
+    "packages/plugin-ui/diff-view.ts:217",
+    "packages/plugin-ui/diff-view.ts:262",
+    "apps/web/components/NoteHistoryDialog.vue:840",
+    "apps/web/components/NoteHistoryDialog.vue:919",
+    "apps/web/components/NoteHistoryDialog.vue:1423",
+    "apps/web/components/NoteHistoryDialog.vue:1538"
+  ],
+  "parentImageBindings": [
+    {
+      "assetId": "WS-D046",
+      "panel": "full",
+      "scope": "Saved history header/footer only; loaded content supplied separately here",
+      "sha256": "d6471a1732da6ab1b9b32ac3ea8aecd3fb40fd4da891e36703d70eaefe239626"
+    },
+    {
+      "assetId": "WS-R023",
+      "panels": [
+        "A",
+        "B"
+      ],
+      "scope": "Phone saved modal framing and existing outer controls; original/failure bodies excluded",
+      "sha256": "b1c5d42124c21df7f18feb48a367b4a8b14f8faa9ad933a0916ec89e8b8e82fe"
+    }
+  ],
+  "samplePatch": "--- a/example.md\n+++ b/example.md\n@@ -1 +1 @@\n-旧内容\n+新内容\n",
+  "sampleFileLabel": "示例笔记",
+  "sampleCounts": {
+    "added": 1,
+    "deleted": 1
+  },
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "assetId": "WS-M019",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "Use case: ui-mockup. Generate one new precise high-fidelity flat UI comparison board for an EXISTING saved-note-history structured diff component in DooKnow. Exactly two independent LOCAL component specimens side by side: A a wide content region at least600px-equivalent, B a320px-equivalent narrow content region. Only tiny A/B outside the product; no device/browser/complete modal/sidebar/navigation, no explanatory headings or dimensions in the UI. White/light gray flat surfaces, fine #e6e9f1 borders, restrained8px corners, #272b3a text, #657084 secondary, #4566c6 selection with pale #edf1ff. Normal readable typography; diff code uses monospace and naturally wraps; do not make the narrow specimen a tiny full-page thumbnail.\n\nBoth represent a successfully parsed READY comparison, same file label \"示例笔记\", exactly ONE deletion and ONE insertion. At top each has the real saved-history tab pair \"差异对比\" (active) then \"历史原文\" (inactive). Beside them the separate real layout buttons \"逐行\" and \"左右对照\"; can naturally wrap at narrow width.\nA: \"左右对照\" is selected and enabled, \"逐行\" unselected enabled.\nB: \"逐行\" selected, \"左右对照\" unselected and visibly DISABLED pale gray. Do NOT draw a narrow-window explanation: the actual history parent hides that hint.\nNext actual file heading \"示例笔记\" with computed count exact text \"新增 1 行，删除 1 行\".\nThen actual structured diff table:\nA has FOUR headers in this exact order: \"旧行\" | \"旧内容\" | \"新行\" | \"新内容\".\nOne hunk header row spans all4 columns: \"@@ -1 +1 @@\".\nOne paired change row: old line1 with exact code \"-旧内容\" on pale red; new line1 with exact code \"+新内容\" on pale green.\nB has THREE headers in order: \"旧行\" | \"新行\" | \"内容\".\nSame spanning hunk header \"@@ -1 +1 @@\".\nTwo actual unified rows: first old line1, new line empty, content \"-旧内容\" with pale red; second old line empty, new line1, content \"+新内容\" with pale green.\nKeep ASCII minus and plus as visible parts of the readonly code content. No double-count or context line. The same exact1-insert/1-delete count in both views.\nBelow each table retain one default-collapsed native disclosure, right-pointing marker and exact label \"原始差异\". Its raw code body is NOT visible while collapsed.\nNo copy/download/restore/close/OK/search/filter action. No progress, loading/error notice, parser unavailable or retry button: this is ready, not fallback. No Git commit selector, author, push control or saved-version picker in these local crops. No editable inputs, no source/API/role metadata. All buttons shown are existing layout/tab/disclosure controls, not invented functionality. Keep every table header, count, line number, source sign and control legible and inside its component. External comparison spacing is not a new application card workflow.",
+  "actualToolArguments": {
+    "prompt": "Use case: ui-mockup. Generate one new precise high-fidelity flat UI comparison board for an EXISTING saved-note-history structured diff component in DooKnow. Exactly two independent LOCAL component specimens side by side: A a wide content region at least600px-equivalent, B a320px-equivalent narrow content region. Only tiny A/B outside the product; no device/browser/complete modal/sidebar/navigation, no explanatory headings or dimensions in the UI. White/light gray flat surfaces, fine #e6e9f1 borders, restrained8px corners, #272b3a text, #657084 secondary, #4566c6 selection with pale #edf1ff. Normal readable typography; diff code uses monospace and naturally wraps; do not make the narrow specimen a tiny full-page thumbnail.\n\nBoth represent a successfully parsed READY comparison, same file label \"示例笔记\", exactly ONE deletion and ONE insertion. At top each has the real saved-history tab pair \"差异对比\" (active) then \"历史原文\" (inactive). Beside them the separate real layout buttons \"逐行\" and \"左右对照\"; can naturally wrap at narrow width.\nA: \"左右对照\" is selected and enabled, \"逐行\" unselected enabled.\nB: \"逐行\" selected, \"左右对照\" unselected and visibly DISABLED pale gray. Do NOT draw a narrow-window explanation: the actual history parent hides that hint.\nNext actual file heading \"示例笔记\" with computed count exact text \"新增 1 行，删除 1 行\".\nThen actual structured diff table:\nA has FOUR headers in this exact order: \"旧行\" | \"旧内容\" | \"新行\" | \"新内容\".\nOne hunk header row spans all4 columns: \"@@ -1 +1 @@\".\nOne paired change row: old line1 with exact code \"-旧内容\" on pale red; new line1 with exact code \"+新内容\" on pale green.\nB has THREE headers in order: \"旧行\" | \"新行\" | \"内容\".\nSame spanning hunk header \"@@ -1 +1 @@\".\nTwo actual unified rows: first old line1, new line empty, content \"-旧内容\" with pale red; second old line empty, new line1, content \"+新内容\" with pale green.\nKeep ASCII minus and plus as visible parts of the readonly code content. No double-count or context line. The same exact1-insert/1-delete count in both views.\nBelow each table retain one default-collapsed native disclosure, right-pointing marker and exact label \"原始差异\". Its raw code body is NOT visible while collapsed.\nNo copy/download/restore/close/OK/search/filter action. No progress, loading/error notice, parser unavailable or retry button: this is ready, not fallback. No Git commit selector, author, push control or saved-version picker in these local crops. No editable inputs, no source/API/role metadata. All buttons shown are existing layout/tab/disclosure controls, not invented functionality. Keep every table header, count, line number, source sign and control legible and inside its component. External comparison spacing is not a new application card workflow.",
+    "transparent_background": false
+  },
+  "inputs": [],
+  "inputReferences": [],
+  "actualImageInputOrder": [],
+  "sourceInspection": [
+    {
+      "path": "packages/plugin-ui/diff-view.ts",
+      "role": "Current renderer and parent control-row source inspected before generation",
+      "sha256": "f25244e338b18c492cb7e2c741895651ae81042e60b5a014e754a06f52b6cf81",
+      "bytes": 14756
+    },
+    {
+      "path": "apps/web/components/NoteHistoryDialog.vue",
+      "role": "Current renderer and parent control-row source inspected before generation",
+      "sha256": "687110978833956f95c6b68ebd7c0bfbc058d548bbd9dc49380ee1a07783314d",
+      "bytes": 58755
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-e440f687-91c0-42a8-9f28-def32c14f596.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2 as /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-e440f687-91c0-42a8-9f28-def32c14f596.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationAttempts": [
+    {
+      "assetId": "WS-M019",
+      "submittedPrompt": "Use case: ui-mockup. Generate one new precise high-fidelity flat UI comparison board for an EXISTING saved-note-history structured diff component in DooKnow. Exactly two independent LOCAL component specimens side by side: A a wide content region at least600px-equivalent, B a320px-equivalent narrow content region. Only tiny A/B outside the product; no device/browser/complete modal/sidebar/navigation, no explanatory headings or dimensions in the UI. White/light gray flat surfaces, fine #e6e9f1 borders, restrained8px corners, #272b3a text, #657084 secondary, #4566c6 selection with pale #edf1ff. Normal readable typography; diff code uses monospace and naturally wraps; do not make the narrow specimen a tiny full-page thumbnail.\n\nBoth represent a successfully parsed READY comparison, same file label \"示例笔记\", exactly ONE deletion and ONE insertion. At top each has the real saved-history tab pair \"差异对比\" (active) then \"历史原文\" (inactive). Beside them the separate real layout buttons \"逐行\" and \"左右对照\"; can naturally wrap at narrow width.\nA: \"左右对照\" is selected and enabled, \"逐行\" unselected enabled.\nB: \"逐行\" selected, \"左右对照\" unselected and visibly DISABLED pale gray. Do NOT draw a narrow-window explanation: the actual history parent hides that hint.\nNext actual file heading \"示例笔记\" with computed count exact text \"新增 1 行，删除 1 行\".\nThen actual structured diff table:\nA has FOUR headers in this exact order: \"旧行\" | \"旧内容\" | \"新行\" | \"新内容\".\nOne hunk header row spans all4 columns: \"@@ -1 +1 @@\".\nOne paired change row: old line1 with exact code \"-旧内容\" on pale red; new line1 with exact code \"+新内容\" on pale green.\nB has THREE headers in order: \"旧行\" | \"新行\" | \"内容\".\nSame spanning hunk header \"@@ -1 +1 @@\".\nTwo actual unified rows: first old line1, new line empty, content \"-旧内容\" with pale red; second old line empty, new line1, content \"+新内容\" with pale green.\nKeep ASCII minus and plus as visible parts of the readonly code content. No double-count or context line. The same exact1-insert/1-delete count in both views.\nBelow each table retain one default-collapsed native disclosure, right-pointing marker and exact label \"原始差异\". Its raw code body is NOT visible while collapsed.\nNo copy/download/restore/close/OK/search/filter action. No progress, loading/error notice, parser unavailable or retry button: this is ready, not fallback. No Git commit selector, author, push control or saved-version picker in these local crops. No editable inputs, no source/API/role metadata. All buttons shown are existing layout/tab/disclosure controls, not invented functionality. Keep every table header, count, line number, source sign and control legible and inside its component. External comparison spacing is not a new application card workflow.",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-e440f687-91c0-42a8-9f28-def32c14f596.png",
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2 as /home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-e440f687-91c0-42a8-9f28-def32c14f596.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "startedAtUtc": "2026-11-05T09:49:08.382Z",
+      "completedAtUtc": "2026-11-05T09:49:36.262Z",
+      "actualToolArguments": {
+        "prompt": "Use case: ui-mockup. Generate one new precise high-fidelity flat UI comparison board for an EXISTING saved-note-history structured diff component in DooKnow. Exactly two independent LOCAL component specimens side by side: A a wide content region at least600px-equivalent, B a320px-equivalent narrow content region. Only tiny A/B outside the product; no device/browser/complete modal/sidebar/navigation, no explanatory headings or dimensions in the UI. White/light gray flat surfaces, fine #e6e9f1 borders, restrained8px corners, #272b3a text, #657084 secondary, #4566c6 selection with pale #edf1ff. Normal readable typography; diff code uses monospace and naturally wraps; do not make the narrow specimen a tiny full-page thumbnail.\n\nBoth represent a successfully parsed READY comparison, same file label \"示例笔记\", exactly ONE deletion and ONE insertion. At top each has the real saved-history tab pair \"差异对比\" (active) then \"历史原文\" (inactive). Beside them the separate real layout buttons \"逐行\" and \"左右对照\"; can naturally wrap at narrow width.\nA: \"左右对照\" is selected and enabled, \"逐行\" unselected enabled.\nB: \"逐行\" selected, \"左右对照\" unselected and visibly DISABLED pale gray. Do NOT draw a narrow-window explanation: the actual history parent hides that hint.\nNext actual file heading \"示例笔记\" with computed count exact text \"新增 1 行，删除 1 行\".\nThen actual structured diff table:\nA has FOUR headers in this exact order: \"旧行\" | \"旧内容\" | \"新行\" | \"新内容\".\nOne hunk header row spans all4 columns: \"@@ -1 +1 @@\".\nOne paired change row: old line1 with exact code \"-旧内容\" on pale red; new line1 with exact code \"+新内容\" on pale green.\nB has THREE headers in order: \"旧行\" | \"新行\" | \"内容\".\nSame spanning hunk header \"@@ -1 +1 @@\".\nTwo actual unified rows: first old line1, new line empty, content \"-旧内容\" with pale red; second old line empty, new line1, content \"+新内容\" with pale green.\nKeep ASCII minus and plus as visible parts of the readonly code content. No double-count or context line. The same exact1-insert/1-delete count in both views.\nBelow each table retain one default-collapsed native disclosure, right-pointing marker and exact label \"原始差异\". Its raw code body is NOT visible while collapsed.\nNo copy/download/restore/close/OK/search/filter action. No progress, loading/error notice, parser unavailable or retry button: this is ready, not fallback. No Git commit selector, author, push control or saved-version picker in these local crops. No editable inputs, no source/API/role metadata. All buttons shown are existing layout/tab/disclosure controls, not invented functionality. Keep every table header, count, line number, source sign and control legible and inside its component. External comparison spacing is not a new application card workflow.",
+        "transparent_background": false
+      }
+    }
+  ],
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T09:49:36.262Z",
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M019.png",
+  "postprocessing": "Raw original PNG bytes copied, no pixel editing",
+  "pendingReview": true,
+  "actualPanelModeBindings": [
+    {
+      "panel": "A",
+      "sourceId": "WS-064",
+      "source": "saved",
+      "mode": "compare",
+      "rendererStatus": "ready",
+      "viewport": ">=640",
+      "rendererWidth": ">=600",
+      "layout": "side-by-side selected by user"
+    },
+    {
+      "panel": "B",
+      "sourceId": "WS-064",
+      "source": "saved",
+      "mode": "compare",
+      "rendererStatus": "ready",
+      "viewport": 320,
+      "layout": "forced line-by-line; side-by-side disabled"
+    }
+  ],
+  "conditionalRendererReuse": {
+    "sourceId": "WS-066",
+    "region": "Parsed table and actual layout controls only",
+    "parentDifferences": "Inline toolbar without toolbarTarget; no saved compare/original tabs; actual Git commit baseline/fileLabel/truncation/selection guards remain from own source",
+    "literalGitComparisonWindowDrawnHere": false
+  },
+  "selfInspection": {
+    "method": "Native generated PNG visually checked against inspected DiffView/NoteHistoryDialog source and independently audited new required scope",
+    "status": "Source/content self-check passed; independent review pending",
+    "checks": [
+      "One legal one-file1add/1delete patch, paired old/new row in wide and separate delete/insert rows in narrow",
+      "Exact Chinese tabs/layout buttons/table headers/count/raw disclosure; no retry/loading/extra action",
+      "Wide side-by-side active; narrow unified active and side-by-side disabled",
+      "Parent-hidden narrow hint absent; raw content collapsed"
+    ],
+    "implementationNotes": [
+      "Raster framing/large scale and count line layout are illustrative, not exact CSS measurements",
+      "Raw difference remains actual native details/summary; raster outline does not authorize replacing it with a new button/card workflow",
+      "Use existing monospace table and source color/line-number behavior"
+    ],
+    "limitations": [
+      "No API/UI behavior, keyboard, focus, scrolling or runtime fit verified by this image",
+      "390 follows same source narrow branch; actual320/390 rendering still required"
+    ]
+  },
+  "sha256": "05506403913377ee0bbc643af04781ab7057bc489e17c21d72f5ddb8e815d89e",
+  "bytes": 1175642,
+  "dimensions": {
+    "width": 1774,
+    "height": 887
+  }
+}

@@ -1,0 +1,398 @@
+{
+  "id": "MP-R047",
+  "title": "Responsive family: SetupWizard.vue existing-directory browser",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-009"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-009",
+      "title": "首次设置：已有资料目录浏览390px",
+      "role": "authenticated owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-009",
+      "title": "首次设置：已有资料目录浏览320px",
+      "role": "authenticated owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-009",
+      "title": "首次设置：已有资料目录浏览320px guard",
+      "role": "authenticated owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "viewportIntent": "390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-009",
+      "route": "/ (platform.phase=setup_required)",
+      "trigger": "Choose 使用已有资料",
+      "parentId": "PB-008",
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [
+        {
+          "name": "knowledgeRoot",
+          "type": "server directory",
+          "required": true,
+          "constraints": "absolute readable/writable non-symlink child of allowed base; not hidden component",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "folder listing loading",
+        "no child directories; current path selectable",
+        "truncated listing with advanced-path fallback",
+        "read failure and retry; chosen-folder receipt",
+        "allowed root itself cannot be bound"
+      ],
+      "notes": [
+        "This browser describes the deployment device, not the browser device."
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "首启已有目录完整浏览页：当前服务器路径、允许基目录、上一级/可用位置/目录行/使用此文件夹/确认继续。允许基目录本身不可直接绑定。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "已验证主人会话的首启壳，仅首启步骤与允许入口，无主人私有文件树。PB-016可达性待核，不增浏览器主人创建。"
+    },
+    {
+      "type": "responsive-family-reuse",
+      "renderer": "SetupWizard.vue existing-directory browser",
+      "allSourceIds": [
+        "PB-009"
+      ],
+      "rule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-009",
+      "label": "返回上一级 / 可用位置 / 文件夹",
+      "effect": "Browse server directories",
+      "api": "POST /api/platform/setup/directories",
+      "guard": "not browserBusy/busy"
+    },
+    {
+      "sourceId": "PB-009",
+      "label": "使用这个文件夹",
+      "effect": "Select current server folder",
+      "api": "",
+      "guard": "not an allowed base itself"
+    },
+    {
+      "sourceId": "PB-009",
+      "label": "确认并继续",
+      "effect": "Validate and bind chosen folder",
+      "api": "POST /api/platform/setup/validate; /complete",
+      "guard": "nonempty selected path"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-009",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "只在三个面板各自完整主卡和页脚按钮之外的页面最下方添加一行真实页尾文案“你的资料，由你掌握。”，用小号灰色居中正文。所有其它字段、路径、按钮、状态、图标和页面内容完全不变。不添加别的文字。可略向下延长画布保持原字号。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R047.png",
+  "reviewStatus": "pending-independent-review",
+  "responsiveFamily": {
+    "id": "MP-RF047",
+    "actualComponent": "SetupWizard.vue existing-directory browser",
+    "sourceIds": [
+      "PB-009"
+    ],
+    "roleBoundary": "owner-setup",
+    "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-009",
+      "parentId": "PB-008",
+      "route": "/ (platform.phase=setup_required)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:91",
+        "apps/web/components/SetupWizard.vue:277",
+        "apps/server/platform/setup-directories.ts:6",
+        "apps/server/platform/settings.ts:173"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-009",
+      "title": "首次设置：已有资料目录浏览",
+      "kind": "page",
+      "module": "setup",
+      "entry": {
+        "route": "/ (platform.phase=setup_required)",
+        "trigger": "Choose 使用已有资料",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:91",
+        "apps/web/components/SetupWizard.vue:277",
+        "apps/server/platform/setup-directories.ts:6",
+        "apps/server/platform/settings.ts:173"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [
+        {
+          "name": "knowledgeRoot",
+          "type": "server directory",
+          "required": true,
+          "constraints": "absolute readable/writable non-symlink child of allowed base; not hidden component",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "返回上一级 / 可用位置 / 文件夹",
+          "effect": "Browse server directories",
+          "api": "POST /api/platform/setup/directories",
+          "guard": "not browserBusy/busy"
+        },
+        {
+          "label": "使用这个文件夹",
+          "effect": "Select current server folder",
+          "api": "",
+          "guard": "not an allowed base itself"
+        },
+        {
+          "label": "确认并继续",
+          "effect": "Validate and bind chosen folder",
+          "api": "POST /api/platform/setup/validate; /complete",
+          "guard": "nonempty selected path"
+        }
+      ],
+      "importantStates": [
+        "folder listing loading",
+        "no child directories; current path selectable",
+        "truncated listing with advanced-path fallback",
+        "read failure and retry; chosen-folder receipt",
+        "allowed root itself cannot be bound"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "This browser describes the deployment device, not the browser device."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-R047",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "setup_required/existing; allowed-root browser at /srv/example; no selected knowledgeRoot; one knowledge child; idle",
+    "same target320",
+    "browser at child /srv/example/knowledge; no subdirectories; child selected as knowledgeRoot; idle"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "只在三个面板各自完整主卡和页脚按钮之外的页面最下方添加一行真实页尾文案“你的资料，由你掌握。”，用小号灰色居中正文。所有其它字段、路径、按钮、状态、图标和页面内容完全不变。不添加别的文字。可略向下延长画布保持原字号。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-R047 Responsive family: SetupWizard.vue existing-directory browser\n\n390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。\n\n角色壳：已验证主人会话的首启壳，仅首启步骤与允许入口，无主人私有文件树。PB-016可达性待核，不增浏览器主人创建。\n\n独立场景：\nA | PB-009 | 首次设置：已有资料目录浏览390px | role=authenticated owner | 390px完整可读代表：字段按登记顺序，动作保持源guard\nB | PB-009 | 首次设置：已有资料目录浏览320px | role=authenticated owner | 320px字段/长值/内层滚动与操作可达\nC | PB-009 | 首次设置：已有资料目录浏览320px guard | role=authenticated owner | 同源关键禁用/错误/长标签状态，使用已有组件且保留输入\n\n完整构图：\n首启已有目录完整浏览页：当前服务器路径、允许基目录、上一级/可用位置/目录行/使用此文件夹/确认继续。允许基目录本身不可直接绑定。\n\n精确功能/字段/动作guard合同：\nPB-009权限：Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression.\nPB-009字段顺序：knowledgeRoot [server directory; 必填]: absolute readable/writable non-symlink child of allowed base; not hidden component\nPB-009白名单：返回上一级 / 可用位置 / 文件夹 => Browse server directories；guard=not browserBusy/busy；接口约束=POST /api/platform/setup/directories\nPB-009白名单：使用这个文件夹 => Select current server folder；guard=not an allowed base itself\nPB-009白名单：确认并继续 => Validate and bind chosen folder；guard=nonempty selected path；接口约束=POST /api/platform/setup/validate; /complete\n\n响应式合同：\n<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-0dc4cab2-8705-4f7d-ab7c-2491c60a7abb.png",
+      "role": "edit-target",
+      "responsibility": "Keep all actual fields and guards; correct only real end-of-page note location/presence.",
+      "sha256": "b70f60592cf30dc4248d9131bc09fc4f16fd8139d74c6bd9fc79dd9d33fa0462",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-0dc4cab2-8705-4f7d-ab7c-2491c60a7abb.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R047.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-e06b31e9-a5a1-461f-973c-00e487993050.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-e06b31e9-a5a1-461f-973c-00e487993050.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T07:30:42.455Z",
+  "selfInspection": {
+    "method": "Native generated PNG inspected in child against SetupWizard and selected embedded templates/guards",
+    "status": "pending-independent-review",
+    "pageSpecific": "Actual existing-server directory browser: allowed base itself cannot bind; selected child with empty subfolders and readonly receipt can continue; no fake device folder chooser. Real page note appended below full card.",
+    "concerns": []
+  },
+  "sha256": "52b10fa80f686a5b60811b7cbcc196c7dc09796cf1db10c6e6cc7678c29469a1",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1685423,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/SetupWizard.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "12cf67b88737b8af2fd285494e578904487a2a3b20e2573674b36f4c5b930cce"
+    },
+    {
+      "path": "apps/web/components/SetupWizard.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "12cf67b88737b8af2fd285494e578904487a2a3b20e2573674b36f4c5b930cce"
+    },
+    {
+      "path": "apps/server/platform/setup-directories.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "6a77753b5249eb2ed760d1e2cf8e1d0f0b23f12c0e1ed895812ff4459a29e2f9"
+    },
+    {
+      "path": "apps/server/platform/settings.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9dcebe469eb409443ad8ab04a72b8672e4fee6cf2fa0e22e25c949b3aa7fdf4f"
+    }
+  ],
+  "responsiveTargetCssWidths": [
+    390,
+    320,
+    320
+  ],
+  "runtimeResponsiveVerified": false,
+  "baselineStatus": "source-derived; no matching capture supplied in manifest",
+  "sourceDerivedUnverifiedScope": "All setup fixtures and /srv/example paths source-derived synthetic; no directory browse/create/bind, plugin install, clone, initialization or responsive browser run performed. Real readonly text and guards represented.",
+  "responsiveScope": "PB009 directory root vs selected-child source branch responsive wrapper shown.",
+  "generationCalls": [
+    {
+      "submittedPrompt": "制作清晰中文UI设计图，白/浅灰平面、深色文字、细边线、蓝色主动作、小圆角、紧凑清楚字号。只显示指定真实UI文案，不写组件名、审查术语或额外说明。三个独立并排窄屏面板，外部仅A/B/C；A按390宽、B和C按320宽的相同比例，窄屏自然换行、页面可纵向延长，不缩成缩略图；不画手机壳或宽度数字。\n每个面板都是独立完整首次设置页：上方书图标与“DooKnow”，右侧“欢迎使用”；白色主卡内三步“1 准备知识库”“2 选择功能”“3 开始使用”，仅第1步蓝色选中；卡片下“你的资料，由你掌握。”。主卡内小字“让资料有个自己的家”、标题“准备你的知识库”、说明“从一个新空间开始，或接入你已经整理好的资料。”；标签“资料来源”，三个单列可选按钮：创建新知识库 / 只需起个名字，保存位置由我们准备。；使用已有资料 / 选择部署设备上的文件夹，保留原有文件。；从 GitHub／Gitee 导入 / 下载云端仓库到新的知识库文件夹。。不要其它导航或私人栏。\n所有面板“使用已有资料”选中、三个来源按钮可用。A/B其下显示“这里浏览的是部署 DooKnow 的设备，不是当前浏览器所在电脑。”；当前位置只读“/srv/example”；只有一个文件夹按钮：文件夹图标“knowledge”及右箭头，可用；“使用这个文件夹”灰色禁用。没有返回上一级、可用位置下拉或已选择回执。正文“已有文件会保留，不会清空这个文件夹。”；折叠“高级设置”；正文“时间显示：中国标准时间（UTC+8），可在高级设置中修改。”；页脚“以后也可以继续添加和整理资料”与灰色禁用“确认并继续”。\nC同样完整已有资料页，其当前位置改成只读“/srv/example/knowledge”；可用“返回上一级”；不显示文件夹行，显示“没有可浏览的子文件夹，可以选择当前文件夹。”；“使用这个文件夹”可用；其下显示只读回执“已选择”和“/srv/example/knowledge”。其它保留帮助/高级设置折叠/时间说明/页脚文字；“确认并继续”蓝色可用。没有额外路径输入、文件选择系统窗、重新选择、错误或成功提示。",
+      "actualImageInputOrder": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-0dc4cab2-8705-4f7d-ab7c-2491c60a7abb.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-0dc4cab2-8705-4f7d-ab7c-2491c60a7abb.png"
+    },
+    {
+      "submittedPrompt": "只在三个面板各自完整主卡和页脚按钮之外的页面最下方添加一行真实页尾文案“你的资料，由你掌握。”，用小号灰色居中正文。所有其它字段、路径、按钮、状态、图标和页面内容完全不变。不添加别的文字。可略向下延长画布保持原字号。",
+      "actualImageInputOrder": [
+        "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-0dc4cab2-8705-4f7d-ab7c-2491c60a7abb.png"
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-e06b31e9-a5a1-461f-973c-00e487993050.png"
+    }
+  ]
+}

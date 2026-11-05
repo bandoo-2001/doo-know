@@ -1,0 +1,107 @@
+{
+  "assetId": "WS-R032",
+  "sourceIds": [
+    "WS-084"
+  ],
+  "reviewer": "independent platform_review_gen048 child agent, exclusively assigned eight GEN048 responsive assets",
+  "reviewedAtUtc": "2026-11-05T09:25:24.930457+00:00",
+  "verdict": "pass",
+  "method": "Actual current PNG viewed using tools.view_image in this independent context; complete actual submittedPrompt and GEN048 source contracts compared with actual input mother/baseline images, matching existing mother SHA reviews, current Vue templates/handlers/CSS and server/API policy sources. Static content review only; no generation or runtime tests.",
+  "actualViewMethod": {
+    "tool": "tools.view_image",
+    "image": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R032.png",
+    "detail": "high",
+    "boardPanelsActuallyViewed": [
+      "A",
+      "B"
+    ]
+  },
+  "reviewedImageSha256": "b6ec9c349da169e81d9d193025d50c213626a790a165ba015dbd95f48985fd41",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-R032.png",
+  "reviewedSidecarSha256": "c6f9dd1b79d466b40b2270a604ff35f67a25d1759b8b4244e4da460c797ddc85",
+  "reviewedManifestSha256": "7f3fc0492e62f25af38e6dc0c0135db54d73fed95d3c1554e71f632cfb9a2474",
+  "submissionReview": {
+    "completeSubmittedPromptRead": true,
+    "submittedPromptSha256": "2ed74a7e1e6b81fe919154e63203424d9e6d6f78816110382936a3ea6bc49083",
+    "actualToolArgumentsPromptMatchesReceipt": true,
+    "observedReceiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-5.json",
+    "receiptOutputBytesMatchReviewedPng": true
+  },
+  "inputImageChecks": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-apps.png",
+      "order": 1,
+      "role": "actual mobile applications home, existing card content and host",
+      "sha256": "16eae2dfc11a22c1470d0d4bc9d7c478a40304d5d4c1e07f62d94c275536358a",
+      "bytes": 50875,
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "actualSha256": "16eae2dfc11a22c1470d0d4bc9d7c478a40304d5d4c1e07f62d94c275536358a",
+      "actuallyViewed": true,
+      "roleChecked": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "actualSha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "actuallyViewed": true,
+      "roleChecked": true
+    }
+  ],
+  "selectedState": [
+    "390 home top and first graph card",
+    "320 same single-column home lower scroll, blog and To Doo existing cards"
+  ],
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "A is the home top/graph card; B is the lower scroll showing blog then To Doo. Eyebrow/title/description, all three app names/descriptions/summaries, unpinned actions and privacy footnote agree with AppsWorkspace.vue and workspaceApps order.",
+    "Actual 390-apps owner header/footer retained; no store/install/delete/pricing actions. Entire app card opens the app; its preview remains aria-hidden decorative content, including the drawn tiny To Doo checkboxes/calendar.",
+    "All offscreen app-card/pin fields bind exactly to already reviewed WS-D060 SHA fc0a66391e8675404f79118b23d1371fcecd76c4dd6028654875b85eb2c07b7d; complete mother visually inspected. Pinned variation and storage-failure toast remain conditional source behavior, not asserted by this unpinned image."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster shading, slight texture, rounded proportions and intended390/320 geometry are approximate. Implement flat shared CSS colors/borders/8px corners and readable source-sized text; do not reproduce raster gradients or infer exact responsive fit from this board."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-048.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R032.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/app.ts:141",
+    "apps/web/components/AppsWorkspace.vue:136",
+    "apps/web/app-shortcuts.ts:1",
+    "apps/web/blog.css:37",
+    "apps/web/blog.css:1433",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D060-review.json"
+  ],
+  "currentSourceSha256": {
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    "apps/web/app-shortcuts.ts": "39de15ed7b82df33977cd602be7ba7cea80e200cad035d574814a93596e50857",
+    "apps/web/blog.css": "40a771720b67cedf129ed46b8c3bb940b5875ff4941e725333b5d5021fe0f74a",
+    "apps/web/components/AppsWorkspace.vue": "85e67be3816be504ff83e01b6057a52ae96752ad1241d2ca8c9747b0fb73ec19"
+  },
+  "requiredCorrections": [],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false,
+    "limitations": "The tool does not expose a per-call physical model identity receipt; none is claimed."
+  },
+  "limitations": [
+    "Only these actual image bytes and their declared compatible selected state received static content review. Source-derived data are examples, not captured API/model outcomes.",
+    "A static PNG cannot prove physical320/390 scrolling or safe viewport, source focus trapping/return, keyboard/Escape, busy/dirty/version guards, action execution, persistence, permissions enforcement, live model/clipboard behavior or exact canvas topology.",
+    "Unshown alternative loading/error/unavailable/conflict/role variants retain their individual source contracts and mother mappings; this verdict does not claim their simultaneous presence.",
+    "Per-image content verdict does not pass platform-wide consistency/coverage/provenance gates or authorize product implementation."
+  ]
+}

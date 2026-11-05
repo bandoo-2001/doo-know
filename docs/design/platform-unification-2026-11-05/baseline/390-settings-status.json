@@ -1,0 +1,16 @@
+{
+  "id": "settings-status",
+  "title": "平台设置 status",
+  "width": 390,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?view=settings&section=status",
+  "file": "390-settings-status.png",
+  "sha256": "ae2f273c768e2710bf87571ff520d668a4ebc2edcf38a5b5c5c5dcd0605fe213",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

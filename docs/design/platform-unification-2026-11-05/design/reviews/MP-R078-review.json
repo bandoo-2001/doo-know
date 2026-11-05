@@ -1,0 +1,58 @@
+{
+  "assetId": "MP-R078",
+  "sourceIds": [
+    "PB-052"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:38:30.405480+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Anonymous published profile homepage: A/B top position with absent avatar/banner/bio/social; C separate lower position showing latest2, one-public-member collection and empty projects/friends.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG, complete original/targeted latest-background correction prompts and actual390 profile baseline viewed. Configured public identity/navigation/current home selection/accent preserved; no owner rail or management actions.",
+    "No absent media or social links invented. Real intro title/tagline/name/browse and featured two identical separate snapshot records retained. Featured tint belongs actual profile module; latest white rows distinct after correction.",
+    "C lower scroll preserves configured module order/limits, latest2+all-articles action, collection with1public member and exact empty projects/friends guidance, actual footer identity/author/RSS.",
+    "Profile narrow stack is source-defined. Static intended viewport proportions, scroll positions and public record counts are illustrative, not runtime fit or publishing verification."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-044.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R078.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/blog/routes.ts:195",
+    "apps/server/blog/render.ts:109",
+    "apps/server/blog/render.ts:160",
+    "apps/server/blog/styles.ts:190",
+    "shared/blog-design.ts:102",
+    "docs/design/platform-unification-2026-11-05/baseline/public/390-public-home-profile.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "2727b95522378dd946735e2ab2e98932fb921e6110d337729c3464d068299d61",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R078.png",
+  "modelProvenance": {
+    "status": "workflow-declared-official-built-in-gpt-image-2; recovered-PNG-specific-call-not-proven",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation.",
+    "Root provenance ruling: original call-to-file receipt unresolved; content pass does not settle generation provenance."
+  ],
+  "reviewVerdictScope": "static-functional-and-style-content-only",
+  "generationProvenanceReview": {
+    "status": "unresolved-call-to-file-binding-per-root-ruling",
+    "toolReceiptObserved": false,
+    "exactPromptSubmittedVerified": false,
+    "evidence": "Root separately identified missing generation callback binding for this recovered original. Static source/content pass retained, provenance may not be used for global/product release until controlled new generation is reviewed.",
+    "imageContentActuallyViewed": true
+  }
+}

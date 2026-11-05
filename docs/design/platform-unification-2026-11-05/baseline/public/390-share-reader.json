@@ -1,0 +1,15 @@
+{
+  "id": "share-reader",
+  "title": "只读分享",
+  "width": 390,
+  "audience": "public",
+  "route": "/s/<isolated-capability>",
+  "file": "390-share-reader.png",
+  "sha256": "75e64671275e879f0fb9d6629334fb5224ba789962dbb9c71d9e9aa7c7cabf09",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "pageErrors": [],
+  "outerOverflow": 0
+}

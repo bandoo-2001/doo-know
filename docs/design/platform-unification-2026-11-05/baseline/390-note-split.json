@@ -1,0 +1,16 @@
+{
+  "id": "note-split",
+  "title": "源码与预览",
+  "width": 390,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "390-note-split.png",
+  "sha256": "4fe8735cbf83716a7aa70a3c0abe678aa3e61a0a8545b1c063dfcab478bc09b1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

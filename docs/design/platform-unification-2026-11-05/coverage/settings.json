@@ -1,0 +1,6755 @@
+{
+  "moduleGroup": "settings-plugins-mcp-git-operations",
+  "baselineCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "surfaces": [
+    {
+      "id": "ST-001",
+      "title": "通用与编辑",
+      "kind": "page",
+      "module": "settings/editor",
+      "entry": {
+        "route": "/?view=settings&section=editor",
+        "trigger": "主菜单设置→通用与编辑 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:42",
+        "apps/web/settings.ts:8",
+        "apps/web/components/settings/EditorSettings.vue:80"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "默认编辑方式",
+          "type": "select",
+          "required": false,
+          "constraints": "document/source；仅documentEditingEnabled时显示",
+          "sensitive": false
+        },
+        {
+          "name": "默认打开方式",
+          "type": "select",
+          "required": false,
+          "constraints": "edit/preview/split；文档编辑禁用split",
+          "sensitive": false
+        },
+        {
+          "name": "自动换行",
+          "type": "switch",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "显示行号",
+          "type": "switch",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "文字大小",
+          "type": "select",
+          "required": false,
+          "constraints": "14/15/16/18/20px",
+          "sensitive": false
+        },
+        {
+          "name": "阅读宽度",
+          "type": "select",
+          "required": false,
+          "constraints": "comfortable/wide/full",
+          "sensitive": false
+        },
+        {
+          "name": "外观",
+          "type": "select",
+          "required": false,
+          "constraints": "system/light/dark",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存偏好",
+          "effect": "写入当前账户当前浏览器偏好；通知笔记显示更新",
+          "api": null,
+          "guard": "本地偏好，无服务器写入"
+        },
+        {
+          "label": "取消更改",
+          "effect": "载入已保存偏好",
+          "api": null,
+          "guard": "dirty"
+        },
+        {
+          "label": "恢复默认设置",
+          "effect": "只载入预览，保存后生效",
+          "api": null,
+          "guard": "无额外确认"
+        },
+        {
+          "label": "查看快捷键",
+          "effect": "打开ST-009",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "已保存",
+        "未保存",
+        "恢复默认待保存",
+        "文档编辑功能开关影响字段"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-layout.spec.ts:23",
+        "tests/e2e/management-features.spec.ts:190"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-002",
+      "title": "知识库与存储",
+      "kind": "page",
+      "module": "settings/library",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "设置→知识库与存储 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:46",
+        "apps/web/components/settings/LibrarySettings.vue:29"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新信息",
+          "effect": "更新知识库路径、可用性与时区",
+          "api": "GET /api/manage/overview",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "批量导入 / 导入便携包 / 导出资料",
+          "effect": "打开ST-018/ST-022/ST-024",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "知识库未绑定/不可用",
+        "分区独立读取失败",
+        "长目录路径",
+        "批量整理、存储、Git、共享链接、任务常驻区域"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-workspace.spec.ts:7",
+        "tests/e2e/settings-layout.spec.ts:69"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-003",
+      "title": "搜索与索引",
+      "kind": "page",
+      "module": "settings/search",
+      "entry": {
+        "route": "/?view=settings&section=search",
+        "trigger": "设置→搜索与索引 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/SearchSettings.vue:5",
+        "apps/web/components/SearchRuntimeSettings.vue:95"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "准备本地检索",
+          "effect": "下载并安装可用搜索组件",
+          "api": "POST /api/platform/search-runtime/prepare",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "检查检索状态",
+          "effect": "重新读取组件及任务状态",
+          "api": "GET /api/platform/search-runtime",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "首次读取",
+        "文本/语义分别可用",
+        "未准备",
+        "下载/安装",
+        "由部署配置管理",
+        "安装源不可用",
+        "失败/取消/中断"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/search-runtime.spec.ts:4",
+        "tests/status-summary.test.ts:3"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-004",
+      "title": "备份与恢复",
+      "kind": "page",
+      "module": "settings/backup",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "设置→备份与恢复；旧section=maintenance归一化到backup",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:58",
+        "apps/web/settings.ts:52",
+        "apps/web/components/settings/BackupSettings.vue:222"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "创建加密备份",
+          "effect": "提交后台加密备份",
+          "api": "POST /api/manage/backups",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "下载恢复密钥",
+          "effect": "打开ST-030",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "从备份恢复",
+          "effect": "打开ST-032",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "异常写入恢复",
+          "effect": "展开ST-034",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "无备份",
+        "加载/错误",
+        "外部备份范围待验证",
+        "任务执行/恢复验证成功"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:427",
+        "tests/e2e/settings-overlays.spec.ts:26"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-005",
+      "title": "后台状态",
+      "kind": "page",
+      "module": "settings/status",
+      "entry": {
+        "route": "/?view=settings&section=status",
+        "trigger": "设置→后台状态 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/StatusSettings.vue:164"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新状态",
+          "effect": "独立刷新索引、搜索、写入与任务",
+          "api": "GET /api/index/status; GET /api/platform/search-runtime; GET /api/maintenance/conflicts; GET /api/manage/tasks",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "打开搜索设置 / 打开异常写入恢复 / 导入与导出 / 备份与恢复",
+          "effect": "导航对应设置页面",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "每4秒自动更新",
+        "任务优先显示运行/失败",
+        "历史折叠",
+        "各状态读取失败仍保留其他分区",
+        "异常自动展开"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/status-settings.spec.ts:45",
+        "tests/e2e/status-settings.spec.ts:128",
+        "tests/e2e/status-settings.spec.ts:206"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-006",
+      "title": "插件与连接",
+      "kind": "page",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "设置→插件与连接 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/PluginsSettings.vue:1",
+        "apps/web/components/PluginManager.vue:359"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "已安装 / 添加插件",
+          "effect": "切换ST-047/ST-048",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新插件状态",
+          "effect": "更新注册表与安装回执",
+          "api": "GET /api/platform/plugins; GET /api/platform/plugin-installations",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "插件目录空",
+        "运行异常/重启待生效",
+        "保留用户资料的依赖提示",
+        "卸载后仍可撤销OAuth授权"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/plugins.spec.ts:10",
+        "tests/e2e/mcp-onboarding.spec.ts:42"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-007",
+      "title": "账号与安全",
+      "kind": "page",
+      "module": "settings/account",
+      "entry": {
+        "route": "/?view=settings&section=account",
+        "trigger": "设置→账号与安全 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:122"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "当前账户",
+          "type": "read-only",
+          "required": false,
+          "constraints": "显示用户名；知识库所有者",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "退出当前设备",
+          "effect": "向Workspace发出logout事件",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "修改密码",
+          "effect": "打开ST-043",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新设备 / 加载更多设备",
+          "effect": "读取分页登录设备",
+          "api": "GET /api/manage/sessions",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "退出设备 / 退出其他设备",
+          "effect": "打开ST-045/ST-046",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "登录设备加载/空/错误",
+        "当前设备标签，无逐项退出按钮",
+        "密码更新成功后其他设备退出"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:521",
+        "tests/management-api.test.ts:245"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-008",
+      "title": "关于与诊断",
+      "kind": "page",
+      "module": "settings/about",
+      "entry": {
+        "route": "/?view=settings&section=about",
+        "trigger": "设置→关于与诊断 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/AboutSettings.vue:53",
+        "apps/server/platform/management.ts:156"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "服务版本 / 运行环境 / 功能就绪状态",
+          "type": "read-only",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "刷新信息",
+          "effect": "更新版本和能力",
+          "api": "GET /api/manage/overview",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "下载脱敏诊断",
+          "effect": "下载JSON诊断",
+          "api": "GET /api/manage/diagnostics",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "查看操作顺序 / 安装更新恢复说明",
+          "effect": "展开部署指南及打开外部帮助",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "加载",
+        "信息读取失败",
+        "诊断下载中/错误/成功",
+        "未绑定知识库仍可使用账户诊断"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/management-api.test.ts:292",
+        "tests/e2e/management-features.spec.ts:521"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "诊断声明不含正文、密码、密钥或私有目录路径；不提供网页内升级/回退按钮。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-009",
+      "title": "键盘操作",
+      "kind": "dialog",
+      "module": "settings/editor",
+      "entry": {
+        "route": "/?view=settings&section=editor",
+        "trigger": "查看快捷键",
+        "parentId": "ST-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/EditorSettings.vue:254"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "完成 / Escape / 关闭",
+          "effect": "关闭并归还触发按钮焦点",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "快捷键列表",
+        "Windows/Linux Ctrl与macOS⌘说明"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:53"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-010",
+      "title": "编辑器显示预览展开",
+      "kind": "state",
+      "module": "settings/editor",
+      "entry": {
+        "route": "/?view=settings&section=editor",
+        "trigger": "显示预览details",
+        "parentId": "ST-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/EditorSettings.vue:195"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "显示示意",
+          "type": "read-only",
+          "required": false,
+          "constraints": "文字大小、换行、行号、阅读宽度与浅深外观实时跟随草稿；编辑/预览/分屏",
+          "sensitive": false
+        }
+      ],
+      "actions": [],
+      "importantStates": [
+        "浅色",
+        "深色",
+        "split双栏",
+        "显示预览收起"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-layout.spec.ts:23"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "示意不保存；与实际编辑器预览区别明确。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-011",
+      "title": "编辑偏好未保存与默认待保存",
+      "kind": "state",
+      "module": "settings/editor",
+      "entry": {
+        "route": "/?view=settings&section=editor",
+        "trigger": "编辑任一偏好 / 恢复默认设置",
+        "parentId": "ST-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/EditorSettings.vue:34",
+        "apps/web/components/settings/EditorSettings.vue:87"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "保存偏好",
+          "effect": "生效并保存本地偏好",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消更改",
+          "effect": "回到已保存设置",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "sticky工具条和未保存文案",
+        "默认设置只进入预览",
+        "document模式禁用split"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-layout.spec.ts:23"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "localStorage不可用时偏好持久化结果未通过本次运行验证；不得设计为服务器同步。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-012",
+      "title": "知识库信息：未绑定、不可用、读取失败",
+      "kind": "state",
+      "module": "settings/library",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "知识库信息加载或展开原文目录",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/LibrarySettings.vue:16",
+        "apps/web/components/settings/LibrarySettings.vue:42"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "知识库名称 / 可用性 / 时区 / 原文目录",
+          "type": "read-only",
+          "required": false,
+          "constraints": "服务端位置；目录绑定由部署配置管理",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "刷新信息",
+          "effect": "重新读取",
+          "api": "GET /api/manage/overview",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "正在读取",
+        "尚未绑定知识库/目录",
+        "暂时不可用",
+        "错误alert",
+        "长路径details"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/management-api.test.ts:292"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-013",
+      "title": "存储占用与不完整统计",
+      "kind": "state",
+      "module": "settings/storage",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "存储占用卡片；统计范围details",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/StorageSettings.vue:13",
+        "apps/web/components/StorageSettings.vue:42",
+        "apps/server/platform/management.ts:180"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新统计",
+          "effect": "有界扫描可读取文件",
+          "api": "GET /api/manage/storage",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "7类别表：原文/附件/历史/回收站/索引/模型/升级备份",
+        "加载/读取失败",
+        "部分统计标记",
+        "数量与深度上限/警告列表",
+        "统计时间"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-layout.spec.ts:69",
+        "tests/management-api.test.ts:92",
+        "tests/maintenance-storage.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "仅有读取统计，无删除缓存/数据操作；加密备份由备份页管理。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-014",
+      "title": "批量整理与继续/撤销记录",
+      "kind": "state",
+      "module": "settings/organization",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "展开选择笔记；选择目标目录",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/OrganizationOperations.vue:103",
+        "apps/web/components/settings/OrganizationOperations.vue:205"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "需要移动的笔记",
+          "type": "checkbox[]",
+          "required": true,
+          "constraints": "至少1；最大context.limits.actions，动态返回",
+          "sensitive": false
+        },
+        {
+          "name": "整理目标目录",
+          "type": "tree-select",
+          "required": true,
+          "constraints": "根目录或已有writable且organizable目录",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "移动选中笔记 / 核对上次整理",
+          "effect": "提交稳定requestId与结构版本、文件时间/hash",
+          "api": "POST /api/organization/operations",
+          "guard": "有选择且已读context；不busy；pending锁输入"
+        },
+        {
+          "label": "继续此整理",
+          "effect": "完成含图形预览的原操作",
+          "api": "组织operation preview workflow",
+          "guard": "queued/running/committing/awaiting_preview"
+        },
+        {
+          "label": "撤销此整理",
+          "effect": "提交undo",
+          "api": "POST /api/organization/operations/:id/undo",
+          "guard": "succeeded且undoAvailable"
+        },
+        {
+          "label": "刷新整理记录",
+          "effect": "读取上下文/笔记/目录/最近20操作",
+          "api": "GET /api/organization/context; GET /api/notes; GET /api/organization/directories; GET /api/organization/operations?limit=20",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "加载/空",
+        "目录结构变化需刷新",
+        "超出动态动作/目录上限",
+        "等待图形预览",
+        "需要核对",
+        "成功/失败/取消",
+        "原请求核对"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/organization-service.test.ts:1",
+        "tests/organization-retained-move.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-015",
+      "title": "已有目录选择树浮层",
+      "kind": "popover",
+      "module": "settings/directory-selector",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "批量整理/导入/导出中的DirectoryTreeSelect",
+        "parentId": "ST-014"
+      },
+      "sourceRefs": [
+        "apps/web/components/DirectoryTreeSelect.vue:26",
+        "apps/web/components/DirectoryTreeSelect.vue:118"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "搜索或选择目录",
+          "type": "searchable-tree",
+          "required": false,
+          "constraints": "仅父组件传入目录；根目录标签依上下文",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "选择目录",
+          "effect": "更新目标目录",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "Escape",
+          "effect": "只关闭当前选择树",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "搜索无匹配",
+        "已选路径祖先自动展开",
+        "目录加载失败由父表单呈现"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "动态可用高度24–260px",
+          "100vw−16px边界"
+        ],
+        "behavior": "比较上/下方可用空间放置；滚动/resize/动画后重算；body独立固定8px边界层。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-layout.spec.ts:112"
+      ],
+      "requiresDistinctImage": false,
+      "designReason": "DirectoryTreeSelect共享控件视觉以WS-023为准；本宿主的选择范围、角色、权限和字段约束仍保留在本记录及宿主页面图稿映射。",
+      "notes": [
+        "与Workspace其他目录选择共用组件；本记录仅管理场景内浮层。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "sharedVisualReference": "WS-023"
+    },
+    {
+      "id": "ST-016",
+      "title": "共享链接总览与筛选",
+      "kind": "state",
+      "module": "settings/shares",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "共享链接卡片",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/ShareManagement.vue:40",
+        "apps/web/components/settings/ShareManagement.vue:95"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "查找共享链接",
+          "type": "search",
+          "required": false,
+          "constraints": "按标题或路径；服务端q最长200",
+          "sensitive": false
+        },
+        {
+          "name": "共享链接状态",
+          "type": "select",
+          "required": false,
+          "constraints": "全部/可访问/已失效",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "查找链接 / 加载更多 / 重新读取",
+          "effect": "分页读取共享信息",
+          "api": "GET /api/manage/shares?q=&enabled=&cursor=",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "复制链接",
+          "effect": "写剪贴板；失败保留下方手动复制链接",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "打开共享页面",
+          "effect": "新窗口打开有效分享",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "撤销",
+          "effect": "打开ST-017",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "加载/无符合结果/错误",
+        "active/expired/revoked/private",
+        "仅查看/可编辑",
+        "永久/到期时间",
+        "1秒时钟更新到期状态",
+        "复制失败"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:312",
+        "tests/e2e/share-management-expiry.spec.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "有效链接属于敏感访问材料，设计用占位符。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-017",
+      "title": "撤销共享链接确认",
+      "kind": "popover",
+      "module": "settings/shares",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "共享列表中的撤销",
+        "parentId": "ST-016"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/ShareManagement.vue:58",
+        "apps/web/components/settings/ShareManagement.vue:165"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "撤销链接",
+          "effect": "单项批量协议撤销；旧链接失效",
+          "api": "POST /api/manage/shares/revoke",
+          "guard": "active或expired；ids=[id]、requestId"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "提交中禁用",
+        "逐项失败/请求错误",
+        "成功刷新列表"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:312"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-018",
+      "title": "批量导入：选择资料",
+      "kind": "drawer",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "批量导入；工作区Markdown导入入口复用inline内容",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:215",
+        "apps/web/components/settings/TransferPanel.vue:356",
+        "apps/web/components/settings/TransferPanel.vue:507",
+        "apps/server/platform/transfer-import.ts:29",
+        "apps/server/platform/transfer-import.ts:94"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "选择文件 / 选择目录",
+          "type": "file[]",
+          "required": true,
+          "constraints": "每批≤200文件且≤20MiB；Markdown≤1MiB、Excalidraw≤8MiB、附件≤10MiB；目录保留内部结构",
+          "sensitive": false
+        },
+        {
+          "name": "选择已有目录",
+          "type": "tree-select",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "导入到知识库目录",
+          "type": "text",
+          "required": false,
+          "constraints": "相对目录最长2000；不可绝对路径、反斜杠、%或非法名称段；可新建；留空保留完整分类路径；拒绝链接祖先",
+          "sensitive": false
+        },
+        {
+          "name": "遇到同名文件",
+          "type": "select",
+          "required": true,
+          "constraints": "skip/rename",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "预览导入",
+          "effect": "服务器生成预览；不提交任务",
+          "api": "POST /api/manage/import/preview",
+          "guard": "文件非空且不busy"
+        },
+        {
+          "label": "清除选择",
+          "effect": "清除文件并废弃旧预览",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "effect": "dirty显示ST-089",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "未选文件",
+        "文件超限/读取失败",
+        "目录读取中/失败可重试",
+        "已选文件展开列表"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:41",
+        "tests/e2e/settings-overlays.spec.ts:141",
+        "tests/settings-transfer-files.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "抽屉请求宽840px；同一内页以inline方式供Workspace外层窗口复用。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-019",
+      "title": "批量导入：检查预览",
+      "kind": "state",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "预览导入成功",
+        "parentId": "ST-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:249",
+        "apps/web/components/settings/TransferPanel.vue:601"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "返回修改",
+          "effect": "使旧预览失效并返回选择",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "下一步：确认导入",
+          "effect": "进入ST-020；不请求提交",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "导入位置/类型/新建跳过改名表格",
+        "总文件/字节数",
+        "服务端warning",
+        "横向滚动表"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:141",
+        "tests/e2e/management-features.spec.ts:232"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-020",
+      "title": "批量导入：确认提交",
+      "kind": "state",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "检查预览→下一步",
+        "parentId": "ST-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:271",
+        "apps/web/components/settings/TransferPanel.vue:632"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "返回预览",
+          "effect": "保留预览回到第二步",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "确认导入N个文件",
+          "effect": "创建后台任务；关闭抽屉并保留页面任务列表",
+          "api": "POST /api/manage/import",
+          "guard": "step=3且preview存在；稳定requestId；busy防重"
+        }
+      ],
+      "importantStates": [
+        "目录/数量/处理结果/同名策略摘要",
+        "提交中锁输入及关闭",
+        "成功关闭，任务常驻",
+        "错误可按原requestId重试"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:141"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-021",
+      "title": "导入预览失效、冲突与错误",
+      "kind": "state",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "修改目录/同名策略或请求失败",
+        "parentId": "ST-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:177",
+        "apps/web/components/settings/TransferPanel.vue:249"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新预览",
+          "effect": "从当前选择生成新预览",
+          "api": "POST /api/manage/import/preview",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "原预览失效回到第一步",
+        "进行中修改仍以原位置提交的提示",
+        "旧响应忽略",
+        "文件验证/路径验证/目录读取/提交错误"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/settings-transfer-regressions.test.ts:1",
+        "tests/e2e/settings-overlays.spec.ts:141"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "没有覆盖同名已有原文选项，只提供跳过/改名。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-022",
+      "title": "导入便携包",
+      "kind": "dialog",
+      "module": "settings/portable",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "导入便携包",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:58",
+        "apps/web/components/settings/TransferPanel.vue:89",
+        "apps/web/components/settings/TransferPanel.vue:412",
+        "shared/portable-resource-limits.ts:4"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "完整解压目录",
+          "type": "file-directory",
+          "required": false,
+          "constraints": "含dooknow-portable.json及完整所需文件；≤10000+1文件、总≤256MiB客户端初检",
+          "sensitive": false
+        },
+        {
+          "name": "便携归档文件",
+          "type": "file",
+          "required": false,
+          "constraints": ".tar.gz/.tgz/application/gzip；与解压目录二选一",
+          "sensitive": false
+        },
+        {
+          "name": "导入目录",
+          "type": "text",
+          "required": false,
+          "constraints": "默认父folderPath；服务端验证",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "导入整包",
+          "effect": "导入完整归档/目录并完成便携图形预览",
+          "api": "POST /api/portable-deliveries/import?folderPath=&requestId= 或 POST /api/portable-deliveries/import-directory",
+          "guard": "有归档或目录；不busy；未已有结果"
+        },
+        {
+          "label": "关闭",
+          "effect": "输入未提交时显示ST-089",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "文件配额超限",
+        "上传/预览准备中",
+        "服务错误",
+        "完成ST-023"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/portable-owner-directory.spec.ts:1",
+        "tests/portable-owner-workflow.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-023",
+      "title": "便携导入结果与原资料续传",
+      "kind": "state",
+      "module": "settings/portable",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "整包完成；任务→选择原资料继续",
+        "parentId": "ST-022"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:78",
+        "apps/web/components/settings/TransferPanel.vue:429",
+        "apps/web/components/settings/TransferPanel.vue:475"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "续传原始完整资料",
+          "type": "file/directory",
+          "required": true,
+          "constraints": "任务原kind限制归档/目录输入；续传目录锁定；沿用原requestId",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "导入整包",
+          "effect": "按原任务继续，不重复创建已导入笔记",
+          "api": "同ST-022",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "结果笔记",
+          "effect": "关闭面板并打开新noteId",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "完成笔记数/附件数/路径列表",
+        "导入完成后禁用再次提交",
+        "缺原资料需重选",
+        "图形预览准备未完成"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/portable-owner-workflow.test.ts:1",
+        "tests/e2e/portable-owner-directory.spec.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-024",
+      "title": "导出资料",
+      "kind": "dialog",
+      "module": "settings/transfer",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "导出资料",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferPanel.vue:336",
+        "apps/web/components/settings/TransferPanel.vue:708"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "导出范围",
+          "type": "select",
+          "required": true,
+          "constraints": "整个知识库/library或指定目录/folder",
+          "sensitive": false
+        },
+        {
+          "name": "仅导出指定目录",
+          "type": "tree-select",
+          "required": false,
+          "constraints": "scope=folder必选非空已有目录",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "导出资料",
+          "effect": "后台打包原文/白板/可读关联附件与清单",
+          "api": "POST /api/manage/export",
+          "guard": "不busy；指定目录时非空"
+        },
+        {
+          "label": "重新读取目录",
+          "effect": "重读目录树",
+          "api": "GET /api/tree",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "effect": "dirty显示ST-089",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "目录读取/空选/失败",
+        "提交中",
+        "提交后页面任务处下载",
+        "exportError"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-layout.spec.ts:112",
+        "tests/e2e/management-features.spec.ts:232"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "不包含账户和完整历史；恢复使用加密备份。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-025",
+      "title": "传输任务与结果",
+      "kind": "state",
+      "module": "settings/jobs",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=backup | /?view=settings&section=status",
+        "trigger": "各页常驻TransferTasks",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:17",
+        "apps/web/components/settings/TransferTasks.vue:147",
+        "apps/server/platform/transfers.ts:763"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新任务 / 加载更多任务",
+          "effect": "保留分页窗口并更新",
+          "api": "GET /api/manage/tasks",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消任务",
+          "effect": "请求取消",
+          "api": "POST /api/manage/tasks/:id/cancel",
+          "guard": "cancellable且queued/running"
+        },
+        {
+          "label": "下载结果",
+          "effect": "下载已生成归档",
+          "api": "GET /api/manage/tasks/:id/download",
+          "guard": "downloadAvailable"
+        },
+        {
+          "label": "查看已完成与已取消",
+          "effect": "compact模式展开历史",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "加载/暂无任务/读取错误",
+        "queued/running/succeeded/failed/cancelled/interrupted",
+        "运行进度",
+        "compact排序：运行→失败中断→折叠历史",
+        "任务编号details"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/status-settings.spec.ts:95",
+        "tests/e2e/status-settings.spec.ts:172",
+        "tests/settings-transfer-regressions.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "library传输过滤import/export；backup过滤backup/restore；status compact显示所有类型。非路由。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-026",
+      "title": "任务部分成功、失败与重试",
+      "kind": "state",
+      "module": "settings/jobs",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=backup",
+        "trigger": "展开逐项结果/错误详情",
+        "parentId": "ST-025"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:111",
+        "apps/web/components/settings/TransferTasks.vue:229",
+        "apps/web/components/settings/TransferTasks.vue:266",
+        "apps/server/platform/transfers.ts:791"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重试未完成项目 / 重试任务",
+          "effect": "保留成功项目；重试未完成或新打包任务",
+          "api": "POST /api/manage/tasks/:id/retry",
+          "guard": "UI仅非restore且failed/interrupted/cancelled"
+        },
+        {
+          "label": "打开笔记",
+          "effect": "打开成功项目的noteId",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "逐项pending/succeeded/skipped/failed",
+        "错误详情",
+        "任务级失败",
+        "中断",
+        "取消",
+        "重试请求busy",
+        "不可取消的一致性阶段返回409"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/transfers.test.ts:1",
+        "tests/settings-transfer-regressions.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "恢复任务UI不提供重试；外部恢复服务器要求重新上传密钥。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-027",
+      "title": "独立恢复校验成功回执",
+      "kind": "state",
+      "module": "settings/restore",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "任务结果verification出现",
+        "parentId": "ST-025"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/TransferTasks.vue:240"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "原文目录 / 数据目录 / 配置文件 / 校验回执",
+          "type": "read-only",
+          "required": false,
+          "constraints": "位置details；仅作为恢复副本信息，设计用占位路径",
+          "sensitive": false
+        }
+      ],
+      "actions": [],
+      "importantStates": [
+        "校验成功alert",
+        "笔记/附件数",
+        "部署切换guidance",
+        "副本已撤旧会话/共享及停用插件说明"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:427"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "实际部署切换需独立操作；网页不直接切换服务。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-028",
+      "title": "便携任务与预览恢复",
+      "kind": "state",
+      "module": "settings/portable-jobs",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "便携任务与结果常驻区",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/PortableJobs.vue:32",
+        "apps/web/components/settings/PortableJobs.vue:70"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新结果",
+          "effect": "每2秒轮询且支持手动刷新",
+          "api": "GET /api/portable-jobs",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消任务 / 取消预览准备",
+          "effect": "取消原任务",
+          "api": "POST /api/portable-jobs/:id/cancel",
+          "guard": "任务running或未运行但有portablePreviews"
+        },
+        {
+          "label": "生成预览并继续导出 / 重试导出",
+          "effect": "准备便携图形预览后继续原导出",
+          "api": "POST /api/portable-jobs/:id/retry",
+          "guard": "非completed的export"
+        },
+        {
+          "label": "选择原资料继续",
+          "effect": "打开ST-023",
+          "api": "无请求",
+          "guard": "needsSource"
+        },
+        {
+          "label": "下载便携结果 / 结果笔记",
+          "effect": "下载结果或打开已导入笔记",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "暂无便携任务",
+        "读取失败",
+        "running/completed/failed/cancelled/interrupted",
+        "待生成预览清单",
+        "需要原资料",
+        "已完成下载"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/portable-owner-workflow.test.ts:1",
+        "tests/e2e/portable-native-preview.spec.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-029",
+      "title": "加密备份记录与外部备份",
+      "kind": "state",
+      "module": "settings/backup",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "备份列表常驻区",
+        "parentId": "ST-004"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:85",
+        "apps/web/components/settings/BackupSettings.vue:243",
+        "apps/server/platform/transfers.ts:869"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "下载备份",
+          "effect": "获取所有者备份文件",
+          "api": "GET /api/manage/backups/:id/download",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "恢复到独立副本",
+          "effect": "打开ST-031",
+          "api": "无请求",
+          "guard": "非external备份"
+        },
+        {
+          "label": "加载更多备份 / 刷新备份记录",
+          "effect": "分页读取",
+          "api": "GET /api/manage/backups",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "读取中/无记录/失败",
+        "已加密与大小",
+        "包含原文/未含原文/外部范围待验证",
+        "备份编号和公钥指纹details",
+        "创建任务已提交提示"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:427"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "公钥指纹可展示；不可填入真实恢复私钥或真实私有目录。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-030",
+      "title": "验证密码下载恢复密钥",
+      "kind": "dialog",
+      "module": "settings/backup",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "下载恢复密钥",
+        "parentId": "ST-004"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:142",
+        "apps/web/components/settings/BackupSettings.vue:313",
+        "apps/server/platform/transfers.ts:893"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "当前密码",
+          "type": "password",
+          "required": true,
+          "constraints": "服务端≤1024字符；每所有者5次/60秒节流；每次尝试后立即清空",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "验证密码并下载密钥",
+          "effect": "下载私钥文件；关闭弹窗",
+          "api": "POST /api/manage/backups/key",
+          "guard": "密码非空；不keyBusy"
+        },
+        {
+          "label": "取消",
+          "effect": "清除草稿关闭",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "密码未填",
+        "403错误密码",
+        "429稍后重试",
+        "尚未创建备份/恢复密钥不可用409",
+        "下载中关闭锁定",
+        "成功notice"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:118",
+        "tests/e2e/management-features.spec.ts:427"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "任何设计图只使用掩码，不展示私钥字节。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-031",
+      "title": "从服务器记录恢复到独立副本",
+      "kind": "drawer",
+      "module": "settings/restore",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "记录→恢复到独立副本",
+        "parentId": "ST-029"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:121",
+        "apps/web/components/settings/BackupSettings.vue:348",
+        "apps/web/components/settings/BackupSettings.vue:387"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "备份时间 / 大小 / 编号",
+          "type": "read-only",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "开始独立恢复",
+          "effect": "提交恢复任务；关闭抽屉",
+          "api": "POST /api/manage/restores",
+          "guard": "非external记录；backupId及稳定requestId；不busy"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "恢复摘要",
+        "新空目录与校验说明",
+        "服务继续运行",
+        "提交中",
+        "请求失败可沿原requestId重试"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:427"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "drawer宽760px；服务器生成独立目标位置，不提供覆盖现有目录字段。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-032",
+      "title": "从下载备份恢复：选择文件",
+      "kind": "drawer",
+      "module": "settings/restore",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "从备份恢复",
+        "parentId": "ST-004"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:161",
+        "apps/web/components/settings/BackupSettings.vue:348"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "加密备份",
+          "type": "file",
+          "required": true,
+          "constraints": "≤128MiB",
+          "sensitive": false
+        },
+        {
+          "name": "恢复私钥",
+          "type": "file",
+          "required": true,
+          "constraints": "≤16KiB；不渲染文件内容",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "下一步：确认恢复",
+          "effect": "本地验证两文件及大小；进入ST-033",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "effect": "dirty显示ST-089",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "两步进度条",
+        "未选择文件",
+        "超限验证错误",
+        "保留文件选择以重试"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:198"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-033",
+      "title": "从下载备份恢复：确认上传",
+      "kind": "state",
+      "module": "settings/restore",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "ST-032下一步",
+        "parentId": "ST-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:183",
+        "apps/web/components/settings/BackupSettings.vue:387"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "备份文件名/大小；密钥文件名/大小",
+          "type": "read-only",
+          "required": false,
+          "constraints": "不展示密钥内容",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "上一步",
+          "effect": "回到文件选择，保留草稿",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "上传并恢复独立副本",
+          "effect": "multipart上传backup/key/requestId",
+          "api": "POST /api/manage/restores/upload",
+          "guard": "已验证2文件；沿用requestId直到更改选件；busy禁止关闭"
+        }
+      ],
+      "importantStates": [
+        "摘要",
+        "上传中",
+        "拒绝后保留文件/相同requestId",
+        "完成转后台任务",
+        "大文件CLI及部署切换帮助展开"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:198",
+        "tests/e2e/management-features.spec.ts:427"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-034",
+      "title": "异常写入恢复清单",
+      "kind": "state",
+      "module": "settings/maintenance",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "展开异常写入恢复",
+        "parentId": "ST-004"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/BackupSettings.vue:463",
+        "apps/web/components/MaintenanceSettings.vue:90"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "检查恢复状态",
+          "effect": "刷新冲突清单",
+          "api": "GET /api/maintenance/conflicts",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "核对磁盘版本",
+          "effect": "打开ST-035",
+          "api": "无请求",
+          "guard": "item.resolvable"
+        }
+      ],
+      "importantStates": [
+        "读取中/错误/无人工核对项",
+        "可核对磁盘写入",
+        "多文件/文件缺失等不可自动恢复",
+        "Git同步需人工核对",
+        "目录整理未完成/needs_reconciliation",
+        "保留期限ST-037"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-workspace.spec.ts:7",
+        "tests/knowledge/restore-index.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-035",
+      "title": "采用当前磁盘版本确认",
+      "kind": "dialog",
+      "module": "settings/maintenance",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "核对磁盘版本",
+        "parentId": "ST-034"
+      },
+      "sourceRefs": [
+        "apps/web/components/MaintenanceSettings.vue:38",
+        "apps/web/components/MaintenanceSettings.vue:137",
+        "apps/server/knowledge/web-routes.ts:48"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "文件路径 / 磁盘修改时间",
+          "type": "read-only",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "采用磁盘版本",
+          "effect": "采用当前盘上内容；保留原操作材料并解除阻塞",
+          "api": "POST /api/maintenance/conflicts/:id/resolve",
+          "guard": "resolvable且disk存在；keep_disk+expectedModifiedAt+expectedContentHash+requestId"
+        },
+        {
+          "label": "重新检查",
+          "effect": "重读冲突；仅仍resolvable才重开",
+          "api": "GET /api/maintenance/conflicts",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "确认当前磁盘快照",
+        "提交中不能关闭",
+        "409现场已变ST-036",
+        "成功打开笔记"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/knowledge/restore-index.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "Naive NModal preset card，非SettingsOverlay；共用dialog-card宽度需结合全局CSS核验。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-036",
+      "title": "磁盘冲突已变化与不可安全恢复",
+      "kind": "state",
+      "module": "settings/maintenance",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "采用磁盘版本返回409或清单不可resolvable",
+        "parentId": "ST-035"
+      },
+      "sourceRefs": [
+        "apps/web/components/MaintenanceSettings.vue:57",
+        "apps/web/components/MaintenanceSettings.vue:83",
+        "apps/web/components/MaintenanceSettings.vue:122"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新检查",
+          "effect": "重新确认现有磁盘版本",
+          "api": "GET /api/maintenance/conflicts",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "磁盘版本/操作状态变化",
+        "现场材料保持不变",
+        "多文件恢复需人工",
+        "Git工作区需人工",
+        "整理需人工核对"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/knowledge/restore-index.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-037",
+      "title": "整理撤销材料保留期限",
+      "kind": "state",
+      "module": "settings/maintenance",
+      "entry": {
+        "route": "/?view=settings&section=backup",
+        "trigger": "异常写入恢复→高级保留期限details",
+        "parentId": "ST-034"
+      },
+      "sourceRefs": [
+        "apps/web/components/OrganizationRetentionSettings.vue:9",
+        "apps/web/components/OrganizationRetentionSettings.vue:50",
+        "apps/server/knowledge/web-routes.ts:44"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "整理撤销材料保留天数",
+          "type": "integer",
+          "required": true,
+          "constraints": "1–3650；默认30；只影响后续任务",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存保留期限",
+          "effect": "保存整日天数",
+          "api": "PUT /api/maintenance/organization-settings",
+          "guard": "已加载且非busy；客户端整数范围验证"
+        },
+        {
+          "label": "重新读取保留期限",
+          "effect": "重试加载",
+          "api": "GET /api/maintenance/organization-settings",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "按需加载",
+        "读取失败/重试",
+        "整数范围错误",
+        "保存未确认需重新打开核对",
+        "保存成功",
+        "不删除笔记/不缩短已有材料期限说明"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/organization-retention.spec.ts:4",
+        "tests/mcp-permission-settings.test.ts:28"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-038",
+      "title": "本地检索组件状态",
+      "kind": "state",
+      "module": "settings/search-runtime",
+      "entry": {
+        "route": "/?view=settings&section=search",
+        "trigger": "本地检索卡片",
+        "parentId": "ST-003"
+      },
+      "sourceRefs": [
+        "apps/web/components/SearchRuntimeSettings.vue:95",
+        "apps/server/app.ts:266"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "检查检索状态",
+          "effect": "重读状态",
+          "api": "GET /api/platform/search-runtime",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "准备本地检索 / 重新准备",
+          "effect": "启动准备任务",
+          "api": "POST /api/platform/search-runtime/prepare",
+          "guard": "非externallyManaged、distributionAvailable且文本/语义至少一项未就绪"
+        }
+      ],
+      "importantStates": [
+        "首次spinner",
+        "文本与语义独立可用标记",
+        "高级运行信息details",
+        "应用管理/外部部署管理",
+        "安装包下载大小"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/search-runtime.spec.ts:4",
+        "tests/search-runtime-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "SetupWizard的onboarding=true变体由首启模块负责；此处覆盖常规设置。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-039",
+      "title": "搜索准备进行中",
+      "kind": "state",
+      "module": "settings/search-runtime",
+      "entry": {
+        "route": "/?view=settings&section=search | /?view=settings&section=status",
+        "trigger": "提交搜索准备任务",
+        "parentId": "ST-038"
+      },
+      "sourceRefs": [
+        "apps/web/components/SearchRuntimeSettings.vue:17",
+        "apps/web/components/SearchRuntimeSettings.vue:172",
+        "apps/web/components/settings/StatusSettings.vue:223"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "取消检索准备",
+          "effect": "请求取消当前任务",
+          "api": "POST /api/platform/search-runtime/tasks/:id/cancel",
+          "guard": "task.state queued/running；不busy/checking"
+        }
+      ],
+      "importantStates": [
+        "queued/downloading/verifying/creating_venv/installing/validating_model/starting/ready",
+        "下载MiB及progress",
+        "每2秒状态刷新",
+        "状态页4秒刷新"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/search-runtime.spec.ts:4",
+        "tests/search-runtime-cancel.test.ts:1",
+        "tests/search-runtime-download.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-040",
+      "title": "搜索准备失败、中断、取消与不可用",
+      "kind": "state",
+      "module": "settings/search-runtime",
+      "entry": {
+        "route": "/?view=settings&section=search",
+        "trigger": "状态失败/部署管理/不可下载源",
+        "parentId": "ST-038"
+      },
+      "sourceRefs": [
+        "apps/web/components/SearchRuntimeSettings.vue:36",
+        "apps/web/components/SearchRuntimeSettings.vue:110",
+        "apps/web/components/SearchRuntimeSettings.vue:166"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新准备",
+          "effect": "复用已校验下载重试",
+          "api": "POST /api/platform/search-runtime/prepare",
+          "guard": "应用可管理且distributionAvailable"
+        },
+        {
+          "label": "检查检索状态",
+          "effect": "刷新读取",
+          "api": "GET /api/platform/search-runtime",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "状态未知warning",
+        "task failed/interrupted/cancelled",
+        "PROCESS_CONTAINMENT_UNAVAILABLE说明",
+        "外部组件不显示准备按钮",
+        "无下载源",
+        "原文仍可浏览编辑"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/search-runtime-process-identity.test.ts:1",
+        "tests/search-runtime-pause.test.ts:1",
+        "tests/e2e/status-settings.spec.ts:206"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-041",
+      "title": "后台状态展开服务详情",
+      "kind": "state",
+      "module": "settings/status",
+      "entry": {
+        "route": "/?view=settings&section=status",
+        "trigger": "展开搜索准备/索引更新/写入与恢复",
+        "parentId": "ST-005"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/StatusSettings.vue:187",
+        "apps/web/components/settings/StatusSettings.vue:277",
+        "apps/web/components/settings/StatusSettings.vue:351"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "检查并更新索引",
+          "effect": "请求扫描原文并更新",
+          "api": "POST /api/index/refresh",
+          "guard": "无busy且索引状态可读取"
+        },
+        {
+          "label": "打开搜索设置 / 核对写入与同步 / 打开异常写入恢复",
+          "effect": "导航设置",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "打开笔记",
+          "effect": "最近检查或冲突笔记入口",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "pending/retrying/failed/conflicts计数",
+        "最近10篇笔记textIndexedHash/sourceHash判断",
+        "只显示最多5条写入冲突",
+        "错误details",
+        "搜索活跃/错误自动展开",
+        "索引更新/冲突自动展开",
+        "写入计数未知"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/status-settings.spec.ts:206",
+        "tests/status-summary.test.ts:3"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "当前writeCount仅计items+syncConflicts，未计organizationConflicts；保留源码事实，设计评审需决定是否补齐文案。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-042",
+      "title": "检索状态悬浮详情",
+      "kind": "popover",
+      "module": "settings/index-status",
+      "entry": {
+        "route": "工作区，非独立路由",
+        "trigger": "未找到生产挂载；组件源码定义了底部检索胶囊点击",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/IndexStatus.vue:14",
+        "apps/web/components/IndexStatus.vue:94"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "打开搜索设置",
+          "effect": "关闭popover并触发settings事件",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新索引",
+          "effect": "提交索引刷新",
+          "api": "POST /api/index/refresh",
+          "guard": "非busy"
+        },
+        {
+          "label": "Escape",
+          "effect": "关闭浮层并归还触发按钮焦点",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "检查中/搜索待准备/需处理/更新中/完成",
+        "当前笔记文本及语义就绪",
+        "同步和pending/failed/conflicts",
+        "读取错误"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "popover=min(280px,100vw−48px)",
+          "max-height=100dvh−130px",
+          "触发器max-width=100vw−32px"
+        ],
+        "behavior": "右下safe-area固定，长标签省略；详情垂直滚动。"
+      },
+      "testRefs": [
+        "tests/search/web-status.test.ts:1"
+      ],
+      "requiresDistinctImage": false,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "Workspace shell如另有入口记录，内容以本ID为准。",
+        "当前不可达证据：apps/web下未发现IndexStatus引用。后台状态当前入口是ST-005/ST-041。"
+      ],
+      "reachability": {
+        "status": "source-only-unmounted",
+        "evidence": "rg IndexStatus apps/web未发现任何import、mount或动态注册引用；保留组件源码能力，不计当前可达popover。"
+      }
+    },
+    {
+      "id": "ST-043",
+      "title": "修改密码",
+      "kind": "dialog",
+      "module": "settings/account",
+      "entry": {
+        "route": "/?view=settings&section=account",
+        "trigger": "修改密码",
+        "parentId": "ST-007"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:46",
+        "apps/web/components/settings/AccountSettings.vue:142",
+        "shared/password-policy.ts:2"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "所有者账户会话；/api/auth/change-password由Better Auth专属路径处理（apps/server/app.ts:177），非普通API hook；UI明确revokeOtherSessions=true。"
+      ],
+      "fields": [
+        {
+          "name": "当前密码",
+          "type": "password",
+          "required": true,
+          "constraints": "autocomplete=current-password",
+          "sensitive": true
+        },
+        {
+          "name": "新密码",
+          "type": "password",
+          "required": true,
+          "constraints": "至少8字符；autocomplete=new-password",
+          "sensitive": true
+        },
+        {
+          "name": "确认新密码",
+          "type": "password",
+          "required": true,
+          "constraints": "非空且与新密码一致",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "更新密码",
+          "effect": "更新并强制退出其他会话",
+          "api": "POST /api/auth/change-password",
+          "guard": "当前密码非空、新密码≥8、确认匹配；revokeOtherSessions=true"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭清空全部密码和字段错误",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "busy锁定关闭",
+        "关闭有草稿ST-089",
+        "成功notice并重读设备"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:9",
+        "tests/e2e/settings-overlays.spec.ts:65",
+        "tests/e2e/settings-overlays.spec.ts:319"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "/api/auth/change-password由Better Auth专属路径处理，不能将普通/api全局CSRF hook直接套到此路径；本次未追溯依赖内部最大密码长度。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-044",
+      "title": "修改密码字段错误与服务失败",
+      "kind": "state",
+      "module": "settings/account",
+      "entry": {
+        "route": "/?view=settings&section=account",
+        "trigger": "无效提交或change-password失败",
+        "parentId": "ST-043"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:46",
+        "apps/web/components/settings/AccountSettings.vue:151"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [],
+      "importantStates": [
+        "当前密码为空",
+        "新密码少于8",
+        "确认不匹配",
+        "字段aria-invalid/error",
+        "API失败弹窗内alert",
+        "busy所有输入禁用"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:65",
+        "tests/e2e/settings-overlays.spec.ts:319"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-045",
+      "title": "退出单台其他设备确认",
+      "kind": "popover",
+      "module": "settings/account",
+      "entry": {
+        "route": "/?view=settings&section=account",
+        "trigger": "非当前登录设备→退出设备",
+        "parentId": "ST-007"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:90",
+        "apps/web/components/settings/AccountSettings.vue:234",
+        "apps/server/platform/management.ts:242"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "退出设备",
+          "effect": "删除所选其他会话",
+          "api": "DELETE /api/manage/sessions/:id",
+          "guard": "不能针对current；所有者拥有会话"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "请求中禁用其他退出操作",
+        "成功刷新列表",
+        "错误提示"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/management-api.test.ts:245",
+        "tests/e2e/management-features.spec.ts:521"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-046",
+      "title": "退出所有其他设备确认",
+      "kind": "popover",
+      "module": "settings/account",
+      "entry": {
+        "route": "/?view=settings&section=account",
+        "trigger": "退出其他设备",
+        "parentId": "ST-007"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:103",
+        "apps/web/components/settings/AccountSettings.vue:251"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "退出其他设备",
+          "effect": "撤销除当前会话外所有登录",
+          "api": "POST /api/manage/sessions/revoke-others",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "请求中",
+        "成功刷新列表",
+        "失败alert"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/management-api.test.ts:7"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-047",
+      "title": "插件已安装目录",
+      "kind": "state",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "已安装tab / 返回插件列表",
+        "parentId": "ST-006"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:50",
+        "apps/web/components/PluginManager.vue:375",
+        "apps/web/components/PluginManager.vue:437"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "配置",
+          "effect": "进入所选插件内页",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "停用 / 启用",
+          "effect": "切换插件运行",
+          "api": "POST /api/platform/plugins/:id/disable|enable",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "升级",
+          "effect": "服务器安装新版本",
+          "api": "POST /api/platform/plugin-installations",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "卸载",
+          "effect": "打开ST-053",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "无已安装插件",
+        "enabled/disabled/starting/stopping/failed",
+        "版本差异升级可见",
+        "保留资料依赖提示"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/plugins.spec.ts:10",
+        "tests/e2e/plugin-config.spec.ts:45"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-048",
+      "title": "添加插件目录",
+      "kind": "state",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "添加插件tab",
+        "parentId": "ST-006"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:382",
+        "apps/web/components/PluginManager.vue:425",
+        "apps/web/components/PluginManager.vue:506"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "安装",
+          "effect": "提交/恢复服务器安装回执",
+          "api": "POST /api/platform/plugin-installations",
+          "guard": "catalog条目未安装；非busy"
+        }
+      ],
+      "importantStates": [
+        "未安装卡片标题/版本/说明/能力",
+        "没有其他可安装官方插件",
+        "安装过程ST-054",
+        "安装源未提供focusPlugin"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/plugins.spec.ts:10"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-049",
+      "title": "MCP插件配置内页",
+      "kind": "state",
+      "module": "settings/plugins/mcp",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "MCP服务→配置",
+        "parentId": "ST-047"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:544",
+        "apps/web/components/PluginManager.vue:591",
+        "apps/web/components/PluginManager.vue:634",
+        "plugins/mcp/manifest.json:27"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "启用OAuth连接 / 启用API Key连接",
+          "type": "switch",
+          "required": false,
+          "constraints": "默认均true；保存不自动启用插件",
+          "sensitive": false
+        },
+        {
+          "name": "分域权限",
+          "type": "policy",
+          "required": false,
+          "constraints": "ST-062",
+          "sensitive": false
+        },
+        {
+          "name": "允许访问To Doo清单",
+          "type": "multi-select",
+          "required": false,
+          "constraints": "最多100项，每ID≤128；空=全部",
+          "sensitive": false
+        },
+        {
+          "name": "允许To Doo内容",
+          "type": "multi-select",
+          "required": false,
+          "constraints": "8枚举：tasks/records/focus/habits/anniversaries/calendar/statistics/settings",
+          "sensitive": false
+        },
+        {
+          "name": "外部网页地址",
+          "type": "url",
+          "required": false,
+          "constraints": "可选HTTPS；最长2048；空不返回链接",
+          "sensitive": false
+        },
+        {
+          "name": "旧版兼容设置",
+          "type": "details",
+          "required": false,
+          "constraints": "无permissionPolicy时显示；只读/index/publish/task开关和相对目录最多64项",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存插件配置",
+          "effect": "按configVersion保存；不自动启用",
+          "api": "PUT /api/platform/plugins/mcp/config",
+          "guard": "不busy且无远端冲突"
+        },
+        {
+          "label": "启用插件",
+          "effect": "启用已保存配置",
+          "api": "POST /api/platform/plugins/mcp/enable",
+          "guard": "无dirty、无remoteChanged"
+        },
+        {
+          "label": "停用插件 / 卸载插件",
+          "effect": "暂停运行或打开卸载确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "未启用",
+        "未保存草稿跨插件保留",
+        "配置版本冲突",
+        "重启待生效",
+        "连接指南和实际插件连接调用区域"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/plugin-config.spec.ts:45",
+        "tests/e2e/plugin-config.spec.ts:127",
+        "tests/e2e/plugin-config.spec.ts:185"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "To Doo业务UI不在本次盘点；此处仅MCP权限编辑器的域/清单字段。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-050",
+      "title": "Git插件配置内页",
+      "kind": "state",
+      "module": "settings/plugins/git",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "Git版本管理→配置",
+        "parentId": "ST-047"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:544",
+        "apps/web/components/PluginManager.vue:590",
+        "plugins/git/manifest.json:14"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "提交作者",
+          "type": "text",
+          "required": false,
+          "constraints": "≤100字符",
+          "sensitive": false
+        },
+        {
+          "name": "作者邮箱",
+          "type": "text",
+          "required": false,
+          "constraints": "≤254字符；署名非登录凭据",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存插件配置",
+          "effect": "按configVersion保存作者设置",
+          "api": "PUT /api/platform/plugins/git/config",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "启用/停用/卸载插件",
+          "effect": "生命周期操作",
+          "api": "POST /api/platform/plugins/git/:action",
+          "guard": "Git任务忙时服务器拒绝409"
+        }
+      ],
+      "importantStates": [
+        "未配置作者",
+        "运行异常",
+        "重启待生效",
+        "GitRemotePanel ST-074",
+        "Git仓库插件贡献ST-082"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/git.spec.ts:7",
+        "tests/git-remote-routes.test.ts:73"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-051",
+      "title": "插件草稿远端冲突、校验与不确定结果",
+      "kind": "state",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "另一位置配置更新 / 保存或生命周期失败",
+        "parentId": "ST-049"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:203",
+        "apps/web/components/PluginManager.vue:269",
+        "apps/web/components/PluginManager.vue:609"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新载入已保存配置",
+          "effect": "打开ST-052",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新插件状态",
+          "effect": "核对已完成或不确定变更",
+          "api": "GET /api/platform/plugins",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "输入保留但禁保存/启用",
+        "字段格式错误自动展开并聚焦",
+        "重启必须由部署者执行",
+        "操作完成但刷新失败",
+        "传输结果不确定需先核对",
+        "高级JSON错误/secret空保留null清除"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/plugin-config.spec.ts:86",
+        "tests/plugin-config.test.ts:98"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "通用schema渲染boolean/number/enum/string/writeOnly/object/array；当前实际插件仅Git/MCP，未来插件未知字段不当作已存在页面。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-052",
+      "title": "丢弃插件草稿并重新载入确认",
+      "kind": "popover",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "远端已变→重新载入已保存配置",
+        "parentId": "ST-051"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:302",
+        "apps/web/components/PluginManager.vue:617"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "丢弃输入并重新载入",
+          "effect": "替换草稿为最新服务器值",
+          "api": "GET /api/platform/plugins",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "保留当前输入",
+          "effect": "关闭确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "远端冲突警告上下文",
+        "重载中",
+        "重载成功/失败"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/plugin-config.spec.ts:86"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-053",
+      "title": "卸载插件确认",
+      "kind": "dialog",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "插件卡片/配置内页→卸载",
+        "parentId": "ST-006"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:326",
+        "apps/web/components/PluginManager.vue:519"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "确认卸载",
+          "effect": "卸载可执行功能，保留配置与数据",
+          "api": "POST /api/platform/plugins/:id/uninstall",
+          "guard": "非busy；Git活跃任务另有服务器忙保护"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "MCP额外告知授权仍保留",
+        "busy锁关闭",
+        "失败仍保留对话框",
+        "成功返回已安装列表"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-onboarding.spec.ts:42",
+        "tests/plugins-api.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-054",
+      "title": "插件安装、升级、重启和资料依赖状态",
+      "kind": "state",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "安装/升级或重进页面恢复回执",
+        "parentId": "ST-006"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:337",
+        "apps/web/components/PluginManager.vue:394",
+        "apps/web/components/PluginManager.vue:413",
+        "apps/web/components/PluginManager.vue:602"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新插件状态",
+          "effect": "核对安装回执与注册表",
+          "api": "GET /api/platform/plugin-installations; GET /api/platform/plugins",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "安装插件",
+          "effect": "缺依赖且安装源提供时重新安装",
+          "api": "POST /api/platform/plugin-installations",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "下载/安装阶段",
+        "服务器任务离页继续",
+        "succeeded/failed/needs_reconciliation",
+        "重启待生效",
+        "资料missing/unavailable/disabled/version_mismatch/incompatible/invalid"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/plugin-install-jobs.test.ts:1",
+        "tests/plugins-host.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-055",
+      "title": "插件加载/渲染失败边界",
+      "kind": "state",
+      "module": "settings/plugin-host",
+      "entry": {
+        "route": "插件贡献所在页面或窗口",
+        "trigger": "插件资源未加载或渲染抛错",
+        "parentId": "ST-056"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginPanel.vue:31",
+        "apps/web/components/PluginBoundary.vue:1",
+        "apps/web/components/PluginManager.vue:804"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "关闭面板 / 停用插件",
+          "effect": "从容器退出或在插件设置停用",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "插件界面尚未加载",
+        "pluginUIErrors错误",
+        "运行失败NAlert替换贡献"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/plugins-host.test.ts:1",
+        "tests/e2e/plugin-action-feedback.spec.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "边界自身不提供重试按钮；不应虚构。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-056",
+      "title": "插件贡献通用面板容器",
+      "kind": "state",
+      "module": "settings/plugin-host",
+      "entry": {
+        "route": "工作区当前路由",
+        "trigger": "plugin api.openPanel(contributionId)",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginPanel.vue:12",
+        "packages/plugin-ui/host.ts:1"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "关闭插件面板 / 点击遮罩",
+          "effect": "清除pluginPanel",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "贡献标题",
+        "实际注册组件",
+        "资源加载失败ST-055",
+        "贡献运行失败ST-055"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/plugins.spec.ts:10"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "host没有依据插件内部busy/dirty锁定关闭；不能把SettingsOverlay关闭保证套用到此容器。具体MCP/Git面板见ST-073/ST-083/ST-085。",
+        "共享宿主框架设计记录，不是可独立打开的额外窗口；具体可达贡献另列dialog。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "Workspace.vue:3577常驻PluginPanel；这是共享框架能力，具体实例ST-073/ST-083/ST-091单列。"
+      }
+    },
+    {
+      "id": "ST-057",
+      "title": "MCP OAuth接入指南",
+      "kind": "state",
+      "module": "settings/mcp",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "MCP配置默认OAuth接入",
+        "parentId": "ST-049"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPConnectionGuide.vue:112",
+        "apps/web/components/MCPConnectionGuide.vue:168",
+        "apps/web/components/MCPConnectionGuide.vue:181"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "OAuth MCP服务地址",
+          "type": "read-only",
+          "required": false,
+          "constraints": "使用服务器已保存配置；不是客户端在线状态",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "检查本机连接条件",
+          "effect": "读取本机服务条件与历史调用",
+          "api": "GET /api/platform/mcp/connection",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "复制连接地址",
+          "effect": "复制OAuth endpoint",
+          "api": "剪贴板",
+          "guard": "dirty时禁用"
+        },
+        {
+          "label": "API Key接入",
+          "effect": "切换ST-058",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "配置未保存",
+        "插件未启用",
+        "本机准备未就绪/就绪",
+        "非HTTPS警告",
+        "OAuth已停用",
+        "外部网络未验证",
+        "最近认证尝试/历史成功调用",
+        "读取失败教程仍可见",
+        "复制失败手动复制"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-onboarding.spec.ts:7",
+        "tests/mcp-management.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-058",
+      "title": "MCP API Key接入指南",
+      "kind": "state",
+      "module": "settings/mcp",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "API Key接入切换",
+        "parentId": "ST-057"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPConnectionGuide.vue:194",
+        "apps/web/components/MCPConnectionGuide.vue:235"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "API Key MCP服务地址",
+          "type": "read-only",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "Authorization请求头",
+          "type": "instruction",
+          "required": false,
+          "constraints": "Bearer占位符；Streamable HTTP及自定义头要求",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "复制连接地址",
+          "effect": "复制API-key endpoint",
+          "api": "剪贴板",
+          "guard": "dirty时禁用"
+        },
+        {
+          "label": "创建API客户端",
+          "effect": "打开ST-065",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "API Key接入已停用",
+        "未保存/插件未启用禁签发",
+        "独立客户端说明",
+        "本机可用≠外部网络验证"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:87"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-059",
+      "title": "OAuth授权清单与停用卸载后保留授权",
+      "kind": "state",
+      "module": "settings/mcp",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "MCP配置OAuth清单；插件页保留的连接授权卡片",
+        "parentId": "ST-006"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPAuthorizationManager.vue:71",
+        "apps/web/components/MCPConnectionGuide.vue:238",
+        "apps/server/platform/mcp-management.ts:44",
+        "apps/web/components/settings/PluginsSettings.vue:8"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "收窄连接权限",
+          "effect": "打开ST-060",
+          "api": "无请求",
+          "guard": "active且effectivePolicy"
+        },
+        {
+          "label": "撤销连接授权",
+          "effect": "显示ST-061确认",
+          "api": "无请求",
+          "guard": "active"
+        },
+        {
+          "label": "重新读取授权",
+          "effect": "失败后重试",
+          "api": "GET /api/platform/mcp/connection",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "active授权保留 / revoked",
+        "已授予及当前有效policy/scopes/prefixes",
+        "旧版无policy描述",
+        "插件未装/停用仍可撤销",
+        "无记录时保留卡隐藏",
+        "读取/撤销结果不确定"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-onboarding.spec.ts:42",
+        "tests/mcp-authorization-ui.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "公共OAuth consent路由由public模块盘点；此处是所有者连接管理。",
+        "MCPAuthorizationManager卡片仅MCP未安装时挂载（PluginsSettings.vue:8）；已安装但停用时，通过MCP配置内MCPConnectionGuide管理保留授权。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-060",
+      "title": "收窄OAuth连接权限表单",
+      "kind": "state",
+      "module": "settings/mcp",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "收窄连接权限",
+        "parentId": "ST-059"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPClientPermissions.vue:12",
+        "apps/web/components/MCPClientPermissions.vue:25",
+        "apps/server/platform/mcp-client-permissions.ts:52"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "连接权限policy",
+          "type": "domain-permissions",
+          "required": true,
+          "constraints": "ceiling=当前effectivePolicy/permissionPolicy；只收窄，不能扩大",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存收窄权限",
+          "effect": "按expectedGrantVersion保存；原令牌失效需客户端重授",
+          "api": "POST /api/platform/mcp/clients/narrow",
+          "guard": "active；effectivePolicy存在；不busy"
+        },
+        {
+          "label": "取消",
+          "effect": "移除本地draft",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "域/操作/资源编辑",
+        "busy",
+        "保存未确认提示刷新核对",
+        "保存成功需重授权"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/mcp-permission-settings.test.ts:4",
+        "tests/mcp-authorization-ui.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-061",
+      "title": "撤销OAuth授权行内确认",
+      "kind": "state",
+      "module": "settings/mcp",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "撤销连接授权 / 撤销此连接授权",
+        "parentId": "ST-059"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPAuthorizationManager.vue:98",
+        "apps/web/components/MCPConnectionGuide.vue:261",
+        "apps/server/platform/mcp-management.ts:79"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "确认撤销授权",
+          "effect": "立即撤销原授权",
+          "api": "POST /api/platform/mcp/clients/revoke",
+          "guard": "clientId非空≤512；不busy"
+        },
+        {
+          "label": "取消",
+          "effect": "收起行内确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "不可继续原授权说明",
+        "撤销busy",
+        "令牌存储清理待重试",
+        "结果未确认→刷新核对",
+        "刷新发现已撤销后清提示"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-onboarding.spec.ts:42",
+        "tests/mcp-authorization-ui.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "这是行内状态，非弹窗或新增页面。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-062",
+      "title": "分域权限编辑器",
+      "kind": "state",
+      "module": "settings/mcp-permissions",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "MCP插件配置 / OAuth收窄 / API客户端权限编辑",
+        "parentId": "ST-049"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPDomainPermissions.vue:24",
+        "apps/web/components/MCPDomainPermissions.vue:47",
+        "apps/web/mcp-permissions.ts:1",
+        "apps/server/platform/mcp-permissions.ts:21"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "知识库 / 博客 / To Doo启用",
+          "type": "switch",
+          "required": false,
+          "constraints": "仅实现的selectableDomains；初值按服务端policy",
+          "sensitive": false
+        },
+        {
+          "name": "知识库能力预设",
+          "type": "select",
+          "required": false,
+          "constraints": "只读/内容编辑/自主整理；受ceiling约束",
+          "sensitive": false
+        },
+        {
+          "name": "资源范围",
+          "type": "select",
+          "required": false,
+          "constraints": "all或selected；ceiling选定范围时禁止扩大为all",
+          "sensitive": false
+        },
+        {
+          "name": "指定资源",
+          "type": "resource-tree/multi-select",
+          "required": false,
+          "constraints": "知识库稳定目录/笔记身份；To Doo清单；博客文章",
+          "sensitive": false
+        },
+        {
+          "name": "独立权限与高级选项",
+          "type": "checkbox[]",
+          "required": false,
+          "constraints": "各域implemented actions；read/write/organize/archive/index/share/manage等独立，受ceiling限制",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "使用当前数据",
+          "effect": "旧业务绑定变化时重绑空授权",
+          "api": "无请求",
+          "guard": "仅插件全局编辑，非consent/ceiling"
+        },
+        {
+          "label": "重试",
+          "effect": "读取权限/资源",
+          "api": "GET /api/platform/mcp/permissions",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "首次读取",
+        "资源读取失败",
+        "禁用域折叠",
+        "旧owner/instance绑定警告",
+        "已选资源未加载/不可用仍保留",
+        "全局收窄立即约束/扩大需重授权",
+        "consent隐藏越权选择"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/mcp-domain-editor.test.ts:1",
+        "tests/e2e/plugin-config.spec.ts:127",
+        "tests/e2e/plugin-config.spec.ts:185"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "只盘点平台MCP授权UI，不修改To Doo基线业务页面。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-063",
+      "title": "知识库权限资源树浮层",
+      "kind": "popover",
+      "module": "settings/mcp-permissions",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "指定目录/笔记→选择知识库资源",
+        "parentId": "ST-062"
+      },
+      "sourceRefs": [
+        "apps/web/components/KnowledgeResourceTreeSelect.vue:85",
+        "apps/web/components/KnowledgeResourceTreeSelect.vue:117"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "搜索或选择目录、笔记",
+          "type": "checkable-tree",
+          "required": false,
+          "constraints": "strict多选；遵循ceiling；目录包含当前和未来后代",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "选择 / 取消父目录",
+          "effect": "更新稳定ResourceRef集合，取消父目录后可独立选子项",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "Escape",
+          "effect": "只关闭当前树浮层",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "无匹配目录/笔记",
+        "随父目录包含且不可独立重复勾选",
+        "未加载选中项保留",
+        "已选目录/笔记数摘要"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "动态24–300px列表高度",
+          "100vw−16px最大宽度"
+        ],
+        "behavior": "上下空间择向，resize/scroll重算，长标题两行与选择标签最多2个；body z-index3000。"
+      },
+      "testRefs": [
+        "tests/mcp-domain-editor.test.ts:1",
+        "tests/e2e/plugin-config.spec.ts:127"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-064",
+      "title": "API Key客户端管理清单",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "MCP连接指南内API Key客户端区",
+        "parentId": "ST-049"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:322",
+        "apps/server/platform/mcp-api-keys.ts:197"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。",
+        "签发/权限修改须MCP插件启用、API Key通道开启且配置已保存；改名和撤销仍可独立进行。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新API客户端",
+          "effect": "读取当前账户客户端",
+          "api": "GET /api/platform/mcp/api-clients",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "创建 / 修改名称 / 编辑权限 / 轮换密钥 / 重新授权并签发 / 撤销API连接",
+          "effect": "进入ST-065至ST-072",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "读取中",
+        "尚无客户端",
+        "读取失败",
+        "active/expired/revoked/requires_reauthorization",
+        "已授予/当前有效policy",
+        "密钥尾号/签发/到期/最近使用",
+        "disabled仍允许改名称与撤销"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:87",
+        "tests/mcp-api-keys.test.ts:211"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "列表永不返回完整旧密钥；图中尾号用占位。所有编辑为行内form，不虚构弹窗。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-065",
+      "title": "创建API客户端表单",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "创建API客户端",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:102",
+        "apps/web/components/MCPApiClients.vue:355",
+        "apps/server/platform/mcp-api-keys.ts:45"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "客户端名称",
+          "type": "text",
+          "required": true,
+          "constraints": "trim非空≤100字符",
+          "sensitive": false
+        },
+        {
+          "name": "密钥有效期",
+          "type": "select",
+          "required": true,
+          "constraints": "7/30/90天（默认90）/自定义/永不过期",
+          "sensitive": false
+        },
+        {
+          "name": "自定义到期时间",
+          "type": "datetime-local",
+          "required": false,
+          "constraints": "custom时必填将来时间；转换带时区ISO",
+          "sensitive": false
+        },
+        {
+          "name": "权限及资源范围",
+          "type": "domain-policy",
+          "required": true,
+          "constraints": "至少一项有效权限；不能超过全局ceiling，身份绑定当前owner/instance",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "创建并签发密钥",
+          "effect": "创建身份和授权，显示一次密钥ST-070",
+          "api": "POST /api/platform/mcp/api-clients",
+          "guard": "服务开启、配置无dirty、没有其他form/secret；validConsentPolicy"
+        },
+        {
+          "label": "取消",
+          "effect": "丢弃form",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "读取权限中/失败",
+        "名称缺失禁提交",
+        "日期无效",
+        "域/资源选择",
+        "busy",
+        "409 ST-071"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:87",
+        "tests/mcp-api-keys.test.ts:64"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-066",
+      "title": "修改API客户端名称",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "客户端→修改名称",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:125",
+        "apps/web/components/MCPApiClients.vue:212",
+        "apps/web/components/MCPApiClients.vue:357"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "客户端名称",
+          "type": "text",
+          "required": true,
+          "constraints": "trim非空≤100字符",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存客户端名称",
+          "effect": "按expectedVersion修改",
+          "api": "PATCH /api/platform/mcp/api-clients/:id",
+          "guard": "无busy/form/secret；允许disabled服务或revoked客户端改名"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭行内form",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "busy",
+        "409版本冲突输入保留",
+        "成功notice"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:87"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-067",
+      "title": "编辑API客户端权限",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "active客户端→编辑权限",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:140",
+        "apps/web/components/MCPApiClients.vue:217",
+        "apps/web/components/MCPApiClients.vue:388"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "分域权限及资源",
+          "type": "domain-policy",
+          "required": true,
+          "constraints": "使用当前服务ceiling；有效非空选择",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存客户端权限",
+          "effect": "按expectedGrantVersion更新，后续调用立即使用新权限",
+          "api": "PUT /api/platform/mcp/api-clients/:id/permissions",
+          "guard": "active、MCP/API通道可用、配置已保存、非busy"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭form",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "权限读取失败",
+        "版本冲突保留draft",
+        "busy",
+        "成功notice"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:164",
+        "tests/mcp-api-keys.test.ts:186"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-068",
+      "title": "轮换API Key表单",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "active客户端→轮换密钥",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:222",
+        "apps/web/components/MCPApiClients.vue:367"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "密钥有效期",
+          "type": "select",
+          "required": true,
+          "constraints": "7/30/90天/custom/forever",
+          "sensitive": false
+        },
+        {
+          "name": "自定义到期时间",
+          "type": "datetime-local",
+          "required": false,
+          "constraints": "custom时必须将来时间",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "确认轮换API Key",
+          "effect": "原子轮换；旧密钥立即失效；身份及授权保留",
+          "api": "POST /api/platform/mcp/api-clients/:id/rotate-key",
+          "guard": "active且MCP/API可用；expectedVersion"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭form",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "有效期选择",
+        "永不过期提示",
+        "busy",
+        "409冲突",
+        "签发成功ST-070",
+        "结果不确定须刷新并再轮换"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:87",
+        "tests/mcp-api-keys.test.ts:118"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-069",
+      "title": "API客户端重新授权并签发",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "requires_reauthorization客户端→重新授权并签发",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:125",
+        "apps/web/components/MCPApiClients.vue:227"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "密钥有效期",
+          "type": "select",
+          "required": true,
+          "constraints": "同ST-065",
+          "sensitive": false
+        },
+        {
+          "name": "分域授权与资源",
+          "type": "domain-policy",
+          "required": true,
+          "constraints": "默认按当前ceiling重选；显式授权",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "确认重新授权并签发",
+          "effect": "恢复此身份的显式授权并签发新密钥",
+          "api": "POST /api/platform/mcp/api-clients/:id/reauthorize",
+          "guard": "仅requires_reauthorization；expectedVersion+expectedGrantVersion；MCP/API可用"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭form",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "全局失效后需重授",
+        "手动撤销客户端不出现此入口",
+        "409冲突",
+        "新密钥一次显示"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:192",
+        "tests/mcp-api-keys.test.ts:142"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-070",
+      "title": "新API Key一次性展示",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "创建/轮换/重授权成功",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:234",
+        "apps/web/components/MCPApiClients.vue:298",
+        "apps/web/components/MCPApiClients.vue:340"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "新API Key",
+          "type": "read-only-textarea",
+          "required": false,
+          "constraints": "只在签发响应后内存显示一次；不进入持久草稿；离开/卸载清空",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "复制API Key",
+          "effect": "写剪贴板",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "已保存，关闭密钥",
+          "effect": "清空secret及secretClientId",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "复制成功",
+        "剪贴板失败可手动复制",
+        "尚未关闭密钥时阻止新表单/签发",
+        "撤销对应身份立即清除展示"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:149",
+        "tests/mcp-api-keys.test.ts:286"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "所有图只允许占位掩码，不生成或使用真实token。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-071",
+      "title": "API客户端版本冲突与结果未确认",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "修改/签发API请求失败",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:247",
+        "apps/web/components/MCPApiClients.vue:258",
+        "apps/web/components/MCPApiClients.vue:411"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新载入客户端",
+          "effect": "重读列表并为原编辑类型重建form",
+          "api": "GET /api/platform/mcp/api-clients",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新API客户端",
+          "effect": "核对服务器状态",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "409客户端/授权变化，草稿保留并禁提交",
+        "其他失败提示先刷新核对",
+        "密钥已签发但未显示→轮换",
+        "重载后对象消失则收起form"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:164"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-072",
+      "title": "撤销API连接行内确认",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "未revoked客户端→撤销API连接",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:269",
+        "apps/web/components/MCPApiClients.vue:481"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "确认撤销API连接",
+          "effect": "原密钥和授权立即失效，清对应secret/form",
+          "api": "POST /api/platform/mcp/api-clients/:id/revoke",
+          "guard": "非revoked；非busy；服务disabled仍允许"
+        },
+        {
+          "label": "取消",
+          "effect": "收起确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "busy",
+        "结果未确认需刷新",
+        "刷新核对已撤销",
+        "成功notice"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:87",
+        "tests/mcp-api-keys.test.ts:211"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-073",
+      "title": "MCP实际插件连接与调用面板",
+      "kind": "dialog",
+      "module": "plugins/mcp",
+      "entry": {
+        "route": "当前工作区路由或设置插件内页",
+        "trigger": "MCP配置内settingsPage内嵌；sidebar navigation→ST-091桥接窗口→MCP连接按钮打开mcp.settings",
+        "parentId": "ST-056"
+      },
+      "sourceRefs": [
+        "plugins/mcp/web/index.ts:43",
+        "plugins/mcp/web/index.ts:81",
+        "plugins/mcp/web/index.ts:184",
+        "plugins/mcp/manifest.json:149",
+        "apps/web/components/PluginSlot.vue:16",
+        "plugins/mcp/web/index.ts:185"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "撤销",
+          "effect": "撤销OAuth客户端授权",
+          "api": "POST /api/plugins/mcp/call command:mcp.revoke",
+          "guard": "active；实际UI无二次确认"
+        },
+        {
+          "label": "加载更早调用",
+          "effect": "按cursor读取调用",
+          "api": "POST /api/plugins/mcp/call provider:mcp.calls",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新连接与调用",
+          "effect": "刷新状态与记录",
+          "api": "POST /api/plugins/mcp/call provider:mcp.status / mcp.calls",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "加载连接",
+        "OAuth/API服务本机条件与外部连接未验证",
+        "无授权客户端",
+        "无调用记录",
+        "当前有效policy或scopes",
+        "工具名/结果码/时间/客户端/耗时",
+        "错误alert"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp.spec.ts:1",
+        "tests/mcp-plugin-operations.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "同一Settings组件既内嵌也通过PluginPanel弹窗显示；10秒刷新。more()没有本地try/catch与busy锁，错误展示实际行为未运行验证。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-074",
+      "title": "云端同步概览",
+      "kind": "state",
+      "module": "settings/git",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins | 当前笔记路由",
+        "trigger": "GitRemotePanel；Workspace外层Git同步窗口inline模式",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:786",
+        "apps/web/components/GitRemotePanel.vue:827",
+        "apps/server/git/routes.ts:8"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新同步状态",
+          "effect": "并行读取Git状态和当前所有者凭据摘要",
+          "api": "GET /api/platform/git/status; GET /api/platform/git/credentials",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "关联云端仓库 / 管理同步",
+          "effect": "打开ST-075",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "检查云端 / 仅推送 / 拉取更新",
+          "effect": "创建对应job",
+          "api": "POST /api/platform/git/jobs",
+          "guard": "非running；pull要求无未保存草稿；commitUnknown锁变更操作"
+        },
+        {
+          "label": "预览提交并推送",
+          "effect": "打开ST-078",
+          "api": "无请求",
+          "guard": "有变更且无未保存笔记"
+        }
+      ],
+      "importantStates": [
+        "未初始化",
+        "未关联",
+        "分支/HEAD/未提交数",
+        "ahead/behind未知",
+        "最近检查时间",
+        "历史推送成功不保证今后写权限",
+        "凭据不可用",
+        "WORKSPACE_BUSY",
+        "未保存笔记警告和返回保存"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/z-git-remote.spec.ts:16",
+        "tests/e2e/settings-overlays.spec.ts:385"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "设置知识库页和Git配置均嵌入；Workspace外层窗口由workspace模块盘点，本记录负责inline内容。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-075",
+      "title": "管理云端同步",
+      "kind": "drawer",
+      "module": "settings/git",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "管理同步 / 关联云端仓库",
+        "parentId": "ST-074"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:172",
+        "apps/web/components/GitRemotePanel.vue:985",
+        "apps/server/git/transport.ts:29",
+        "apps/server/git/service.ts:228"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "仓库克隆地址",
+          "type": "text",
+          "required": true,
+          "constraints": "≤2048；仅github.com/gitee.com HTTPS或SSH；拒绝凭据嵌URL/空格/查询/fragment/其他主机",
+          "sensitive": false
+        },
+        {
+          "name": "云端分支",
+          "type": "text",
+          "required": false,
+          "constraints": "空用默认；服务端≤200字符、不得以-开头，须通过git check-ref-format refs/heads/…",
+          "sensitive": false
+        },
+        {
+          "name": "仓库认证",
+          "type": "select",
+          "required": false,
+          "constraints": "公开HTTPS可无凭据；只显示当前所有者凭据摘要",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "测试读取连接",
+          "effect": "仅验证读取，不保证推送",
+          "api": "POST /api/platform/git/jobs kind:test",
+          "guard": "URL非空；非running/busy"
+        },
+        {
+          "label": "关联云端仓库",
+          "effect": "保存关联并按流程安装启用Git",
+          "api": "POST /api/platform/git/jobs kind:connect",
+          "guard": "URL非空；非busy；上次提交需先核对"
+        },
+        {
+          "label": "添加 / 更换 / 移除凭据",
+          "effect": "ST-076/ST-077；删除凭据",
+          "api": "POST /api/platform/git/credentials; DELETE /api/platform/git/credentials/:id",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "确认解除云端关联",
+          "effect": "只解除DooKnow同步关联",
+          "api": "POST /api/platform/git/jobs kind:disconnect",
+          "guard": "details内明确确认；本地原文/历史/Git remote保留"
+        }
+      ],
+      "importantStates": [
+        "已有/无凭据",
+        "dirty关闭ST-089",
+        "连接测试成功",
+        "认证/权限错误",
+        "任务进行中",
+        "未确定请求回执"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/z-git-remote.spec.ts:16",
+        "tests/git-remote-routes.test.ts:7",
+        "tests/e2e/settings-overlays.spec.ts:266"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "请求drawer宽960px；inline父容器时作为内页，不再套第二层窗口。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-076",
+      "title": "添加/更换HTTPS仓库凭据",
+      "kind": "dialog",
+      "module": "settings/git-credentials",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "管理同步→添加凭据 / 更换凭据；认证方式HTTPS",
+        "parentId": "ST-075"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:567",
+        "apps/web/components/GitRemotePanel.vue:585",
+        "apps/web/components/GitRemotePanel.vue:1118",
+        "apps/server/git/credentials.ts:176",
+        "apps/server/git/credentials.ts:197"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "凭据名称",
+          "type": "text",
+          "required": true,
+          "constraints": "服务端≤120且无控制字符",
+          "sensitive": false
+        },
+        {
+          "name": "服务平台",
+          "type": "select",
+          "required": true,
+          "constraints": "github.com/gitee.com",
+          "sensitive": false
+        },
+        {
+          "name": "认证方式",
+          "type": "select",
+          "required": true,
+          "constraints": "https/ssh",
+          "sensitive": false
+        },
+        {
+          "name": "仓库用户名",
+          "type": "text",
+          "required": false,
+          "constraints": "服务端≤128、无控制字符、不得冒号",
+          "sensitive": false
+        },
+        {
+          "name": "访问令牌",
+          "type": "password",
+          "required": false,
+          "constraints": "新增必填；更换同平台同方式时留空保留；服务端≤16384字符、非空、无控制字符；秘密不回显",
+          "sensitive": true
+        },
+        {
+          "name": "服务器加密保存凭据",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "默认true；取消后仅保留30分钟",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存仓库凭据",
+          "effect": "创建/更新所有者凭据，清秘密并返回原连接草稿",
+          "api": "POST /api/platform/git/credentials",
+          "guard": "名称非空；新增token必填；非running"
+        },
+        {
+          "label": "取消编辑凭据",
+          "effect": "返回原管理内页；有修改确认放弃",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "新增/更换标题与token占位不同",
+        "保存中",
+        "服务错误",
+        "dirty确认",
+        "秘密离开清除",
+        "连接草稿仍保留"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:266",
+        "tests/git-credentials.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "modal请求宽640px；不把令牌写入图、JSON或文档。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-077",
+      "title": "SSH凭据与主机指纹确认",
+      "kind": "state",
+      "module": "settings/git-credentials",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "凭据编辑→SSH私钥（高级）",
+        "parentId": "ST-076"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:1166",
+        "apps/server/git/credentials.ts:42",
+        "apps/server/git/credentials.ts:70",
+        "apps/server/git/credentials.ts:205"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "SSH私钥",
+          "type": "textarea",
+          "required": false,
+          "constraints": "新增必填；更换留空保留；服务端≤65536及PEM/OpenSSH格式验证",
+          "sensitive": true
+        },
+        {
+          "name": "私钥口令",
+          "type": "password",
+          "required": false,
+          "constraints": "可选；服务端≤4096字符且无控制字符；留空保留仅适用原绑定且复用私钥；秘密不回显",
+          "sensitive": true
+        },
+        {
+          "name": "已核对known_hosts",
+          "type": "textarea",
+          "required": true,
+          "constraints": "服务端≤65536，1–20非注释行；仅所选exact host及支持公钥类型",
+          "sensitive": false
+        },
+        {
+          "name": "已对照官方文档核对并信任主机",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "更改known_hosts/平台即重置；不能仅依赖扫描",
+          "sensitive": false
+        },
+        {
+          "name": "服务器加密保存凭据",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "false仅30分钟",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "读取SSH主机指纹",
+          "effect": "服务器扫描所选平台并显示公钥指纹",
+          "api": "POST /api/platform/git/jobs kind:ssh-host",
+          "guard": "非running且workspace不忙"
+        },
+        {
+          "label": "保存仓库凭据",
+          "effect": "保存私钥和显式host trust",
+          "api": "POST /api/platform/git/credentials",
+          "guard": "knownHosts非空、trustHost=true"
+        },
+        {
+          "label": "GitHub/Gitee官方指纹帮助",
+          "effect": "外部帮助链接",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "指纹扫描任务",
+        "扫描失败可粘贴已核对known_hosts",
+        "信任未勾选禁保存",
+        "主机变更警告",
+        "秘密不回显"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/git-credentials.test.ts:1",
+        "tests/git-transport.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "非新窗口实例；与HTTPS共用编辑modal，但结构/安全动作显著不同，需要独立设计图。",
+        "统计为ST-076同一凭据窗口的SSH变体，不增加窗口数。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-078",
+      "title": "确认本次提交内容并推送",
+      "kind": "drawer",
+      "module": "settings/git",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "预览提交并推送",
+        "parentId": "ST-074"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:668",
+        "apps/web/components/GitRemotePanel.vue:1233",
+        "plugins/git/server/index.ts:381"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "同步提交作者",
+          "type": "text",
+          "required": false,
+          "constraints": "未配置时显示；保存作者配置≤100",
+          "sensitive": false
+        },
+        {
+          "name": "同步作者邮箱",
+          "type": "email",
+          "required": false,
+          "constraints": "未配置时显示；≤254",
+          "sensitive": false
+        },
+        {
+          "name": "云端同步提交说明",
+          "type": "text",
+          "required": true,
+          "constraints": "trim非空；服务端UTF8≤8192字节、无NUL",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存同步署名",
+          "effect": "保存Git插件configVersion作者配置",
+          "api": "PUT /api/platform/plugins/git/config",
+          "guard": "作者与邮箱非空"
+        },
+        {
+          "label": "预览本次提交 / 重新预览",
+          "effect": "生成含文件完整列表的临时预览",
+          "api": "POST /api/plugins/git/call command:git.preview",
+          "guard": "无未保存草稿、有变更、authorReady、说明非空、无未知提交"
+        },
+        {
+          "label": "确认提交并推送",
+          "effect": "先幂等提交成功，再创建push任务",
+          "api": "POST /api/plugins/git/call command:git.commit; POST /api/platform/git/jobs kind:push",
+          "guard": "previewCurrent；token未过期；原requestId"
+        },
+        {
+          "label": "取消提交",
+          "effect": "取消预览并还原草稿基线",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "作者未设置",
+        "预览文件列表/diff",
+        "部分暂存会提交完整当前版本提示",
+        "说明修改使预览失效",
+        "过期/原文变更需重览",
+        "busy锁关闭",
+        "本地提交成功但推送失败保留HEAD"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/z-git-remote.spec.ts:16",
+        "tests/e2e/settings-overlays.spec.ts:385"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "请求drawer宽960px；inline时父窗口内页。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-079",
+      "title": "Git提交结果未知与返回笔记保存",
+      "kind": "state",
+      "module": "settings/git",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "提交传输失败 / 未保存笔记→返回保存",
+        "parentId": "ST-078"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:294",
+        "apps/web/components/GitRemotePanel.vue:724",
+        "apps/web/components/GitRemotePanel.vue:973"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "核对提交结果",
+          "effect": "按相同token及requestId查询/重试提交",
+          "api": "POST /api/plugins/git/call command:git.commit",
+          "guard": "commitUnknown；不允许改说明或新预览"
+        },
+        {
+          "label": "返回笔记保存",
+          "effect": "有草稿先选择继续编辑/放弃后返回",
+          "api": "无请求",
+          "guard": "原笔记草稿保留；单次确认"
+        },
+        {
+          "label": "仅推送",
+          "effect": "本地已确认提交后重试push",
+          "api": "POST /api/platform/git/jobs kind:push",
+          "guard": "无commitUnknown"
+        }
+      ],
+      "importantStates": [
+        "commitUnknown锁关闭与危险变更",
+        "publication=not_published时解除未知并取消旧预览",
+        "本地提交已保留待暂存区核对",
+        "放弃当前凭据/连接草稿确认",
+        "取消保留凭据草稿"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:385",
+        "tests/git-remote-ui.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-080",
+      "title": "Git任务进行、拒绝、冲突与核对",
+      "kind": "state",
+      "module": "settings/git",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "Git job回执或网络失败",
+        "parentId": "ST-074"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:363",
+        "apps/web/components/GitRemotePanel.vue:439",
+        "apps/web/components/GitRemotePanel.vue:896",
+        "apps/server/git/transport.ts:103"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新任务状态",
+          "effect": "读取当前job",
+          "api": "GET /api/platform/git/jobs/:id",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消当前任务",
+          "effect": "请求取消",
+          "api": "POST /api/platform/git/jobs/:id/cancel",
+          "guard": "jobPending且不busy"
+        },
+        {
+          "label": "核对并重试任务",
+          "effect": "沿原回执重试/核对",
+          "api": "POST /api/platform/git/jobs/:id/retry",
+          "guard": "failed/needs_reconciliation；pull要求无未保存草稿"
+        },
+        {
+          "label": "核对请求结果",
+          "effect": "按requestId找回服务器已接受回执",
+          "api": "GET /api/platform/git/jobs",
+          "guard": "unresolved存在"
+        }
+      ],
+      "importantStates": [
+        "phase阶段/服务器继续执行",
+        "failed/cancelled/needs_reconciliation",
+        "连接认证失败/权限拒绝/受保护分支",
+        "非快进分歧停止",
+        "本地变更不能pull",
+        "SSH host key变化",
+        "WORKSPACE_BUSY/依赖缺失",
+        "pull成功但索引刷新待处理",
+        "请求已接受但响应丢失"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/git-remote-safety.test.ts:1",
+        "tests/git-cancellation.test.ts:1",
+        "tests/git-recovery.test.ts:1",
+        "tests/git-remote-routes.test.ts:7"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-081",
+      "title": "Git仓库导入复用内页",
+      "kind": "state",
+      "module": "settings/git-import",
+      "entry": {
+        "route": "首启SetupWizard/已有公共导入流程",
+        "trigger": "GitRepositoryImport包装GitRemotePanel mode=import",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRepositoryImport.vue:1",
+        "apps/web/components/GitRemotePanel.vue:1030",
+        "apps/server/git/service.ts:540",
+        "apps/server/platform/setup-directories.ts:6"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。",
+        "clone仅未绑定知识库时允许，否则SETUP_ALREADY_COMPLETE；目标已存在停，父目录可写且至少512MiB可用。"
+      ],
+      "fields": [
+        {
+          "name": "仓库克隆地址 / 分支 / 认证",
+          "type": "same-as-ST-075",
+          "required": true,
+          "constraints": "相同远端白名单与凭据限制",
+          "sensitive": false
+        },
+        {
+          "name": "导入后的知识库名称",
+          "type": "text",
+          "required": true,
+          "constraints": "UI maxlength40；服务器UTF8≤120字节；trim非空、不得以.开头、不得含路径分隔/控制字符",
+          "sensitive": false
+        },
+        {
+          "name": "导入保存位置",
+          "type": "text",
+          "required": false,
+          "constraints": "服务器位置；空用推荐parent；目标为新的独立目录，必须通过allowedKnowledgeBases政策且非系统/数据/密钥等保护目录、无隐藏或链接组件",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "导入并继续",
+          "effect": "创建clone任务；成功发出imported事件",
+          "api": "POST /api/platform/git/jobs kind:clone",
+          "guard": "URL/name非空、非running、workspace不忙"
+        },
+        {
+          "label": "测试读取连接 / 添加凭据",
+          "effect": "复用ST-075至ST-077",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "同名文件夹停止",
+        "私有仓库认证错误",
+        "clone阶段/取消/结果未知",
+        "新知识库成功导入",
+        "库已绑定不可再次clone",
+        "目标位置不被允许/不可写",
+        "剩余磁盘不足512MiB"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/z-git-remote.spec.ts:182"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "仅记录仓库控件的复用内容；首启路由/宿主页面由public inventory负责，不能额外计为设置页面。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-082",
+      "title": "Git实际插件仓库状态与暂存区核对",
+      "kind": "state",
+      "module": "plugins/git",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "Git配置页settingsPage贡献git.settings",
+        "parentId": "ST-050"
+      },
+      "sourceRefs": [
+        "plugins/git/web/index.ts:116",
+        "plugins/git/server/index.ts:326",
+        "plugins/git/server/index.ts:545"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "初始化Git仓库（main）",
+          "effect": "创建main仓库",
+          "api": "POST /api/plugins/git/call command:git.initialize",
+          "guard": "repository=missing"
+        },
+        {
+          "label": "已核对暂存区",
+          "effect": "确认服务器手工检查过原pending操作",
+          "api": "POST /api/plugins/git/call command:git.acknowledge",
+          "guard": "operationId及confirm=true；不修改文件/暂存区"
+        },
+        {
+          "label": "刷新Git状态",
+          "effect": "读本地repo状态",
+          "api": "POST /api/plugins/git/call provider:git.status",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "loading/missing/ready/异常code",
+        "Git≥2.39依赖提示",
+        "未解决冲突/不可信filter/软链接或子模块暂停写",
+        "pending commit/request/phase"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/git.spec.ts:7",
+        "tests/git-plugin.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-083",
+      "title": "Git实际插件：提交全部变更",
+      "kind": "dialog",
+      "module": "plugins/git",
+      "entry": {
+        "route": "工作区当前路由",
+        "trigger": "libraryAction“提交全部变更”→git.commitPanel（notePanel贡献）",
+        "parentId": "ST-056"
+      },
+      "sourceRefs": [
+        "plugins/git/web/index.ts:207",
+        "plugins/git/web/index.ts:214",
+        "plugins/git/web/index.ts:291"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "Git提交说明",
+          "type": "textarea",
+          "required": true,
+          "constraints": "trim非空；服务器≤8192 UTF8字节、无NUL",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "预览全部变更",
+          "effect": "生成预览token及新requestId",
+          "api": "POST /api/plugins/git/call command:git.preview",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "确认提交 / 核对提交结果",
+          "effect": "幂等提交原预览",
+          "api": "POST /api/plugins/git/call command:git.commit",
+          "guard": "须preview且message一致；未已有result"
+        },
+        {
+          "label": "取消预览",
+          "effect": "取消未提交预览",
+          "api": "POST /api/plugins/git/call command:git.cancelPreview",
+          "guard": "不busy、无result、无uncertain"
+        }
+      ],
+      "importantStates": [
+        "无预览输入",
+        "服务错误",
+        "预览ST-084",
+        "提交未知锁消息",
+        "已完成/生成但需核对暂存区"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/git.spec.ts:7",
+        "tests/git-web-regressions.test.ts:155"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "与ST-078云端提交并推送不同：本贡献只提交，不自动推送。PluginPanel容器本身未感知busy。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-084",
+      "title": "Git插件提交预览、部分暂存与结果",
+      "kind": "state",
+      "module": "plugins/git",
+      "entry": {
+        "route": "工作区当前路由",
+        "trigger": "ST-083预览全部变更成功",
+        "parentId": "ST-083"
+      },
+      "sourceRefs": [
+        "plugins/git/web/index.ts:317",
+        "plugins/git/web/index.ts:363"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "确认提交",
+          "effect": "提交完整已审查工作树版本",
+          "api": "POST /api/plugins/git/call command:git.commit",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消预览",
+          "effect": "取消token",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "文件数/状态代码/路径滚动列表",
+        "预览到期时间",
+        "部分暂存警告",
+        "说明变化取消旧预览",
+        "未知结果必须沿原请求核对",
+        "成功commit hash / needsReconciliation"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/git-web-regressions.test.ts:155"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-085",
+      "title": "Git实际插件：历史与差异",
+      "kind": "state",
+      "module": "plugins/git",
+      "entry": {
+        "route": "当前笔记路由",
+        "trigger": "已注册git.history notePanel贡献；未发现生产宿主调用入口，当前真实入口为原生NoteHistoryDialog的Git标签",
+        "parentId": "ST-056"
+      },
+      "sourceRefs": [
+        "plugins/git/web/index.ts:374",
+        "plugins/git/web/index.ts:413",
+        "packages/plugin-ui/git-history.ts:87",
+        "apps/web/components/PluginSlot.vue:11",
+        "apps/web/components/Workspace.vue:2940",
+        "apps/web/components/NoteHistoryDialog.vue:50"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "查看差异",
+          "effect": "按所选commit加载",
+          "api": "POST /api/plugins/git/call provider:git.diff",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "更早的Git提交",
+          "effect": "读取cursor下一页",
+          "api": "POST /api/plugins/git/call provider:git.history",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "无Git记录",
+        "列表错误",
+        "已选commit高亮",
+        "读取差异中",
+        "旧响应不覆盖新选中",
+        "过时元数据需重读笔记"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/git-history-model.test.ts:54",
+        "tests/git-web-regressions.test.ts:169",
+        "tests/e2e/git.spec.ts:7"
+      ],
+      "requiresDistinctImage": false,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "原生NoteHistoryDialog内Git标签由workspace模块覆盖；共享模型约束引用本记录及ST-086至ST-088。",
+        "可达性：未验证/未发现。Workspace只渲染navigation/libraryAction/noteAction，未渲染notePanel，亦未找到openPanel(git.history)。保留实际打包组件与模型状态作审查，不计为已确认额外对话框。"
+      ],
+      "reachability": {
+        "status": "registered-only",
+        "evidence": "plugins/git/web/index.ts注册git.history；生产Workspace未渲染notePanel且未发现openPanel(git.history)；当前native NoteHistoryDialog使用相同模型，另由workspace盘点。"
+      }
+    },
+    {
+      "id": "ST-086",
+      "title": "Git历史只读差异与解析降级",
+      "kind": "state",
+      "module": "plugins/git",
+      "entry": {
+        "route": "当前笔记路由",
+        "trigger": "选择历史commit并查看差异",
+        "parentId": "ST-085"
+      },
+      "sourceRefs": [
+        "plugins/git/web/index.ts:14",
+        "plugins/git/web/index.ts:464",
+        "plugins/git/web/diff-view.ts:1",
+        "packages/plugin-ui/git-history.ts:127"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "恢复此版本",
+          "effect": "显示ST-087",
+          "api": "无请求",
+          "guard": "diffCommit与selected相同，已完成加载，无restoreNeedsReload/blockedCode"
+        }
+      ],
+      "importantStates": [
+        "中文/长行/HTML安全展示",
+        "只读差异/行号",
+        "异步差异视图准备中",
+        "解析器加载失败保留raw patch",
+        "差异超过256KiB提示；独立判断可恢复性",
+        "差异请求失败不提供恢复"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/git-diff-view.spec.ts:73",
+        "tests/e2e/git-diff-view.spec.ts:148",
+        "tests/e2e/git-diff-view.spec.ts:182"
+      ],
+      "requiresDistinctImage": false,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "本记录属于已打包旧git.history贡献；当前native Git差异由workspace inventory确认可达。"
+      ],
+      "reachability": {
+        "status": "registered-only",
+        "evidence": "plugins/git/web/index.ts注册git.history；生产Workspace未渲染notePanel且未发现openPanel(git.history)；当前native NoteHistoryDialog使用相同模型，另由workspace盘点。"
+      }
+    },
+    {
+      "id": "ST-087",
+      "title": "Git历史恢复确认与不确定恢复",
+      "kind": "state",
+      "module": "plugins/git",
+      "entry": {
+        "route": "当前笔记路由",
+        "trigger": "恢复此版本",
+        "parentId": "ST-085"
+      },
+      "sourceRefs": [
+        "plugins/git/web/index.ts:485",
+        "packages/plugin-ui/git-history.ts:146"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "确认恢复笔记 / 核对恢复结果",
+          "effect": "保存为当前笔记新版本；保留编辑草稿",
+          "api": "POST /api/plugins/git/call command:git.restore",
+          "guard": "已加载所选差异；saved expectedModifiedAt；固定noteId/commit/requestId"
+        },
+        {
+          "label": "取消恢复",
+          "effect": "关闭行内确认",
+          "api": "无请求",
+          "guard": "无busy且无pendingRestore"
+        }
+      ],
+      "importantStates": [
+        "恢复影响说明",
+        "请求中锁定",
+        "传输失败保留原请求并核对",
+        "明确拒绝需重新读取笔记",
+        "成功通知不会因刷新失败重复写入"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/git-web-regressions.test.ts:188",
+        "tests/git-web-regressions.test.ts:210",
+        "tests/git-history-model.test.ts:171"
+      ],
+      "requiresDistinctImage": false,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "行内确认，非新模态；关闭整个通用PluginPanel的保护未由容器实现，需设计/实现评审单独处理。",
+        "生产宿主未找到旧git.history入口；此处记录已打包组件与共享模型，native宿主关闭保护需以workspace记录为准。"
+      ],
+      "reachability": {
+        "status": "registered-only",
+        "evidence": "plugins/git/web/index.ts注册git.history；生产Workspace未渲染notePanel且未发现openPanel(git.history)；当前native NoteHistoryDialog使用相同模型，另由workspace盘点。"
+      }
+    },
+    {
+      "id": "ST-088",
+      "title": "Git历史不可恢复但可读差异",
+      "kind": "state",
+      "module": "plugins/git",
+      "entry": {
+        "route": "当前笔记路由",
+        "trigger": "服务端restore.supported=false或恢复拒绝",
+        "parentId": "ST-085"
+      },
+      "sourceRefs": [
+        "packages/plugin-ui/git-history.ts:14",
+        "plugins/git/web/index.ts:417",
+        "plugins/git/server/index.ts:75"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [],
+      "importantStates": [
+        "仅≤1MiB Markdown可网页恢复",
+        "元数据模式/大文件模式不支持",
+        "所选历史版本>1MiB",
+        "该版本无该笔记文件",
+        "差异超256KiB与恢复限制分开",
+        "缺saved baseline需关闭重读"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/git.spec.ts:99",
+        "tests/git-web-regressions.test.ts:290",
+        "tests/git-history-model.test.ts:162"
+      ],
+      "requiresDistinctImage": false,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "共享模型限制也用于当前可达的原生NoteHistoryDialog；此处不是新增页面。"
+      ],
+      "reachability": {
+        "status": "registered-only",
+        "evidence": "plugins/git/web/index.ts注册git.history；生产Workspace未渲染notePanel且未发现openPanel(git.history)；当前native NoteHistoryDialog使用相同模型，另由workspace盘点。"
+      }
+    },
+    {
+      "id": "ST-089",
+      "title": "设置窗口未保存更改/放弃确认",
+      "kind": "state",
+      "module": "settings/overlay",
+      "entry": {
+        "route": "所有SettingsOverlay宿主路由",
+        "trigger": "有dirty时点击关闭/遮罩/Escape",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsOverlay.vue:50",
+        "apps/web/components/settings/SettingsOverlay.vue:131",
+        "apps/web/components/GitRemotePanel.vue:260"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "继续编辑",
+          "effect": "收起放弃提示并保留草稿",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "放弃更改",
+          "effect": "关闭并执行宿主清理",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "footer替换为未保存更改提示",
+        "busy禁止关闭与确认",
+        "焦点回触发按钮",
+        "Git inline自己的放弃alert变体"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:65",
+        "tests/e2e/settings-overlays.spec.ts:385"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "不是独立页面或第二层弹窗；共用状态仍需设计稿验证。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-090",
+      "title": "管理功能权限、维护与库未就绪错误",
+      "kind": "state",
+      "module": "settings/access",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins | /?view=settings&section=search | /?view=settings&section=backup",
+        "trigger": "API返回401/403/503；库未绑定/运行时不可用",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/app.ts:141",
+        "apps/server/app.ts:169",
+        "apps/server/platform/management.ts:83",
+        "apps/server/platform/transfers.ts:181",
+        "apps/web/api.ts:1"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "各卡片现有刷新/重新读取",
+          "effect": "按具体模块重试；401会话失效由应用统一处理",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "401需登录",
+        "403不允许请求来源/权限扩大/错误密码",
+        "503维护",
+        "library-dependent API运行时未就绪",
+        "MCP服务关闭409",
+        "业务错误仍由现有alert承接"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/management-api.test.ts:7",
+        "tests/git-remote-routes.test.ts:7",
+        "tests/mcp-api-keys.test.ts:211"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "未发现独立管理403页面；这是现有卡片/表单错误状态，不虚构新路由。具体App会话失效屏由public/workspace inventory负责。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    },
+    {
+      "id": "ST-091",
+      "title": "MCP导航贡献桥接窗口",
+      "kind": "dialog",
+      "module": "plugins/mcp",
+      "entry": {
+        "route": "当前工作区路由",
+        "trigger": "侧栏navigation贡献“MCP连接”",
+        "parentId": "ST-056"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:2940",
+        "apps/web/components/PluginSlot.vue:16",
+        "apps/web/components/PluginSlot.vue:25",
+        "plugins/mcp/web/index.ts:185",
+        "apps/web/components/PluginPanel.vue:13"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "MCP插件已启用且navigation贡献已加载；通过所有者工作区访问。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "MCP连接",
+          "effect": "把pluginPanel从mcp.navigation切换到mcp.settings，显示ST-073",
+          "api": null,
+          "guard": "mcp.navigation组件已注册"
+        },
+        {
+          "label": "关闭插件面板 / 点击遮罩",
+          "effect": "关闭当前桥接窗口",
+          "api": null,
+          "guard": "PluginPanel现有关闭行为"
+        }
+      ],
+      "importantStates": [
+        "宿主标题MCP连接，内容也只有MCP连接按钮",
+        "再次点击才到连接与调用内容",
+        "组件加载/渲染失败ST-055"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp.spec.ts:28"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "真实navigation宿主与插件自定义navigation组件形成两段打开行为，须全局审查是否保留该额外窗口。",
+      "notes": [
+        "已有e2e只确认首个窗口可关闭，没有断言其为完整调用面板；本记录依据PluginSlot与插件注册源码，未启动浏览器。",
+        "可达性已从源码追踪，不能将其悄悄并入完整MCP面板。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      }
+    }
+  ],
+  "exclusions": [
+    {
+      "scope": "To Doo业务页面及其settings",
+      "reason": "用户指定To Doo为视觉基线，不在非ToDoo改造盘点内；只保留MCP平台授权中的域/清单字段。"
+    },
+    {
+      "scope": "OAuthConsent公共授权路由、SetupWizard/SetupImport首启宿主",
+      "reason": "public inventory负责；此文件覆盖MCP owner管理与GitRepositoryImport/TransferPanel复用内容。"
+    },
+    {
+      "scope": "Workspace主菜单、原生NoteHistoryDialog、Markdown导入与Git同步外层窗口",
+      "reason": "workspace inventory负责宿主；TransferPanel与GitRemotePanel内部一次盘点，见ST-018至ST-024及ST-074至ST-081。"
+    },
+    {
+      "scope": "独立存储设置/插件详情/Git页面路由",
+      "reason": "源码没有独立路由；只有8个settings query-route页面，其余是嵌入状态、弹窗或抽屉。"
+    },
+    {
+      "scope": "浏览器/OS原生文件选择器、外部GitHub/Gitee/TLS基础设施页面",
+      "reason": "外部界面非本仓库UI；记录触发与约束但不当作可改造页面。"
+    },
+    {
+      "scope": "ST-042及ST-085–ST-088的即时设计图要求",
+      "reason": "分别为未挂载源码和仅注册旧贡献；requiresDistinctImage=false，待真实宿主/运行时入口证明后才纳入设计队列。"
+    }
+  ],
+  "openQuestions": [
+    "本轮只读源码与已有测试；未启动服务、执行测试、验证实时插件目录/安装状态或屏幕布局。所有responsive结论区分CSS/已有测试证据与未运行验证。",
+    "GPT Image 2模型可用性未核实；本轮无图像生成、无UI实现。全部requiresDistinctImage为设计覆盖要求，不代表已生成或审核通过。",
+    "ST-041后台写入计数当前未包含organizationConflicts，详情维护页包含；应在全局设计评审决定是否同步显示，不能默默改动业务。",
+    "通用PluginPanel没有连接贡献内部busy/dirty的关闭guard；Git恢复/提交模型锁内部操作，但容器仍允许关闭。设计前须保留并明确这条现状，是否补保护属后续实现决定。",
+    "MCP实际插件more()缺本地错误捕获/忙状态；加载更多调用失败后的用户反馈本轮不能运行确认。",
+    "Change-password内部认证与最大长度依赖Better Auth；已确认UI至少8字符及revokeOtherSessions=true，未臆测依赖内部最大长度。",
+    "已补追Git分支≤200、库名UI40字符/服务端120字节、目标目录策略、512MiB空闲要求、HTTPS令牌16Ki字符与SSH口令4Ki字符约束；运行环境目录/安装权限本轮未实测。",
+    "旧git.history贡献仍打包但未找到生产宿主入口，已按注册未证实可达状态列出；当前原生Git历史由workspace inventory负责。",
+    "MCP侧栏navigation点击先打开仅含MCP连接按钮的桥接窗口，再进入mcp.settings；是否消除此额外跳转应经全局设计评审明确。",
+    "IndexStatus.vue未发现生产挂载，ST-042设source-only-unmounted、requiresDistinctImage=false；不能把旧悬浮组件当作已上线入口。"
+  ]
+}

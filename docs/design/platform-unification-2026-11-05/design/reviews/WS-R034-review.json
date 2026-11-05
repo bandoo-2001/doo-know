@@ -1,0 +1,128 @@
+{
+  "assetId": "WS-R034",
+  "sourceIds": [
+    "WS-086",
+    "WS-106"
+  ],
+  "reviewer": "independent platform_review_gen048 child agent, exclusively assigned eight GEN048 responsive assets",
+  "reviewedAtUtc": "2026-11-05T09:25:24.930457+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual current PNG viewed using tools.view_image in this independent context; complete actual submittedPrompt and GEN048 source contracts compared with actual input mother/baseline images, matching existing mother SHA reviews, current Vue templates/handlers/CSS and server/API policy sources. Static content review only; no generation or runtime tests.",
+  "actualViewMethod": {
+    "tool": "tools.view_image",
+    "image": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R034.png",
+    "detail": "high",
+    "boardPanelsActuallyViewed": [
+      "A",
+      "B"
+    ]
+  },
+  "reviewedImageSha256": "87928065849d2b43a6cf18154f046f5ce573784427dd5f51bd3fdb0526131dd8",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-R034.png",
+  "reviewedSidecarSha256": "0ac096d68f1107b27239ee467dc1efc0afd6b219a55545bf9e8b38097ddbeb35",
+  "reviewedManifestSha256": "7f3fc0492e62f25af38e6dc0c0135db54d73fed95d3c1554e71f632cfb9a2474",
+  "submissionReview": {
+    "completeSubmittedPromptRead": true,
+    "submittedPromptSha256": "8bb57f2c729395c29ec6bacb263e4c931d05f71ba2a0e224c3db3f75491c5ad0",
+    "actualToolArgumentsPromptMatchesReceipt": true,
+    "observedReceiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-6.json",
+    "receiptOutputBytesMatchReviewedPng": true
+  },
+  "inputImageChecks": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-graph.png",
+      "order": 1,
+      "role": "actual hosted graph mobile chrome only; list content source-derived isolated specimen",
+      "sha256": "869e72f5cf7e41543c74135e998600a23fd6b19a87b939e75aff0e2cac4ca516",
+      "bytes": 73363,
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "actualSha256": "869e72f5cf7e41543c74135e998600a23fd6b19a87b939e75aff0e2cac4ca516",
+      "actuallyViewed": true,
+      "roleChecked": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "actualSha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "actuallyViewed": true,
+      "roleChecked": true
+    }
+  ],
+  "selectedState": [
+    "390 source-derived isolated knowledge list, no selectedId",
+    "same list320, no mobile selection drawer"
+  ],
+  "functionalFindings": [
+    {
+      "severity": "blocking",
+      "panel": "metadata:unscreenedControlsBinding",
+      "finding": "The bound asset WS-D064 SHA dcad24aa7fa474bdf126827c5f51ecd942072eef6efad9b36ea221bb8b200681 is the background-analysis task board, not the node/edge mobile inspector. It cannot substantiate the omitted selected-detail branch.",
+      "sourceRefs": [
+        "docs/design/platform-unification-2026-11-05/design/images/WS-R034.json",
+        "docs/design/platform-unification-2026-11-05/design/images/WS-D064.png",
+        "apps/web/components/GraphWorkspace.vue:1374"
+      ],
+      "minimumCorrection": "Metadata-only: replace the incorrect detail binding with reviewed WS-D069.png SHA ddba4c636815ffe37fde2dc903f62131ed6cacecde27217a652a386ccef9e533 and WS-D069-review.json, explicitly mapping its entity/semantic-edge panels and note-specific source-only guards. Preserve the unselected R034 PNG. Do not claim the entity panel renders note-only controls."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Both screens show knowledge/list selected, empty search without clear X, two nodes and one mentions relationship. Note title/path, concept title/one source, kind tags, row-selection arrows and relationship endpoints match GraphWorkspace.vue:753-800. Source-derived 2/1 fixture is a compatible state.",
+    "No selectedId is deliberate: selecting an item on phone opens a separate GraphOverlay drawer; a desktop selected list plus inline inspector is not silently substituted. Hosted back/status/navigation and existing canvas toggle retained.",
+    "Note-reference mode is only shared geometry: notes projection must contain note/reference data, switch knowledge/notes and preserve note-specific inspector guards. It does not inherit concept editing controls.",
+    "Current sidecar wrongly binds the omitted mobile inspector to WS-D064, whose actual image is the background-analysis task board. Exact SHA match alone does not establish renderer equivalence. See blocking binding finding."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster shading, slight texture, rounded proportions and intended390/320 geometry are approximate. Implement flat shared CSS colors/borders/8px corners and readable source-sized text; do not reproduce raster gradients or infer exact responsive fit from this board."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-048.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R034.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/app.ts:141",
+    "apps/web/components/GraphWorkspace.vue:753",
+    "apps/web/components/GraphWorkspace.vue:130",
+    "apps/web/components/GraphWorkspace.vue:605",
+    "apps/server/graph/semantic-routes.ts:62",
+    "packages/core/graph/knowledge-service.ts:645",
+    "apps/web/graph.css:394",
+    "apps/web/components/GraphWorkspace.vue:1374",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D064-review.json",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D069-review.json"
+  ],
+  "currentSourceSha256": {
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    "apps/server/graph/semantic-routes.ts": "0f4d81250bee2aa5d27fdfd65bb5209f52525fdec1275f8ac680e17f7ea8f12a",
+    "apps/web/components/GraphWorkspace.vue": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e",
+    "apps/web/graph.css": "2caa5b70edcb0176dcef36821008e1997fca57e56488c890c9bfa513eaa9943b",
+    "packages/core/graph/knowledge-service.ts": "f1ff93c9dc7a502d3f3e61c9f4d2d4166f93f5d391b608440c1f3589782a0dfc"
+  },
+  "requiredCorrections": [
+    "Metadata-only: replace the incorrect detail binding with reviewed WS-D069.png SHA ddba4c636815ffe37fde2dc903f62131ed6cacecde27217a652a386ccef9e533 and WS-D069-review.json, explicitly mapping its entity/semantic-edge panels and note-specific source-only guards. Preserve the unselected R034 PNG. Do not claim the entity panel renders note-only controls."
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false,
+    "limitations": "The tool does not expose a per-call physical model identity receipt; none is claimed."
+  },
+  "limitations": [
+    "Only these actual image bytes and their declared compatible selected state received static content review. Source-derived data are examples, not captured API/model outcomes.",
+    "A static PNG cannot prove physical320/390 scrolling or safe viewport, source focus trapping/return, keyboard/Escape, busy/dirty/version guards, action execution, persistence, permissions enforcement, live model/clipboard behavior or exact canvas topology.",
+    "Unshown alternative loading/error/unavailable/conflict/role variants retain their individual source contracts and mother mappings; this verdict does not claim their simultaneous presence.",
+    "Per-image content verdict does not pass platform-wide consistency/coverage/provenance gates or authorize product implementation."
+  ]
+}

@@ -1,0 +1,286 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R003-v2",
+  "assetId": "MP-R003",
+  "sourceIds": [
+    "ST-002"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-002",
+      "title": "知识库与存储390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent mobile scroll positions of LibrarySettings page, full existing mobile chrome. A390 initial overview+3transfer entries+2empty task regions; B320 organization zero notes selected with initial target00-Inbox+storage7rows; C320 unconnected Git+share caller error with retained search. Long fake deployment path readonly. Source-derived child/320 states; no fabricated job or connected result."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-002",
+      "title": "知识库与存储320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent mobile scroll positions of LibrarySettings page, full existing mobile chrome. A390 initial overview+3transfer entries+2empty task regions; B320 organization zero notes selected with initial target00-Inbox+storage7rows; C320 unconnected Git+share caller error with retained search. Long fake deployment path readonly. Source-derived child/320 states; no fabricated job or connected result."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-002",
+      "title": "知识库与存储320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent mobile scroll positions of LibrarySettings page, full existing mobile chrome. A390 initial overview+3transfer entries+2empty task regions; B320 organization zero notes selected with initial target00-Inbox+storage7rows; C320 unconnected Git+share caller error with retained search. Long fake deployment path readonly. Source-derived child/320 states; no fabricated job or connected result."
+    }
+  ],
+  "selectedState": "Three independent mobile scroll positions of LibrarySettings page, full existing mobile chrome. A390 initial overview+3transfer entries+2empty task regions; B320 organization zero notes selected with initial target00-Inbox+storage7rows; C320 unconnected Git+share caller error with retained search. Long fake deployment path readonly. Source-derived child/320 states; no fabricated job or connected result.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅将中间B列“整理目标目录”选择框内的灰色占位“请选择目录”改为正常已选值“00-Inbox”。保留原选择框和下拉箭头、已选 0 篇、移动选中笔记灰色禁用。整图其余一切保持不变，包括左A和右C所有内容、中列存储表及数量、全部文字/动作/状态/布局/颜色，不新增选项、按钮或提示。",
+  "prompt": "仅将中间B列“整理目标目录”选择框内的灰色占位“请选择目录”改为正常已选值“00-Inbox”。保留原选择框和下拉箭头、已选 0 篇、移动选中笔记灰色禁用。整图其余一切保持不变，包括左A和右C所有内容、中列存储表及数量、全部文字/动作/状态/布局/颜色，不新增选项、按钮或提示。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R003.png",
+      "role": "Edit target B organization target only",
+      "sha256": "a35ac39e54d0e8faf1e695db8822499df84ec202c5e5148f9933a863bd6f4c12",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R003.png",
+      "role": "Edit target B organization target only",
+      "sha256": "a35ac39e54d0e8faf1e695db8822499df84ec202c5e5148f9933a863bd6f4c12",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅将中间B列“整理目标目录”选择框内的灰色占位“请选择目录”改为正常已选值“00-Inbox”。保留原选择框和下拉箭头、已选 0 篇、移动选中笔记灰色禁用。整图其余一切保持不变，包括左A和右C所有内容、中列存储表及数量、全部文字/动作/状态/布局/颜色，不新增选项、按钮或提示。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R003.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅将中间B列“整理目标目录”选择框内的灰色占位“请选择目录”改为正常已选值“00-Inbox”。保留原选择框和下拉箭头、已选 0 篇、移动选中笔记灰色禁用。整图其余一切保持不变，包括左A和右C所有内容、中列存储表及数量、全部文字/动作/状态/布局/颜色，不新增选项、按钮或提示。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R003.png",
+          "role": "Edit target B organization target only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-e49fb81d-59aa-4446-9112-b8942d4a1990.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-002",
+      "title": "知识库与存储",
+      "kind": "page",
+      "module": "settings/library",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "设置→知识库与存储 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:46",
+        "apps/web/components/settings/LibrarySettings.vue:29"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新信息",
+          "effect": "更新知识库路径、可用性与时区",
+          "api": "GET /api/manage/overview",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "批量导入 / 导入便携包 / 导出资料",
+          "effect": "打开ST-018/ST-022/ST-024",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "知识库未绑定/不可用",
+        "分区独立读取失败",
+        "长目录路径",
+        "批量整理、存储、Git、共享链接、任务常驻区域"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-workspace.spec.ts:7",
+        "tests/e2e/settings-layout.spec.ts:69"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-002",
+      "parentId": null,
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:46",
+        "apps/web/components/settings/LibrarySettings.vue:29"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-035.json#MP-R003",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R003",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-e49fb81d-59aa-4446-9112-b8942d4a1990.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R003-v2.png",
+  "sha256": "9459fec13a9156784a395f509f931b4232166d97b4c365fe8665b51512a3d2a5",
+  "bytes": 1695942,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:54:26.586183+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R003.png",
+    "sha256": "a35ac39e54d0e8faf1e695db8822499df84ec202c5e5148f9933a863bd6f4c12",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/MP-R003-review.json"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: SettingsWorkspace/settings-workspace .settings-stack .settings-card: long card sections, inner table/details containment",
+    "sourceIds": [
+      "ST-002"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent mobile scroll positions of LibrarySettings page, full existing mobile chrome. A390 initial overview+3transfer entries+2empty task regions; B320 organization zero notes selected with initial target00-Inbox+storage7rows; C320 unconnected Git+share caller error with retained search. Long fake deployment path readonly. Source-derived child/320 states; no fabricated job or connected result.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scroll": "top through TransferPanel entry/empty task sections",
+      "overview": {
+        "name": "knowledge",
+        "ready": true,
+        "timeZone": "Asia/Shanghai",
+        "path": "/srv/data/knowledge/example-personal/very-long-folder/notes"
+      },
+      "jobs": [],
+      "tasks": []
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "scroll": "OrganizationOperations and StorageSettings",
+      "selected": [],
+      "folder": "00-Inbox",
+      "operations": [],
+      "storage": "synthetic seven-category readonly values"
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "scroll": "GitRemotePanel and ShareManagement",
+      "git": {
+        "branch": "main",
+        "changes": 0,
+        "connection": null,
+        "job": null
+      },
+      "share": {
+        "q": "知识",
+        "filter": "all",
+        "items": [],
+        "error": "暂时无法读取共享链接，请重试。",
+        "cursor": null
+      }
+    }
+  ]
+}

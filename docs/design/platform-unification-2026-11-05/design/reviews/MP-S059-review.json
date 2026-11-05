@@ -1,0 +1,46 @@
+{
+  "assetId": "MP-S059",
+  "sourceIds": [
+    "PB-035"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:49:01.536645+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Five type-error/idle crop/pending/failed retained crop/cancel-to-old-selection image states",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed five independent states/full prompt. Real JPEG/PNG/WebP rejection, three native range controls and source choose/crop-upload/cancel actions retained; no drag rectangle/handles/rotate/reset/aspect chooser invented. zoom1 at left, x/y50 centered coherent with metadata.",
+    "pending locks chooser/sliders/upload/cancel and retains crop; failure restores controls and current crop for same actual upload action; cancel clears temporary source and leaves previous selected value/remove only. Original chooser10MiB differs from processed design-upload5MiB and cropped output<=1600; no runtime upload acceptance claimed.",
+    "Raster aspect/slider geometry illustrative; use component supplied article16:9/avatar1:1/banner3:1 and exact range/source CSS in implementation, no absolute pixel compliance inferred."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-029.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S059.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/blog/BlogImageEditor.vue:41",
+    "apps/web/components/blog/BlogImageEditor.vue:109",
+    "apps/web/components/blog/BlogArticleCover.vue:51",
+    "apps/web/blog-workbench.ts:469"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "373eb4350378b0b84d6a0e31f7530b7abeba5d7c515d976773af3eeaabd194d9",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S059.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

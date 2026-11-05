@@ -1,0 +1,53 @@
+{
+  "assetId": "MP-D079",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:33:03.374484+00:00",
+  "method": "Actual final PNG viewed; all initial/correction prompts in sidecar generationAttempts, current setup/import templates and GEN-004 contract checked. No captured runtime baseline exists for these source-derived setup states.",
+  "selectedState": "Source-derived owner setup existing-directory mode; allowed non-root directory browsed and selected",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Step1 existing mode, accurate current-location read-only display, server-vs-browser-device warning, two browsable child rows, back/root-location selector and use-folder action retained.",
+    "Synthetic roots /srv/example and /srv/example/shared make root dropdown visible and selected /srv/example/knowledge is an allowed child, not a prohibited root itself. Chosen receipt matches path; confirm is enabled consistently.",
+    "Current-location label corrected; advanced path/time-zone fields stay hidden, time-zone summary retained. No new-library-name input, listing error/loading/truncation or unrelated credential branch.",
+    "Standalone setup owner context only and source-derived metadata; no private navigation, account form, real filesystem exposure or runtime reachability/success claim."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Residual raster shading and approximate geometry remain illustration only. Use shared flat tokens, exact disclosure open/closed semantics and real conditional field/scroll behavior; no pixel-precision/runtime-fit claim."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-004.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D079.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/SetupWizard.vue:91",
+    "apps/web/components/SetupWizard.vue:277",
+    "apps/web/components/SetupWizard.vue:353",
+    "apps/server/platform/setup-directories.ts:6",
+    "apps/server/platform/settings.ts:173"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "c7bcb56a7f54c11374f310a795dd0576aff9bff8d8d4c1e74d645114fd424a41",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D079.png",
+  "sourceIds": [
+    "PB-009"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

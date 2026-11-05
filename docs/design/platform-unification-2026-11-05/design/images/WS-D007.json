@@ -1,0 +1,74 @@
+{
+  "kind": "generated-design",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "reviewStatus": "pending-independent-review",
+  "generationCallCount": 1,
+  "postprocessing": "None. Tool-generated original copied exclusively with no pixel manipulation.",
+  "id": "WS-D007",
+  "sourceIds": [
+    "WS-007"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-007",
+      "title": "Recent notes collection",
+      "role": "authenticated owner",
+      "state": "Initial loading",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host."
+    }
+  ],
+  "prompt": "Create an exact GPT Image 2 design mockup for existing DooKnow UI. Render a complete desktop full page. Never pretend independent panels are simultaneously open. Captions outside app UI state source ID/title/role/state.\nASSET WS-D007 Recent notes collection\nVIEWPORT 1440×1000 full desktop page.\nPANELS [{\"label\":\"full\",\"sourceId\":\"WS-007\",\"title\":\"Recent notes collection\",\"role\":\"authenticated owner\",\"state\":\"Initial loading\",\"presentationInstruction\":\"Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\"}]\nFOCUS Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\nActual ToDoo screenshot is STYLE ONLY (hierarchy, palette, typography, spacing, density); brand DooKnow. Actual platform screenshot is CONTENT/ROLE reference, not target style. Fictional legal examples only; masked secrets and example.invalid URLs.\nCOMPLETE FIELDS IN SOURCE ORDER:\nNo extra input fields.\nIMPLEMENTED ACTION WHITELIST:\nWS-007 刷新: Refresh collection feed; guard: Owner session; control-specific guards described in permissionRules.\nWS-007 新建笔记: Open note creation; guard: Owner session; control-specific guards described in permissionRules.\nWS-007 打开 / 收藏 / 更多: Open note, toggle favorite or context menu; guard: Owner session; control-specific guards described in permissionRules.\nWS-007 加载更多笔记: Paginate collection feed; guard: Owner session; control-specific guards described in permissionRules.\nPERMISSIONS:\nAuthenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\nALL IMPORTANT STATES (stateCoverage maps visible/shared-pattern/nonvisual rules; never depict incompatible alternatives together):\nWS-007: Initial loading\nWS-007: Empty recent/favorite tailored message\nWS-007: Summary ready/pending/unavailable\nWS-007: Virtualized cards\nWS-007: Feed updated banner\nWS-007: Load error/retry\nWS-007: End of list\nSOURCE NOTES:\n\nRESPONSIVE Linked390/320 jobs handle compact field order/drawer/stacking and safe scrolling. \nFORBIDDEN:\nBrand is DooKnow; ToDoo is an existing app and style reference only.\nNo invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\nNo real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\nNever render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\nNo native OS/browser picker or print-dialog chrome.\nNo owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\nNo developer/source/API path or review-note text inside product UI.\nAll mockups and per-image/global functional reviews must pass before product development. Do not draw protocol metadata as form controls.\nSTATE CLARIFICATION: Job PANELS selects Initial loading. Render that initial loading state only, without simultaneously rendering incompatible empty/feed-updated/error/end alternatives. Main header: 我的笔记, 最近, 0 篇笔记 / 按最近修改排序. Source refresh icon must visibly be disabled while loading; 新建笔记 remains enabled. Main body shows six blank skeleton cards, source's 3-column desktop grid. No real cards, summaries, stars, more menus, load-more/footer or empty message while items are empty and loading. Sidebar remains the matching source collection context, active 最近 rail item. Do not copy the baseline's nonloading state into this selected loading mockup. All listed important states remain contracts, not states simultaneously proven by this image.\nFLAT STYLE CONTRACT: The first image is STYLE ONLY. Use source-owned DooKnow knowledge UI, no ToDoo task/goal controls. Flat #ffffff main and header, #f7f8fa context sidebar, #272b3a text, #657084 muted, #e6e9f1 border, #4566c6 primary, #edf1ff selected. Clean Chinese sans-serif, fine line icons, 8px corners; no paper texture, gradient, bevel, glow or illustration. Approximately 64px primary rail, 56px top global header, 260px contextual sidebar with its resize divider. Retain source owner rail O avatar, 笔记/最近/收藏/应用, bottom 回收站/设置. Retain sidebar search 搜索笔记与目录, split 新建, relevant collection list and its source controls. Keep source/role/state caption in separate outer margin only. Never draw source paths or protocol metadata in app UI.",
+  "originalJobPrompt": "Create an exact GPT Image 2 design mockup for existing DooKnow UI. Render a complete desktop full page. Never pretend independent panels are simultaneously open. Captions outside app UI state source ID/title/role/state.\nASSET WS-D007 Recent notes collection\nVIEWPORT 1440×1000 full desktop page.\nPANELS [{\"label\":\"full\",\"sourceId\":\"WS-007\",\"title\":\"Recent notes collection\",\"role\":\"authenticated owner\",\"state\":\"Initial loading\",\"presentationInstruction\":\"Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\"}]\nFOCUS Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\nActual ToDoo screenshot is STYLE ONLY (hierarchy, palette, typography, spacing, density); brand DooKnow. Actual platform screenshot is CONTENT/ROLE reference, not target style. Fictional legal examples only; masked secrets and example.invalid URLs.\nCOMPLETE FIELDS IN SOURCE ORDER:\nNo extra input fields.\nIMPLEMENTED ACTION WHITELIST:\nWS-007 刷新: Refresh collection feed; guard: Owner session; control-specific guards described in permissionRules.\nWS-007 新建笔记: Open note creation; guard: Owner session; control-specific guards described in permissionRules.\nWS-007 打开 / 收藏 / 更多: Open note, toggle favorite or context menu; guard: Owner session; control-specific guards described in permissionRules.\nWS-007 加载更多笔记: Paginate collection feed; guard: Owner session; control-specific guards described in permissionRules.\nPERMISSIONS:\nAuthenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\nALL IMPORTANT STATES (stateCoverage maps visible/shared-pattern/nonvisual rules; never depict incompatible alternatives together):\nWS-007: Initial loading\nWS-007: Empty recent/favorite tailored message\nWS-007: Summary ready/pending/unavailable\nWS-007: Virtualized cards\nWS-007: Feed updated banner\nWS-007: Load error/retry\nWS-007: End of list\nSOURCE NOTES:\n\nRESPONSIVE Linked390/320 jobs handle compact field order/drawer/stacking and safe scrolling. \nFORBIDDEN:\nBrand is DooKnow; ToDoo is an existing app and style reference only.\nNo invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\nNo real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\nNever render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\nNo native OS/browser picker or print-dialog chrome.\nNo owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\nNo developer/source/API path or review-note text inside product UI.\nAll mockups and per-image/global functional reviews must pass before product development. Do not draw protocol metadata as form controls.",
+  "inputReferences": [
+    {
+      "path": "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-01-overview.png",
+      "role": "STYLE ONLY: actual implemented ToDoo hierarchy/palette/spacing/type density/theme. No task fields/actions or platform rebranding."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-recent.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+    },
+    {
+      "path": "apps/web/components/CollectionWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/CollectionWorkspace.vue:132, apps/web/components/NoteCollection.vue:1, apps/web/collection-window.ts:1, apps/server/app.ts:234"
+    }
+  ],
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D007.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a79f-db6d-7281-a29c-1887bb1f4ac3/exec-7e711a45-6b11-446a-b1c5-e58e7daa2277.png",
+  "sha256": "e1fe262f303631402f8f4834537d0523e231a4dc229bd73921a4f74089c4ebf0",
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "bytes": 1107135,
+  "generatedAtUtc": "2026-11-04T17:38:27.103Z",
+  "selfInspection": {
+    "method": "Native generated preview inspected in child context against source and style reference.",
+    "behaviorVerified": false,
+    "independentReviewStatus": "pending",
+    "notes": [
+      "Main selected initial loading state has six skeleton cards in three columns, disabled-looking refresh and enabled create-note; incompatible main empty/error/end states are absent.",
+      "Matching existing owner rail and collection sidebar retained; baseline fixtures are fictional source-content references.",
+      "Generator omitted required external source/role/state caption and the requested global top header; approximate sidebar proportions remain.",
+      "Skeletons render three inner bars rather than the four <i> lines in current source; resize affordance is not clearly represented.",
+      "Subtle texture/uneven luminance and button wash remain despite requested flat surfaces. Static loading image does not verify request guards or responsive behavior."
+    ]
+  }
+}

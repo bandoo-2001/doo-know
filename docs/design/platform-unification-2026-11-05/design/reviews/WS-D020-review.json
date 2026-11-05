@@ -1,0 +1,54 @@
+{
+  "assetId": "WS-D020",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:18:37.738366+00:00",
+  "method": "Actual generated PNG and matching real baseline each viewed in independent child context. Exact submitted sidecar prompt and batch requirements checked against current templates; source outranks generic prompt/API summaries.",
+  "selectedState": "Owner eligible full rich editor with flag enabled, saved and no active contextual popup",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual flag1 rich baseline used; 文档编辑 active with Markdown 源码 / 阅读 alternatives, rendered rich headings/list/table/link and right heading outline, 正文字符 61. No source markers, invented image or contextual popup added.",
+    "Saved state, disabled undo/redo/save, favorite/share/more, document navigation and source toolbar visible. This saved status is a baseline state, not an automatic-save guarantee.",
+    "Existing owner account/rail, notebook search/create/tree/add/refresh and resize context retained with shared DooKnow header; no public-role or task-brand substitution.",
+    "Formatting read-only/recovery/transfer gates, full mode and rich feature/size eligibility remain source behavior; raster does not prove them."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/generation-batch-02.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D020.json",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/Workspace.vue:3046",
+    "apps/web/components/Workspace.vue:3147",
+    "apps/web/components/Workspace.vue:3270",
+    "apps/web/components/EditorToolbar.vue:86",
+    "apps/web/components/NoteEditorHost.vue:443",
+    "apps/web/editor/compatibility.ts:1",
+    "docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "92233fe058857af291ec456be8275f2d2ab87211ce4fbe90b86a1bef27e0b38d",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D020.png",
+  "sourceIds": [
+    "WS-024"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

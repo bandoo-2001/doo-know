@@ -1,0 +1,47 @@
+{
+  "assetId": "WS-D065-v2",
+  "sourceIds": [
+    "WS-089",
+    "WS-095"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:54:25.768300+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner dirty Ollama model settings as prior version, with exact clear-key label corrected.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual new PNG viewed independently; entire dirty annotation parenthetical removed, checkbox now exact 清除已保存密钥.",
+    "All provider/key/remote-permission/automatic/advanced fields, masked synthetic key, idle close, enabled save and disabled saved-connection test preserved.",
+    "Historical v1 finding remains in original report; this pass binds only new v2 SHA."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-013.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D065-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/GraphWorkspace.vue:108",
+    "apps/web/components/GraphWorkspace.vue:1029",
+    "apps/web/components/graph/GraphOverlay.vue:64",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D065-review.json"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "8c4fbc0cc32313fe193308eed591d8df3a2dbfc3d8f74aa8945729d23909d36b",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D065-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

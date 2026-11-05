@@ -1,0 +1,60 @@
+{
+  "assetId": "WS-R044",
+  "sourceIds": [
+    "WS-107",
+    "WS-109"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T09:53:01.769132+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner trash mobile, three items: selected available note with rename; unselected folder; unavailable note. Idle unlocked, first page/no cursor.",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "panel": "A/B unavailable item",
+      "finding": "Unavailable note is labelled暂不可读取 with disabled actions but omits the source mandatory explanation 原文件缺失、存在链接或暂时无法安全读取，请先检查服务器上的原文件。 This paragraph is always shown when !item.available and explains the locked state/next step.",
+      "sourceRefs": [
+        "apps/web/components/TrashWorkspace.vue:519"
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG/full prompt/current UI+restore/purge/API guards and actual390 trash baseline viewed. Count3/selected1/not-all-selected and file-only selection makes both batch actions valid; folder lacks purge, unavailable checkbox/actions disabled.",
+    "Valid renamed.md stays original directory/no overwrite and actual rename controls/help retained. Folder unknown time/size remains unknown; no fake successful restoration or total purge.",
+    "Unavailable item omits the actual always-rendered explanation/guidance paragraph. State/disabled controls remain visible but source-owned reason/help is missing."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-049.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R044.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/TrashWorkspace.vue:13",
+    "apps/web/components/TrashWorkspace.vue:417",
+    "apps/web/components/TrashWorkspace.vue:520",
+    "apps/server/platform/management.ts:301",
+    "docs/design/platform-unification-2026-11-05/baseline/390-trash.png"
+  ],
+  "requiredCorrections": [
+    "Add the exact source unavailable-item guidance paragraph under its metadata in both narrow views. Keep it unavailable and actions disabled, all existing counts/rename/folder rules/retention text unchanged; increase scroll height as needed. Do not invent a new retry/server-management action."
+  ],
+  "reviewedImageSha256": "21f4e3a10b473e643a05140328a0a8d747c45c89ad629c20b7b96c56318e092c",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-R044.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

@@ -1,0 +1,392 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D108-v2",
+  "assetId": "MP-D108",
+  "sourceIds": [
+    "PB-043"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-043",
+      "title": "博客装修：专题合集",
+      "role": "authenticated owner",
+      "state": "Source-derived collections tab with one new local collection and zero owner posts; published picker expanded, empty query/no matches; dirty not published"
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "Source-derived collections tab with one new local collection and zero owner posts; published picker expanded, empty query/no matches; dirty not published",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-runtime-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "只编辑这张DooKnow博客装修专题合集截图一处文字：左编辑区最上方5个工作室tab中的第一个，目前写“个人资料”，必须精确改为完整“主题与个人资料”。保留这个tab的位置和状态，允许文字在原tab空间自然排版，但不要改变任何其他元素、字段、标题、路径、输入值、提示、按钮、禁用、计数、导航、预览、草稿状态、保存发布栏、页脚、颜色或布局。专题合集仍为选中tab。只补全缺失的“主题与”三字，不新增控件或更改其他文案。",
+  "prompt": "只编辑这张DooKnow博客装修专题合集截图一处文字：左编辑区最上方5个工作室tab中的第一个，目前写“个人资料”，必须精确改为完整“主题与个人资料”。保留这个tab的位置和状态，允许文字在原tab空间自然排版，但不要改变任何其他元素、字段、标题、路径、输入值、提示、按钮、禁用、计数、导航、预览、草稿状态、保存发布栏、页脚、颜色或布局。专题合集仍为选中tab。只补全缺失的“主题与”三字，不新增控件或更改其他文案。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D108.png",
+      "role": "Edit target: exact reviewed v1, change only first studio-tab label",
+      "sha256": "60790de0349de5c62624272259aaf76810742d81626f6f8f91601d70bbbe987c",
+      "dimensions": {
+        "width": 1487,
+        "height": 1058
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D108.png",
+      "role": "Edit target: exact reviewed v1, change only first studio-tab label",
+      "sha256": "60790de0349de5c62624272259aaf76810742d81626f6f8f91601d70bbbe987c",
+      "dimensions": {
+        "width": 1487,
+        "height": 1058
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "只编辑这张DooKnow博客装修专题合集截图一处文字：左编辑区最上方5个工作室tab中的第一个，目前写“个人资料”，必须精确改为完整“主题与个人资料”。保留这个tab的位置和状态，允许文字在原tab空间自然排版，但不要改变任何其他元素、字段、标题、路径、输入值、提示、按钮、禁用、计数、导航、预览、草稿状态、保存发布栏、页脚、颜色或布局。专题合集仍为选中tab。只补全缺失的“主题与”三字，不新增控件或更改其他文案。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D108.png"
+    ],
+    "transparent_background": false
+  },
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-006.json#MP-D108",
+  "sourceReferences": [
+    {
+      "sourceId": "PB-043",
+      "parentId": "PB-041",
+      "route": "/?view=apps&app=blog&appSection=design (collections tab)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignCollections.vue:7",
+        "apps/web/components/blog/BlogDesignCollections.vue:30",
+        "packages/core/blog/studio.ts:102"
+      ]
+    }
+  ],
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D108",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "generationCallCount": 1,
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-fa93e9e8-16c0-4075-80ec-5f557da80a69.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D108-v2.png",
+  "sha256": "4c53b4abfd555d032d20f6752a9ebb58730534dd2f89f8033702d459ebc09c84",
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "bytes": 1471909,
+  "generatedAtUtc": "2026-11-05T01:56:05.764488+00:00",
+  "postprocessing": "Original built-in tool PNG copied byte-for-byte; no pixel editing.",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D108.png",
+    "sha256": "60790de0349de5c62624272259aaf76810742d81626f6f8f91601d70bbbe987c",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/MP-D108-review.json"
+  },
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "博客装修：专题合集",
+    "sourceIds": [
+      "PB-043"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Source-derived collections tab with one new local collection and zero owner posts; published picker expanded, empty query/no matches; dirty not published",
+    "location": "metadata, outside product UI"
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-043",
+      "parentId": "PB-041",
+      "route": "/?view=apps&app=blog&appSection=design (collections tab)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignCollections.vue:7",
+        "apps/web/components/blog/BlogDesignCollections.vue:30",
+        "packages/core/blog/studio.ts:102"
+      ]
+    }
+  ],
+  "sourceStateAndActionContracts": {
+    "functionalInvariants": [
+      {
+        "sourceId": "PB-043",
+        "route": "/?view=apps&app=blog&appSection=design (collections tab)",
+        "trigger": "专题合集 tab",
+        "parentId": "PB-041",
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+        ],
+        "fields": [
+          {
+            "name": "collection.title",
+            "type": "text",
+            "required": false,
+            "constraints": "UI<=120; server<=256",
+            "sensitive": false
+          },
+          {
+            "name": "collection.slug",
+            "type": "text",
+            "required": true,
+            "constraints": "lowercase hyphen pattern; server<=100; unique among collections",
+            "sensitive": false
+          },
+          {
+            "name": "collection.description",
+            "type": "textarea",
+            "required": false,
+            "constraints": "UI<=1000; server<=2000",
+            "sensitive": false
+          },
+          {
+            "name": "postIds",
+            "type": "ordered selection",
+            "required": false,
+            "constraints": "server<=500 unique IDs; only published posts offered; public hides no-longer-published",
+            "sensitive": false
+          },
+          {
+            "name": "query",
+            "type": "search",
+            "required": false,
+            "constraints": "published title filter; shared component query",
+            "sensitive": false
+          }
+        ],
+        "importantStates": [
+          "no collections; empty collection",
+          "published article search has no matches",
+          "already added disabled; duplicate IDs rejected",
+          "removed/unpublished member retained in editor but marked public-hidden",
+          "ordered long article titles with distinct identity"
+        ],
+        "notes": []
+      },
+      {
+        "type": "composition",
+        "details": [
+          "装修合集完整长页：title/slug/description、已发布文章查找/添加/排序/移出、创建/删除合集，原稿未发布成员不能暴露公开。"
+        ]
+      },
+      {
+        "type": "role-shell",
+        "rule": "所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。"
+      }
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "PB-043",
+        "label": "添加专题",
+        "effect": "Append local collection",
+        "api": "",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-043",
+        "label": "从已发布文章中添加",
+        "effect": "Expand published picker",
+        "api": "",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-043",
+        "label": "文章",
+        "effect": "Add membership",
+        "api": "",
+        "guard": "not already selected"
+      },
+      {
+        "sourceId": "PB-043",
+        "label": "上移 / 下移 / 移出",
+        "effect": "Reorder/remove membership",
+        "api": "",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-043",
+        "label": "删除专题",
+        "effect": "Remove local collection",
+        "api": "",
+        "guard": ""
+      }
+    ],
+    "responsiveContract": [
+      {
+        "sourceId": "PB-043",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified.",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      }
+    ],
+    "otherVariantsDrawn": false
+  },
+  "selfInspection": {
+    "method": "Actual v1 target viewed before built-in edit; generated v2 native preview viewed and exact full first-tab label inspected.",
+    "concerns": [
+      "Only first tab restored to 主题与个人资料; source-derived current collection, dirty save/publish guards and other controls retained.",
+      "Static raster/illustrative geometry and minor source-copy prefix remain advisory; runtime behavior is unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "sourceContracts": [
+    {
+      "id": "PB-043",
+      "title": "博客装修：专题合集",
+      "kind": "page",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design (collections tab)",
+        "trigger": "专题合集 tab",
+        "parentId": "PB-041"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignCollections.vue:7",
+        "apps/web/components/blog/BlogDesignCollections.vue:30",
+        "packages/core/blog/studio.ts:102"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "collection.title",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; server<=256",
+          "sensitive": false
+        },
+        {
+          "name": "collection.slug",
+          "type": "text",
+          "required": true,
+          "constraints": "lowercase hyphen pattern; server<=100; unique among collections",
+          "sensitive": false
+        },
+        {
+          "name": "collection.description",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=1000; server<=2000",
+          "sensitive": false
+        },
+        {
+          "name": "postIds",
+          "type": "ordered selection",
+          "required": false,
+          "constraints": "server<=500 unique IDs; only published posts offered; public hides no-longer-published",
+          "sensitive": false
+        },
+        {
+          "name": "query",
+          "type": "search",
+          "required": false,
+          "constraints": "published title filter; shared component query",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "添加专题",
+          "effect": "Append local collection",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "从已发布文章中添加",
+          "effect": "Expand published picker",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "文章",
+          "effect": "Add membership",
+          "api": "",
+          "guard": "not already selected"
+        },
+        {
+          "label": "上移 / 下移 / 移出",
+          "effect": "Reorder/remove membership",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "删除专题",
+          "effect": "Remove local collection",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "no collections; empty collection",
+        "published article search has no matches",
+        "already added disabled; duplicate IDs rejected",
+        "removed/unpublished member retained in editor but marked public-hidden",
+        "ordered long article titles with distinct identity"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-admin-preview.spec.ts:62",
+        "tests/e2e/blog-studio.spec.ts:67"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "baselineScope": "Appearance host capture only; selected studio tab is source-derived",
+  "generationAttempts": [
+    {
+      "submittedPrompt": "只编辑这张DooKnow博客装修专题合集截图一处文字：左编辑区最上方5个工作室tab中的第一个，目前写“个人资料”，必须精确改为完整“主题与个人资料”。保留这个tab的位置和状态，允许文字在原tab空间自然排版，但不要改变任何其他元素、字段、标题、路径、输入值、提示、按钮、禁用、计数、导航、预览、草稿状态、保存发布栏、页脚、颜色或布局。专题合集仍为选中tab。只补全缺失的“主题与”三字，不新增控件或更改其他文案。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D108.png",
+          "role": "Edit target: exact reviewed v1, change only first studio-tab label"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-fa93e9e8-16c0-4075-80ec-5f557da80a69.png"
+    }
+  ]
+}

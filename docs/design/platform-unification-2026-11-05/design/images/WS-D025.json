@@ -1,0 +1,362 @@
+{
+  "id": "WS-D025",
+  "title": "Document formatting toolbar",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-029"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-029",
+      "title": "Document formatting toolbar",
+      "role": "authenticated owner",
+      "state": "Complete implemented toolbar, selection and formatting-disabled guards.",
+      "presentationInstruction": "Complete implemented toolbar, selection and formatting-disabled guards."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/EditorToolbar.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/EditorToolbar.vue:98, apps/web/components/EditorToolbar.vue:174, apps/web/components/Workspace.vue:3165"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+      "role": "Additional ACTUAL before-change matching component/role reference; actual visible state only, not all alternative states."
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-029",
+      "label": "段落 / 粗体 / 斜体 / 删除线 / 行内代码 / 清除格式",
+      "effect": "Apply existing text/block formatting",
+      "api": "none",
+      "guard": "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627)."
+    },
+    {
+      "sourceId": "WS-029",
+      "label": "文字颜色 / 对齐 / 列表 / 缩进",
+      "effect": "Existing selection formatting",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-029",
+      "label": "链接 / 代码块 / 表格 / 分隔线 / 附件 / 白板",
+      "effect": "Existing insertion workflows",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-029",
+      "label": "查找替换 / 快捷插入 / 属性 / Markdown 粘贴 / 反向引用 / HTML / 打印",
+      "effect": "Open corresponding surface or export",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R014",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "requiredFieldOrder": [],
+      "requiredFields": [],
+      "requiredActions": [
+        {
+          "label": "段落 / 粗体 / 斜体 / 删除线 / 行内代码 / 清除格式",
+          "effect": "Apply existing text/block formatting",
+          "api": "none",
+          "guard": "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627)."
+        },
+        {
+          "label": "文字颜色 / 对齐 / 列表 / 缩进",
+          "effect": "Existing selection formatting",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "链接 / 代码块 / 表格 / 分隔线 / 附件 / 白板",
+          "effect": "Existing insertion workflows",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "查找替换 / 快捷插入 / 属性 / Markdown 粘贴 / 反向引用 / HTML / 打印",
+          "effect": "Open corresponding surface or export",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627)."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-029"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. ONE complete EXISTING DooKnow OWNER DOCUMENT FORMATTING TOOLBAR local strip only, no owner rail/header/note body, no invented window/close/footer/dialog. Image1 actual rich-editor baseline determines real toolbar appearance/state; Image2 PILOT flat palette/density only. Render a wide natural-size toolbar on neutral background around1536×512, every existing control visible/readable, source groups separated by fine vertical dividers. Flat white/#f7f8fa, #272b3a/#657084 text, #e6e9f1 lines, #4566c6/#edf1ff selected UI, restrained corners. No developer label/legend, no copied note content.\nSource state heading1 selected, left alignment selected, code=false, normal marks false, disabled=false, uploading=false; indent/outdent context-disabled as actual baseline. All dropdowns/popovers CLOSED, no nested menu/table/color chooser simultaneously.\nPreserve exactly the complete source control order with recognizable thin icons and real groups:\n(1) HeadingPicker displaying 标题 1 with downward chevron.\n(2) B bold, I italic, S strikethrough, inline-code angle/bracket icon, T× clear formatting.\n(3) TextColorPicker A with black underline and small dropdown chevron.\n(4) left/center/right alignment icons, ONLY left has selected pale-blue fill.\n(5) quote, unordered list, ordered list, task-list checkbox icon, indent and outdent (last2 disabled).\n(6) insert link chain, code-block icon, table-grid picker withchevron, horizontal rule, image/attachment upload icon (not uploading).\n(7) insert whiteboard icon.\n(8) search magnifier (查找替换), plus (快捷插入), settings (笔记属性), clipboard/paste (按 Markdown 粘贴), backward-reference arrow (反向引用), download/export icon (导出 HTML), printer (打印笔记).\nALL29 control functions including heading/color/tables must be retained; do not replace missing controls with decorative dots or new features. Source tooltip/aria meanings are described here, not permanently added as product text labels unless already visible. It is one toolbar, not a menu inventory chart. No undo/redo/save/share/mode tabs/chapter sidebar because these belong to separate host chrome, no font-family/size selector/AI. Preserve exact source flags and keyboard/select-preservation semantics as metadata, not protocol fields. No caption beyond actual visible toolbar labels.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D025.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-029",
+      "title": "Document formatting toolbar",
+      "kind": "state",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Full editor header",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/EditorToolbar.vue:98",
+        "apps/web/components/EditorToolbar.vue:174",
+        "apps/web/components/Workspace.vue:3165"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627)."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "段落 / 粗体 / 斜体 / 删除线 / 行内代码 / 清除格式",
+          "effect": "Apply existing text/block formatting",
+          "api": "none",
+          "guard": "Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627)."
+        },
+        {
+          "label": "文字颜色 / 对齐 / 列表 / 缩进",
+          "effect": "Existing selection formatting",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "链接 / 代码块 / 表格 / 分隔线 / 附件 / 白板",
+          "effect": "Existing insertion workflows",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "查找替换 / 快捷插入 / 属性 / Markdown 粘贴 / 反向引用 / HTML / 打印",
+          "effect": "Open corresponding surface or export",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Selection-active formatting flags",
+        "Code selection disables incompatible marks",
+        "Selection-specific disabled actions",
+        "Uploading status"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "testRefs": [
+        "tests/e2e/document-editor-formatting.spec.ts",
+        "tests/editor-common-actions.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-029",
+      "parentId": "WS-024",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-029",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-029",
+      "state": "Selection-active formatting flags",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-029",
+      "state": "Code selection disables incompatible marks",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-029",
+      "state": "Selection-specific disabled actions",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-029",
+      "state": "Uploading status",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D025",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "source-derived complete owner toolbar at actual rich baseline heading1/left alignment; indent/outdent context-disabled, other marks inactive, no popovers"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. ONE complete EXISTING DooKnow OWNER DOCUMENT FORMATTING TOOLBAR local strip only, no owner rail/header/note body, no invented window/close/footer/dialog. Image1 actual rich-editor baseline determines real toolbar appearance/state; Image2 PILOT flat palette/density only. Render a wide natural-size toolbar on neutral background around1536×512, every existing control visible/readable, source groups separated by fine vertical dividers. Flat white/#f7f8fa, #272b3a/#657084 text, #e6e9f1 lines, #4566c6/#edf1ff selected UI, restrained corners. No developer label/legend, no copied note content.\nSource state heading1 selected, left alignment selected, code=false, normal marks false, disabled=false, uploading=false; indent/outdent context-disabled as actual baseline. All dropdowns/popovers CLOSED, no nested menu/table/color chooser simultaneously.\nPreserve exactly the complete source control order with recognizable thin icons and real groups:\n(1) HeadingPicker displaying 标题 1 with downward chevron.\n(2) B bold, I italic, S strikethrough, inline-code angle/bracket icon, T× clear formatting.\n(3) TextColorPicker A with black underline and small dropdown chevron.\n(4) left/center/right alignment icons, ONLY left has selected pale-blue fill.\n(5) quote, unordered list, ordered list, task-list checkbox icon, indent and outdent (last2 disabled).\n(6) insert link chain, code-block icon, table-grid picker withchevron, horizontal rule, image/attachment upload icon (not uploading).\n(7) insert whiteboard icon.\n(8) search magnifier (查找替换), plus (快捷插入), settings (笔记属性), clipboard/paste (按 Markdown 粘贴), backward-reference arrow (反向引用), download/export icon (导出 HTML), printer (打印笔记).\nALL29 control functions including heading/color/tables must be retained; do not replace missing controls with decorative dots or new features. Source tooltip/aria meanings are described here, not permanently added as product text labels unless already visible. It is one toolbar, not a menu inventory chart. No undo/redo/save/share/mode tabs/chapter sidebar because these belong to separate host chrome, no font-family/size selector/AI. Preserve exact source flags and keyboard/select-preservation semantics as metadata, not protocol fields. No caption beyond actual visible toolbar labels.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D025 Document formatting toolbar\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"full\", \"sourceId\": \"WS-029\", \"title\": \"Document formatting toolbar\", \"role\": \"authenticated owner\", \"state\": \"Complete implemented toolbar, selection and formatting-disabled guards.\", \"presentationInstruction\": \"Complete implemented toolbar, selection and formatting-disabled guards.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"full\", \"sourceId\": \"WS-029\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"段落 / 粗体 / 斜体 / 删除线 / 行内代码 / 清除格式\", \"effect\": \"Apply existing text/block formatting\", \"api\": \"none\", \"guard\": \"Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).\"}, {\"label\": \"文字颜色 / 对齐 / 列表 / 缩进\", \"effect\": \"Existing selection formatting\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"链接 / 代码块 / 表格 / 分隔线 / 附件 / 白板\", \"effect\": \"Existing insertion workflows\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"查找替换 / 快捷插入 / 属性 / Markdown 粘贴 / 反向引用 / HTML / 打印\", \"effect\": \"Open corresponding surface or export\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Selection-active formatting flags\", \"Code selection disables incompatible marks\", \"Selection-specific disabled actions\", \"Uploading status\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Formatting is disabled without a full-mode note, in reading mode, before draft identity is ready, while note opens/transfers or drafts load/write, or while a recovery draft is offered (Workspace.vue:627).\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/EditorToolbar.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/EditorToolbar.vue:98, apps/web/components/EditorToolbar.vue:174, apps/web/components/Workspace.vue:3165",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/EditorToolbar.vue:98, apps/web/components/EditorToolbar.vue:174, apps/web/components/Workspace.vue:3165",
+      "sha256": "f3ee077155b5180e8776c500d34ec4091d6c07f39a2c301e323273ef79bfe927"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+      "role": "Additional ACTUAL before-change matching component/role reference; actual visible state only, not all alternative states.",
+      "responsibility": "Additional ACTUAL before-change matching component/role reference; actual visible state only, not all alternative states.",
+      "sha256": "51bb8ab79f889c547f472e964f39a1e208dd3e708ed7ca0c7ed4ce307025aa35",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 78952
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D025.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-226f2600-b5fa-4f71-b699-f98d5627f133.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-226f2600-b5fa-4f71-b699-f98d5627f133.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T02:32:04.404Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Complete source toolbar contains all29 heading/mark/color/alignment/block/insertion/attachment/whiteboard/search/secondary/export controls, source groups/order and closed popovers; indent/outdent disabled. No owner host duplicated.",
+    "concerns": [
+      "Static artifact cannot verify selection/focus/session/history restore or responsive tool overflow behavior.",
+      "Raster scale/geometry and icon drawing are approximate; source CSS/icons/conditional guards remain authority."
+    ]
+  },
+  "sha256": "6f7d002020f5f50c364f79f25795dbcc8c881f6b921b3a060794435f07655050",
+  "dimensions": {
+    "width": 2172,
+    "height": 724
+  },
+  "bytes": 1030855,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/EditorToolbar.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "f3ee077155b5180e8776c500d34ec4091d6c07f39a2c301e323273ef79bfe927"
+    },
+    {
+      "path": "apps/web/components/EditorToolbar.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "f3ee077155b5180e8776c500d34ec4091d6c07f39a2c301e323273ef79bfe927"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Actual toolbar baseline supplies state/controls; complete off-capture source tail is source-derived extension of the same toolbar, not a new host."
+}

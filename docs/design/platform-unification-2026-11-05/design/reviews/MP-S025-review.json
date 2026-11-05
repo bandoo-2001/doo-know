@@ -1,0 +1,64 @@
+{
+  "assetId": "MP-S025",
+  "sourceIds": [
+    "ST-064",
+    "ST-065",
+    "ST-066",
+    "ST-067",
+    "ST-068",
+    "ST-072",
+    "ST-070",
+    "ST-071"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:05:10.390354+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Seven APIclient read/summary/channel-disabled/blank-name/409 snippets.",
+  "functionalFindings": [
+    {
+      "id": "MP-S025-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "r5 maps invalid-date validation onto empty client name with disabled submit. Custom expiry actually adds a 自定义到期时间 input and expiration() error; canSubmit does not test the date, so this blank-name guard is not the invalid-date renderer/guard.",
+      "sourceEvidence": "MCPApiClients issuesKey custom datetime conditional; expiration throws 请选择将来的到期时间。 before busy; canSubmit checks name/policy/conflict but not date."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "API reading/error and effective-policy summaries consistent with active enabled service; disabled-channel actions correctly retain rename/revoke only.",
+    "409 preserves field drafts, disables submit and allows exact reload/cancel; no real key or secret data."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-025.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S025.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/MCPApiClients.vue:65",
+    "apps/web/components/MCPApiClients.vue:168",
+    "apps/web/components/MCPApiClients.vue:353"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "MP-S025-F1",
+      "correction": "Add or precisely bind an actual custom-expiry validation slice with the datetime field, source error and enabled/disabled conditions from canSubmit. Preserve blank-name case separately; do not represent invalid date through name-required disable."
+    }
+  ],
+  "reviewedImageSha256": "b3d75dbbf53b7a5dc9c4c6007f548dc8036e87b2c57e60cb17756363c07eadde",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S025.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

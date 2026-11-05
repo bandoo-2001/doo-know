@@ -1,0 +1,297 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D059",
+  "assetId": "MP-D059",
+  "sourceIds": [
+    "ST-075"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-075",
+      "title": "管理云端同步",
+      "role": "authenticated-owner",
+      "state": "完整桌面紧凑真实窗口/浮层；只画实际组件，不重绘外部宿主",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "selectedState": "Source-derived connection SettingsOverlay drawer, no existing connection/credentials and blank URL; idle add actions enabled, test/connect disabled; three viewports"
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-075",
+      "title": "管理云端同步 390px",
+      "role": "authenticated-owner",
+      "state": "同一完整紧凑组件的390px布局，登记字段/现有动作/焦点和guard不变",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Source-derived connection SettingsOverlay drawer, no existing connection/credentials and blank URL; idle add actions enabled, test/connect disabled; three viewports"
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-075",
+      "title": "管理云端同步 320px",
+      "role": "authenticated-owner",
+      "state": "同一完整紧凑组件的320px布局，登记字段/现有动作/焦点和guard不变",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Source-derived connection SettingsOverlay drawer, no existing connection/credentials and blank URL; idle add actions enabled, test/connect disabled; three viewports"
+    }
+  ],
+  "selectedState": "Source-derived connection SettingsOverlay drawer, no existing connection/credentials and blank URL; idle add actions enabled, test/connect disabled; three viewports",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作一个UI DESIGN BOARD，外部A桌面1440宿主/B390px/C320px标注三个独立viewport示例，只画同一局部组件，绝不是同一产品页同时打开三窗。画布可扩大以完整展示三份组件，文字可读，B/C可内部滚动、关闭与主要动作可达；不画父页导航或设备外壳，不声称像素实测。三份均为真实SettingsOverlay drawer局部“管理云端同步”，desktop意图宽960，header刷新icon、标题、描述“关联云端仓库，管理同步分支与认证方式。”与关闭X。只选无现有连接/无凭据/空URL的idle状态。正文按模板：说明“此操作会安装并启用 Git 插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。”；仓库克隆地址空输入placeholder https://github.com/owner/repository.git；帮助“请复制仓库页面的 HTTPS 或 SSH 克隆地址。公开 HTTPS 仓库可不配置认证。”；云端分支（选填）空输入placeholder留空使用默认分支；仓库认证select“不使用凭据（公开仓库读取）”；可用“添加凭据”与禁用“测试读取连接”；禁用“关联云端仓库”。然后管理仓库凭据小节、说明“凭据只供登录账号使用，秘密内容不会回显。移除凭据不会删除资料。”、空列表不加暂无图形，只有可用“添加新的凭据”；最后折叠“GitHub／Gitee 认证与 SSH 帮助”。没有导入库名/位置字段、没有解除关联（无connection）、任务/错误/成功/SSH字段/新取消页脚。长表单每份完整可读，窄屏label纵排，必要时延长板外画布。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。",
+  "prompt": "制作一个UI DESIGN BOARD，外部A桌面1440宿主/B390px/C320px标注三个独立viewport示例，只画同一局部组件，绝不是同一产品页同时打开三窗。画布可扩大以完整展示三份组件，文字可读，B/C可内部滚动、关闭与主要动作可达；不画父页导航或设备外壳，不声称像素实测。三份均为真实SettingsOverlay drawer局部“管理云端同步”，desktop意图宽960，header刷新icon、标题、描述“关联云端仓库，管理同步分支与认证方式。”与关闭X。只选无现有连接/无凭据/空URL的idle状态。正文按模板：说明“此操作会安装并启用 Git 插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。”；仓库克隆地址空输入placeholder https://github.com/owner/repository.git；帮助“请复制仓库页面的 HTTPS 或 SSH 克隆地址。公开 HTTPS 仓库可不配置认证。”；云端分支（选填）空输入placeholder留空使用默认分支；仓库认证select“不使用凭据（公开仓库读取）”；可用“添加凭据”与禁用“测试读取连接”；禁用“关联云端仓库”。然后管理仓库凭据小节、说明“凭据只供登录账号使用，秘密内容不会回显。移除凭据不会删除资料。”、空列表不加暂无图形，只有可用“添加新的凭据”；最后折叠“GitHub／Gitee 认证与 SSH 帮助”。没有导入库名/位置字段、没有解除关联（无connection）、任务/错误/成功/SSH字段/新取消页脚。长表单每份完整可读，窄屏label纵排，必要时延长板外画布。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual parent context only; selected local window/component is source-derived, not a captured runtime overlay",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; no owner shell transfer",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "Actual parent context only; selected local window/component is source-derived, not a captured runtime overlay",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; no owner shell transfer",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作一个UI DESIGN BOARD，外部A桌面1440宿主/B390px/C320px标注三个独立viewport示例，只画同一局部组件，绝不是同一产品页同时打开三窗。画布可扩大以完整展示三份组件，文字可读，B/C可内部滚动、关闭与主要动作可达；不画父页导航或设备外壳，不声称像素实测。三份均为真实SettingsOverlay drawer局部“管理云端同步”，desktop意图宽960，header刷新icon、标题、描述“关联云端仓库，管理同步分支与认证方式。”与关闭X。只选无现有连接/无凭据/空URL的idle状态。正文按模板：说明“此操作会安装并启用 Git 插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。”；仓库克隆地址空输入placeholder https://github.com/owner/repository.git；帮助“请复制仓库页面的 HTTPS 或 SSH 克隆地址。公开 HTTPS 仓库可不配置认证。”；云端分支（选填）空输入placeholder留空使用默认分支；仓库认证select“不使用凭据（公开仓库读取）”；可用“添加凭据”与禁用“测试读取连接”；禁用“关联云端仓库”。然后管理仓库凭据小节、说明“凭据只供登录账号使用，秘密内容不会回显。移除凭据不会删除资料。”、空列表不加暂无图形，只有可用“添加新的凭据”；最后折叠“GitHub／Gitee 认证与 SSH 帮助”。没有导入库名/位置字段、没有解除关联（无connection）、任务/错误/成功/SSH字段/新取消页脚。长表单每份完整可读，窄屏label纵排，必要时延长板外画布。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作一个UI DESIGN BOARD，外部A桌面1440宿主/B390px/C320px标注三个独立viewport示例，只画同一局部组件，绝不是同一产品页同时打开三窗。画布可扩大以完整展示三份组件，文字可读，B/C可内部滚动、关闭与主要动作可达；不画父页导航或设备外壳，不声称像素实测。三份均为真实SettingsOverlay drawer局部“管理云端同步”，desktop意图宽960，header刷新icon、标题、描述“关联云端仓库，管理同步分支与认证方式。”与关闭X。只选无现有连接/无凭据/空URL的idle状态。正文按模板：说明“此操作会安装并启用 Git 插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。”；仓库克隆地址空输入placeholder https://github.com/owner/repository.git；帮助“请复制仓库页面的 HTTPS 或 SSH 克隆地址。公开 HTTPS 仓库可不配置认证。”；云端分支（选填）空输入placeholder留空使用默认分支；仓库认证select“不使用凭据（公开仓库读取）”；可用“添加凭据”与禁用“测试读取连接”；禁用“关联云端仓库”。然后管理仓库凭据小节、说明“凭据只供登录账号使用，秘密内容不会回显。移除凭据不会删除资料。”、空列表不加暂无图形，只有可用“添加新的凭据”；最后折叠“GitHub／Gitee 认证与 SSH 帮助”。没有导入库名/位置字段、没有解除关联（无connection）、任务/错误/成功/SSH字段/新取消页脚。长表单每份完整可读，窄屏label纵排，必要时延长板外画布。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+          "role": "Actual parent context only; selected local window/component is source-derived, not a captured runtime overlay"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; no owner shell transfer"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-8eb18b35-3fd4-4ad0-8d25-6b01b4eb2e51.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-075",
+      "title": "管理云端同步",
+      "kind": "drawer",
+      "module": "settings/git",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "管理同步 / 关联云端仓库",
+        "parentId": "ST-074"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:172",
+        "apps/web/components/GitRemotePanel.vue:985",
+        "apps/server/git/transport.ts:29",
+        "apps/server/git/service.ts:228"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "仓库克隆地址",
+          "type": "text",
+          "required": true,
+          "constraints": "≤2048；仅github.com/gitee.com HTTPS或SSH；拒绝凭据嵌URL/空格/查询/fragment/其他主机",
+          "sensitive": false
+        },
+        {
+          "name": "云端分支",
+          "type": "text",
+          "required": false,
+          "constraints": "空用默认；服务端≤200字符、不得以-开头，须通过git check-ref-format refs/heads/…",
+          "sensitive": false
+        },
+        {
+          "name": "仓库认证",
+          "type": "select",
+          "required": false,
+          "constraints": "公开HTTPS可无凭据；只显示当前所有者凭据摘要",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "测试读取连接",
+          "effect": "仅验证读取，不保证推送",
+          "api": "POST /api/platform/git/jobs kind:test",
+          "guard": "URL非空；非running/busy"
+        },
+        {
+          "label": "关联云端仓库",
+          "effect": "保存关联并按流程安装启用Git",
+          "api": "POST /api/platform/git/jobs kind:connect",
+          "guard": "URL非空；非busy；上次提交需先核对"
+        },
+        {
+          "label": "添加 / 更换 / 移除凭据",
+          "effect": "ST-076/ST-077；删除凭据",
+          "api": "POST /api/platform/git/credentials; DELETE /api/platform/git/credentials/:id",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "确认解除云端关联",
+          "effect": "只解除DooKnow同步关联",
+          "api": "POST /api/platform/git/jobs kind:disconnect",
+          "guard": "details内明确确认；本地原文/历史/Git remote保留"
+        }
+      ],
+      "importantStates": [
+        "已有/无凭据",
+        "dirty关闭ST-089",
+        "连接测试成功",
+        "认证/权限错误",
+        "任务进行中",
+        "未确定请求回执"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/z-git-remote.spec.ts:16",
+        "tests/git-remote-routes.test.ts:7",
+        "tests/e2e/settings-overlays.spec.ts:266"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "请求drawer宽960px；inline父容器时作为内页，不再套第二层窗口。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-075",
+      "parentId": "ST-074",
+      "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:172",
+        "apps/web/components/GitRemotePanel.vue:985",
+        "apps/server/git/transport.ts:29",
+        "apps/server/git/service.ts:228"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-011.json#MP-D059",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D059",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-8eb18b35-3fd4-4ad0-8d25-6b01b4eb2e51.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D059.png",
+  "sha256": "ac0b5d841736d902446df5d8228b8f483988545be0b06bcac8e269ab17f004b8",
+  "bytes": 1414014,
+  "dimensions": {
+    "width": 1754,
+    "height": 896
+  },
+  "generatedAtUtc": "2026-11-05T02:31:36.018128+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "管理云端同步",
+    "sourceIds": [
+      "ST-075"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Source-derived connection SettingsOverlay drawer, no existing connection/credentials and blank URL; idle add actions enabled, test/connect disabled; three viewports",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

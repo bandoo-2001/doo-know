@@ -1,0 +1,542 @@
+{
+  "id": "WS-D075",
+  "title": "Owner share create/edit/reset/revoke form",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-099"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-099",
+      "title": "Owner share create/edit/reset/revoke form",
+      "role": "authenticated owner",
+      "state": "Complete owner form, direct reset/revoke, view/edit, expiry choices/custom local date, original-download opt-in, generated URL. Busy does not explicitly lock default dismissal.",
+      "presentationInstruction": "Complete owner form, direct reset/revoke, view/edit, expiry choices/custom local date, original-download opt-in, generated URL. Busy does not explicitly lock default dismissal."
+    }
+  ],
+  "viewportIntent": "One complete readable large window/form; no independent-window montage.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/ShareDialog.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/ShareDialog.vue:1, apps/web/components/ShareDialog.vue:57, apps/web/components/ShareDialog.vue:95, apps/web/components/ShareDialog.vue:134, apps/web/components/Workspace.vue:1543, apps/server/app.ts:553, packages/core/shares.ts:10, packages/core/shares.ts:53, packages/core/share-policy.ts:17, shared/share-contracts.ts:1"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-note-share.png",
+      "role": "Additional ACTUAL before-change matching component/role reference; actual visible state only, not all alternative states."
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-099",
+      "label": "生成分享链接 / 保存分享设置",
+      "effect": "Create active grant or update active token options; show returned URL/status",
+      "api": "POST /api/notes/:id/share",
+      "guard": "!shareBusy; valid future custom expiry; permission supported; current noteId/epoch"
+    },
+    {
+      "sourceId": "WS-099",
+      "label": "复制链接",
+      "effect": "Clipboard copy absolute URL; fallback asks manual selection",
+      "api": "navigator.clipboard.writeText",
+      "guard": "status.enabled && shareUrl; no busy disable on this copy button"
+    },
+    {
+      "sourceId": "WS-099",
+      "label": "重置链接",
+      "effect": "Replace active token so old URL stops working; retain submitted form settings",
+      "api": "POST /api/notes/:id/share/reset",
+      "guard": "Button only shown when enabled; !busy; same form expiry validation"
+    },
+    {
+      "sourceId": "WS-099",
+      "label": "取消分享",
+      "effect": "Revoke current share directly; no additional confirmation dialog implemented",
+      "api": "DELETE /api/notes/:id/share",
+      "guard": "Button only shown when enabled; !busy; server revocation works even if source became unreadable"
+    },
+    {
+      "sourceId": "WS-099",
+      "label": "完成 / 模态关闭",
+      "effect": "Dismiss form",
+      "api": "none",
+      "guard": "Done disabled while busy; NModal close event has no explicit busy guard"
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R041",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width min(550px,100vw-28px), max90dvh scroll. Share settings two columns desktop, one column<=540px; actions wrap and buttons flex on narrow screens. Actual320/390/1440 layout unverified."
+      },
+      "requiredFieldOrder": [
+        "公开链接",
+        "分享权限",
+        "链接有效期",
+        "自定义到期时间",
+        "允许下载图形原件"
+      ],
+      "requiredFields": [
+        {
+          "name": "公开链接",
+          "type": "readonly-url",
+          "required": false,
+          "constraints": "Shown only when status.enabled && resolved URL; generated absolute URL from status.url and current origin; copying conveys access capability.",
+          "sensitive": true
+        },
+        {
+          "name": "分享权限",
+          "type": "select",
+          "required": true,
+          "constraints": "view | edit. edit option disabled when !status.editSupported; initialized from current status.",
+          "sensitive": false
+        },
+        {
+          "name": "链接有效期",
+          "type": "select",
+          "required": true,
+          "constraints": "1h | 1d | 7d | 30d | custom | permanent; private form defaults7d; existing expiring share defaults custom; no expiry defaults permanent.",
+          "sensitive": false
+        },
+        {
+          "name": "自定义到期时间",
+          "type": "datetime-local",
+          "required": false,
+          "constraints": "Required only when custom; valid future local device datetime; converted to ISO. Unchanged original minute display retains original ISO expiry precision. Server requires valid calendar ISO timestamp with Z or offset and expiry>Date.now; null means permanent.",
+          "sensitive": false
+        },
+        {
+          "name": "允许下载图形原件",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "allowDiagramSource boolean; defaults false for unshared grant; initialized from status; original may include editing content absent from preview.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "生成分享链接 / 保存分享设置",
+          "effect": "Create active grant or update active token options; show returned URL/status",
+          "api": "POST /api/notes/:id/share",
+          "guard": "!shareBusy; valid future custom expiry; permission supported; current noteId/epoch"
+        },
+        {
+          "label": "复制链接",
+          "effect": "Clipboard copy absolute URL; fallback asks manual selection",
+          "api": "navigator.clipboard.writeText",
+          "guard": "status.enabled && shareUrl; no busy disable on this copy button"
+        },
+        {
+          "label": "重置链接",
+          "effect": "Replace active token so old URL stops working; retain submitted form settings",
+          "api": "POST /api/notes/:id/share/reset",
+          "guard": "Button only shown when enabled; !busy; same form expiry validation"
+        },
+        {
+          "label": "取消分享",
+          "effect": "Revoke current share directly; no additional confirmation dialog implemented",
+          "api": "DELETE /api/notes/:id/share",
+          "guard": "Button only shown when enabled; !busy; server revocation works even if source became unreadable"
+        },
+        {
+          "label": "完成 / 模态关闭",
+          "effect": "Dismiss form",
+          "api": "none",
+          "guard": "Done disabled while busy; NModal close event has no explicit busy guard"
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Full ShareDialog owner form is owned by this workspace inventory. Settings inventory owns ShareManagement listing/entry only; public inventory owns anonymous reader/editor.",
+        "status.editSupported disables the edit option; server rejects edit for primary diagrams, invalid diagram documents, large/long-line Markdown. Browser state does not imply a new public editor permission.",
+        "Parent Workspace manageShare/shareAction captures noteId+viewEpoch; note switch closes form and ignores stale response; duplicate mutations are blocked by shareBusy. Shared status updates after successful result.",
+        "Busy disables permission/expiry/source controls and action/Done buttons. ShareDialog does not explicitly disable NModal mask/Escape/close-x dismissal while busy; copy-link remains callable. Do not invent a busy dismissal lock."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-099"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. One complete existing DooKnow LOCAL component on neutral light-gray backdrop, not a full invented host page. Simplified Chinese, crisp natural-size controls, flat white/#f7f8fa, dark #272b3a/secondary#657084, thin #e6e9f1 lines, primary#4566c6,8px radii and restrained shadow. PILOT input is STYLE ONLY, no importing its rail/header/tree/content. Actual source templates determine all titles, field order, controls, permissions and selected state. No protocol requestId/version/hash/cursor/CSRF fields, fabricated success/online states, team/AI/ToDoo features or OS/browser-dialog chrome. Secret data empty or masked only. One coherent selected condition; hidden alternatives remain hidden. Preserve header/close/body-scroll/footer actions and actual disabled guards; do not derive new disabled rules from API constraints.\nEXACT OWNER SHARE FORM PRIVATE CREATION STATE from matching Image1 (Image2 PILOT style only), draw only modal not background workspace. Title 分享笔记 and closeX. Body note title 窗口运行基线 with badge 私人笔记. Exact note 笔记默认私有。生成链接后，持有链接的访客无需登录即可访问。 Fields source desktop2columns: 分享权限 closed select仅查看, 链接有效期 closed select7 天. Next full-width unchecked checkbox 允许下载图形原件, helper 原件可能包含预览未展示的编辑内容，默认关闭。 Existing flat info block refreshicon, bold实时更新, body 展示最新保存内容，未保存的修改不会公开。 Footer primary生成分享链接 and default完成, enabled.\nSource conditions status.state=private/status.enabled=false, permission=view, editSupported=true, duration7d, allowDiagramSource=false,busy=false/noerror. Thus公开链接/copy/reset/revoke/custom-date/edit-limitation text stay HIDDEN; don't add them just because generic all-state inventory lists them. No password/login/team/recipient/email/CSRF/hash inputs. No URL token displayed or fake share-created status. NModal does not explicitly lock default X/Escape/backdrop while busy; do not invent a different busy-close rule, selected state idle. Preserve source permissions and saved-content/publication boundary.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D075.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-099",
+      "title": "Owner share create/edit/reset/revoke form",
+      "kind": "dialog",
+      "module": "sharing",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "分享",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/ShareDialog.vue:1",
+        "apps/web/components/ShareDialog.vue:57",
+        "apps/web/components/ShareDialog.vue:95",
+        "apps/web/components/ShareDialog.vue:134",
+        "apps/web/components/Workspace.vue:1543",
+        "apps/server/app.ts:553",
+        "packages/core/shares.ts:10",
+        "packages/core/shares.ts:53",
+        "packages/core/share-policy.ts:17",
+        "shared/share-contracts.ts:1"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Full ShareDialog owner form is owned by this workspace inventory. Settings inventory owns ShareManagement listing/entry only; public inventory owns anonymous reader/editor.",
+        "status.editSupported disables the edit option; server rejects edit for primary diagrams, invalid diagram documents, large/long-line Markdown. Browser state does not imply a new public editor permission.",
+        "Parent Workspace manageShare/shareAction captures noteId+viewEpoch; note switch closes form and ignores stale response; duplicate mutations are blocked by shareBusy. Shared status updates after successful result.",
+        "Busy disables permission/expiry/source controls and action/Done buttons. ShareDialog does not explicitly disable NModal mask/Escape/close-x dismissal while busy; copy-link remains callable. Do not invent a busy dismissal lock."
+      ],
+      "fields": [
+        {
+          "name": "公开链接",
+          "type": "readonly-url",
+          "required": false,
+          "constraints": "Shown only when status.enabled && resolved URL; generated absolute URL from status.url and current origin; copying conveys access capability.",
+          "sensitive": true
+        },
+        {
+          "name": "分享权限",
+          "type": "select",
+          "required": true,
+          "constraints": "view | edit. edit option disabled when !status.editSupported; initialized from current status.",
+          "sensitive": false
+        },
+        {
+          "name": "链接有效期",
+          "type": "select",
+          "required": true,
+          "constraints": "1h | 1d | 7d | 30d | custom | permanent; private form defaults7d; existing expiring share defaults custom; no expiry defaults permanent.",
+          "sensitive": false
+        },
+        {
+          "name": "自定义到期时间",
+          "type": "datetime-local",
+          "required": false,
+          "constraints": "Required only when custom; valid future local device datetime; converted to ISO. Unchanged original minute display retains original ISO expiry precision. Server requires valid calendar ISO timestamp with Z or offset and expiry>Date.now; null means permanent.",
+          "sensitive": false
+        },
+        {
+          "name": "允许下载图形原件",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "allowDiagramSource boolean; defaults false for unshared grant; initialized from status; original may include editing content absent from preview.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "生成分享链接 / 保存分享设置",
+          "effect": "Create active grant or update active token options; show returned URL/status",
+          "api": "POST /api/notes/:id/share",
+          "guard": "!shareBusy; valid future custom expiry; permission supported; current noteId/epoch"
+        },
+        {
+          "label": "复制链接",
+          "effect": "Clipboard copy absolute URL; fallback asks manual selection",
+          "api": "navigator.clipboard.writeText",
+          "guard": "status.enabled && shareUrl; no busy disable on this copy button"
+        },
+        {
+          "label": "重置链接",
+          "effect": "Replace active token so old URL stops working; retain submitted form settings",
+          "api": "POST /api/notes/:id/share/reset",
+          "guard": "Button only shown when enabled; !busy; same form expiry validation"
+        },
+        {
+          "label": "取消分享",
+          "effect": "Revoke current share directly; no additional confirmation dialog implemented",
+          "api": "DELETE /api/notes/:id/share",
+          "guard": "Button only shown when enabled; !busy; server revocation works even if source became unreadable"
+        },
+        {
+          "label": "完成 / 模态关闭",
+          "effect": "Dismiss form",
+          "api": "none",
+          "guard": "Done disabled while busy; NModal close event has no explicit busy guard"
+        }
+      ],
+      "importantStates": [
+        "Private creation",
+        "Active read/edit grant",
+        "Expired grant",
+        "Revoked grant",
+        "Custom expiry valid/invalid",
+        "Large/long-line/diagram edit unavailable",
+        "Busy/network/server error",
+        "Clipboard success/failure",
+        "Saved changes publish; unsaved changes stay private"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width min(550px,100vw-28px), max90dvh scroll. Share settings two columns desktop, one column<=540px; actions wrap and buttons flex on narrow screens. Actual320/390/1440 layout unverified."
+      },
+      "testRefs": [
+        "tests/share-options.test.ts",
+        "tests/shares.test.ts",
+        "tests/shares-permissions-security.test.ts",
+        "tests/e2e/diagram-sharing-visual.spec.ts",
+        "tests/e2e/share-management-expiry.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Authoritative full ShareDialog form coverage; sharing-management listing and external public reader/editor remain separate owners.",
+        "Only latest saved content becomes publicly visible. Reset/revoke are existing direct actions, not invented confirmation windows."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-099",
+      "parentId": "WS-024",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "complete-large-window-or-dense-form",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 1,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-099",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-099",
+      "state": "Private creation",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-099",
+      "state": "Active read/edit grant",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-099",
+      "state": "Expired grant",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-099",
+      "state": "Revoked grant",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-099",
+      "state": "Custom expiry valid/invalid",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-099",
+      "state": "Large/long-line/diagram edit unavailable",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-099",
+      "state": "Busy/network/server error",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-099",
+      "state": "Clipboard success/failure",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-099",
+      "state": "Saved changes publish; unsaved changes stay private",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D075",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "actual private creation baseline, view7d/originaldownloadfalse/editSupportedtrue/nobusy"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. One complete existing DooKnow LOCAL component on neutral light-gray backdrop, not a full invented host page. Simplified Chinese, crisp natural-size controls, flat white/#f7f8fa, dark #272b3a/secondary#657084, thin #e6e9f1 lines, primary#4566c6,8px radii and restrained shadow. PILOT input is STYLE ONLY, no importing its rail/header/tree/content. Actual source templates determine all titles, field order, controls, permissions and selected state. No protocol requestId/version/hash/cursor/CSRF fields, fabricated success/online states, team/AI/ToDoo features or OS/browser-dialog chrome. Secret data empty or masked only. One coherent selected condition; hidden alternatives remain hidden. Preserve header/close/body-scroll/footer actions and actual disabled guards; do not derive new disabled rules from API constraints.\nEXACT OWNER SHARE FORM PRIVATE CREATION STATE from matching Image1 (Image2 PILOT style only), draw only modal not background workspace. Title 分享笔记 and closeX. Body note title 窗口运行基线 with badge 私人笔记. Exact note 笔记默认私有。生成链接后，持有链接的访客无需登录即可访问。 Fields source desktop2columns: 分享权限 closed select仅查看, 链接有效期 closed select7 天. Next full-width unchecked checkbox 允许下载图形原件, helper 原件可能包含预览未展示的编辑内容，默认关闭。 Existing flat info block refreshicon, bold实时更新, body 展示最新保存内容，未保存的修改不会公开。 Footer primary生成分享链接 and default完成, enabled.\nSource conditions status.state=private/status.enabled=false, permission=view, editSupported=true, duration7d, allowDiagramSource=false,busy=false/noerror. Thus公开链接/copy/reset/revoke/custom-date/edit-limitation text stay HIDDEN; don't add them just because generic all-state inventory lists them. No password/login/team/recipient/email/CSRF/hash inputs. No URL token displayed or fake share-created status. NModal does not explicitly lock default X/Escape/backdrop while busy; do not invent a different busy-close rule, selected state idle. Preserve source permissions and saved-content/publication boundary.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D075 Owner share create/edit/reset/revoke form\nSCOPE complete-large-window-or-dense-form\nVIEW One complete readable large window/form; no independent-window montage.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 1, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"full\", \"sourceId\": \"WS-099\", \"title\": \"Owner share create/edit/reset/revoke form\", \"role\": \"authenticated owner\", \"state\": \"Complete owner form, direct reset/revoke, view/edit, expiry choices/custom local date, original-download opt-in, generated URL. Busy does not explicitly lock default dismissal.\", \"presentationInstruction\": \"Complete owner form, direct reset/revoke, view/edit, expiry choices/custom local date, original-download opt-in, generated URL. Busy does not explicitly lock default dismissal.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"full\", \"sourceId\": \"WS-099\", \"fieldsInOrder\": [{\"name\": \"公开链接\", \"type\": \"readonly-url\", \"required\": false, \"constraints\": \"Shown only when status.enabled && resolved URL; generated absolute URL from status.url and current origin; copying conveys access capability.\", \"sensitive\": true}, {\"name\": \"分享权限\", \"type\": \"select\", \"required\": true, \"constraints\": \"view | edit. edit option disabled when !status.editSupported; initialized from current status.\", \"sensitive\": false}, {\"name\": \"链接有效期\", \"type\": \"select\", \"required\": true, \"constraints\": \"1h | 1d | 7d | 30d | custom | permanent; private form defaults7d; existing expiring share defaults custom; no expiry defaults permanent.\", \"sensitive\": false}, {\"name\": \"自定义到期时间\", \"type\": \"datetime-local\", \"required\": false, \"constraints\": \"Required only when custom; valid future local device datetime; converted to ISO. Unchanged original minute display retains original ISO expiry precision. Server requires valid calendar ISO timestamp with Z or offset and expiry>Date.now; null means permanent.\", \"sensitive\": false}, {\"name\": \"允许下载图形原件\", \"type\": \"checkbox\", \"required\": true, \"constraints\": \"allowDiagramSource boolean; defaults false for unshared grant; initialized from status; original may include editing content absent from preview.\", \"sensitive\": false}], \"actions\": [{\"label\": \"生成分享链接 / 保存分享设置\", \"effect\": \"Create active grant or update active token options; show returned URL/status\", \"api\": \"POST /api/notes/:id/share\", \"guard\": \"!shareBusy; valid future custom expiry; permission supported; current noteId/epoch\"}, {\"label\": \"复制链接\", \"effect\": \"Clipboard copy absolute URL; fallback asks manual selection\", \"api\": \"navigator.clipboard.writeText\", \"guard\": \"status.enabled && shareUrl; no busy disable on this copy button\"}, {\"label\": \"重置链接\", \"effect\": \"Replace active token so old URL stops working; retain submitted form settings\", \"api\": \"POST /api/notes/:id/share/reset\", \"guard\": \"Button only shown when enabled; !busy; same form expiry validation\"}, {\"label\": \"取消分享\", \"effect\": \"Revoke current share directly; no additional confirmation dialog implemented\", \"api\": \"DELETE /api/notes/:id/share\", \"guard\": \"Button only shown when enabled; !busy; server revocation works even if source became unreadable\"}, {\"label\": \"完成 / 模态关闭\", \"effect\": \"Dismiss form\", \"api\": \"none\", \"guard\": \"Done disabled while busy; NModal close event has no explicit busy guard\"}], \"importantStates\": [\"Private creation\", \"Active read/edit grant\", \"Expired grant\", \"Revoked grant\", \"Custom expiry valid/invalid\", \"Large/long-line/diagram edit unavailable\", \"Busy/network/server error\", \"Clipboard success/failure\", \"Saved changes publish; unsaved changes stay private\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Full ShareDialog owner form is owned by this workspace inventory. Settings inventory owns ShareManagement listing/entry only; public inventory owns anonymous reader/editor.\", \"status.editSupported disables the edit option; server rejects edit for primary diagrams, invalid diagram documents, large/long-line Markdown. Browser state does not imply a new public editor permission.\", \"Parent Workspace manageShare/shareAction captures noteId+viewEpoch; note switch closes form and ignores stale response; duplicate mutations are blocked by shareBusy. Shared status updates after successful result.\", \"Busy disables permission/expiry/source controls and action/Done buttons. ShareDialog does not explicitly disable NModal mask/Escape/close-x dismissal while busy; copy-link remains callable. Do not invent a busy dismissal lock.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/ShareDialog.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/ShareDialog.vue:1, apps/web/components/ShareDialog.vue:57, apps/web/components/ShareDialog.vue:95, apps/web/components/ShareDialog.vue:134, apps/web/components/Workspace.vue:1543, apps/server/app.ts:553, packages/core/shares.ts:10, packages/core/shares.ts:53, packages/core/share-policy.ts:17, shared/share-contracts.ts:1",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/ShareDialog.vue:1, apps/web/components/ShareDialog.vue:57, apps/web/components/ShareDialog.vue:95, apps/web/components/ShareDialog.vue:134, apps/web/components/Workspace.vue:1543, apps/server/app.ts:553, packages/core/shares.ts:10, packages/core/shares.ts:53, packages/core/share-policy.ts:17, shared/share-contracts.ts:1",
+      "sha256": "6e070e1a20fd1d82e249292a8b7588cae7bcfde0baa3676953c54fb1bc4e557f"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-note-share.png",
+      "role": "Additional ACTUAL before-change matching component/role reference; actual visible state only, not all alternative states.",
+      "responsibility": "Additional ACTUAL before-change matching component/role reference; actual visible state only, not all alternative states.",
+      "sha256": "d762514a30e4eb00193ad723b949ba72cda057c4d1f00801fb59a6bf68a0dbbc",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 105658
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/windows/1440-note-share.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D075.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-0876fbd8-7c94-4de8-9af7-4bb0d19fdb4f.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-0876fbd8-7c94-4de8-9af7-4bb0d19fdb4f.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T02:40:39.345Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Actual private-share baseline retains view/7days/original-download off and generate/done only; active URL/reset/revoke/custom-expiry branches remain hidden.",
+    "concerns": [
+      "Static selected state does not prove capability/snapshot/bookmark/busy/close/focus behavior.",
+      "Source-derived list/confirmation paths are isolated examples; exact raster geometry/texture approximate."
+    ]
+  },
+  "sha256": "86e0969ab24235dd7e3dc959916a4c2a603548fad6f8cb3d5a2e965a99761d9c",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1148411,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/ShareDialog.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "6e070e1a20fd1d82e249292a8b7588cae7bcfde0baa3676953c54fb1bc4e557f"
+    },
+    {
+      "path": "apps/web/components/ShareDialog.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "6e070e1a20fd1d82e249292a8b7588cae7bcfde0baa3676953c54fb1bc4e557f"
+    },
+    {
+      "path": "apps/web/components/ShareDialog.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "6e070e1a20fd1d82e249292a8b7588cae7bcfde0baa3676953c54fb1bc4e557f"
+    },
+    {
+      "path": "apps/web/components/ShareDialog.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "6e070e1a20fd1d82e249292a8b7588cae7bcfde0baa3676953c54fb1bc4e557f"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/server/app.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f"
+    },
+    {
+      "path": "packages/core/shares.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "779f776d0098ff55dfac58402316656bc6774049c1fbd5fcf83271bcb0eee0e5"
+    },
+    {
+      "path": "packages/core/shares.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "779f776d0098ff55dfac58402316656bc6774049c1fbd5fcf83271bcb0eee0e5"
+    },
+    {
+      "path": "packages/core/share-policy.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "8e26ebb554110a783f3a2f3d1f6b1d4a9be5511e4ad0d32a86b6f24ec0542c36"
+    },
+    {
+      "path": "shared/share-contracts.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "95aba074a219921e20b84a9c0acafee8c0cf25c95fdc3c8507f914e9983c1951"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Matching actual component screenshot supplied current private form; hidden mutually exclusive fields remain mapped elsewhere."
+}

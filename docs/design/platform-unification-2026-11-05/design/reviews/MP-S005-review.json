@@ -1,0 +1,46 @@
+{
+  "assetId": "MP-S005",
+  "sourceIds": [
+    "ST-032",
+    "ST-033"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T04:33:04.090911+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Independent no-file restore choose step, size-limit error with retained files, and expanded CLI/deployment help.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Both choose-step specimens keep real two file fields and Next/Cancel enabled idle; missing/oversize validation happens on handler, not invented initial disable.",
+    "Size warning exact128MiB/16KiB and file selections retained without contents or upload success.",
+    "CLI readonly code uses sanitized example paths and authentic flags, no editable protocol fields/run button or deployment auto-switch promise."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-022.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S005.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/BackupSettings.vue:161",
+    "apps/web/components/settings/BackupSettings.vue:348",
+    "apps/web/components/settings/BackupSettings.vue:387"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "8ca43cfb64f14df345cde9752b2e05da3d5e59b349227b5bac481710d2fe90cd",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S005.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

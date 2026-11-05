@@ -1,0 +1,358 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R035",
+  "assetId": "MP-R035",
+  "sourceIds": [
+    "ST-076"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-076",
+      "title": "添加/更换HTTPS仓库凭据390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent HTTPS credential SettingsOverlay at390/320/320: A new name empty, native required token empty, save disabled from empty name; B existing same host/kind token blank preserves secret, save allowed; C saving busy masks token, locks fields/buttons/X with no invented spinner. Credential save button does not directly disable for empty token, native required validation applies."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-076",
+      "title": "添加/更换HTTPS仓库凭据320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent HTTPS credential SettingsOverlay at390/320/320: A new name empty, native required token empty, save disabled from empty name; B existing same host/kind token blank preserves secret, save allowed; C saving busy masks token, locks fields/buttons/X with no invented spinner. Credential save button does not directly disable for empty token, native required validation applies."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-076",
+      "title": "添加/更换HTTPS仓库凭据320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent HTTPS credential SettingsOverlay at390/320/320: A new name empty, native required token empty, save disabled from empty name; B existing same host/kind token blank preserves secret, save allowed; C saving busy masks token, locks fields/buttons/X with no invented spinner. Credential save button does not directly disable for empty token, native required validation applies."
+    }
+  ],
+  "selectedState": "Three independent HTTPS credential SettingsOverlay at390/320/320: A new name empty, native required token empty, save disabled from empty name; B existing same host/kind token blank preserves secret, save allowed; C saving busy masks token, locks fields/buttons/X with no invented spinner. Credential save button does not directly disable for empty token, native required validation applies.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制横向并排三个独立窄网页凭据模态窗，宽比例390、320、320，白灰蓝平面、细边框、正文可滚动，无主人导航。每窗页头锁图标、关闭X，说明“凭据只供当前账号使用，秘密内容不会回显。”。左标题添加凭据，依次：凭据名称空输入，服务平台选择GitHub，认证方式选择HTTPS 令牌（推荐），仓库用户名空输入，访问令牌为空密码输入、占位“填写具有仓库读写权限的访问令牌”，勾选“在服务器加密保存凭据（取消后仅保留 30 分钟）”；表单末尾“保存仓库凭据”灰禁用、“取消编辑凭据”可用。中标题更换凭据，同字段顺序，名称示例仓库凭据、平台GitHub、HTTPS 令牌（推荐）、用户名example-owner，访问令牌空且占位“留空保留原令牌”；加密保存不勾选；保存仓库凭据蓝色可用、取消编辑凭据与X可用。右标题添加凭据，名称示例仓库凭据、平台Gitee、HTTPS 令牌（推荐）、用户名example-owner、访问令牌六个圆点、加密保存勾选；所有输入、选择、checkbox、保存、取消、X都灰色禁用。右不加转圈、成功提示或新按钮。字段上下排列，长占位/checkbox文案可换行，所有操作保留在自身窗口边界内，不展示真实令牌。",
+  "prompt": "绘制横向并排三个独立窄网页凭据模态窗，宽比例390、320、320，白灰蓝平面、细边框、正文可滚动，无主人导航。每窗页头锁图标、关闭X，说明“凭据只供当前账号使用，秘密内容不会回显。”。左标题添加凭据，依次：凭据名称空输入，服务平台选择GitHub，认证方式选择HTTPS 令牌（推荐），仓库用户名空输入，访问令牌为空密码输入、占位“填写具有仓库读写权限的访问令牌”，勾选“在服务器加密保存凭据（取消后仅保留 30 分钟）”；表单末尾“保存仓库凭据”灰禁用、“取消编辑凭据”可用。中标题更换凭据，同字段顺序，名称示例仓库凭据、平台GitHub、HTTPS 令牌（推荐）、用户名example-owner，访问令牌空且占位“留空保留原令牌”；加密保存不勾选；保存仓库凭据蓝色可用、取消编辑凭据与X可用。右标题添加凭据，名称示例仓库凭据、平台Gitee、HTTPS 令牌（推荐）、用户名example-owner、访问令牌六个圆点、加密保存勾选；所有输入、选择、checkbox、保存、取消、X都灰色禁用。右不加转圈、成功提示或新按钮。字段上下排列，长占位/checkbox文案可换行，所有操作保留在自身窗口边界内，不展示真实令牌。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+      "role": "Actual parent owner role only; credential state source-derived",
+      "sha256": "3213f7fd9fcf209a067fe82908d8f3d6c96e5a0fea8f63d1ee5ddc7725cd384a",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+      "role": "Actual parent owner role only; credential state source-derived",
+      "sha256": "3213f7fd9fcf209a067fe82908d8f3d6c96e5a0fea8f63d1ee5ddc7725cd384a",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制横向并排三个独立窄网页凭据模态窗，宽比例390、320、320，白灰蓝平面、细边框、正文可滚动，无主人导航。每窗页头锁图标、关闭X，说明“凭据只供当前账号使用，秘密内容不会回显。”。左标题添加凭据，依次：凭据名称空输入，服务平台选择GitHub，认证方式选择HTTPS 令牌（推荐），仓库用户名空输入，访问令牌为空密码输入、占位“填写具有仓库读写权限的访问令牌”，勾选“在服务器加密保存凭据（取消后仅保留 30 分钟）”；表单末尾“保存仓库凭据”灰禁用、“取消编辑凭据”可用。中标题更换凭据，同字段顺序，名称示例仓库凭据、平台GitHub、HTTPS 令牌（推荐）、用户名example-owner，访问令牌空且占位“留空保留原令牌”；加密保存不勾选；保存仓库凭据蓝色可用、取消编辑凭据与X可用。右标题添加凭据，名称示例仓库凭据、平台Gitee、HTTPS 令牌（推荐）、用户名example-owner、访问令牌六个圆点、加密保存勾选；所有输入、选择、checkbox、保存、取消、X都灰色禁用。右不加转圈、成功提示或新按钮。字段上下排列，长占位/checkbox文案可换行，所有操作保留在自身窗口边界内，不展示真实令牌。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制横向并排三个独立窄网页凭据模态窗，宽比例390、320、320，白灰蓝平面、细边框、正文可滚动，无主人导航。每窗页头锁图标、关闭X，说明“凭据只供当前账号使用，秘密内容不会回显。”。左标题添加凭据，依次：凭据名称空输入，服务平台选择GitHub，认证方式选择HTTPS 令牌（推荐），仓库用户名空输入，访问令牌为空密码输入、占位“填写具有仓库读写权限的访问令牌”，勾选“在服务器加密保存凭据（取消后仅保留 30 分钟）”；表单末尾“保存仓库凭据”灰禁用、“取消编辑凭据”可用。中标题更换凭据，同字段顺序，名称示例仓库凭据、平台GitHub、HTTPS 令牌（推荐）、用户名example-owner，访问令牌空且占位“留空保留原令牌”；加密保存不勾选；保存仓库凭据蓝色可用、取消编辑凭据与X可用。右标题添加凭据，名称示例仓库凭据、平台Gitee、HTTPS 令牌（推荐）、用户名example-owner、访问令牌六个圆点、加密保存勾选；所有输入、选择、checkbox、保存、取消、X都灰色禁用。右不加转圈、成功提示或新按钮。字段上下排列，长占位/checkbox文案可换行，所有操作保留在自身窗口边界内，不展示真实令牌。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png",
+          "role": "Actual parent owner role only; credential state source-derived"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-2c53a5bc-2084-407f-8b58-8b7afe11c76e.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-076",
+      "title": "添加/更换HTTPS仓库凭据",
+      "kind": "dialog",
+      "module": "settings/git-credentials",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+        "trigger": "管理同步→添加凭据 / 更换凭据；认证方式HTTPS",
+        "parentId": "ST-075"
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:567",
+        "apps/web/components/GitRemotePanel.vue:585",
+        "apps/web/components/GitRemotePanel.vue:1118",
+        "apps/server/git/credentials.ts:176",
+        "apps/server/git/credentials.ts:197"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "凭据名称",
+          "type": "text",
+          "required": true,
+          "constraints": "服务端≤120且无控制字符",
+          "sensitive": false
+        },
+        {
+          "name": "服务平台",
+          "type": "select",
+          "required": true,
+          "constraints": "github.com/gitee.com",
+          "sensitive": false
+        },
+        {
+          "name": "认证方式",
+          "type": "select",
+          "required": true,
+          "constraints": "https/ssh",
+          "sensitive": false
+        },
+        {
+          "name": "仓库用户名",
+          "type": "text",
+          "required": false,
+          "constraints": "服务端≤128、无控制字符、不得冒号",
+          "sensitive": false
+        },
+        {
+          "name": "访问令牌",
+          "type": "password",
+          "required": false,
+          "constraints": "新增必填；更换同平台同方式时留空保留；服务端≤16384字符、非空、无控制字符；秘密不回显",
+          "sensitive": true
+        },
+        {
+          "name": "服务器加密保存凭据",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "默认true；取消后仅保留30分钟",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存仓库凭据",
+          "effect": "创建/更新所有者凭据，清秘密并返回原连接草稿",
+          "api": "POST /api/platform/git/credentials",
+          "guard": "名称非空；新增token必填；非running"
+        },
+        {
+          "label": "取消编辑凭据",
+          "effect": "返回原管理内页；有修改确认放弃",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "新增/更换标题与token占位不同",
+        "保存中",
+        "服务错误",
+        "dirty确认",
+        "秘密离开清除",
+        "连接草稿仍保留"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:266",
+        "tests/git-credentials.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "modal请求宽640px；不把令牌写入图、JSON或文档。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-076",
+      "parentId": "ST-075",
+      "route": "/?view=settings&section=library | /?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GitRemotePanel.vue:567",
+        "apps/web/components/GitRemotePanel.vue:585",
+        "apps/web/components/GitRemotePanel.vue:1118",
+        "apps/server/git/credentials.ts:176",
+        "apps/server/git/credentials.ts:197"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-039.json#MP-R035",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R035",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-2c53a5bc-2084-407f-8b58-8b7afe11c76e.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R035.png",
+  "sha256": "05f66168aaa94dbd5ce3c50e5d306132df8ef9f03b4c3a20c3c76d6655419274",
+  "bytes": 1469827,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:37:32.509815+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: GitRemotePanel + SettingsOverlay HTTPS credential dense form",
+    "sourceIds": [
+      "ST-076"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent HTTPS credential SettingsOverlay at390/320/320: A new name empty, native required token empty, save disabled from empty name; B existing same host/kind token blank preserves secret, save allowed; C saving busy masks token, locks fields/buttons/X with no invented spinner. Credential save button does not directly disable for empty token, native required validation applies.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "editingCredential": false,
+      "credentialName": "",
+      "host": "github.com",
+      "kind": "https",
+      "token": "",
+      "remember": true,
+      "saveDisabled": true
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "editingCredential": true,
+      "sameBinding": true,
+      "credentialName": "示例仓库凭据",
+      "host": "github.com",
+      "kind": "https",
+      "username": "example-owner",
+      "token": "",
+      "remember": false,
+      "saveDisabled": false
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "editingCredential": false,
+      "credentialName": "示例仓库凭据",
+      "host": "gitee.com",
+      "kind": "https",
+      "username": "example-owner",
+      "token": "masked",
+      "busy": true,
+      "running": true,
+      "saveDisabled": true,
+      "closeDisabled": true
+    }
+  ]
+}

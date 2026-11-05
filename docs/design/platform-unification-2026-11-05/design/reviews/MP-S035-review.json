@@ -1,0 +1,92 @@
+{
+  "assetId": "MP-S035",
+  "verdict": "needs-revision",
+  "reviewer": "independent platform_review_state_backlog agent",
+  "reviewedAtUtc": "2026-11-05T04:33:54.750543+00:00",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S035.png",
+  "reviewedImageSha256": "c28edaf5a22848236410f2ced15784c68789dcdd112e1f4d74a669c2ca480d52",
+  "reviewedSidecarSha256": "54419247db301928247ac532992bec41f56acf089e94442b33c06b30dd42f69e",
+  "requirementsManifest": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-026.json",
+  "requirementsSha256": "02b14122eb31d055c5a63fa4d87685e2598bd638fa318433af72fd3986c1a6e8",
+  "viewMethod": "Actual individual PNG viewed via tools.view_image; full actual submittedPrompt and selectedState read; current template, parent/role/API/guard chain inspected. Matching backup/plugins/library/login baseline PNGs and approved style PNG were directly viewed where applicable.",
+  "sourceIds": [
+    "ST-090"
+  ],
+  "selectedState": [
+    "A Git API401 current existing error rendering",
+    "B rotate-key race MCP_SERVICE_DISABLED409 treated as conflict in MCPApiClients"
+  ],
+  "sourceRefs": [
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/api.ts:30",
+    "apps/server/app.ts:141",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-026.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S035.json",
+    "apps/server/app.ts:169",
+    "apps/server/platform/management.ts:83",
+    "apps/server/platform/transfers.ts:181",
+    "apps/web/api.ts:1",
+    "apps/web/api.ts:59",
+    "apps/web/components/GitRemotePanel.vue:91",
+    "apps/web/components/GitRemotePanel.vue:283",
+    "apps/web/components/GitRemotePanel.vue:319",
+    "apps/web/components/GitRemotePanel.vue:514",
+    "apps/web/components/GitRemotePanel.vue:781",
+    "apps/web/App.vue:290",
+    "apps/web/App.vue:389",
+    "apps/web/components/MCPApiClients.vue:63",
+    "apps/web/components/MCPApiClients.vue:222",
+    "apps/web/components/MCPApiClients.vue:249",
+    "apps/server/platform/mcp-api-keys.ts:85"
+  ],
+  "reviewedSourceSha256": {
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md": "f78c14e2c450641e9ecc10864168fef272bc07cb0eb47e23e0e0d475bdbf9ff9",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md": "d184372a8eefffe8079b87aa9c2988e487507d95b41b263d6ed7b7a0f7827711",
+    "apps/web/api.ts": "f3cfa4add2ed9f30efb83d401345d9c95e7437b8d2e09cea21fd853ac79b55ec",
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-026.json": "02b14122eb31d055c5a63fa4d87685e2598bd638fa318433af72fd3986c1a6e8",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S035.json": "54419247db301928247ac532992bec41f56acf089e94442b33c06b30dd42f69e",
+    "apps/server/platform/management.ts": "865a1c700e2766c01b056d88394c71b432afad1b121cf81f78c2c668aedffcc1",
+    "apps/server/platform/transfers.ts": "7bff08aba5736bb235082280a200f194d5ad40a65cd5adf7c2cbcbe2178864a5",
+    "apps/web/components/GitRemotePanel.vue": "1ef7dbfc441518f0aaed509633413592b74a170897c602f802e9c2492ff9fe4c",
+    "apps/web/App.vue": "1161ad07a6926fac6bf51d8b81b2474f825755aca223bec10c443d2bf3047157",
+    "apps/web/components/MCPApiClients.vue": "412bf10ba4f6d64f1ca6eae9e328eb8d36943e751f780c16c7612f8fb11912e4",
+    "apps/server/platform/mcp-api-keys.ts": "2ef1dc91e049721930f7e7b5295e62fea71f3b7e4ae9384883a0837bedcb4ecd"
+  },
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Panel A presents a GitRemotePanel-local 401 alert and refresh action, but the current API dispatches session-expired synchronously before throwing the ApiError. The mounted GitRemotePanel listener runs stopped(), setting active=false, and its load/start/poll catches require active/ownsJob before writing error. App selects the existing compact reauthentication modal. The unused mapping string alone does not prove this pictured local error state.",
+      "evidence": [
+        "apps/web/api.ts:59",
+        "apps/web/components/GitRemotePanel.vue:283",
+        "apps/web/components/GitRemotePanel.vue:348",
+        "apps/web/components/GitRemotePanel.vue:515",
+        "apps/web/components/GitRemotePanel.vue:781",
+        "apps/web/App.vue:389"
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "B matches an actual rotate-key race: service/channel change may return 409 after form opening; catch preserves draft, sets conflict and disables submit while reload/cancel and expiry remain available after busy clears. No key has been issued or disclosed.",
+    "A was checked through api.ts event dispatch, GitRemotePanel stopped/owner guards and App reauthentication selection, rather than assuming the gitError mapping alone proves a rendered surface."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Readable white/light-gray local components, fine borders, restrained corners and blue action hierarchy match the shared style direction. Raster shading/texture and approximate scale must become flat CSS tokens; do not regenerate solely for those details."
+    }
+  ],
+  "requiredCorrections": [
+    "Preserve the correct B rotation-conflict specimen. Replace A with the current real compact reauthentication surface (or an independently source-proven API-guard surface within the requirements) and bind it to the actual role/parent. Do not add a synthetic Git-local 401 alert or change product guards."
+  ],
+  "limitations": [
+    "Source-derived static design review only; no runtime API operation, authorization, clipboard, network, keyboard/focus, close/mask/Escape behavior or responsive viewport was executed.",
+    "Local-component specimens are independent; parent role/source bindings remain metadata. Existing baseline references establish host context, not runtime capture of these synthetic error/busy states.",
+    "Raster shading/texture, font/icon geometry and dimensions are approximate. Implement shared flat CSS tokens, responsive wrapping and existing scroll/focus/guard rules; this is not pixel-level CSS approval.",
+    "This per-image result neither completes the non-ToDoo platform unification task nor substitutes for the later global coverage/style/function review or authorizes product implementation."
+  ]
+}

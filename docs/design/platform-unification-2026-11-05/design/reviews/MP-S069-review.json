@@ -1,0 +1,52 @@
+{
+  "assetId": "MP-S069",
+  "sourceIds": [
+    "PB-054",
+    "PB-056",
+    "PB-057"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:42:15.101409+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Seven anonymous published-reader/about/collections native content states",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed all rows; long-article progress/active TOC and short/no-heading omission agree with range-based script and conditional toc. Percent is illustrative scroll data, not source field.",
+    "Code copy, link copy/share and native top link retain real actions. No-JS specimen correctly leaves native breadcrumbs/details/anchors/top and omits hidden script-enabled buttons/progress.",
+    "Code/table/image/static diagram snapshots remain published read-only article content with local overflow; no source, download or editor capabilities added.",
+    "About fallback is sanitized Markdown; fully empty inputs genuinely render h1 plus empty body without invented guidance. Empty collections copy follows renderer."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-030.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S069.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/blog/render.ts:202",
+    "apps/server/blog/render.ts:212",
+    "apps/server/blog/render.ts:255",
+    "apps/server/blog/reader-script.ts:2",
+    "apps/server/blog/styles.ts:1",
+    "apps/server/blog/routes.ts:237",
+    "packages/core/blog/service.ts:1039"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "07dd2e17fb22de52ff69e0ebe149d7796fdc550c7892bd122afdb3a7a11a0e0f",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S069.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

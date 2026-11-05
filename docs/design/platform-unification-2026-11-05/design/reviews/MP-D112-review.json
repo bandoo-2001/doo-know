@@ -1,0 +1,45 @@
+{
+  "assetId": "MP-D112",
+  "sourceIds": [
+    "PB-047"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:44:12.323229+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner native enlarged homepage preview; expanded desktop 1100 viewport, previewHtml empty and not busy.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual image preserves title/subtitle, text-labeled close, desktop selected/mobile alternative, readonly viewport text and refresh.",
+    "Empty HTML branch shows preparation text and generate-preview action; both generate and refresh are genuine same-model actions.",
+    "Private-preview Escape footer retained; no public snapshot, site enable control or live-preview checkbox added."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-012.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D112.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/blog/BlogDesignStudio.vue:301",
+    "apps/web/components/blog/BlogPreviewViewport.vue:14",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-blog-design.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "87b1dea18a9d1ccedcd8d7cdf7933a02e198623a132a2a79de5de1fddbb17c7e",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D112.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

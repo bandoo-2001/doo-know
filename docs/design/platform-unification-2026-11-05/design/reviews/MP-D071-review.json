@@ -1,0 +1,49 @@
+{
+  "assetId": "MP-D071",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:27:23.281316+00:00",
+  "method": "Actual PNG viewed; actual matching baseline (when available), complete sidecar submitted prompt, batch contract and current component template checked under review-execution-contract.",
+  "selectedState": "Unauthenticated standalone empty login, submit disabled",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Username/password order, empty placeholders, password eye, disabled login, privacy note and collapsed first-use help preserved. Submit corresponds to not busy / trimmed username / nonempty password guard.",
+    "No owner rail, private tree/header, registration, reset-password, social sign-in or remembered-session control added. Account provisioning stays installation/CLI guidance."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-004.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D071.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/Login.vue:13",
+    "apps/web/components/Login.vue:36",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-login.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "77bf20e1e822efa2641ab91ccd4408df4e49462a3408e9e3ec853a27f1a98dae",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D071.png",
+  "sourceIds": [
+    "PB-001"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

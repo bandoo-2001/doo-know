@@ -1,0 +1,110 @@
+{
+  "id": "PILOT-WS-001-v2",
+  "kind": "generated-design",
+  "revisionOf": "PILOT-WS-001",
+  "revisionReason": "Independent review accepted function/permission content and requested flat surfaces plus compact rail/sidebar/header proportions.",
+  "surfaceIds": [
+    "WS-001"
+  ],
+  "contextSurfaceIds": [
+    "WS-002",
+    "WS-098"
+  ],
+  "status": "generated-with-known-style-drift-awaiting-independent-review",
+  "contentReview": {
+    "status": "not-selected-style-alternative",
+    "independentReview": "design/reviews/PILOT-WS-001-v2-review.json",
+    "preferred": "PILOT-WS-001",
+    "functionPreserved": true
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "prompt": "Use case: style-transfer / ui-mockup\nAsset: PILOT-WS-001-v2. Make ONE targeted edit of Image 1, preserving its exact DooKnow content, controls, text, navigation, permissions, and ready/no-note-selected state. Image 1 is the edit target. Image 2 is ONLY a visual style reference for flat browser/CSS surfaces and compact two-level navigation. Do not transfer any To Doo branding, content, navigation, or actions.\n\nEDIT ONLY THESE TWO REVIEW ISSUES:\n1. Flatten all web UI surfaces. Every large area must be a uniform solid CSS-like fill: pure white main and header, pale cool blue-gray navigation/context areas, thin cool-gray 1px separators, solid blue primary buttons, flat pale blue active selection. Eliminate every gradient, paper texture, grain, mottling, uneven luminance, illustrative shading, atmospheric light, glow, three-dimensional bevel, and shadow. The empty main canvas must be perfectly uniform white. The blue buttons must be uniform solid blue, with no brighter/darker wash. Preserve crisp antialiased text and thin line icons, like a real flat web application.\n2. Correct desktop proportions at a final canvas of 1536 × 1024 pixels. The far-left primary rail must be 64px wide, spanning x=0..63. Header height approximately 56px, spanning x=64..1535 and y=0..55. The secondary notebook sidebar must be 260px wide, spanning x=64..323 below the header; this matches the existing default 260px sidebar resize value, not a hard-coded limitation on resizing. Preserve the vertical sidebar resize separator/grip at x≈324. The main canvas begins at x≈325, y≈56 and flexibly fills all remaining width/height. Do not reserve any right column. Reflow the existing controls within these narrower rail/sidebar boundaries and recenter the same empty-state group within the expanded main. Keep all existing controls usable and legible with compact desktop spacing.\n\nPRESERVE IMAGE 1'S EVERY CONTROL AND TEXT, WITHOUT ADDITION OR REMOVAL:\nPrimary rail: circular account avatar containing exact \"O\"; active \"笔记\" with document icon; \"最近\" with clock; \"收藏\" with star; separator; \"应用\" with grid; bottom \"回收站\" with trash icon and \"设置\" with settings icon. No back button, notifications, extra rail entries, counts, or badges.\nHeader: outlined blue open-book brand icon and exact wordmark \"DooKnow\", fine divider and static context label \"笔记\". No extra header actions.\nSecondary sidebar: search field exact placeholder \"搜索笔记与目录\" with search icon; full-width blue split \"新建\" control retaining its plus and separate closed dropdown chevron segment; separator; exact \"笔记本\" heading; BOTH folder-add plus control and refresh control; exactly two CLOSED chevron/folder rows \"00-Inbox\" and \"30-Knowledge\"; existing vertical resizer with subtle grip. No open menu.\nMain empty state: existing book icon; exact headline \"选择一篇笔记\"; exact explanatory sentence \"从左侧目录打开笔记，或新建笔记开始记录。\"; blue primary action \"快速记录\"; text action \"导入 Markdown\". Keep this group in the upper-middle of the main as in Image 1. No selected note, no editor, no toolbar, no right-hand detail panel.\n\nDo not invent or change behavior, fields, owner permissions, menus, destinations, folders, notes, actions, numbers, login methods, AI functions, collaboration, team/account switchers, notification controls, task content, status indicators, overlays, or new copy. All visible text is limited to the exact labels listed above. Source authority remains commit 933d63d942b6499fee964f8a060c7b22b9d299d1, WS-001 (with WS-002/WS-098 navigation context). Every source control/function must survive; this is a visual-only revision. No device frame, browser chrome, caption, layout guides, rulers, coordinate labels, or new design annotations in the output. Keep one full-canvas straight-on high-fidelity flat web UI design image.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "edit-target-content-and-function-authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-02-tasks-list-v2.png",
+      "role": "flat-web-css-style-authority-only",
+      "sha256": "4de7eacafca95ed74b4d8e4c5924758d3fe39208ac810a2e5d440c194814443b",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    }
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "intendedDimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "requestedGeometry": {
+    "primaryRailPx": 64,
+    "headerPx": 56,
+    "contextSidebarPx": 260,
+    "sidebarResizePreserved": true,
+    "mainFillsRemainingSpace": true
+  },
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001-v2.png",
+  "sha256": "f9a88ce3ca2511d250431932e344277b006b6a3eb883667a6d4e2be7af40e165",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "reviewNotes": [
+    "Exactly one targeted edit generation for v2; no third generation or fallback was attempted.",
+    "V1 and original tool outputs remain unchanged; output copied exclusively to a new filename.",
+    "Known visual drift is recorded rather than treating generation success as design acceptance.",
+    "No product code, tests, servers, dependencies, image editing or postprocessing changed."
+  ],
+  "generatedAtUtc": "2026-11-04 17:22:31 UTC",
+  "generationCallCountThisRevision": 1,
+  "generationCallCountPilotTotal": 2,
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a78c-60fb-7322-b4af-4aac0a416147/exec-555cb62c-0a36-48f3-8886-d19d07f9ae2f.png",
+  "bytes": 1069679,
+  "selfInspection": {
+    "method": "Native v2 generated preview inspected in child tool context; compared against v1 and actual ToDoo reference.",
+    "contentStatus": "All prior visible control/text/function affordances appear preserved; independent v2 content review pending.",
+    "emptyState": "No selected note or right detail pane; both existing empty-state actions retained.",
+    "styleStatus": "Known requested corrections remain incomplete.",
+    "requestedGeometryMet": false,
+    "visuallyEstimatedGeometryPx": {
+      "primaryRail": 79,
+      "header": 63,
+      "contextSidebar": 296,
+      "mainStartsAtX": 375
+    },
+    "estimateLimitation": "Approximate visual estimates from 1536x1024 native output; these are not DOM or exact pixel measurements.",
+    "flatnessStatus": "Stronger solid blue and cool-gray boundaries, but subtle shading/texture remains visible; exact flat CSS-like surfaces were not achieved.",
+    "potentialDrift": [
+      "The edit retained approximately v1 geometry instead of the requested 64px primary rail / 56px header / 260px contextual sidebar.",
+      "Large surfaces retain subtle uneven luminance/texture, and blue buttons retain slight visual wash.",
+      "The requested P2 visual correction is therefore not claimed resolved.",
+      "Static raster does not establish responsive behavior, permissions, keyboard handling or actual sidebar resizing."
+    ],
+    "readOnlyPixelSamples": "Pillow unavailable; native preview inspected instead; nothing installed.",
+    "behaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

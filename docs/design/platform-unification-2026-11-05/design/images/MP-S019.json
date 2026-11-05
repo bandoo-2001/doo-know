@@ -1,0 +1,452 @@
+{
+  "id": "MP-S019",
+  "title": "Component state matrix: owner-private / PluginBoundary.vue",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-055",
+    "ST-056"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-055",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-055",
+      "route": "插件贡献所在页面或窗口",
+      "trigger": "插件资源未加载或渲染抛错",
+      "parentId": "ST-056",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "插件界面尚未加载",
+        "pluginUIErrors错误",
+        "运行失败NAlert替换贡献"
+      ],
+      "notes": [
+        "边界自身不提供重试按钮；不应虚构。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/web/components/PluginBoundary.vue",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "sourceId": "ST-056",
+      "route": "工作区当前路由",
+      "trigger": "plugin api.openPanel(contributionId)",
+      "parentId": null,
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "贡献标题",
+        "实际注册组件",
+        "资源加载失败ST-055",
+        "贡献运行失败ST-055"
+      ],
+      "notes": [
+        "host没有依据插件内部busy/dirty锁定关闭；不能把SettingsOverlay关闭保证套用到此容器。具体MCP/Git面板见ST-073/ST-083/ST-085。",
+        "共享宿主框架设计记录，不是可独立打开的额外窗口；具体可达贡献另列dialog。"
+      ]
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-055",
+      "label": "关闭面板 / 停用插件",
+      "effect": "从容器退出或在插件设置停用",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-056",
+      "label": "关闭插件面板 / 点击遮罩",
+      "effect": "清除pluginPanel",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-055",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-056",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "planned; not runtime approval"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n上下两个独立局部样例，外部仅标A、B。A只画红色错误提示“插件界面暂时无法加载，可重试或停用插件”，没有任何内置重试/停用按钮。B画真实插件面板：左上标题“MCP 连接”，右上文字按钮“关闭”可用，没有X；正文只包含一个可用“MCP 连接”按钮。紧凑白色模态卡，细线小圆角，不画外部工作区/导航、连接详情或虚构贡献入口。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S019.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-055",
+      "title": "pluginUIErrors错误",
+      "renderer": "apps/web/components/PluginBoundary.vue",
+      "sourceRefs": [
+        "apps/web/components/PluginPanel.vue:31",
+        "apps/web/components/PluginBoundary.vue:1",
+        "apps/web/components/PluginManager.vue:804"
+      ],
+      "guardBindings": [
+        {
+          "label": "关闭面板 / 停用插件",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "pluginUIErrors错误",
+          "variant": "pluginUIErrors错误",
+          "representation": "visible"
+        },
+        {
+          "state": "运行失败NAlert替换贡献",
+          "variant": "运行失败NAlert替换贡献",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-055"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-056",
+      "title": "实际PluginPanel边界标题/正文/关闭；沿用真实贡献实例，不创建通用窗口入口",
+      "renderer": "apps/web/components/PluginPanel.vue",
+      "sourceRefs": [
+        "apps/web/components/PluginPanel.vue:12",
+        "packages/plugin-ui/host.ts:1"
+      ],
+      "guardBindings": [
+        {
+          "label": "关闭插件面板 / 点击遮罩",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。",
+      "coveredSourceIds": [
+        "ST-056"
+      ]
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-055",
+      "parentId": "ST-056",
+      "route": "插件贡献所在页面或窗口",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PluginPanel.vue:31",
+        "apps/web/components/PluginBoundary.vue:1",
+        "apps/web/components/PluginManager.vue:804"
+      ]
+    },
+    {
+      "sourceId": "ST-056",
+      "parentId": null,
+      "route": "工作区当前路由",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PluginPanel.vue:12",
+        "packages/plugin-ui/host.ts:1"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-055",
+      "title": "插件加载/渲染失败边界",
+      "kind": "state",
+      "module": "settings/plugin-host",
+      "entry": {
+        "route": "插件贡献所在页面或窗口",
+        "trigger": "插件资源未加载或渲染抛错",
+        "parentId": "ST-056"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginPanel.vue:31",
+        "apps/web/components/PluginBoundary.vue:1",
+        "apps/web/components/PluginManager.vue:804"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "关闭面板 / 停用插件",
+          "effect": "从容器退出或在插件设置停用",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "插件界面尚未加载",
+        "pluginUIErrors错误",
+        "运行失败NAlert替换贡献"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/plugins-host.test.ts:1",
+        "tests/e2e/plugin-action-feedback.spec.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "边界自身不提供重试按钮；不应虚构。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-056",
+      "title": "插件贡献通用面板容器",
+      "kind": "state",
+      "module": "settings/plugin-host",
+      "entry": {
+        "route": "工作区当前路由",
+        "trigger": "plugin api.openPanel(contributionId)",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginPanel.vue:12",
+        "packages/plugin-ui/host.ts:1"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "关闭插件面板 / 点击遮罩",
+          "effect": "清除pluginPanel",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "贡献标题",
+        "实际注册组件",
+        "资源加载失败ST-055",
+        "贡献运行失败ST-055"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/plugins.spec.ts:10"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "host没有依据插件内部busy/dirty锁定关闭；不能把SettingsOverlay关闭保证套用到此容器。具体MCP/Git面板见ST-073/ST-083/ST-085。",
+        "共享宿主框架设计记录，不是可独立打开的额外窗口；具体可达贡献另列dialog。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "Workspace.vue:3577常驻PluginPanel；这是共享框架能力，具体实例ST-073/ST-083/ST-091单列。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S019",
+  "roles": [
+    "owner-private"
+  ],
+  "selectedState": [
+    "A actual pluginUIErrors fallback alert",
+    "B mcp.navigation actual contribution in PluginPanel"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n上下两个独立局部样例，外部仅标A、B。A只画红色错误提示“插件界面暂时无法加载，可重试或停用插件”，没有任何内置重试/停用按钮。B画真实插件面板：左上标题“MCP 连接”，右上文字按钮“关闭”可用，没有X；正文只包含一个可用“MCP 连接”按钮。紧凑白色模态卡，细线小圆角，不画外部工作区/导航、连接详情或虚构贡献入口。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S019 Component state matrix: owner-private / PluginBoundary.vue\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | ST-055 | 真实组件局部状态矩阵 | role=owner-private | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n局部矩阵（≤7行/卡）：\nr1 | ST-055 | 实际只画代表：pluginUIErrors错误 | 已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。 | renderer=apps/web/components/PluginBoundary.vue\nr2 | ST-056 | 实际只画代表：实际PluginPanel边界标题/正文/关闭；沿用真实贡献实例，不创建通用窗口入口 | 完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。 | renderer=apps/web/components/PluginPanel.vue\n\n精确功能/字段/动作guard合同：\nST-055/ST-056权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-055/ST-056字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-055白名单：关闭面板 / 停用插件 => 从容器退出或在插件设置停用；guard=已登录所有者；请求期间禁用重复操作\nST-056白名单：关闭插件面板 / 点击遮罩 => 清除pluginPanel；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\n插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S019.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-47cffdae-5f0c-4946-b949-d3c5714fd796.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-47cffdae-5f0c-4946-b949-d3c5714fd796.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T04:13:43.532Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Source-defined independent local states inspected; actual actions, busy/dirty guards and readonly instructions retained without invented host.",
+    "concerns": []
+  },
+  "sha256": "6a1cc70e4195ab949a9265366cbb4ac26c0e6e97858d8977d7fdc625a51a38ef",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1015116,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/PluginPanel.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf164697f199b8fbd47daead8b7ec0b9e4f9ac250934496bcb3ee81d84006c36"
+    },
+    {
+      "path": "apps/web/components/PluginBoundary.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "8e2fa1d07dbaa451f162e274dfefeb2b28456a2335e8f34a8e8d79da79754886"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginPanel.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "cf164697f199b8fbd47daead8b7ec0b9e4f9ac250934496bcb3ee81d84006c36"
+    },
+    {
+      "path": "packages/plugin-ui/host.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "8d71c85cb5462e6bc1266a0e72c741b25bebbc149935627d4d6b646e499e90e9"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "No exact substate baseline; source-derived examples only. No plugin lifecycle/network/auth/clipboard execution. PluginPanel close follows its own source, no nested busy/dirty lock implied."
+}

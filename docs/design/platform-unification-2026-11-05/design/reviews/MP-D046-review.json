@@ -1,0 +1,58 @@
+{
+  "assetId": "MP-D046",
+  "sourceIds": [
+    "ST-059"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T04:12:08.219127+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Uninstalled MCP retained-authorization manager, one active retained OAuth grant and one revoked grant.",
+  "functionalFindings": [
+    {
+      "id": "MP-D046-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Declared MCP-uninstalled manager cannot show active effective knowledge access or 收窄连接权限. platformPolicy returns undefined unless plugin installed=1 and state=enabled; connection response therefore has no effectivePolicy. MCPClientPermissions renders 当前生效 only with effectivePolicy and narrow only active&&effectivePolicy. Both current-effective rows and active narrow button are impossible in this selected host.",
+      "sourceEvidence": "PluginsSettings mounts retained manager only when MCP uninstalled; grants.ts:214 enabled-plugin SQL gate; mcp-management.ts:44 maps effectivePolicy optional; MCPClientPermissions conditionals."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Genuine retained/revoked rows and revocation action ownership are present; no share/public account controls."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-019.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D046.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/PluginsSettings.vue:8",
+    "apps/web/components/MCPAuthorizationManager.vue:71",
+    "apps/web/components/MCPClientPermissions.vue:25",
+    "apps/server/platform/mcp-management.ts:44",
+    "packages/core/auth/grants.ts:214"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "MP-D046-F1",
+      "correction": "Keep the truthful uninstalled retained-manager state: remove both 当前生效 rows and 收窄连接权限 button; retain granted-policy summaries and only active client 撤销连接授权. Do not claim enabled access or move installed guide-only controls into this manager. Metadata must keep exact uninstalled owner host."
+    }
+  ],
+  "reviewedImageSha256": "26af38dcdabc7c77ada03a92acd4c544ca2be6604f4f3184fda2ba75f5240410",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D046.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

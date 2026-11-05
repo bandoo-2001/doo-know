@@ -1,0 +1,223 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D091-v3",
+  "assetId": "WS-D091",
+  "sourceIds": [
+    "WS-067"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "restore-warning",
+      "sourceId": "WS-067",
+      "title": "History restore confirmation / uncertain result",
+      "role": "authenticated owner",
+      "state": "Explicit replacement warning and dirty-draft navigation policy with actual confirm/cancel guards.",
+      "selectedState": "Two independent ordinary-note saved-history states: A explicit replacement confirmation with dirty-draft explanation; B savePendingRestore while busy checking receipt, locked source/version/close."
+    },
+    {
+      "label": "pending-receipt",
+      "sourceId": "WS-067",
+      "title": "History restore confirmation / uncertain result",
+      "role": "authenticated owner",
+      "state": "Pending/uncertain receipt verification, navigation/source/close lock while busy. Primary diagram preview preparation uses WS-D044 exact prerequisite pattern.",
+      "selectedState": "Two independent ordinary-note saved-history states: A explicit replacement confirmation with dirty-draft explanation; B savePendingRestore while busy checking receipt, locked source/version/close."
+    }
+  ],
+  "selectedState": "Two independent ordinary-note saved-history states: A explicit replacement confirmation with dirty-draft explanation; B savePendingRestore while busy checking receipt, locked source/version/close.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅在这张双窗口板左侧“恢复确认”窗补回一行现有参考信息：放在版本选择行下方、草稿提示上方，文字精确为“历史版本 11/4 10:00 → 当前已保存版本 11/5 12:00”。可利用左窗正文留白容纳这一行，不能删改草稿提示、完整原文普通文字、复制全文按钮、源码、红色替换警告、页脚按钮。其他所有元素和右侧核对中窗完全保持不变；不把普通完整原文文字改回按钮，不新增操作。",
+  "prompt": "仅在这张双窗口板左侧“恢复确认”窗补回一行现有参考信息：放在版本选择行下方、草稿提示上方，文字精确为“历史版本 11/4 10:00 → 当前已保存版本 11/5 12:00”。可利用左窗正文留白容纳这一行，不能删改草稿提示、完整原文普通文字、复制全文按钮、源码、红色替换警告、页脚按钮。其他所有元素和右侧核对中窗完全保持不变；不把普通完整原文文字改回按钮，不新增操作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D091-v2.png",
+      "role": "Edit target: restore only missing selected/current reference row in left confirmation window",
+      "sha256": "155207e9097baba36da00a042477063403e98a6b035801008635882c27862bcd",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D091-v2.png",
+      "role": "Edit target: restore only missing selected/current reference row in left confirmation window",
+      "sha256": "155207e9097baba36da00a042477063403e98a6b035801008635882c27862bcd",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅在这张双窗口板左侧“恢复确认”窗补回一行现有参考信息：放在版本选择行下方、草稿提示上方，文字精确为“历史版本 11/4 10:00 → 当前已保存版本 11/5 12:00”。可利用左窗正文留白容纳这一行，不能删改草稿提示、完整原文普通文字、复制全文按钮、源码、红色替换警告、页脚按钮。其他所有元素和右侧核对中窗完全保持不变；不把普通完整原文文字改回按钮，不新增操作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D091-v2.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅在这张双窗口板左侧“恢复确认”窗补回一行现有参考信息：放在版本选择行下方、草稿提示上方，文字精确为“历史版本 11/4 10:00 → 当前已保存版本 11/5 12:00”。可利用左窗正文留白容纳这一行，不能删改草稿提示、完整原文普通文字、复制全文按钮、源码、红色替换警告、页脚按钮。其他所有元素和右侧核对中窗完全保持不变；不把普通完整原文文字改回按钮，不新增操作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D091-v2.png",
+          "role": "Edit target: restore only missing selected/current reference row in left confirmation window"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-10fb4916-440c-4f5a-b360-31e18032c270.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-067",
+      "title": "History restore confirmation / uncertain result",
+      "kind": "state",
+      "module": "history",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "恢复此版本 first click",
+        "parentId": "WS-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/NoteHistoryDialog.vue:914",
+        "apps/web/components/NoteHistoryDialog.vue:940",
+        "apps/web/diagrams/history-restore.ts:1",
+        "apps/server/knowledge/diagram-history-routes.ts:34"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "确认恢复 / 确认恢复笔记",
+          "effect": "Replace current saved content after preserving version; check optimistic baseline",
+          "api": "POST /api/notes/:id/revisions/:revisionId/restore; diagram-restore/prepare/commit for primary diagrams",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "核对恢复结果 / 核对保存结果",
+          "effect": "Check pending request without duplicating restore",
+          "api": "GET /api/operations?requestId=:id; GET /api/diagram-history-restores/:id",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "取消恢复",
+          "effect": "Cancel confirmation",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Explicit replacement warning",
+        "Dirty draft navigation policy",
+        "Busy locks close/source switches",
+        "Restore result uncertain",
+        "Primary diagram preview generation before commit"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/diagram-history-restore.test.ts",
+        "tests/e2e/diagram-history-restore.spec.ts",
+        "tests/note-history-context.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-067",
+      "parentId": "WS-064",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/NoteHistoryDialog.vue:914",
+        "apps/web/components/NoteHistoryDialog.vue:940",
+        "apps/web/diagrams/history-restore.ts:1",
+        "apps/server/knowledge/diagram-history-routes.ts:34"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-017.json#WS-D091",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D091",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-10fb4916-440c-4f5a-b360-31e18032c270.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D091-v3.png",
+  "sha256": "51a9728238ad827129fd7380edeee7eea2c9dc736e70bd1ae9cf506c280c6d6b",
+  "bytes": 1638567,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T03:56:33.684810+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D091-v2.png",
+    "sha256": "155207e9097baba36da00a042477063403e98a6b035801008635882c27862bcd",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D091-v2-review.json"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "History restore warning and uncertain receipt states",
+    "sourceIds": [
+      "WS-067"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Two independent ordinary-note saved-history states: A explicit replacement confirmation with dirty-draft explanation; B savePendingRestore while busy checking receipt, locked source/version/close.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "renderedVariants": []
+}

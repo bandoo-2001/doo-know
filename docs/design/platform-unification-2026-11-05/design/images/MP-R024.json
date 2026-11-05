@@ -1,0 +1,341 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R024",
+  "assetId": "MP-R024",
+  "sourceIds": [
+    "ST-057"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-057",
+      "title": "MCP OAuth接入指南390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent responsive MCPConnectionGuide local positions: A390 full OAuth guide disabled plugin, cached HTTPS endpoint, no history/client, API client creation disabled; B320 long stored endpoint and manual-copy failure notice; C320 dirty and failed recheck with retained endpoint, copy disabled, local status unknown. Tutorials remain visible, network never verified; no commands invented."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-057",
+      "title": "MCP OAuth接入指南320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent responsive MCPConnectionGuide local positions: A390 full OAuth guide disabled plugin, cached HTTPS endpoint, no history/client, API client creation disabled; B320 long stored endpoint and manual-copy failure notice; C320 dirty and failed recheck with retained endpoint, copy disabled, local status unknown. Tutorials remain visible, network never verified; no commands invented."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-057",
+      "title": "MCP OAuth接入指南320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent responsive MCPConnectionGuide local positions: A390 full OAuth guide disabled plugin, cached HTTPS endpoint, no history/client, API client creation disabled; B320 long stored endpoint and manual-copy failure notice; C320 dirty and failed recheck with retained endpoint, copy disabled, local status unknown. Tutorials remain visible, network never verified; no commands invented."
+    }
+  ],
+  "selectedState": "Three independent responsive MCPConnectionGuide local positions: A390 full OAuth guide disabled plugin, cached HTTPS endpoint, no history/client, API client creation disabled; B320 long stored endpoint and manual-copy failure notice; C320 dirty and failed recheck with retained endpoint, copy disabled, local status unknown. Tutorials remain visible, network never verified; no commands invented.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制横向并排三个独立窄网页MCP指南局部，宽比例390、320、320，白灰蓝平面细线，长文与只读地址自然换行，各有内层纵向滚动，不画主人导航。左列完整指南：MCP 连接，说明通过 OAuth 或独立 API Key，将支持 MCP 的客户端连接到你授权的业务与资源。，检查本机连接条件；四步纵排：1. 配置—配置已保存，插件尚未启用；2. 本机服务—需要完成下方准备；3. 网络可达—外部连接尚未验证；4. 工具调用—尚未确认工具调用。说明本机状态不能验证外部网络可达性。历史调用不代表客户端当前在线。。OAuth 接入蓝选中、API Key 接入普通；教程在支持 OAuth 的 MCP 客户端填写下方服务地址，发起连接后登录 DooKnow，核对业务、资源范围和权限再同意授权。。只读代码块标签OAuth MCP 服务地址、值https://example.invalid/mcp、可用复制连接地址。提示两个地址使用同一个DooKnow服务，远程访问所需域名、TLS、反向代理和网络连通由外部基础设施提供，请勿把密钥放进URL或聊天消息。折叠连接与验证步骤。下面API Key 客户端、说明每个客户端独立设置资源权限、有效期和撤销，完整密钥仅在签发后显示一次。、刷新 API 客户端可用、创建 API 客户端禁用、尚无 API Key 客户端。。中列仅独立地址下半段：同OAuth/API切换、只读OAuth MCP 服务地址https://long-example-host.example.invalid/mcp，自动换行且可选中，不是输入；可用复制连接地址、同基础设施提示、折叠连接与验证步骤，下面状态“无法自动复制，请选中下方内容手动复制。”。右列独立上部与地址局部：MCP 连接、检查本机连接条件可用，黄色“暂时无法读取连接状态。教程仍可查看，请检查连接后重试。”，蓝色“你有未保存的配置。下方状态和地址依据已保存配置，请先保存再签发或更新授权。”；四步1配置尚未保存、2暂未获取状态、3外部连接尚未验证、4尚未确认工具调用；OAuth 接入选中和API Key 接入仍可切换；原OAuth MCP 服务地址https://example.invalid/mcp保留，只读代码、复制连接地址禁用。不要出现客户端在线、连接成功、自动授权、额外刷新/重试按钮或真实密钥。",
+  "prompt": "绘制横向并排三个独立窄网页MCP指南局部，宽比例390、320、320，白灰蓝平面细线，长文与只读地址自然换行，各有内层纵向滚动，不画主人导航。左列完整指南：MCP 连接，说明通过 OAuth 或独立 API Key，将支持 MCP 的客户端连接到你授权的业务与资源。，检查本机连接条件；四步纵排：1. 配置—配置已保存，插件尚未启用；2. 本机服务—需要完成下方准备；3. 网络可达—外部连接尚未验证；4. 工具调用—尚未确认工具调用。说明本机状态不能验证外部网络可达性。历史调用不代表客户端当前在线。。OAuth 接入蓝选中、API Key 接入普通；教程在支持 OAuth 的 MCP 客户端填写下方服务地址，发起连接后登录 DooKnow，核对业务、资源范围和权限再同意授权。。只读代码块标签OAuth MCP 服务地址、值https://example.invalid/mcp、可用复制连接地址。提示两个地址使用同一个DooKnow服务，远程访问所需域名、TLS、反向代理和网络连通由外部基础设施提供，请勿把密钥放进URL或聊天消息。折叠连接与验证步骤。下面API Key 客户端、说明每个客户端独立设置资源权限、有效期和撤销，完整密钥仅在签发后显示一次。、刷新 API 客户端可用、创建 API 客户端禁用、尚无 API Key 客户端。。中列仅独立地址下半段：同OAuth/API切换、只读OAuth MCP 服务地址https://long-example-host.example.invalid/mcp，自动换行且可选中，不是输入；可用复制连接地址、同基础设施提示、折叠连接与验证步骤，下面状态“无法自动复制，请选中下方内容手动复制。”。右列独立上部与地址局部：MCP 连接、检查本机连接条件可用，黄色“暂时无法读取连接状态。教程仍可查看，请检查连接后重试。”，蓝色“你有未保存的配置。下方状态和地址依据已保存配置，请先保存再签发或更新授权。”；四步1配置尚未保存、2暂未获取状态、3外部连接尚未验证、4尚未确认工具调用；OAuth 接入选中和API Key 接入仍可切换；原OAuth MCP 服务地址https://example.invalid/mcp保留，只读代码、复制连接地址禁用。不要出现客户端在线、连接成功、自动授权、额外刷新/重试按钮或真实密钥。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+      "role": "Actual parent host only; guide state source-derived",
+      "sha256": "fcadab6d4ed2b937d207abd375e9e0bb6c57bf2a156a7af8530e3df1bf3edf39",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D038.png",
+      "role": "Exact same Guide content in reviewed desktop disabled plugin config",
+      "sha256": "8fd98a86e358ae659eaa0ca1dc86b6f5581d413f53adfc68665993ebbee1ec79",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+      "role": "Actual parent host only; guide state source-derived",
+      "sha256": "fcadab6d4ed2b937d207abd375e9e0bb6c57bf2a156a7af8530e3df1bf3edf39",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D038.png",
+      "role": "Exact same Guide content in reviewed desktop disabled plugin config",
+      "sha256": "8fd98a86e358ae659eaa0ca1dc86b6f5581d413f53adfc68665993ebbee1ec79",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制横向并排三个独立窄网页MCP指南局部，宽比例390、320、320，白灰蓝平面细线，长文与只读地址自然换行，各有内层纵向滚动，不画主人导航。左列完整指南：MCP 连接，说明通过 OAuth 或独立 API Key，将支持 MCP 的客户端连接到你授权的业务与资源。，检查本机连接条件；四步纵排：1. 配置—配置已保存，插件尚未启用；2. 本机服务—需要完成下方准备；3. 网络可达—外部连接尚未验证；4. 工具调用—尚未确认工具调用。说明本机状态不能验证外部网络可达性。历史调用不代表客户端当前在线。。OAuth 接入蓝选中、API Key 接入普通；教程在支持 OAuth 的 MCP 客户端填写下方服务地址，发起连接后登录 DooKnow，核对业务、资源范围和权限再同意授权。。只读代码块标签OAuth MCP 服务地址、值https://example.invalid/mcp、可用复制连接地址。提示两个地址使用同一个DooKnow服务，远程访问所需域名、TLS、反向代理和网络连通由外部基础设施提供，请勿把密钥放进URL或聊天消息。折叠连接与验证步骤。下面API Key 客户端、说明每个客户端独立设置资源权限、有效期和撤销，完整密钥仅在签发后显示一次。、刷新 API 客户端可用、创建 API 客户端禁用、尚无 API Key 客户端。。中列仅独立地址下半段：同OAuth/API切换、只读OAuth MCP 服务地址https://long-example-host.example.invalid/mcp，自动换行且可选中，不是输入；可用复制连接地址、同基础设施提示、折叠连接与验证步骤，下面状态“无法自动复制，请选中下方内容手动复制。”。右列独立上部与地址局部：MCP 连接、检查本机连接条件可用，黄色“暂时无法读取连接状态。教程仍可查看，请检查连接后重试。”，蓝色“你有未保存的配置。下方状态和地址依据已保存配置，请先保存再签发或更新授权。”；四步1配置尚未保存、2暂未获取状态、3外部连接尚未验证、4尚未确认工具调用；OAuth 接入选中和API Key 接入仍可切换；原OAuth MCP 服务地址https://example.invalid/mcp保留，只读代码、复制连接地址禁用。不要出现客户端在线、连接成功、自动授权、额外刷新/重试按钮或真实密钥。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D038.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制横向并排三个独立窄网页MCP指南局部，宽比例390、320、320，白灰蓝平面细线，长文与只读地址自然换行，各有内层纵向滚动，不画主人导航。左列完整指南：MCP 连接，说明通过 OAuth 或独立 API Key，将支持 MCP 的客户端连接到你授权的业务与资源。，检查本机连接条件；四步纵排：1. 配置—配置已保存，插件尚未启用；2. 本机服务—需要完成下方准备；3. 网络可达—外部连接尚未验证；4. 工具调用—尚未确认工具调用。说明本机状态不能验证外部网络可达性。历史调用不代表客户端当前在线。。OAuth 接入蓝选中、API Key 接入普通；教程在支持 OAuth 的 MCP 客户端填写下方服务地址，发起连接后登录 DooKnow，核对业务、资源范围和权限再同意授权。。只读代码块标签OAuth MCP 服务地址、值https://example.invalid/mcp、可用复制连接地址。提示两个地址使用同一个DooKnow服务，远程访问所需域名、TLS、反向代理和网络连通由外部基础设施提供，请勿把密钥放进URL或聊天消息。折叠连接与验证步骤。下面API Key 客户端、说明每个客户端独立设置资源权限、有效期和撤销，完整密钥仅在签发后显示一次。、刷新 API 客户端可用、创建 API 客户端禁用、尚无 API Key 客户端。。中列仅独立地址下半段：同OAuth/API切换、只读OAuth MCP 服务地址https://long-example-host.example.invalid/mcp，自动换行且可选中，不是输入；可用复制连接地址、同基础设施提示、折叠连接与验证步骤，下面状态“无法自动复制，请选中下方内容手动复制。”。右列独立上部与地址局部：MCP 连接、检查本机连接条件可用，黄色“暂时无法读取连接状态。教程仍可查看，请检查连接后重试。”，蓝色“你有未保存的配置。下方状态和地址依据已保存配置，请先保存再签发或更新授权。”；四步1配置尚未保存、2暂未获取状态、3外部连接尚未验证、4尚未确认工具调用；OAuth 接入选中和API Key 接入仍可切换；原OAuth MCP 服务地址https://example.invalid/mcp保留，只读代码、复制连接地址禁用。不要出现客户端在线、连接成功、自动授权、额外刷新/重试按钮或真实密钥。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+          "role": "Actual parent host only; guide state source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D038.png",
+          "role": "Exact same Guide content in reviewed desktop disabled plugin config"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ebc0b5d7-dc1e-45f5-921a-c4863c68ccbd.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-057",
+      "title": "MCP OAuth接入指南",
+      "kind": "state",
+      "module": "settings/mcp",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "MCP配置默认OAuth接入",
+        "parentId": "ST-049"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPConnectionGuide.vue:112",
+        "apps/web/components/MCPConnectionGuide.vue:168",
+        "apps/web/components/MCPConnectionGuide.vue:181"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "OAuth MCP服务地址",
+          "type": "read-only",
+          "required": false,
+          "constraints": "使用服务器已保存配置；不是客户端在线状态",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "检查本机连接条件",
+          "effect": "读取本机服务条件与历史调用",
+          "api": "GET /api/platform/mcp/connection",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "复制连接地址",
+          "effect": "复制OAuth endpoint",
+          "api": "剪贴板",
+          "guard": "dirty时禁用"
+        },
+        {
+          "label": "API Key接入",
+          "effect": "切换ST-058",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "配置未保存",
+        "插件未启用",
+        "本机准备未就绪/就绪",
+        "非HTTPS警告",
+        "OAuth已停用",
+        "外部网络未验证",
+        "最近认证尝试/历史成功调用",
+        "读取失败教程仍可见",
+        "复制失败手动复制"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-onboarding.spec.ts:7",
+        "tests/mcp-management.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-057",
+      "parentId": "ST-049",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPConnectionGuide.vue:112",
+        "apps/web/components/MCPConnectionGuide.vue:168",
+        "apps/web/components/MCPConnectionGuide.vue:181"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-037.json#MP-R024",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R024",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-ebc0b5d7-dc1e-45f5-921a-c4863c68ccbd.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R024.png",
+  "sha256": "18b4b971e1202f496dc1535f1a89fe32a6c80a0cf7ab55dde052a614a4ed70b2",
+  "bytes": 1592362,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:32:06.199872+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: MCPConnectionGuide.vue OAuth/API guide address and command layout",
+    "sourceIds": [
+      "ST-057"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent responsive MCPConnectionGuide local positions: A390 full OAuth guide disabled plugin, cached HTTPS endpoint, no history/client, API client creation disabled; B320 long stored endpoint and manual-copy failure notice; C320 dirty and failed recheck with retained endpoint, copy disabled, local status unknown. Tutorials remain visible, network never verified; no commands invented.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pluginState": "disabled",
+      "dirty": false,
+      "error": "",
+      "latestSuccessfulCall": null,
+      "clients": [],
+      "path": "oauth",
+      "origin": "https://example.invalid",
+      "address": "https://example.invalid/mcp",
+      "apiCreateDisabled": true
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "scope": "OAuth endpoint/troubleshooting and notice local scroll position",
+      "dirty": false,
+      "endpoint": "https://long-example-host.example.invalid/mcp",
+      "notice": "无法自动复制，请选中下方内容手动复制。"
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "scope": "dirty/recheck-failure and retained endpoint local scroll position",
+      "pluginState": "disabled",
+      "dirty": true,
+      "error": "暂时无法读取连接状态。教程仍可查看，请检查连接后重试。",
+      "retainedEndpoint": "https://example.invalid/mcp",
+      "copyDisabled": true
+    }
+  ]
+}

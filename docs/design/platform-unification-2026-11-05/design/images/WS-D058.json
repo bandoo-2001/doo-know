@@ -1,0 +1,448 @@
+{
+  "id": "WS-D058",
+  "title": "Mind map node operation menu / Mind map shortcut help popup",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-081",
+    "WS-082"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-081",
+      "title": "Mind map node operation menu",
+      "role": "authenticated owner",
+      "state": "A mindmap node menu/root-boundary guards; B actual platform-specific shortcut help.",
+      "presentationInstruction": "A mindmap node menu/root-boundary guards; B actual platform-specific shortcut help."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-082",
+      "title": "Mind map shortcut help popup",
+      "role": "authenticated owner",
+      "state": "A mindmap node menu/root-boundary guards; B actual platform-specific shortcut help.",
+      "presentationInstruction": "A mindmap node menu/root-boundary guards; B actual platform-specific shortcut help."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/diagrams/mindmap-controls.ts",
+      "role": "AUTHORITATIVE SOURCE: apps/web/diagrams/mindmap-controls.ts:8, apps/web/diagrams/mindmap-controls.ts:51"
+    },
+    {
+      "path": "apps/web/diagrams/mindmap-controls.ts",
+      "role": "AUTHORITATIVE SOURCE: apps/web/diagrams/mindmap-controls.ts:17, apps/web/diagrams/mindmap-controls.ts:149"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-081",
+      "label": "编辑文字 / 新增子节点 / 同级 / 父节点",
+      "effect": "Mutate supported plain outline",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-081",
+      "label": "上移 / 下移 / 展开收起 / 删除节点",
+      "effect": "Reorder/toggle/remove node",
+      "api": "none",
+      "guard": "Root cannot sibling/parent/reorder/delete; boundary or childless actions disabled"
+    },
+    {
+      "sourceId": "WS-082",
+      "label": "关闭快捷键 / Escape",
+      "effect": "Close and restore trigger focus",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+    "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R025",
+      "reuseSourceId": "WS-069",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "编辑文字 / 新增子节点 / 同级 / 父节点",
+          "effect": "Mutate supported plain outline",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "上移 / 下移 / 展开收起 / 删除节点",
+          "effect": "Reorder/toggle/remove node",
+          "api": "none",
+          "guard": "Root cannot sibling/parent/reorder/delete; boundary or childless actions disabled"
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-081"
+    },
+    {
+      "assetId": "WS-R025",
+      "reuseSourceId": "WS-069",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "关闭快捷键 / Escape",
+          "effect": "Close and restore trigger focus",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-082"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n两个外部分组仅标A、B，都是独立的紧凑脑图浮层，无画布或主人导航。A并排两个真实节点菜单样例，用留白区分：第一个小标题“示例中心”；菜单项按顺序“编辑文字 / F2”可用、“新增子节点 / Tab”可用、“新增同级节点 / Enter”灰色禁用、“插入父节点 / Ctrl+Enter”灰色禁用、“上移节点 / Alt+↑”灰色禁用、“下移节点 / Alt+↓”灰色禁用、“展开 / 收起分支”灰色禁用、“删除节点 / Delete”灰色禁用。第二个小标题“第一分支”；菜单项按顺序“编辑文字 / F2”可用、“新增子节点 / Tab”可用、“新增同级节点 / Enter”可用、“插入父节点 / Ctrl+Enter”可用、“上移节点 / Alt+↑”灰色禁用、“下移节点 / Alt+↓”可用、“展开 / 收起分支”灰色禁用、“删除节点 / Delete”红色可用。它们不是同时打开的菜单，不加额外说明标题。\nB完整快捷键帮助浮层，标题“脑图快捷键”，右上×可用；说明“先选中节点，再使用快捷键。双击节点也可编辑文字。”；依次清楚列出“编辑文字 / F2”“新增子节点 / Tab”“新增同级节点 / Enter”“插入父节点 / Ctrl+Enter”“上移节点 / Alt+↑”“下移节点 / Alt+↓”“删除节点 / Delete”“选择相邻节点 / ↑ ↓ ← →”“撤销 / Ctrl+Z”“重做 / Ctrl+Shift+Z”“全图居中 / F1”“打开节点菜单 / Shift+F10”“保存文档 / Ctrl+S”。不新增AI、自动布局、复制、样式、导入导出或其它快捷键。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D058.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-081",
+      "title": "Mind map node operation menu",
+      "kind": "popover",
+      "module": "diagrams",
+      "entry": {
+        "route": "/?note=:mindmapId",
+        "trigger": "节点操作 / node contextmenu / Shift+F10",
+        "parentId": "WS-069"
+      },
+      "sourceRefs": [
+        "apps/web/diagrams/mindmap-controls.ts:8",
+        "apps/web/diagrams/mindmap-controls.ts:51"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "编辑文字 / 新增子节点 / 同级 / 父节点",
+          "effect": "Mutate supported plain outline",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "上移 / 下移 / 展开收起 / 删除节点",
+          "effect": "Reorder/toggle/remove node",
+          "api": "none",
+          "guard": "Root cannot sibling/parent/reorder/delete; boundary or childless actions disabled"
+        }
+      ],
+      "importantStates": [
+        "Root versus child menu",
+        "Boundary actions disabled",
+        "Keyboard menu focus",
+        "Resize closes popup"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/e2e/mindmap-adapter.spec.ts",
+        "tests/mindmap-outline.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-082",
+      "title": "Mind map shortcut help popup",
+      "kind": "popover",
+      "module": "diagrams",
+      "entry": {
+        "route": "/?note=:mindmapId",
+        "trigger": "快捷键",
+        "parentId": "WS-069"
+      },
+      "sourceRefs": [
+        "apps/web/diagrams/mindmap-controls.ts:17",
+        "apps/web/diagrams/mindmap-controls.ts:149"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "关闭快捷键 / Escape",
+          "effect": "Close and restore trigger focus",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Platform Ctrl versus Cmd labels",
+        "Existing edit, navigate, undo/redo, center/menu/save shortcuts"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/e2e/mindmap-adapter.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-081",
+      "parentId": "WS-069",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-082",
+      "parentId": "WS-069",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-081,WS-082",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-081",
+      "state": "Root versus child menu",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-081",
+      "state": "Boundary actions disabled",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-081",
+      "state": "Keyboard menu focus",
+      "representation": "nonvisual-data-rule"
+    },
+    {
+      "sourceId": "WS-081",
+      "state": "Resize closes popup",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-082",
+      "state": "Platform Ctrl versus Cmd labels",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-082",
+      "state": "Existing edit, navigate, undo/redo, center/menu/save shortcuts",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D058",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "A root and first-child boundary menus independently shown",
+    "B Linux/Windows Ctrl shortcut help"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n两个外部分组仅标A、B，都是独立的紧凑脑图浮层，无画布或主人导航。A并排两个真实节点菜单样例，用留白区分：第一个小标题“示例中心”；菜单项按顺序“编辑文字 / F2”可用、“新增子节点 / Tab”可用、“新增同级节点 / Enter”灰色禁用、“插入父节点 / Ctrl+Enter”灰色禁用、“上移节点 / Alt+↑”灰色禁用、“下移节点 / Alt+↓”灰色禁用、“展开 / 收起分支”灰色禁用、“删除节点 / Delete”灰色禁用。第二个小标题“第一分支”；菜单项按顺序“编辑文字 / F2”可用、“新增子节点 / Tab”可用、“新增同级节点 / Enter”可用、“插入父节点 / Ctrl+Enter”可用、“上移节点 / Alt+↑”灰色禁用、“下移节点 / Alt+↓”可用、“展开 / 收起分支”灰色禁用、“删除节点 / Delete”红色可用。它们不是同时打开的菜单，不加额外说明标题。\nB完整快捷键帮助浮层，标题“脑图快捷键”，右上×可用；说明“先选中节点，再使用快捷键。双击节点也可编辑文字。”；依次清楚列出“编辑文字 / F2”“新增子节点 / Tab”“新增同级节点 / Enter”“插入父节点 / Ctrl+Enter”“上移节点 / Alt+↑”“下移节点 / Alt+↓”“删除节点 / Delete”“选择相邻节点 / ↑ ↓ ← →”“撤销 / Ctrl+Z”“重做 / Ctrl+Shift+Z”“全图居中 / F1”“打开节点菜单 / Shift+F10”“保存文档 / Ctrl+S”。不新增AI、自动布局、复制、样式、导入导出或其它快捷键。",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D058 Mind map node operation menu / Mind map shortcut help popup\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-081\", \"title\": \"Mind map node operation menu\", \"role\": \"authenticated owner\", \"state\": \"A mindmap node menu/root-boundary guards; B actual platform-specific shortcut help.\", \"presentationInstruction\": \"A mindmap node menu/root-boundary guards; B actual platform-specific shortcut help.\"}, {\"label\": \"B\", \"sourceId\": \"WS-082\", \"title\": \"Mind map shortcut help popup\", \"role\": \"authenticated owner\", \"state\": \"A mindmap node menu/root-boundary guards; B actual platform-specific shortcut help.\", \"presentationInstruction\": \"A mindmap node menu/root-boundary guards; B actual platform-specific shortcut help.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-081\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"编辑文字 / 新增子节点 / 同级 / 父节点\", \"effect\": \"Mutate supported plain outline\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"上移 / 下移 / 展开收起 / 删除节点\", \"effect\": \"Reorder/toggle/remove node\", \"api\": \"none\", \"guard\": \"Root cannot sibling/parent/reorder/delete; boundary or childless actions disabled\"}], \"importantStates\": [\"Root versus child menu\", \"Boundary actions disabled\", \"Keyboard menu focus\", \"Resize closes popup\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-082\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"关闭快捷键 / Escape\", \"effect\": \"Close and restore trigger focus\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Platform Ctrl versus Cmd labels\", \"Existing edit, navigate, undo/redo, center/menu/save shortcuts\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/diagrams/mindmap-controls.ts",
+      "role": "AUTHORITATIVE SOURCE: apps/web/diagrams/mindmap-controls.ts:8, apps/web/diagrams/mindmap-controls.ts:51",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/diagrams/mindmap-controls.ts:8, apps/web/diagrams/mindmap-controls.ts:51",
+      "sha256": "c13e89686ca8e07898ddd3a05d69e8f39908c5daf6be91df17a0025889605458"
+    },
+    {
+      "path": "apps/web/diagrams/mindmap-controls.ts",
+      "role": "AUTHORITATIVE SOURCE: apps/web/diagrams/mindmap-controls.ts:17, apps/web/diagrams/mindmap-controls.ts:149",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/diagrams/mindmap-controls.ts:17, apps/web/diagrams/mindmap-controls.ts:149",
+      "sha256": "c13e89686ca8e07898ddd3a05d69e8f39908c5daf6be91df17a0025889605458"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D058.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-140c575e-f04e-4c39-9bad-7b85eca282a5.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-140c575e-f04e-4c39-9bad-7b85eca282a5.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T05:24:08.881Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Actual readonly SVG controls and source bytes / complete mindmap root-child disabled guards and real Ctrl shortcuts inspected.",
+    "concerns": []
+  },
+  "sha256": "3ad9b5c24ec306b09343f8d422131f47a8a83e49ee2e0d38ee3cef43a1c52474",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1161460,
+  "sourceInspection": [
+    {
+      "path": "apps/web/diagrams/mindmap-controls.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "c13e89686ca8e07898ddd3a05d69e8f39908c5daf6be91df17a0025889605458"
+    },
+    {
+      "path": "apps/web/diagrams/mindmap-controls.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "c13e89686ca8e07898ddd3a05d69e8f39908c5daf6be91df17a0025889605458"
+    },
+    {
+      "path": "apps/web/diagrams/mindmap-controls.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "c13e89686ca8e07898ddd3a05d69e8f39908c5daf6be91df17a0025889605458"
+    },
+    {
+      "path": "apps/web/diagrams/mindmap-controls.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "c13e89686ca8e07898ddd3a05d69e8f39908c5daf6be91df17a0025889605458"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived independent local surfaces; no diagram/source/download/mindmap/keyboard runtime testing.",
+  "sourceGuardBinding": "Root permits only edit text/add child; generic !rootAllowed guard also disables root expand. Child first sibling and childless disables up/expand, down enabled; Mac uses same structure with modifier Cmd instead of Ctrl, not visibly claimed."
+}

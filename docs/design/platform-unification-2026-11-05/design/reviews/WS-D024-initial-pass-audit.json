@@ -1,0 +1,55 @@
+{
+  "assetId": "WS-D024",
+  "sourceIds": [
+    "WS-028",
+    "WS-047",
+    "WS-048"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T06:18:37.944687+00:00",
+  "verdict": "superseded-initial-pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Independent full source-editor note menu, nonempty outline popup and docked/empty outline excerpts",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed all local regions/full actual prompt/contracts. Source-editor fullEditor=true/sourceEditor=true and uploading=false exposes move/full portable/Markdown/history/upload/line checkbox/delete in exact source order; empty plugin slots add no invented capture action.",
+    "Popup heading tree current child and docked collapsed parent use same real DocumentOutline/OutlineBranch select/collapse semantics; empty-outline body excerpt separated as alternative. No fake outline close/new/delete/refresh.",
+    "Docked left separator retains actual keyboard-focus concept and200..420/default228 sizing/key/reset/browser preference contract. Popup vs dock follows actual width/mode guards; static approximate geometry is not verified responsive runtime or simultaneous host."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-031.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D024.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/NoteActions.vue:51",
+    "apps/web/components/NoteActions.vue:85",
+    "apps/web/components/DocumentOutline.vue:1",
+    "apps/web/components/OutlineBranch.vue",
+    "apps/web/components/Workspace.vue:3211",
+    "apps/web/components/Workspace.vue:3334",
+    "apps/web/components/SidebarResizer.vue:1"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "9d37ead0de2e3c526188606cff00bca45310fde31b8dc7c355a228093d142170",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D024.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ],
+  "auditOnly": true,
+  "supersededBy": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D024-review.json",
+  "supersededAtUtc": "2026-11-05T06:44:09.351699+00:00",
+  "auditReason": "Parent-slot source-chain recheck found omitted always-rendered 创建关联任务 before independent PluginSlot. Original initial independent pass preserved exactly for audit, not approval."
+}

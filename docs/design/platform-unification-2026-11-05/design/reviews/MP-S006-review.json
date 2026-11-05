@@ -1,0 +1,48 @@
+{
+  "assetId": "MP-S006",
+  "sourceIds": [
+    "ST-005",
+    "ST-041"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T04:33:04.092434+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Independent compact taskpriority, search-readerror, indexcounts, recentnotehash states and conflict-index excerpts.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Running import2of5 plus failed backup are distinct jobs with correct cancel/retry, task/error details; progress has no extra numeric percentage/collapsible title.",
+    "Search runtime read error retains its real details/settings entry; indexfailed/conflict counts and genuine update/reconcile links stay independent.",
+    "Recent-note rows match source hash-equal/hash-different/conflict conditions and existing open-note action; no raw hashes or new repair action."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-022.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S006.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/StatusSettings.vue:164",
+    "apps/web/components/settings/StatusSettings.vue:187",
+    "apps/web/components/settings/StatusSettings.vue:277",
+    "apps/web/components/settings/StatusSettings.vue:351",
+    "apps/web/components/settings/TransferTasks.vue:147"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "20cebf516bba2715056a77fc57d08c46718d32b65286386a78a562d480b3aa1c",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S006.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

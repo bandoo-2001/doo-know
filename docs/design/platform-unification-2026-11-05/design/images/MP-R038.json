@@ -1,0 +1,317 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R038",
+  "assetId": "MP-R038",
+  "sourceIds": [
+    "ST-081"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-081",
+      "title": "Git仓库导入复用内页390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent local GitRepositoryImport inline regions in unbound library setup at390/320/320, no owner navigation: A URL/nameempty import/testdisabled; B public HTTPS valid fake owner/repo and long parent, no credentials; C DIRECTORY_EXISTS error retains filled clone draft with import/test enabled, no clone success or native chooser."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-081",
+      "title": "Git仓库导入复用内页320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent local GitRepositoryImport inline regions in unbound library setup at390/320/320, no owner navigation: A URL/nameempty import/testdisabled; B public HTTPS valid fake owner/repo and long parent, no credentials; C DIRECTORY_EXISTS error retains filled clone draft with import/test enabled, no clone success or native chooser."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-081",
+      "title": "Git仓库导入复用内页320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent local GitRepositoryImport inline regions in unbound library setup at390/320/320, no owner navigation: A URL/nameempty import/testdisabled; B public HTTPS valid fake owner/repo and long parent, no credentials; C DIRECTORY_EXISTS error retains filled clone draft with import/test enabled, no clone success or native chooser."
+    }
+  ],
+  "selectedState": "Three independent local GitRepositoryImport inline regions in unbound library setup at390/320/320, no owner navigation: A URL/nameempty import/testdisabled; B public HTTPS valid fake owner/repo and long parent, no credentials; C DIRECTORY_EXISTS error retains filled clone draft with import/test enabled, no clone success or native chooser.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制并排三个独立窄网页Git导入局部，宽比例390、320、320，白灰蓝平面细边框，内层纵向滚动，不画登录后的导航、窗口X或浏览器。每列标题“从 GitHub／Gitee 导入”、刷新同步状态按钮；说明保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。；表单前说明此操作会安装并启用 Git 插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。；字段按序仓库克隆地址、云端分支（选填）、仓库认证、导入后的知识库名称、导入保存位置（选填）。左列地址空占位https://github.com/owner/repository.git、分支空占位留空使用默认分支、认证=不使用凭据（公开仓库读取）；地址说明请复制仓库页面的 HTTPS 或 SSH 克隆地址。公开 HTTPS 仓库可不配置认证。；添加凭据可用，测试读取连接禁用；名称空，保存位置空占位留空使用推荐位置，路径位于服务器上；提示下载到独立的新文件夹。已有同名文件夹时会停止，请另选名称或位置。；导入并继续禁用。中列同完整结构，地址https://github.com/example-owner/example-notes.git、分支main、同不使用凭据、名称example-notes、位置/home/example/workspace/knowledge/very-long-folder；测试读取连接和导入并继续均可用；长输入仍单行内部光标横移，不画滚动条或箭头。右列同中但位置/home/example/workspace/knowledge，顶部红色“目标文件夹已经存在，请换一个知识库名称或保存位置。”，所有输入保留可编辑，测试/导入仍可用。每列底部保留“管理仓库凭据”、说明凭据只供登录账号使用，秘密内容不会回显。移除凭据不会删除资料。、添加新的凭据；折叠GitHub／Gitee 认证与 SSH 帮助。不加已连接、进度、成功回执或秘密值。",
+  "prompt": "绘制并排三个独立窄网页Git导入局部，宽比例390、320、320，白灰蓝平面细边框，内层纵向滚动，不画登录后的导航、窗口X或浏览器。每列标题“从 GitHub／Gitee 导入”、刷新同步状态按钮；说明保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。；表单前说明此操作会安装并启用 Git 插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。；字段按序仓库克隆地址、云端分支（选填）、仓库认证、导入后的知识库名称、导入保存位置（选填）。左列地址空占位https://github.com/owner/repository.git、分支空占位留空使用默认分支、认证=不使用凭据（公开仓库读取）；地址说明请复制仓库页面的 HTTPS 或 SSH 克隆地址。公开 HTTPS 仓库可不配置认证。；添加凭据可用，测试读取连接禁用；名称空，保存位置空占位留空使用推荐位置，路径位于服务器上；提示下载到独立的新文件夹。已有同名文件夹时会停止，请另选名称或位置。；导入并继续禁用。中列同完整结构，地址https://github.com/example-owner/example-notes.git、分支main、同不使用凭据、名称example-notes、位置/home/example/workspace/knowledge/very-long-folder；测试读取连接和导入并继续均可用；长输入仍单行内部光标横移，不画滚动条或箭头。右列同中但位置/home/example/workspace/knowledge，顶部红色“目标文件夹已经存在，请换一个知识库名称或保存位置。”，所有输入保留可编辑，测试/导入仍可用。每列底部保留“管理仓库凭据”、说明凭据只供登录账号使用，秘密内容不会回显。移除凭据不会删除资料。、添加新的凭据；折叠GitHub／Gitee 认证与 SSH 帮助。不加已连接、进度、成功回执或秘密值。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; setup has no owner rail",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; setup has no owner rail",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制并排三个独立窄网页Git导入局部，宽比例390、320、320，白灰蓝平面细边框，内层纵向滚动，不画登录后的导航、窗口X或浏览器。每列标题“从 GitHub／Gitee 导入”、刷新同步状态按钮；说明保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。；表单前说明此操作会安装并启用 Git 插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。；字段按序仓库克隆地址、云端分支（选填）、仓库认证、导入后的知识库名称、导入保存位置（选填）。左列地址空占位https://github.com/owner/repository.git、分支空占位留空使用默认分支、认证=不使用凭据（公开仓库读取）；地址说明请复制仓库页面的 HTTPS 或 SSH 克隆地址。公开 HTTPS 仓库可不配置认证。；添加凭据可用，测试读取连接禁用；名称空，保存位置空占位留空使用推荐位置，路径位于服务器上；提示下载到独立的新文件夹。已有同名文件夹时会停止，请另选名称或位置。；导入并继续禁用。中列同完整结构，地址https://github.com/example-owner/example-notes.git、分支main、同不使用凭据、名称example-notes、位置/home/example/workspace/knowledge/very-long-folder；测试读取连接和导入并继续均可用；长输入仍单行内部光标横移，不画滚动条或箭头。右列同中但位置/home/example/workspace/knowledge，顶部红色“目标文件夹已经存在，请换一个知识库名称或保存位置。”，所有输入保留可编辑，测试/导入仍可用。每列底部保留“管理仓库凭据”、说明凭据只供登录账号使用，秘密内容不会回显。移除凭据不会删除资料。、添加新的凭据；折叠GitHub／Gitee 认证与 SSH 帮助。不加已连接、进度、成功回执或秘密值。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制并排三个独立窄网页Git导入局部，宽比例390、320、320，白灰蓝平面细边框，内层纵向滚动，不画登录后的导航、窗口X或浏览器。每列标题“从 GitHub／Gitee 导入”、刷新同步状态按钮；说明保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。；表单前说明此操作会安装并启用 Git 插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。；字段按序仓库克隆地址、云端分支（选填）、仓库认证、导入后的知识库名称、导入保存位置（选填）。左列地址空占位https://github.com/owner/repository.git、分支空占位留空使用默认分支、认证=不使用凭据（公开仓库读取）；地址说明请复制仓库页面的 HTTPS 或 SSH 克隆地址。公开 HTTPS 仓库可不配置认证。；添加凭据可用，测试读取连接禁用；名称空，保存位置空占位留空使用推荐位置，路径位于服务器上；提示下载到独立的新文件夹。已有同名文件夹时会停止，请另选名称或位置。；导入并继续禁用。中列同完整结构，地址https://github.com/example-owner/example-notes.git、分支main、同不使用凭据、名称example-notes、位置/home/example/workspace/knowledge/very-long-folder；测试读取连接和导入并继续均可用；长输入仍单行内部光标横移，不画滚动条或箭头。右列同中但位置/home/example/workspace/knowledge，顶部红色“目标文件夹已经存在，请换一个知识库名称或保存位置。”，所有输入保留可编辑，测试/导入仍可用。每列底部保留“管理仓库凭据”、说明凭据只供登录账号使用，秘密内容不会回显。移除凭据不会删除资料。、添加新的凭据；折叠GitHub／Gitee 认证与 SSH 帮助。不加已连接、进度、成功回执或秘密值。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; setup has no owner rail"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-412cf550-e2ec-4c49-b8ef-843b8e588021.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-081",
+      "title": "Git仓库导入复用内页",
+      "kind": "state",
+      "module": "settings/git-import",
+      "entry": {
+        "route": "首启SetupWizard/已有公共导入流程",
+        "trigger": "GitRepositoryImport包装GitRemotePanel mode=import",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/GitRepositoryImport.vue:1",
+        "apps/web/components/GitRemotePanel.vue:1030",
+        "apps/server/git/service.ts:540",
+        "apps/server/platform/setup-directories.ts:6"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。",
+        "clone仅未绑定知识库时允许，否则SETUP_ALREADY_COMPLETE；目标已存在停，父目录可写且至少512MiB可用。"
+      ],
+      "fields": [
+        {
+          "name": "仓库克隆地址 / 分支 / 认证",
+          "type": "same-as-ST-075",
+          "required": true,
+          "constraints": "相同远端白名单与凭据限制",
+          "sensitive": false
+        },
+        {
+          "name": "导入后的知识库名称",
+          "type": "text",
+          "required": true,
+          "constraints": "UI maxlength40；服务器UTF8≤120字节；trim非空、不得以.开头、不得含路径分隔/控制字符",
+          "sensitive": false
+        },
+        {
+          "name": "导入保存位置",
+          "type": "text",
+          "required": false,
+          "constraints": "服务器位置；空用推荐parent；目标为新的独立目录，必须通过allowedKnowledgeBases政策且非系统/数据/密钥等保护目录、无隐藏或链接组件",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "导入并继续",
+          "effect": "创建clone任务；成功发出imported事件",
+          "api": "POST /api/platform/git/jobs kind:clone",
+          "guard": "URL/name非空、非running、workspace不忙"
+        },
+        {
+          "label": "测试读取连接 / 添加凭据",
+          "effect": "复用ST-075至ST-077",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "同名文件夹停止",
+        "私有仓库认证错误",
+        "clone阶段/取消/结果未知",
+        "新知识库成功导入",
+        "库已绑定不可再次clone",
+        "目标位置不被允许/不可写",
+        "剩余磁盘不足512MiB"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/z-git-remote.spec.ts:182"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "仅记录仓库控件的复用内容；首启路由/宿主页面由public inventory负责，不能额外计为设置页面。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-081",
+      "parentId": null,
+      "route": "首启SetupWizard/已有公共导入流程",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/GitRepositoryImport.vue:1",
+        "apps/web/components/GitRemotePanel.vue:1030",
+        "apps/server/git/service.ts:540",
+        "apps/server/platform/setup-directories.ts:6"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-039.json#MP-R038",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R038",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-412cf550-e2ec-4c49-b8ef-843b8e588021.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R038.png",
+  "sha256": "55d06580860fd589803843cd802cf414f99a86ac15242d56e4db86d6cb20e0e9",
+  "bytes": 1563696,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:46:57.777492+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: GitRepositoryImport.vue clone target/credential form in owner host",
+    "sourceIds": [
+      "ST-081"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent local GitRepositoryImport inline regions in unbound library setup at390/320/320, no owner navigation: A URL/nameempty import/testdisabled; B public HTTPS valid fake owner/repo and long parent, no credentials; C DIRECTORY_EXISTS error retains filled clone draft with import/test enabled, no clone success or native chooser.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "mode": "import",
+      "inlineFrame": true,
+      "libraryBound": false,
+      "url": "",
+      "branch": "",
+      "credentialId": "",
+      "name": "",
+      "parentPath": "",
+      "importDisabled": true,
+      "testDisabled": true
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "mode": "import",
+      "libraryBound": false,
+      "url": "https://github.com/example-owner/example-notes.git",
+      "branch": "main",
+      "credentialId": "",
+      "credentials": [],
+      "name": "example-notes",
+      "parentPath": "/home/example/workspace/knowledge/very-long-folder",
+      "importDisabled": false
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "mode": "import",
+      "libraryBound": false,
+      "error": "目标文件夹已经存在，请换一个知识库名称或保存位置。",
+      "url": "https://github.com/example-owner/example-notes.git",
+      "branch": "main",
+      "credentialId": "",
+      "credentials": [],
+      "name": "example-notes",
+      "parentPath": "/home/example/workspace/knowledge",
+      "running": false,
+      "importDisabled": false
+    }
+  ]
+}

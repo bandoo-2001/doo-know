@@ -1,0 +1,71 @@
+{
+  "kind": "generated-design",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "reviewStatus": "pending-independent-review",
+  "generationCallCount": 1,
+  "postprocessing": "None. Tool-generated original copied exclusively with no pixel manipulation.",
+  "id": "WS-D009",
+  "sourceIds": [
+    "WS-009"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-009",
+      "title": "Collection loading, empty, stale and failure feedback",
+      "role": "authenticated owner",
+      "state": "Scoped loading/empty/stale/error feedback with existing list retained on page failure.",
+      "presentationInstruction": "Scoped loading/empty/stale/error feedback with existing list retained on page failure."
+    }
+  ],
+  "prompt": "Create an exact GPT Image 2 design mockup for existing DooKnow UI. Render one readable complete app-owned window with sufficient host context. Never pretend independent panels are simultaneously open. Captions outside app UI state source ID/title/role/state.\nASSET WS-D009 Collection loading, empty, stale and failure feedback\nVIEWPORT Readable desktop full window/panel; independent board views each use a1440px desktop host or readable window crop.\nPANELS [{\"label\":\"full\",\"sourceId\":\"WS-009\",\"title\":\"Collection loading, empty, stale and failure feedback\",\"role\":\"authenticated owner\",\"state\":\"Scoped loading/empty/stale/error feedback with existing list retained on page failure.\",\"presentationInstruction\":\"Scoped loading/empty/stale/error feedback with existing list retained on page failure.\"}]\nFOCUS Scoped loading/empty/stale/error feedback with existing list retained on page failure.\nActual ToDoo screenshot is STYLE ONLY (hierarchy, palette, typography, spacing, density); brand DooKnow. Actual platform screenshot is CONTENT/ROLE reference, not target style. Fictional legal examples only; masked secrets and example.invalid URLs.\nCOMPLETE FIELDS IN SOURCE ORDER:\nNo extra input fields.\nIMPLEMENTED ACTION WHITELIST:\nWS-009 重新加载 / 刷新: Retry load or replace stale feed; guard: Owner session; control-specific guards described in permissionRules.\nWS-009 新建笔记: Create from empty feed; guard: Owner session; control-specific guards described in permissionRules.\nPERMISSIONS:\nAuthenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\nALL IMPORTANT STATES (stateCoverage maps visible/shared-pattern/nonvisual rules; never depict incompatible alternatives together):\nWS-009: Skeleton initial load\nWS-009: Empty collection\nWS-009: Source version changed banner disables old pagination\nWS-009: Partial list remains visible on page error\nWS-009: Load-more busy/end status\nSOURCE NOTES:\n\nRESPONSIVE Linked390/320 jobs handle compact field order/drawer/stacking and safe scrolling. \nFORBIDDEN:\nBrand is DooKnow; ToDoo is an existing app and style reference only.\nNo invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\nNo real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\nNever render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\nNo native OS/browser picker or print-dialog chrome.\nNo owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\nNo developer/source/API path or review-note text inside product UI.\nAll mockups and per-image/global functional reviews must pass before product development. Do not draw protocol metadata as form controls.\nSELECTED COMPATIBLE VISIBLE STATE: Show one complete recent-notes collection with existing first-page items retained and a next-page load error. Do not show initial skeletons, empty message, stale/version banner or loading spinner simultaneously. This is the partial-list-error branch only; the remaining listed states remain separate contracts. Source header 我的笔记 / 最近 / 8 篇笔记 / 按最近修改排序; existing refresh icon enabled because loading=false, 新建笔记 enabled. Keep three fictional legal-example cards with source title, summary, parent folder, timestamp and source star/more affordances; these existing cards remain usable. Error block below cards reads 下一页加载失败，请重试 with source 重新加载 button enabled. Footer reads 已加载 3 / 8 篇; existing 加载更多笔记 button MUST be visibly disabled while error exists. No end-of-list claim, no extra field, no route/API details. Keep source owner navigation context with active 最近, contextual sidebar/search/new controls only as existing in source. Source caption must identify WS-009 / collection feedback / authenticated owner / partial list retained on page error.\nFLAT STYLE CONTRACT: Style authority is actual ToDoo screenshot ONLY; source authority is actual DooKnow components. No ToDoo task/goal actions. Solid #ffffff main/header; #f7f8fa sidebar; #272b3a text; #657084 muted; #e6e9f1 borders; #4566c6 primary; #edf1ff selected. Thin crisp line icons, clean sans-serif Chinese, 8px radii, minimal shadow. No gradient, texture, grain, glow, bevel, simulated paper or illustration. Include source ID/title/authenticated owner/selected visible state in a thin external margin, never inside product UI. No browser chrome or device frame. No invented save, AI, sharing or collaboration UI.",
+  "originalJobPrompt": "Create an exact GPT Image 2 design mockup for existing DooKnow UI. Render one readable complete app-owned window with sufficient host context. Never pretend independent panels are simultaneously open. Captions outside app UI state source ID/title/role/state.\nASSET WS-D009 Collection loading, empty, stale and failure feedback\nVIEWPORT Readable desktop full window/panel; independent board views each use a1440px desktop host or readable window crop.\nPANELS [{\"label\":\"full\",\"sourceId\":\"WS-009\",\"title\":\"Collection loading, empty, stale and failure feedback\",\"role\":\"authenticated owner\",\"state\":\"Scoped loading/empty/stale/error feedback with existing list retained on page failure.\",\"presentationInstruction\":\"Scoped loading/empty/stale/error feedback with existing list retained on page failure.\"}]\nFOCUS Scoped loading/empty/stale/error feedback with existing list retained on page failure.\nActual ToDoo screenshot is STYLE ONLY (hierarchy, palette, typography, spacing, density); brand DooKnow. Actual platform screenshot is CONTENT/ROLE reference, not target style. Fictional legal examples only; masked secrets and example.invalid URLs.\nCOMPLETE FIELDS IN SOURCE ORDER:\nNo extra input fields.\nIMPLEMENTED ACTION WHITELIST:\nWS-009 重新加载 / 刷新: Retry load or replace stale feed; guard: Owner session; control-specific guards described in permissionRules.\nWS-009 新建笔记: Create from empty feed; guard: Owner session; control-specific guards described in permissionRules.\nPERMISSIONS:\nAuthenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\nALL IMPORTANT STATES (stateCoverage maps visible/shared-pattern/nonvisual rules; never depict incompatible alternatives together):\nWS-009: Skeleton initial load\nWS-009: Empty collection\nWS-009: Source version changed banner disables old pagination\nWS-009: Partial list remains visible on page error\nWS-009: Load-more busy/end status\nSOURCE NOTES:\n\nRESPONSIVE Linked390/320 jobs handle compact field order/drawer/stacking and safe scrolling. \nFORBIDDEN:\nBrand is DooKnow; ToDoo is an existing app and style reference only.\nNo invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\nNo real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\nNever render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\nNo native OS/browser picker or print-dialog chrome.\nNo owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\nNo developer/source/API path or review-note text inside product UI.\nAll mockups and per-image/global functional reviews must pass before product development. Do not draw protocol metadata as form controls.",
+  "inputReferences": [
+    {
+      "path": "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-01-overview.png",
+      "role": "STYLE ONLY: actual implemented ToDoo hierarchy/palette/spacing/type density/theme. No task fields/actions or platform rebranding."
+    },
+    {
+      "path": "apps/web/components/CollectionWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/CollectionWorkspace.vue:151, apps/web/collection-feed.ts:1"
+    }
+  ],
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D009.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a79f-db6d-7281-a29c-1887bb1f4ac3/exec-9d61e5c9-9d8e-4269-b680-63b2243004f5.png",
+  "sha256": "37fb337f1d15f6cd7d8628672e6f3fa401b0f66dbae8ade48fcd60880b55f829",
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "bytes": 1296150,
+  "generatedAtUtc": "2026-11-04T17:40:48.212Z",
+  "selfInspection": {
+    "method": "Native generated preview inspected in child context against source and style reference.",
+    "behaviorVerified": false,
+    "independentReviewStatus": "pending",
+    "contentStatus": "major-source-authority-drift-needs-correction",
+    "notes": [
+      "Partial existing list is retained; error/retry and visibly disabled load-more correctly coexist; no skeleton/empty/stale/end alternative is mixed in.",
+      "Major source-authority drift: generator copied/invented 首页, 我的笔记, 笔记本, 我的清单 plus control, 通知 navigation and header notification/more/refresh controls. These are not approved source owner navigation.",
+      "Main title hierarchy and card grid changed to large full-width stacked rows; baseline-defined rail/account/search/sidebar/create controls are missing.",
+      "ToDoo-style checkmark branding was introduced despite DooKnow brand text. Required source caption is visible.",
+      "Texture/uneven fill, gradients and approximate geometry remain; independent review must reject or request correction before use."
+    ]
+  }
+}

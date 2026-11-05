@@ -1,0 +1,406 @@
+{
+  "id": "MP-R030",
+  "title": "Responsive family: MCPApiClients.vue .client-form compact name or expiry form",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-066",
+    "ST-068"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-066",
+      "title": "修改API客户端名称390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-066",
+      "title": "修改API客户端名称320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-066",
+      "title": "修改API客户端名称320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "viewportIntent": "390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-066",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "客户端→修改名称",
+      "parentId": "ST-064",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "客户端名称",
+          "type": "text",
+          "required": true,
+          "constraints": "trim非空≤100字符",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "busy",
+        "409版本冲突输入保留",
+        "成功notice"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。"
+    },
+    {
+      "type": "responsive-family-reuse",
+      "renderer": "MCPApiClients.vue .client-form compact name or expiry form",
+      "allSourceIds": [
+        "ST-066",
+        "ST-068"
+      ],
+      "rule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-066",
+      "label": "保存客户端名称",
+      "effect": "按expectedVersion修改",
+      "api": "PATCH /api/platform/mcp/api-clients/:id",
+      "guard": "无busy/form/secret；允许disabled服务或revoked客户端改名"
+    },
+    {
+      "sourceId": "ST-066",
+      "label": "取消",
+      "effect": "关闭行内form",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-066",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-068",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-072",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n制作三个并排独立的窄屏内容面板，外部只标A、B、C，不画手机外壳、宽度数字或额外说明。A按390宽、B和C按320宽的相同比例布局；窄屏字段和操作自然换行，文本不省略，画布可纵向延长保持正常字号。不画全局header/底栏/侧栏或虚构宿主，每个只画指定真实组件。\nA/B完整局部行内表单：标题“修改客户端名称”，字段“客户端名称”输入值“示例资料整理客户端的新名称”，底部依次可用蓝色“保存客户端名称”和“取消”。只有这个字段，无有效期/权限。\nC独立完整局部行内表单：标题“轮换 API Key”，字段“密钥有效期”下拉“自定义时间”，字段“自定义到期时间”日期时间控件值2026-12-05 10:00；正文“签发后旧密钥立即失效；客户端身份和已授予权限保持不变。”；底部蓝色“确认轮换 API Key”带加载转圈，“取消”灰色禁用；两个日期/有效期控件灰色禁用，值保留。C没有名称、权限表单或完整密钥。所有面板不加关闭X、宿主列表、成功/错误提示或协议输入。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R030.png",
+  "reviewStatus": "pending-independent-review",
+  "responsiveFamily": {
+    "id": "MP-RF030",
+    "actualComponent": "MCPApiClients.vue .client-form compact name or expiry form",
+    "sourceIds": [
+      "ST-066",
+      "ST-068"
+    ],
+    "roleBoundary": "owner-private",
+    "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+  },
+  "parentBindings": [
+    {
+      "sourceId": "ST-066",
+      "parentId": "ST-064",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:125",
+        "apps/web/components/MCPApiClients.vue:212",
+        "apps/web/components/MCPApiClients.vue:357"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-066",
+      "title": "修改API客户端名称",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "客户端→修改名称",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:125",
+        "apps/web/components/MCPApiClients.vue:212",
+        "apps/web/components/MCPApiClients.vue:357"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "客户端名称",
+          "type": "text",
+          "required": true,
+          "constraints": "trim非空≤100字符",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存客户端名称",
+          "effect": "按expectedVersion修改",
+          "api": "PATCH /api/platform/mcp/api-clients/:id",
+          "guard": "无busy/form/secret；允许disabled服务或revoked客户端改名"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭行内form",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "busy",
+        "409版本冲突输入保留",
+        "成功notice"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:87"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-R030",
+  "roles": [
+    "authenticated-owner",
+    "authenticated-owner",
+    "authenticated-owner"
+  ],
+  "selectedState": [
+    "rename form valid name; no busy/conflict/secret",
+    "same target320",
+    "rotate active client; custom future expiry; busy=true"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n制作三个并排独立的窄屏内容面板，外部只标A、B、C，不画手机外壳、宽度数字或额外说明。A按390宽、B和C按320宽的相同比例布局；窄屏字段和操作自然换行，文本不省略，画布可纵向延长保持正常字号。不画全局header/底栏/侧栏或虚构宿主，每个只画指定真实组件。\nA/B完整局部行内表单：标题“修改客户端名称”，字段“客户端名称”输入值“示例资料整理客户端的新名称”，底部依次可用蓝色“保存客户端名称”和“取消”。只有这个字段，无有效期/权限。\nC独立完整局部行内表单：标题“轮换 API Key”，字段“密钥有效期”下拉“自定义时间”，字段“自定义到期时间”日期时间控件值2026-12-05 10:00；正文“签发后旧密钥立即失效；客户端身份和已授予权限保持不变。”；底部蓝色“确认轮换 API Key”带加载转圈，“取消”灰色禁用；两个日期/有效期控件灰色禁用，值保留。C没有名称、权限表单或完整密钥。所有面板不加关闭X、宿主列表、成功/错误提示或协议输入。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-R030 Responsive family: MCPApiClients.vue .client-form compact name or expiry form\n\n390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。\n\n角色壳：所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。\n\n独立场景：\nA | ST-066 | 修改API客户端名称390px | role=authenticated-owner | 390px完整可读代表：字段按登记顺序，动作保持源guard\nB | ST-066 | 修改API客户端名称320px | role=authenticated-owner | 320px字段/长值/内层滚动与操作可达\nC | ST-066 | 修改API客户端名称320px guard | role=authenticated-owner | 同源关键禁用/错误/长标签状态，使用已有组件且保留输入\n\n完整构图：\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n精确功能/字段/动作guard合同：\nST-066/ST-068权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-066字段顺序：客户端名称 [text; 必填]: trim非空≤100字符\nST-068字段顺序：密钥有效期 [select; 必填]: 7/30/90天/custom/forever | 自定义到期时间 [datetime-local; 可选]: custom时必须将来时间\nST-066白名单：保存客户端名称 => 按expectedVersion修改；guard=无busy/form/secret；允许disabled服务或revoked客户端改名；接口约束=PATCH /api/platform/mcp/api-clients/:id\nST-066白名单：取消 => 关闭行内form；guard=已登录所有者；请求期间禁用重复操作\nST-068白名单：确认轮换API Key => 原子轮换；旧密钥立即失效；身份及授权保留；guard=active且MCP/API可用；expectedVersion；接口约束=POST /api/platform/mcp/api-clients/:id/rotate-key\nST-068白名单：取消 => 关闭form；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\n插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "fcadab6d4ed2b937d207abd375e9e0bb6c57bf2a156a7af8530e3df1bf3edf39",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "bytes": 32967
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R030.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-b006583b-4c27-4263-bccc-17da37a1c19a.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-b006583b-4c27-4263-bccc-17da37a1c19a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T07:10:31.401Z",
+  "selfInspection": {
+    "method": "Native generated image inspected in delegated child thread against source template and guards",
+    "status": "pending-independent-review",
+    "pageSpecific": "A/B complete rename-only form; C rotate form contains expiry/custom date and actual old-key warning, busy inputs/cancel locked, loading confirm; no invented name/policy in rotate.",
+    "concerns": []
+  },
+  "sha256": "5f716267d2c14ceab8b421ce5d87059326bfedd683a2555ad1725787ae9e5cb9",
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  },
+  "bytes": 1070239,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/MCPApiClients.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "412bf10ba4f6d64f1ca6eae9e328eb8d36943e751f780c16c7612f8fb11912e4"
+    },
+    {
+      "path": "apps/web/components/MCPApiClients.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "412bf10ba4f6d64f1ca6eae9e328eb8d36943e751f780c16c7612f8fb11912e4"
+    },
+    {
+      "path": "apps/web/components/MCPApiClients.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "412bf10ba4f6d64f1ca6eae9e328eb8d36943e751f780c16c7612f8fb11912e4"
+    }
+  ],
+  "responsiveTargetCssWidths": [
+    390,
+    320,
+    320
+  ],
+  "runtimeResponsiveVerified": false,
+  "sourceDerivedUnverifiedScope": "Source-derived form/draft fixtures; no live browser/API or mutation. Local component only. Full mutually exclusive masters retain their bindings.",
+  "originalPlanningSourceIds": [
+    "ST-066"
+  ],
+  "actualPanelModeBindings": {
+    "A": {
+      "sourceId": "ST-066",
+      "width": 390
+    },
+    "B": {
+      "sourceId": "ST-066",
+      "width": 320
+    },
+    "C": {
+      "sourceId": "ST-068",
+      "width": 320,
+      "busy": true
+    },
+    "rule": "C controls and title belong to distinct real mode; do not claim create/rename fields there. Same actual MCPApiClients form-wrapper geometry and busy primitives may be explicitly composed, no source fields/guards transferred."
+  },
+  "mappingAnnotation": {
+    "method": "Root correction after independent actual-image/source review; original tool prompt and arguments unchanged",
+    "notImageEdit": true,
+    "notRuntimeVerification": true
+  }
+}

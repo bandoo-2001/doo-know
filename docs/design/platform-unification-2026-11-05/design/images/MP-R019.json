@@ -1,0 +1,294 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R019",
+  "assetId": "MP-R019",
+  "sourceIds": [
+    "ST-006"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-006",
+      "title": "插件与连接390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three narrow owner Settings Plugins pages: A390 installed empty actual baseline; B320 Add tab Git official available uninstalled; C320 installed Git failed same installed/catalog version, existing caller error, config/enable/uninstall all enabled busyfalse. No populated MCP retained auth area because empty clients/error-free auth load; no install-success or fake lifecycle execution."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-006",
+      "title": "插件与连接320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three narrow owner Settings Plugins pages: A390 installed empty actual baseline; B320 Add tab Git official available uninstalled; C320 installed Git failed same installed/catalog version, existing caller error, config/enable/uninstall all enabled busyfalse. No populated MCP retained auth area because empty clients/error-free auth load; no install-success or fake lifecycle execution."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-006",
+      "title": "插件与连接320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three narrow owner Settings Plugins pages: A390 installed empty actual baseline; B320 Add tab Git official available uninstalled; C320 installed Git failed same installed/catalog version, existing caller error, config/enable/uninstall all enabled busyfalse. No populated MCP retained auth area because empty clients/error-free auth load; no install-success or fake lifecycle execution."
+    }
+  ],
+  "selectedState": "Three narrow owner Settings Plugins pages: A390 installed empty actual baseline; B320 Add tab Git official available uninstalled; C320 installed Git failed same installed/catalog version, existing caller error, config/enable/uninstall all enabled busyfalse. No populated MCP retained auth area because empty clients/error-free auth load; no install-success or fake lifecycle execution.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制并排三个完整DooKnow窄网页，宽比例390、320、320，白灰蓝细边框。每页真实菜单/DooKnow/私人笔记顶栏；标题“插件与连接”、返回、说明“管理已安装功能和外部应用连接。”；底部严格笔记、最近、收藏、应用、更多且更多选中。左页照第二图：已安装tab选中、添加插件tab、刷新插件状态；空盒图标与“尚未安装插件，可在「添加插件」中查看。”。中页添加插件tab选中，同刷新按钮，下方一张Git 版本管理 v1.1.3卡，状态未安装，说明“查看知识库文件版本、恢复单篇笔记，并预览、提交及手动同步 GitHub／Gitee 仓库。”；能力小字“读取知识库 · 写入知识库 · 本地文件版本”，唯一操作蓝色“安装”。右页已安装tab选中，刷新按钮，红色提示“插件运行异常，请检查服务后重试。”，Git 版本管理 v1.1.3卡、状态“运行异常”，同描述与能力，三个可用操作“配置”“启用”“卸载”。窄页操作可换行、长文自然换行不溢出，卡片之外保留滚动空间；不加入升级按钮、下载进度、注册、插件已连接或成功提示。",
+  "prompt": "绘制并排三个完整DooKnow窄网页，宽比例390、320、320，白灰蓝细边框。每页真实菜单/DooKnow/私人笔记顶栏；标题“插件与连接”、返回、说明“管理已安装功能和外部应用连接。”；底部严格笔记、最近、收藏、应用、更多且更多选中。左页照第二图：已安装tab选中、添加插件tab、刷新插件状态；空盒图标与“尚未安装插件，可在「添加插件」中查看。”。中页添加插件tab选中，同刷新按钮，下方一张Git 版本管理 v1.1.3卡，状态未安装，说明“查看知识库文件版本、恢复单篇笔记，并预览、提交及手动同步 GitHub／Gitee 仓库。”；能力小字“读取知识库 · 写入知识库 · 本地文件版本”，唯一操作蓝色“安装”。右页已安装tab选中，刷新按钮，红色提示“插件运行异常，请检查服务后重试。”，Git 版本管理 v1.1.3卡、状态“运行异常”，同描述与能力，三个可用操作“配置”“启用”“卸载”。窄页操作可换行、长文自然换行不溢出，卡片之外保留滚动空间；不加入升级按钮、下载进度、注册、插件已连接或成功提示。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+      "role": "Actual mobile owner page/chrome and installed-empty baseline",
+      "sha256": "fcadab6d4ed2b937d207abd375e9e0bb6c57bf2a156a7af8530e3df1bf3edf39",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+      "role": "Actual mobile owner page/chrome and installed-empty baseline",
+      "sha256": "fcadab6d4ed2b937d207abd375e9e0bb6c57bf2a156a7af8530e3df1bf3edf39",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制并排三个完整DooKnow窄网页，宽比例390、320、320，白灰蓝细边框。每页真实菜单/DooKnow/私人笔记顶栏；标题“插件与连接”、返回、说明“管理已安装功能和外部应用连接。”；底部严格笔记、最近、收藏、应用、更多且更多选中。左页照第二图：已安装tab选中、添加插件tab、刷新插件状态；空盒图标与“尚未安装插件，可在「添加插件」中查看。”。中页添加插件tab选中，同刷新按钮，下方一张Git 版本管理 v1.1.3卡，状态未安装，说明“查看知识库文件版本、恢复单篇笔记，并预览、提交及手动同步 GitHub／Gitee 仓库。”；能力小字“读取知识库 · 写入知识库 · 本地文件版本”，唯一操作蓝色“安装”。右页已安装tab选中，刷新按钮，红色提示“插件运行异常，请检查服务后重试。”，Git 版本管理 v1.1.3卡、状态“运行异常”，同描述与能力，三个可用操作“配置”“启用”“卸载”。窄页操作可换行、长文自然换行不溢出，卡片之外保留滚动空间；不加入升级按钮、下载进度、注册、插件已连接或成功提示。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制并排三个完整DooKnow窄网页，宽比例390、320、320，白灰蓝细边框。每页真实菜单/DooKnow/私人笔记顶栏；标题“插件与连接”、返回、说明“管理已安装功能和外部应用连接。”；底部严格笔记、最近、收藏、应用、更多且更多选中。左页照第二图：已安装tab选中、添加插件tab、刷新插件状态；空盒图标与“尚未安装插件，可在「添加插件」中查看。”。中页添加插件tab选中，同刷新按钮，下方一张Git 版本管理 v1.1.3卡，状态未安装，说明“查看知识库文件版本、恢复单篇笔记，并预览、提交及手动同步 GitHub／Gitee 仓库。”；能力小字“读取知识库 · 写入知识库 · 本地文件版本”，唯一操作蓝色“安装”。右页已安装tab选中，刷新按钮，红色提示“插件运行异常，请检查服务后重试。”，Git 版本管理 v1.1.3卡、状态“运行异常”，同描述与能力，三个可用操作“配置”“启用”“卸载”。窄页操作可换行、长文自然换行不溢出，卡片之外保留滚动空间；不加入升级按钮、下载进度、注册、插件已连接或成功提示。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+          "role": "Actual mobile owner page/chrome and installed-empty baseline"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-53412e60-2ce9-4afa-9169-f8e4c554f81e.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-006",
+      "title": "插件与连接",
+      "kind": "page",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "设置→插件与连接 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/PluginsSettings.vue:1",
+        "apps/web/components/PluginManager.vue:359"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "已安装 / 添加插件",
+          "effect": "切换ST-047/ST-048",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新插件状态",
+          "effect": "更新注册表与安装回执",
+          "api": "GET /api/platform/plugins; GET /api/platform/plugin-installations",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "插件目录空",
+        "运行异常/重启待生效",
+        "保留用户资料的依赖提示",
+        "卸载后仍可撤销OAuth授权"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/plugins.spec.ts:10",
+        "tests/e2e/mcp-onboarding.spec.ts:42"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-006",
+      "parentId": null,
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/PluginsSettings.vue:1",
+        "apps/web/components/PluginManager.vue:359"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-037.json#MP-R019",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R019",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-53412e60-2ce9-4afa-9169-f8e4c554f81e.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R019.png",
+  "sha256": "7f313ad5820cc09403e1c2831bfbdba75fc882c06dd29a1f07225597238f30b3",
+  "bytes": 1374400,
+  "dimensions": {
+    "width": 1610,
+    "height": 977
+  },
+  "generatedAtUtc": "2026-11-05T07:28:12.500760+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: PluginManager.vue installed/catalog plugin cards and lifecycle bindings",
+    "sourceIds": [
+      "ST-006"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three narrow owner Settings Plugins pages: A390 installed empty actual baseline; B320 Add tab Git official available uninstalled; C320 installed Git failed same installed/catalog version, existing caller error, config/enable/uninstall all enabled busyfalse. No populated MCP retained auth area because empty clients/error-free auth load; no install-success or fake lifecycle execution.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "tab": "installed",
+      "catalog": [],
+      "selected": "",
+      "busy": false,
+      "retainedMcpClients": []
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "tab": "add",
+      "gitInstalled": false,
+      "availableVersion": "1.1.3"
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "tab": "installed",
+      "gitInstalled": true,
+      "state": "failed",
+      "installedVersion": "1.1.3",
+      "catalogVersion": "1.1.3",
+      "busy": false,
+      "error": "插件运行异常，请检查服务后重试。"
+    }
+  ]
+}

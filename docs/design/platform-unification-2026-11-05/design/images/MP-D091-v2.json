@@ -1,0 +1,262 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D091-v2",
+  "assetId": "MP-D091",
+  "sourceIds": [
+    "PB-024",
+    "PB-025"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "anonymous guest"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-024",
+      "title": "公开分享：不存在/过期/撤销/轮换",
+      "role": "anonymous guest",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Two independent guest read-only error states: generic 404 missing capability using actual baseline, and transient read failure source-derived; no private reason disclosed"
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-025",
+      "title": "公开分享：临时读取失败",
+      "role": "anonymous guest",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Two independent guest read-only error states: generic 404 missing capability using actual baseline, and transient read failure source-derived; no private reason disclosed"
+    }
+  ],
+  "selectedState": "Two independent guest read-only error states: generic 404 missing capability using actual baseline, and transient read failure source-derived; no private reason disclosed",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅修正右侧页面标题下方的灰色说明，清晰逐字渲染精确句子“连接可能暂时中断，请稍后重新加载。”。这行中“暂时”是两个正常汉字，去除损坏重叠字形。其余全部保持不变：左右页面标题、左侧说明、两个页头和只读标记、右侧重新加载按钮、页脚、图标、布局。",
+  "prompt": "仅修正右侧页面标题下方的灰色说明，清晰逐字渲染精确句子“连接可能暂时中断，请稍后重新加载。”。这行中“暂时”是两个正常汉字，去除损坏重叠字形。其余全部保持不变：左右页面标题、左侧说明、两个页头和只读标记、右侧重新加载按钮、页脚、图标、布局。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D091.png",
+      "role": "Edit target; correct transient-error guidance glyphs only",
+      "sha256": "5caa9cfc9e11e083763565c27ef1f8cf78c29b1c519b9c921aabf6b3288e47ae",
+      "dimensions": {
+        "width": 1774,
+        "height": 887
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D091.png",
+      "role": "Edit target; correct transient-error guidance glyphs only",
+      "sha256": "5caa9cfc9e11e083763565c27ef1f8cf78c29b1c519b9c921aabf6b3288e47ae",
+      "dimensions": {
+        "width": 1774,
+        "height": 887
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅修正右侧页面标题下方的灰色说明，清晰逐字渲染精确句子“连接可能暂时中断，请稍后重新加载。”。这行中“暂时”是两个正常汉字，去除损坏重叠字形。其余全部保持不变：左右页面标题、左侧说明、两个页头和只读标记、右侧重新加载按钮、页脚、图标、布局。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D091.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅修正右侧页面标题下方的灰色说明，清晰逐字渲染精确句子“连接可能暂时中断，请稍后重新加载。”。这行中“暂时”是两个正常汉字，去除损坏重叠字形。其余全部保持不变：左右页面标题、左侧说明、两个页头和只读标记、右侧重新加载按钮、页脚、图标、布局。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D091.png",
+          "role": "Edit target; correct transient-error guidance glyphs only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-df9cc056-eadc-4ad9-aacc-355933ea1607.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-024",
+      "title": "公开分享：不存在/过期/撤销/轮换",
+      "kind": "state",
+      "module": "share",
+      "entry": {
+        "route": "/s/:token",
+        "trigger": "Any share read returns404",
+        "parentId": "PB-022"
+      },
+      "sourceRefs": [
+        "apps/web/components/ShareReader.vue:38",
+        "apps/web/components/ShareReader.vue:163",
+        "packages/core/shares.ts:127"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Anonymous capability token must remain active and unexpired; no owner session or password gate is required. Public content/resources remain scoped to this shared note."
+      ],
+      "fields": [],
+      "actions": [],
+      "importantStates": [
+        "common missing/private-capability failure with lock icon",
+        "get-valid-link guidance; no retry button"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/reader-feedback.spec.ts:46",
+        "tests/shares-permissions-security.test.ts:280"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Expired, revoked, rotated, malformed and missing links deliberately use the same 404 public message; do not expose the exact private cause.",
+        "No password entry, renewal control or owner status tools."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-025",
+      "title": "公开分享：临时读取失败",
+      "kind": "state",
+      "module": "share",
+      "entry": {
+        "route": "/s/:token",
+        "trigger": "Non404 initial metadata/body read failure",
+        "parentId": "PB-022"
+      },
+      "sourceRefs": [
+        "apps/web/components/ShareReader.vue:38",
+        "apps/web/components/ShareReader.vue:163"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Anonymous capability token must remain active and unexpired; no owner session or password gate is required. Public content/resources remain scoped to this shared note."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新加载",
+          "effect": "Retry current capability metadata/body",
+          "api": "GET /api/public/shares/:token/meta; GET /api/public/shares/:token",
+          "guard": "not opening/loading"
+        }
+      ],
+      "importantStates": [
+        "connection/server failure with refresh icon",
+        "reload pending; successful retry reads same link"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/reader-feedback.spec.ts:4"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-024",
+      "parentId": "PB-022",
+      "route": "/s/:token",
+      "roles": [
+        "anonymous guest"
+      ],
+      "sourceRefs": [
+        "apps/web/components/ShareReader.vue:38",
+        "apps/web/components/ShareReader.vue:163",
+        "packages/core/shares.ts:127"
+      ]
+    },
+    {
+      "sourceId": "PB-025",
+      "parentId": "PB-022",
+      "route": "/s/:token",
+      "roles": [
+        "anonymous guest"
+      ],
+      "sourceRefs": [
+        "apps/web/components/ShareReader.vue:38",
+        "apps/web/components/ShareReader.vue:163"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-021.json#MP-D091",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D091",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-df9cc056-eadc-4ad9-aacc-355933ea1607.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D091-v2.png",
+  "sha256": "787d55bf5ef8f90e93df95629d0a40548a280b318a44e0d861352fd37d85dc05",
+  "bytes": 1506941,
+  "dimensions": {
+    "width": 1774,
+    "height": 887
+  },
+  "generatedAtUtc": "2026-11-05T04:12:36.895853+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D091.png",
+    "sha256": "5caa9cfc9e11e083763565c27ef1f8cf78c29b1c519b9c921aabf6b3288e47ae"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "公开分享：不存在/过期/撤销/轮换 / 公开分享：临时读取失败",
+    "sourceIds": [
+      "PB-024",
+      "PB-025"
+    ],
+    "roles": [
+      "anonymous guest"
+    ],
+    "state": "Two independent guest read-only error states: generic 404 missing capability using actual baseline, and transient read failure source-derived; no private reason disclosed",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "renderedVariants": []
+}

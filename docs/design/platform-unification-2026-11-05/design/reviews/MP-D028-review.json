@@ -1,0 +1,43 @@
+{
+  "assetId": "MP-D028",
+  "sourceIds": [
+    "ST-035"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:28:01.643596+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner resolvable current-disk confirmation with disk snapshot present, idle",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Read-only relative path/mtime, exact adopt-current-disk/material-preservation/recheck explanation and cancel/recheck/adopt actions retained.",
+    "No typed confirmation/checkbox/strategy/path/hash/requestId input, deletion or fake resolved result. NModal busy close lock and resolvable/disk snapshot guard remain source-specific, not generic dirty discard behavior."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-010.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D028.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/MaintenanceSettings.vue:38",
+    "apps/web/components/MaintenanceSettings.vue:137"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "6e630424ff281d91f4bbdbcf61a2508033e2e0cbbf82b1124d77e7e1c5c370e3",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D028.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

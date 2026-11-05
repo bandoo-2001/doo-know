@@ -1,0 +1,460 @@
+{
+  "id": "MP-R068",
+  "title": "Responsive family: BlogWorkspace.vue saved-site settings full form",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-040"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-040",
+      "title": "博客管理：站点设置390px",
+      "role": "authenticated owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-040",
+      "title": "博客管理：站点设置320px",
+      "role": "authenticated owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-040",
+      "title": "博客管理：站点设置320px guard",
+      "role": "authenticated owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "viewportIntent": "390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-blog-settings.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-040",
+      "route": "/?view=apps&app=blog&appSection=settings",
+      "trigger": "Blog navigation or site-off banner",
+      "parentId": "PB-030",
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "enabled",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "takes effect on save; closes all public blog pages when false",
+          "sensitive": false
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "required": true,
+          "constraints": "UI<=120; API<=256",
+          "sensitive": false
+        },
+        {
+          "name": "description",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=500; API<=2000",
+          "sensitive": false
+        },
+        {
+          "name": "author",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; API<=256",
+          "sensitive": false
+        },
+        {
+          "name": "baseUrl",
+          "type": "url",
+          "required": false,
+          "constraints": "API<=2048; HTTP(S) origin only; no credentials/path/query/hash",
+          "sensitive": false
+        },
+        {
+          "name": "theme",
+          "type": "select",
+          "required": true,
+          "constraints": "system or light only",
+          "sensitive": false
+        },
+        {
+          "name": "about",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=10000; API<=50000; sanitized Markdown for public about",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "saved enabled badge and independently edited toggle",
+        "dirty status; saving; successful enabled/disabled receipt",
+        "version conflict/error; review latest preserves local changes"
+      ],
+      "notes": [
+        "Blog site settings are separate from platform/account settings. No unsupported explicit dark option: system can follow OS dark."
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "主人站点设置完整长页：enabled、title、description、author、baseUrl、system/light、about Markdown，保存/重新核对/去装修。草稿toggle不是已保存启用。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。"
+    },
+    {
+      "type": "responsive-family-reuse",
+      "renderer": "BlogWorkspace.vue saved-site settings full form",
+      "allSourceIds": [
+        "PB-040"
+      ],
+      "rule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-040",
+      "label": "保存站点设置",
+      "effect": "CAS save full settings",
+      "api": "PATCH /api/blog/settings",
+      "guard": "not settingsBusy; version matches"
+    },
+    {
+      "sourceId": "PB-040",
+      "label": "重新核对设置",
+      "effect": "Reload latest and merge retained draft",
+      "api": "GET /api/blog/settings",
+      "guard": "not settingsBusy"
+    },
+    {
+      "sourceId": "PB-040",
+      "label": "前往装修主页",
+      "effect": "Navigate design section",
+      "api": "",
+      "guard": ""
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-040",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n制作三个并排独立的窄屏内容面板，外部只标A、B、C，不画手机外壳、宽度数字或额外说明。A按390宽、B和C按320宽的相同比例布局；窄屏字段和操作自然换行，文本不省略，画布可纵向延长保持正常字号。不画全局header/底栏/侧栏或虚构宿主，每个只画指定真实组件。\n三个完整局部站点设置长表单，标题“站点设置”，说明“给你的文字，一个自己的家。”；公开访问块：标题“公开访问”、已保存徽章“站点未开启”，开关关闭；文字“保存后将关闭站点，访客无法访问博客。”。基本信息区标题“基本信息”，说明“告诉读者这个站点是谁在写、记录什么。”；字段“站点名称”值“我的博客”，“站点简介”空三行textarea、placeholder“这里记录了什么？”，“作者”空输入、placeholder“你的名字”。访问与外观区标题“访问与外观”，说明“设置公开链接与阅读时的外观偏好。”；字段“公开站点地址”空url输入，placeholder“https://example.com”，帮助“用于订阅与站点地图中的绝对链接。”；字段“外观”下拉“跟随系统”；正文“主页布局、导航与展示模块可在「装修主页」中调整。”；可用“前往装修主页 →”。关于站点区标题“关于站点”，说明“向读者介绍你自己，以及这个博客的故事。”；字段“关于”空六行textarea，placeholder“向读者介绍你自己和这个博客…”。页脚状态“站点设置已保存”和可用蓝色“保存站点设置”。A/B所有控件可用，既有保存状态不是新成功提示。\nC保留同样字段值和已保存徽章“站点未开启”，只有本地开关改成开启（右侧），公开块文字改“保存后，已发布文章将在 /blog 对所有人可见。”并加“公开状态有未保存修改”。页脚状态“正在保存站点设置…”，主按钮“保存中…”灰色禁用、没有额外转圈。所有输入/开关/下拉以及前往装修主页仍可用。没有自动发布文章按钮、暗色选项、额外凭据/端口/API字段、错误或成功提示。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R068.png",
+  "reviewStatus": "pending-independent-review",
+  "responsiveFamily": {
+    "id": "MP-RF068",
+    "actualComponent": "BlogWorkspace.vue saved-site settings full form",
+    "sourceIds": [
+      "PB-040"
+    ],
+    "roleBoundary": "owner-private",
+    "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-040",
+      "parentId": "PB-030",
+      "route": "/?view=apps&app=blog&appSection=settings",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:897",
+        "apps/web/blog-workbench.ts:324",
+        "packages/core/blog/service.ts:568"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-040",
+      "title": "博客管理：站点设置",
+      "kind": "page",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=settings",
+        "trigger": "Blog navigation or site-off banner",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:897",
+        "apps/web/blog-workbench.ts:324",
+        "packages/core/blog/service.ts:568"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "enabled",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "takes effect on save; closes all public blog pages when false",
+          "sensitive": false
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "required": true,
+          "constraints": "UI<=120; API<=256",
+          "sensitive": false
+        },
+        {
+          "name": "description",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=500; API<=2000",
+          "sensitive": false
+        },
+        {
+          "name": "author",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; API<=256",
+          "sensitive": false
+        },
+        {
+          "name": "baseUrl",
+          "type": "url",
+          "required": false,
+          "constraints": "API<=2048; HTTP(S) origin only; no credentials/path/query/hash",
+          "sensitive": false
+        },
+        {
+          "name": "theme",
+          "type": "select",
+          "required": true,
+          "constraints": "system or light only",
+          "sensitive": false
+        },
+        {
+          "name": "about",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI<=10000; API<=50000; sanitized Markdown for public about",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存站点设置",
+          "effect": "CAS save full settings",
+          "api": "PATCH /api/blog/settings",
+          "guard": "not settingsBusy; version matches"
+        },
+        {
+          "label": "重新核对设置",
+          "effect": "Reload latest and merge retained draft",
+          "api": "GET /api/blog/settings",
+          "guard": "not settingsBusy"
+        },
+        {
+          "label": "前往装修主页",
+          "effect": "Navigate design section",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "saved enabled badge and independently edited toggle",
+        "dirty status; saving; successful enabled/disabled receipt",
+        "version conflict/error; review latest preserves local changes"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-admin-visual.spec.ts:6",
+        "tests/blog-workbench.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Blog site settings are separate from platform/account settings. No unsupported explicit dark option: system can follow OS dark."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-R068",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "saved settings enabled false; title我的博客; other metadata empty; theme system; no error/notice; idle",
+    "same target320",
+    "saved enabled false versus local enabled true; settingsBusy true; inputs/toggle/navigation remain editable per actual template, save disabled"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n制作三个并排独立的窄屏内容面板，外部只标A、B、C，不画手机外壳、宽度数字或额外说明。A按390宽、B和C按320宽的相同比例布局；窄屏字段和操作自然换行，文本不省略，画布可纵向延长保持正常字号。不画全局header/底栏/侧栏或虚构宿主，每个只画指定真实组件。\n三个完整局部站点设置长表单，标题“站点设置”，说明“给你的文字，一个自己的家。”；公开访问块：标题“公开访问”、已保存徽章“站点未开启”，开关关闭；文字“保存后将关闭站点，访客无法访问博客。”。基本信息区标题“基本信息”，说明“告诉读者这个站点是谁在写、记录什么。”；字段“站点名称”值“我的博客”，“站点简介”空三行textarea、placeholder“这里记录了什么？”，“作者”空输入、placeholder“你的名字”。访问与外观区标题“访问与外观”，说明“设置公开链接与阅读时的外观偏好。”；字段“公开站点地址”空url输入，placeholder“https://example.com”，帮助“用于订阅与站点地图中的绝对链接。”；字段“外观”下拉“跟随系统”；正文“主页布局、导航与展示模块可在「装修主页」中调整。”；可用“前往装修主页 →”。关于站点区标题“关于站点”，说明“向读者介绍你自己，以及这个博客的故事。”；字段“关于”空六行textarea，placeholder“向读者介绍你自己和这个博客…”。页脚状态“站点设置已保存”和可用蓝色“保存站点设置”。A/B所有控件可用，既有保存状态不是新成功提示。\nC保留同样字段值和已保存徽章“站点未开启”，只有本地开关改成开启（右侧），公开块文字改“保存后，已发布文章将在 /blog 对所有人可见。”并加“公开状态有未保存修改”。页脚状态“正在保存站点设置…”，主按钮“保存中…”灰色禁用、没有额外转圈。所有输入/开关/下拉以及前往装修主页仍可用。没有自动发布文章按钮、暗色选项、额外凭据/端口/API字段、错误或成功提示。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-R068 Responsive family: BlogWorkspace.vue saved-site settings full form\n\n390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。\n\n角色壳：所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。\n\n独立场景：\nA | PB-040 | 博客管理：站点设置390px | role=authenticated owner | 390px完整可读代表：字段按登记顺序，动作保持源guard\nB | PB-040 | 博客管理：站点设置320px | role=authenticated owner | 320px字段/长值/内层滚动与操作可达\nC | PB-040 | 博客管理：站点设置320px guard | role=authenticated owner | 同源关键禁用/错误/长标签状态，使用已有组件且保留输入\n\n完整构图：\n主人站点设置完整长页：enabled、title、description、author、baseUrl、system/light、about Markdown，保存/重新核对/去装修。草稿toggle不是已保存启用。\n\n精确功能/字段/动作guard合同：\nPB-040权限：Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled.\nPB-040字段顺序：enabled [checkbox; 必填]: takes effect on save; closes all public blog pages when false | title [text; 必填]: UI<=120; API<=256 | description [textarea; 可选]: UI<=500; API<=2000 | author [text; 可选]: UI<=120; API<=256 | baseUrl [url; 可选]: API<=2048; HTTP(S) origin only; no credentials/path/query/hash | theme [select; 必填]: system or light only | about [textarea; 可选]: UI<=10000; API<=50000; sanitized Markdown for public about\nPB-040白名单：保存站点设置 => CAS save full settings；guard=not settingsBusy; version matches；接口约束=PATCH /api/blog/settings\nPB-040白名单：重新核对设置 => Reload latest and merge retained draft；guard=not settingsBusy；接口约束=GET /api/blog/settings\nPB-040白名单：前往装修主页 => Navigate design section；guard=既有上下文\n\n响应式合同：\n<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-blog-settings.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "8bc55d650a632d21f8455e7829cccdba220f89c92deb79b9185ac23f9e384489",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "bytes": 63085
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-blog-settings.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R068.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-04f72bcb-8fae-4e97-b97d-1a86f73c33d3.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-04f72bcb-8fae-4e97-b97d-1a86f73c33d3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T08:00:56.799Z",
+  "selfInspection": {
+    "method": "Native generated PNG inspected in child against BlogWorkspace full saved-site form and actual390 settings baseline",
+    "status": "pending-independent-review",
+    "pageSpecific": "Full actual field order/defaults, only system/light theme control. C saved-off badge remains distinct from edited-on switch and busy save; all inputs and design-navigation remain available exactly as template. Save-only busy guard preserved.",
+    "concerns": []
+  },
+  "sha256": "10093677478af52fa97d66339007cfc00abb2570cb2aae40baf7377a2d3614b4",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1282376,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/BlogWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7c4cad934bb1c19d1833445e4d71a99811f06c9afb622f6f50d387e54a371a6c"
+    },
+    {
+      "path": "apps/web/blog-workbench.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "5f7859526e908362d7420d67e87b1b1119adbe757a84b9bc88bdd3412d6406d5"
+    },
+    {
+      "path": "packages/core/blog/service.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e3048693c76c55f8e95edc5ff547ea9ddf8d99cac22088ee76b2f22403f6d793"
+    }
+  ],
+  "responsiveTargetCssWidths": [
+    390,
+    320,
+    320
+  ],
+  "runtimeResponsiveVerified": false,
+  "baselineStatus": "actual390 blog settings host viewed; full scrolled form source-derived; C draft/busy source-derived",
+  "sourceDerivedUnverifiedScope": "No settings save or site access change performed. C is an isolated retained draft/request example, not a live publicly-enabled site.",
+  "responsiveScope": "Complete saved-site form content only; actual outer owner blog host remains independently mapped."
+}

@@ -1,0 +1,238 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D100",
+  "assetId": "MP-D100",
+  "sourceIds": [
+    "PB-034"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-034",
+      "title": "博客文章：附件封面选择",
+      "role": "authenticated owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Article cover picker opened with two source-note image attachments; first selected as existing value, no in-progress crop/upload/loading/error"
+    }
+  ],
+  "selectedState": "Article cover picker opened with two source-note image attachments; first selected as existing value, no in-progress crop/upload/loading/error",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。完整封面选择组件：顶部粗体“上传并裁切封面”，按钮“选择图片”，文字按钮“移除”；说明“支持 JPEG、PNG、WebP，最大 10 MB。选择后可调整裁切范围。”，状态“已选择图片”。下方可点文字按钮“从原稿附件中选择封面”。再下面两张可选图片卡片，分别为合成山景缩略图“mountain.jpg”和合成海边缩略图“coast.webp”；第一张以蓝边和选中标记表示已选。没有裁切滑杆、保存、取消、弹窗关闭或文章表单。",
+  "prompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。完整封面选择组件：顶部粗体“上传并裁切封面”，按钮“选择图片”，文字按钮“移除”；说明“支持 JPEG、PNG、WebP，最大 10 MB。选择后可调整裁切范围。”，状态“已选择图片”。下方可点文字按钮“从原稿附件中选择封面”。再下面两张可选图片卡片，分别为合成山景缩略图“mountain.jpg”和合成海边缩略图“coast.webp”；第一张以蓝边和选中标记表示已选。没有裁切滑杆、保存、取消、弹窗关闭或文章表单。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "role": "Actual matching parent/content reference; selected local substate follows source template",
+      "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette and density only; no feature or owner chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "role": "Actual matching parent/content reference; selected local substate follows source template",
+      "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette and density only; no feature or owner chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。完整封面选择组件：顶部粗体“上传并裁切封面”，按钮“选择图片”，文字按钮“移除”；说明“支持 JPEG、PNG、WebP，最大 10 MB。选择后可调整裁切范围。”，状态“已选择图片”。下方可点文字按钮“从原稿附件中选择封面”。再下面两张可选图片卡片，分别为合成山景缩略图“mountain.jpg”和合成海边缩略图“coast.webp”；第一张以蓝边和选中标记表示已选。没有裁切滑杆、保存、取消、弹窗关闭或文章表单。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。完整封面选择组件：顶部粗体“上传并裁切封面”，按钮“选择图片”，文字按钮“移除”；说明“支持 JPEG、PNG、WebP，最大 10 MB。选择后可调整裁切范围。”，状态“已选择图片”。下方可点文字按钮“从原稿附件中选择封面”。再下面两张可选图片卡片，分别为合成山景缩略图“mountain.jpg”和合成海边缩略图“coast.webp”；第一张以蓝边和选中标记表示已选。没有裁切滑杆、保存、取消、弹窗关闭或文章表单。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+          "role": "Actual matching parent/content reference; selected local substate follows source template"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette and density only; no feature or owner chrome authority"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-1510fda4-4ab5-47c2-a1e3-2dbdcfe01e41.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-034",
+      "title": "博客文章：附件封面选择",
+      "kind": "state",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "Expand 封面、置顶与固定链接; load original attachments",
+        "parentId": "PB-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:623",
+        "apps/web/components/blog/BlogArticleCover.vue:28",
+        "apps/web/components/blog/BlogArticleCover.vue:58"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "cover",
+          "type": "attachment selection",
+          "required": false,
+          "constraints": "relative Markdown path resolved against source note, not current note search",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "从原稿附件中选择封面",
+          "effect": "Load allowed source note assets",
+          "api": "GET /api/notes/:noteId/assets",
+          "guard": ""
+        },
+        {
+          "label": "图片",
+          "effect": "Set local metadata cover path",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "移除",
+          "effect": "Set cover null",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "attachment loading/error",
+        "no image attachments",
+        "existing PNG/JPEG/WebP/GIF image choices; selected state",
+        "cover uploaded while article changes remains owned by originating article"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio-workbench.test.ts:219",
+        "tests/blog-studio-workbench.test.ts:243"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-034",
+      "parentId": "PB-032",
+      "route": "/?view=apps&app=blog&appSection=articles",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:623",
+        "apps/web/components/blog/BlogArticleCover.vue:28",
+        "apps/web/components/blog/BlogArticleCover.vue:58"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-021.json#MP-D100",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D100",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-1510fda4-4ab5-47c2-a1e3-2dbdcfe01e41.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D100.png",
+  "sha256": "3e61219c502bdd99da369a75227e7bd754603a30819d32d55b18fc0fae0be025",
+  "bytes": 1368195,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T04:09:17.159306+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "博客文章：附件封面选择",
+    "sourceIds": [
+      "PB-034"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Article cover picker opened with two source-note image attachments; first selected as existing value, no in-progress crop/upload/loading/error",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "renderedVariants": []
+}

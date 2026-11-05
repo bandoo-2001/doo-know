@@ -1,0 +1,2200 @@
+{
+  "schema": 1,
+  "reviewer": "platform_review_ws01",
+  "createdAtUtc": "2026-11-05T04:04:23.376619+00:00",
+  "purpose": "Evidence-only necessity proposal for currently ungenerated state/responsive assets. Not an inventory recount, coverage approval, image verdict, plan mutation or queue instruction.",
+  "snapshotCurrentLanePassed": 91,
+  "responsiveConclusion": {
+    "fullExactDuplicateCandidates": 0,
+    "rootEvidence": "docs/design/platform-unification-2026-11-05/design/reviews/exact-responsive-reuse-candidates.json",
+    "reason": "Obvious same-source width boards are already aliases or differ in state/role/structure; no additional responsive deletion justified."
+  },
+  "summary": {
+    "wholeAssetCandidates": 1,
+    "partialRowCandidates": 4,
+    "noArbitraryReductionTarget": true,
+    "nothingApplied": true
+  },
+  "candidates": [
+    {
+      "oldAssetId": "MP-S024",
+      "scope": "entire-one-row-asset",
+      "decision": "proposal-only-root-ruling-required",
+      "candidateCanonical": {
+        "assetId": "MP-D050",
+        "panel": "desktop plus390/320 popup specimens",
+        "image": "docs/design/platform-unification-2026-11-05/design/images/MP-D050.png",
+        "review": "docs/design/platform-unification-2026-11-05/design/reviews/MP-D050-review.json",
+        "reviewedImageSha256": "0f545477da46d66d5546c2d6efceb57ad8e9405dfa4b338efe3166b379a03344"
+      },
+      "targetRows": [
+        "r1"
+      ],
+      "sourceEvidence": [
+        "apps/web/components/KnowledgeResourceTreeSelect.vue:85",
+        "apps/web/components/KnowledgeResourceTreeSelect.vue:117"
+      ],
+      "reason": "The only requested state is exactly the checked-parent/inherited-child state already visibly drawn in the same KnowledgeResourceTreeSelect at desktop/390/320. This is not reuse based on a generic parent form.",
+      "exactBindingRequirements": {
+        "fieldsAndOrder": "Same search input, hierarchical strict check tree, readonly selected count/help; parent30-Knowledge selected and descendants checked/disabled as inherited.",
+        "messageData": "Keep ST-063 resource names/count/ceiling and inherited inclusion helper, no virtual all-root or new resources.",
+        "guards": "Keep disabled/ceiling/inherited rules, select/unselect parent, Escape closes only popup.",
+        "roleParent": "ST-063 authenticated-owner child of ST-062; no OAuth guest role substitution.",
+        "scrollFocus": "Same bounded tree popup, search focus and Escape/return contracts; static images do not prove fit."
+      },
+      "originalPlanFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+      "originalSourceIds": [
+        "ST-063"
+      ],
+      "originalPanels": [
+        {
+          "label": "A",
+          "sourceId": "ST-063",
+          "title": "真实组件局部状态矩阵",
+          "role": "owner-private",
+          "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+        }
+      ],
+      "originalStateMatrix": [
+        {
+          "row": "r1",
+          "sourceId": "ST-063",
+          "title": "随父目录包含且不可独立重复勾选",
+          "renderer": "apps/web/components/KnowledgeResourceTreeSelect.vue",
+          "sourceRefs": [
+            "apps/web/components/KnowledgeResourceTreeSelect.vue:85",
+            "apps/web/components/KnowledgeResourceTreeSelect.vue:117"
+          ],
+          "guardBindings": [
+            {
+              "label": "选择 / 取消父目录",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            },
+            {
+              "label": "Escape",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            }
+          ],
+          "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+          "coveredStates": [
+            {
+              "state": "随父目录包含且不可独立重复勾选",
+              "variant": "随父目录包含且不可独立重复勾选",
+              "representation": "visible"
+            }
+          ],
+          "coveredSourceIds": [
+            "ST-063"
+          ],
+          "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+        }
+      ],
+      "allOriginalMappings": [
+        {
+          "sourceId": "ST-063",
+          "assetId": "MP-S024",
+          "panel": "A",
+          "reason": "Same actual component apps/web/components/KnowledgeResourceTreeSelect.vue and owner-private role; local structural states/renderer patterns explicitly bound in stateCoverage."
+        }
+      ],
+      "allOriginalStateCoverage": [
+        {
+          "sourceId": "ST-063",
+          "state": "随父目录包含且不可独立重复勾选",
+          "assetId": "MP-S024",
+          "panel": "A",
+          "representation": "visible",
+          "reason": "Explicit readable representative r1 in a compact matrix; not a full-window montage.",
+          "variant": "随父目录包含且不可独立重复勾选",
+          "matrixRow": "r1",
+          "reuseEvidence": {
+            "component": "apps/web/components/KnowledgeResourceTreeSelect.vue",
+            "sourceRefs": [
+              "apps/web/components/KnowledgeResourceTreeSelect.vue:85",
+              "apps/web/components/KnowledgeResourceTreeSelect.vue:117"
+            ],
+            "stateBindingContract": "随父目录包含且不可独立重复勾选",
+            "fieldBindingContract": [
+              {
+                "name": "搜索或选择目录、笔记",
+                "type": "checkable-tree",
+                "required": false,
+                "constraints": "strict多选；遵循ceiling；目录包含当前和未来后代",
+                "sensitive": false
+              }
+            ],
+            "actionGuards": [
+              {
+                "label": "选择 / 取消父目录",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              },
+              {
+                "label": "Escape",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        }
+      ],
+      "allOriginalAssetStateCoverageRefs": [],
+      "allOriginalParentBindings": [
+        {
+          "sourceId": "ST-063",
+          "parentId": "ST-062",
+          "route": "/?view=settings&section=plugins",
+          "roles": [
+            "authenticated-owner"
+          ],
+          "sourceRefs": [
+            "apps/web/components/KnowledgeResourceTreeSelect.vue:85",
+            "apps/web/components/KnowledgeResourceTreeSelect.vue:117"
+          ]
+        }
+      ],
+      "preservationRule": "Root may alias only the listed rows/scope to the referenced exact current SHA. Preserve every original mapping/state entry, message/data expression, action guards, field order, role/parent, scroll/focus semantics. Partial candidates keep this asset and every unlisted unique row; no inherited pass for unreviewed conditions."
+    },
+    {
+      "oldAssetId": "MP-S014",
+      "scope": "partial-row-only",
+      "decision": "proposal-only-root-ruling-required",
+      "candidateCanonical": {
+        "assetId": "MP-D022",
+        "panel": "single local empty section",
+        "image": "docs/design/platform-unification-2026-11-05/design/images/MP-D022.png",
+        "review": "docs/design/platform-unification-2026-11-05/design/reviews/MP-D022-review.json",
+        "reviewedImageSha256": "cfe06caf5f262b569564519969b05e6ec92cd2e515d0c47cb5ca27c9e971cbe5"
+      },
+      "targetRows": [
+        "r1"
+      ],
+      "sourceEvidence": [
+        "apps/web/components/settings/PortableJobs.vue:70"
+      ],
+      "reason": "Exact same PortableJobs empty collection title/refresh/no-jobs block already reviewed. Error row is structurally different and must remain.",
+      "exactBindingRequirements": {
+        "messageData": "jobs=[], error empty, exact 暂无便携任务。",
+        "guards": "Refresh action preserved; do not alias error/task/cancel/retry/download/needsSource rows.",
+        "roleParent": "ST-028 owner section, original parent preserved.",
+        "scrollFocus": "Same section scroll parent; no modal close/focus trap added."
+      },
+      "originalPlanFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+      "originalSourceIds": [
+        "ST-028"
+      ],
+      "originalPanels": [
+        {
+          "label": "A",
+          "sourceId": "ST-028",
+          "title": "真实组件局部状态矩阵",
+          "role": "owner-private",
+          "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+        }
+      ],
+      "originalStateMatrix": [
+        {
+          "row": "r1",
+          "sourceId": "ST-028",
+          "title": "暂无便携任务",
+          "renderer": "apps/web/components/settings/PortableJobs.vue",
+          "sourceRefs": [
+            "apps/web/components/settings/PortableJobs.vue:32",
+            "apps/web/components/settings/PortableJobs.vue:70"
+          ],
+          "guardBindings": [
+            {
+              "label": "刷新结果",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            },
+            {
+              "label": "取消任务 / 取消预览准备",
+              "guard": "任务running或未运行但有portablePreviews"
+            },
+            {
+              "label": "生成预览并继续导出 / 重试导出",
+              "guard": "非completed的export"
+            },
+            {
+              "label": "选择原资料继续",
+              "guard": "needsSource"
+            },
+            {
+              "label": "下载便携结果 / 结果笔记",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            }
+          ],
+          "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+          "coveredStates": [
+            {
+              "state": "暂无便携任务",
+              "variant": "暂无便携任务",
+              "representation": "visible"
+            }
+          ],
+          "coveredSourceIds": [
+            "ST-028"
+          ],
+          "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+        },
+        {
+          "row": "r2",
+          "sourceId": "ST-028",
+          "title": "读取失败",
+          "renderer": "apps/web/components/settings/PortableJobs.vue",
+          "sourceRefs": [
+            "apps/web/components/settings/PortableJobs.vue:32",
+            "apps/web/components/settings/PortableJobs.vue:70"
+          ],
+          "guardBindings": [
+            {
+              "label": "刷新结果",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            },
+            {
+              "label": "取消任务 / 取消预览准备",
+              "guard": "任务running或未运行但有portablePreviews"
+            },
+            {
+              "label": "生成预览并继续导出 / 重试导出",
+              "guard": "非completed的export"
+            },
+            {
+              "label": "选择原资料继续",
+              "guard": "needsSource"
+            },
+            {
+              "label": "下载便携结果 / 结果笔记",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            }
+          ],
+          "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+          "coveredStates": [
+            {
+              "state": "读取失败",
+              "variant": "读取失败",
+              "representation": "visible"
+            },
+            {
+              "state": "running/completed/failed/cancelled/interrupted",
+              "variant": "running/completed/failed/cancelled/interrupted",
+              "representation": "shared-pattern"
+            }
+          ],
+          "coveredSourceIds": [
+            "ST-028"
+          ],
+          "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+        }
+      ],
+      "allOriginalMappings": [
+        {
+          "sourceId": "ST-028",
+          "assetId": "MP-S014",
+          "panel": "A",
+          "reason": "Same actual component apps/web/components/settings/PortableJobs.vue and owner-private role; local structural states/renderer patterns explicitly bound in stateCoverage."
+        }
+      ],
+      "allOriginalStateCoverage": [
+        {
+          "sourceId": "ST-028",
+          "state": "暂无便携任务",
+          "assetId": "MP-S014",
+          "panel": "A",
+          "representation": "visible",
+          "reason": "Explicit readable representative r1 in a compact matrix; not a full-window montage.",
+          "variant": "暂无便携任务",
+          "matrixRow": "r1",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/PortableJobs.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/PortableJobs.vue:32",
+              "apps/web/components/settings/PortableJobs.vue:70"
+            ],
+            "stateBindingContract": "暂无便携任务",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "刷新结果",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              },
+              {
+                "label": "取消任务 / 取消预览准备",
+                "guard": "任务running或未运行但有portablePreviews"
+              },
+              {
+                "label": "生成预览并继续导出 / 重试导出",
+                "guard": "非completed的export"
+              },
+              {
+                "label": "选择原资料继续",
+                "guard": "needsSource"
+              },
+              {
+                "label": "下载便携结果 / 结果笔记",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "ST-028",
+          "state": "读取失败",
+          "assetId": "MP-S014",
+          "panel": "A",
+          "representation": "visible",
+          "reason": "Explicit readable representative r2 in a compact matrix; not a full-window montage.",
+          "variant": "读取失败",
+          "matrixRow": "r2",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/PortableJobs.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/PortableJobs.vue:32",
+              "apps/web/components/settings/PortableJobs.vue:70"
+            ],
+            "stateBindingContract": "读取失败",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "刷新结果",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              },
+              {
+                "label": "取消任务 / 取消预览准备",
+                "guard": "任务running或未运行但有portablePreviews"
+              },
+              {
+                "label": "生成预览并继续导出 / 重试导出",
+                "guard": "非completed的export"
+              },
+              {
+                "label": "选择原资料继续",
+                "guard": "needsSource"
+              },
+              {
+                "label": "下载便携结果 / 结果笔记",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "ST-028",
+          "state": "running/completed/failed/cancelled/interrupted",
+          "assetId": "MP-S014",
+          "panel": "A",
+          "representation": "shared-pattern",
+          "reason": "Identical actual renderer/layout in apps/web/components/settings/PortableJobs.vue; only registered message/data and recorded guard availability vary. Representative r2 is visible; this variant is shared-pattern, never claimed simultaneously visible.",
+          "variant": "running/completed/failed/cancelled/interrupted",
+          "matrixRow": "r2",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/PortableJobs.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/PortableJobs.vue:32",
+              "apps/web/components/settings/PortableJobs.vue:70"
+            ],
+            "stateBindingContract": "running/completed/failed/cancelled/interrupted",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "刷新结果",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              },
+              {
+                "label": "取消任务 / 取消预览准备",
+                "guard": "任务running或未运行但有portablePreviews"
+              },
+              {
+                "label": "生成预览并继续导出 / 重试导出",
+                "guard": "非completed的export"
+              },
+              {
+                "label": "选择原资料继续",
+                "guard": "needsSource"
+              },
+              {
+                "label": "下载便携结果 / 结果笔记",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        }
+      ],
+      "allOriginalAssetStateCoverageRefs": [],
+      "allOriginalParentBindings": [
+        {
+          "sourceId": "ST-028",
+          "parentId": "ST-002",
+          "route": "/?view=settings&section=library",
+          "roles": [
+            "authenticated-owner"
+          ],
+          "sourceRefs": [
+            "apps/web/components/settings/PortableJobs.vue:32",
+            "apps/web/components/settings/PortableJobs.vue:70"
+          ]
+        }
+      ],
+      "preservationRule": "Root may alias only the listed rows/scope to the referenced exact current SHA. Preserve every original mapping/state entry, message/data expression, action guards, field order, role/parent, scroll/focus semantics. Partial candidates keep this asset and every unlisted unique row; no inherited pass for unreviewed conditions."
+    },
+    {
+      "oldAssetId": "MP-S013",
+      "scope": "partial-row-only",
+      "decision": "proposal-only-root-ruling-required",
+      "candidateCanonical": {
+        "assetId": "MP-D020",
+        "panel": "single noncompact empty section",
+        "image": "docs/design/platform-unification-2026-11-05/design/images/MP-D020.png",
+        "review": "docs/design/platform-unification-2026-11-05/design/reviews/MP-D020-review.json",
+        "reviewedImageSha256": "085d837820e0004751b0059a1b1969505ca81a5c9ea70ad315e1d34f69626b56"
+      },
+      "targetRows": [
+        "r1 empty noncompact variant only"
+      ],
+      "sourceEvidence": [
+        "apps/web/components/settings/TransferTasks.vue:147"
+      ],
+      "reason": "Same TransferTasks noncompact empty region with header/refresh/helper and no task actions already reviewed. All task rows/compact sort/errors/receipts remain new.",
+      "exactBindingRequirements": {
+        "messageData": "tasks=[], loadingfalse/error empty, exact 暂无相关任务。 Keep compact empty 暂无进行中的任务 separately if required.",
+        "guards": "No task cancel/retry/download/page actions when empty; retain original guarded mappings on other rows.",
+        "roleParent": "ST-025 authenticated owner, existing settings host.",
+        "scrollFocus": "Original section parent, not modal."
+      },
+      "originalPlanFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+      "originalSourceIds": [
+        "ST-025",
+        "ST-026",
+        "ST-027"
+      ],
+      "originalPanels": [
+        {
+          "label": "A",
+          "sourceId": "ST-025",
+          "title": "真实组件局部状态矩阵",
+          "role": "owner-private",
+          "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+        }
+      ],
+      "originalStateMatrix": [
+        {
+          "row": "r1",
+          "sourceId": "ST-025",
+          "title": "暂无任务",
+          "renderer": "apps/web/components/settings/TransferTasks.vue",
+          "sourceRefs": [
+            "apps/web/components/settings/TransferTasks.vue:17",
+            "apps/web/components/settings/TransferTasks.vue:147",
+            "apps/server/platform/transfers.ts:763"
+          ],
+          "guardBindings": [
+            {
+              "label": "刷新任务 / 加载更多任务",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            },
+            {
+              "label": "取消任务",
+              "guard": "cancellable且queued/running"
+            },
+            {
+              "label": "下载结果",
+              "guard": "downloadAvailable"
+            },
+            {
+              "label": "查看已完成与已取消",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            }
+          ],
+          "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+          "coveredStates": [
+            {
+              "state": "加载/暂无任务/读取错误",
+              "variant": "暂无任务",
+              "representation": "visible"
+            }
+          ],
+          "coveredSourceIds": [
+            "ST-025"
+          ],
+          "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+        },
+        {
+          "row": "r2",
+          "sourceId": "ST-025",
+          "title": "读取错误",
+          "renderer": "apps/web/components/settings/TransferTasks.vue",
+          "sourceRefs": [
+            "apps/web/components/settings/TransferTasks.vue:17",
+            "apps/web/components/settings/TransferTasks.vue:147",
+            "apps/server/platform/transfers.ts:763"
+          ],
+          "guardBindings": [
+            {
+              "label": "刷新任务 / 加载更多任务",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            },
+            {
+              "label": "取消任务",
+              "guard": "cancellable且queued/running"
+            },
+            {
+              "label": "下载结果",
+              "guard": "downloadAvailable"
+            },
+            {
+              "label": "查看已完成与已取消",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            }
+          ],
+          "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+          "coveredStates": [
+            {
+              "state": "加载/暂无任务/读取错误",
+              "variant": "读取错误",
+              "representation": "visible"
+            },
+            {
+              "state": "compact排序：运行→失败中断→折叠历史",
+              "variant": "compact排序：运行→失败中断→折叠历史",
+              "representation": "shared-pattern"
+            }
+          ],
+          "coveredSourceIds": [
+            "ST-025",
+            "ST-026"
+          ],
+          "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+        },
+        {
+          "row": "r3",
+          "sourceId": "ST-025",
+          "title": "queued/running/succeeded/failed/cancelled/interrupted",
+          "renderer": "apps/web/components/settings/TransferTasks.vue",
+          "sourceRefs": [
+            "apps/web/components/settings/TransferTasks.vue:17",
+            "apps/web/components/settings/TransferTasks.vue:147",
+            "apps/server/platform/transfers.ts:763"
+          ],
+          "guardBindings": [
+            {
+              "label": "刷新任务 / 加载更多任务",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            },
+            {
+              "label": "取消任务",
+              "guard": "cancellable且queued/running"
+            },
+            {
+              "label": "下载结果",
+              "guard": "downloadAvailable"
+            },
+            {
+              "label": "查看已完成与已取消",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            }
+          ],
+          "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+          "coveredStates": [
+            {
+              "state": "queued/running/succeeded/failed/cancelled/interrupted",
+              "variant": "queued/running/succeeded/failed/cancelled/interrupted",
+              "representation": "visible"
+            }
+          ],
+          "coveredSourceIds": [
+            "ST-025",
+            "ST-026"
+          ],
+          "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+        },
+        {
+          "row": "r4",
+          "sourceId": "ST-025",
+          "title": "任务编号details",
+          "renderer": "apps/web/components/settings/TransferTasks.vue",
+          "sourceRefs": [
+            "apps/web/components/settings/TransferTasks.vue:17",
+            "apps/web/components/settings/TransferTasks.vue:147",
+            "apps/server/platform/transfers.ts:763"
+          ],
+          "guardBindings": [
+            {
+              "label": "刷新任务 / 加载更多任务",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            },
+            {
+              "label": "取消任务",
+              "guard": "cancellable且queued/running"
+            },
+            {
+              "label": "下载结果",
+              "guard": "downloadAvailable"
+            },
+            {
+              "label": "查看已完成与已取消",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            }
+          ],
+          "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+          "coveredStates": [
+            {
+              "state": "任务编号details",
+              "variant": "任务编号details",
+              "representation": "visible"
+            }
+          ],
+          "coveredSourceIds": [
+            "ST-025"
+          ],
+          "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+        },
+        {
+          "row": "r5",
+          "sourceId": "ST-026",
+          "title": "不可取消的一致性阶段返回409",
+          "renderer": "apps/web/components/settings/TransferTasks.vue",
+          "sourceRefs": [
+            "apps/web/components/settings/TransferTasks.vue:111",
+            "apps/web/components/settings/TransferTasks.vue:229",
+            "apps/web/components/settings/TransferTasks.vue:266",
+            "apps/server/platform/transfers.ts:791"
+          ],
+          "guardBindings": [
+            {
+              "label": "重试未完成项目 / 重试任务",
+              "guard": "UI仅非restore且failed/interrupted/cancelled"
+            },
+            {
+              "label": "打开笔记",
+              "guard": "已登录所有者；请求期间禁用重复操作"
+            }
+          ],
+          "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+          "coveredStates": [
+            {
+              "state": "不可取消的一致性阶段返回409",
+              "variant": "不可取消的一致性阶段返回409",
+              "representation": "visible"
+            }
+          ],
+          "coveredSourceIds": [
+            "ST-026"
+          ],
+          "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+        },
+        {
+          "row": "r6",
+          "sourceId": "ST-027",
+          "title": "副本已撤旧会话/共享及停用插件说明",
+          "renderer": "apps/web/components/settings/TransferTasks.vue",
+          "sourceRefs": [
+            "apps/web/components/settings/TransferTasks.vue:240"
+          ],
+          "guardBindings": [],
+          "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+          "coveredStates": [
+            {
+              "state": "副本已撤旧会话/共享及停用插件说明",
+              "variant": "副本已撤旧会话/共享及停用插件说明",
+              "representation": "visible"
+            }
+          ],
+          "coveredSourceIds": [
+            "ST-027"
+          ],
+          "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+        },
+        {
+          "row": "r7",
+          "sourceId": "ST-027",
+          "title": "独立恢复成功回执完整只读位置/校验/切换说明卡，路径全为合成占位",
+          "renderer": "apps/web/components/settings/TransferTasks.vue",
+          "sourceRefs": [
+            "apps/web/components/settings/TransferTasks.vue:240"
+          ],
+          "guardBindings": [],
+          "presentation": "完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。",
+          "coveredSourceIds": [
+            "ST-027"
+          ]
+        }
+      ],
+      "allOriginalMappings": [
+        {
+          "sourceId": "ST-026",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "reason": "The complete page/form or source-confirmed local component matrix already owns this exact renderer and role. The removed bitmap redrew the same host/state with different message/data; use the explicit normal/local structural row plus exact guarded bindings. Exact source fields, roles, actions and guards are retained in the canonical asset contract."
+        },
+        {
+          "sourceId": "ST-027",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "reason": "The complete page/form or source-confirmed local component matrix already owns this exact renderer and role. The removed bitmap redrew the same host/state with different message/data; use the explicit normal/local structural row plus exact guarded bindings. Exact source fields, roles, actions and guards are retained in the canonical asset contract."
+        },
+        {
+          "sourceId": "ST-025",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "reason": "Same actual component apps/web/components/settings/TransferTasks.vue and owner-private role; local structural states/renderer patterns explicitly bound in stateCoverage."
+        },
+        {
+          "sourceId": "ST-026",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "reason": "Same actual component apps/web/components/settings/TransferTasks.vue and owner-private role; local structural states/renderer patterns explicitly bound in stateCoverage."
+        },
+        {
+          "sourceId": "ST-027",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "reason": "Same actual component apps/web/components/settings/TransferTasks.vue and owner-private role; local structural states/renderer patterns explicitly bound in stateCoverage."
+        }
+      ],
+      "allOriginalStateCoverage": [
+        {
+          "sourceId": "ST-026",
+          "state": "中断",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "shared-pattern",
+          "reason": "The complete page/form or source-confirmed local component matrix already owns this exact renderer and role. The removed bitmap redrew the same host/state with different message/data; use the explicit normal/local structural row plus exact guarded bindings. Exact source fields, roles, actions and guards are retained in the canonical asset contract.",
+          "variant": "中断",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:111",
+              "apps/web/components/settings/TransferTasks.vue:229",
+              "apps/web/components/settings/TransferTasks.vue:266",
+              "apps/server/platform/transfers.ts:791"
+            ],
+            "stateBindingContract": "中断",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "重试未完成项目 / 重试任务",
+                "guard": "UI仅非restore且failed/interrupted/cancelled"
+              },
+              {
+                "label": "打开笔记",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "ST-026",
+          "state": "取消",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "shared-pattern",
+          "reason": "The complete page/form or source-confirmed local component matrix already owns this exact renderer and role. The removed bitmap redrew the same host/state with different message/data; use the explicit normal/local structural row plus exact guarded bindings. Exact source fields, roles, actions and guards are retained in the canonical asset contract.",
+          "variant": "取消",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:111",
+              "apps/web/components/settings/TransferTasks.vue:229",
+              "apps/web/components/settings/TransferTasks.vue:266",
+              "apps/server/platform/transfers.ts:791"
+            ],
+            "stateBindingContract": "取消",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "重试未完成项目 / 重试任务",
+                "guard": "UI仅非restore且failed/interrupted/cancelled"
+              },
+              {
+                "label": "打开笔记",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "ST-027",
+          "state": "校验成功alert",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "shared-pattern",
+          "reason": "The complete page/form or source-confirmed local component matrix already owns this exact renderer and role. The removed bitmap redrew the same host/state with different message/data; use the explicit normal/local structural row plus exact guarded bindings. Exact source fields, roles, actions and guards are retained in the canonical asset contract.",
+          "variant": "校验成功alert",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:240"
+            ],
+            "stateBindingContract": "校验成功alert",
+            "fieldBindingContract": [
+              {
+                "name": "原文目录 / 数据目录 / 配置文件 / 校验回执",
+                "type": "read-only",
+                "required": false,
+                "constraints": "位置details；仅作为恢复副本信息，设计用占位路径",
+                "sensitive": false
+              }
+            ],
+            "actionGuards": []
+          }
+        },
+        {
+          "sourceId": "ST-027",
+          "state": "笔记/附件数",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "shared-pattern",
+          "reason": "The complete page/form or source-confirmed local component matrix already owns this exact renderer and role. The removed bitmap redrew the same host/state with different message/data; use the explicit normal/local structural row plus exact guarded bindings. Exact source fields, roles, actions and guards are retained in the canonical asset contract.",
+          "variant": "笔记/附件数",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:240"
+            ],
+            "stateBindingContract": "笔记/附件数",
+            "fieldBindingContract": [
+              {
+                "name": "原文目录 / 数据目录 / 配置文件 / 校验回执",
+                "type": "read-only",
+                "required": false,
+                "constraints": "位置details；仅作为恢复副本信息，设计用占位路径",
+                "sensitive": false
+              }
+            ],
+            "actionGuards": []
+          }
+        },
+        {
+          "sourceId": "ST-027",
+          "state": "部署切换guidance",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "shared-pattern",
+          "reason": "The complete page/form or source-confirmed local component matrix already owns this exact renderer and role. The removed bitmap redrew the same host/state with different message/data; use the explicit normal/local structural row plus exact guarded bindings. Exact source fields, roles, actions and guards are retained in the canonical asset contract.",
+          "variant": "部署切换guidance",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:240"
+            ],
+            "stateBindingContract": "部署切换guidance",
+            "fieldBindingContract": [
+              {
+                "name": "原文目录 / 数据目录 / 配置文件 / 校验回执",
+                "type": "read-only",
+                "required": false,
+                "constraints": "位置details；仅作为恢复副本信息，设计用占位路径",
+                "sensitive": false
+              }
+            ],
+            "actionGuards": []
+          }
+        },
+        {
+          "sourceId": "ST-025",
+          "state": "加载/暂无任务/读取错误",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "visible",
+          "reason": "Explicit readable representative r1 in a compact matrix; not a full-window montage.",
+          "variant": "暂无任务",
+          "matrixRow": "r1",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:17",
+              "apps/web/components/settings/TransferTasks.vue:147",
+              "apps/server/platform/transfers.ts:763"
+            ],
+            "stateBindingContract": "加载/暂无任务/读取错误",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "刷新任务 / 加载更多任务",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              },
+              {
+                "label": "取消任务",
+                "guard": "cancellable且queued/running"
+              },
+              {
+                "label": "下载结果",
+                "guard": "downloadAvailable"
+              },
+              {
+                "label": "查看已完成与已取消",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "ST-025",
+          "state": "加载/暂无任务/读取错误",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "visible",
+          "reason": "Explicit readable representative r2 in a compact matrix; not a full-window montage.",
+          "variant": "读取错误",
+          "matrixRow": "r2",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:17",
+              "apps/web/components/settings/TransferTasks.vue:147",
+              "apps/server/platform/transfers.ts:763"
+            ],
+            "stateBindingContract": "加载/暂无任务/读取错误",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "刷新任务 / 加载更多任务",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              },
+              {
+                "label": "取消任务",
+                "guard": "cancellable且queued/running"
+              },
+              {
+                "label": "下载结果",
+                "guard": "downloadAvailable"
+              },
+              {
+                "label": "查看已完成与已取消",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "ST-025",
+          "state": "compact排序：运行→失败中断→折叠历史",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "shared-pattern",
+          "reason": "Identical actual renderer/layout in apps/web/components/settings/TransferTasks.vue; only registered message/data and recorded guard availability vary. Representative r2 is visible; this variant is shared-pattern, never claimed simultaneously visible.",
+          "variant": "compact排序：运行→失败中断→折叠历史",
+          "matrixRow": "r2",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:17",
+              "apps/web/components/settings/TransferTasks.vue:147",
+              "apps/server/platform/transfers.ts:763"
+            ],
+            "stateBindingContract": "compact排序：运行→失败中断→折叠历史",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "刷新任务 / 加载更多任务",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              },
+              {
+                "label": "取消任务",
+                "guard": "cancellable且queued/running"
+              },
+              {
+                "label": "下载结果",
+                "guard": "downloadAvailable"
+              },
+              {
+                "label": "查看已完成与已取消",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "ST-025",
+          "state": "queued/running/succeeded/failed/cancelled/interrupted",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "visible",
+          "reason": "Explicit readable representative r3 in a compact matrix; not a full-window montage.",
+          "variant": "queued/running/succeeded/failed/cancelled/interrupted",
+          "matrixRow": "r3",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:17",
+              "apps/web/components/settings/TransferTasks.vue:147",
+              "apps/server/platform/transfers.ts:763"
+            ],
+            "stateBindingContract": "queued/running/succeeded/failed/cancelled/interrupted",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "刷新任务 / 加载更多任务",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              },
+              {
+                "label": "取消任务",
+                "guard": "cancellable且queued/running"
+              },
+              {
+                "label": "下载结果",
+                "guard": "downloadAvailable"
+              },
+              {
+                "label": "查看已完成与已取消",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "ST-025",
+          "state": "任务编号details",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "visible",
+          "reason": "Explicit readable representative r4 in a compact matrix; not a full-window montage.",
+          "variant": "任务编号details",
+          "matrixRow": "r4",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:17",
+              "apps/web/components/settings/TransferTasks.vue:147",
+              "apps/server/platform/transfers.ts:763"
+            ],
+            "stateBindingContract": "任务编号details",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "刷新任务 / 加载更多任务",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              },
+              {
+                "label": "取消任务",
+                "guard": "cancellable且queued/running"
+              },
+              {
+                "label": "下载结果",
+                "guard": "downloadAvailable"
+              },
+              {
+                "label": "查看已完成与已取消",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "ST-026",
+          "state": "逐项pending/succeeded/skipped/failed",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "shared-pattern",
+          "reason": "Identical actual component/role and alert/busy renderer geometry; representative r3 is visible while exact message/data/action-guard variant is shared. Per-source fields and guards retained in reuseEvidence; no simultaneous incompatible windows.",
+          "variant": "逐项pending/succeeded/skipped/failed",
+          "matrixRow": "r3",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:111",
+              "apps/web/components/settings/TransferTasks.vue:229",
+              "apps/web/components/settings/TransferTasks.vue:266",
+              "apps/server/platform/transfers.ts:791"
+            ],
+            "stateBindingContract": "逐项pending/succeeded/skipped/failed",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "重试未完成项目 / 重试任务",
+                "guard": "UI仅非restore且failed/interrupted/cancelled"
+              },
+              {
+                "label": "打开笔记",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "ST-026",
+          "state": "重试请求busy",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "shared-pattern",
+          "reason": "Identical actual component/role and alert/busy renderer geometry; representative r3 is visible while exact message/data/action-guard variant is shared. Per-source fields and guards retained in reuseEvidence; no simultaneous incompatible windows.",
+          "variant": "重试请求busy",
+          "matrixRow": "r3",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:111",
+              "apps/web/components/settings/TransferTasks.vue:229",
+              "apps/web/components/settings/TransferTasks.vue:266",
+              "apps/server/platform/transfers.ts:791"
+            ],
+            "stateBindingContract": "重试请求busy",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "重试未完成项目 / 重试任务",
+                "guard": "UI仅非restore且failed/interrupted/cancelled"
+              },
+              {
+                "label": "打开笔记",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "ST-026",
+          "state": "错误详情",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "shared-pattern",
+          "reason": "Identical actual component/role and alert/busy renderer geometry; representative r2 is visible while exact message/data/action-guard variant is shared. Per-source fields and guards retained in reuseEvidence; no simultaneous incompatible windows.",
+          "variant": "错误详情",
+          "matrixRow": "r2",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:111",
+              "apps/web/components/settings/TransferTasks.vue:229",
+              "apps/web/components/settings/TransferTasks.vue:266",
+              "apps/server/platform/transfers.ts:791"
+            ],
+            "stateBindingContract": "错误详情",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "重试未完成项目 / 重试任务",
+                "guard": "UI仅非restore且failed/interrupted/cancelled"
+              },
+              {
+                "label": "打开笔记",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "ST-026",
+          "state": "任务级失败",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "shared-pattern",
+          "reason": "Identical actual component/role and alert/busy renderer geometry; representative r2 is visible while exact message/data/action-guard variant is shared. Per-source fields and guards retained in reuseEvidence; no simultaneous incompatible windows.",
+          "variant": "任务级失败",
+          "matrixRow": "r2",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:111",
+              "apps/web/components/settings/TransferTasks.vue:229",
+              "apps/web/components/settings/TransferTasks.vue:266",
+              "apps/server/platform/transfers.ts:791"
+            ],
+            "stateBindingContract": "任务级失败",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "重试未完成项目 / 重试任务",
+                "guard": "UI仅非restore且failed/interrupted/cancelled"
+              },
+              {
+                "label": "打开笔记",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "ST-026",
+          "state": "不可取消的一致性阶段返回409",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "visible",
+          "reason": "Explicit readable representative r3 in a compact matrix; not a full-window montage.",
+          "variant": "不可取消的一致性阶段返回409",
+          "matrixRow": "r5",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:111",
+              "apps/web/components/settings/TransferTasks.vue:229",
+              "apps/web/components/settings/TransferTasks.vue:266",
+              "apps/server/platform/transfers.ts:791"
+            ],
+            "stateBindingContract": "不可取消的一致性阶段返回409",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "重试未完成项目 / 重试任务",
+                "guard": "UI仅非restore且failed/interrupted/cancelled"
+              },
+              {
+                "label": "打开笔记",
+                "guard": "已登录所有者；请求期间禁用重复操作"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "ST-027",
+          "state": "副本已撤旧会话/共享及停用插件说明",
+          "assetId": "MP-S013",
+          "panel": "A",
+          "representation": "visible",
+          "reason": "Explicit readable representative r1 in a compact matrix; not a full-window montage.",
+          "variant": "副本已撤旧会话/共享及停用插件说明",
+          "matrixRow": "r6",
+          "reuseEvidence": {
+            "component": "apps/web/components/settings/TransferTasks.vue",
+            "sourceRefs": [
+              "apps/web/components/settings/TransferTasks.vue:240"
+            ],
+            "stateBindingContract": "副本已撤旧会话/共享及停用插件说明",
+            "fieldBindingContract": [
+              {
+                "name": "原文目录 / 数据目录 / 配置文件 / 校验回执",
+                "type": "read-only",
+                "required": false,
+                "constraints": "位置details；仅作为恢复副本信息，设计用占位路径",
+                "sensitive": false
+              }
+            ],
+            "actionGuards": []
+          }
+        }
+      ],
+      "allOriginalAssetStateCoverageRefs": [],
+      "allOriginalParentBindings": [
+        {
+          "sourceId": "ST-025",
+          "parentId": "ST-002",
+          "route": "/?view=settings&section=library | /?view=settings&section=backup | /?view=settings&section=status",
+          "roles": [
+            "authenticated-owner"
+          ],
+          "sourceRefs": [
+            "apps/web/components/settings/TransferTasks.vue:17",
+            "apps/web/components/settings/TransferTasks.vue:147",
+            "apps/server/platform/transfers.ts:763"
+          ]
+        },
+        {
+          "sourceId": "ST-026",
+          "parentId": "ST-025",
+          "route": "/?view=settings&section=library | /?view=settings&section=backup",
+          "roles": [
+            "authenticated-owner"
+          ],
+          "sourceRefs": [
+            "apps/web/components/settings/TransferTasks.vue:111",
+            "apps/web/components/settings/TransferTasks.vue:229",
+            "apps/web/components/settings/TransferTasks.vue:266",
+            "apps/server/platform/transfers.ts:791"
+          ]
+        },
+        {
+          "sourceId": "ST-027",
+          "parentId": "ST-025",
+          "route": "/?view=settings&section=backup",
+          "roles": [
+            "authenticated-owner"
+          ],
+          "sourceRefs": [
+            "apps/web/components/settings/TransferTasks.vue:240"
+          ]
+        }
+      ],
+      "preservationRule": "Root may alias only the listed rows/scope to the referenced exact current SHA. Preserve every original mapping/state entry, message/data expression, action guards, field order, role/parent, scroll/focus semantics. Partial candidates keep this asset and every unlisted unique row; no inherited pass for unreviewed conditions."
+    },
+    {
+      "oldAssetId": "MP-S067",
+      "scope": "partial-row-only",
+      "decision": "proposal-only-root-ruling-required",
+      "candidateCanonical": {
+        "assetId": "MP-D112",
+        "panel": "single enlarged desktop preview dialog",
+        "image": "docs/design/platform-unification-2026-11-05/design/images/MP-D112.png",
+        "review": "docs/design/platform-unification-2026-11-05/design/reviews/MP-D112-review.json",
+        "reviewedImageSha256": "87b1dea18a9d1ccedcd8d7cdf7933a02e198623a132a2a79de5de1fddbb17c7e"
+      },
+      "targetRows": [
+        "r2 empty-preview variant only"
+      ],
+      "sourceEvidence": [
+        "apps/web/components/blog/BlogDesignStudio.vue:301",
+        "apps/web/components/blog/BlogPreviewViewport.vue:14"
+      ],
+      "reason": "Same BlogDesignStudio expanded private dialog with empty HTML, preparation placeholder and generate action already reviewed. Busy/error and revision-history rows are not covered.",
+      "exactBindingRequirements": {
+        "messageData": "designPreviewHtml empty; exact 正在准备你的主页。 plus 生成预览; private/Escape note unchanged.",
+        "guards": "Generate/refresh use !designPreviewBusy; do not alias busy/error, retained previousHTML, mobile-size or history variants as this exact visible state.",
+        "roleParent": "PB-047 authenticated owner child of PB-041, never standaloneGET/public blog.",
+        "scrollFocus": "Native dialog close/backdrop/Escape and origin-focus, sandbox/internal viewport unchanged."
+      },
+      "originalPlanFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+      "originalSourceIds": [
+        "PB-047",
+        "PB-048"
+      ],
+      "originalPanels": [
+        {
+          "label": "A",
+          "sourceId": "PB-047",
+          "title": "真实组件局部状态矩阵",
+          "role": "owner-private",
+          "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+        }
+      ],
+      "originalStateMatrix": [
+        {
+          "row": "r1",
+          "sourceId": "PB-047",
+          "title": "desktop/mobile fixed viewport scaling",
+          "renderer": "apps/web/components/blog/BlogDesignStudio.vue",
+          "sourceRefs": [
+            "apps/web/components/blog/BlogDesignStudio.vue:17",
+            "apps/web/components/blog/BlogDesignStudio.vue:301",
+            "apps/web/components/blog/BlogPreviewViewport.vue:14"
+          ],
+          "guardBindings": [
+            {
+              "label": "关闭预览",
+              "guard": ""
+            },
+            {
+              "label": "桌面 / 手机",
+              "guard": ""
+            },
+            {
+              "label": "刷新预览",
+              "guard": "not previewBusy"
+            }
+          ],
+          "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+          "coveredStates": [
+            {
+              "state": "desktop/mobile fixed viewport scaling",
+              "variant": "desktop/mobile fixed viewport scaling",
+              "representation": "visible"
+            }
+          ],
+          "coveredSourceIds": [
+            "PB-047"
+          ],
+          "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+        },
+        {
+          "row": "r2",
+          "sourceId": "PB-047",
+          "title": "empty preview; generate entry",
+          "renderer": "apps/web/components/blog/BlogDesignStudio.vue",
+          "sourceRefs": [
+            "apps/web/components/blog/BlogDesignStudio.vue:17",
+            "apps/web/components/blog/BlogDesignStudio.vue:301",
+            "apps/web/components/blog/BlogPreviewViewport.vue:14"
+          ],
+          "guardBindings": [
+            {
+              "label": "关闭预览",
+              "guard": ""
+            },
+            {
+              "label": "桌面 / 手机",
+              "guard": ""
+            },
+            {
+              "label": "刷新预览",
+              "guard": "not previewBusy"
+            }
+          ],
+          "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+          "coveredStates": [
+            {
+              "state": "empty/busy/error preview states",
+              "variant": "empty preview; generate entry",
+              "representation": "visible"
+            }
+          ],
+          "coveredSourceIds": [
+            "PB-047"
+          ],
+          "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+        },
+        {
+          "row": "r3",
+          "sourceId": "PB-047",
+          "title": "busy preview; refresh locked",
+          "renderer": "apps/web/components/blog/BlogDesignStudio.vue",
+          "sourceRefs": [
+            "apps/web/components/blog/BlogDesignStudio.vue:17",
+            "apps/web/components/blog/BlogDesignStudio.vue:301",
+            "apps/web/components/blog/BlogPreviewViewport.vue:14"
+          ],
+          "guardBindings": [
+            {
+              "label": "关闭预览",
+              "guard": ""
+            },
+            {
+              "label": "桌面 / 手机",
+              "guard": ""
+            },
+            {
+              "label": "刷新预览",
+              "guard": "not previewBusy"
+            }
+          ],
+          "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+          "coveredStates": [
+            {
+              "state": "empty/busy/error preview states",
+              "variant": "busy preview; refresh locked",
+              "representation": "visible"
+            }
+          ],
+          "coveredSourceIds": [
+            "PB-047",
+            "PB-048"
+          ],
+          "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+        },
+        {
+          "row": "r4",
+          "sourceId": "PB-047",
+          "title": "preview error; retained previous HTML and retry",
+          "renderer": "apps/web/components/blog/BlogDesignStudio.vue",
+          "sourceRefs": [
+            "apps/web/components/blog/BlogDesignStudio.vue:17",
+            "apps/web/components/blog/BlogDesignStudio.vue:301",
+            "apps/web/components/blog/BlogPreviewViewport.vue:14"
+          ],
+          "guardBindings": [
+            {
+              "label": "关闭预览",
+              "guard": ""
+            },
+            {
+              "label": "桌面 / 手机",
+              "guard": ""
+            },
+            {
+              "label": "刷新预览",
+              "guard": "not previewBusy"
+            }
+          ],
+          "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+          "coveredStates": [
+            {
+              "state": "empty/busy/error preview states",
+              "variant": "preview error; retained previous HTML and retry",
+              "representation": "visible"
+            }
+          ],
+          "coveredSourceIds": [
+            "PB-047"
+          ],
+          "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+        },
+        {
+          "row": "r5",
+          "sourceId": "PB-048",
+          "title": "no history until first publication",
+          "renderer": "apps/web/components/blog/BlogDesignStudio.vue",
+          "sourceRefs": [
+            "apps/web/components/blog/BlogDesignStudio.vue:211",
+            "apps/web/blog-workbench.ts:438",
+            "shared/blog-design.ts:41",
+            "packages/core/blog/studio.ts:265"
+          ],
+          "guardBindings": [
+            {
+              "label": "恢复到草稿",
+              "guard": "not dirty/busy; valid revision"
+            }
+          ],
+          "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+          "coveredStates": [
+            {
+              "state": "no history until first publication",
+              "variant": "no history until first publication",
+              "representation": "visible"
+            }
+          ],
+          "coveredSourceIds": [
+            "PB-048"
+          ],
+          "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+        }
+      ],
+      "allOriginalMappings": [
+        {
+          "sourceId": "PB-047",
+          "assetId": "MP-S067",
+          "panel": "A",
+          "reason": "Same actual component apps/web/components/blog/BlogDesignStudio.vue and owner-private role; local structural states/renderer patterns explicitly bound in stateCoverage."
+        },
+        {
+          "sourceId": "PB-048",
+          "assetId": "MP-S067",
+          "panel": "A",
+          "reason": "Same actual component apps/web/components/blog/BlogDesignStudio.vue and owner-private role; local structural states/renderer patterns explicitly bound in stateCoverage."
+        }
+      ],
+      "allOriginalStateCoverage": [
+        {
+          "sourceId": "PB-047",
+          "state": "desktop/mobile fixed viewport scaling",
+          "assetId": "MP-S067",
+          "panel": "A",
+          "representation": "visible",
+          "reason": "Explicit readable representative r1 in a compact matrix; not a full-window montage.",
+          "variant": "desktop/mobile fixed viewport scaling",
+          "matrixRow": "r1",
+          "reuseEvidence": {
+            "component": "apps/web/components/blog/BlogDesignStudio.vue",
+            "sourceRefs": [
+              "apps/web/components/blog/BlogDesignStudio.vue:17",
+              "apps/web/components/blog/BlogDesignStudio.vue:301",
+              "apps/web/components/blog/BlogPreviewViewport.vue:14"
+            ],
+            "stateBindingContract": "desktop/mobile fixed viewport scaling",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "关闭预览",
+                "guard": ""
+              },
+              {
+                "label": "桌面 / 手机",
+                "guard": ""
+              },
+              {
+                "label": "刷新预览",
+                "guard": "not previewBusy"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "PB-047",
+          "state": "empty/busy/error preview states",
+          "assetId": "MP-S067",
+          "panel": "A",
+          "representation": "visible",
+          "reason": "Explicit readable representative r2 in a compact matrix; not a full-window montage.",
+          "variant": "empty preview; generate entry",
+          "matrixRow": "r2",
+          "reuseEvidence": {
+            "component": "apps/web/components/blog/BlogDesignStudio.vue",
+            "sourceRefs": [
+              "apps/web/components/blog/BlogDesignStudio.vue:17",
+              "apps/web/components/blog/BlogDesignStudio.vue:301",
+              "apps/web/components/blog/BlogPreviewViewport.vue:14"
+            ],
+            "stateBindingContract": "empty/busy/error preview states",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "关闭预览",
+                "guard": ""
+              },
+              {
+                "label": "桌面 / 手机",
+                "guard": ""
+              },
+              {
+                "label": "刷新预览",
+                "guard": "not previewBusy"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "PB-047",
+          "state": "empty/busy/error preview states",
+          "assetId": "MP-S067",
+          "panel": "A",
+          "representation": "visible",
+          "reason": "Explicit readable representative r3 in a compact matrix; not a full-window montage.",
+          "variant": "busy preview; refresh locked",
+          "matrixRow": "r3",
+          "reuseEvidence": {
+            "component": "apps/web/components/blog/BlogDesignStudio.vue",
+            "sourceRefs": [
+              "apps/web/components/blog/BlogDesignStudio.vue:17",
+              "apps/web/components/blog/BlogDesignStudio.vue:301",
+              "apps/web/components/blog/BlogPreviewViewport.vue:14"
+            ],
+            "stateBindingContract": "empty/busy/error preview states",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "关闭预览",
+                "guard": ""
+              },
+              {
+                "label": "桌面 / 手机",
+                "guard": ""
+              },
+              {
+                "label": "刷新预览",
+                "guard": "not previewBusy"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "PB-047",
+          "state": "empty/busy/error preview states",
+          "assetId": "MP-S067",
+          "panel": "A",
+          "representation": "visible",
+          "reason": "Explicit readable representative r4 in a compact matrix; not a full-window montage.",
+          "variant": "preview error; retained previous HTML and retry",
+          "matrixRow": "r4",
+          "reuseEvidence": {
+            "component": "apps/web/components/blog/BlogDesignStudio.vue",
+            "sourceRefs": [
+              "apps/web/components/blog/BlogDesignStudio.vue:17",
+              "apps/web/components/blog/BlogDesignStudio.vue:301",
+              "apps/web/components/blog/BlogPreviewViewport.vue:14"
+            ],
+            "stateBindingContract": "empty/busy/error preview states",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "关闭预览",
+                "guard": ""
+              },
+              {
+                "label": "桌面 / 手机",
+                "guard": ""
+              },
+              {
+                "label": "刷新预览",
+                "guard": "not previewBusy"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "PB-048",
+          "state": "no history until first publication",
+          "assetId": "MP-S067",
+          "panel": "A",
+          "representation": "visible",
+          "reason": "Explicit readable representative r1 in a compact matrix; not a full-window montage.",
+          "variant": "no history until first publication",
+          "matrixRow": "r5",
+          "reuseEvidence": {
+            "component": "apps/web/components/blog/BlogDesignStudio.vue",
+            "sourceRefs": [
+              "apps/web/components/blog/BlogDesignStudio.vue:211",
+              "apps/web/blog-workbench.ts:438",
+              "shared/blog-design.ts:41",
+              "packages/core/blog/studio.ts:265"
+            ],
+            "stateBindingContract": "no history until first publication",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "恢复到草稿",
+                "guard": "not dirty/busy; valid revision"
+              }
+            ]
+          }
+        },
+        {
+          "sourceId": "PB-048",
+          "state": "restore disabled while dirty or busy",
+          "assetId": "MP-S067",
+          "panel": "A",
+          "representation": "shared-pattern",
+          "reason": "Identical actual component/role and alert/busy renderer geometry; representative r3 is visible while exact message/data/action-guard variant is shared. Per-source fields and guards retained in reuseEvidence; no simultaneous incompatible windows.",
+          "variant": "restore disabled while dirty or busy",
+          "matrixRow": "r3",
+          "reuseEvidence": {
+            "component": "apps/web/components/blog/BlogDesignStudio.vue",
+            "sourceRefs": [
+              "apps/web/components/blog/BlogDesignStudio.vue:211",
+              "apps/web/blog-workbench.ts:438",
+              "shared/blog-design.ts:41",
+              "packages/core/blog/studio.ts:265"
+            ],
+            "stateBindingContract": "restore disabled while dirty or busy",
+            "fieldBindingContract": [],
+            "actionGuards": [
+              {
+                "label": "恢复到草稿",
+                "guard": "not dirty/busy; valid revision"
+              }
+            ]
+          }
+        }
+      ],
+      "allOriginalAssetStateCoverageRefs": [],
+      "allOriginalParentBindings": [
+        {
+          "sourceId": "PB-047",
+          "parentId": "PB-041",
+          "route": "/?view=apps&app=blog&appSection=design",
+          "roles": [
+            "authenticated owner"
+          ],
+          "sourceRefs": [
+            "apps/web/components/blog/BlogDesignStudio.vue:17",
+            "apps/web/components/blog/BlogDesignStudio.vue:301",
+            "apps/web/components/blog/BlogPreviewViewport.vue:14"
+          ]
+        },
+        {
+          "sourceId": "PB-048",
+          "parentId": "PB-041",
+          "route": "/?view=apps&app=blog&appSection=design",
+          "roles": [
+            "authenticated owner"
+          ],
+          "sourceRefs": [
+            "apps/web/components/blog/BlogDesignStudio.vue:211",
+            "apps/web/blog-workbench.ts:438",
+            "shared/blog-design.ts:41",
+            "packages/core/blog/studio.ts:265"
+          ]
+        }
+      ],
+      "preservationRule": "Root may alias only the listed rows/scope to the referenced exact current SHA. Preserve every original mapping/state entry, message/data expression, action guards, field order, role/parent, scroll/focus semantics. Partial candidates keep this asset and every unlisted unique row; no inherited pass for unreviewed conditions."
+    },
+    {
+      "oldAssetId": "WS-M005",
+      "scope": "partial-row-only",
+      "decision": "proposal-only-root-ruling-required",
+      "candidateCanonical": {
+        "assetId": "WS-D041",
+        "panel": "A inline recovery warning",
+        "image": "docs/design/platform-unification-2026-11-05/design/images/WS-D041.png",
+        "review": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D041-review.json",
+        "reviewedImageSha256": "3ac5968457c283d33c50e76efdc4cd95623db6bbd4df80df178467d424c00493"
+      },
+      "targetRows": [
+        "row-3 fragment-changed only"
+      ],
+      "sourceEvidence": [
+        "apps/web/components/DraftRecovery.vue:22",
+        "apps/web/components/DraftRecovery.vue:61"
+      ],
+      "reason": "Same complete DraftRecovery warning with changed fragment baseline and disabled automatic restore already visibly represented in WS-D041 panelA (copyOpen fallback is compatible child state). Full-note and inert-editor cases remain independent.",
+      "exactBindingRequirements": {
+        "messageData": "fragmenttrue/baseChangedtrue, exact cannot-auto-restore copy-only warning; preserve draft range/browser time and optional copyOpen text separately.",
+        "guards": "Restore disabled by fragment&&baseChanged; copy/discard active idle; restoring never writes saved original. Busy/inert-host conditions not inferred from this PNG.",
+        "roleParent": "WS-054 owner recovery prompt within WS-024; parent editor inertness remains original nonvisual guard mapping.",
+        "scrollFocus": "Inline alert, optional readonly textarea selects on focus, no modal close/title added."
+      },
+      "originalPlanFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+      "originalSourceIds": [
+        "WS-054"
+      ],
+      "originalPanels": [
+        {
+          "label": "A",
+          "sourceId": "WS-054",
+          "title": "Local draft recovery prompt — compact component state matrix",
+          "role": "authenticated owner",
+          "state": "DraftRecovery.vue same recovery banner/actions; textarea fallback remains separate WS-055 window.",
+          "presentation": "ONE compact component matrix, not multiple simultaneously open full windows",
+          "rows": [
+            {
+              "label": "row-1",
+              "sourceId": "WS-054",
+              "title": "Local draft recovery prompt",
+              "role": "authenticated owner",
+              "state": "Full-note offered draft baseline unchanged",
+              "actionPresentation": "Actual restore/copy/discard only; fragment changed baseline disables automatic restore and busy disables operations; restoring does not save.",
+              "sourceComponent": "apps/web/components/DraftRecovery.vue"
+            },
+            {
+              "label": "row-2",
+              "sourceId": "WS-054",
+              "title": "Local draft recovery prompt",
+              "role": "authenticated owner",
+              "state": "Full-note offered draft baseline changed",
+              "actionPresentation": "Actual restore/copy/discard only; fragment changed baseline disables automatic restore and busy disables operations; restoring does not save.",
+              "sourceComponent": "apps/web/components/DraftRecovery.vue"
+            },
+            {
+              "label": "row-3",
+              "sourceId": "WS-054",
+              "title": "Local draft recovery prompt",
+              "role": "authenticated owner",
+              "state": "Fragment baseline changed; automatic restore unavailable",
+              "actionPresentation": "Actual restore/copy/discard only; fragment changed baseline disables automatic restore and busy disables operations; restoring does not save.",
+              "sourceComponent": "apps/web/components/DraftRecovery.vue"
+            },
+            {
+              "label": "row-4",
+              "sourceId": "WS-054",
+              "title": "Local draft recovery prompt",
+              "role": "authenticated owner",
+              "state": "Editor inert while recovery decision pending",
+              "actionPresentation": "Actual restore/copy/discard only; fragment changed baseline disables automatic restore and busy disables operations; restoring does not save.",
+              "sourceComponent": "apps/web/components/DraftRecovery.vue"
+            }
+          ]
+        }
+      ],
+      "originalStateMatrix": null,
+      "allOriginalMappings": [
+        {
+          "sourceId": "WS-054",
+          "assetId": "WS-M005",
+          "panel": "A",
+          "coverage": "direct",
+          "reason": "Canonical exact visual component/page with source-specific fields/actions/role retained; additional representations list explicit alternate layouts and compact state specimens.",
+          "additionalRepresentations": [],
+          "responsiveCoverage": {
+            "assetId": "WS-R011",
+            "reuseSourceId": "WS-024",
+            "representation": "shared-pattern",
+            "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+            "sourceConstraint": {
+              "supported": "source-defined; runtime at 320/390/1440 unverified",
+              "widths": [
+                320,
+                390,
+                1440
+              ],
+              "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+            },
+            "requiredFieldOrder": [],
+            "requiredActions": [
+              {
+                "label": "恢复本地草稿",
+                "effect": "Load draft into editor without saving",
+                "api": "none",
+                "guard": "For fragment, disabled if base changed; disabled while busy"
+              },
+              {
+                "label": "复制恢复文本",
+                "effect": "Copy draft and reveal fallback textarea",
+                "api": "none (local UI)",
+                "guard": "Owner session; control-specific guards described in permissionRules."
+              },
+              {
+                "label": "丢弃本地草稿",
+                "effect": "Delete offered local draft",
+                "api": "none (local UI)",
+                "guard": "Owner session; control-specific guards described in permissionRules."
+              }
+            ],
+            "requiresActualFitReview": true,
+            "requiredFields": [],
+            "roles": [
+              "authenticated owner"
+            ],
+            "permissionRules": [
+              "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+            ],
+            "widths": [
+              320,
+              390
+            ],
+            "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+            "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family."
+          }
+        }
+      ],
+      "allOriginalStateCoverage": [
+        {
+          "sourceId": "WS-054",
+          "state": "Full note baseline unchanged/changed",
+          "assetId": "WS-M005",
+          "panel": "A",
+          "representation": "same-renderer-substitution",
+          "reason": "Exact important-state fact retained in the named renderer and source bindings/action guards. Use its explicit compact specimen or canonical complete component; text/data/disabled/control-condition substitutions do not create a new full-window image. Incompatible states are independent specimens.",
+          "sourceComponent": "apps/web/components/DraftRecovery.vue",
+          "sourceBindings": [
+            "draftError",
+            "recoveryDraft",
+            "pendingAsset?.noteId === note.id",
+            "editorHint",
+            "draft"
+          ],
+          "actionGuards": [
+            {
+              "label": "恢复本地草稿",
+              "guard": "For fragment, disabled if base changed; disabled while busy"
+            },
+            {
+              "label": "复制恢复文本",
+              "guard": "Owner session; control-specific guards described in permissionRules."
+            },
+            {
+              "label": "丢弃本地草稿",
+              "guard": "Owner session; control-specific guards described in permissionRules."
+            }
+          ],
+          "sourceRefs": [
+            "apps/web/components/DraftRecovery.vue:1",
+            "apps/web/components/Workspace.vue:3279",
+            "apps/web/useNoteDraft.ts:1"
+          ],
+          "patternRows": [
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-1",
+              "state": "Full-note offered draft baseline unchanged"
+            },
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-2",
+              "state": "Full-note offered draft baseline changed"
+            },
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-3",
+              "state": "Fragment baseline changed; automatic restore unavailable"
+            },
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-4",
+              "state": "Editor inert while recovery decision pending"
+            }
+          ],
+          "originalRepresentation": "shared-pattern",
+          "row": "row-1"
+        },
+        {
+          "sourceId": "WS-054",
+          "state": "Fragment baseline changed forbids auto restore",
+          "assetId": "WS-M005",
+          "panel": "A",
+          "representation": "same-renderer-substitution",
+          "reason": "Exact important-state fact retained in the named renderer and source bindings/action guards. Use its explicit compact specimen or canonical complete component; text/data/disabled/control-condition substitutions do not create a new full-window image. Incompatible states are independent specimens.",
+          "sourceComponent": "apps/web/components/DraftRecovery.vue",
+          "sourceBindings": [
+            "draftError",
+            "recoveryDraft",
+            "pendingAsset?.noteId === note.id",
+            "editorHint",
+            "draft"
+          ],
+          "actionGuards": [
+            {
+              "label": "恢复本地草稿",
+              "guard": "For fragment, disabled if base changed; disabled while busy"
+            },
+            {
+              "label": "复制恢复文本",
+              "guard": "Owner session; control-specific guards described in permissionRules."
+            },
+            {
+              "label": "丢弃本地草稿",
+              "guard": "Owner session; control-specific guards described in permissionRules."
+            }
+          ],
+          "sourceRefs": [
+            "apps/web/components/DraftRecovery.vue:1",
+            "apps/web/components/Workspace.vue:3279",
+            "apps/web/useNoteDraft.ts:1"
+          ],
+          "patternRows": [
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-1",
+              "state": "Full-note offered draft baseline unchanged"
+            },
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-2",
+              "state": "Full-note offered draft baseline changed"
+            },
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-3",
+              "state": "Fragment baseline changed; automatic restore unavailable"
+            },
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-4",
+              "state": "Editor inert while recovery decision pending"
+            }
+          ],
+          "originalRepresentation": "shared-pattern",
+          "row": "row-1"
+        },
+        {
+          "sourceId": "WS-054",
+          "state": "Diagram recovery uses same prompt",
+          "assetId": "WS-M005",
+          "panel": "A",
+          "representation": "same-renderer-substitution",
+          "reason": "Exact important-state fact retained in the named renderer and source bindings/action guards. Use its explicit compact specimen or canonical complete component; text/data/disabled/control-condition substitutions do not create a new full-window image. Incompatible states are independent specimens.",
+          "sourceComponent": "apps/web/components/DraftRecovery.vue",
+          "sourceBindings": [
+            "draftError",
+            "recoveryDraft",
+            "pendingAsset?.noteId === note.id",
+            "editorHint",
+            "draft"
+          ],
+          "actionGuards": [
+            {
+              "label": "恢复本地草稿",
+              "guard": "For fragment, disabled if base changed; disabled while busy"
+            },
+            {
+              "label": "复制恢复文本",
+              "guard": "Owner session; control-specific guards described in permissionRules."
+            },
+            {
+              "label": "丢弃本地草稿",
+              "guard": "Owner session; control-specific guards described in permissionRules."
+            }
+          ],
+          "sourceRefs": [
+            "apps/web/components/DraftRecovery.vue:1",
+            "apps/web/components/Workspace.vue:3279",
+            "apps/web/useNoteDraft.ts:1"
+          ],
+          "patternRows": [
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-1",
+              "state": "Full-note offered draft baseline unchanged"
+            },
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-2",
+              "state": "Full-note offered draft baseline changed"
+            },
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-3",
+              "state": "Fragment baseline changed; automatic restore unavailable"
+            },
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-4",
+              "state": "Editor inert while recovery decision pending"
+            }
+          ],
+          "originalRepresentation": "shared-pattern",
+          "row": "row-1"
+        },
+        {
+          "sourceId": "WS-054",
+          "state": "Editor inert/read-only until decision",
+          "assetId": "WS-M005",
+          "panel": "A",
+          "representation": "same-renderer-substitution",
+          "reason": "Exact important-state fact retained in the named renderer and source bindings/action guards. Use its explicit compact specimen or canonical complete component; text/data/disabled/control-condition substitutions do not create a new full-window image. Incompatible states are independent specimens.",
+          "sourceComponent": "apps/web/components/DraftRecovery.vue",
+          "sourceBindings": [
+            "draftError",
+            "recoveryDraft",
+            "pendingAsset?.noteId === note.id",
+            "editorHint",
+            "draft"
+          ],
+          "actionGuards": [
+            {
+              "label": "恢复本地草稿",
+              "guard": "For fragment, disabled if base changed; disabled while busy"
+            },
+            {
+              "label": "复制恢复文本",
+              "guard": "Owner session; control-specific guards described in permissionRules."
+            },
+            {
+              "label": "丢弃本地草稿",
+              "guard": "Owner session; control-specific guards described in permissionRules."
+            }
+          ],
+          "sourceRefs": [
+            "apps/web/components/DraftRecovery.vue:1",
+            "apps/web/components/Workspace.vue:3279",
+            "apps/web/useNoteDraft.ts:1"
+          ],
+          "patternRows": [
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-1",
+              "state": "Full-note offered draft baseline unchanged"
+            },
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-2",
+              "state": "Full-note offered draft baseline changed"
+            },
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-3",
+              "state": "Fragment baseline changed; automatic restore unavailable"
+            },
+            {
+              "assetId": "WS-M005",
+              "panel": "A",
+              "row": "row-4",
+              "state": "Editor inert while recovery decision pending"
+            }
+          ],
+          "originalRepresentation": "shared-pattern",
+          "row": "row-1"
+        }
+      ],
+      "allOriginalAssetStateCoverageRefs": [
+        {
+          "sourceId": "WS-054",
+          "state": "Full note baseline unchanged/changed",
+          "representation": "same-renderer-substitution"
+        },
+        {
+          "sourceId": "WS-054",
+          "state": "Fragment baseline changed forbids auto restore",
+          "representation": "same-renderer-substitution"
+        },
+        {
+          "sourceId": "WS-054",
+          "state": "Diagram recovery uses same prompt",
+          "representation": "same-renderer-substitution"
+        },
+        {
+          "sourceId": "WS-054",
+          "state": "Editor inert/read-only until decision",
+          "representation": "same-renderer-substitution"
+        }
+      ],
+      "allOriginalParentBindings": [
+        {
+          "sourceId": "WS-054",
+          "parentId": "WS-024",
+          "role": [
+            "authenticated owner"
+          ],
+          "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+        }
+      ],
+      "preservationRule": "Root may alias only the listed rows/scope to the referenced exact current SHA. Preserve every original mapping/state entry, message/data expression, action guards, field order, role/parent, scroll/focus semantics. Partial candidates keep this asset and every unlisted unique row; no inherited pass for unreviewed conditions."
+    }
+  ],
+  "keepOriginalUnlessSeparatelyProven": [
+    "All unlisted state/responsive assets and every unlisted row in partial candidates.",
+    "Role-specific owner/public/setup/OAuth/reauth hosts and genuine source-specific form controls.",
+    "Library fetch error and search preparation-task errors cannot be substituted by plain unavailable/no-distribution data (MP-S002/S003 current review).",
+    "Provider none versus configured model, semantic versus similarity inspector, history Git versus saved-record branches, and task rows with new guarded buttons.",
+    "Exact320/390 geometry, focus/scroll/keyboard behavior still needs actual runtime verification; aliasing artwork does not certify it."
+  ],
+  "rootActionRequired": "If accepted, root updates canonical mappings with the fully retained source/state/role/message/data/guard records and regenerates derived lane/catalog deliberately; reviewer does not alter those files. Preserve all already-generated PNGs/reviews."
+}

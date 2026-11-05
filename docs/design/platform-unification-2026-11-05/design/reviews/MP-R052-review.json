@@ -1,0 +1,49 @@
+{
+  "assetId": "MP-R052",
+  "sourceIds": [
+    "PB-019"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:14:46.451933+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "OAuth legacy request without allowedPolicy, only knowledge:read allowed. A/B nine actual supplied prefixes selected; C same read selection with no prefixes and allow disabled, not busy.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG, full actual prompt and matching supplied390 OAuth baseline compared. Own complete OAuth shell, identity, exact single read operation, ordered nine prefix checkbox rows and actual consent actions retained.",
+    "Legacy checkboxes deliberately remain distinct from modern policy selectors/tags. README.md is correctly one supplied allowed prefix with the actual generic folder icon, not a fabricated editable resource or selectable owner browser.",
+    "C leaves operation selected and directory checkboxes enabled but all empty; needsNoteDirectories=true therefore canAccept=false. Deny remains available, allow disabled without busy spinner; no invented selection error message.",
+    "Only allowed read requested, so no offline checkbox, write dependency controls or ToDoo domain is required in this selected request. Server session/signature/resource/ceiling validation remains authoritative; no consent execution asserted."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-040.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R052.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/OAuthConsent.vue:25",
+    "apps/web/components/OAuthConsent.vue:44",
+    "apps/web/components/OAuthConsent.vue:96",
+    "apps/server/platform/oauth.ts:35",
+    "apps/server/platform/oauth.ts:89",
+    "docs/design/platform-unification-2026-11-05/baseline/public/390-oauth-consent.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "fb8217d16a4c4e29c028e9871f5c994dde51080e35fe808f43b29815b732ea37",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R052.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

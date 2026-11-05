@@ -1,0 +1,46 @@
+{
+  "assetId": "WS-D038",
+  "sourceIds": [
+    "WS-050",
+    "WS-051"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:44:40.763604+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "A oversized metadata-only body and B loaded large-file fragment preview",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed both independent crops/full prompt. Metadata mode has no fragment editor/actions or invented metadata form. Shared real size-limit alert retained.",
+    "B selected clean three-line UTF8 fragment is exactly52bytes, with hasMore=true: outline/current range/source line numbers, current-fragment preview and real close/save/next/reread/download actions. Clean status does not disable fragment-save in current template; byte limits and scope do not imply whole-file render/save."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-032.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D038.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/LargeFileWorkspace.vue:160",
+    "apps/web/components/LargeFileWorkspace.vue:507",
+    "apps/web/components/LargeFileWorkspace.vue:529",
+    "packages/core/knowledge/limits.ts:1"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "6ac9187608008893cc3ce1eac275b95e007b3f3bbe5665b9135eef1eaaa22c3c",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D038.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

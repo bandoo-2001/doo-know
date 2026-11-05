@@ -1,0 +1,424 @@
+{
+  "id": "MP-S035",
+  "title": "Component state matrix: owner-private / api.ts",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-090"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-090",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-090",
+      "route": "/?view=settings&section=library | /?view=settings&section=plugins | /?view=settings&section=search | /?view=settings&section=backup",
+      "trigger": "API返回401/403/503；库未绑定/运行时不可用",
+      "parentId": null,
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "401需登录",
+        "403不允许请求来源/权限扩大/错误密码",
+        "503维护",
+        "library-dependent API运行时未就绪",
+        "MCP服务关闭409",
+        "业务错误仍由现有alert承接"
+      ],
+      "notes": [
+        "未发现独立管理403页面；这是现有卡片/表单错误状态，不虚构新路由。具体App会话失效屏由public/workspace inventory负责。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/web/api.ts",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-090",
+      "label": "各卡片现有刷新/重新读取",
+      "effect": "按具体模块重试；401会话失效由应用统一处理",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-090",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "保留下方B的轮换API Key冲突样例所有文案、字段与按钮状态。只把上方A整个Git错误提示样例替换成紧凑重新登录表单：小蓝书本+DooKnow，标题“登录已失效”，说明“重新登录后可继续编辑，未保存内容仍保留。”；可见字段标签“用户名”对应空文本框placeholder“请输入用户名”，可见标签“密码”对应空密码框placeholder“请输入密码”与密码眼睛图标；“登录”按钮灰色禁用；下方锁图标与“笔记默认私有，仅分享链接可公开访问”。A不出现关闭X、取消、登录失败、Git刷新按钮或公开首次使用帮助。A/B各为独立场景，适当加长画布保持B不裁切。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S035-v2.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-090",
+      "title": "401需登录",
+      "renderer": "apps/web/api.ts",
+      "sourceRefs": [
+        "apps/server/app.ts:141",
+        "apps/server/app.ts:169",
+        "apps/server/platform/management.ts:83",
+        "apps/server/platform/transfers.ts:181",
+        "apps/web/api.ts:1"
+      ],
+      "guardBindings": [
+        {
+          "label": "各卡片现有刷新/重新读取",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "401需登录",
+          "variant": "401需登录",
+          "representation": "visible"
+        },
+        {
+          "state": "403不允许请求来源/权限扩大/错误密码",
+          "variant": "403不允许请求来源/权限扩大/错误密码",
+          "representation": "shared-pattern"
+        },
+        {
+          "state": "503维护",
+          "variant": "503维护",
+          "representation": "shared-pattern"
+        },
+        {
+          "state": "业务错误仍由现有alert承接",
+          "variant": "业务错误仍由现有alert承接",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-090"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-090",
+      "title": "MCP服务关闭409",
+      "renderer": "apps/web/api.ts",
+      "sourceRefs": [
+        "apps/server/app.ts:141",
+        "apps/server/app.ts:169",
+        "apps/server/platform/management.ts:83",
+        "apps/server/platform/transfers.ts:181",
+        "apps/web/api.ts:1"
+      ],
+      "guardBindings": [
+        {
+          "label": "各卡片现有刷新/重新读取",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "MCP服务关闭409",
+          "variant": "MCP服务关闭409",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-090"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-090",
+      "parentId": null,
+      "route": "/?view=settings&section=library | /?view=settings&section=plugins | /?view=settings&section=search | /?view=settings&section=backup",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/server/app.ts:141",
+        "apps/server/app.ts:169",
+        "apps/server/platform/management.ts:83",
+        "apps/server/platform/transfers.ts:181",
+        "apps/web/api.ts:1"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-090",
+      "title": "管理功能权限、维护与库未就绪错误",
+      "kind": "state",
+      "module": "settings/access",
+      "entry": {
+        "route": "/?view=settings&section=library | /?view=settings&section=plugins | /?view=settings&section=search | /?view=settings&section=backup",
+        "trigger": "API返回401/403/503；库未绑定/运行时不可用",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/app.ts:141",
+        "apps/server/app.ts:169",
+        "apps/server/platform/management.ts:83",
+        "apps/server/platform/transfers.ts:181",
+        "apps/web/api.ts:1"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "各卡片现有刷新/重新读取",
+          "effect": "按具体模块重试；401会话失效由应用统一处理",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "401需登录",
+        "403不允许请求来源/权限扩大/错误密码",
+        "503维护",
+        "library-dependent API运行时未就绪",
+        "MCP服务关闭409",
+        "业务错误仍由现有alert承接"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/management-api.test.ts:7",
+        "tests/git-remote-routes.test.ts:7",
+        "tests/mcp-api-keys.test.ts:211"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "未发现独立管理403页面；这是现有卡片/表单错误状态，不虚构新路由。具体App会话失效屏由public/workspace inventory负责。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S035",
+  "roles": [
+    "owner-reauth",
+    "authenticated-owner"
+  ],
+  "selectedState": [
+    "A App compact owner reauthentication after API401",
+    "B MCP rotation409 conflict retains expiry"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "保留下方B的轮换API Key冲突样例所有文案、字段与按钮状态。只把上方A整个Git错误提示样例替换成紧凑重新登录表单：小蓝书本+DooKnow，标题“登录已失效”，说明“重新登录后可继续编辑，未保存内容仍保留。”；可见字段标签“用户名”对应空文本框placeholder“请输入用户名”，可见标签“密码”对应空密码框placeholder“请输入密码”与密码眼睛图标；“登录”按钮灰色禁用；下方锁图标与“笔记默认私有，仅分享链接可公开访问”。A不出现关闭X、取消、登录失败、Git刷新按钮或公开首次使用帮助。A/B各为独立场景，适当加长画布保持B不裁切。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S035 Component state matrix: owner-private / api.ts\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | ST-090 | 真实组件局部状态矩阵 | role=owner-private | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n局部矩阵（≤7行/卡）：\nr1 | ST-090 | 实际只画代表：401需登录 | 已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。 | renderer=apps/web/api.ts\nr2 | ST-090 | 实际只画代表：MCP服务关闭409 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/api.ts\n\n精确功能/字段/动作guard合同：\nST-090权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-090字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-090白名单：各卡片现有刷新/重新读取 => 按具体模块重试；401会话失效由应用统一处理；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\n1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S035.png",
+      "role": "previous generated design edit target",
+      "responsibility": "Targeted host reachability correction, preserve valid specimens",
+      "sha256": "c28edaf5a22848236410f2ced15784c68789dcdd112e1f4d74a669c2ca480d52",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1163512
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S035.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S035-v2.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-ffebf76f-98a5-4d44-b6a3-ea519451756f.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-ffebf76f-98a5-4d44-b6a3-ea519451756f.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T04:41:44.397Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "concerns": [],
+    "pageSpecific": "Corrected only source-proven independent specimen, preserved all other valid content."
+  },
+  "sha256": "c47687e17e2620df4f910a76da66f0817980fda64c9e408667f95aba8d7fb73f",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1286652,
+  "sourceInspection": [
+    {
+      "path": "apps/server/app.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f"
+    },
+    {
+      "path": "apps/server/app.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f"
+    },
+    {
+      "path": "apps/server/platform/management.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "865a1c700e2766c01b056d88394c71b432afad1b121cf81f78c2c668aedffcc1"
+    },
+    {
+      "path": "apps/server/platform/transfers.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7bff08aba5736bb235082280a200f194d5ad40a65cd5adf7c2cbcbe2178864a5"
+    },
+    {
+      "path": "apps/web/api.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "f3cfa4add2ed9f30efb83d401345d9c95e7437b8d2e09cea21fd853ac79b55ec"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived compact states; no login/API/session expiry/mutation or close/focus runtime tests.",
+  "exactErrorBinding": "A corrected to actual global compact Login401 handling; B remains actual MCP_SERVICE_DISABLED race409 generic conflict catch. Old Git-local401 claim superseded by revision.",
+  "priorGeneration": {
+    "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n上下两个独立管理错误局部，外部只标A、B。A红色错误提示“登录已过期，请重新登录后继续。”，可用按钮“刷新同步状态”，没有凭据或重新登录表单。B黄色提示“客户端或授权已经变化，当前输入已保留。请重新载入后检查并保存。”，下面标题“轮换 API Key”，字段“密钥有效期”下拉选“90 天（默认）”可用；说明“签发后旧密钥立即失效；客户端身份和已授予权限保持不变。”；底部“确认轮换 API Key”灰色禁用、“重新载入客户端”“取消”可用。没有MCP服务开关、401/409码或其他新操作。",
+    "actualImageInputOrder": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-3a6c2cd4-aa5b-4850-83b7-601792eaa963.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-3a6c2cd4-aa5b-4850-83b7-601792eaa963.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "sha256": "c28edaf5a22848236410f2ced15784c68789dcdd112e1f4d74a669c2ca480d52",
+    "dimensions": {
+      "width": 1536,
+      "height": 1024
+    },
+    "generationCallCount": 1
+  },
+  "revision": 2,
+  "revises": "docs/design/platform-unification-2026-11-05/design/images/MP-S035.json",
+  "revisionReason": "Current-hash independent P2 verified against actual host call chain",
+  "sourceCorrection": "API dispatches session-expired before throw. GitRemotePanel stopped sets active=false so its guarded catch cannot render local401 alert. App existing compact Login shown, not a new Git-local state. Other403/503 not globally bound here.",
+  "sourceBindingsBySpecimen": {
+    "A": {
+      "sourceId": "PB-003",
+      "parentId": "PB-001",
+      "role": "authenticated owner reauth",
+      "sourceRefs": [
+        "apps/web/api.ts:59",
+        "apps/web/components/GitRemotePanel.vue:283",
+        "apps/web/App.vue:389",
+        "apps/web/components/Login.vue:38"
+      ]
+    },
+    "B": {
+      "sourceId": "ST-090",
+      "role": "authenticated-owner",
+      "renderer": "MCPApiClients rotate409 conflict"
+    }
+  }
+}

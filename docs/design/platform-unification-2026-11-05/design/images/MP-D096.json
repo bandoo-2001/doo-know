@@ -1,0 +1,347 @@
+{
+  "id": "MP-D096",
+  "title": "博客管理：概览",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-030"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-030",
+      "title": "博客管理：概览",
+      "role": "authenticated owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    }
+  ],
+  "viewportIntent": "1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-blog-overview.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-030",
+      "route": "/?view=apps&app=blog&appSection=overview",
+      "trigger": "Workspace app/menu entry → 博客",
+      "parentId": null,
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session gates /api/blog. Public access toggle and article publication are separate states."
+      ],
+      "fields": [],
+      "importantStates": [
+        "initial dashboard loading/error with retry",
+        "site disabled banner",
+        "no articles first-selection guidance",
+        "stats all/published/draft/changes; recent four posts"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "主人博客概览完整页：概览/文章/装修主页/分类标签/站点设置真实菜单、站点开启状态、选稿、统计和最近文章、设计/设置入口。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。"
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-030",
+      "label": "选择笔记 / 开始选稿",
+      "effect": "Open Markdown note picker",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-030",
+      "label": "设计主页布局",
+      "effect": "Navigate design section",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-030",
+      "label": "管理站点设置 / 前往设置",
+      "effect": "Navigate site settings",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-030",
+      "label": "统计卡 / 查看全部",
+      "effect": "Open article state filter",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-030",
+      "label": "最近文章",
+      "effect": "Open selected detail",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-030",
+      "label": "访问站点",
+      "effect": "Open /blog in new tab",
+      "api": "",
+      "guard": "saved enabled=true"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-030",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. Generate exactly ONE high-fidelity Simplified Chinese DooKnow BLOG OWNER MANAGEMENT desktop design around 1536×1024, straight-on complete application canvas, no device/browser frame or captions. Image1 matching actual blog baseline determines role, content, real module navigation, selected state and existing controls. Image2 PILOT-WS-001 is STYLE ONLY: blue #4566c6, selected #edf1ff, white main/surfaces, #f7f8fa light rail, #272b3a text/#657084 muted, #e6e9f1 fine lines, 8px radii, compact readable hierarchy and flat aligned cards. Do not copy note tree, empty-note content or ToDoo product features.\nKeep ACTUAL BLOG HOST NAVIGATION ONLY: narrow approximately64px blog-specific left rail, top 返回 back button; module destinations 概览, 文章, 装修主页, 分类与标签; bottom 站点设置. Select only the current destination. Do not add owner avatar/recent/favorites/trash/settings rail or more navigation. Existing module header shows book icon and 博客 title, subtitle 从笔记选稿，整理文章与自己的站点。, right source state badge 站点未开启 and blue plus 选择笔记 action. No 访问站点 because saved enabled=false. Preserve pale warning banner with lock: 站点尚未开启。你可以先准备文章，开启后已发布内容才会公开。 and right action 前往设置 →.\nOnly restyle actual controls, layout hierarchy/density/spacing/alignment. Do not fabricate published/connected/success state or change business permissions. No team/member/AI/social controls or API requestId/version/hash/cursor/CSRF fields, no ToDoo brand/task data. Local note saves, metadata saves, explicit article publishing and separately saved site enabled state remain distinct. One coherent selected state, no simultaneous dialogs/all-state cards. Full source contracts are metadata, not product inputs.\nSELECTED PAGE 博客概览, ACTUAL EMPTY BLOG / DISABLED SITE baseline. Rail 概览 active. Preserve heading 概览 and description 查看文章进度，继续最近的整理。 Next flat welcome card eyebrow 从笔记开始, headline 从第一篇笔记，开始你的博客。, body 选稿后完善标题、摘要与分类，每次发布都由你亲自决定。 Actions 开始选稿 primary with chevron, 设计主页布局 outlined, 管理站点设置 → text. Next exactly four statistic cards labeled 全部文章 / 已发布 / 草稿 / 待发布更新, each actual baseline value 0, existing file/check/file/refresh icons. These are matched empty fixture counts, not hardcoded future business results. Next section 最近整理 with right 查看全部 →. Wide empty card with file icon, headline 你的第一篇文章，从这里开始, description 从已有笔记中选稿，原文无需搬家。, existing outlined button 选择一篇笔记. No recent article rows because actual posts empty; no blog template/public-style gallery, editor, statistics chart, additional features, selected-note dialog or fake content. Use complete natural-width owner blog canvas, title/action/card alignments, readable Chinese and reachable actions.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D096.png",
+  "reviewStatus": "pending-independent-review",
+  "parentBindings": [
+    {
+      "sourceId": "PB-030",
+      "parentId": null,
+      "route": "/?view=apps&app=blog&appSection=overview",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/navigation.ts:101",
+        "apps/web/components/Workspace.vue:210",
+        "apps/web/components/BlogWorkspace.vue:287",
+        "apps/web/components/BlogWorkspace.vue:354"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-030",
+      "title": "博客管理：概览",
+      "kind": "page",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=overview",
+        "trigger": "Workspace app/menu entry → 博客",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/navigation.ts:101",
+        "apps/web/components/Workspace.vue:210",
+        "apps/web/components/BlogWorkspace.vue:287",
+        "apps/web/components/BlogWorkspace.vue:354"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session gates /api/blog. Public access toggle and article publication are separate states."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "选择笔记 / 开始选稿",
+          "effect": "Open Markdown note picker",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "设计主页布局",
+          "effect": "Navigate design section",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "管理站点设置 / 前往设置",
+          "effect": "Navigate site settings",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "统计卡 / 查看全部",
+          "effect": "Open article state filter",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "最近文章",
+          "effect": "Open selected detail",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "访问站点",
+          "effect": "Open /blog in new tab",
+          "api": "",
+          "guard": "saved enabled=true"
+        }
+      ],
+      "importantStates": [
+        "initial dashboard loading/error with retry",
+        "site disabled banner",
+        "no articles first-selection guidance",
+        "stats all/published/draft/changes; recent four posts"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-admin-visual.spec.ts:6",
+        "tests/e2e/blog.spec.ts:14"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-D096",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. Generate exactly ONE high-fidelity Simplified Chinese DooKnow BLOG OWNER MANAGEMENT desktop design around 1536×1024, straight-on complete application canvas, no device/browser frame or captions. Image1 matching actual blog baseline determines role, content, real module navigation, selected state and existing controls. Image2 PILOT-WS-001 is STYLE ONLY: blue #4566c6, selected #edf1ff, white main/surfaces, #f7f8fa light rail, #272b3a text/#657084 muted, #e6e9f1 fine lines, 8px radii, compact readable hierarchy and flat aligned cards. Do not copy note tree, empty-note content or ToDoo product features.\nKeep ACTUAL BLOG HOST NAVIGATION ONLY: narrow approximately64px blog-specific left rail, top 返回 back button; module destinations 概览, 文章, 装修主页, 分类与标签; bottom 站点设置. Select only the current destination. Do not add owner avatar/recent/favorites/trash/settings rail or more navigation. Existing module header shows book icon and 博客 title, subtitle 从笔记选稿，整理文章与自己的站点。, right source state badge 站点未开启 and blue plus 选择笔记 action. No 访问站点 because saved enabled=false. Preserve pale warning banner with lock: 站点尚未开启。你可以先准备文章，开启后已发布内容才会公开。 and right action 前往设置 →.\nOnly restyle actual controls, layout hierarchy/density/spacing/alignment. Do not fabricate published/connected/success state or change business permissions. No team/member/AI/social controls or API requestId/version/hash/cursor/CSRF fields, no ToDoo brand/task data. Local note saves, metadata saves, explicit article publishing and separately saved site enabled state remain distinct. One coherent selected state, no simultaneous dialogs/all-state cards. Full source contracts are metadata, not product inputs.\nSELECTED PAGE 博客概览, ACTUAL EMPTY BLOG / DISABLED SITE baseline. Rail 概览 active. Preserve heading 概览 and description 查看文章进度，继续最近的整理。 Next flat welcome card eyebrow 从笔记开始, headline 从第一篇笔记，开始你的博客。, body 选稿后完善标题、摘要与分类，每次发布都由你亲自决定。 Actions 开始选稿 primary with chevron, 设计主页布局 outlined, 管理站点设置 → text. Next exactly four statistic cards labeled 全部文章 / 已发布 / 草稿 / 待发布更新, each actual baseline value 0, existing file/check/file/refresh icons. These are matched empty fixture counts, not hardcoded future business results. Next section 最近整理 with right 查看全部 →. Wide empty card with file icon, headline 你的第一篇文章，从这里开始, description 从已有笔记中选稿，原文无需搬家。, existing outlined button 选择一篇笔记. No recent article rows because actual posts empty; no blog template/public-style gallery, editor, statistics chart, additional features, selected-note dialog or fake content. Use complete natural-width owner blog canvas, title/action/card alignments, readable Chinese and reachable actions.",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-D096 博客管理：概览\n\n1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。\n\n角色壳：所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。\n\n独立场景：\nA | PB-030 | 博客管理：概览 | role=authenticated owner | 实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\n\n完整构图：\n主人博客概览完整页：概览/文章/装修主页/分类标签/站点设置真实菜单、站点开启状态、选稿、统计和最近文章、设计/设置入口。\n\n精确功能/字段/动作guard合同：\nPB-030权限：Owner session gates /api/blog. Public access toggle and article publication are separate states.\nPB-030字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nPB-030白名单：选择笔记 / 开始选稿 => Open Markdown note picker；guard=既有上下文\nPB-030白名单：设计主页布局 => Navigate design section；guard=既有上下文\nPB-030白名单：管理站点设置 / 前往设置 => Navigate site settings；guard=既有上下文\nPB-030白名单：统计卡 / 查看全部 => Open article state filter；guard=既有上下文\nPB-030白名单：最近文章 => Open selected detail；guard=既有上下文\nPB-030白名单：访问站点 => Open /blog in new tab；guard=saved enabled=true\n\n响应式合同：\n<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-blog-overview.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "83a64d5d67d7606f8f82a5ff064d0ea5b8fc2f9ed0a8e5a21b818f105ad9e0bd",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 140842
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "docs/design/platform-unification-2026-11-05/baseline/1440-blog-overview.png",
+    "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D096.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-5e30d075-12f5-4b78-8126-bda0c066da76.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-5e30d075-12f5-4b78-8126-bda0c066da76.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T01:27:43.809Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Actual disabled empty blog: blog-specific return/5-nav host retained, four baseline zero counts and empty recent content preserved; no public-visit action or phantom posts.",
+    "concerns": [
+      "Static raster does not prove permission guards, interactions or 320/390 responsiveness.",
+      "Exact tokens/proportions and minor raster texture need independent review."
+    ]
+  },
+  "sha256": "f3b901f3127770b7bc256bba72b66e3411a344645ad99924e5020bd73f51352f",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1197897,
+  "sourceInspection": [
+    {
+      "path": "apps/web/navigation.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "a19dbaf6385dd024c673286621cf21965615171172e869f18d08510fba6fdcd4"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/BlogWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7c4cad934bb1c19d1833445e4d71a99811f06c9afb622f6f50d387e54a371a6c"
+    },
+    {
+      "path": "apps/web/components/BlogWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7c4cad934bb1c19d1833445e4d71a99811f06c9afb622f6f50d387e54a371a6c"
+    }
+  ]
+}

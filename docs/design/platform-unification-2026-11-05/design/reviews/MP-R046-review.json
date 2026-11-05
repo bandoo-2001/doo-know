@@ -1,0 +1,49 @@
+{
+  "assetId": "MP-R046",
+  "sourceIds": [
+    "PB-008"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:13:31.766885+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Source-derived authenticated owner setup_required/new: two idle collapsed-advanced pages and one busy advanced-open page; runtime route/session reachability not captured.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG examined before compaction; both generation-call prompts checked, including corrected outer footer placement. Full own first-run shell, DooKnow brand, welcome, three-step progress and source choices preserved.",
+    "New mode retains default name, input limit/nonempty submission semantics, advanced parent path/time zone fields and collapsed Asia/Shanghai summary. No existing-folder browser or remote credential fields in this mode.",
+    "Busy advanced-open panel locks mode choices, name, advanced inputs and confirm with progress indication; source create/validate/complete flow is not claimed executed.",
+    "The ownership tagline is outside the white setup card, with complete action reachability in the full-page illustration. No private owner navigation or invented account flows."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-040.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R046.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/SetupWizard.vue:18",
+    "apps/web/components/SetupWizard.vue:119",
+    "apps/web/components/SetupWizard.vue:198",
+    "apps/web/components/SetupWizard.vue:252",
+    "apps/web/components/SetupWizard.vue:369",
+    "apps/server/platform/settings.ts:119"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "dccf32f5a79317916999272d32e2660fee85c825f0369fc91ed3faacec72c18f",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R046.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

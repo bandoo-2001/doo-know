@@ -1,0 +1,79 @@
+{
+  "assetId": "MP-S034",
+  "verdict": "needs-revision",
+  "reviewer": "independent platform_review_state_backlog agent",
+  "reviewedAtUtc": "2026-11-05T04:33:54.750543+00:00",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S034.png",
+  "reviewedImageSha256": "fd0f40de3ee8fd4d482352a90c7e4edeb1b3bbfac2e9aed7f1ec51afa01923cc",
+  "reviewedSidecarSha256": "99724f2ec733fe6f08955110f435fb3862ab25e43fcb32f4d6cb0a891b0a6fbd",
+  "requirementsManifest": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-026.json",
+  "requirementsSha256": "02b14122eb31d055c5a63fa4d87685e2598bd638fa318433af72fd3986c1a6e8",
+  "viewMethod": "Actual individual PNG viewed via tools.view_image; full actual submittedPrompt and selectedState read; current template, parent/role/API/guard chain inspected. Matching backup/plugins/library/login baseline PNGs and approved style PNG were directly viewed where applicable.",
+  "sourceIds": [
+    "ST-089"
+  ],
+  "selectedState": [
+    "A dirty discard footer showing",
+    "B same footer busy; close and both choices disabled"
+  ],
+  "sourceRefs": [
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/api.ts:30",
+    "apps/server/app.ts:141",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-026.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S034.json",
+    "apps/web/components/settings/SettingsOverlay.vue:50",
+    "apps/web/components/settings/SettingsOverlay.vue:131",
+    "apps/web/components/GitRemotePanel.vue:260",
+    "apps/web/components/settings/BackupSettings.vue:42",
+    "apps/web/components/settings/BackupSettings.vue:183",
+    "apps/web/components/settings/BackupSettings.vue:187",
+    "apps/web/components/settings/BackupSettings.vue:348",
+    "apps/web/components/settings/BackupSettings.vue:434"
+  ],
+  "reviewedSourceSha256": {
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md": "f78c14e2c450641e9ecc10864168fef272bc07cb0eb47e23e0e0d475bdbf9ff9",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md": "d184372a8eefffe8079b87aa9c2988e487507d95b41b263d6ed7b7a0f7827711",
+    "apps/web/api.ts": "f3cfa4add2ed9f30efb83d401345d9c95e7437b8d2e09cea21fd853ac79b55ec",
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-026.json": "02b14122eb31d055c5a63fa4d87685e2598bd638fa318433af72fd3986c1a6e8",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S034.json": "99724f2ec733fe6f08955110f435fb3862ab25e43fcb32f4d6cb0a891b0a6fbd",
+    "apps/web/components/settings/SettingsOverlay.vue": "1642d0324aaad3921e52fe60d086622981d2203e05b08e215e231dd406da657d",
+    "apps/web/components/GitRemotePanel.vue": "1ef7dbfc441518f0aaed509633413592b74a170897c602f802e9c2492ff9fe4c",
+    "apps/web/components/settings/BackupSettings.vue": "cf07e51b9a8f38f056b3959465159d97b971cb89e22374a42cd4a97298920e45"
+  },
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Panel B claims the actual restore drawer simultaneously has discardOpen=true and busy=true, but this selected state is not established by the current host event chain. SettingsOverlay.close returns immediately while busy; the restore/upload action that sets busy is in the normal footer, which v-else removes while discardOpen is true. A template accepting both props alone is insufficient evidence of an actual host state.",
+      "evidence": [
+        "apps/web/components/settings/SettingsOverlay.vue:50",
+        "apps/web/components/settings/SettingsOverlay.vue:131",
+        "apps/web/components/settings/BackupSettings.vue:187",
+        "apps/web/components/settings/BackupSettings.vue:434"
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG contains header/footer-only source-derived SettingsOverlay specimens. A matches idle dirty restore-drawer discard confirmation; ordinary cancel/next footer is correctly replaced.",
+    "B renders the same dirty discard footer under busy=true. The local template supports disabling those controls, but the actual BackupSettings event path has not established this combination; see blocking finding."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Readable white/light-gray local components, fine borders, restrained corners and blue action hierarchy match the shared style direction. Raster shading/texture and approximate scale must become flat CSS tokens; do not regenerate solely for those details."
+    }
+  ],
+  "requiredCorrections": [
+    "Keep panel A. Replace panel B with the actual busy restore/upload header/footer controls, with close disabled and no newly opened discard footer, or provide a concrete current-source host transition proving busy can begin while the discard footer remains open. Do not implement new behavior to make this sample reachable."
+  ],
+  "limitations": [
+    "Source-derived static design review only; no runtime API operation, authorization, clipboard, network, keyboard/focus, close/mask/Escape behavior or responsive viewport was executed.",
+    "Local-component specimens are independent; parent role/source bindings remain metadata. Existing baseline references establish host context, not runtime capture of these synthetic error/busy states.",
+    "Raster shading/texture, font/icon geometry and dimensions are approximate. Implement shared flat CSS tokens, responsive wrapping and existing scroll/focus/guard rules; this is not pixel-level CSS approval.",
+    "This per-image result neither completes the non-ToDoo platform unification task nor substitutes for the later global coverage/style/function review or authorizes product implementation."
+  ]
+}

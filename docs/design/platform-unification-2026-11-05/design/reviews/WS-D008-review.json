@@ -1,0 +1,71 @@
+{
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-04T17:39:37.014100+00:00",
+  "method": "Actual generated PNG and applicable baseline viewed in independent child context; compared to current component source, exact batch job, coverage/workspace.json, style contract and actual ToDoo screenshot.",
+  "limitations": [
+    "Static raster cannot verify requests, guards, focus, keyboard, accessible names or responsive behavior.",
+    "This image represents initial loading only. Other coherent variants remain assigned to linked distinct designs/matrices; no requirement that incompatible states coexist."
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-tool-contract",
+    "required": "gpt-image-2",
+    "perCallModelIdentityReceiptExposed": false
+  },
+  "assetId": "WS-D008",
+  "verdict": "needs-revision",
+  "functionalFindings": [],
+  "styleFindings": [
+    {
+      "id": "WS-D008-S01",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The full desktop concept omits the agreed shared horizontal global header and keeps the pre-unification brand-at-sidebar-top hierarchy. This missing region is structural style drift; no absolute pixel-width claim is involved.",
+      "evidence": [
+        "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+        "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-01-overview.png"
+      ]
+    },
+    {
+      "id": "WS-D008-S02",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The required external source/title/owner/selected-state caption is absent.",
+      "evidence": [
+        ".superpowers/sdd/2026-11-05-platform-ui-unification/workspace-batch-01.json#WS-D008"
+      ]
+    },
+    {
+      "id": "WS-D008-S03",
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Skeleton placeholder bar count/geometry, roomier contextual sidebar, slight raster shading and unclear resize grip are visual guidance only. Retain source sidebar resizing and shared flat tokens; do not copy raster texture or claim measured CSS precision."
+    },
+    {
+      "id": "WS-D008-S04",
+      "severity": "observation",
+      "blocking": false,
+      "finding": "Six skeleton cards, initial zero count, disabled-looking main refresh, enabled create-note, source collection title/sort text and existing owner navigation are visible. Populated-card favorite/menu/pagination actions correctly need not appear in an empty loading main grid."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/workspace-batch-01.json#WS-D008",
+    "docs/design/platform-unification-2026-11-05/coverage/workspace.json#WS-008",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/CollectionWorkspace.vue:132",
+    "apps/web/components/CollectionWorkspace.vue:151",
+    "apps/web/components/NoteCollection.vue:1",
+    "apps/web/collection-feed.ts:11",
+    "apps/web/components/Workspace.vue:431",
+    "apps/web/components/Workspace.vue:2908",
+    "apps/web/components/Workspace.vue:3033",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-favorites.png",
+    "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-01-overview.png"
+  ],
+  "requiredCorrections": [
+    "Add the agreed shared horizontal global header, retaining all existing owner and context actions.",
+    "Add the required source/title/owner/initial-loading-state caption in a separate outer margin."
+  ],
+  "reviewedImageSha256": "21c0b16eaafb2b5bda4b7ba982677918c54770f299d3232642b8af022c6c1aa5",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D008.png",
+  "metadataExists": true
+}

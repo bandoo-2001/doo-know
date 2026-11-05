@@ -1,0 +1,68 @@
+{
+  "assetId": "MP-D108",
+  "verdict": "needs-revision",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:53:52.613718+00:00",
+  "method": "Actual PNG viewed; exact submitted prompt and GEN-006 source contracts checked against real studio appearance host baseline and current selected-tab templates. Selected tabs/rows are explicitly source-derived, not runtime captures.",
+  "selectedState": "Source-derived dirty local one-collection draft with zero members; published picker expanded and empty",
+  "functionalFindings": [
+    {
+      "id": "MP-D108-F01",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The first studio tab is labeled only 个人资料 instead of the actual 主题与个人资料. That destination also owns template/accent/font/width/card-style controls; removing the theme part narrows the visible navigation meaning and contradicts the shared Studio tabs source.",
+      "evidence": [
+        "apps/web/components/blog/BlogDesignStudio.vue:53"
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Source collection title/slug/description, zero-member badge/help, expanded published-search input/empty result and add/delete actions retained. No nonexistent article/membership sorting row invented.",
+    "Dirty draft preserves enabled draft save and disabled publish with no site-on/publication success claim; preview fallback/private meaning/history zero retained.",
+    "Shared first studio-tab label loses the theme context; exact correction below. Other selected-tab fields match source."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Preview note retains a raster prefix 下方 while actual source says 预览仅自己可见。发布主页后访客才能看到更改。 Privacy/publication meaning remains correct; use exact source wording without a direction prefix in implementation. No new bitmap iteration required for this minor copy alone."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-006.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D108.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-blog-design.png",
+    "apps/web/components/blog/BlogDesignStudio.vue:53",
+    "apps/web/components/blog/BlogDesignStudio.vue:167",
+    "apps/web/components/blog/BlogDesignCollections.vue:30"
+  ],
+  "requiredCorrections": [
+    "Restore the first studio tab label exactly to 主题与个人资料; preserve current 专题合集 selection, dirty data, save/publish guards and all other components."
+  ],
+  "reviewedImageSha256": "60790de0349de5c62624272259aaf76810742d81626f6f8f91601d70bbbe987c",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D108.png",
+  "sourceIds": [
+    "PB-043"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "assetId": "WS-R027-v2",
+  "sourceIds": [
+    "WS-071"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T09:33:55.180465+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner editable embedded whiteboard overlay with clean empty canvas, return-to-note and no standalone host navigation.",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "panel": "A/B native toolbar",
+      "finding": "The actual ShapesSwitcher always renders 更多工具 trigger after the ten shape tools and divider. A omits it and jumps from eraser to library/lock/hand; B shows a plain edge chevron, without a clearly preserved actual extraTools control. This loses existing additional-tools action set (frame/laser/etc) inside embedded canvas.",
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12405",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12459",
+        "apps/web/whiteboards/canvas.ts:64"
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actual v2/new SHA/full original+targeted prompt and embedded/native source read. False readonly label corrected, separate lock/hand and actual menu restored; return/save/more/modes/exports retained without owner outer rail/history/share/breadcrumb/tabbar.",
+    "Native toolbar in A ends after eraser then library/lock/hand; actual always-rendered extraTools trigger is missing. B chevron at tool edge does not establish the source extraTools control.",
+    "Underlying embedded session still uses source permissions/close guard and real app export/save. Current rendering does not authorize native file export, embeddables or command palette."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-047.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R027-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/DiagramDocumentWorkspace.vue:581",
+    "apps/web/components/DiagramDocumentWorkspace.vue:804",
+    "apps/server/knowledge/diagram-routes.ts:50",
+    "shared/diagram-resource.ts:1",
+    "apps/web/components/DiagramDocumentWorkspace.vue:866",
+    "apps/web/components/Workspace.vue:3787",
+    "apps/web/whiteboards/canvas.ts:16",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12405",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R027.json"
+  ],
+  "requiredCorrections": [
+    "Restore one genuine native更多工具 trigger after shape tools in each embedded overlay, separate from library/lock/hand and any horizontal-scroll affordance. Preserve existing hidden-menu/UIOptions restrictions, all v2 repaired controls and embedded-only shell; no new tools or export capability."
+  ],
+  "reviewedImageSha256": "a7f19e2563961a2ae870ec8444f8c4a105b64d2cd69c615de47078bea0e3dd86",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-R027-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

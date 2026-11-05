@@ -1,0 +1,29 @@
+{
+  "id": "create-menu",
+  "title": "create-menu",
+  "sourceIds": [
+    "WS-004"
+  ],
+  "width": 320,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "320-create-menu.png",
+  "sha256": "c59f3e2f24f7a28c84aa7db1303a7238a45296d451fd4f556d542473dba21d85",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "buildFlags": {
+    "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+  },
+  "status": "captured",
+  "pageErrors": [],
+  "targetBounds": {
+    "x": 80.61707305908203,
+    "y": 173.43084716796875,
+    "width": 163.48400115966797,
+    "height": 223.42813110351562
+  },
+  "targetWithinViewport": true,
+  "outerOverflow": 0
+}

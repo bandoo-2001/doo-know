@@ -1,0 +1,15 @@
+{
+  "id": "public-collections",
+  "title": "公开合集索引",
+  "width": 390,
+  "audience": "public",
+  "route": "/blog/-/collections",
+  "file": "390-public-collections.png",
+  "sha256": "4838f622eb337c0b94c405015ec996ae60a776efd5af7f972f45caaa99e6a9ac",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "pageErrors": [],
+  "outerOverflow": 0
+}

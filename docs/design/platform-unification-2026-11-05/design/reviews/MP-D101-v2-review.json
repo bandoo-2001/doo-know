@@ -1,0 +1,44 @@
+{
+  "assetId": "MP-D101-v2",
+  "sourceIds": [
+    "PB-035"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T04:30:15.170646+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Decoded16:9 article cover crop, zoom1/x50/y50, no previous cover/pending/error.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual currentv2 PNG viewed, unsupported drag/resize rectangle removed; image stays fixed aspect viewport.",
+    "Three source ranges and choose/crop-upload/cancel-crop controls retained, no removal action without prior value or fake upload success."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-021.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D101-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/blog/BlogImageEditor.vue:41",
+    "apps/web/components/blog/BlogImageEditor.vue:109",
+    "apps/web/blog-workbench.ts:469"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "972d998a86d42cd4502ba7ca373f1271e4295e91860cf8c48e3987d37c26feb3",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D101-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

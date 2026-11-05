@@ -1,0 +1,63 @@
+{
+  "assetId": "MP-R003",
+  "sourceIds": [
+    "ST-002"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T07:47:18.462714+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Three mobile LibrarySettings scroll positions; organization target placeholder mismatches current value binding",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "finding": "B organization target shows 请选择目录/empty selection. Current OrganizationOperations initializes folder=00-Inbox and DirectoryTreeSelect binds a string value; even empty string is the selectable actual root and displays 知识库根目录, not an empty placeholder. No source route creates the shown empty selection.",
+      "sourceEvidence": "OrganizationOperations.vue:26 folder=ref(00-Inbox), :value binding via v-model; DirectoryTreeSelect.vue:16 rootLabel知识库根目录 and root node value empty; change(value) emits only string. Native TreeSelect value is always actual chosen label."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed three complete narrow owner page positions/full actual prompt/current parent/children. Real mobile header/five bottomnavMore active, library readonlyserver root/actions/empty task regions and unconnectedGit/retainedsharequery/error/reread retained; no fake initialized connection/job or owner-host mixing.",
+    "Storage7categories/order/counts and safe synthetic path retained; nonzero byte strings should use actual one-decimal formatter in CSS/data binding. Page positions are independent scroll crops, no missing top page title at lower position requirement.",
+    "B selected0 correctly disables move, but its target control shows a source-impossible empty placeholder instead of bound current directory value."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Retain actual source decimal-byte formatter and full deployment/migration guidance in implementation; illustrative integer-looking byte text and shortened guidance are not a new data/edit capability."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-035.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R003.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/LibrarySettings.vue:29",
+    "apps/web/components/settings/OrganizationOperations.vue:26",
+    "apps/web/components/DirectoryTreeSelect.vue:16",
+    "apps/web/components/DirectoryTreeSelect.vue:91",
+    "apps/web/components/StorageSettings.vue:14",
+    "apps/web/components/settings/ShareManagement.vue:95",
+    "apps/web/components/GitRemotePanel.vue:827"
+  ],
+  "requiredCorrections": [
+    "Change only B target selector display to00-Inbox(default) or a declared root empty-string selection displayed知识库根目录. Keep selected0/move disabled, all real organization fields/actions and A/C valid sections."
+  ],
+  "reviewedImageSha256": "a35ac39e54d0e8faf1e695db8822499df84ec202c5e5148f9933a863bd6f4c12",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R003.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

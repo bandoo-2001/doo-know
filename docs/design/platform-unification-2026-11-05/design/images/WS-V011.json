@@ -1,0 +1,303 @@
+{
+  "kind": "generated-design",
+  "id": "WS-V011",
+  "assetId": "WS-V011",
+  "sourceIds": [
+    "RTD-018",
+    "RTD-019"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "desktop-expanded",
+      "sourceId": "RTD-018",
+      "title": "End arrowhead picker and expanded options",
+      "role": "authenticated owner",
+      "state": "Expanded end-arrowhead picker: all actual arrowhead choices and More options; no new icons.",
+      "reuseSourceIds": [
+        "RTD-019"
+      ],
+      "selectedState": "Three independent local endpoint popovers: desktop end expanded 12 options arrow selected; 390 start collapsed first4 options none selected; 320 end expanded same12. Source alwaysVisible=4 for BOTH start/end; older inventory omits start hollow triangle but actual source wins. No native caption or new close."
+    },
+    {
+      "label": "phone-390",
+      "sourceId": "RTD-019",
+      "title": "Start arrowhead picker",
+      "role": "authenticated owner",
+      "state": "Actual start-arrowhead picker at390 including its restricted initial set and More options.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reuseSourceIds": [
+        "RTD-018"
+      ],
+      "selectedState": "Three independent local endpoint popovers: desktop end expanded 12 options arrow selected; 390 start collapsed first4 options none selected; 320 end expanded same12. Source alwaysVisible=4 for BOTH start/end; older inventory omits start hollow triangle but actual source wins. No native caption or new close."
+    },
+    {
+      "label": "phone-320-expanded",
+      "sourceId": "RTD-018",
+      "title": "End arrowhead picker and expanded options",
+      "role": "authenticated owner",
+      "state": "Expanded actual end-arrowhead picker at320, all choices reachable with real bounded overflow.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "reuseSourceIds": [
+        "RTD-019"
+      ],
+      "selectedState": "Three independent local endpoint popovers: desktop end expanded 12 options arrow selected; 390 start collapsed first4 options none selected; 320 end expanded same12. Source alwaysVisible=4 for BOTH start/end; older inventory omits start hollow triangle but actual source wins. No native caption or new close."
+    }
+  ],
+  "selectedState": "Three independent local endpoint popovers: desktop end expanded 12 options arrow selected; 390 start collapsed first4 options none selected; 320 end expanded same12. Source alwaysVisible=4 for BOTH start/end; older inventory omits start hollow triangle but actual source wins. No native caption or new close.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制三个彼此分离的箭头端点局部浮层，留白隔开，白底细灰边和蓝选中，不画外部导航。照第二图的端点图标及布局，左侧是末端展开选择：第一行四图标“无、箭头、实心三角、空心三角”，分别右下角小字q w e r，箭头w选中；下面“More options”向上折叠指示，再两行各4图标：实心圆a、空心圆s、实心菱形d、空心菱形f；竖杠z、单线乌鸦脚c、多线乌鸦脚x、单或多线乌鸦脚v。中间为390宽局部起点选择，图标方向向左，只有第一行四个选项q w e r，其中无q选中，More options显示收起向下，不显示另外8项。右为320宽局部末端展开浮层，与左同十二项及排列，保证边界内完整可读。只以图标和小快捷键呈现选项，不把工具提示名称铺成长列表，不加标题、确认、取消或关闭X。",
+  "prompt": "绘制三个彼此分离的箭头端点局部浮层，留白隔开，白底细灰边和蓝选中，不画外部导航。照第二图的端点图标及布局，左侧是末端展开选择：第一行四图标“无、箭头、实心三角、空心三角”，分别右下角小字q w e r，箭头w选中；下面“More options”向上折叠指示，再两行各4图标：实心圆a、空心圆s、实心菱形d、空心菱形f；竖杠z、单线乌鸦脚c、多线乌鸦脚x、单或多线乌鸦脚v。中间为390宽局部起点选择，图标方向向左，只有第一行四个选项q w e r，其中无q选中，More options显示收起向下，不显示另外8项。右为320宽局部末端展开浮层，与左同十二项及排列，保证边界内完整可读。只以图标和小快捷键呈现选项，不把工具提示名称铺成长列表，不加标题、确认、取消或关闭X。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-arrowhead-expanded-popover.png",
+      "role": "Actual expanded end 12 icons+shortcut order",
+      "sha256": "c9d41bc36955a7d96870cc392fe63ad5c9ff6dee06b08d9b24e4e17e2d505b8c",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-arrowhead-start-popover.png",
+      "role": "Actual start left-facing icons within mobile properties; selected none",
+      "sha256": "0a159bc71c2c3883333fbf7b1131797bcd086d75e5f604922364b1f1a4bf0227",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-arrowhead-expanded-popover.png",
+      "role": "Actual expanded end 12 icons+shortcut order",
+      "sha256": "c9d41bc36955a7d96870cc392fe63ad5c9ff6dee06b08d9b24e4e17e2d505b8c",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-arrowhead-start-popover.png",
+      "role": "Actual start left-facing icons within mobile properties; selected none",
+      "sha256": "0a159bc71c2c3883333fbf7b1131797bcd086d75e5f604922364b1f1a4bf0227",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制三个彼此分离的箭头端点局部浮层，留白隔开，白底细灰边和蓝选中，不画外部导航。照第二图的端点图标及布局，左侧是末端展开选择：第一行四图标“无、箭头、实心三角、空心三角”，分别右下角小字q w e r，箭头w选中；下面“More options”向上折叠指示，再两行各4图标：实心圆a、空心圆s、实心菱形d、空心菱形f；竖杠z、单线乌鸦脚c、多线乌鸦脚x、单或多线乌鸦脚v。中间为390宽局部起点选择，图标方向向左，只有第一行四个选项q w e r，其中无q选中，More options显示收起向下，不显示另外8项。右为320宽局部末端展开浮层，与左同十二项及排列，保证边界内完整可读。只以图标和小快捷键呈现选项，不把工具提示名称铺成长列表，不加标题、确认、取消或关闭X。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-arrowhead-expanded-popover.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-arrowhead-start-popover.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制三个彼此分离的箭头端点局部浮层，留白隔开，白底细灰边和蓝选中，不画外部导航。照第二图的端点图标及布局，左侧是末端展开选择：第一行四图标“无、箭头、实心三角、空心三角”，分别右下角小字q w e r，箭头w选中；下面“More options”向上折叠指示，再两行各4图标：实心圆a、空心圆s、实心菱形d、空心菱形f；竖杠z、单线乌鸦脚c、多线乌鸦脚x、单或多线乌鸦脚v。中间为390宽局部起点选择，图标方向向左，只有第一行四个选项q w e r，其中无q选中，More options显示收起向下，不显示另外8项。右为320宽局部末端展开浮层，与左同十二项及排列，保证边界内完整可读。只以图标和小快捷键呈现选项，不把工具提示名称铺成长列表，不加标题、确认、取消或关闭X。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-arrowhead-expanded-popover.png",
+          "role": "Actual expanded end 12 icons+shortcut order"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-arrowhead-start-popover.png",
+          "role": "Actual start left-facing icons within mobile properties; selected none"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-6490105a-1379-49e1-9c1f-09dd4883e1a6.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "RTD-018",
+      "runtimeKey": "vendor-arrowhead-end-popover",
+      "title": "End arrowhead picker and expanded options",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "arrowhead_end",
+        "无",
+        "箭头",
+        "三角箭头",
+        "三角箭头（空心）",
+        "More options",
+        "圆点",
+        "圆点（空心）",
+        "菱形",
+        "菱形（空心）",
+        "条状",
+        "Crow's foot (one)",
+        "Crow's foot (many)",
+        "Crow's foot (one or many)"
+      ],
+      "roleEvidence": {
+        "dialog:arrowhead_end": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5460",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3633"
+      ],
+      "evidence": [
+        "1440-vendor-arrowhead-end-popover.json",
+        "1440-vendor-arrowhead-expanded-popover.json",
+        "390-vendor-arrowhead-end-popover.json"
+      ],
+      "constraints": "More options expanded on desktop without choosing a head. More options is a clickable DIV without role/tabindex in inspected DOM."
+    },
+    {
+      "id": "RTD-019",
+      "runtimeKey": "vendor-arrowhead-start-popover",
+      "title": "Start arrowhead picker",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "arrowhead_start",
+        "无",
+        "箭头",
+        "三角箭头",
+        "More options"
+      ],
+      "roleEvidence": {
+        "dialog:arrowhead_start": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5460",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3633"
+      ],
+      "evidence": [
+        "1440-vendor-arrowhead-start-popover.json",
+        "390-vendor-arrowhead-start-popover.json"
+      ],
+      "constraints": "Opened without choosing a head. Expanded-option state is shared by vendor pickers."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "RTD-018",
+      "parentId": null,
+      "route": null,
+      "roles": [],
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5460",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3633"
+      ]
+    },
+    {
+      "sourceId": "RTD-019",
+      "parentId": null,
+      "route": null,
+      "roles": [],
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5460",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3633"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-035.json#WS-V011",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-V011",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-6490105a-1379-49e1-9c1f-09dd4883e1a6.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-V011.png",
+  "sha256": "dfa686a5e8f48a95f53b06cf82ef07260849ae599595b8148efbac85ca03b8b3",
+  "bytes": 1073212,
+  "dimensions": {
+    "width": 1999,
+    "height": 787
+  },
+  "generatedAtUtc": "2026-11-05T07:16:12.080076+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Excalidraw start/end arrowhead picker and expanded options",
+    "sourceIds": [
+      "RTD-018",
+      "RTD-019"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Three independent local endpoint popovers: desktop end expanded 12 options arrow selected; 390 start collapsed first4 options none selected; 320 end expanded same12. Source alwaysVisible=4 for BOTH start/end; older inventory omits start hollow triangle but actual source wins. No native caption or new close.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": []
+}

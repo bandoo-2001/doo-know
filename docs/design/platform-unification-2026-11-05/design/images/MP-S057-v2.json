@@ -1,0 +1,245 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S057-v2",
+  "assetId": "MP-S057",
+  "sourceIds": [
+    "PB-049"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-049",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Five independent real recovery regions: dashboard load retry; initial article detail retry; publication review refresh; live homepage preview retry; design config/version recheck. Each source renderer action drawn separately with no invented generic retry."
+    }
+  ],
+  "selectedState": "Five independent real recovery regions: dashboard load retry; initial article detail retry; publication review refresh; live homepage preview retry; design config/version recheck. Each source renderer action drawn separately with no invented generic retry.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅修正最下方第五个装修版本错误区：将现有黑色标题“博客装修已变化，请重新读取”恢复成真实红色错误提示条，文字完全不变，提示条内或右侧保留现有“重新核对版本”按钮。下方姓名标签与示例作者输入框原样保留。其他四个错误/预览/按钮区域全部保持不变，不新增保存或成功提示。",
+  "prompt": "仅修正最下方第五个装修版本错误区：将现有黑色标题“博客装修已变化，请重新读取”恢复成真实红色错误提示条，文字完全不变，提示条内或右侧保留现有“重新核对版本”按钮。下方姓名标签与示例作者输入框原样保留。其他四个错误/预览/按钮区域全部保持不变，不新增保存或成功提示。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S057.png",
+      "role": "Edit target; design error must use actual error alert semantics and keep local form",
+      "sha256": "84b0ff927a19a8183e1df7230924399de203f378cdbddaad3ad99df02193bdb5",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S057.png",
+      "role": "Edit target; design error must use actual error alert semantics and keep local form",
+      "sha256": "84b0ff927a19a8183e1df7230924399de203f378cdbddaad3ad99df02193bdb5",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅修正最下方第五个装修版本错误区：将现有黑色标题“博客装修已变化，请重新读取”恢复成真实红色错误提示条，文字完全不变，提示条内或右侧保留现有“重新核对版本”按钮。下方姓名标签与示例作者输入框原样保留。其他四个错误/预览/按钮区域全部保持不变，不新增保存或成功提示。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S057.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅修正最下方第五个装修版本错误区：将现有黑色标题“博客装修已变化，请重新读取”恢复成真实红色错误提示条，文字完全不变，提示条内或右侧保留现有“重新核对版本”按钮。下方姓名标签与示例作者输入框原样保留。其他四个错误/预览/按钮区域全部保持不变，不新增保存或成功提示。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S057.png",
+          "role": "Edit target; design error must use actual error alert semantics and keep local form"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-cd71bf1d-07d1-4906-a188-74ff370c68b0.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-049",
+      "title": "博客管理：冲突与保留修改恢复",
+      "kind": "state",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles|settings|design",
+        "trigger": "Concurrent remote change, failed request or post-save read failure",
+        "parentId": "PB-030"
+      },
+      "sourceRefs": [
+        "apps/web/blog-workbench.ts:164",
+        "apps/web/blog-workbench.ts:249",
+        "apps/web/blog-workbench.ts:351",
+        "apps/web/blog-workbench.ts:374",
+        "apps/web/components/BlogWorkspace.vue:537",
+        "apps/web/components/blog/BlogDesignStudio.vue:123"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新核对 / 重新核对设置 / 重新核对版本",
+          "effect": "Read latest corresponding resource and preserve applicable local fields",
+          "api": "GET /api/blog/posts/:id; /api/blog/settings; /api/blog/design",
+          "guard": "per-surface busy guards"
+        }
+      ],
+      "importantStates": [
+        "article/version/source changed blocks publish and refreshes detail",
+        "failed metadata save retains local form",
+        "post-save read failure must be reviewed before next publish",
+        "settings conflict; review merges edits",
+        "design save/publish/restore error retains draft and version-review entry",
+        "dashboard/preview/review failures expose separate recovery"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog.spec.ts:196",
+        "tests/e2e/blog.spec.ts:336",
+        "tests/blog-studio-workbench.test.ts:85"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "There is no custom global offline mode; these are concrete request-failure alerts and preserved-memory drafts. Browser reload durability for article/design forms is not established here."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-049",
+      "parentId": "PB-030",
+      "route": "/?view=apps&app=blog&appSection=articles|settings|design",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/blog-workbench.ts:164",
+        "apps/web/blog-workbench.ts:249",
+        "apps/web/blog-workbench.ts:351",
+        "apps/web/blog-workbench.ts:374",
+        "apps/web/components/BlogWorkspace.vue:537",
+        "apps/web/components/blog/BlogDesignStudio.vue:123"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-029.json#MP-S057",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S057",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-cd71bf1d-07d1-4906-a188-74ff370c68b0.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S057-v2.png",
+  "sha256": "9d1e5951881756673f7a9d66dbe48d6bc4177217df6680b24c3258898e38391b",
+  "bytes": 1341785,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T05:53:43.743220+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S057.png",
+    "sha256": "84b0ff927a19a8183e1df7230924399de203f378cdbddaad3ad99df02193bdb5",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/MP-S057-review.json"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / BlogWorkspace.vue",
+    "sourceIds": [
+      "PB-049"
+    ],
+    "roles": [
+      "authenticated owner",
+      "owner-private"
+    ],
+    "state": "Five independent real recovery regions: dashboard load retry; initial article detail retry; publication review refresh; live homepage preview retry; design config/version recheck. Each source renderer action drawn separately with no invented generic retry.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-049",
+      "title": "dashboard/preview/review failures expose separate recovery",
+      "renderer": "apps/web/components/BlogWorkspace.vue",
+      "sourceRefs": [
+        "apps/web/blog-workbench.ts:164",
+        "apps/web/blog-workbench.ts:249",
+        "apps/web/blog-workbench.ts:351",
+        "apps/web/blog-workbench.ts:374",
+        "apps/web/components/BlogWorkspace.vue:537",
+        "apps/web/components/blog/BlogDesignStudio.vue:123"
+      ],
+      "guardBindings": [
+        {
+          "label": "重新核对 / 重新核对设置 / 重新核对版本",
+          "guard": "per-surface busy guards"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "dashboard/preview/review failures expose separate recovery",
+          "variant": "dashboard/preview/review failures expose separate recovery",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-049"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": []
+}

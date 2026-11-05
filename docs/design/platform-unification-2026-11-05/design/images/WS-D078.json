@@ -1,0 +1,326 @@
+{
+  "id": "WS-D078",
+  "title": "Insert existing or new whiteboard picker",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-102"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-102",
+      "title": "Insert existing or new whiteboard picker",
+      "role": "authenticated owner",
+      "state": "Existing-board path list/new-and-insert/no-board/busy/stale bookmark; no upload feature.",
+      "presentationInstruction": "Existing-board path list/new-and-insert/no-board/busy/stale bookmark; no upload feature."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:909, apps/web/components/Workspace.vue:3788, apps/web/components/settings/SettingsOverlay.vue:24"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-102",
+      "label": "已有白板",
+      "effect": "Insert whiteboard reference fence at captured selection",
+      "api": "none",
+      "guard": "Original note/epoch/content must still match bookmark."
+    },
+    {
+      "sourceId": "WS-102",
+      "label": "新建并插入白板",
+      "effect": "Create primary whiteboard in current folder or00-Inbox, insert reference, open embedded design editor",
+      "api": "POST /api/folders if needed; POST /api/diagram-documents/intents; POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+      "guard": "!boardCreating; target selection still valid."
+    },
+    {
+      "sourceId": "WS-102",
+      "label": "取消",
+      "effect": "Close picker while idle",
+      "api": "none (local UI)",
+      "guard": "Owner session; relevant editor and busy guards apply."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R024",
+      "reuseSourceId": "WS-068",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "SettingsOverlay modal widthmin(560px,100vw-24px); scrollable body; no dedicated whiteboard-picker narrow breakpoint. Embedded editor is separately WS-071."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "已有白板",
+          "effect": "Insert whiteboard reference fence at captured selection",
+          "api": "none",
+          "guard": "Original note/epoch/content must still match bookmark."
+        },
+        {
+          "label": "新建并插入白板",
+          "effect": "Create primary whiteboard in current folder or00-Inbox, insert reference, open embedded design editor",
+          "api": "POST /api/folders if needed; POST /api/diagram-documents/intents; POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+          "guard": "!boardCreating; target selection still valid."
+        },
+        {
+          "label": "取消",
+          "effect": "Close picker while idle",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-102"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. One complete existing DooKnow LOCAL component on neutral light-gray backdrop, not a full invented host page. Simplified Chinese, crisp natural-size controls, flat white/#f7f8fa, dark #272b3a/secondary#657084, thin #e6e9f1 lines, primary#4566c6,8px radii and restrained shadow. PILOT input is STYLE ONLY, no importing its rail/header/tree/content. Actual source templates determine all titles, field order, controls, permissions and selected state. No protocol requestId/version/hash/cursor/CSRF fields, fabricated success/online states, team/AI/ToDoo features or OS/browser-dialog chrome. Secret data empty or masked only. One coherent selected condition; hidden alternatives remain hidden. Preserve header/close/body-scroll/footer actions and actual disabled guards; do not derive new disabled rules from API constraints.\nSOURCE-DERIVED INSERT WHITEBOARD PICKER, exact local SettingsOverlay width560. Header whiteboard icon/title 插入白板, exact description 引用已有白板，或创建一块新的画布。, existingcloseX enabled. One coherent ready list state, boardCreating=false and original editor bookmark still current. Body exactly2 existing whiteboard ROW BUTTONS, each source whiteboard icon, title filename, smaller relative path and right chevron: 示例白板.md with00-Inbox/示例白板.md; 回顾白板.md with30-Knowledge/回顾白板.md. Synthetic paths only, no actual private content. Footer 取消 enabled and primary新建并插入白板 enabled.\nNo search/upload/native file picker, filename/destination form, diagram canvas/preview/AI, edit/share buttons or no-board empty copy because this selected list is nonempty. Choosing existing inserts reference, new action creates+inserts then opens separate embedded editor; do not show embedded editor simultaneously. Busy-close/bookmark/session guards remain source contracts; no stale/error/loading-success state added. Draw entire actual picker component only.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D078.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-102",
+      "title": "Insert existing or new whiteboard picker",
+      "kind": "dialog",
+      "module": "diagrams",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "插入白板 toolbar button",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:909",
+        "apps/web/components/Workspace.vue:3788",
+        "apps/web/components/settings/SettingsOverlay.vue:24"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "已有白板",
+          "effect": "Insert whiteboard reference fence at captured selection",
+          "api": "none",
+          "guard": "Original note/epoch/content must still match bookmark."
+        },
+        {
+          "label": "新建并插入白板",
+          "effect": "Create primary whiteboard in current folder or00-Inbox, insert reference, open embedded design editor",
+          "api": "POST /api/folders if needed; POST /api/diagram-documents/intents; POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+          "guard": "!boardCreating; target selection still valid."
+        },
+        {
+          "label": "取消",
+          "effect": "Close picker while idle",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        }
+      ],
+      "importantStates": [
+        "Existing whiteboard list with paths",
+        "No existing whiteboards empty state",
+        "Creation busy locks close",
+        "Changed note/source rejects stale insertion"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "SettingsOverlay modal widthmin(560px,100vw-24px); scrollable body; no dedicated whiteboard-picker narrow breakpoint. Embedded editor is separately WS-071."
+      },
+      "testRefs": [
+        "tests/e2e/diagram-portability.spec.ts",
+        "tests/diagram-primary-creation.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-102",
+      "parentId": "WS-024",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-102",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-102",
+      "state": "Existing whiteboard list with paths",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-102",
+      "state": "No existing whiteboards empty state",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-102",
+      "state": "Creation busy locks close",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-102",
+      "state": "Changed note/source rejects stale insertion",
+      "representation": "nonvisual-data-rule"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D078",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "source-derived existing2boards/boardCreatingfalse/currentbookmark/idle"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. One complete existing DooKnow LOCAL component on neutral light-gray backdrop, not a full invented host page. Simplified Chinese, crisp natural-size controls, flat white/#f7f8fa, dark #272b3a/secondary#657084, thin #e6e9f1 lines, primary#4566c6,8px radii and restrained shadow. PILOT input is STYLE ONLY, no importing its rail/header/tree/content. Actual source templates determine all titles, field order, controls, permissions and selected state. No protocol requestId/version/hash/cursor/CSRF fields, fabricated success/online states, team/AI/ToDoo features or OS/browser-dialog chrome. Secret data empty or masked only. One coherent selected condition; hidden alternatives remain hidden. Preserve header/close/body-scroll/footer actions and actual disabled guards; do not derive new disabled rules from API constraints.\nSOURCE-DERIVED INSERT WHITEBOARD PICKER, exact local SettingsOverlay width560. Header whiteboard icon/title 插入白板, exact description 引用已有白板，或创建一块新的画布。, existingcloseX enabled. One coherent ready list state, boardCreating=false and original editor bookmark still current. Body exactly2 existing whiteboard ROW BUTTONS, each source whiteboard icon, title filename, smaller relative path and right chevron: 示例白板.md with00-Inbox/示例白板.md; 回顾白板.md with30-Knowledge/回顾白板.md. Synthetic paths only, no actual private content. Footer 取消 enabled and primary新建并插入白板 enabled.\nNo search/upload/native file picker, filename/destination form, diagram canvas/preview/AI, edit/share buttons or no-board empty copy because this selected list is nonempty. Choosing existing inserts reference, new action creates+inserts then opens separate embedded editor; do not show embedded editor simultaneously. Busy-close/bookmark/session guards remain source contracts; no stale/error/loading-success state added. Draw entire actual picker component only.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D078 Insert existing or new whiteboard picker\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"full\", \"sourceId\": \"WS-102\", \"title\": \"Insert existing or new whiteboard picker\", \"role\": \"authenticated owner\", \"state\": \"Existing-board path list/new-and-insert/no-board/busy/stale bookmark; no upload feature.\", \"presentationInstruction\": \"Existing-board path list/new-and-insert/no-board/busy/stale bookmark; no upload feature.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"full\", \"sourceId\": \"WS-102\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"已有白板\", \"effect\": \"Insert whiteboard reference fence at captured selection\", \"api\": \"none\", \"guard\": \"Original note/epoch/content must still match bookmark.\"}, {\"label\": \"新建并插入白板\", \"effect\": \"Create primary whiteboard in current folder or00-Inbox, insert reference, open embedded design editor\", \"api\": \"POST /api/folders if needed; POST /api/diagram-documents/intents; POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit\", \"guard\": \"!boardCreating; target selection still valid.\"}, {\"label\": \"取消\", \"effect\": \"Close picker while idle\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; relevant editor and busy guards apply.\"}], \"importantStates\": [\"Existing whiteboard list with paths\", \"No existing whiteboards empty state\", \"Creation busy locks close\", \"Changed note/source rejects stale insertion\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:909, apps/web/components/Workspace.vue:3788, apps/web/components/settings/SettingsOverlay.vue:24",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:909, apps/web/components/Workspace.vue:3788, apps/web/components/settings/SettingsOverlay.vue:24",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D078.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-3036ebd9-5ecd-43de-a681-52eab46d0392.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-3036ebd9-5ecd-43de-a681-52eab46d0392.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T02:40:39.349Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Source-derived nonempty existing-board picker retains two reference row actions and new-and-insert/cancel, no upload/search/editor or simultaneous empty state.",
+    "concerns": [
+      "Static selected state does not prove capability/snapshot/bookmark/busy/close/focus behavior.",
+      "Source-derived list/confirmation paths are isolated examples; exact raster geometry/texture approximate."
+    ]
+  },
+  "sha256": "572244d77874c00dcdd5537c6eecd3a84e3e6555ffcbbfa0273d6dc3ad533466",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1113304,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/settings/SettingsOverlay.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1642d0324aaad3921e52fe60d086622981d2203e05b08e215e231dd406da657d"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "No exact matching component state capture; actual source template and contract authority, synthetic content only."
+}

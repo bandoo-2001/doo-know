@@ -1,0 +1,50 @@
+{
+  "assetId": "WS-D060",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:19:39.119360+00:00",
+  "method": "Actual generated PNG and matching real baseline each viewed in independent child context. Exact submitted sidecar prompt and batch requirements checked against current templates; source outranks generic prompt/API summaries.",
+  "selectedState": "Owner applications home; actual three-card unpinned baseline",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Three actual app cards in source order 知识图谱 / 博客 / To Doo retain titles, native badge, descriptions, decorative previews, summaries and open-card affordance. To Doo is its real app identity, not platform rebranding.",
+    "All three baseline cards are unpinned and retain 加入左侧菜单; no pinned owner-rail shortcuts. Opposite pinned state and local-storage-failure toast remain mapped alternatives, not simultaneous requirements.",
+    "No notebook sidebar is drawn in actual app-home context. Real owner account/rail with 应用 active and DooKnow global header preserved; no install/new-app/notification capability added. Lock footnote retained."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/generation-batch-02.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D060.json",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/AppsWorkspace.vue:157",
+    "apps/web/app-shortcuts.ts:1",
+    "apps/web/components/WorkspaceFooter.vue:31",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-apps.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "fc0a66391e8675404f79118b23d1371fcecd76c4dd6028654875b85eb2c07b7d",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D060.png",
+  "sourceIds": [
+    "WS-084"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

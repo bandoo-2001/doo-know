@@ -1,0 +1,29 @@
+{
+  "id": "new-mindmap",
+  "title": "new-mindmap",
+  "sourceIds": [
+    "WS-014"
+  ],
+  "width": 320,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "320-new-mindmap.png",
+  "sha256": "be114589c4edadc35a56bddd79c138d12db2114c2a08d6f70db39e3baf3b80af",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "buildFlags": {
+    "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+  },
+  "status": "captured",
+  "pageErrors": [],
+  "targetBounds": {
+    "x": 14,
+    "y": 219.625,
+    "width": 292,
+    "height": 404.734375
+  },
+  "targetWithinViewport": true,
+  "outerOverflow": 0
+}

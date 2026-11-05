@@ -1,0 +1,420 @@
+{
+  "id": "MP-D038",
+  "title": "MCP插件配置内页",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-049"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-049",
+      "title": "MCP插件配置内页",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    }
+  ],
+  "viewportIntent": "1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-049",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "MCP服务→配置",
+      "parentId": "ST-047",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "启用OAuth连接 / 启用API Key连接",
+          "type": "switch",
+          "required": false,
+          "constraints": "默认均true；保存不自动启用插件",
+          "sensitive": false
+        },
+        {
+          "name": "分域权限",
+          "type": "policy",
+          "required": false,
+          "constraints": "ST-062",
+          "sensitive": false
+        },
+        {
+          "name": "允许访问To Doo清单",
+          "type": "multi-select",
+          "required": false,
+          "constraints": "最多100项，每ID≤128；空=全部",
+          "sensitive": false
+        },
+        {
+          "name": "允许To Doo内容",
+          "type": "multi-select",
+          "required": false,
+          "constraints": "8枚举：tasks/records/focus/habits/anniversaries/calendar/statistics/settings",
+          "sensitive": false
+        },
+        {
+          "name": "外部网页地址",
+          "type": "url",
+          "required": false,
+          "constraints": "可选HTTPS；最长2048；空不返回链接",
+          "sensitive": false
+        },
+        {
+          "name": "旧版兼容设置",
+          "type": "details",
+          "required": false,
+          "constraints": "无permissionPolicy时显示；只读/index/publish/task开关和相对目录最多64项",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "未启用",
+        "未保存草稿跨插件保留",
+        "配置版本冲突",
+        "重启待生效",
+        "连接指南和实际插件连接调用区域"
+      ],
+      "notes": [
+        "To Doo业务UI不在本次盘点；此处仅MCP权限编辑器的域/清单字段。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "MCP配置完整内页：OAuth/API开关、分域权限、ToDoo清单/内容授权、HTTPS外部URL、条件性旧兼容设置，保存不启用。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。"
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-049",
+      "label": "保存插件配置",
+      "effect": "按configVersion保存；不自动启用",
+      "api": "PUT /api/platform/plugins/mcp/config",
+      "guard": "不busy且无远端冲突"
+    },
+    {
+      "sourceId": "ST-049",
+      "label": "启用插件",
+      "effect": "启用已保存配置",
+      "api": "POST /api/platform/plugins/mcp/enable",
+      "guard": "无dirty、无remoteChanged"
+    },
+    {
+      "sourceId": "ST-049",
+      "label": "停用插件 / 卸载插件",
+      "effect": "暂停运行或打开卸载确认",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-049",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "保持整张MCP服务设置长页的所有文案、字段顺序、值和布局不变。只修正两个灰色禁用的多选框：“允许访问的 To Doo 清单”和“允许的 To Doo 内容”必须清楚保持禁用外观，文字与箭头用柔和灰色；“任务与目标”已选项右侧不能出现可点击移除的×，请去掉这个×。它们上方To Doo开关保持关闭。知识库/OAuth/API开关、其它可用按钮与所有帮助文案不变，不增加任何说明或控件。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D038.png",
+  "reviewStatus": "pending-independent-review",
+  "parentBindings": [
+    {
+      "sourceId": "ST-049",
+      "parentId": "ST-047",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:544",
+        "apps/web/components/PluginManager.vue:591",
+        "apps/web/components/PluginManager.vue:634",
+        "plugins/mcp/manifest.json:27"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-049",
+      "title": "MCP插件配置内页",
+      "kind": "state",
+      "module": "settings/plugins/mcp",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "MCP服务→配置",
+        "parentId": "ST-047"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:544",
+        "apps/web/components/PluginManager.vue:591",
+        "apps/web/components/PluginManager.vue:634",
+        "plugins/mcp/manifest.json:27"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "启用OAuth连接 / 启用API Key连接",
+          "type": "switch",
+          "required": false,
+          "constraints": "默认均true；保存不自动启用插件",
+          "sensitive": false
+        },
+        {
+          "name": "分域权限",
+          "type": "policy",
+          "required": false,
+          "constraints": "ST-062",
+          "sensitive": false
+        },
+        {
+          "name": "允许访问To Doo清单",
+          "type": "multi-select",
+          "required": false,
+          "constraints": "最多100项，每ID≤128；空=全部",
+          "sensitive": false
+        },
+        {
+          "name": "允许To Doo内容",
+          "type": "multi-select",
+          "required": false,
+          "constraints": "8枚举：tasks/records/focus/habits/anniversaries/calendar/statistics/settings",
+          "sensitive": false
+        },
+        {
+          "name": "外部网页地址",
+          "type": "url",
+          "required": false,
+          "constraints": "可选HTTPS；最长2048；空不返回链接",
+          "sensitive": false
+        },
+        {
+          "name": "旧版兼容设置",
+          "type": "details",
+          "required": false,
+          "constraints": "无permissionPolicy时显示；只读/index/publish/task开关和相对目录最多64项",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存插件配置",
+          "effect": "按configVersion保存；不自动启用",
+          "api": "PUT /api/platform/plugins/mcp/config",
+          "guard": "不busy且无远端冲突"
+        },
+        {
+          "label": "启用插件",
+          "effect": "启用已保存配置",
+          "api": "POST /api/platform/plugins/mcp/enable",
+          "guard": "无dirty、无remoteChanged"
+        },
+        {
+          "label": "停用插件 / 卸载插件",
+          "effect": "暂停运行或打开卸载确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "未启用",
+        "未保存草稿跨插件保留",
+        "配置版本冲突",
+        "重启待生效",
+        "连接指南和实际插件连接调用区域"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/plugin-config.spec.ts:45",
+        "tests/e2e/plugin-config.spec.ts:127",
+        "tests/e2e/plugin-config.spec.ts:185"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "To Doo业务UI不在本次盘点；此处仅MCP权限编辑器的域/清单字段。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-D038",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "selectedState": [
+    "installed disabled MCP plugin; saved modern policy; knowledge read-only all resources; blog and To Doo off",
+    "OAuth guide; no API clients; To Doo selectors disabled"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "保持整张MCP服务设置长页的所有文案、字段顺序、值和布局不变。只修正两个灰色禁用的多选框：“允许访问的 To Doo 清单”和“允许的 To Doo 内容”必须清楚保持禁用外观，文字与箭头用柔和灰色；“任务与目标”已选项右侧不能出现可点击移除的×，请去掉这个×。它们上方To Doo开关保持关闭。知识库/OAuth/API开关、其它可用按钮与所有帮助文案不变，不增加任何说明或控件。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-D038 MCP插件配置内页\n\n1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。\n\n角色壳：所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。\n\n独立场景：\nA | ST-049 | MCP插件配置内页 | role=authenticated-owner | 实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\n\n完整构图：\nMCP配置完整内页：OAuth/API开关、分域权限、ToDoo清单/内容授权、HTTPS外部URL、条件性旧兼容设置，保存不启用。\n\n精确功能/字段/动作guard合同：\nST-049权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-049字段顺序：启用OAuth连接 / 启用API Key连接 [switch; 可选]: 默认均true；保存不自动启用插件 | 分域权限 [policy; 可选]: ST-062 | 允许访问To Doo清单 [multi-select; 可选]: 最多100项，每ID≤128；空=全部 | 允许To Doo内容 [multi-select; 可选]: 8枚举：tasks/records/focus/habits/anniversaries/calendar/statistics/settings | 外部网页地址 [url; 可选]: 可选HTTPS；最长2048；空不返回链接 | 旧版兼容设置 [details; 可选]: 无permissionPolicy时显示；只读/index/publish/task开关和相对目录最多64项\nST-049白名单：保存插件配置 => 按configVersion保存；不自动启用；guard=不busy且无远端冲突；接口约束=PUT /api/platform/plugins/mcp/config\nST-049白名单：启用插件 => 启用已保存配置；guard=无dirty、无remoteChanged；接口约束=POST /api/platform/plugins/mcp/enable\nST-049白名单：停用插件 / 卸载插件 => 暂停运行或打开卸载确认；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\n插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "20d3af18e07807e109eee306b74d24cab0fdbe1eadc0e5ed5883c727c9863156",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 61500
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c2304e7a-6aac-40e7-852f-a9e4628b11a6.png",
+      "role": "initial generated candidate, targeted editing input",
+      "responsibility": "Preserve full settings page while correcting disabled To Doo multiselect appearance and removing chip X",
+      "sha256": "67df30369b9a58e0c76cea8be736a7590aa7ff925006c95da56763ea822095d9",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      },
+      "bytes": 1350904
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c2304e7a-6aac-40e7-852f-a9e4628b11a6.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D038.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-51589b49-b3ea-4543-a023-b4ee5629d4ff.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-51589b49-b3ea-4543-a023-b4ee5629d4ff.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T03:45:17.723Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Disabled To Doo multiselects are gray and selected chip has no remove X; long settings page remains readable and primary save visible.",
+    "concerns": []
+  },
+  "sha256": "8fd98a86e358ae659eaa0ca1dc86b6f5581d413f53adfc68665993ebbee1ec79",
+  "dimensions": {
+    "width": 1024,
+    "height": 1536
+  },
+  "bytes": 1631333,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "plugins/mcp/manifest.json",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "03c6fba6ae3a53d7fe30ed61f2e98fe99ee622b1716f54a077b33381e7c43ba3"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "No exact current plugin settings baseline. Derived from PluginManager, MCPConnectionGuide, MCPDomainPermissions and MCP manifest; transport, plugin state and clients illustrated, not runtime tested.",
+  "generationHistoryFile": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-018-MP-D038-history.json"
+}

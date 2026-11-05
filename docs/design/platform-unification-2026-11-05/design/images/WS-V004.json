@@ -1,0 +1,351 @@
+{
+  "id": "WS-V004",
+  "title": "Clear canvas confirmation / More tools menu",
+  "kind": "generated-design",
+  "sourceIds": [
+    "RTD-007",
+    "RTD-008"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "RTD-007",
+      "title": "Clear canvas confirmation",
+      "role": "authenticated owner",
+      "state": "Independent clear confirmation (cancel/confirm warning) and extra-tools menu; embeddables denied, Generate label only no invented workflow.",
+      "presentationInstruction": "Independent clear confirmation (cancel/confirm warning) and extra-tools menu; embeddables denied, Generate label only no invented workflow."
+    },
+    {
+      "label": "B",
+      "sourceId": "RTD-008",
+      "title": "More tools menu",
+      "role": "authenticated owner",
+      "state": "Independent clear confirmation (cancel/confirm warning) and extra-tools menu; embeddables denied, Generate label only no invented workflow.",
+      "presentationInstruction": "Independent clear confirmation (cancel/confirm warning) and extra-tools menu; embeddables denied, Generate label only no invented workflow."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-clear-canvas-confirm.png",
+      "role": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion."
+    },
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:12593, node_modules/@excalidraw/excalidraw/dist/dev/index.js:17315"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-extra-tools.png",
+      "role": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion."
+    },
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:12463, apps/web/whiteboards/canvas.ts:63"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+    "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R029",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: bounded app-owned confirmation body/wrapped cancel+confirm; retain exact clear-canvas text/actions, no note leave semantics.",
+      "sourceConstraint": "Opened and cancelled. Clear was never confirmed.",
+      "requiredVisibleLabels": [
+        "清除画布",
+        "这将会清除整个画布。您是否要继续?",
+        "取消",
+        "确定"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "role": "authenticated owner",
+      "scrollContract": "Keep actual vendor panel scroll/viewport anchor and real close/Edit trigger reachable. Do not introduce native OS/browser windows.",
+      "focusContract": "Retain actual vendor focus/keyboard limitations; advertised unobserved command palette and absent mobile statistics are not invented.",
+      "requiresActualFitReview": true,
+      "sourceId": "RTD-007"
+    },
+    {
+      "assetId": "WS-VR001",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: viewport-bound anchored vendor menu, exact extra-tool labels; denied embedding/unknown Generate remain restricted.",
+      "sourceConstraint": "Embeddable validation always returns false. Neither web embedding nor external content insertion was attempted.",
+      "requiredVisibleLabels": [
+        "画框工具",
+        "嵌入网页",
+        "激光笔",
+        "Generate",
+        "Mermaid 至 Excalidraw"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "role": "authenticated owner",
+      "scrollContract": "Keep actual vendor panel scroll/viewport anchor and real close/Edit trigger reachable. Do not introduce native OS/browser windows.",
+      "focusContract": "Retain actual vendor focus/keyboard limitations; advertised unobserved command palette and absent mobile statistics are not invented.",
+      "requiresActualFitReview": true,
+      "sourceId": "RTD-008"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n左右两个独立真实白板浮层，外部仅标A、B，不画宿主画布。A紧凑清除确认窗口，标题“清除画布”，没有关闭X；正文“这将会清除整个画布。您是否要继续?”；右下“取消”可用、“确定”红色可用，没有复选框、文件名或删除成功结果。B窄白色更多工具菜单，严格依次：画框图标“画框工具”右“F”；菱形图标“嵌入网页”；激光笔图标“激光笔”右“K”；小分组标题“Generate”（普通文字，不是按钮）；最后真实“Mermaid 至 Excalidraw”可用菜单项。保留原有可见入口，不新增AI prompt、网页地址表单、图片生成、外部嵌入内容、原生加载/保存/导出或主题切换。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-V004.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "RTD-007",
+      "runtimeKey": "vendor-clear-canvas-confirm",
+      "title": "Clear canvas confirmation",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "清除画布",
+        "这将会清除整个画布。您是否要继续?",
+        "取消",
+        "确定"
+      ],
+      "roleEvidence": {
+        "dialog:unnamed": 1,
+        "button:取消": 1,
+        "button:确定": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12593",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:17315"
+      ],
+      "evidence": [
+        "1440-vendor-clear-canvas-confirm.json",
+        "390-vendor-clear-canvas-confirm.json"
+      ],
+      "constraints": "Opened and cancelled. Clear was never confirmed."
+    },
+    {
+      "id": "RTD-008",
+      "runtimeKey": "vendor-extra-tools",
+      "title": "More tools menu",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "画框工具",
+        "嵌入网页",
+        "激光笔",
+        "Generate",
+        "Mermaid 至 Excalidraw"
+      ],
+      "roleEvidence": {
+        "button:Mermaid 至 Excalidraw": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12463",
+        "apps/web/whiteboards/canvas.ts:63"
+      ],
+      "evidence": [
+        "1440-vendor-extra-tools.json",
+        "390-vendor-extra-tools.json"
+      ],
+      "constraints": "Embeddable validation always returns false. Neither web embedding nor external content insertion was attempted."
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "RTD-007",
+      "parentIds": [
+        "WS-068"
+      ],
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Excalidraw child UI inside the actual owner whiteboard; no private page/navigation controls invented."
+    },
+    {
+      "sourceId": "RTD-008",
+      "parentIds": [
+        "WS-068"
+      ],
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Excalidraw child UI inside the actual owner whiteboard; no private page/navigation controls invented."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: RTD-007,RTD-008",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "RTD-007",
+      "state": "Opened and cancelled. Clear was never confirmed.",
+      "representation": "nonvisual-data-rule"
+    },
+    {
+      "sourceId": "RTD-008",
+      "state": "Embeddable validation always returns false. Neither web embedding nor external content insertion was attempted.",
+      "representation": "nonvisual-data-rule"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-V004",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "clear canvas confirmation idle",
+    "packaged more-tools visible menu"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n左右两个独立真实白板浮层，外部仅标A、B，不画宿主画布。A紧凑清除确认窗口，标题“清除画布”，没有关闭X；正文“这将会清除整个画布。您是否要继续?”；右下“取消”可用、“确定”红色可用，没有复选框、文件名或删除成功结果。B窄白色更多工具菜单，严格依次：画框图标“画框工具”右“F”；菱形图标“嵌入网页”；激光笔图标“激光笔”右“K”；小分组标题“Generate”（普通文字，不是按钮）；最后真实“Mermaid 至 Excalidraw”可用菜单项。保留原有可见入口，不新增AI prompt、网页地址表单、图片生成、外部嵌入内容、原生加载/保存/导出或主题切换。",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-V004 Clear canvas confirmation / More tools menu\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"RTD-007\", \"title\": \"Clear canvas confirmation\", \"role\": \"authenticated owner\", \"state\": \"Independent clear confirmation (cancel/confirm warning) and extra-tools menu; embeddables denied, Generate label only no invented workflow.\", \"presentationInstruction\": \"Independent clear confirmation (cancel/confirm warning) and extra-tools menu; embeddables denied, Generate label only no invented workflow.\"}, {\"label\": \"B\", \"sourceId\": \"RTD-008\", \"title\": \"More tools menu\", \"role\": \"authenticated owner\", \"state\": \"Independent clear confirmation (cancel/confirm warning) and extra-tools menu; embeddables denied, Generate label only no invented workflow.\", \"presentationInstruction\": \"Independent clear confirmation (cancel/confirm warning) and extra-tools menu; embeddables denied, Generate label only no invented workflow.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"RTD-007\", \"visibleLabels\": [\"清除画布\", \"这将会清除整个画布。您是否要继续?\", \"取消\", \"确定\"], \"constraints\": \"Opened and cancelled. Clear was never confirmed.\"}, {\"panel\": \"B\", \"sourceId\": \"RTD-008\", \"visibleLabels\": [\"画框工具\", \"嵌入网页\", \"激光笔\", \"Generate\", \"Mermaid 至 Excalidraw\"], \"constraints\": \"Embeddable validation always returns false. Neither web embedding nor external content insertion was attempted.\"}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-clear-canvas-confirm.png",
+      "role": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion.",
+      "responsibility": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion.",
+      "sha256": "7e0f024b61970fd23d3f508fb82dc5792b09ca74dbeb63b0c0820276b4112426",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 88127
+    },
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:12593, node_modules/@excalidraw/excalidraw/dist/dev/index.js:17315",
+      "responsibility": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:12593, node_modules/@excalidraw/excalidraw/dist/dev/index.js:17315",
+      "sha256": "e10e24df153077770849c7d68f9a8f5db3bb1eb1576d909d1e3c9a5b024d1882"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-extra-tools.png",
+      "role": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion.",
+      "responsibility": "CONTENT/REACHABILITY ONLY: actual vendor observed labels/controls; no feature expansion.",
+      "sha256": "089ad1fe13b957493590af3b73fbe09037a2517ee6c8c3dae5822690e46a2f76",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 79175
+    },
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:12463, apps/web/whiteboards/canvas.ts:63",
+      "responsibility": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:12463, apps/web/whiteboards/canvas.ts:63",
+      "sha256": "e10e24df153077770849c7d68f9a8f5db3bb1eb1576d909d1e3c9a5b024d1882"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-clear-canvas-confirm.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-extra-tools.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-V004.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-781aaa40-ace9-43dc-b003-82bcc14274d6.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-781aaa40-ace9-43dc-b003-82bcc14274d6.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T06:17:09.771Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Actual desktop local vendor surfaces and observed labels retained, no OS picker or disabled native file/export workflows.",
+    "concerns": []
+  },
+  "sha256": "4c5742037d65d333cfdd5649d18e0d9301b27def1e0d5335c17f63a8af26b495",
+  "dimensions": {
+    "width": 1774,
+    "height": 887
+  },
+  "bytes": 985130,
+  "sourceInspection": [
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e10e24df153077770849c7d68f9a8f5db3bb1eb1576d909d1e3c9a5b024d1882"
+    },
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e10e24df153077770849c7d68f9a8f5db3bb1eb1576d909d1e3c9a5b024d1882"
+    },
+    {
+      "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e10e24df153077770849c7d68f9a8f5db3bb1eb1576d909d1e3c9a5b024d1882"
+    },
+    {
+      "path": "apps/web/whiteboards/canvas.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "421649c508e3da5a25da20249dcbf1fdb889f8efa9f2a3b6adf30440377ab352"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Actual corresponding desktop baselines viewed. No search query, OS picker, external library, clear-confirm, embed or generator action executed. Mobile offscreen sidebar issue remains unverified/unfixed.",
+  "vendorConstraints": "嵌入网页 remains observed visible entry, validateEmbeddable always false. Generate is observed heading only, no AI workflow fabricated; native load/save/export disabled by application."
+}

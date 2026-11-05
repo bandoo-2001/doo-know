@@ -1,0 +1,51 @@
+{
+  "assetId": "WS-M010",
+  "sourceIds": [
+    "WS-076"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:51:13.468585+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Five independent primary-diagram save-error/recovery/reference-mismatch/resource-readonly/missing-preview excerpts",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed five rows/full submitted prompt and manifest contracts. Real error renderer retains retry/reread/download draft, not overwrite/force; complete last saved preview remains. Source/reference mismatch exact message matches session rejection.",
+    "Recovery offer uses existing browser timestamp/baseline-unchanged explanation and restore/copy/discard; no copy textarea before copy action. Body inert and editable false while recovered; restore only adopts local editor draft, not a save success.",
+    "Read-only canEdit=false forces preview and disables design while Markdown source/reading/PNG remain view modes; shown generic message is valid when capability false with no issues suffix (e.g. publication guard). Actual source-unavailable/conflict issue codes must be retained as dynamic message suffix for those mapped variants, not erased.",
+    "Missing preview gives exact preserve-original copy and no replacement empty canvas/start action. Real privileged owner API/resource guard remains distinct from anonymous public projection; no runtime successful recovery/save asserted."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-034.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-M010.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/DiagramDocumentWorkspace.vue:83",
+    "apps/web/components/DiagramDocumentWorkspace.vue:302",
+    "apps/web/components/DiagramDocumentWorkspace.vue:792",
+    "apps/web/components/DiagramDocumentWorkspace.vue:798",
+    "apps/web/components/DraftRecovery.vue",
+    "apps/web/diagrams/document-session.ts:123",
+    "packages/core/knowledge/diagram-resource-resolver.ts:174",
+    "shared/diagram-resource.ts"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "b368997a6e90a842c58deca201ead0b672707239c9bfde3ff0261748e98c93cf",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-M010.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

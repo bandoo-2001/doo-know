@@ -1,0 +1,309 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S027",
+  "assetId": "MP-S027",
+  "sourceIds": [
+    "ST-073"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-073",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "MCP plugin local slices: active OAuth client with effective read/all policy; separate error alert plus existing refresh. Source-derived with no runtime baseline"
+    }
+  ],
+  "selectedState": "MCP plugin local slices: active OAuth client with effective read/all policy; separate error alert plus existing refresh. Source-derived with no runtime baseline",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制中文网页局部组件对照板，白底浅灰面、蓝色主动作、细线小圆角、文字清楚。各行是互相独立的局部状态，留白细线分隔；只画指定控件/提示，不画外部导航、全窗口、审查编号或额外说明。上下两行独立局部。上行一条客户端卡片：“example-desktop”，状态“已授权”，权限文字“知识库：读取（全部业务资源）”，右侧唯一按钮“撤销”。下行红色错误提示“暂时无法读取连接状态，请重试。”，下方现有按钮“刷新连接与调用”。不加连接成功、客户端在线、服务器地址、来源编号或任何额外操作。",
+  "prompt": "绘制中文网页局部组件对照板，白底浅灰面、蓝色主动作、细线小圆角、文字清楚。各行是互相独立的局部状态，留白细线分隔；只画指定控件/提示，不画外部导航、全窗口、审查编号或额外说明。上下两行独立局部。上行一条客户端卡片：“example-desktop”，状态“已授权”，权限文字“知识库：读取（全部业务资源）”，右侧唯一按钮“撤销”。下行红色错误提示“暂时无法读取连接状态，请重试。”，下方现有按钮“刷新连接与调用”。不加连接成功、客户端在线、服务器地址、来源编号或任何额外操作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; no feature or owner shell authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; no feature or owner shell authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制中文网页局部组件对照板，白底浅灰面、蓝色主动作、细线小圆角、文字清楚。各行是互相独立的局部状态，留白细线分隔；只画指定控件/提示，不画外部导航、全窗口、审查编号或额外说明。上下两行独立局部。上行一条客户端卡片：“example-desktop”，状态“已授权”，权限文字“知识库：读取（全部业务资源）”，右侧唯一按钮“撤销”。下行红色错误提示“暂时无法读取连接状态，请重试。”，下方现有按钮“刷新连接与调用”。不加连接成功、客户端在线、服务器地址、来源编号或任何额外操作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制中文网页局部组件对照板，白底浅灰面、蓝色主动作、细线小圆角、文字清楚。各行是互相独立的局部状态，留白细线分隔；只画指定控件/提示，不画外部导航、全窗口、审查编号或额外说明。上下两行独立局部。上行一条客户端卡片：“example-desktop”，状态“已授权”，权限文字“知识库：读取（全部业务资源）”，右侧唯一按钮“撤销”。下行红色错误提示“暂时无法读取连接状态，请重试。”，下方现有按钮“刷新连接与调用”。不加连接成功、客户端在线、服务器地址、来源编号或任何额外操作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only; no feature or owner shell authority"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-aada5886-15d0-4661-9fe2-eab85ba7ca48.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-073",
+      "title": "MCP实际插件连接与调用面板",
+      "kind": "dialog",
+      "module": "plugins/mcp",
+      "entry": {
+        "route": "当前工作区路由或设置插件内页",
+        "trigger": "MCP配置内settingsPage内嵌；sidebar navigation→ST-091桥接窗口→MCP连接按钮打开mcp.settings",
+        "parentId": "ST-056"
+      },
+      "sourceRefs": [
+        "plugins/mcp/web/index.ts:43",
+        "plugins/mcp/web/index.ts:81",
+        "plugins/mcp/web/index.ts:184",
+        "plugins/mcp/manifest.json:149",
+        "apps/web/components/PluginSlot.vue:16",
+        "plugins/mcp/web/index.ts:185"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "撤销",
+          "effect": "撤销OAuth客户端授权",
+          "api": "POST /api/plugins/mcp/call command:mcp.revoke",
+          "guard": "active；实际UI无二次确认"
+        },
+        {
+          "label": "加载更早调用",
+          "effect": "按cursor读取调用",
+          "api": "POST /api/plugins/mcp/call provider:mcp.calls",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新连接与调用",
+          "effect": "刷新状态与记录",
+          "api": "POST /api/plugins/mcp/call provider:mcp.status / mcp.calls",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "加载连接",
+        "OAuth/API服务本机条件与外部连接未验证",
+        "无授权客户端",
+        "无调用记录",
+        "当前有效policy或scopes",
+        "工具名/结果码/时间/客户端/耗时",
+        "错误alert"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp.spec.ts:1",
+        "tests/mcp-plugin-operations.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "同一Settings组件既内嵌也通过PluginPanel弹窗显示；10秒刷新。more()没有本地try/catch与busy锁，错误展示实际行为未运行验证。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-073",
+      "parentId": "ST-056",
+      "route": "当前工作区路由或设置插件内页",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "plugins/mcp/web/index.ts:43",
+        "plugins/mcp/web/index.ts:81",
+        "plugins/mcp/web/index.ts:184",
+        "plugins/mcp/manifest.json:149",
+        "apps/web/components/PluginSlot.vue:16",
+        "plugins/mcp/web/index.ts:185"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-025.json#MP-S027",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S027",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-aada5886-15d0-4661-9fe2-eab85ba7ca48.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S027.png",
+  "sha256": "2f06d158be2706ff9e6cf37eea9cd2be390e40d23f43331200308922aca8f9f5",
+  "bytes": 1087985,
+  "dimensions": {
+    "width": 1774,
+    "height": 887
+  },
+  "generatedAtUtc": "2026-11-05T04:44:31.576837+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / index.ts",
+    "sourceIds": [
+      "ST-073"
+    ],
+    "roles": [
+      "authenticated-owner",
+      "owner-private"
+    ],
+    "state": "MCP plugin local slices: active OAuth client with effective read/all policy; separate error alert plus existing refresh. Source-derived with no runtime baseline",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-073",
+      "title": "当前有效policy或scopes",
+      "renderer": "plugins/mcp/web/index.ts",
+      "sourceRefs": [
+        "plugins/mcp/web/index.ts:43",
+        "plugins/mcp/web/index.ts:81",
+        "plugins/mcp/web/index.ts:184",
+        "plugins/mcp/manifest.json:149",
+        "apps/web/components/PluginSlot.vue:16",
+        "plugins/mcp/web/index.ts:185"
+      ],
+      "guardBindings": [
+        {
+          "label": "撤销",
+          "guard": "active；实际UI无二次确认"
+        },
+        {
+          "label": "加载更早调用",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新连接与调用",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "当前有效policy或scopes",
+          "variant": "当前有效policy或scopes",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-073"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage.",
+      "registeredRenderer": "mcp.settings"
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-073",
+      "title": "错误alert",
+      "renderer": "plugins/mcp/web/index.ts",
+      "sourceRefs": [
+        "plugins/mcp/web/index.ts:43",
+        "plugins/mcp/web/index.ts:81",
+        "plugins/mcp/web/index.ts:184",
+        "plugins/mcp/manifest.json:149",
+        "apps/web/components/PluginSlot.vue:16",
+        "plugins/mcp/web/index.ts:185"
+      ],
+      "guardBindings": [
+        {
+          "label": "撤销",
+          "guard": "active；实际UI无二次确认"
+        },
+        {
+          "label": "加载更早调用",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新连接与调用",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "错误alert",
+          "variant": "错误alert",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-073"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage.",
+      "registeredRenderer": "mcp.settings"
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": []
+}

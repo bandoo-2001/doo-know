@@ -1,0 +1,16 @@
+{
+  "id": "settings-backup",
+  "title": "平台设置 backup",
+  "width": 390,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?view=settings&section=backup",
+  "file": "390-settings-backup.png",
+  "sha256": "dfa6da746282d2784f0490c5c005b0d8a504eb003baa8965f491df1b7824ef09",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

@@ -1,0 +1,234 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D101-v2",
+  "assetId": "MP-D101",
+  "sourceIds": [
+    "PB-035"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-035",
+      "title": "博客图片：裁切与上传",
+      "role": "authenticated owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Article cover16:9 image decoded, crop source active zoom1/x50/y50; no prior cover value, pending false, no error; three range inputs"
+    }
+  ],
+  "selectedState": "Article cover16:9 image decoded, crop source active zoom1/x50/y50; no prior cover value, pending false, no error; three range inputs",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅删除山景预览上方的白色虚线矩形和四个角上的方形拖拽手柄。预览图片铺满当前固定16:9窗口，不增加可拖拽裁切框。所有其他文字、三个滑杆、滑块位置、选择图片按钮、裁切并上传和取消裁切按钮及整个布局完全保持不变。",
+  "prompt": "仅删除山景预览上方的白色虚线矩形和四个角上的方形拖拽手柄。预览图片铺满当前固定16:9窗口，不增加可拖拽裁切框。所有其他文字、三个滑杆、滑块位置、选择图片按钮、裁切并上传和取消裁切按钮及整个布局完全保持不变。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D101.png",
+      "role": "Edit target; remove unsupported resize outline/handles while preserving three sliders",
+      "sha256": "2942c533bace948781f4e11914e8ff737aac03f70877bf295307f9d945184bb7",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D101.png",
+      "role": "Edit target; remove unsupported resize outline/handles while preserving three sliders",
+      "sha256": "2942c533bace948781f4e11914e8ff737aac03f70877bf295307f9d945184bb7",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅删除山景预览上方的白色虚线矩形和四个角上的方形拖拽手柄。预览图片铺满当前固定16:9窗口，不增加可拖拽裁切框。所有其他文字、三个滑杆、滑块位置、选择图片按钮、裁切并上传和取消裁切按钮及整个布局完全保持不变。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D101.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅删除山景预览上方的白色虚线矩形和四个角上的方形拖拽手柄。预览图片铺满当前固定16:9窗口，不增加可拖拽裁切框。所有其他文字、三个滑杆、滑块位置、选择图片按钮、裁切并上传和取消裁切按钮及整个布局完全保持不变。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D101.png",
+          "role": "Edit target; remove unsupported resize outline/handles while preserving three sliders"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-5e3aa249-b7c6-4ecc-8103-2f66cbee1a62.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-035",
+      "title": "博客图片：裁切与上传",
+      "kind": "state",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design|articles",
+        "trigger": "Choose avatar/banner/article-cover file",
+        "parentId": "PB-034"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogImageEditor.vue:41",
+        "apps/web/components/blog/BlogImageEditor.vue:109",
+        "apps/web/components/blog/BlogArticleCover.vue:51",
+        "apps/web/blog-workbench.ts:469"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "file",
+          "type": "image file",
+          "required": true,
+          "constraints": "JPEG/PNG/WebP; chooser<=10MB; cropped WebP output<=1600px wide; processed design upload<=5MiB",
+          "sensitive": false
+        },
+        {
+          "name": "zoom",
+          "type": "range",
+          "required": true,
+          "constraints": "1..3 step.05",
+          "sensitive": false
+        },
+        {
+          "name": "x/y",
+          "type": "range",
+          "required": true,
+          "constraints": "0..100; default50",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "裁切并上传",
+          "effect": "Process chosen crop and upload to current destination",
+          "api": "POST /api/blog/design/media (JSON); POST /api/notes/:noteId/assets (multipart)",
+          "guard": "image decoded; not pending"
+        },
+        {
+          "label": "取消裁切",
+          "effect": "Release local object URL",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "移除",
+          "effect": "Clear image selection",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "file type/size rejection",
+        "crop preview; zoom/position controls",
+        "processing/uploading locks controls; upload failure retains crop",
+        "selected; remove; cancel crop"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio-workbench.test.ts:166",
+        "tests/blog-studio-workbench.test.ts:208"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Avatar aspect1:1; homepage banner3:1; article cover16:9. UI chooser10MB and processed design upload5MiB are different constraints."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-035",
+      "parentId": "PB-034",
+      "route": "/?view=apps&app=blog&appSection=design|articles",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/blog/BlogImageEditor.vue:41",
+        "apps/web/components/blog/BlogImageEditor.vue:109",
+        "apps/web/components/blog/BlogArticleCover.vue:51",
+        "apps/web/blog-workbench.ts:469"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-021.json#MP-D101",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D101",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-5e3aa249-b7c6-4ecc-8103-2f66cbee1a62.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D101-v2.png",
+  "sha256": "972d998a86d42cd4502ba7ca373f1271e4295e91860cf8c48e3987d37c26feb3",
+  "bytes": 1650341,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T04:10:58.580466+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D101.png",
+    "sha256": "2942c533bace948781f4e11914e8ff737aac03f70877bf295307f9d945184bb7"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "博客图片：裁切与上传",
+    "sourceIds": [
+      "PB-035"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Article cover16:9 image decoded, crop source active zoom1/x50/y50; no prior cover value, pending false, no error; three range inputs",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "renderedVariants": []
+}

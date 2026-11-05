@@ -1,0 +1,46 @@
+{
+  "assetId": "MP-R035-v2",
+  "sourceIds": [
+    "ST-076"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T07:59:50.555360+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Three narrow native HTTPS credential modals: new empty/edit blank retained/busy masked",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed v2/new SHA and original plus cleanup actual prompts/source contracts. Native password no invented eye or visible required-star decoration, existing name/platform/kind/username/token/store controls in exact order. Empty new name disables save; native new token required validation remains distinct from button-disabled condition.",
+    "Existing same host/kind blank token preserves encrypted secret; temporary-store unchecked state valid, editable/save/cancel available. Busy C masks newtoken and locks fields/actions/X; source save button has no fake loading spinner. Synthetic data/secret masking not successful credential/remote connection claim."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-039.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R035-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/GitRemotePanel.vue:567",
+    "apps/web/components/GitRemotePanel.vue:585",
+    "apps/web/components/GitRemotePanel.vue:1118",
+    "apps/server/git/credentials.ts:176",
+    "apps/server/git/credentials.ts:197"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "b837b6b14fab0db334a37ba0bcbbecadf16a2999d03b3a82d3ce0cdc27c39a10",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R035-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

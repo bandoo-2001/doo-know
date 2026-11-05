@@ -1,0 +1,210 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D056",
+  "assetId": "WS-D056",
+  "sourceIds": [
+    "WS-078"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-078",
+      "title": "Inline SVG / Mermaid / whiteboard diagram card",
+      "role": "authenticated owner",
+      "state": "Owner inline SVG/Mermaid/whiteboard card with actual capabilities; public restrictions remain guards, not guest chrome.",
+      "presentationInstruction": "Owner inline SVG/Mermaid/whiteboard card with actual capabilities; public restrictions remain guards, not guest chrome.",
+      "selectedState": "Owner editable Mermaid inline card, clean valid preview with two synthetic nodes, source hidden, not expanded/loading/error/stale"
+    }
+  ],
+  "selectedState": "Owner editable Mermaid inline card, clean valid preview with two synthetic nodes, source hidden, not expanded/loading/error/stale",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作一个完整可读的真实DiagramPreview inline图形卡，意图宽1000px。只画局部组件，不画父页/owner导航/浏览器壳。平面白/浅灰、#272b3a文字、#657084次级、#e6e9f1细线、#4566c6蓝色、小圆角、清晰紧凑中文；长表单可延长纵向且主要动作可达。无纹理渐变或协议字段输入。source-derived与角色/parent仅metadata。当前kind=mermaid、owner可编辑、editable=true、加载完成无错误/过期提示。卡头code图标和准确“Mermaid 流程图”；右侧现有控件按序“预览”（选中）/“源码”、“放大”、“编辑源码”、“转换为白板”、“生成通用预览”，全部可用。主体只显示合成Mermaid预览：两个简洁方框“收集”→“整理”，来自flowchart LR A[收集] --> B[整理]。不能把源码和预览同时显示；当前源码隐藏所以没有下载源码按钮。不要编辑设计按钮（只属白板）、关闭X/保存/分享/重新加载、画布工具栏、错误或生成中。",
+  "prompt": "制作一个完整可读的真实DiagramPreview inline图形卡，意图宽1000px。只画局部组件，不画父页/owner导航/浏览器壳。平面白/浅灰、#272b3a文字、#657084次级、#e6e9f1细线、#4566c6蓝色、小圆角、清晰紧凑中文；长表单可延长纵向且主要动作可达。无纹理渐变或协议字段输入。source-derived与角色/parent仅metadata。当前kind=mermaid、owner可编辑、editable=true、加载完成无错误/过期提示。卡头code图标和准确“Mermaid 流程图”；右侧现有控件按序“预览”（选中）/“源码”、“放大”、“编辑源码”、“转换为白板”、“生成通用预览”，全部可用。主体只显示合成Mermaid预览：两个简洁方框“收集”→“整理”，来自flowchart LR A[收集] --> B[整理]。不能把源码和预览同时显示；当前源码隐藏所以没有下载源码按钮。不要编辑设计按钮（只属白板）、关闭X/保存/分享/重新加载、画布工具栏、错误或生成中。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exact source defines isolated local component, no matching runtime window capture",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exact source defines isolated local component, no matching runtime window capture",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作一个完整可读的真实DiagramPreview inline图形卡，意图宽1000px。只画局部组件，不画父页/owner导航/浏览器壳。平面白/浅灰、#272b3a文字、#657084次级、#e6e9f1细线、#4566c6蓝色、小圆角、清晰紧凑中文；长表单可延长纵向且主要动作可达。无纹理渐变或协议字段输入。source-derived与角色/parent仅metadata。当前kind=mermaid、owner可编辑、editable=true、加载完成无错误/过期提示。卡头code图标和准确“Mermaid 流程图”；右侧现有控件按序“预览”（选中）/“源码”、“放大”、“编辑源码”、“转换为白板”、“生成通用预览”，全部可用。主体只显示合成Mermaid预览：两个简洁方框“收集”→“整理”，来自flowchart LR A[收集] --> B[整理]。不能把源码和预览同时显示；当前源码隐藏所以没有下载源码按钮。不要编辑设计按钮（只属白板）、关闭X/保存/分享/重新加载、画布工具栏、错误或生成中。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作一个完整可读的真实DiagramPreview inline图形卡，意图宽1000px。只画局部组件，不画父页/owner导航/浏览器壳。平面白/浅灰、#272b3a文字、#657084次级、#e6e9f1细线、#4566c6蓝色、小圆角、清晰紧凑中文；长表单可延长纵向且主要动作可达。无纹理渐变或协议字段输入。source-derived与角色/parent仅metadata。当前kind=mermaid、owner可编辑、editable=true、加载完成无错误/过期提示。卡头code图标和准确“Mermaid 流程图”；右侧现有控件按序“预览”（选中）/“源码”、“放大”、“编辑源码”、“转换为白板”、“生成通用预览”，全部可用。主体只显示合成Mermaid预览：两个简洁方框“收集”→“整理”，来自flowchart LR A[收集] --> B[整理]。不能把源码和预览同时显示；当前源码隐藏所以没有下载源码按钮。不要编辑设计按钮（只属白板）、关闭X/保存/分享/重新加载、画布工具栏、错误或生成中。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; exact source defines isolated local component, no matching runtime window capture"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-3b339e66-6672-4106-9547-55044bf2f3ed.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-078",
+      "title": "Inline SVG / Mermaid / whiteboard diagram card",
+      "kind": "state",
+      "module": "diagrams",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Render supported diagram fence/reference in editor/preview",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramPreview.vue:1",
+        "apps/web/components/DiagramPreview.vue:292"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "预览 / 源码 / 放大",
+          "effect": "Switch inline presentation",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "编辑源码 / 转换为白板 / 编辑设计",
+          "effect": "Existing source edit or whiteboard conversion/reference editing",
+          "api": "none",
+          "guard": "canEdit=!readOnly&&!shareToken&&resource.canEdit; source edit/generate also editable===true"
+        },
+        {
+          "label": "生成通用预览",
+          "effect": "Persist preview artifact",
+          "api": "POST /api/notes/:id/diagram-artifacts",
+          "guard": "!loading/!error/!generating and canGenerate"
+        }
+      ],
+      "importantStates": [
+        "Loading",
+        "Invalid/unsafe source error and reload",
+        "Stale preview",
+        "Unavailable source shows last complete preview",
+        "Empty valid canvas",
+        "Readonly/public restrictions"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/diagram-markers-render.test.ts",
+        "tests/editor-knowledge-preview.test.ts",
+        "tests/diagram-resource.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-078",
+      "parentId": "WS-024",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/DiagramPreview.vue:1",
+        "apps/web/components/DiagramPreview.vue:292"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-013.json#WS-D056",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D056",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-3b339e66-6672-4106-9547-55044bf2f3ed.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D056.png",
+  "sha256": "a0fb629b65987c0e30810c1d956e3fb9c88795132f75b66d79e11562bf41e2b5",
+  "bytes": 1006576,
+  "dimensions": {
+    "width": 1774,
+    "height": 887
+  },
+  "generatedAtUtc": "2026-11-05T02:42:28.098278+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Inline SVG / Mermaid / whiteboard diagram card",
+    "sourceIds": [
+      "WS-078"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Owner editable Mermaid inline card, clean valid preview with two synthetic nodes, source hidden, not expanded/loading/error/stale",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

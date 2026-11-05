@@ -1,0 +1,69 @@
+{
+  "assetId": "WS-D091",
+  "sourceIds": [
+    "WS-067"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T03:45:27.986209+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Independent saved-history explicit restore confirmation with dirty note and pending-restore verification busy/locked state.",
+  "functionalFindings": [
+    {
+      "id": "WS-D091-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Both windows render 完整原文 as a separate outlined file-icon button. Source renders this as a readonly span in note-history-source-tools; the only action there is 复制全文. The illustration invents a full-original action.",
+      "sourceEvidence": "NoteHistoryDialog.vue historical source tools span shows complete ? 完整原文 : range, followed by copy AButton."
+    },
+    {
+      "id": "WS-D091-F2",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The left restore-confirmation window omits the always-rendered selected-history versus current-saved-version reference row. It appears only on right, although both have a selected revision. This drops baseline context immediately before destructive replacement.",
+      "sourceEvidence": "NoteHistoryDialog.vue:640 note-history-detail-heading always renders selected historical time and currentModifiedAt before dirty warning/content tabs."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Explicit confirmation retains replacement warning/cancel-restore/confirm; busy pending state hidesX and disables sources/version/close/check as declared.",
+    "Source current/history modes and historical text/copy remain present; no duplicate mutation ID or successful restore claim."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-017.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D091.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/NoteHistoryDialog.vue:640",
+    "apps/web/components/NoteHistoryDialog.vue:733",
+    "apps/web/components/NoteHistoryDialog.vue:914",
+    "apps/web/components/NoteHistoryDialog.vue:940"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "WS-D091-F1",
+      "correction": "Change 完整原文 in both windows to readonly unboxed text/status, retain only genuine 复制全文 action."
+    },
+    {
+      "findingId": "WS-D091-F2",
+      "correction": "Restore left reference row 历史版本11/4 10:00 → 当前已保存版本11/5 12:00 above dirty-draft explanation, preserving both distinct footer/close-lock states."
+    }
+  ],
+  "reviewedImageSha256": "725495ad2b18bb08d9baba46a623a11c32ceb6ef65774544723f34e1e6c8a598",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D091.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

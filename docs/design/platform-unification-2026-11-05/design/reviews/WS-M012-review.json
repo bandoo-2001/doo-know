@@ -1,0 +1,52 @@
+{
+  "assetId": "WS-M012",
+  "sourceIds": [
+    "WS-089"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T06:08:56.791051+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Seven separate model provider/key/test/conflict/load excerpts; dirty-close exact extra asset separate",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed all seven local snippets/full submitted prompt/contracts. Provider none hides URL/model/key/remote-permission fields; saved-clean loopback Ollama shows optional blank key and enabled saved test; new masked key in OpenAI-compatible draft is dirty and disables saved test while explicit remote consent shown.",
+    "Stored-key specimen shows actual blank retained-key placeholder plus clear checkbox; no stored secret is exposed. Connection-success sample is result from saved synthetic-text test, not claimed runtime verification or real-content permission.",
+    "Conflict row is explicitly the global graph error renderer and its real retry refresh action, not an invented retry-save button inside model form (inner overlay error has no action). Model conflict text exact; missing draft has real loading/reload.",
+    "Actual GraphOverlay unsaved close AAlert/description/two-button guard remains new WS-M017 composite; no claim that these dirty model fields or a SettingsOverlay footer cover it. Advanced parameter/full model form remain existing canonical D065 with original numeric constraints and expectedVersion."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-034.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-M012.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/GraphWorkspace.vue:108",
+    "apps/web/components/GraphWorkspace.vue:683",
+    "apps/web/components/GraphWorkspace.vue:1029",
+    "apps/web/components/GraphWorkspace.vue:1370",
+    "apps/web/graph-workbench.ts:174",
+    "apps/web/graph-workbench.ts:229",
+    "apps/server/graph/semantic-routes.ts:18",
+    "apps/server/graph/semantic-routes.ts:131",
+    "packages/core/graph/model.ts:244"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "7bd035134b51a6e8450c2279c234830f55bdc5c2e67b74fec4ebf5f161d060bf",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-M012.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

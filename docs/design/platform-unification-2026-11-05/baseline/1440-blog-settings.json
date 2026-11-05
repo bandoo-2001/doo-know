@@ -1,0 +1,16 @@
+{
+  "id": "blog-settings",
+  "title": "博客管理 settings",
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?view=apps&app=blog&appSection=settings",
+  "file": "1440-blog-settings.png",
+  "sha256": "eccd7d09c3724a2577a6bbdc69b5314a8bee7880ff21584827f52139e7307f70",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

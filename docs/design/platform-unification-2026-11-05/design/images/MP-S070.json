@@ -1,0 +1,491 @@
+{
+  "id": "MP-S070",
+  "title": "Component state matrix: anonymous-blog / render.ts",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-058",
+    "PB-059"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-058",
+      "title": "真实组件局部状态矩阵",
+      "role": "anonymous-blog",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-collection.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-archive.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-058",
+      "route": "/blog/-/collections/:slug; /blog/collections/:slug",
+      "trigger": "Select collection card",
+      "parentId": "PB-057",
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "importantStates": [
+        "ordered currently published members only",
+        "empty collection: 此专题暂无已发布文章",
+        "collection absent returns404"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "公开专题路线完整页：专题描述/有序已发布文章、全部专题入口，空文案此专题暂无已发布文章，缺合集走HTTP404。"
+      ]
+    },
+    {
+      "sourceId": "PB-059",
+      "route": "/blog/archive",
+      "trigger": "Public navigation",
+      "parentId": null,
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "importantStates": [
+        "published articles sorted by publication date descending",
+        "empty archive with return-list link"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "公开归档完整页：按发布日期降序及既有年月组列文章，空态返回文章列表。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only anonymous-blog context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/server/blog/render.ts",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-058",
+      "label": "全部专题",
+      "effect": "Return collection index",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-058",
+      "label": "文章卡",
+      "effect": "Read published member",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-059",
+      "label": "归档文章",
+      "effect": "Read published article",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-059",
+      "label": "返回文章列表",
+      "effect": "Navigate /blog",
+      "api": "",
+      "guard": ""
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-058",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "PB-059",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n上下两个独立公开博客空态局部，外部仅标A、B，米白背景、墨绿#24312d文字和已配置#44684f链接，不加主人导航或管理动作。A：顶部只读小行有链接“全部专题”和“/ 0 篇文章”，标题“记录的方法”，介绍“隔离盘点示例合集”，下方普通空态文字“此专题暂无已发布文章”。没有文章卡片或创建入口。B：标题“文章归档”，空态“暂无已发布文章。”，可用链接“返回文章列表”。两者字号正常清楚，内容紧凑，留白足够，不增加搜索/分页/订阅按钮。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S070.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-058",
+      "title": "empty collection: 此专题暂无已发布文章",
+      "renderer": "apps/server/blog/render.ts",
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:262",
+        "apps/server/blog/render.ts:257"
+      ],
+      "guardBindings": [
+        {
+          "label": "全部专题",
+          "guard": ""
+        },
+        {
+          "label": "文章卡",
+          "guard": ""
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "empty collection: 此专题暂无已发布文章",
+          "variant": "empty collection: 此专题暂无已发布文章",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-058"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "PB-059",
+      "title": "empty archive with return-list link",
+      "renderer": "apps/server/blog/render.ts",
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:280"
+      ],
+      "guardBindings": [
+        {
+          "label": "归档文章",
+          "guard": ""
+        },
+        {
+          "label": "返回文章列表",
+          "guard": ""
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "empty archive with return-list link",
+          "variant": "empty archive with return-list link",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-059"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-058",
+      "parentId": "PB-057",
+      "route": "/blog/-/collections/:slug; /blog/collections/:slug",
+      "roles": [
+        "anonymous guest"
+      ],
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:262",
+        "apps/server/blog/render.ts:257"
+      ]
+    },
+    {
+      "sourceId": "PB-059",
+      "parentId": null,
+      "route": "/blog/archive",
+      "roles": [
+        "anonymous guest"
+      ],
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:280"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-058",
+      "title": "公开博客：专题阅读路线",
+      "kind": "page",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog/-/collections/:slug; /blog/collections/:slug",
+        "trigger": "Select collection card",
+        "parentId": "PB-057"
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:262",
+        "apps/server/blog/render.ts:257"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "全部专题",
+          "effect": "Return collection index",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "文章卡",
+          "effect": "Read published member",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "ordered currently published members only",
+        "empty collection: 此专题暂无已发布文章",
+        "collection absent returns404"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/e2e/blog-studio.spec.ts:67"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    },
+    {
+      "id": "PB-059",
+      "title": "公开博客：文章归档",
+      "kind": "page",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog/archive",
+        "trigger": "Public navigation",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:280"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "归档文章",
+          "effect": "Read published article",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "返回文章列表",
+          "effect": "Navigate /blog",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "published articles sorted by publication date descending",
+        "empty archive with return-list link"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/blog-studio.test.ts:1",
+        "tests/e2e/blog-public-polish.spec.ts:124"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S070",
+  "roles": [
+    "anonymous-blog"
+  ],
+  "selectedState": [
+    "empty collection with0published members",
+    "empty archive"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n上下两个独立公开博客空态局部，外部仅标A、B，米白背景、墨绿#24312d文字和已配置#44684f链接，不加主人导航或管理动作。A：顶部只读小行有链接“全部专题”和“/ 0 篇文章”，标题“记录的方法”，介绍“隔离盘点示例合集”，下方普通空态文字“此专题暂无已发布文章”。没有文章卡片或创建入口。B：标题“文章归档”，空态“暂无已发布文章。”，可用链接“返回文章列表”。两者字号正常清楚，内容紧凑，留白足够，不增加搜索/分页/订阅按钮。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S070 Component state matrix: anonymous-blog / render.ts\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only anonymous-blog context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | PB-058 | 真实组件局部状态矩阵 | role=anonymous-blog | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n公开专题路线完整页：专题描述/有序已发布文章、全部专题入口，空文案此专题暂无已发布文章，缺合集走HTTP404。\n公开归档完整页：按发布日期降序及既有年月组列文章，空态返回文章列表。\n\n局部矩阵（≤7行/卡）：\nr1 | PB-058 | 实际只画代表：empty collection: 此专题暂无已发布文章 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/server/blog/render.ts\nr2 | PB-059 | 实际只画代表：empty archive with return-list link | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/server/blog/render.ts\n\n精确功能/字段/动作guard合同：\nPB-058/PB-059权限：No owner session required. Site must be enabled and requested publication must be publicly available. / Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded.\nPB-058/PB-059字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nPB-058白名单：全部专题 => Return collection index；guard=既有上下文\nPB-058白名单：文章卡 => Read published member；guard=既有上下文\nPB-059白名单：归档文章 => Read published article；guard=既有上下文\nPB-059白名单：返回文章列表 => Navigate /blog；guard=既有上下文\n\n响应式合同：\nServer HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-collection.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "4c9332807c7505be19ad89eeac6ef52ef878acecbb3d1fcf3dfd289b7de2fff6",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 50121
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-archive.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "c34ef75c7b1bd582bd0796506aba2f1adbdc4a0baf809d2047a255c6aa90e86b",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 39406
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S070.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-40d6cdc9-a042-49bb-a768-14a45dfc9867.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-40d6cdc9-a042-49bb-a768-14a45dfc9867.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T05:08:02.073Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Correct empty collection/archive copy and real return links; no publishing or owner tools.",
+    "concerns": []
+  },
+  "sha256": "7f1cf78e6d5c9e6efc0d797247b787fb26f51f31092a2cba7db8424d49e50f8d",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1130179,
+  "sourceInspection": [
+    {
+      "path": "apps/server/blog/routes.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "3f4444c9f58c14e3dc37005380512f8325ef56894868db5a411d0adc5e231979"
+    },
+    {
+      "path": "apps/server/blog/render.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "0442b17716872b91c0e322647dbc5af343db87218ed8c7d4964c2639ba6af1cf"
+    },
+    {
+      "path": "apps/server/blog/routes.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "3f4444c9f58c14e3dc37005380512f8325ef56894868db5a411d0adc5e231979"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived public empty states; baseline actual content is nonempty, no runtime data changed."
+}

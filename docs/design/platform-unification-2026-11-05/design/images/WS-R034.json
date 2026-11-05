@@ -1,0 +1,972 @@
+{
+  "id": "WS-R034",
+  "title": "Graph accessible node and relationship list / Note reference graph mode",
+  "kind": "responsive-board",
+  "sourceIds": [
+    "WS-086",
+    "WS-106"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-086",
+      "title": "Graph accessible node and relationship list",
+      "role": "authenticated owner",
+      "state": "Complete accessible graph node/relation list at the labeled width, selected row, actual controls and scrolling. Note versus knowledge is an exact data projection substitution, not a new layout.",
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-086",
+      "title": "Graph accessible node and relationship list",
+      "role": "authenticated owner",
+      "state": "Complete accessible graph node/relation list at the labeled width, selected row, actual controls and scrolling. Note versus knowledge is an exact data projection substitution, not a new layout.",
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      }
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:753"
+    },
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:130, apps/web/components/GraphWorkspace.vue:605, apps/server/graph/semantic-routes.ts:62, packages/core/graph/knowledge-service.ts:645"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-086",
+      "label": "节点 / 关系",
+      "effect": "Select item to inspect",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-086",
+      "label": "画布",
+      "effect": "Return canvas view",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-106",
+      "label": "笔记 / 知识",
+      "effect": "Change current graph query view and refresh authorized graph.",
+      "api": "GET /api/graph/explore?view=notes or view=knowledge",
+      "guard": "Current graph request/navigation and busy guards apply."
+    },
+    {
+      "sourceId": "WS-106",
+      "label": "选择笔记 / 1跳 / 2跳 / 打开原文",
+      "effect": "Inspect note reference relationships, focus neighborhood or open note.",
+      "api": "GET /api/graph/explore; workspace note navigation",
+      "guard": "Current authorized result only."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R034",
+      "representation": "direct",
+      "reason": "Actual accessible graph list at390/320. Note-versus-knowledge projection changes exact labels/data/inspector guards only; no extra graph mode is invented.",
+      "reuseSourceId": "WS-086",
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "requiredFieldOrder": [],
+      "requiredFields": [],
+      "requiredActions": [
+        {
+          "label": "节点 / 关系",
+          "effect": "Select item to inspect",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "画布",
+          "effect": "Return canvas view",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-086"
+    },
+    {
+      "assetId": "WS-R033",
+      "representation": "shared-geometry",
+      "reason": "Actual GraphWorkspace canvas/list choice and graph host geometry. Note-reference projection retains its exact graph type/search/actions and uses R034 for list geometry; no knowledge-only entity controls on a note inspector.",
+      "reuseSourceId": "WS-085",
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "requiredFieldOrder": [
+        "图谱类型"
+      ],
+      "requiredFields": [
+        {
+          "name": "图谱类型",
+          "type": "segmented",
+          "required": true,
+          "constraints": "Existing notes view of graph; returns to knowledge view with other segment.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "笔记 / 知识",
+          "effect": "Change current graph query view and refresh authorized graph.",
+          "api": "GET /api/graph/explore?view=notes or view=knowledge",
+          "guard": "Current graph request/navigation and busy guards apply."
+        },
+        {
+          "label": "选择笔记 / 1跳 / 2跳 / 打开原文",
+          "effect": "Inspect note reference relationships, focus neighborhood or open note.",
+          "api": "GET /api/graph/explore; workspace note navigation",
+          "guard": "Current authorized result only."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Explore uses webPrincipal plus authenticated ownerId; knowledge/graph service filters authorized current source evidence. Export is limited to current visible result.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31)."
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-106"
+    }
+  ],
+  "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R034 Graph accessible node and relationship list / Note reference graph mode\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-086\", \"title\": \"Graph accessible node and relationship list\", \"role\": \"authenticated owner\", \"state\": \"Complete accessible graph node/relation list at the labeled width, selected row, actual controls and scrolling. Note versus knowledge is an exact data projection substitution, not a new layout.\", \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. \", \"viewport\": {\"width\": 390, \"height\": 844}}, {\"label\": \"B\", \"sourceId\": \"WS-086\", \"title\": \"Graph accessible node and relationship list\", \"role\": \"authenticated owner\", \"state\": \"Complete accessible graph node/relation list at the labeled width, selected row, actual controls and scrolling. Note versus knowledge is an exact data projection substitution, not a new layout.\", \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. \", \"viewport\": {\"width\": 320, \"height\": 844}}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-086\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"节点 / 关系\", \"effect\": \"Select item to inspect\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"画布\", \"effect\": \"Return canvas view\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading list\", \"No matching nodes\", \"Selected row\", \"Relations list when edges exist\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-086\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"节点 / 关系\", \"effect\": \"Select item to inspect\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"画布\", \"effect\": \"Return canvas view\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading list\", \"No matching nodes\", \"Selected row\", \"Relations list when edges exist\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R034.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-086",
+      "title": "Graph accessible node and relationship list",
+      "kind": "state",
+      "module": "graph",
+      "entry": {
+        "route": "/?view=apps&app=graph",
+        "trigger": "列表 display segmented control",
+        "parentId": "WS-085"
+      },
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:753"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "节点 / 关系",
+          "effect": "Select item to inspect",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "画布",
+          "effect": "Return canvas view",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Loading list",
+        "No matching nodes",
+        "Selected row",
+        "Relations list when edges exist"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "testRefs": [
+        "tests/e2e/knowledge-graph.spec.ts",
+        "tests/graph-navigation.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-106",
+      "title": "Note reference graph mode",
+      "kind": "state",
+      "module": "graph",
+      "entry": {
+        "route": "/?view=apps&app=graph",
+        "trigger": "笔记 graph-type segment or hosted 笔记图谱 navigation",
+        "parentId": "WS-085"
+      },
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:130",
+        "apps/web/components/GraphWorkspace.vue:605",
+        "apps/server/graph/semantic-routes.ts:62",
+        "packages/core/graph/knowledge-service.ts:645"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Explore uses webPrincipal plus authenticated ownerId; knowledge/graph service filters authorized current source evidence. Export is limited to current visible result.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31)."
+      ],
+      "fields": [
+        {
+          "name": "图谱类型",
+          "type": "segmented",
+          "required": true,
+          "constraints": "Existing notes view of graph; returns to knowledge view with other segment.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "笔记 / 知识",
+          "effect": "Change current graph query view and refresh authorized graph.",
+          "api": "GET /api/graph/explore?view=notes or view=knowledge",
+          "guard": "Current graph request/navigation and busy guards apply."
+        },
+        {
+          "label": "选择笔记 / 1跳 / 2跳 / 打开原文",
+          "effect": "Inspect note reference relationships, focus neighborhood or open note.",
+          "api": "GET /api/graph/explore; workspace note navigation",
+          "guard": "Current authorized result only."
+        }
+      ],
+      "importantStates": [
+        "Notes versus knowledge data projection",
+        "Same canvas/list display choice",
+        "No matching notes",
+        "Selected note inspector",
+        "Filtered local graph and truncation"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "testRefs": [
+        "tests/e2e/knowledge-graph-full.spec.ts",
+        "tests/e2e/graph-hosted-navigation.spec.ts",
+        "tests/graph-workbench.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Same graph page and route; this state is not counted as an extra page."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-086",
+      "parentId": "WS-085",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-106",
+      "parentId": "WS-085",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-086,WS-106",
+  "stateCoverageRefs": [],
+  "statePatternRefs": [
+    {
+      "sourceId": "WS-086",
+      "assetId": "WS-D062",
+      "representation": "visible"
+    },
+    {
+      "sourceId": "WS-086",
+      "assetId": "WS-D062",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-106",
+      "assetId": "WS-D080",
+      "representation": "visible"
+    },
+    {
+      "sourceId": "WS-106",
+      "assetId": "WS-D080",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-R034",
+  "originalManifest": {
+    "id": "WS-R034",
+    "title": "Graph accessible node and relationship list / Note reference graph mode",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-086",
+      "WS-106"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-086",
+        "title": "Graph accessible node and relationship list",
+        "role": "authenticated owner",
+        "state": "Complete accessible graph node/relation list at the labeled width, selected row, actual controls and scrolling. Note versus knowledge is an exact data projection substitution, not a new layout.",
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        }
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-086",
+        "title": "Graph accessible node and relationship list",
+        "role": "authenticated owner",
+        "state": "Complete accessible graph node/relation list at the labeled width, selected row, actual controls and scrolling. Note versus knowledge is an exact data projection substitution, not a new layout.",
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        }
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "apps/web/components/GraphWorkspace.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:753"
+      },
+      {
+        "path": "apps/web/components/GraphWorkspace.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:130, apps/web/components/GraphWorkspace.vue:605, apps/server/graph/semantic-routes.ts:62, packages/core/graph/knowledge-service.ts:645"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-086",
+        "label": "节点 / 关系",
+        "effect": "Select item to inspect",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-086",
+        "label": "画布",
+        "effect": "Return canvas view",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-106",
+        "label": "笔记 / 知识",
+        "effect": "Change current graph query view and refresh authorized graph.",
+        "api": "GET /api/graph/explore?view=notes or view=knowledge",
+        "guard": "Current graph request/navigation and busy guards apply."
+      },
+      {
+        "sourceId": "WS-106",
+        "label": "选择笔记 / 1跳 / 2跳 / 打开原文",
+        "effect": "Inspect note reference relationships, focus neighborhood or open note.",
+        "api": "GET /api/graph/explore; workspace note navigation",
+        "guard": "Current authorized result only."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-R034",
+        "representation": "direct",
+        "reason": "Actual accessible graph list at390/320. Note-versus-knowledge projection changes exact labels/data/inspector guards only; no extra graph mode is invented.",
+        "reuseSourceId": "WS-086",
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+        },
+        "requiredFieldOrder": [],
+        "requiredFields": [],
+        "requiredActions": [
+          {
+            "label": "节点 / 关系",
+            "effect": "Select item to inspect",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "画布",
+            "effect": "Return canvas view",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-086"
+      },
+      {
+        "assetId": "WS-R033",
+        "representation": "shared-geometry",
+        "reason": "Actual GraphWorkspace canvas/list choice and graph host geometry. Note-reference projection retains its exact graph type/search/actions and uses R034 for list geometry; no knowledge-only entity controls on a note inspector.",
+        "reuseSourceId": "WS-085",
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+        },
+        "requiredFieldOrder": [
+          "图谱类型"
+        ],
+        "requiredFields": [
+          {
+            "name": "图谱类型",
+            "type": "segmented",
+            "required": true,
+            "constraints": "Existing notes view of graph; returns to knowledge view with other segment.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "笔记 / 知识",
+            "effect": "Change current graph query view and refresh authorized graph.",
+            "api": "GET /api/graph/explore?view=notes or view=knowledge",
+            "guard": "Current graph request/navigation and busy guards apply."
+          },
+          {
+            "label": "选择笔记 / 1跳 / 2跳 / 打开原文",
+            "effect": "Inspect note reference relationships, focus neighborhood or open note.",
+            "api": "GET /api/graph/explore; workspace note navigation",
+            "guard": "Current authorized result only."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "Explore uses webPrincipal plus authenticated ownerId; knowledge/graph service filters authorized current source evidence. Export is limited to current visible result.",
+          "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31)."
+        ],
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-106"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R034 Graph accessible node and relationship list / Note reference graph mode\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-086\", \"title\": \"Graph accessible node and relationship list\", \"role\": \"authenticated owner\", \"state\": \"Complete accessible graph node/relation list at the labeled width, selected row, actual controls and scrolling. Note versus knowledge is an exact data projection substitution, not a new layout.\", \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. \", \"viewport\": {\"width\": 390, \"height\": 844}}, {\"label\": \"B\", \"sourceId\": \"WS-086\", \"title\": \"Graph accessible node and relationship list\", \"role\": \"authenticated owner\", \"state\": \"Complete accessible graph node/relation list at the labeled width, selected row, actual controls and scrolling. Note versus knowledge is an exact data projection substitution, not a new layout.\", \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. \", \"viewport\": {\"width\": 320, \"height\": 844}}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-086\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"节点 / 关系\", \"effect\": \"Select item to inspect\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"画布\", \"effect\": \"Return canvas view\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading list\", \"No matching nodes\", \"Selected row\", \"Relations list when edges exist\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-086\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"节点 / 关系\", \"effect\": \"Select item to inspect\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"画布\", \"effect\": \"Return canvas view\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading list\", \"No matching nodes\", \"Selected row\", \"Relations list when edges exist\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R034.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-086",
+        "title": "Graph accessible node and relationship list",
+        "kind": "state",
+        "module": "graph",
+        "entry": {
+          "route": "/?view=apps&app=graph",
+          "trigger": "列表 display segmented control",
+          "parentId": "WS-085"
+        },
+        "sourceRefs": [
+          "apps/web/components/GraphWorkspace.vue:753"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "fields": [],
+        "actions": [
+          {
+            "label": "节点 / 关系",
+            "effect": "Select item to inspect",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "画布",
+            "effect": "Return canvas view",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Loading list",
+          "No matching nodes",
+          "Selected row",
+          "Relations list when edges exist"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+        },
+        "testRefs": [
+          "tests/e2e/knowledge-graph.spec.ts",
+          "tests/graph-navigation.test.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      },
+      {
+        "id": "WS-106",
+        "title": "Note reference graph mode",
+        "kind": "state",
+        "module": "graph",
+        "entry": {
+          "route": "/?view=apps&app=graph",
+          "trigger": "笔记 graph-type segment or hosted 笔记图谱 navigation",
+          "parentId": "WS-085"
+        },
+        "sourceRefs": [
+          "apps/web/components/GraphWorkspace.vue:130",
+          "apps/web/components/GraphWorkspace.vue:605",
+          "apps/server/graph/semantic-routes.ts:62",
+          "packages/core/graph/knowledge-service.ts:645"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "Explore uses webPrincipal plus authenticated ownerId; knowledge/graph service filters authorized current source evidence. Export is limited to current visible result.",
+          "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31)."
+        ],
+        "fields": [
+          {
+            "name": "图谱类型",
+            "type": "segmented",
+            "required": true,
+            "constraints": "Existing notes view of graph; returns to knowledge view with other segment.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "笔记 / 知识",
+            "effect": "Change current graph query view and refresh authorized graph.",
+            "api": "GET /api/graph/explore?view=notes or view=knowledge",
+            "guard": "Current graph request/navigation and busy guards apply."
+          },
+          {
+            "label": "选择笔记 / 1跳 / 2跳 / 打开原文",
+            "effect": "Inspect note reference relationships, focus neighborhood or open note.",
+            "api": "GET /api/graph/explore; workspace note navigation",
+            "guard": "Current authorized result only."
+          }
+        ],
+        "importantStates": [
+          "Notes versus knowledge data projection",
+          "Same canvas/list display choice",
+          "No matching notes",
+          "Selected note inspector",
+          "Filtered local graph and truncation"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+        },
+        "testRefs": [
+          "tests/e2e/knowledge-graph-full.spec.ts",
+          "tests/e2e/graph-hosted-navigation.spec.ts",
+          "tests/graph-workbench.test.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted.",
+          "Same graph page and route; this state is not counted as an extra page."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-086",
+        "parentId": "WS-085",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      },
+      {
+        "sourceId": "WS-106",
+        "parentId": "WS-085",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-086,WS-106",
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "WS-086",
+        "assetId": "WS-D062",
+        "representation": "visible"
+      },
+      {
+        "sourceId": "WS-086",
+        "assetId": "WS-D062",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-106",
+        "assetId": "WS-D080",
+        "representation": "visible"
+      },
+      {
+        "sourceId": "WS-106",
+        "assetId": "WS-D080",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作两个清晰中文知识图谱手机完整列表页面，只有A/B独立视口，A390/B320窄屏比例，正常字体，不画手机壳或系统栏。平面白底浅灰细线蓝色选中。完整应用宿主顶部返回箭头、“知识图谱”、“应用工作空间”，页面标题“返回”“知识图谱”，右侧小绿点“基础分析就绪”。工具栏自然换行：搜索框“搜索概念、实体或笔记”，搜索图标；“知识”（选中）/“笔记”、筛选齿轮、“画布”/“列表”（列表选中）。摘要显示本隔离小型示例“2 个节点”“1 条关系”，右侧刷新图标“刷新”。正文白色列表卡、正常内部纵向滚动：第一行灰蓝圆点，主标题“知识与行动”，次行“00-Inbox/知识与行动.md”，右侧标签“笔记”和进入箭头；第二行绿圆点，主标题“知识”，次行“1 份来源资料”，右侧标签“概念”和进入箭头。分隔标题“关系”，其下是一行真实列表关系按钮“知识与行动”标签“提及”“知识”，窄屏自然换行。两屏均未选择节点，不加选中高亮，因为手机选择会打开独立详情抽屉；不要把抽屉内容混进列表。底部应用导航“知识图谱”（选中）“笔记图谱”“关系审核”“后台分析”“更多”。没有画布图形、编辑关系输入、创建关系按钮、加载更多或新权限。",
+  "actualToolArguments": {
+    "prompt": "制作两个清晰中文知识图谱手机完整列表页面，只有A/B独立视口，A390/B320窄屏比例，正常字体，不画手机壳或系统栏。平面白底浅灰细线蓝色选中。完整应用宿主顶部返回箭头、“知识图谱”、“应用工作空间”，页面标题“返回”“知识图谱”，右侧小绿点“基础分析就绪”。工具栏自然换行：搜索框“搜索概念、实体或笔记”，搜索图标；“知识”（选中）/“笔记”、筛选齿轮、“画布”/“列表”（列表选中）。摘要显示本隔离小型示例“2 个节点”“1 条关系”，右侧刷新图标“刷新”。正文白色列表卡、正常内部纵向滚动：第一行灰蓝圆点，主标题“知识与行动”，次行“00-Inbox/知识与行动.md”，右侧标签“笔记”和进入箭头；第二行绿圆点，主标题“知识”，次行“1 份来源资料”，右侧标签“概念”和进入箭头。分隔标题“关系”，其下是一行真实列表关系按钮“知识与行动”标签“提及”“知识”，窄屏自然换行。两屏均未选择节点，不加选中高亮，因为手机选择会打开独立详情抽屉；不要把抽屉内容混进列表。底部应用导航“知识图谱”（选中）“笔记图谱”“关系审核”“后台分析”“更多”。没有画布图形、编辑关系输入、创建关系按钮、加载更多或新权限。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-graph.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-graph.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-graph.png",
+      "order": 1,
+      "role": "actual hosted graph mobile chrome only; list content source-derived isolated specimen",
+      "sha256": "869e72f5cf7e41543c74135e998600a23fd6b19a87b939e75aff0e2cac4ca516",
+      "bytes": 73363,
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "order": 2,
+      "role": "approved style only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "bytes": 1010972,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "sha256": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/server/graph/semantic-routes.ts",
+      "sha256": "0f4d81250bee2aa5d27fdfd65bb5209f52525fdec1275f8ac680e17f7ea8f12a",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "packages/core/graph/knowledge-service.ts",
+      "sha256": "f1ff93c9dc7a502d3f3e61c9f4d2d4166f93f5d391b608440c1f3589782a0dfc",
+      "role": "actual source template/behavior authority; read before generation"
+    }
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "fallbackUsed": false,
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "url": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "verifiedModel": "gpt-image-2",
+      "scope": "Codex built-in image generation",
+      "date": "2026-11-05",
+      "apiReference": "https://developers.openai.com/api/reference/resources/images/methods/generate",
+      "apiModelSupported": true,
+      "apiReferenceDoesNotProveBuiltinRouteAlone": true
+    }
+  },
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-4a698ece-c2dd-47cf-b6bc-21f70b88226f.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-4a698ece-c2dd-47cf-b6bc-21f70b88226f.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generatedAtUtc": "2026-11-05T09:06:59.246Z",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R034.png",
+  "generationCalls": [
+    {
+      "status": "completed-with-tool-receipt",
+      "actualToolArguments": {
+        "prompt": "制作两个清晰中文知识图谱手机完整列表页面，只有A/B独立视口，A390/B320窄屏比例，正常字体，不画手机壳或系统栏。平面白底浅灰细线蓝色选中。完整应用宿主顶部返回箭头、“知识图谱”、“应用工作空间”，页面标题“返回”“知识图谱”，右侧小绿点“基础分析就绪”。工具栏自然换行：搜索框“搜索概念、实体或笔记”，搜索图标；“知识”（选中）/“笔记”、筛选齿轮、“画布”/“列表”（列表选中）。摘要显示本隔离小型示例“2 个节点”“1 条关系”，右侧刷新图标“刷新”。正文白色列表卡、正常内部纵向滚动：第一行灰蓝圆点，主标题“知识与行动”，次行“00-Inbox/知识与行动.md”，右侧标签“笔记”和进入箭头；第二行绿圆点，主标题“知识”，次行“1 份来源资料”，右侧标签“概念”和进入箭头。分隔标题“关系”，其下是一行真实列表关系按钮“知识与行动”标签“提及”“知识”，窄屏自然换行。两屏均未选择节点，不加选中高亮，因为手机选择会打开独立详情抽屉；不要把抽屉内容混进列表。底部应用导航“知识图谱”（选中）“笔记图谱”“关系审核”“后台分析”“更多”。没有画布图形、编辑关系输入、创建关系按钮、加载更多或新权限。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-graph.png",
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-4a698ece-c2dd-47cf-b6bc-21f70b88226f.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    }
+  ],
+  "generationCallCount": 1,
+  "selfInspection": {
+    "status": "pending-independent-review",
+    "method": "Native original PNG read against actual source controls and independent scroll positions",
+    "concerns": [
+      "Raster approximate CSS geometry; no runtime layout/actions verification."
+    ]
+  },
+  "sha256": "87928065849d2b43a6cf18154f046f5ce573784427dd5f51bd3fdb0526131dd8",
+  "bytes": 1058274,
+  "dimensions": {
+    "width": 1024,
+    "height": 1536
+  },
+  "selectedState": [
+    "390 source-derived isolated knowledge list, no selectedId",
+    "same list320, no mobile selection drawer"
+  ],
+  "sourceStateRationale": "Actual mobile selectedId opens GraphOverlay drawer; selected desktop row is not faithfully co-visible as a standalone highlighted phone list. Detail branch bound separately; no invented desktop inspector in mobile list.",
+  "unscreenedControlsBinding": {
+    "assetId": "WS-D069",
+    "panels": [
+      "A",
+      "B"
+    ],
+    "sourceId": "WS-093",
+    "fieldOrder": [
+      "selection triggers mobile graph detail drawer",
+      "node or edge inspector"
+    ],
+    "sha256": "ddba4c636815ffe37fde2dc903f62131ed6cacecde27217a652a386ccef9e533",
+    "path": "docs/design/platform-unification-2026-11-05/design/images/WS-D069.png",
+    "review": "design/reviews/WS-D069-review.json",
+    "scope": "Exact already-reviewed mobile node/edge inspector drawer container and conditional inspector presentation. Current list image is unselected; it does not claim an open detail drawer."
+  },
+  "runtimeResponsiveVerified": false,
+  "responsiveTargetCssWidths": [
+    390,
+    320
+  ],
+  "currentGenerationReceipt": {
+    "toolResultReceiptObserved": true,
+    "receiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-6.json",
+    "actualToolArguments": {
+      "prompt": "制作两个清晰中文知识图谱手机完整列表页面，只有A/B独立视口，A390/B320窄屏比例，正常字体，不画手机壳或系统栏。平面白底浅灰细线蓝色选中。完整应用宿主顶部返回箭头、“知识图谱”、“应用工作空间”，页面标题“返回”“知识图谱”，右侧小绿点“基础分析就绪”。工具栏自然换行：搜索框“搜索概念、实体或笔记”，搜索图标；“知识”（选中）/“笔记”、筛选齿轮、“画布”/“列表”（列表选中）。摘要显示本隔离小型示例“2 个节点”“1 条关系”，右侧刷新图标“刷新”。正文白色列表卡、正常内部纵向滚动：第一行灰蓝圆点，主标题“知识与行动”，次行“00-Inbox/知识与行动.md”，右侧标签“笔记”和进入箭头；第二行绿圆点，主标题“知识”，次行“1 份来源资料”，右侧标签“概念”和进入箭头。分隔标题“关系”，其下是一行真实列表关系按钮“知识与行动”标签“提及”“知识”，窄屏自然换行。两屏均未选择节点，不加选中高亮，因为手机选择会打开独立详情抽屉；不要把抽屉内容混进列表。底部应用导航“知识图谱”（选中）“笔记图谱”“关系审核”“后台分析”“更多”。没有画布图形、编辑关系输入、创建关系按钮、加载更多或新权限。",
+      "referenced_image_paths": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-graph.png",
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "transparent_background": false
+    },
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-4a698ece-c2dd-47cf-b6bc-21f70b88226f.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-4a698ece-c2dd-47cf-b6bc-21f70b88226f.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "completionObservedAtUtc": "2026-11-05T09:06:59.246Z",
+    "exactToolServerCompletionTimestampExposed": false
+  },
+  "generatedAtUtcBasis": "Local observation after awaited callback; tool does not expose exact server completion timestamp.",
+  "sourceImageSha256": "87928065849d2b43a6cf18154f046f5ce573784427dd5f51bd3fdb0526131dd8",
+  "metadataAmendments": [
+    {
+      "atUtc": "2026-11-05T09:18:09.836367+00:00",
+      "reason": "Attach observed current receipt, source byte verification and full prior revision chain without changing PNG or rewriting historical no-receipt status."
+    }
+  ],
+  "priorUnscreenedControlsBindings": [
+    {
+      "recordedAtUtc": "2026-11-05T09:28:36.468Z",
+      "binding": {
+        "assetId": "WS-D064",
+        "fieldOrder": [
+          "selection triggers mobile graph detail drawer",
+          "node or edge inspector"
+        ],
+        "sha256": "dcad24aa7fa474bdf126827c5f51ecd942072eef6efad9b36ea221bb8b200681",
+        "path": "docs/design/platform-unification-2026-11-05/design/images/WS-D064.png"
+      },
+      "reason": "Independent GEN048 review established this was background analysis task board, not graph detail drawer"
+    }
+  ],
+  "metadataCorrectionHistory": [
+    {
+      "recordedAtUtc": "2026-11-05T09:28:36.468Z",
+      "type": "exact-reference-correction-only",
+      "from": "WS-D064 background analysis",
+      "to": "WS-D069 mobile graph inspector",
+      "pixelSha256Unchanged": "87928065849d2b43a6cf18154f046f5ce573784427dd5f51bd3fdb0526131dd8",
+      "sourceReview": "design/reviews/WS-R034-review.json",
+      "independentRecheck": "pending"
+    }
+  ]
+}

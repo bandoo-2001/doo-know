@@ -1,0 +1,531 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D026-v2",
+  "assetId": "WS-D026",
+  "sourceIds": [
+    "WS-030",
+    "WS-031",
+    "WS-032",
+    "WS-033"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-030",
+      "title": "Paragraph and heading picker",
+      "role": "authenticated owner",
+      "state": "Selected heading",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.",
+      "selectedState": "Three main local pickers: heading2 selected/focused; valid3x3 table picker; complete4x9 preset palette currentblue and custom expanded invalid#12 plus separate compact valid HEX slice#2563EB enabled apply. No native browser color picker."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-031",
+      "title": "Table insertion picker",
+      "role": "authenticated owner",
+      "state": "Dimension preview",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.",
+      "selectedState": "Three main local pickers: heading2 selected/focused; valid3x3 table picker; complete4x9 preset palette currentblue and custom expanded invalid#12 plus separate compact valid HEX slice#2563EB enabled apply. No native browser color picker."
+    },
+    {
+      "label": "C",
+      "sourceId": "WS-032",
+      "title": "Text color palette",
+      "role": "authenticated owner",
+      "state": "Complete TextColorPalette with preset colors and expanded custom HEX, invalid/valid input and focus state. No extra picker.",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.",
+      "containedSourceIds": [
+        "WS-033"
+      ],
+      "selectedState": "Three main local pickers: heading2 selected/focused; valid3x3 table picker; complete4x9 preset palette currentblue and custom expanded invalid#12 plus separate compact valid HEX slice#2563EB enabled apply. No native browser color picker."
+    }
+  ],
+  "selectedState": "Three main local pickers: heading2 selected/focused; valid3x3 table picker; complete4x9 preset palette currentblue and custom expanded invalid#12 plus separate compact valid HEX slice#2563EB enabled apply. No native browser color picker.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅拆分最右侧两种HEX状态的外框，不改任何文字、颜色、输入值或控件状态。完整文字颜色面板的外边框应在#12错误状态的“取消 / 禁用的应用颜色”按钮下面结束；保留文字颜色标题、默认颜色、4×9色块、自定义颜色、#12及红色错误全部原样。把现底部#2563EB有效字段、蓝色预览、取消和可用应用颜色，整体移到该面板下方一个单独小卡片，与上方有明显白色间距、独立圆角边框。两个状态绝不能共享外框，不能看成同一个面板有两个HEX输入。左侧段落格式菜单和中间表格选择器所有内容完全保持不变。",
+  "prompt": "仅拆分最右侧两种HEX状态的外框，不改任何文字、颜色、输入值或控件状态。完整文字颜色面板的外边框应在#12错误状态的“取消 / 禁用的应用颜色”按钮下面结束；保留文字颜色标题、默认颜色、4×9色块、自定义颜色、#12及红色错误全部原样。把现底部#2563EB有效字段、蓝色预览、取消和可用应用颜色，整体移到该面板下方一个单独小卡片，与上方有明显白色间距、独立圆角边框。两个状态绝不能共享外框，不能看成同一个面板有两个HEX输入。左侧段落格式菜单和中间表格选择器所有内容完全保持不变。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D026.png",
+      "role": "Edit target; invalid full palette and valid custom field must be separate component-state frames",
+      "sha256": "731d3dfff00deb556b8f180e6fbd895636958e2c80d4b05faec1c83dfe1c6e0e",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D026.png",
+      "role": "Edit target; invalid full palette and valid custom field must be separate component-state frames",
+      "sha256": "731d3dfff00deb556b8f180e6fbd895636958e2c80d4b05faec1c83dfe1c6e0e",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅拆分最右侧两种HEX状态的外框，不改任何文字、颜色、输入值或控件状态。完整文字颜色面板的外边框应在#12错误状态的“取消 / 禁用的应用颜色”按钮下面结束；保留文字颜色标题、默认颜色、4×9色块、自定义颜色、#12及红色错误全部原样。把现底部#2563EB有效字段、蓝色预览、取消和可用应用颜色，整体移到该面板下方一个单独小卡片，与上方有明显白色间距、独立圆角边框。两个状态绝不能共享外框，不能看成同一个面板有两个HEX输入。左侧段落格式菜单和中间表格选择器所有内容完全保持不变。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D026.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅拆分最右侧两种HEX状态的外框，不改任何文字、颜色、输入值或控件状态。完整文字颜色面板的外边框应在#12错误状态的“取消 / 禁用的应用颜色”按钮下面结束；保留文字颜色标题、默认颜色、4×9色块、自定义颜色、#12及红色错误全部原样。把现底部#2563EB有效字段、蓝色预览、取消和可用应用颜色，整体移到该面板下方一个单独小卡片，与上方有明显白色间距、独立圆角边框。两个状态绝不能共享外框，不能看成同一个面板有两个HEX输入。左侧段落格式菜单和中间表格选择器所有内容完全保持不变。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D026.png",
+          "role": "Edit target; invalid full palette and valid custom field must be separate component-state frames"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-055275f6-185c-4692-82de-21ace65dc443.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-030",
+      "title": "Paragraph and heading picker",
+      "kind": "popover",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "段落格式",
+        "parentId": "WS-029"
+      },
+      "sourceRefs": [
+        "apps/web/components/HeadingPicker.vue:27",
+        "apps/web/components/HeadingPicker.vue:130"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "段落样式",
+          "type": "listbox",
+          "required": true,
+          "constraints": "正文(0), H1–H6; no arbitrary heading level.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "选择正文/标题",
+          "effect": "Apply heading to selection",
+          "api": "none",
+          "guard": "Caller disabled/headingDisabled guard"
+        }
+      ],
+      "importantStates": [
+        "Selected heading",
+        "Keyboard active option",
+        "Popover viewport maxHeight 420"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "testRefs": [
+        "tests/e2e/editor-secondary-menus.spec.ts",
+        "tests/editor-floating-tools.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-031",
+      "title": "Table insertion picker",
+      "kind": "popover",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "插入表格",
+        "parentId": "WS-029"
+      },
+      "sourceRefs": [
+        "apps/web/components/TablePicker.vue:24",
+        "apps/web/components/TablePicker.vue:117"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "表格行数",
+          "type": "integer",
+          "required": true,
+          "constraints": "1–20 inclusive; default 3.",
+          "sensitive": false
+        },
+        {
+          "name": "表格列数",
+          "type": "integer",
+          "required": true,
+          "constraints": "1–10 inclusive; default 3.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "2×2 / 3×3 / 4×4",
+          "effect": "Set preset dimensions",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "插入表格",
+          "effect": "Insert at captured selection",
+          "api": "none",
+          "guard": "Valid integer dimensions and caller not disabled"
+        }
+      ],
+      "importantStates": [
+        "Dimension preview",
+        "Invalid numbers disable insertion",
+        "Keyboard/floating placement"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "testRefs": [
+        "tests/e2e/document-editor-controls.spec.ts",
+        "tests/editor-floating-tools.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-032",
+      "title": "Text color palette",
+      "kind": "popover",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "文字颜色",
+        "parentId": "WS-029"
+      },
+      "sourceRefs": [
+        "apps/web/components/TextColorPicker.vue:1",
+        "apps/web/components/TextColorPicker.vue:160"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "颜色",
+          "type": "swatch",
+          "required": false,
+          "constraints": "36 predefined values or default.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "默认 / 色板颜色",
+          "effect": "Set/remove selection color",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "自定义",
+          "effect": "Expand HEX input",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Current selection color",
+        "Disabled style context",
+        "Scrollable, measured placement"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "testRefs": [
+        "tests/editor-text-styles.test.ts",
+        "tests/e2e/editor-secondary-menus.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-033",
+      "title": "Custom text color form",
+      "kind": "state",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "自定义 inside color palette",
+        "parentId": "WS-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/TextColorPicker.vue:65",
+        "apps/web/components/TextColorPicker.vue:214"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "HEX",
+          "type": "text",
+          "required": true,
+          "constraints": "Optional #, exactly 3 or 6 hex digits; normalizes to lowercase #rrggbb.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "应用自定义颜色",
+          "effect": "Apply normalized color",
+          "api": "none",
+          "guard": "Input must match HEX regex; caller not disabled"
+        }
+      ],
+      "importantStates": [
+        "Valid/invalid HEX",
+        "Custom expanded focus state"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "testRefs": [
+        "tests/editor-text-styles.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-030",
+      "parentId": "WS-029",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/HeadingPicker.vue:27",
+        "apps/web/components/HeadingPicker.vue:130"
+      ]
+    },
+    {
+      "sourceId": "WS-031",
+      "parentId": "WS-029",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/TablePicker.vue:24",
+        "apps/web/components/TablePicker.vue:117"
+      ]
+    },
+    {
+      "sourceId": "WS-032",
+      "parentId": "WS-029",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/TextColorPicker.vue:1",
+        "apps/web/components/TextColorPicker.vue:160"
+      ]
+    },
+    {
+      "sourceId": "WS-033",
+      "parentId": "WS-032",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/TextColorPicker.vue:65",
+        "apps/web/components/TextColorPicker.vue:214"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-031.json#WS-D026",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D026",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-055275f6-185c-4692-82de-21ace65dc443.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D026-v2.png",
+  "sha256": "aaba97ae546926633d2f96b38793d00f4fce8ce4391663c09c6f38513ef9b2a5",
+  "bytes": 1469051,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T06:19:13.566506+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D026.png",
+    "sha256": "731d3dfff00deb556b8f180e6fbd895636958e2c80d4b05faec1c83dfe1c6e0e",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/WS-D026-review.json"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Paragraph and heading picker / Table insertion picker / Text color palette",
+    "sourceIds": [
+      "WS-030",
+      "WS-031",
+      "WS-032",
+      "WS-033"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Three main local pickers: heading2 selected/focused; valid3x3 table picker; complete4x9 preset palette currentblue and custom expanded invalid#12 plus separate compact valid HEX slice#2563EB enabled apply. No native browser color picker.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "sourceId": "WS-030",
+      "value": 2,
+      "active": 2,
+      "disabled": false,
+      "options": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "panel": "B",
+      "sourceId": "WS-031",
+      "rows": 3,
+      "columns": 3,
+      "valid": true,
+      "presets": [
+        2,
+        3,
+        4
+      ],
+      "numberBounds": {
+        "rows": [
+          1,
+          20
+        ],
+        "columns": [
+          1,
+          10
+        ]
+      }
+    },
+    {
+      "panel": "C",
+      "sourceId": "WS-032",
+      "value": "#2563eb",
+      "disabled": false,
+      "paletteRows": 4,
+      "paletteColumns": 9,
+      "custom": true,
+      "hex": "#12",
+      "normalized": null,
+      "applyEnabled": false
+    },
+    {
+      "portion": "independent valid custom field",
+      "sourceId": "WS-033",
+      "hex": "#2563EB",
+      "normalized": "#2563eb",
+      "applyEnabled": true
+    }
+  ]
+}

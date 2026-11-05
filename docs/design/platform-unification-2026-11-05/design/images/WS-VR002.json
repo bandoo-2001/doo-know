@@ -1,0 +1,550 @@
+{
+  "assetId": "WS-VR002",
+  "sourceIds": [
+    "RTD-005",
+    "RTD-010",
+    "RTD-011"
+  ],
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "responsive-board",
+  "panels": [
+    {
+      "label": "phone-390",
+      "sourceId": "RTD-005",
+      "title": "Find on canvas sidebar",
+      "role": "authenticated owner",
+      "state": "Actual find/sidebar layout intent at390: query/results/close must be reachable. Source runtime was offscreen; this design is not proof of a fix.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reuseSourceIds": [
+        "RTD-010",
+        "RTD-011"
+      ]
+    },
+    {
+      "label": "phone-320",
+      "sourceId": "RTD-005",
+      "title": "Find on canvas sidebar",
+      "role": "authenticated owner",
+      "state": "Same longest Sidebar at320 with internal scrolling and reachable close; Library substitutes real tabs/empty state/local Open menu only.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "reuseSourceIds": [
+        "RTD-010",
+        "RTD-011"
+      ]
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "Use case:ui-mockup. 依据输入已审局部组件制作两个独立手机Sidebar设计A390/B320，白底浅灰细线8px圆角，正常可读字号。A为Find on canvas侧栏，顶部两个icon tabs（搜索选中、素材库未选）、右上×关闭可达；下方唯一textbox placeholder“Find text on canvas...”为空，下面空白搜索内容，不新增结果计数或搜索按钮。B为素材库侧栏：顶部搜索tab/素材库tab（后者选中）、右上×关闭可达；中央“尚未添加任何项目……”“选中画布上的项目添加到此处，或从下方的公共素材库中导入。”；下方浏览素材库链接与三点本地菜单按钮，菜单已展开且仅一项“打开”。不显示文件选择器、不增导入URL/账户/云同步。两侧栏全部在视口内，限高内部滚动、tab和关闭始终可达；纯局部组件，无DooKnow宿主、目录或底部导航，无设备壳。输入图只三组件内容，A/B需要按手机宽度布局，右侧独立打开菜单合到B作为其锚定popup。",
+  "sourceContracts": [
+    {
+      "id": "RTD-005",
+      "runtimeKey": "vendor-find-sidebar",
+      "title": "Find on canvas sidebar",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440
+      ],
+      "actualDOMLabels": [
+        "Find text on canvas...",
+        "关闭"
+      ],
+      "roleEvidence": {
+        "tablist": 1,
+        "tab": 2,
+        "tabpanel": 1,
+        "textbox:Find text on canvas...": 1,
+        "button:关闭": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:17732",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:18241"
+      ],
+      "evidence": [
+        "1440-vendor-find-sidebar.json",
+        "390-vendor-find-sidebar.json"
+      ],
+      "constraints": "At 390 the opened sidebar is x=-295,width=295; Close x=-43. Search content and Close are outside viewport; normal Close click fails. The reachable library trigger closes the sidebar. Do not count 390 content as visibly reachable.",
+      "roles": [
+        "authenticated owner"
+      ]
+    },
+    {
+      "id": "RTD-010",
+      "runtimeKey": "vendor-library-panel",
+      "title": "Library sidebar empty state",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440
+      ],
+      "actualDOMLabels": [
+        "素材库",
+        "关闭",
+        "浏览素材库",
+        "尚未添加任何项目……"
+      ],
+      "roleEvidence": {
+        "tablist": 1,
+        "tab": 2,
+        "tabpanel": 1,
+        "button:关闭": 1,
+        "link:浏览素材库": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:11603",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:18241"
+      ],
+      "evidence": [
+        "1440-vendor-library-panel.json",
+        "390-vendor-library-panel.json"
+      ],
+      "constraints": "At 390 this panel also mounts at x=-295,width=295 with Close x=-43, outside viewport. No external library browsed. Generated callback token redacted from DOM records.",
+      "roles": [
+        "authenticated owner"
+      ]
+    },
+    {
+      "id": "RTD-011",
+      "runtimeKey": "vendor-library-menu",
+      "title": "Empty library local menu",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440
+      ],
+      "actualDOMLabels": [
+        "打开"
+      ],
+      "roleEvidence": {
+        "button:打开": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:10030",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:11742"
+      ],
+      "evidence": [
+        "1440-vendor-library-menu.json"
+      ],
+      "constraints": "Only Open is offered for the empty library. It would open an OS file picker, which was not clicked. Mobile menu content is offscreen with its sidebar; not force-clicked.",
+      "roles": [
+        "authenticated owner"
+      ]
+    }
+  ],
+  "originalManifestContract": {
+    "id": "WS-VR002",
+    "title": "Excalidraw mobile Sidebar family at390/320",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "RTD-005",
+      "RTD-010",
+      "RTD-011"
+    ],
+    "panels": [
+      {
+        "label": "phone-390",
+        "sourceId": "RTD-005",
+        "title": "Find on canvas sidebar",
+        "role": "authenticated owner",
+        "state": "Actual find/sidebar layout intent at390: query/results/close must be reachable. Source runtime was offscreen; this design is not proof of a fix.",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "reuseSourceIds": [
+          "RTD-010",
+          "RTD-011"
+        ]
+      },
+      {
+        "label": "phone-320",
+        "sourceId": "RTD-005",
+        "title": "Find on canvas sidebar",
+        "role": "authenticated owner",
+        "state": "Same longest Sidebar at320 with internal scrolling and reachable close; Library substitutes real tabs/empty state/local Open menu only.",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "reuseSourceIds": [
+          "RTD-010",
+          "RTD-011"
+        ]
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-find-sidebar.png",
+        "role": "CONTENT/REACHABILITY ONLY: actual vendor KNOWN OFFSCREEN SIDEBAR BUG, correct viewport geometry."
+      },
+      {
+        "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+        "role": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:17732, node_modules/@excalidraw/excalidraw/dist/dev/index.js:18241"
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-library-panel.png",
+        "role": "CONTENT/REACHABILITY ONLY: actual vendor KNOWN OFFSCREEN SIDEBAR BUG, correct viewport geometry."
+      },
+      {
+        "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+        "role": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:11603, node_modules/@excalidraw/excalidraw/dist/dev/index.js:18241"
+      },
+      {
+        "path": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+        "role": "AUTHORITATIVE VENDOR SOURCE: node_modules/@excalidraw/excalidraw/dist/dev/index.js:10030, node_modules/@excalidraw/excalidraw/dist/dev/index.js:11742"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI.",
+      "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+      "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-VR002",
+        "representation": "direct",
+        "reason": "Actual Excalidraw Sidebar family at390/320: bounded body, internal scroll and reachable close. Library tabs/empty body/local Open menu remain explicit in V002; RTD-G01 is a known runtime gap, not an implemented fix.",
+        "reuseSourceId": "RTD-005",
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "sourceConstraint": "At 390 the opened sidebar is x=-295,width=295; Close x=-43. Search content and Close are outside viewport; normal Close click fails. The reachable library trigger closes the sidebar. Do not count 390 content as visibly reachable.",
+        "requiredVisibleLabels": [
+          "Find text on canvas...",
+          "关闭"
+        ],
+        "observedVisibleWidths": [
+          1440
+        ],
+        "role": "authenticated owner",
+        "scrollContract": "Keep actual vendor panel scroll/viewport anchor and real close/Edit trigger reachable. Do not introduce native OS/browser windows.",
+        "focusContract": "Retain actual vendor focus/keyboard limitations; advertised unobserved command palette and absent mobile statistics are not invented.",
+        "sourceId": "RTD-005"
+      },
+      {
+        "assetId": "WS-VR002",
+        "representation": "shared-geometry",
+        "reason": "Actual Excalidraw Sidebar family at390/320: bounded body, internal scroll and reachable close. Library tabs/empty body/local Open menu remain explicit in V002; RTD-G01 is a known runtime gap, not an implemented fix.",
+        "reuseSourceId": "RTD-005",
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "sourceConstraint": "At 390 this panel also mounts at x=-295,width=295 with Close x=-43, outside viewport. No external library browsed. Generated callback token redacted from DOM records.",
+        "requiredVisibleLabels": [
+          "素材库",
+          "关闭",
+          "浏览素材库",
+          "尚未添加任何项目……"
+        ],
+        "observedVisibleWidths": [
+          1440
+        ],
+        "role": "authenticated owner",
+        "scrollContract": "Keep actual vendor panel scroll/viewport anchor and real close/Edit trigger reachable. Do not introduce native OS/browser windows.",
+        "focusContract": "Retain actual vendor focus/keyboard limitations; advertised unobserved command palette and absent mobile statistics are not invented.",
+        "sourceId": "RTD-010"
+      },
+      {
+        "assetId": "WS-VR002",
+        "representation": "shared-geometry",
+        "reason": "Actual Excalidraw Sidebar family at390/320: bounded body, internal scroll and reachable close. Library tabs/empty body/local Open menu remain explicit in V002; RTD-G01 is a known runtime gap, not an implemented fix.",
+        "reuseSourceId": "RTD-005",
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "sourceConstraint": "Only Open is offered for the empty library. It would open an OS file picker, which was not clicked. Mobile menu content is offscreen with its sidebar; not force-clicked.",
+        "requiredVisibleLabels": [
+          "打开"
+        ],
+        "observedVisibleWidths": [
+          1440
+        ],
+        "role": "authenticated owner",
+        "scrollContract": "Keep actual vendor panel scroll/viewport anchor and real close/Edit trigger reachable. Do not introduce native OS/browser windows.",
+        "focusContract": "Retain actual vendor focus/keyboard limitations; advertised unobserved command palette and absent mobile statistics are not invented.",
+        "sourceId": "RTD-011"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-VR002 Excalidraw mobile Sidebar family at390/320\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"phone-390\", \"sourceId\": \"RTD-005\", \"title\": \"Find on canvas sidebar\", \"role\": \"authenticated owner\", \"state\": \"Actual find/sidebar layout intent at390: query/results/close must be reachable. Source runtime was offscreen; this design is not proof of a fix.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"reuseSourceIds\": [\"RTD-010\", \"RTD-011\"]}, {\"label\": \"phone-320\", \"sourceId\": \"RTD-005\", \"title\": \"Find on canvas sidebar\", \"role\": \"authenticated owner\", \"state\": \"Same longest Sidebar at320 with internal scrolling and reachable close; Library substitutes real tabs/empty state/local Open menu only.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"reuseSourceIds\": [\"RTD-010\", \"RTD-011\"]}]\nVISIBLE CONTRACTS [{\"panel\": \"phone-390\", \"sourceId\": \"RTD-005\", \"visibleLabels\": [\"Find text on canvas...\", \"关闭\"], \"constraints\": \"At 390 the opened sidebar is x=-295,width=295; Close x=-43. Search content and Close are outside viewport; normal Close click fails. The reachable library trigger closes the sidebar. Do not count 390 content as visibly reachable.\"}, {\"panel\": \"phone-320\", \"sourceId\": \"RTD-005\", \"visibleLabels\": [\"Find text on canvas...\", \"关闭\"], \"constraints\": \"At 390 the opened sidebar is x=-295,width=295; Close x=-43. Search content and Close are outside viewport; normal Close click fails. The reachable library trigger closes the sidebar. Do not count 390 content as visibly reachable.\"}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-VR002.png",
+    "reviewStatus": "pending-generation",
+    "geometryFamily": "Excalidraw Sidebar phone viewport/scroll/close geometry; known RTD-G01 remains open",
+    "sourceContracts": [
+      {
+        "id": "RTD-005",
+        "runtimeKey": "vendor-find-sidebar",
+        "title": "Find on canvas sidebar",
+        "canonicalRefs": [
+          "WS-068"
+        ],
+        "observedVisibleWidths": [
+          1440
+        ],
+        "actualDOMLabels": [
+          "Find text on canvas...",
+          "关闭"
+        ],
+        "roleEvidence": {
+          "tablist": 1,
+          "tab": 2,
+          "tabpanel": 1,
+          "textbox:Find text on canvas...": 1,
+          "button:关闭": 1
+        },
+        "sourceRefs": [
+          "node_modules/@excalidraw/excalidraw/dist/dev/index.js:17732",
+          "node_modules/@excalidraw/excalidraw/dist/dev/index.js:18241"
+        ],
+        "evidence": [
+          "1440-vendor-find-sidebar.json",
+          "390-vendor-find-sidebar.json"
+        ],
+        "constraints": "At 390 the opened sidebar is x=-295,width=295; Close x=-43. Search content and Close are outside viewport; normal Close click fails. The reachable library trigger closes the sidebar. Do not count 390 content as visibly reachable."
+      },
+      {
+        "id": "RTD-010",
+        "runtimeKey": "vendor-library-panel",
+        "title": "Library sidebar empty state",
+        "canonicalRefs": [
+          "WS-068"
+        ],
+        "observedVisibleWidths": [
+          1440
+        ],
+        "actualDOMLabels": [
+          "素材库",
+          "关闭",
+          "浏览素材库",
+          "尚未添加任何项目……"
+        ],
+        "roleEvidence": {
+          "tablist": 1,
+          "tab": 2,
+          "tabpanel": 1,
+          "button:关闭": 1,
+          "link:浏览素材库": 1
+        },
+        "sourceRefs": [
+          "node_modules/@excalidraw/excalidraw/dist/dev/index.js:11603",
+          "node_modules/@excalidraw/excalidraw/dist/dev/index.js:18241"
+        ],
+        "evidence": [
+          "1440-vendor-library-panel.json",
+          "390-vendor-library-panel.json"
+        ],
+        "constraints": "At 390 this panel also mounts at x=-295,width=295 with Close x=-43, outside viewport. No external library browsed. Generated callback token redacted from DOM records."
+      },
+      {
+        "id": "RTD-011",
+        "runtimeKey": "vendor-library-menu",
+        "title": "Empty library local menu",
+        "canonicalRefs": [
+          "WS-068"
+        ],
+        "observedVisibleWidths": [
+          1440
+        ],
+        "actualDOMLabels": [
+          "打开"
+        ],
+        "roleEvidence": {
+          "button:打开": 1
+        },
+        "sourceRefs": [
+          "node_modules/@excalidraw/excalidraw/dist/dev/index.js:10030",
+          "node_modules/@excalidraw/excalidraw/dist/dev/index.js:11742"
+        ],
+        "evidence": [
+          "1440-vendor-library-menu.json"
+        ],
+        "constraints": "Only Open is offered for the empty library. It would open an OS file picker, which was not clicked. Mobile menu content is offscreen with its sidebar; not force-clicked."
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "RTD-005",
+        "parentIds": [
+          "WS-068"
+        ],
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Excalidraw child UI inside the actual owner whiteboard; no private page/navigation controls invented."
+      },
+      {
+        "sourceId": "RTD-010",
+        "parentIds": [
+          "WS-068"
+        ],
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Excalidraw child UI inside the actual owner whiteboard; no private page/navigation controls invented."
+      },
+      {
+        "sourceId": "RTD-011",
+        "parentIds": [
+          "WS-068"
+        ],
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Excalidraw child UI inside the actual owner whiteboard; no private page/navigation controls invented."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "RTD-005",
+        "assetId": "WS-V002",
+        "representation": "nonvisual-data-rule"
+      },
+      {
+        "sourceId": "RTD-010",
+        "assetId": "WS-V002",
+        "representation": "nonvisual-data-rule"
+      },
+      {
+        "sourceId": "RTD-011",
+        "assetId": "WS-V002",
+        "representation": "nonvisual-data-rule"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "manifestReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-049.json",
+  "sourceDerived": true,
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "Use case:ui-mockup. 依据输入已审局部组件制作两个独立手机Sidebar设计A390/B320，白底浅灰细线8px圆角，正常可读字号。A为Find on canvas侧栏，顶部两个icon tabs（搜索选中、素材库未选）、右上×关闭可达；下方唯一textbox placeholder“Find text on canvas...”为空，下面空白搜索内容，不新增结果计数或搜索按钮。B为素材库侧栏：顶部搜索tab/素材库tab（后者选中）、右上×关闭可达；中央“尚未添加任何项目……”“选中画布上的项目添加到此处，或从下方的公共素材库中导入。”；下方浏览素材库链接与三点本地菜单按钮，菜单已展开且仅一项“打开”。不显示文件选择器、不增导入URL/账户/云同步。两侧栏全部在视口内，限高内部滚动、tab和关闭始终可达；纯局部组件，无DooKnow宿主、目录或底部导航，无设备壳。输入图只三组件内容，A/B需要按手机宽度布局，右侧独立打开菜单合到B作为其锚定popup。",
+  "actualToolArguments": {
+    "prompt": "Use case:ui-mockup. 依据输入已审局部组件制作两个独立手机Sidebar设计A390/B320，白底浅灰细线8px圆角，正常可读字号。A为Find on canvas侧栏，顶部两个icon tabs（搜索选中、素材库未选）、右上×关闭可达；下方唯一textbox placeholder“Find text on canvas...”为空，下面空白搜索内容，不新增结果计数或搜索按钮。B为素材库侧栏：顶部搜索tab/素材库tab（后者选中）、右上×关闭可达；中央“尚未添加任何项目……”“选中画布上的项目添加到此处，或从下方的公共素材库中导入。”；下方浏览素材库链接与三点本地菜单按钮，菜单已展开且仅一项“打开”。不显示文件选择器、不增导入URL/账户/云同步。两侧栏全部在视口内，限高内部滚动、tab和关闭始终可达；纯局部组件，无DooKnow宿主、目录或底部导航，无设备壳。输入图只三组件内容，A/B需要按手机宽度布局，右侧独立打开菜单合到B作为其锚定popup。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V002.png"
+    ],
+    "transparent_background": false
+  },
+  "inputs": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V002.png",
+      "role": "supporting reference",
+      "sha256": "0cad536631d8dee627bd4ae59097d56641016f5119ba91045e2c7203dcbf660c",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "inputReferences": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V002.png",
+      "role": "supporting reference",
+      "sha256": "0cad536631d8dee627bd4ae59097d56641016f5119ba91045e2c7203dcbf660c",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-afd6c2bb-f75e-4f94-ae9a-b5c6bca68923.png",
+  "toolDefaultOutputSource": "$CODEX_HOME/generated_images (actual path in toolOutputFile)",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-VR002.png",
+  "sha256": "e1beefd35e667389ccfefbcc4f9e35a598e99b4b7e156a9a6cf95d111bd0c50d",
+  "bytes": 1034234,
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  },
+  "generatedAtUtc": "2026-11-05T09:13:27.898936+00:00",
+  "revisionOf": null,
+  "generationAttempts": [
+    {
+      "actualToolArguments": {
+        "prompt": "Use case:ui-mockup. 依据输入已审局部组件制作两个独立手机Sidebar设计A390/B320，白底浅灰细线8px圆角，正常可读字号。A为Find on canvas侧栏，顶部两个icon tabs（搜索选中、素材库未选）、右上×关闭可达；下方唯一textbox placeholder“Find text on canvas...”为空，下面空白搜索内容，不新增结果计数或搜索按钮。B为素材库侧栏：顶部搜索tab/素材库tab（后者选中）、右上×关闭可达；中央“尚未添加任何项目……”“选中画布上的项目添加到此处，或从下方的公共素材库中导入。”；下方浏览素材库链接与三点本地菜单按钮，菜单已展开且仅一项“打开”。不显示文件选择器、不增导入URL/账户/云同步。两侧栏全部在视口内，限高内部滚动、tab和关闭始终可达；纯局部组件，无DooKnow宿主、目录或底部导航，无设备壳。输入图只三组件内容，A/B需要按手机宽度布局，右侧独立打开菜单合到B作为其锚定popup。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-V002.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-afd6c2bb-f75e-4f94-ae9a-b5c6bca68923.png",
+      "status": "saved"
+    }
+  ],
+  "postprocessing": "original PNG copied without pixel modification",
+  "selfInspection": {
+    "method": "Viewed actual inputs and generated native preview; compared selected state to source contracts",
+    "concerns": [
+      "Static mobile layout intent corrects prior offscreen components; does not prove sidebar fix, external interactions or insert execution."
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "reviewStatus": "pending-independent-review",
+  "pendingReview": true
+}

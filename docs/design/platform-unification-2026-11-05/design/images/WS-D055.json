@@ -1,0 +1,518 @@
+{
+  "id": "WS-D055",
+  "title": "Primary diagram action menu and unsaved-close prompt",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-075",
+    "WS-077"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-075",
+      "title": "Primary diagram more-actions menu",
+      "role": "authenticated owner",
+      "state": "A app download menu; B unavailable/recovery keeps last preview and no blank replacement; C unsaved-close continue/download/discard.",
+      "presentationInstruction": "A app download menu; B unavailable/recovery keeps last preview and no blank replacement; C unsaved-close continue/download/discard."
+    },
+    {
+      "label": "C",
+      "sourceId": "WS-077",
+      "title": "Unsaved diagram close prompt",
+      "role": "authenticated owner",
+      "state": "A app download menu; B unavailable/recovery keeps last preview and no blank replacement; C unsaved-close continue/download/discard.",
+      "presentationInstruction": "A app download menu; B unavailable/recovery keeps last preview and no blank replacement; C unsaved-close continue/download/discard."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-more-actions.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:651, apps/web/diagrams/portable-download.ts:4"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:792, apps/web/components/DiagramDocumentWorkspace.vue:798, apps/web/components/DiagramDocumentWorkspace.vue:83"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:850"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-075",
+      "label": "下载完整文档",
+      "effect": "Portable bundle delivery",
+      "api": "POST /api/portable-deliveries; GET returned frozen delivery.downloadUrl",
+      "guard": "!loading/!saving"
+    },
+    {
+      "sourceId": "WS-075",
+      "label": "下载 Markdown 原文",
+      "effect": "Download Markdown source",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-075",
+      "label": "下载原件",
+      "effect": "Download original .excalidraw/.mmd/.md as capability permits",
+      "api": "GET /api/notes/:id/diagram/source?documentHash=:hash&sourceHash=:hash",
+      "guard": "canDownloadSource; coherent current hashes"
+    },
+    {
+      "sourceId": "WS-077",
+      "label": "继续编辑",
+      "effect": "Cancel close",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-077",
+      "label": "下载草稿",
+      "effect": "Export held recovery payload",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-077",
+      "label": "放弃修改并返回",
+      "effect": "Discard local diagram state and close",
+      "api": "none",
+      "guard": "Disabled during saving"
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+    "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R024",
+      "reuseSourceId": "WS-068",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "下载完整文档",
+          "effect": "Portable bundle delivery",
+          "api": "POST /api/portable-deliveries; GET returned frozen delivery.downloadUrl",
+          "guard": "!loading/!saving"
+        },
+        {
+          "label": "下载 Markdown 原文",
+          "effect": "Download Markdown source",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "下载原件",
+          "effect": "Download original .excalidraw/.mmd/.md as capability permits",
+          "api": "GET /api/notes/:id/diagram/source?documentHash=:hash&sourceHash=:hash",
+          "guard": "canDownloadSource; coherent current hashes"
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-075"
+    },
+    {
+      "assetId": "WS-R029",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Absolute prompt inset30% with24px padding and100vmax scrim shadow; no explicit mobile override.320/390 readability and action fit are unverified."
+      },
+      "requiredFieldOrder": [],
+      "requiredFields": [],
+      "requiredActions": [
+        {
+          "label": "继续编辑",
+          "effect": "Cancel close",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "下载草稿",
+          "effect": "Export held recovery payload",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "放弃修改并返回",
+          "effect": "Discard local diagram state and close",
+          "api": "none",
+          "guard": "Disabled during saving"
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-077"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n两个互相独立的真实局部，外部标A、C。A只画已打开的图形文档更多操作菜单，窄白色弹出列表，依次三项各带真实下载/文件图标：“下载完整文档”“下载 Markdown 原文”“下载原件”，都可用。菜单没有导入、打印、PNG下载、载入/保存窗口或厂商原生菜单项。C只画未保存图形关闭提示小面板，正文“当前图形尚未保存。”，依次三个可用按钮“继续编辑”“下载草稿”“放弃修改并返回”，最后红色。C没有独立标题栏、X、确定、保存或丢弃其他内容按钮，不重画画布。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D055.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-075",
+      "title": "Primary diagram more-actions menu",
+      "kind": "popover",
+      "module": "diagrams",
+      "entry": {
+        "route": "/?note=:primaryDiagramId",
+        "trigger": "更多操作",
+        "parentId": "WS-068"
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramDocumentWorkspace.vue:651",
+        "apps/web/diagrams/portable-download.ts:4"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "下载完整文档",
+          "effect": "Portable bundle delivery",
+          "api": "POST /api/portable-deliveries; GET returned frozen delivery.downloadUrl",
+          "guard": "!loading/!saving"
+        },
+        {
+          "label": "下载 Markdown 原文",
+          "effect": "Download Markdown source",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "下载原件",
+          "effect": "Download original .excalidraw/.mmd/.md as capability permits",
+          "api": "GET /api/notes/:id/diagram/source?documentHash=:hash&sourceHash=:hash",
+          "guard": "canDownloadSource; coherent current hashes"
+        }
+      ],
+      "importantStates": [
+        "Resource unavailable disables native source download",
+        "Scrollable viewport-constrained menu",
+        "Keyboard Escape/focus restoration"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/e2e/diagram-document-chrome.spec.ts",
+        "tests/e2e/diagram-editor-offline-export.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-077",
+      "title": "Unsaved diagram close prompt",
+      "kind": "dialog",
+      "module": "diagrams",
+      "entry": {
+        "route": "/?note=:primaryDiagramId or containing note",
+        "trigger": "Close embedded/primary editor with dirty content",
+        "parentId": "WS-068"
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramDocumentWorkspace.vue:850"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "继续编辑",
+          "effect": "Cancel close",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "下载草稿",
+          "effect": "Export held recovery payload",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "放弃修改并返回",
+          "effect": "Discard local diagram state and close",
+          "api": "none",
+          "guard": "Disabled during saving"
+        }
+      ],
+      "importantStates": [
+        "Modal scrim generated by100vmax shadow",
+        "Save busy"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Absolute prompt inset30% with24px padding and100vmax scrim shadow; no explicit mobile override.320/390 readability and action fit are unverified."
+      },
+      "testRefs": [
+        "tests/diagram-document-session.test.ts",
+        "tests/e2e/diagram-desktop-session.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "CSS inset30% prompt has no explicit small-screen override; 320/390 fit is an unverified risk."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-075",
+      "parentId": "WS-068",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-077",
+      "parentId": "WS-068",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-075,WS-077",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-075",
+      "state": "Resource unavailable disables native source download",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-075",
+      "state": "Scrollable viewport-constrained menu",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-075",
+      "state": "Keyboard Escape/focus restoration",
+      "representation": "nonvisual-data-rule"
+    },
+    {
+      "sourceId": "WS-077",
+      "state": "Modal scrim generated by100vmax shadow",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-077",
+      "state": "Save busy",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D055",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "A primary diagram menu source download permitted",
+    "C unsaved-close prompt saving=false"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n两个互相独立的真实局部，外部标A、C。A只画已打开的图形文档更多操作菜单，窄白色弹出列表，依次三项各带真实下载/文件图标：“下载完整文档”“下载 Markdown 原文”“下载原件”，都可用。菜单没有导入、打印、PNG下载、载入/保存窗口或厂商原生菜单项。C只画未保存图形关闭提示小面板，正文“当前图形尚未保存。”，依次三个可用按钮“继续编辑”“下载草稿”“放弃修改并返回”，最后红色。C没有独立标题栏、X、确定、保存或丢弃其他内容按钮，不重画画布。",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D055 Primary diagram action menu and unsaved-close prompt\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-075\", \"title\": \"Primary diagram more-actions menu\", \"role\": \"authenticated owner\", \"state\": \"A app download menu; B unavailable/recovery keeps last preview and no blank replacement; C unsaved-close continue/download/discard.\", \"presentationInstruction\": \"A app download menu; B unavailable/recovery keeps last preview and no blank replacement; C unsaved-close continue/download/discard.\"}, {\"label\": \"C\", \"sourceId\": \"WS-077\", \"title\": \"Unsaved diagram close prompt\", \"role\": \"authenticated owner\", \"state\": \"A app download menu; B unavailable/recovery keeps last preview and no blank replacement; C unsaved-close continue/download/discard.\", \"presentationInstruction\": \"A app download menu; B unavailable/recovery keeps last preview and no blank replacement; C unsaved-close continue/download/discard.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-075\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"下载完整文档\", \"effect\": \"Portable bundle delivery\", \"api\": \"POST /api/portable-deliveries; GET returned frozen delivery.downloadUrl\", \"guard\": \"!loading/!saving\"}, {\"label\": \"下载 Markdown 原文\", \"effect\": \"Download Markdown source\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"下载原件\", \"effect\": \"Download original .excalidraw/.mmd/.md as capability permits\", \"api\": \"GET /api/notes/:id/diagram/source?documentHash=:hash&sourceHash=:hash\", \"guard\": \"canDownloadSource; coherent current hashes\"}], \"importantStates\": [\"Resource unavailable disables native source download\", \"Scrollable viewport-constrained menu\", \"Keyboard Escape/focus restoration\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"C\", \"sourceId\": \"WS-077\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"继续编辑\", \"effect\": \"Cancel close\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"下载草稿\", \"effect\": \"Export held recovery payload\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"放弃修改并返回\", \"effect\": \"Discard local diagram state and close\", \"api\": \"none\", \"guard\": \"Disabled during saving\"}], \"importantStates\": [\"Modal scrim generated by100vmax shadow\", \"Save busy\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-diagram-more-actions.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state.",
+      "responsibility": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state.",
+      "sha256": "7d2bea222e2b75784af61a7280b95dd96cd3a9c192a88dfdba7302cb49352a7c",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 71535
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:651, apps/web/diagrams/portable-download.ts:4",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:651, apps/web/diagrams/portable-download.ts:4",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:792, apps/web/components/DiagramDocumentWorkspace.vue:798, apps/web/components/DiagramDocumentWorkspace.vue:83",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:792, apps/web/components/DiagramDocumentWorkspace.vue:798, apps/web/components/DiagramDocumentWorkspace.vue:83",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:850",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:850",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D055.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-9430e2c3-c740-467b-a477-7bfc1fbbe951.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-9430e2c3-c740-467b-a477-7bfc1fbbe951.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T05:18:36.999Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Exact local component fields/actions inspected; no invented host or unrelated conditional branches.",
+    "concerns": []
+  },
+  "sha256": "7a61a23532cc6a18eff886c3683c1f839737f536ab03f00b15c99bb298f6e4da",
+  "dimensions": {
+    "width": 1774,
+    "height": 887
+  },
+  "bytes": 958864,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    },
+    {
+      "path": "apps/web/diagrams/portable-download.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "dc84c3168e0199b984b4e60a15210e32ac0a494c13983fa399e0eeb7d4a9c644"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Exact substates source-derived; relevant actual parent baselines viewed separately. No copy/delete/paste/download/save/fragment runtime executed."
+}

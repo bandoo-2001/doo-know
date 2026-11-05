@@ -1,0 +1,92 @@
+{
+  "assetId": "MP-S021",
+  "verdict": "needs-revision",
+  "reviewer": "independent platform_review_state_backlog agent",
+  "reviewedAtUtc": "2026-11-05T04:33:54.750543+00:00",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S021.png",
+  "reviewedImageSha256": "a58552a400563c2608c7958c140b04bd79eaae427a4a1d43c4b8be8bde8d2d7b",
+  "reviewedSidecarSha256": "f0cb9807fa1417e615bc4c654e883b57f7b2a0c8c816d34b0052b61c91bf210e",
+  "requirementsManifest": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json",
+  "requirementsSha256": "b00025577cc63764c920052eb18432f5956200c2daa4ae915d201c20eea86ba9",
+  "viewMethod": "Actual individual PNG viewed via tools.view_image; full actual submittedPrompt and selectedState read; current template, parent/role/API/guard chain inspected. Matching backup/plugins/library/login baseline PNGs and approved style PNG were directly viewed where applicable.",
+  "sourceIds": [
+    "ST-059",
+    "ST-061"
+  ],
+  "selectedState": [
+    "r1 active client granted/effective policies",
+    "r2 legacy client no policy fields",
+    "r3 no-record branch intentionally has zero rendered pixels",
+    "r4 read failure",
+    "r5 inline revoke idle",
+    "r6 inline revoke busy",
+    "r7 unconfirmed revoke with original row retained"
+  ],
+  "sourceRefs": [
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/api.ts:30",
+    "apps/server/app.ts:141",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S021.json",
+    "apps/web/components/MCPAuthorizationManager.vue:71",
+    "apps/web/components/MCPConnectionGuide.vue:238",
+    "apps/server/platform/mcp-management.ts:44",
+    "apps/web/components/settings/PluginsSettings.vue:8",
+    "apps/web/components/MCPAuthorizationManager.vue:98",
+    "apps/web/components/MCPConnectionGuide.vue:261",
+    "apps/server/platform/mcp-management.ts:79",
+    "apps/web/components/MCPClientPermissions.vue:27",
+    "apps/server/platform/mcp-management.ts:48",
+    "packages/core/auth/grants.ts:206",
+    "packages/core/auth/grants.ts:213",
+    "packages/core/auth/grants.ts:229"
+  ],
+  "reviewedSourceSha256": {
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md": "f78c14e2c450641e9ecc10864168fef272bc07cb0eb47e23e0e0d475bdbf9ff9",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md": "d184372a8eefffe8079b87aa9c2988e487507d95b41b263d6ed7b7a0f7827711",
+    "apps/web/api.ts": "f3cfa4add2ed9f30efb83d401345d9c95e7437b8d2e09cea21fd853ac79b55ec",
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json": "b00025577cc63764c920052eb18432f5956200c2daa4ae915d201c20eea86ba9",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S021.json": "f0cb9807fa1417e615bc4c654e883b57f7b2a0c8c816d34b0052b61c91bf210e",
+    "apps/web/components/MCPAuthorizationManager.vue": "4a156e69d63a1916a19bea6a50ce7267f9a3b8216c2eaf5d8c1cc52645bc406a",
+    "apps/web/components/MCPConnectionGuide.vue": "48e5e616137c8434d94d907478bb5dcb8dce2941b93ee16eaaebe9c749a637f7",
+    "apps/server/platform/mcp-management.ts": "9ebee2b98d784c2d39877d94d12daf7d980fbf7ea81146dca6ca6055688e4200",
+    "apps/web/components/settings/PluginsSettings.vue": "31c37b6356ec51c9ba878ba934ccb463e16818185e13b1d13cf602cd9be726f2",
+    "apps/web/components/MCPClientPermissions.vue": "9c13dacffebf790c5f3ce1897314e897208c824f7902662113229a41b8202423",
+    "packages/core/auth/grants.ts": "a001708ac61c99652b400db4ef30caf3b320b07e97ab44dab48f855ebcf2005b"
+  },
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The first row has a current-effective-policy line and 收窄连接权限 even though MCPAuthorizationManager is mounted only when MCP is not installed. GET /api/platform/mcp/connection derives effectivePolicy through platformPolicy; its installed=1/state=enabled lookup then returns undefined for this host. The optional MCPClientPermissions template field does not establish this state.",
+      "evidence": [
+        "apps/web/components/settings/PluginsSettings.vue:8",
+        "apps/server/platform/mcp-management.ts:49",
+        "packages/core/auth/grants.ts:213",
+        "apps/web/components/MCPClientPermissions.vue:27"
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG, selected active-v2-policy specimen and current PluginsSettings/MCPAuthorizationManager/API/permissions chain were inspected together. The first row displays granted policy, current effective policy and a narrowing action; only the granted policy and revoke action are supported for its actual uninstalled-plugin host.",
+    "Other selected specimens correctly preserve legacy revoke-only rendering, no-pixel empty branch, read warning/reread, inline idle/busy revocation and uncertain result retaining the original row; busy cancel remains disabled."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Readable white/light-gray local components, fine borders, restrained corners and blue action hierarchy match the shared style direction. Raster shading/texture and approximate scale must become flat CSS tokens; do not regenerate solely for those details."
+    }
+  ],
+  "requiredCorrections": [
+    "Revise only the first local specimen for the actual uninstalled-plugin MCPAuthorizationManager host: keep the client, 授权保留, granted-policy description and revoke action; omit current-effective-policy text and 收窄连接权限. Do not change product logic to manufacture effectivePolicy. Preserve all other independent specimens."
+  ],
+  "limitations": [
+    "Source-derived static design review only; no runtime API operation, authorization, clipboard, network, keyboard/focus, close/mask/Escape behavior or responsive viewport was executed.",
+    "Local-component specimens are independent; parent role/source bindings remain metadata. Existing baseline references establish host context, not runtime capture of these synthetic error/busy states.",
+    "Raster shading/texture, font/icon geometry and dimensions are approximate. Implement shared flat CSS tokens, responsive wrapping and existing scroll/focus/guard rules; this is not pixel-level CSS approval.",
+    "This per-image result neither completes the non-ToDoo platform unification task nor substitutes for the later global coverage/style/function review or authorizes product implementation."
+  ]
+}

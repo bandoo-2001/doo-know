@@ -1,0 +1,235 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D102",
+  "assetId": "MP-D102",
+  "sourceIds": [
+    "PB-036"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-036",
+      "title": "博客文章：私有预览与发布前核对",
+      "role": "authenticated owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Private article preview with no public version, synthetic draft, one missing-reference warning and one affected article with source; original body folded, no review-loading/error"
+    }
+  ],
+  "selectedState": "Private article preview with no public version, synthetic draft, one missing-reference warning and one affected article with source; original body folded, no review-loading/error",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。完整私有文章预览组件。最上锁图标与“仅自己可见的发布预览”，下面“1 个图形将在发布时生成静态预览。”，标题“让知识保持可用”，摘要“记录与回顾。”。接着“发布前核对”，右侧文字按钮“刷新检查”。左右两列“线上版本”“待发布版本”：左列说明“还没有公开版本。”；右列短正文小标题“记录与回顾”，段落“把观察留下，给下一步提供线索。”。再下“引用检查”，一条警告“引用不存在或不在授权范围内，发布时将显示为文字。”，等宽目标“缺失笔记.md”，可点按钮“前往原稿修正”。再下“可能需要重新发布的关联文章”，行标题“知识的连接”，按钮“查看关联原稿”。底部折叠的“原稿预览”带右向箭头。不加发布、保存、浏览器、关闭或其他操作。",
+  "prompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。完整私有文章预览组件。最上锁图标与“仅自己可见的发布预览”，下面“1 个图形将在发布时生成静态预览。”，标题“让知识保持可用”，摘要“记录与回顾。”。接着“发布前核对”，右侧文字按钮“刷新检查”。左右两列“线上版本”“待发布版本”：左列说明“还没有公开版本。”；右列短正文小标题“记录与回顾”，段落“把观察留下，给下一步提供线索。”。再下“引用检查”，一条警告“引用不存在或不在授权范围内，发布时将显示为文字。”，等宽目标“缺失笔记.md”，可点按钮“前往原稿修正”。再下“可能需要重新发布的关联文章”，行标题“知识的连接”，按钮“查看关联原稿”。底部折叠的“原稿预览”带右向箭头。不加发布、保存、浏览器、关闭或其他操作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "role": "Actual matching parent/content reference; selected local substate follows source template",
+      "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette and density only; no feature or owner chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "role": "Actual matching parent/content reference; selected local substate follows source template",
+      "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette and density only; no feature or owner chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。完整私有文章预览组件。最上锁图标与“仅自己可见的发布预览”，下面“1 个图形将在发布时生成静态预览。”，标题“让知识保持可用”，摘要“记录与回顾。”。接着“发布前核对”，右侧文字按钮“刷新检查”。左右两列“线上版本”“待发布版本”：左列说明“还没有公开版本。”；右列短正文小标题“记录与回顾”，段落“把观察留下，给下一步提供线索。”。再下“引用检查”，一条警告“引用不存在或不在授权范围内，发布时将显示为文字。”，等宽目标“缺失笔记.md”，可点按钮“前往原稿修正”。再下“可能需要重新发布的关联文章”，行标题“知识的连接”，按钮“查看关联原稿”。底部折叠的“原稿预览”带右向箭头。不加发布、保存、浏览器、关闭或其他操作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制清晰中文局部组件，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读。只画组件和留白，不画外部导航或品牌页头。完整私有文章预览组件。最上锁图标与“仅自己可见的发布预览”，下面“1 个图形将在发布时生成静态预览。”，标题“让知识保持可用”，摘要“记录与回顾。”。接着“发布前核对”，右侧文字按钮“刷新检查”。左右两列“线上版本”“待发布版本”：左列说明“还没有公开版本。”；右列短正文小标题“记录与回顾”，段落“把观察留下，给下一步提供线索。”。再下“引用检查”，一条警告“引用不存在或不在授权范围内，发布时将显示为文字。”，等宽目标“缺失笔记.md”，可点按钮“前往原稿修正”。再下“可能需要重新发布的关联文章”，行标题“知识的连接”，按钮“查看关联原稿”。底部折叠的“原稿预览”带右向箭头。不加发布、保存、浏览器、关闭或其他操作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+          "role": "Actual matching parent/content reference; selected local substate follows source template"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette and density only; no feature or owner chrome authority"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-e6820bc8-e997-4a18-9331-251908a50334.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-036",
+      "title": "博客文章：私有预览与发布前核对",
+      "kind": "state",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "Toggle 预览文章 after saving metadata",
+        "parentId": "PB-032"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:681",
+        "apps/web/components/blog/BlogPublicationReview.vue:17",
+        "apps/web/components/blog/BlogPublicationReview.vue:28",
+        "apps/server/blog/studio-routes.ts:61"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新检查",
+          "effect": "Refresh publication review",
+          "api": "GET /api/blog/posts/:id/review",
+          "guard": "not reviewLoading"
+        },
+        {
+          "label": "前往原稿修正 / 查看关联原稿",
+          "effect": "Open relevant owner note",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "查看文章",
+          "effect": "Select affected article if no source id",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "review loading/error; retry",
+        "no public version yet vs published/draft columns",
+        "reference warnings: unpublished/missing links, missing/unsupported images",
+        "affected related articles; generated-diagram count",
+        "original-source preview folded under details"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/blog-studio-review.test.ts:1",
+        "tests/e2e/blog.spec.ts:336"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "This is private sanitized preview; publication itself remains explicit article action."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-036",
+      "parentId": "PB-032",
+      "route": "/?view=apps&app=blog&appSection=articles",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:681",
+        "apps/web/components/blog/BlogPublicationReview.vue:17",
+        "apps/web/components/blog/BlogPublicationReview.vue:28",
+        "apps/server/blog/studio-routes.ts:61"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-021.json#MP-D102",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D102",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-e6820bc8-e997-4a18-9331-251908a50334.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D102.png",
+  "sha256": "f1eb75fabbccd2f0f8be02e88e4c2c290d6b59ab2d221ef833118b02bae123e8",
+  "bytes": 1171733,
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  },
+  "generatedAtUtc": "2026-11-05T04:09:17.284267+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "博客文章：私有预览与发布前核对",
+    "sourceIds": [
+      "PB-036"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Private article preview with no public version, synthetic draft, one missing-reference warning and one affected article with source; original body folded, no review-loading/error",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "renderedVariants": []
+}

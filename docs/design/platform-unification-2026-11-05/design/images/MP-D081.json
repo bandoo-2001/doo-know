@@ -1,0 +1,304 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D081",
+  "assetId": "MP-D081",
+  "sourceIds": [
+    "PB-011"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-011",
+      "title": "首次设置：从 GitHub/Gitee 导入",
+      "role": "authenticated owner",
+      "state": "Source-derived setup_required, step1/remote import mode, empty URL and branch, no credentials, default name, no task/overlay; tests/import disabled"
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "Source-derived setup_required, step1/remote import mode, empty URL and branch, no credentials, default name, no task/overlay; tests/import disabled",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-runtime-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "只定点编辑这张DooKnow首次设置仓库导入图，保留其他布局/字段/文案/数据/状态不变：仓库认证下方左侧“添加凭据”按钮必须是可用的正常按钮，白底、清晰深色文字与正常细边框；旁边“测试读取连接”仍是灰色禁用，“导入并继续”仍禁用，因为URL为空。管理仓库凭据小节删除源码不存在的“暂无凭据”图标和空状态大框，保留说明文字及可用“添加新的凭据”按钮，下方内容自然收拢但顺序不变。将“让资料有个自己的家”改为小号次级eyebrow，其下“准备你的知识库”改为最大主标题，顺序不变。不改为任务运行态，不加凭据弹窗/秘密字段/主人导航。",
+  "prompt": "只定点编辑这张DooKnow首次设置仓库导入图，保留其他布局/字段/文案/数据/状态不变：仓库认证下方左侧“添加凭据”按钮必须是可用的正常按钮，白底、清晰深色文字与正常细边框；旁边“测试读取连接”仍是灰色禁用，“导入并继续”仍禁用，因为URL为空。管理仓库凭据小节删除源码不存在的“暂无凭据”图标和空状态大框，保留说明文字及可用“添加新的凭据”按钮，下方内容自然收拢但顺序不变。将“让资料有个自己的家”改为小号次级eyebrow，其下“准备你的知识库”改为最大主标题，顺序不变。不改为任务运行态，不加凭据弹窗/秘密字段/主人导航。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Palette/density and DooKnow book identity only; no owner shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-9803e93e-ee47-4f90-978a-13bfe5914c3c.png",
+      "role": "Edit target: retain source-derived setup geometry, field order, data and all unaffected controls",
+      "sha256": "4b7ad81632913ce5ff26bbfee42111cb9160c106e0fc5acc0a608105ca6b116d",
+      "dimensions": {
+        "width": 1073,
+        "height": 1466
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Palette/density and DooKnow book identity only; no owner shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-9803e93e-ee47-4f90-978a-13bfe5914c3c.png",
+      "role": "Edit target: retain source-derived setup geometry, field order, data and all unaffected controls",
+      "sha256": "4b7ad81632913ce5ff26bbfee42111cb9160c106e0fc5acc0a608105ca6b116d",
+      "dimensions": {
+        "width": 1073,
+        "height": 1466
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "只定点编辑这张DooKnow首次设置仓库导入图，保留其他布局/字段/文案/数据/状态不变：仓库认证下方左侧“添加凭据”按钮必须是可用的正常按钮，白底、清晰深色文字与正常细边框；旁边“测试读取连接”仍是灰色禁用，“导入并继续”仍禁用，因为URL为空。管理仓库凭据小节删除源码不存在的“暂无凭据”图标和空状态大框，保留说明文字及可用“添加新的凭据”按钮，下方内容自然收拢但顺序不变。将“让资料有个自己的家”改为小号次级eyebrow，其下“准备你的知识库”改为最大主标题，顺序不变。不改为任务运行态，不加凭据弹窗/秘密字段/主人导航。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-9803e93e-ee47-4f90-978a-13bfe5914c3c.png"
+    ],
+    "transparent_background": false
+  },
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-004.json#MP-D081",
+  "sourceReferences": [
+    {
+      "sourceId": "PB-011",
+      "parentId": "PB-008",
+      "route": "/ (setup required)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:253",
+        "apps/web/components/GitRepositoryImport.vue:7",
+        "apps/web/components/GitRemotePanel.vue:986",
+        "apps/web/components/GitRemotePanel.vue:1030",
+        "apps/web/components/GitRemotePanel.vue:504"
+      ]
+    }
+  ],
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D081",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "generationCallCount": 2,
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-699cc09b-5180-4c8a-95c2-6f51d05ec4ff.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D081.png",
+  "sha256": "88c93a51bc2ddcb0d1c16d4725d791ccf5ff5643561ef6ac5e9a108ede3c8bce",
+  "dimensions": {
+    "width": 1073,
+    "height": 1466
+  },
+  "bytes": 1591844,
+  "generatedAtUtc": "2026-11-05T01:30:10.061640+00:00",
+  "postprocessing": "Original built-in tool PNG copied byte-for-byte; no pixel editing.",
+  "revisionOf": {
+    "kind": "generation-attempt",
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-9803e93e-ee47-4f90-978a-13bfe5914c3c.png",
+    "sha256": "4b7ad81632913ce5ff26bbfee42111cb9160c106e0fc5acc0a608105ca6b116d"
+  },
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "首次设置：从 GitHub/Gitee 导入",
+    "sourceIds": [
+      "PB-011"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Source-derived setup_required, step1/remote import mode, empty URL and branch, no credentials, default name, no task/overlay; tests/import disabled",
+    "location": "metadata, outside product UI"
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-011",
+      "parentId": "PB-008",
+      "route": "/ (setup required)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:253",
+        "apps/web/components/GitRepositoryImport.vue:7",
+        "apps/web/components/GitRemotePanel.vue:986",
+        "apps/web/components/GitRemotePanel.vue:1030",
+        "apps/web/components/GitRemotePanel.vue:504"
+      ]
+    }
+  ],
+  "sourceStateAndActionContracts": {
+    "functionalInvariants": [
+      {
+        "sourceId": "PB-011",
+        "route": "/ (setup required)",
+        "trigger": "Choose 从 GitHub／Gitee 导入",
+        "parentId": "PB-008",
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+        ],
+        "fields": [
+          {
+            "name": "url",
+            "type": "clone URL",
+            "required": true,
+            "constraints": "HTTPS or SSH clone address; GitHub/Gitee",
+            "sensitive": false
+          },
+          {
+            "name": "branch",
+            "type": "text",
+            "required": false,
+            "constraints": "optional default branch",
+            "sensitive": false
+          },
+          {
+            "name": "credentialId",
+            "type": "select",
+            "required": false,
+            "constraints": "none or existing saved/temporary credential",
+            "sensitive": false
+          },
+          {
+            "name": "name",
+            "type": "text",
+            "required": true,
+            "constraints": "UI max40; trimmed nonempty",
+            "sensitive": false
+          },
+          {
+            "name": "parentPath",
+            "type": "server directory",
+            "required": false,
+            "constraints": "blank recommended; new independent target folder",
+            "sensitive": false
+          }
+        ],
+        "importantStates": [
+          "empty clone inputs; no credentials required for public HTTPS",
+          "connection test running/result",
+          "clone queued/running; server task persists across refresh",
+          "failed/cancelled/needs_reconciliation and unresolved-request recovery",
+          "existing same-name folder stops import"
+        ],
+        "notes": [
+          "Shared credential editor includes HTTPS token or SSH private key/known_hosts verification and temporary-vs-encrypted storage; settings/plugin inventory owns its detailed fields/dialogs.",
+          "Do not duplicate shared sync/credential interiors; this record owns import-specific source, destination and continuation."
+        ]
+      },
+      {
+        "type": "composition",
+        "details": [
+          "首启仓库导入完整页：GitHub/Gitee地址、分支、已有凭据/添加、库名与位置、测试/导入和阶段/取消/核对。"
+        ]
+      },
+      {
+        "type": "role-shell",
+        "rule": "已验证主人会话的首启壳，仅首启步骤与允许入口，无主人私有文件树。PB-016可达性待核，不增浏览器主人创建。"
+      }
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "PB-011",
+        "label": "测试读取连接",
+        "effect": "Start test job",
+        "api": "POST /api/platform/git/jobs",
+        "guard": "url nonempty; not running/repositoryPending"
+      },
+      {
+        "sourceId": "PB-011",
+        "label": "导入并继续",
+        "effect": "Install/enable Git and clone into new library",
+        "api": "POST /api/platform/git/jobs (kind=clone)",
+        "guard": "url/name nonempty; not running/repositoryPending"
+      },
+      {
+        "sourceId": "PB-011",
+        "label": "添加凭据",
+        "effect": "Open shared Git credential editor",
+        "api": "POST /api/platform/git/credentials",
+        "guard": "shared settings/plugin surface"
+      },
+      {
+        "sourceId": "PB-011",
+        "label": "刷新任务状态 / 取消当前任务 / 核对并重试任务",
+        "effect": "Poll/cancel/reconcile durable Git job",
+        "api": "GET /api/platform/git/jobs/:id; POST .../:id/cancel; POST .../:id/retry",
+        "guard": "state-dependent running/busy guards"
+      }
+    ],
+    "responsiveContract": [
+      {
+        "sourceId": "PB-011",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified.",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      }
+    ],
+    "otherVariantsDrawn": false
+  },
+  "selfInspection": {
+    "method": "Native generated PNG actually viewed in generation child context against all submitted image inputs and actual component templates.",
+    "concerns": [
+      "Static raster does not establish source/API execution, role enforcement, conditional guards, keyboard/focus, responsive fit or actual action outcomes.",
+      "Light raster shading/texture and approximate proportions are illustrative CSS guidance, not exact measured compliance.",
+      "SOURCE-DERIVED: no actual runtime screenshot for this selected setup surface; source template/state and synthetic /srv/example placeholders only. No runtime/reachability acceptance implied.",
+      "Idle empty import selected: test/import disabled; no task, cancel, receipt reconciliation or credential dialog controls should be simultaneously shown. Shared credential-management section follows actual import template."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作完整独立首次设置仓库导入页，可用较长1440×1400画布保证全部字段/动作可读。完整独立DooKnow首次设置页面，1440px左右桌面画布，中央约840px宽纵向页面，淡灰外背景、白卡。只参考输入图的平面配色和密度，完全不复制它的主人rail、目录树、顶部工作区导航或空笔记内容。此处只有页首书本DooKnow，右侧欢迎使用；卡内三步进度为准备知识库/选择功能/开始使用，卡外底部你的资料，由你掌握。只画声明的一种源码状态，无浏览器账号创建、注册、找回密码、社交登录、私人目录树或新增按钮。第1步准备知识库激活，后两步未完成。卡内顺序：让资料有个自己的家；准备你的知识库；从一个新空间开始，或接入你已经整理好的资料。；资料来源；三个真实选择卡：创建新知识库（只需起个名字，保存位置由我们准备。）、使用已有资料（选择部署设备上的文件夹，保留原有文件。）、从 GitHub／Gitee 导入（下载云端仓库到新的知识库文件夹。）。桌面两列，第三卡下一行。从 GitHub／Gitee 导入选中。只画空输入、无任务、无凭据弹窗的一种状态。下方GitRemotePanel真实顺序：标题从 GitHub／Gitee 导入，右侧刷新同步状态；说明保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。；说明此操作会安装并启用Git插件，已有目录与历史会保留，不会自动合并、强推或覆盖其他远端配置。；仓库克隆地址空输入，placeholder https://github.com/owner/repository.git；帮助请复制仓库页面的HTTPS或SSH克隆地址。公开HTTPS仓库可不配置认证。；云端分支（选填）空输入，留空使用默认分支；仓库认证下拉，不使用凭据（公开仓库读取）；添加凭据可用与测试读取连接禁用；导入后的知识库名称输入我的知识库；导入保存位置（选填）空输入，留空使用推荐位置，路径位于服务器上；提示下载到独立的新文件夹。已有同名文件夹时会停止，请另选名称或位置。；禁用导入并继续。然后独立管理仓库凭据小节，说明凭据只供登录账号使用，秘密内容不会回显。移除凭据不会删除资料。，空列表与添加新的凭据按钮；最后折叠GitHub／Gitee 认证与 SSH 帮助。此remote模式没有普通高级设置/时区/确认并继续页脚。不画正在导入、任务编号、取消/核对按钮、token/私钥输入、成功/失败或额外账户创建。平面白底、#f7f8fa浅面、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中；紧凑清晰中文无衬线、小线性图标、8px圆角，无渐变纹理，无浏览器外壳。元数据承担角色/source-derived说明。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Palette/density and DooKnow book identity only; no owner shell"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-9803e93e-ee47-4f90-978a-13bfe5914c3c.png"
+    },
+    {
+      "submittedPrompt": "只定点编辑这张DooKnow首次设置仓库导入图，保留其他布局/字段/文案/数据/状态不变：仓库认证下方左侧“添加凭据”按钮必须是可用的正常按钮，白底、清晰深色文字与正常细边框；旁边“测试读取连接”仍是灰色禁用，“导入并继续”仍禁用，因为URL为空。管理仓库凭据小节删除源码不存在的“暂无凭据”图标和空状态大框，保留说明文字及可用“添加新的凭据”按钮，下方内容自然收拢但顺序不变。将“让资料有个自己的家”改为小号次级eyebrow，其下“准备你的知识库”改为最大主标题，顺序不变。不改为任务运行态，不加凭据弹窗/秘密字段/主人导航。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-9803e93e-ee47-4f90-978a-13bfe5914c3c.png",
+          "role": "Edit target: retain source-derived setup geometry, field order, data and all unaffected controls"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-699cc09b-5180-4c8a-95c2-6f51d05ec4ff.png"
+    }
+  ]
+}

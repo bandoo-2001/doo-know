@@ -1,0 +1,232 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D071",
+  "assetId": "MP-D071",
+  "sourceIds": [
+    "PB-001"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-001",
+      "title": "登录 DooKnow",
+      "role": "unauthenticated visitor",
+      "state": "Standalone unauthenticated baseline, username/password empty, login disabled and first-use help collapsed"
+    }
+  ],
+  "roles": [
+    "unauthenticated visitor"
+  ],
+  "selectedState": "Standalone unauthenticated baseline, username/password empty, login disabled and first-use help collapsed",
+  "sourceDerived": false,
+  "baselineStatus": "actual-captured-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作一张完整独立DooKnow登录页，约1440×1000。图1为真实内容/几何/空输入状态；图2仅平面配色/密度，绝不复制任何主人导航、rail、目录树或全局工作区页头。淡灰背景中央约400px宽白色登录卡，卡上方DooKnow书本标识、你的个人知识空间。卡内严格顺序：登录 DooKnow；登录后访问你的私人笔记；用户名label与空输入请输入用户名；密码label与空密码输入请输入密码，保留密码显隐眼睛图标；全宽灰色禁用登录按钮；锁图标和笔记默认私有，仅分享链接可公开访问；分隔线后折叠第一次使用或还没有账号？。无错误、loading、已登录信息，无注册/找回/社交登录/记住我控件，也不把安装帮助变成浏览器创建账号表单。平面白底、#f7f8fa浅面、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中；紧凑清晰中文无衬线、小线性图标、8px圆角，无渐变纹理，无浏览器外壳。外部source/role/state caption仅metadata。",
+  "prompt": "制作一张完整独立DooKnow登录页，约1440×1000。图1为真实内容/几何/空输入状态；图2仅平面配色/密度，绝不复制任何主人导航、rail、目录树或全局工作区页头。淡灰背景中央约400px宽白色登录卡，卡上方DooKnow书本标识、你的个人知识空间。卡内严格顺序：登录 DooKnow；登录后访问你的私人笔记；用户名label与空输入请输入用户名；密码label与空密码输入请输入密码，保留密码显隐眼睛图标；全宽灰色禁用登录按钮；锁图标和笔记默认私有，仅分享链接可公开访问；分隔线后折叠第一次使用或还没有账号？。无错误、loading、已登录信息，无注册/找回/社交登录/记住我控件，也不把安装帮助变成浏览器创建账号表单。平面白底、#f7f8fa浅面、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中；紧凑清晰中文无衬线、小线性图标、8px圆角，无渐变纹理，无浏览器外壳。外部source/role/state caption仅metadata。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-login.png",
+      "role": "Actual standalone unauthenticated login content, geometry, empty-disabled state",
+      "sha256": "10a6aff98a81ca91fdda5199d65590adaaa6426fbf5e4555fef45caa3c3214d4",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Only flat palette/density; exclude all owner chrome and workspace content",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-login.png",
+      "role": "Actual standalone unauthenticated login content, geometry, empty-disabled state",
+      "sha256": "10a6aff98a81ca91fdda5199d65590adaaa6426fbf5e4555fef45caa3c3214d4",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Only flat palette/density; exclude all owner chrome and workspace content",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作一张完整独立DooKnow登录页，约1440×1000。图1为真实内容/几何/空输入状态；图2仅平面配色/密度，绝不复制任何主人导航、rail、目录树或全局工作区页头。淡灰背景中央约400px宽白色登录卡，卡上方DooKnow书本标识、你的个人知识空间。卡内严格顺序：登录 DooKnow；登录后访问你的私人笔记；用户名label与空输入请输入用户名；密码label与空密码输入请输入密码，保留密码显隐眼睛图标；全宽灰色禁用登录按钮；锁图标和笔记默认私有，仅分享链接可公开访问；分隔线后折叠第一次使用或还没有账号？。无错误、loading、已登录信息，无注册/找回/社交登录/记住我控件，也不把安装帮助变成浏览器创建账号表单。平面白底、#f7f8fa浅面、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中；紧凑清晰中文无衬线、小线性图标、8px圆角，无渐变纹理，无浏览器外壳。外部source/role/state caption仅metadata。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-login.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-004.json#MP-D071",
+  "sourceReferences": [
+    {
+      "sourceId": "PB-001",
+      "parentId": null,
+      "route": "/ (unauthenticated); /login",
+      "roles": [
+        "unauthenticated visitor"
+      ],
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:264",
+        "apps/web/App.vue:360",
+        "apps/web/components/Login.vue:13",
+        "apps/web/components/Login.vue:38"
+      ]
+    }
+  ],
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D071",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "generationCallCount": 1,
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-709e95e0-a6c9-481e-b700-7cc95ada0738.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D071.png",
+  "sha256": "77bf20e1e822efa2641ab91ccd4408df4e49462a3408e9e3ec853a27f1a98dae",
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "bytes": 1114483,
+  "generatedAtUtc": "2026-11-05T01:25:59.819844+00:00",
+  "postprocessing": "Original built-in tool PNG copied byte-for-byte; no pixel editing.",
+  "revisionOf": null,
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "登录 DooKnow",
+    "sourceIds": [
+      "PB-001"
+    ],
+    "roles": [
+      "unauthenticated visitor"
+    ],
+    "state": "Standalone unauthenticated baseline, username/password empty, login disabled and first-use help collapsed",
+    "location": "metadata, outside product UI"
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-001",
+      "parentId": null,
+      "route": "/ (unauthenticated); /login",
+      "roles": [
+        "unauthenticated visitor"
+      ],
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:264",
+        "apps/web/App.vue:360",
+        "apps/web/components/Login.vue:13",
+        "apps/web/components/Login.vue:38"
+      ]
+    }
+  ],
+  "sourceStateAndActionContracts": {
+    "functionalInvariants": [
+      {
+        "sourceId": "PB-001",
+        "route": "/ (unauthenticated); /login",
+        "trigger": "App session resolves without an owner session",
+        "parentId": null,
+        "roles": [
+          "unauthenticated visitor"
+        ],
+        "permissionRules": [
+          "Single-owner installation; account creation is performed by installation/CLI, not this form."
+        ],
+        "fields": [
+          {
+            "name": "username",
+            "type": "text",
+            "required": true,
+            "constraints": "trimmed nonempty submit guard; sent as entered; autocomplete=username",
+            "sensitive": false
+          },
+          {
+            "name": "password",
+            "type": "password",
+            "required": true,
+            "constraints": "nonempty; current-password autocomplete",
+            "sensitive": true
+          }
+        ],
+        "importantStates": [
+          "empty required fields; submit disabled",
+          "busy locks inputs and submit",
+          "API error alert cleared on input",
+          "successful sign-in clears password, refreshes CSRF, then accepts session"
+        ],
+        "notes": []
+      },
+      {
+        "type": "composition",
+        "details": [
+          "独立居中400px登录卡：DooKnow、你的个人知识空间、用户名/密码、登录、默认私有说明、首用帮助折叠。无私有导航。"
+        ]
+      },
+      {
+        "type": "role-shell",
+        "rule": "独立登录/启动壳，无私有栏；只有PB-003是既有主人界面失效时覆盖且背景禁交互。未知session不画成已登录。"
+      }
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "PB-001",
+        "label": "登录",
+        "effect": "Authenticate and open platform or OAuth continuation",
+        "api": "POST /api/auth/sign-in/username; GET /api/auth/get-session",
+        "guard": "not busy and username.trim() and password"
+      }
+    ],
+    "responsiveContract": [
+      {
+        "sourceId": "PB-001",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory.",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      }
+    ],
+    "otherVariantsDrawn": false
+  },
+  "selfInspection": {
+    "method": "Native generated PNG actually viewed in generation child context against all submitted image inputs and actual component templates.",
+    "concerns": [
+      "Static raster does not establish source/API execution, role enforcement, conditional guards, keyboard/focus, responsive fit or actual action outcomes.",
+      "Light raster shading/texture and approximate proportions are illustrative CSS guidance, not exact measured compliance.",
+      "First-use help remains collapsed. Source account provisioning is installation/CLI only, not a browser registration action."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

@@ -1,0 +1,262 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R023",
+  "assetId": "MP-R023",
+  "sourceIds": [
+    "ST-055"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-055",
+      "title": "插件加载/渲染失败边界390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent PluginPanel mcp.settings missing/loaderror/boundary-failed states at390/320/320. Reachability mcp.navigation opens mcp.settings from plugin web index.ts189; actual contribution title连接与调用. Header only text关闭, NModal closablefalse; boundary has no retry/stop actions."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-055",
+      "title": "插件加载/渲染失败边界320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent PluginPanel mcp.settings missing/loaderror/boundary-failed states at390/320/320. Reachability mcp.navigation opens mcp.settings from plugin web index.ts189; actual contribution title连接与调用. Header only text关闭, NModal closablefalse; boundary has no retry/stop actions."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-055",
+      "title": "插件加载/渲染失败边界320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent PluginPanel mcp.settings missing/loaderror/boundary-failed states at390/320/320. Reachability mcp.navigation opens mcp.settings from plugin web index.ts189; actual contribution title连接与调用. Header only text关闭, NModal closablefalse; boundary has no retry/stop actions."
+    }
+  ],
+  "selectedState": "Three independent PluginPanel mcp.settings missing/loaderror/boundary-failed states at390/320/320. Reachability mcp.navigation opens mcp.settings from plugin web index.ts189; actual contribution title连接与调用. Header only text关闭, NModal closablefalse; boundary has no retry/stop actions.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制横向并排三个独立窄网页插件浮窗，宽比例390、320、320，白灰平面细边框，局部背景浅灰，不画全页导航或手机硬件。三窗真实页头均为“连接与调用”，右上唯一文字按钮“关闭”，不要X。左窗正文只有红色错误提示“插件界面尚未加载，请稍后重试”。中窗正文只有红色错误提示“插件资源读取失败，请检查连接后重试。”，长句自然换行。右窗正文只有红色提示“此插件界面运行失败，可以关闭面板或停用插件。”，自然换行。所有正文在自身边界内留滚动空间，右上关闭可达。提示中的重试、关闭面板、停用插件都仍是文字，不加重试或停用按钮，不加输入、成功态、页脚按钮或OS弹窗。",
+  "prompt": "绘制横向并排三个独立窄网页插件浮窗，宽比例390、320、320，白灰平面细边框，局部背景浅灰，不画全页导航或手机硬件。三窗真实页头均为“连接与调用”，右上唯一文字按钮“关闭”，不要X。左窗正文只有红色错误提示“插件界面尚未加载，请稍后重试”。中窗正文只有红色错误提示“插件资源读取失败，请检查连接后重试。”，长句自然换行。右窗正文只有红色提示“此插件界面运行失败，可以关闭面板或停用插件。”，自然换行。所有正文在自身边界内留滚动空间，右上关闭可达。提示中的重试、关闭面板、停用插件都仍是文字，不加重试或停用按钮，不加输入、成功态、页脚按钮或OS弹窗。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制横向并排三个独立窄网页插件浮窗，宽比例390、320、320，白灰平面细边框，局部背景浅灰，不画全页导航或手机硬件。三窗真实页头均为“连接与调用”，右上唯一文字按钮“关闭”，不要X。左窗正文只有红色错误提示“插件界面尚未加载，请稍后重试”。中窗正文只有红色错误提示“插件资源读取失败，请检查连接后重试。”，长句自然换行。右窗正文只有红色提示“此插件界面运行失败，可以关闭面板或停用插件。”，自然换行。所有正文在自身边界内留滚动空间，右上关闭可达。提示中的重试、关闭面板、停用插件都仍是文字，不加重试或停用按钮，不加输入、成功态、页脚按钮或OS弹窗。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制横向并排三个独立窄网页插件浮窗，宽比例390、320、320，白灰平面细边框，局部背景浅灰，不画全页导航或手机硬件。三窗真实页头均为“连接与调用”，右上唯一文字按钮“关闭”，不要X。左窗正文只有红色错误提示“插件界面尚未加载，请稍后重试”。中窗正文只有红色错误提示“插件资源读取失败，请检查连接后重试。”，长句自然换行。右窗正文只有红色提示“此插件界面运行失败，可以关闭面板或停用插件。”，自然换行。所有正文在自身边界内留滚动空间，右上关闭可达。提示中的重试、关闭面板、停用插件都仍是文字，不加重试或停用按钮，不加输入、成功态、页脚按钮或OS弹窗。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-41dc327a-a04c-487b-b560-09392d869ce1.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-055",
+      "title": "插件加载/渲染失败边界",
+      "kind": "state",
+      "module": "settings/plugin-host",
+      "entry": {
+        "route": "插件贡献所在页面或窗口",
+        "trigger": "插件资源未加载或渲染抛错",
+        "parentId": "ST-056"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginPanel.vue:31",
+        "apps/web/components/PluginBoundary.vue:1",
+        "apps/web/components/PluginManager.vue:804"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "关闭面板 / 停用插件",
+          "effect": "从容器退出或在插件设置停用",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "插件界面尚未加载",
+        "pluginUIErrors错误",
+        "运行失败NAlert替换贡献"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/plugins-host.test.ts:1",
+        "tests/e2e/plugin-action-feedback.spec.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "边界自身不提供重试按钮；不应虚构。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-055",
+      "parentId": "ST-056",
+      "route": "插件贡献所在页面或窗口",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PluginPanel.vue:31",
+        "apps/web/components/PluginBoundary.vue:1",
+        "apps/web/components/PluginManager.vue:804"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-037.json#MP-R023",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R023",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-41dc327a-a04c-487b-b560-09392d869ce1.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R023.png",
+  "sha256": "d714e5119b374fb46a17103bda87787d90951decd6ff9ccbb4c7eac7677e8c46",
+  "bytes": 1065133,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:32:06.373733+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: PluginPanel/PluginBoundary.vue shared host, bridge button or actual boundary alert",
+    "sourceIds": [
+      "ST-055"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent PluginPanel mcp.settings missing/loaderror/boundary-failed states at390/320/320. Reachability mcp.navigation opens mcp.settings from plugin web index.ts189; actual contribution title连接与调用. Header only text关闭, NModal closablefalse; boundary has no retry/stop actions.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "item": "mcp.settings",
+      "componentAvailable": false,
+      "pluginUIError": "",
+      "message": "插件界面尚未加载，请稍后重试"
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "item": "mcp.settings",
+      "componentAvailable": false,
+      "pluginUIError": "插件资源读取失败，请检查连接后重试。"
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "item": "mcp.settings",
+      "componentAvailable": true,
+      "boundaryFailed": true
+    }
+  ]
+}

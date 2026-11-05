@@ -1,0 +1,230 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D036",
+  "assetId": "WS-D036",
+  "sourceIds": [
+    "WS-046"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "desktop",
+      "sourceId": "WS-046",
+      "title": "Backlinks modal",
+      "role": "authenticated owner",
+      "state": "Searching",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.",
+      "selectedState": "Initial backlink searching: checked/skipped zero and no cursor/matches; progress/empty text absent, restart disabled and close allowed across three viewports"
+    },
+    {
+      "label": "phone-390",
+      "sourceId": "WS-046",
+      "title": "Backlinks modal",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+      "selectedState": "Initial backlink searching: checked/skipped zero and no cursor/matches; progress/empty text absent, restart disabled and close allowed across three viewports"
+    },
+    {
+      "label": "phone-320",
+      "sourceId": "WS-046",
+      "title": "Backlinks modal",
+      "role": "authenticated owner",
+      "state": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. ",
+      "selectedState": "Initial backlink searching: checked/skipped zero and no cursor/matches; progress/empty text absent, restart disabled and close allowed across three viewports"
+    }
+  ],
+  "selectedState": "Initial backlink searching: checked/skipped zero and no cursor/matches; progress/empty text absent, restart disabled and close allowed across three viewports",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作一张清晰三分区对照板，外部只标桌面、390px、320px，表示三个独立视口中的同一窗口，不是同页同时打开。全部字段/按钮保持可读，窄屏自然换行，允许内部滚动，关闭和主动作可达。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。每份局部窗口标题“提及此笔记”、右上关闭X；准确说明“查找其他笔记中指向当前笔记的链接。结果分批检查，较大或暂时无法读取的笔记会跳过。”；当前正文只有“正在查找…”。底部“关闭”可用、“重新查找”灰色禁用。不要已检查0篇/跳过0篇、结果行、没有提及、查完、继续查找/重试本批或错误；当前这些都未显示。窄屏说明自然换行和可达关闭保留。",
+  "prompt": "制作一张清晰三分区对照板，外部只标桌面、390px、320px，表示三个独立视口中的同一窗口，不是同页同时打开。全部字段/按钮保持可读，窄屏自然换行，允许内部滚动，关闭和主动作可达。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。每份局部窗口标题“提及此笔记”、右上关闭X；准确说明“查找其他笔记中指向当前笔记的链接。结果分批检查，较大或暂时无法读取的笔记会跳过。”；当前正文只有“正在查找…”。底部“关闭”可用、“重新查找”灰色禁用。不要已检查0篇/跳过0篇、结果行、没有提及、查完、继续查找/重试本批或错误；当前这些都未显示。窄屏说明自然换行和可达关闭保留。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exact initial backlink-search modal is source-derived",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exact initial backlink-search modal is source-derived",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作一张清晰三分区对照板，外部只标桌面、390px、320px，表示三个独立视口中的同一窗口，不是同页同时打开。全部字段/按钮保持可读，窄屏自然换行，允许内部滚动，关闭和主动作可达。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。每份局部窗口标题“提及此笔记”、右上关闭X；准确说明“查找其他笔记中指向当前笔记的链接。结果分批检查，较大或暂时无法读取的笔记会跳过。”；当前正文只有“正在查找…”。底部“关闭”可用、“重新查找”灰色禁用。不要已检查0篇/跳过0篇、结果行、没有提及、查完、继续查找/重试本批或错误；当前这些都未显示。窄屏说明自然换行和可达关闭保留。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作一张清晰三分区对照板，外部只标桌面、390px、320px，表示三个独立视口中的同一窗口，不是同页同时打开。全部字段/按钮保持可读，窄屏自然换行，允许内部滚动，关闭和主动作可达。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。每份局部窗口标题“提及此笔记”、右上关闭X；准确说明“查找其他笔记中指向当前笔记的链接。结果分批检查，较大或暂时无法读取的笔记会跳过。”；当前正文只有“正在查找…”。底部“关闭”可用、“重新查找”灰色禁用。不要已检查0篇/跳过0篇、结果行、没有提及、查完、继续查找/重试本批或错误；当前这些都未显示。窄屏说明自然换行和可达关闭保留。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; exact initial backlink-search modal is source-derived"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-e1ba2099-45d1-47fb-817a-7c05d455ea9c.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-046",
+      "title": "Backlinks modal",
+      "kind": "dialog",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "反向引用",
+        "parentId": "WS-029"
+      },
+      "sourceRefs": [
+        "apps/web/components/NoteBacklinks.vue:1",
+        "apps/server/app.ts:331"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "引用笔记",
+          "effect": "Open linked source note and close dialog",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "重新查找 / 继续查找 / 重试本批",
+          "effect": "Batched backlink scan",
+          "api": "GET /api/notes/:id/backlinks?cursor=:cursor",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Searching",
+        "No mentions in current checked batch",
+        "Complete/no more results",
+        "Skipped too-large/unreadable notes",
+        "Error with retry",
+        "Checked/skipped counts"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Ant Modal requests width640px; form children use width100% and scroll/height constraints where present. No caller-specific narrow-screen breakpoint was found; actual framework shrink/fit remains unverified."
+      },
+      "testRefs": [
+        "tests/note-backlinks-panel.test.ts",
+        "tests/e2e/note-backlinks.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-046",
+      "parentId": "WS-029",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/NoteBacklinks.vue:1",
+        "apps/server/app.ts:331"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-015.json#WS-D036",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D036",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-e1ba2099-45d1-47fb-817a-7c05d455ea9c.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D036.png",
+  "sha256": "56c0a5a9400e972017f1732b6886ccd05dc450655c056bec03f3cc9a9ad44a63",
+  "bytes": 968662,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T03:19:34.873294+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Backlinks modal",
+    "sourceIds": [
+      "WS-046"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Initial backlink searching: checked/skipped zero and no cursor/matches; progress/empty text absent, restart disabled and close allowed across three viewports",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "failedGenerationAttempts": []
+}

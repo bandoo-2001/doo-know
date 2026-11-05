@@ -1,0 +1,433 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S042",
+  "assetId": "MP-S042",
+  "sourceIds": [
+    "PB-011"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "owner-setup"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-011",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-setup",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Seven Git import snippets: actual empty source form; cloning task; failed/reconciliation task action structure; target-directory-exists alert; completed read test disclaimer; cancelled task; unresolved request receipt. Source-derived."
+    }
+  ],
+  "selectedState": "Seven Git import snippets: actual empty source form; cloning task; failed/reconciliation task action structure; target-directory-exists alert; completed read test disclaimer; cancelled task; unresolved request receipt. Source-derived.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。纵向七个紧凑局部行，可加高。1 空导入表单切片：仓库克隆地址空输入，云端分支（选填）空输入，仓库认证选“不使用凭据（公开仓库读取）”；按钮“添加凭据”可用、“测试读取连接”禁用；导入后的知识库名称为“我的知识库”；导入保存位置（选填）空白，提示“留空使用推荐位置，路径位于服务器上”；说明“下载到独立的新文件夹。已有同名文件夹时会停止，请另选名称或位置。”；“导入并继续”禁用。2 任务区“下载仓库资料”，说明“任务在服务器上继续，刷新页面后仍可查看进度。”，按钮“刷新任务状态”“取消当前任务”。3 任务区“下载仓库资料”，说明“任务未完成；已有资料和已提交版本保留。”，按钮“刷新任务状态”“核对并重试任务”，无取消。4 红色“目标文件夹已经存在，请换一个知识库名称或保存位置。”。5 成功提示“读取连接成功。这不代表拥有推送权限。”。6 取消任务局部“任务已取消”，“任务已取消；已有资料和已提交版本保留。”，仅“刷新任务状态”。7 独立待核对片段“请求结果尚未确认，请先读取服务器任务回执，避免重复操作。”，唯一按钮“核对请求结果”。无强推/覆盖/自动重试/协议输入。",
+  "prompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。纵向七个紧凑局部行，可加高。1 空导入表单切片：仓库克隆地址空输入，云端分支（选填）空输入，仓库认证选“不使用凭据（公开仓库读取）”；按钮“添加凭据”可用、“测试读取连接”禁用；导入后的知识库名称为“我的知识库”；导入保存位置（选填）空白，提示“留空使用推荐位置，路径位于服务器上”；说明“下载到独立的新文件夹。已有同名文件夹时会停止，请另选名称或位置。”；“导入并继续”禁用。2 任务区“下载仓库资料”，说明“任务在服务器上继续，刷新页面后仍可查看进度。”，按钮“刷新任务状态”“取消当前任务”。3 任务区“下载仓库资料”，说明“任务未完成；已有资料和已提交版本保留。”，按钮“刷新任务状态”“核对并重试任务”，无取消。4 红色“目标文件夹已经存在，请换一个知识库名称或保存位置。”。5 成功提示“读取连接成功。这不代表拥有推送权限。”。6 取消任务局部“任务已取消”，“任务已取消；已有资料和已提交版本保留。”，仅“刷新任务状态”。7 独立待核对片段“请求结果尚未确认，请先读取服务器任务回执，避免重复操作。”，唯一按钮“核对请求结果”。无强推/覆盖/自动重试/协议输入。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only, never owner shell reference",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only, never owner shell reference",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。纵向七个紧凑局部行，可加高。1 空导入表单切片：仓库克隆地址空输入，云端分支（选填）空输入，仓库认证选“不使用凭据（公开仓库读取）”；按钮“添加凭据”可用、“测试读取连接”禁用；导入后的知识库名称为“我的知识库”；导入保存位置（选填）空白，提示“留空使用推荐位置，路径位于服务器上”；说明“下载到独立的新文件夹。已有同名文件夹时会停止，请另选名称或位置。”；“导入并继续”禁用。2 任务区“下载仓库资料”，说明“任务在服务器上继续，刷新页面后仍可查看进度。”，按钮“刷新任务状态”“取消当前任务”。3 任务区“下载仓库资料”，说明“任务未完成；已有资料和已提交版本保留。”，按钮“刷新任务状态”“核对并重试任务”，无取消。4 红色“目标文件夹已经存在，请换一个知识库名称或保存位置。”。5 成功提示“读取连接成功。这不代表拥有推送权限。”。6 取消任务局部“任务已取消”，“任务已取消；已有资料和已提交版本保留。”，仅“刷新任务状态”。7 独立待核对片段“请求结果尚未确认，请先读取服务器任务回执，避免重复操作。”，唯一按钮“核对请求结果”。无强推/覆盖/自动重试/协议输入。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。纵向七个紧凑局部行，可加高。1 空导入表单切片：仓库克隆地址空输入，云端分支（选填）空输入，仓库认证选“不使用凭据（公开仓库读取）”；按钮“添加凭据”可用、“测试读取连接”禁用；导入后的知识库名称为“我的知识库”；导入保存位置（选填）空白，提示“留空使用推荐位置，路径位于服务器上”；说明“下载到独立的新文件夹。已有同名文件夹时会停止，请另选名称或位置。”；“导入并继续”禁用。2 任务区“下载仓库资料”，说明“任务在服务器上继续，刷新页面后仍可查看进度。”，按钮“刷新任务状态”“取消当前任务”。3 任务区“下载仓库资料”，说明“任务未完成；已有资料和已提交版本保留。”，按钮“刷新任务状态”“核对并重试任务”，无取消。4 红色“目标文件夹已经存在，请换一个知识库名称或保存位置。”。5 成功提示“读取连接成功。这不代表拥有推送权限。”。6 取消任务局部“任务已取消”，“任务已取消；已有资料和已提交版本保留。”，仅“刷新任务状态”。7 独立待核对片段“请求结果尚未确认，请先读取服务器任务回执，避免重复操作。”，唯一按钮“核对请求结果”。无强推/覆盖/自动重试/协议输入。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only, never owner shell reference"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-36957417-bee0-49ee-b30e-f117779aac9f.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-011",
+      "title": "首次设置：从 GitHub/Gitee 导入",
+      "kind": "page",
+      "module": "setup",
+      "entry": {
+        "route": "/ (setup required)",
+        "trigger": "Choose 从 GitHub／Gitee 导入",
+        "parentId": "PB-008"
+      },
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:253",
+        "apps/web/components/GitRepositoryImport.vue:7",
+        "apps/web/components/GitRemotePanel.vue:986",
+        "apps/web/components/GitRemotePanel.vue:1030",
+        "apps/web/components/GitRemotePanel.vue:504"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner-authenticated platform API; library root must satisfy deployment allowed-base policy. Setup phase and onboarding completion gate progression."
+      ],
+      "fields": [
+        {
+          "name": "url",
+          "type": "clone URL",
+          "required": true,
+          "constraints": "HTTPS or SSH clone address; GitHub/Gitee",
+          "sensitive": false
+        },
+        {
+          "name": "branch",
+          "type": "text",
+          "required": false,
+          "constraints": "optional default branch",
+          "sensitive": false
+        },
+        {
+          "name": "credentialId",
+          "type": "select",
+          "required": false,
+          "constraints": "none or existing saved/temporary credential",
+          "sensitive": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "required": true,
+          "constraints": "UI max40; trimmed nonempty",
+          "sensitive": false
+        },
+        {
+          "name": "parentPath",
+          "type": "server directory",
+          "required": false,
+          "constraints": "blank recommended; new independent target folder",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "测试读取连接",
+          "effect": "Start test job",
+          "api": "POST /api/platform/git/jobs",
+          "guard": "url nonempty; not running/repositoryPending"
+        },
+        {
+          "label": "导入并继续",
+          "effect": "Install/enable Git and clone into new library",
+          "api": "POST /api/platform/git/jobs (kind=clone)",
+          "guard": "url/name nonempty; not running/repositoryPending"
+        },
+        {
+          "label": "添加凭据",
+          "effect": "Open shared Git credential editor",
+          "api": "POST /api/platform/git/credentials",
+          "guard": "shared settings/plugin surface"
+        },
+        {
+          "label": "刷新任务状态 / 取消当前任务 / 核对并重试任务",
+          "effect": "Poll/cancel/reconcile durable Git job",
+          "api": "GET /api/platform/git/jobs/:id; POST .../:id/cancel; POST .../:id/retry",
+          "guard": "state-dependent running/busy guards"
+        }
+      ],
+      "importantStates": [
+        "empty clone inputs; no credentials required for public HTTPS",
+        "connection test running/result",
+        "clone queued/running; server task persists across refresh",
+        "failed/cancelled/needs_reconciliation and unresolved-request recovery",
+        "existing same-name folder stops import"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=600px source choices become one column, stepper text shrinks, footer wraps and start actions fill width (SetupWizard.vue:835). Runtime at target widths remains unverified."
+      },
+      "testRefs": [
+        "tests/github-public-bootstrap.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Shared credential editor includes HTTPS token or SSH private key/known_hosts verification and temporary-vs-encrypted storage; settings/plugin inventory owns its detailed fields/dialogs.",
+        "Do not duplicate shared sync/credential interiors; this record owns import-specific source, destination and continuation."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-011",
+      "parentId": "PB-008",
+      "route": "/ (setup required)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:253",
+        "apps/web/components/GitRepositoryImport.vue:7",
+        "apps/web/components/GitRemotePanel.vue:986",
+        "apps/web/components/GitRemotePanel.vue:1030",
+        "apps/web/components/GitRemotePanel.vue:504"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-027.json#MP-S042",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S042",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-36957417-bee0-49ee-b30e-f117779aac9f.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S042.png",
+  "sha256": "5b98eb2db3f114f22988e94aed91a0d0473c732fe4f716294b60f0a6eacf3ad1",
+  "bytes": 1347398,
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  },
+  "generatedAtUtc": "2026-11-05T05:25:32.005732+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-setup / GitRepositoryImport.vue",
+    "sourceIds": [
+      "PB-011"
+    ],
+    "roles": [
+      "authenticated owner",
+      "owner-setup"
+    ],
+    "state": "Seven Git import snippets: actual empty source form; cloning task; failed/reconciliation task action structure; target-directory-exists alert; completed read test disclaimer; cancelled task; unresolved request receipt. Source-derived.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-011",
+      "title": "empty clone inputs",
+      "renderer": "apps/web/components/GitRepositoryImport.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:253",
+        "apps/web/components/GitRepositoryImport.vue:7",
+        "apps/web/components/GitRemotePanel.vue:986",
+        "apps/web/components/GitRemotePanel.vue:1030",
+        "apps/web/components/GitRemotePanel.vue:504"
+      ],
+      "guardBindings": [
+        {
+          "label": "测试读取连接",
+          "guard": "url nonempty; not running/repositoryPending"
+        },
+        {
+          "label": "导入并继续",
+          "guard": "url/name nonempty; not running/repositoryPending"
+        },
+        {
+          "label": "添加凭据",
+          "guard": "shared settings/plugin surface"
+        },
+        {
+          "label": "刷新任务状态 / 取消当前任务 / 核对并重试任务",
+          "guard": "state-dependent running/busy guards"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "empty clone inputs; no credentials required for public HTTPS",
+          "variant": "empty clone inputs",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-011"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "PB-011",
+      "title": "clone queued/running",
+      "renderer": "apps/web/components/GitRepositoryImport.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:253",
+        "apps/web/components/GitRepositoryImport.vue:7",
+        "apps/web/components/GitRemotePanel.vue:986",
+        "apps/web/components/GitRemotePanel.vue:1030",
+        "apps/web/components/GitRemotePanel.vue:504"
+      ],
+      "guardBindings": [
+        {
+          "label": "测试读取连接",
+          "guard": "url nonempty; not running/repositoryPending"
+        },
+        {
+          "label": "导入并继续",
+          "guard": "url/name nonempty; not running/repositoryPending"
+        },
+        {
+          "label": "添加凭据",
+          "guard": "shared settings/plugin surface"
+        },
+        {
+          "label": "刷新任务状态 / 取消当前任务 / 核对并重试任务",
+          "guard": "state-dependent running/busy guards"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "clone queued/running; server task persists across refresh",
+          "variant": "clone queued/running",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-011"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "PB-011",
+      "title": "failed/cancelled/needs_reconciliation and unresolved-request recovery",
+      "renderer": "apps/web/components/GitRepositoryImport.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:253",
+        "apps/web/components/GitRepositoryImport.vue:7",
+        "apps/web/components/GitRemotePanel.vue:986",
+        "apps/web/components/GitRemotePanel.vue:1030",
+        "apps/web/components/GitRemotePanel.vue:504"
+      ],
+      "guardBindings": [
+        {
+          "label": "测试读取连接",
+          "guard": "url nonempty; not running/repositoryPending"
+        },
+        {
+          "label": "导入并继续",
+          "guard": "url/name nonempty; not running/repositoryPending"
+        },
+        {
+          "label": "添加凭据",
+          "guard": "shared settings/plugin surface"
+        },
+        {
+          "label": "刷新任务状态 / 取消当前任务 / 核对并重试任务",
+          "guard": "state-dependent running/busy guards"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "failed/cancelled/needs_reconciliation and unresolved-request recovery",
+          "variant": "failed/cancelled/needs_reconciliation and unresolved-request recovery",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-011"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "PB-011",
+      "title": "existing same-name folder stops import",
+      "renderer": "apps/web/components/GitRepositoryImport.vue",
+      "sourceRefs": [
+        "apps/web/components/SetupWizard.vue:253",
+        "apps/web/components/GitRepositoryImport.vue:7",
+        "apps/web/components/GitRemotePanel.vue:986",
+        "apps/web/components/GitRemotePanel.vue:1030",
+        "apps/web/components/GitRemotePanel.vue:504"
+      ],
+      "guardBindings": [
+        {
+          "label": "测试读取连接",
+          "guard": "url nonempty; not running/repositoryPending"
+        },
+        {
+          "label": "导入并继续",
+          "guard": "url/name nonempty; not running/repositoryPending"
+        },
+        {
+          "label": "添加凭据",
+          "guard": "shared settings/plugin surface"
+        },
+        {
+          "label": "刷新任务状态 / 取消当前任务 / 核对并重试任务",
+          "guard": "state-dependent running/busy guards"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "existing same-name folder stops import",
+          "variant": "existing same-name folder stops import",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-011"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": []
+}

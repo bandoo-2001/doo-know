@@ -1,0 +1,59 @@
+{
+  "assetId": "MP-S049-v2",
+  "sourceIds": [
+    "PB-026",
+    "PB-027"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:14:15.408160+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Independent Ainitial sourceundefined loader and Bsource-present busy source editor with readonly search.",
+  "functionalFindings": [
+    {
+      "id": "MP-S049-F2",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "B declares kind=source and shows source editor/count, but its mode buttons keep 文档编辑 as the filled/selected disabled control and Markdown源码 as white/default. Source uses typeprimary on kind=source, so the pictured selection marker contradicts displayed mode.",
+      "sourceEvidence": "PublicShareEditor mode button type is kind===document/source?primary:default, independently disabled bybusy/loading/composing."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Newv2 viewed: actualsource-present busy/search row now exists; find staysavailable, replacement input/actions disabled, source readonly and4charcount correct.",
+    "Ainitialloader preserved separately with no editorhost, no ownerchrome or extraneous captions."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-028.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S049-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/PublicShareEditor.vue:178",
+    "apps/web/components/PublicShareEditor.vue:231",
+    "apps/web/components/EditorSearch.vue:1",
+    "docs/design/platform-unification-2026-11-05/design/reviews/MP-S049-review.json"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "MP-S049-F2",
+      "correction": "In B only, make Markdown 源码 the clearly selected disabled mode (pale primary/gray text), and 文档编辑 default disabled; preserve both disabled states, saving/search/editor content. A stays document-selected initialloader."
+    }
+  ],
+  "reviewedImageSha256": "ea4365638036286129b24aa30b5400208bc4bece92bab1b0b3f71d4249a9bd3c",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S049-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

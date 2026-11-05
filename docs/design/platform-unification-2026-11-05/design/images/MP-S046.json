@@ -1,0 +1,275 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S046",
+  "assetId": "MP-S046",
+  "sourceIds": [
+    "PB-021"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "owner-oauth"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-021",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-oauth",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "App OAuth continuation error after owner login, one compact exact error/retry snippet. Not consent screen or loginform; source-derived."
+    }
+  ],
+  "selectedState": "App OAuth continuation error after owner login, one compact exact error/retry snippet. Not consent screen or loginform; source-derived.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。只画一个紧凑错误片段，红色错误提示精确“无法继续授权，请回到连接客户端重新发起连接。”，下方唯一现有按钮“重试”。没有标题、品牌、主人导航、登录框、授权选择、取消、关闭或其他操作。",
+  "prompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。只画一个紧凑错误片段，红色错误提示精确“无法继续授权，请回到连接客户端重新发起连接。”，下方唯一现有按钮“重试”。没有标题、品牌、主人导航、登录框、授权选择、取消、关闭或其他操作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-oauth-invalid.png",
+      "role": "Actual OAuth role/content baseline; requested selected local state source-derived",
+      "sha256": "10a6aff98a81ca91fdda5199d65590adaaa6426fbf5e4555fef45caa3c3214d4",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png",
+      "role": "Actual OAuth role/content baseline; requested selected local state source-derived",
+      "sha256": "2d0e1957205eb4d488fbd90d7a4f3386856e5930b1ec65976a10674e3e2efd8b",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only, never owner shell reference",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-oauth-invalid.png",
+      "role": "Actual OAuth role/content baseline; requested selected local state source-derived",
+      "sha256": "10a6aff98a81ca91fdda5199d65590adaaa6426fbf5e4555fef45caa3c3214d4",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png",
+      "role": "Actual OAuth role/content baseline; requested selected local state source-derived",
+      "sha256": "2d0e1957205eb4d488fbd90d7a4f3386856e5930b1ec65976a10674e3e2efd8b",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only, never owner shell reference",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。只画一个紧凑错误片段，红色错误提示精确“无法继续授权，请回到连接客户端重新发起连接。”，下方唯一现有按钮“重试”。没有标题、品牌、主人导航、登录框、授权选择、取消、关闭或其他操作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-oauth-invalid.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。只画一个紧凑错误片段，红色错误提示精确“无法继续授权，请回到连接客户端重新发起连接。”，下方唯一现有按钮“重试”。没有标题、品牌、主人导航、登录框、授权选择、取消、关闭或其他操作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-oauth-invalid.png",
+          "role": "Actual OAuth role/content baseline; requested selected local state source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png",
+          "role": "Actual OAuth role/content baseline; requested selected local state source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only, never owner shell reference"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-0fbd0e54-572a-4887-8986-4db125061eea.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-021",
+      "title": "OAuth 登录后继续授权",
+      "kind": "state",
+      "module": "oauth",
+      "entry": {
+        "route": "/login?oauth_query=… (or raw signed query)",
+        "trigger": "Accepted owner + ready platform + complete onboarding",
+        "parentId": "PB-018"
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:108",
+        "apps/web/App.vue:341",
+        "apps/server/platform/oauth-routes.ts:27"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session and ready, completed onboarding required. Signed client request and server policy ceiling remain authoritative."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重试",
+          "effect": "Validate and resume original signed OAuth request",
+          "api": "POST /api/platform/mcp/oauth/continue",
+          "guard": "single-flight resumingOAuth"
+        }
+      ],
+      "importantStates": [
+        "continuing authorization",
+        "continuation error with retry"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Max 640px; <=600px reduces padding, wraps scope text and gives actions equal flexible widths (OAuthConsent.vue:339). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/oauth.spec.ts:4"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-021",
+      "parentId": "PB-018",
+      "route": "/login?oauth_query=… (or raw signed query)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:108",
+        "apps/web/App.vue:341",
+        "apps/server/platform/oauth-routes.ts:27"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-027.json#MP-S046",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S046",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-0fbd0e54-572a-4887-8986-4db125061eea.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S046.png",
+  "sha256": "d0a99f9fab6dc33a7a9225529c9c1dd2408e131606cb69202dda4df5ba145bb2",
+  "bytes": 896221,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T05:29:29.042103+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-oauth / App.vue",
+    "sourceIds": [
+      "PB-021"
+    ],
+    "roles": [
+      "authenticated owner",
+      "owner-oauth"
+    ],
+    "state": "App OAuth continuation error after owner login, one compact exact error/retry snippet. Not consent screen or loginform; source-derived.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-021",
+      "title": "continuation error with retry",
+      "renderer": "apps/web/App.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:98",
+        "apps/web/App.vue:108",
+        "apps/web/App.vue:341",
+        "apps/server/platform/oauth-routes.ts:27"
+      ],
+      "guardBindings": [
+        {
+          "label": "重试",
+          "guard": "single-flight resumingOAuth"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "continuation error with retry",
+          "variant": "continuation error with retry",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-021"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": []
+}

@@ -1,0 +1,15 @@
+{
+  "id": "private-blog-preview",
+  "title": "私有装修 HTML 预览",
+  "width": 1440,
+  "audience": "owner",
+  "route": "/api/blog/design/preview",
+  "file": "1440-private-blog-preview.png",
+  "sha256": "e908356707edcf9689db9e52e1508e7c97ceea2e0e1f8e1e879c84fa10941588",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "pageErrors": [],
+  "outerOverflow": 0
+}

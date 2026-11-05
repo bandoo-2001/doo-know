@@ -1,0 +1,61 @@
+{
+  "assetId": "MP-D092",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:28:48.456432+00:00",
+  "method": "Actual PNG viewed; actual matching baseline (when available), complete sidecar submitted prompt, batch contract and current component template checked under review-execution-contract.",
+  "selectedState": "Anonymous edit-capability share, eligible document mode, clean saved draft",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual guest document mode active, Markdown alternative, saved state, disabled save for clean draft and enabled return-reading retained. No owner formatting/insert/upload toolbar or public publication action.",
+    "Manual-save/no-upload/read-only referenced-whiteboard explanation preserved. Existing body renders as rich text with character metric and ample editing surface.",
+    "Source CAS expectedModifiedAt/stable pending requestId, anonymous CSRF/same Origin and load/busy/composition/blocked/expiry guards are retained contracts, never editable protocol fields. Blank draft remains allowed; this clean populated example asserts no nonempty validation rule.",
+    "Guest document mode is initialized directly and is not inferred from owner VITE_DOCUMENT_EDITOR_ENABLED; no fallback/expiry/conflict or find overlay required simultaneously."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Small metric label reads 正文字数 rather than source 正文字符. It still denotes the same visible 56-character metric and does not alter save/role/state semantics; keep the exact source label in the implementation typography specification, without requiring another bitmap iteration for this synonym."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-005.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D092.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/PublicShareEditor.vue:17",
+    "apps/web/components/PublicShareEditor.vue:35",
+    "apps/web/components/PublicShareEditor.vue:99",
+    "apps/web/components/PublicShareEditor.vue:175",
+    "apps/web/components/NoteEditorHost.vue:161",
+    "apps/web/components/NoteEditorHost.vue:449",
+    "apps/web/public-share-api.ts:1",
+    "docs/design/platform-unification-2026-11-05/baseline/public/1440-share-editor-document.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "b259c1bc9f415649670fe4ec9dc53ec9db4f975d24c8dd31309b3f2601e2ccf1",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D092.png",
+  "sourceIds": [
+    "PB-026"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

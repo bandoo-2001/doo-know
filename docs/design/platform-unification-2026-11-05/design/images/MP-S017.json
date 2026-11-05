@@ -1,0 +1,1541 @@
+{
+  "id": "MP-S017",
+  "title": "Component state matrix: owner-private / PluginManager.vue",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-047",
+    "ST-051",
+    "ST-052",
+    "ST-053",
+    "ST-054",
+    "ST-048",
+    "ST-049"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-047",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+    }
+  ],
+  "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-047",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "已安装tab / 返回插件列表",
+      "parentId": "ST-006",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "无已安装插件",
+        "enabled/disabled/starting/stopping/failed",
+        "版本差异升级可见",
+        "保留资料依赖提示"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "sourceId": "ST-051",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "另一位置配置更新 / 保存或生命周期失败",
+      "parentId": "ST-049",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "输入保留但禁保存/启用",
+        "字段格式错误自动展开并聚焦",
+        "重启必须由部署者执行",
+        "操作完成但刷新失败",
+        "传输结果不确定需先核对",
+        "高级JSON错误/secret空保留null清除"
+      ],
+      "notes": [
+        "通用schema渲染boolean/number/enum/string/writeOnly/object/array；当前实际插件仅Git/MCP，未来插件未知字段不当作已存在页面。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "sourceId": "ST-052",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "远端已变→重新载入已保存配置",
+      "parentId": "ST-051",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "远端冲突警告上下文",
+        "重载中",
+        "重载成功/失败"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "sourceId": "ST-053",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "插件卡片/配置内页→卸载",
+      "parentId": "ST-006",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "MCP额外告知授权仍保留",
+        "busy锁关闭",
+        "失败仍保留对话框",
+        "成功返回已安装列表"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "sourceId": "ST-054",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "安装/升级或重进页面恢复回执",
+      "parentId": "ST-006",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "下载/安装阶段",
+        "服务器任务离页继续",
+        "succeeded/failed/needs_reconciliation",
+        "重启待生效",
+        "资料missing/unavailable/disabled/version_mismatch/incompatible/invalid"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "sourceId": "ST-048",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "添加插件tab",
+      "parentId": "ST-006",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "未安装卡片标题/版本/说明/能力",
+        "没有其他可安装官方插件",
+        "安装过程ST-054",
+        "安装源未提供focusPlugin"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+      ]
+    },
+    {
+      "sourceId": "ST-049",
+      "route": "/?view=settings&section=plugins",
+      "trigger": "MCP服务→配置",
+      "parentId": "ST-047",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "启用OAuth连接 / 启用API Key连接",
+          "type": "switch",
+          "required": false,
+          "constraints": "默认均true；保存不自动启用插件",
+          "sensitive": false
+        },
+        {
+          "name": "分域权限",
+          "type": "policy",
+          "required": false,
+          "constraints": "ST-062",
+          "sensitive": false
+        },
+        {
+          "name": "允许访问To Doo清单",
+          "type": "multi-select",
+          "required": false,
+          "constraints": "最多100项，每ID≤128；空=全部",
+          "sensitive": false
+        },
+        {
+          "name": "允许To Doo内容",
+          "type": "multi-select",
+          "required": false,
+          "constraints": "8枚举：tasks/records/focus/habits/anniversaries/calendar/statistics/settings",
+          "sensitive": false
+        },
+        {
+          "name": "外部网页地址",
+          "type": "url",
+          "required": false,
+          "constraints": "可选HTTPS；最长2048；空不返回链接",
+          "sensitive": false
+        },
+        {
+          "name": "旧版兼容设置",
+          "type": "details",
+          "required": false,
+          "constraints": "无permissionPolicy时显示；只读/index/publish/task开关和相对目录最多64项",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "未启用",
+        "未保存草稿跨插件保留",
+        "配置版本冲突",
+        "重启待生效",
+        "连接指南和实际插件连接调用区域"
+      ],
+      "notes": [
+        "To Doo业务UI不在本次盘点；此处仅MCP权限编辑器的域/清单字段。"
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "MCP配置完整内页：OAuth/API开关、分域权限、ToDoo清单/内容授权、HTTPS外部URL、条件性旧兼容设置，保存不启用。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+    },
+    {
+      "type": "reuse-justification",
+      "component": "apps/web/components/PluginManager.vue",
+      "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-047",
+      "label": "配置",
+      "effect": "进入所选插件内页",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-047",
+      "label": "停用 / 启用",
+      "effect": "切换插件运行",
+      "api": "POST /api/platform/plugins/:id/disable|enable",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-047",
+      "label": "升级",
+      "effect": "服务器安装新版本",
+      "api": "POST /api/platform/plugin-installations",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-047",
+      "label": "卸载",
+      "effect": "打开ST-053",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-051",
+      "label": "重新载入已保存配置",
+      "effect": "打开ST-052",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-051",
+      "label": "刷新插件状态",
+      "effect": "核对已完成或不确定变更",
+      "api": "GET /api/platform/plugins",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-052",
+      "label": "丢弃输入并重新载入",
+      "effect": "替换草稿为最新服务器值",
+      "api": "GET /api/platform/plugins",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-052",
+      "label": "保留当前输入",
+      "effect": "关闭确认",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-053",
+      "label": "确认卸载",
+      "effect": "卸载可执行功能，保留配置与数据",
+      "api": "POST /api/platform/plugins/:id/uninstall",
+      "guard": "非busy；Git活跃任务另有服务器忙保护"
+    },
+    {
+      "sourceId": "ST-053",
+      "label": "取消",
+      "effect": "关闭",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-054",
+      "label": "刷新插件状态",
+      "effect": "核对安装回执与注册表",
+      "api": "GET /api/platform/plugin-installations; GET /api/platform/plugins",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-054",
+      "label": "安装插件",
+      "effect": "缺依赖且安装源提供时重新安装",
+      "api": "POST /api/platform/plugin-installations",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-048",
+      "label": "安装",
+      "effect": "提交/恢复服务器安装回执",
+      "api": "POST /api/platform/plugin-installations",
+      "guard": "catalog条目未安装；非busy"
+    },
+    {
+      "sourceId": "ST-049",
+      "label": "保存插件配置",
+      "effect": "按configVersion保存；不自动启用",
+      "api": "PUT /api/platform/plugins/mcp/config",
+      "guard": "不busy且无远端冲突"
+    },
+    {
+      "sourceId": "ST-049",
+      "label": "启用插件",
+      "effect": "启用已保存配置",
+      "api": "POST /api/platform/plugins/mcp/enable",
+      "guard": "无dirty、无remoteChanged"
+    },
+    {
+      "sourceId": "ST-049",
+      "label": "停用插件 / 卸载插件",
+      "effect": "暂停运行或打开卸载确认",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-047",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-051",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-052",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-053",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-054",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-048",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    },
+    {
+      "sourceId": "ST-049",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内七个独立插件局部样例，竖排留白分隔，使用长画布保持清楚中文，不加每行解释标题。\n第一行：小空态图标及“尚未安装插件，可在「添加插件」中查看。”。\n第二行：完整紧凑Git插件行：分支图标“Git 版本管理 v1.1.3”，状态“已启用”，说明“查看知识库文件版本、恢复单篇笔记，并预览、提交及手动同步 GitHub／Gitee 仓库。”，能力“读取知识库 · 写入知识库 · 本地文件版本”，按钮“配置”“停用”“卸载”可用，无升级按钮。\n第三行：相同Git卡片的未安装样例，标题/版本/说明/能力相同，状态“未安装”，只有蓝色“安装”按钮。\n第四行：空态“当前没有其他可安装的官方插件。”。\n第五行：局部提示“有未保存的更改。返回插件列表后，本页会保留各插件的输入。”，下方“启用插件”灰色禁用、“保存插件配置”蓝色可用。\n第六行：黄色提示标题“已保存配置在其他位置发生变化”，说明“当前输入已保留。请先重新载入最新配置，再检查并重新填写需要保留的更改。”，可用“重新载入已保存配置”；下方“启用插件”“保存插件配置”均灰色禁用。不同时打开丢弃确认。\n第七行：展开的“旧版兼容设置”中的真实目录字段局部，字段标题“允许访问的目录”，必填；四行文本框值“../example”，红色边线并有键盘焦点外圈，帮助“每行一个知识库相对目录或文件，最多64项；不支持上级路径、隐藏目录或绝对路径。”；红字“允许访问的目录格式不正确。每行填写一个知识库内的相对目录或文件，不能包含空行、隐藏目录、上级目录或绝对路径，最多 64 项。”；“保存插件配置”可用。不画高级JSON字段或未知插件字段。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S017.png",
+  "reviewStatus": "pending-independent-review",
+  "compositionMode": "compact-state-matrix",
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-047",
+      "title": "无已安装插件",
+      "renderer": "apps/web/components/PluginManager.vue",
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:50",
+        "apps/web/components/PluginManager.vue:375",
+        "apps/web/components/PluginManager.vue:437"
+      ],
+      "guardBindings": [
+        {
+          "label": "配置",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "停用 / 启用",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "升级",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "卸载",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "无已安装插件",
+          "variant": "无已安装插件",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-047"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-047",
+      "title": "enabled插件行代表；其他生命周期状态按相同真实插件行与guard复用",
+      "renderer": "apps/web/components/PluginManager.vue",
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:50",
+        "apps/web/components/PluginManager.vue:375",
+        "apps/web/components/PluginManager.vue:437"
+      ],
+      "guardBindings": [
+        {
+          "label": "配置",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "停用 / 启用",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "升级",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "卸载",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "enabled/disabled/starting/stopping/failed",
+          "variant": "enabled/disabled/starting/stopping/failed",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-047",
+        "ST-051",
+        "ST-052",
+        "ST-053",
+        "ST-054"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-048",
+      "title": "未安装卡片标题/版本/说明/能力",
+      "renderer": "apps/web/components/PluginManager.vue",
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:382",
+        "apps/web/components/PluginManager.vue:425",
+        "apps/web/components/PluginManager.vue:506"
+      ],
+      "guardBindings": [
+        {
+          "label": "安装",
+          "guard": "catalog条目未安装；非busy"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "未安装卡片标题/版本/说明/能力",
+          "variant": "未安装卡片标题/版本/说明/能力",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-048"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "ST-048",
+      "title": "没有其他可安装官方插件",
+      "renderer": "apps/web/components/PluginManager.vue",
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:382",
+        "apps/web/components/PluginManager.vue:425",
+        "apps/web/components/PluginManager.vue:506"
+      ],
+      "guardBindings": [
+        {
+          "label": "安装",
+          "guard": "catalog条目未安装；非busy"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "没有其他可安装官方插件",
+          "variant": "没有其他可安装官方插件",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-048"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "ST-049",
+      "title": "未保存草稿跨插件保留",
+      "renderer": "apps/web/components/PluginManager.vue",
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:544",
+        "apps/web/components/PluginManager.vue:591",
+        "apps/web/components/PluginManager.vue:634",
+        "plugins/mcp/manifest.json:27"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存插件配置",
+          "guard": "不busy且无远端冲突"
+        },
+        {
+          "label": "启用插件",
+          "guard": "无dirty、无remoteChanged"
+        },
+        {
+          "label": "停用插件 / 卸载插件",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "未保存草稿跨插件保留",
+          "variant": "未保存草稿跨插件保留",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-049"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r6",
+      "sourceId": "ST-049",
+      "title": "配置版本冲突",
+      "renderer": "apps/web/components/PluginManager.vue",
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:544",
+        "apps/web/components/PluginManager.vue:591",
+        "apps/web/components/PluginManager.vue:634",
+        "plugins/mcp/manifest.json:27"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存插件配置",
+          "guard": "不busy且无远端冲突"
+        },
+        {
+          "label": "启用插件",
+          "guard": "无dirty、无remoteChanged"
+        },
+        {
+          "label": "停用插件 / 卸载插件",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "配置版本冲突",
+          "variant": "配置版本冲突",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-049"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r7",
+      "sourceId": "ST-051",
+      "title": "字段格式错误自动展开并聚焦",
+      "renderer": "apps/web/components/PluginManager.vue",
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:203",
+        "apps/web/components/PluginManager.vue:269",
+        "apps/web/components/PluginManager.vue:609"
+      ],
+      "guardBindings": [
+        {
+          "label": "重新载入已保存配置",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新插件状态",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "字段格式错误自动展开并聚焦",
+          "variant": "字段格式错误自动展开并聚焦",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-051"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-047",
+      "parentId": "ST-006",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:50",
+        "apps/web/components/PluginManager.vue:375",
+        "apps/web/components/PluginManager.vue:437"
+      ]
+    },
+    {
+      "sourceId": "ST-051",
+      "parentId": "ST-049",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:203",
+        "apps/web/components/PluginManager.vue:269",
+        "apps/web/components/PluginManager.vue:609"
+      ]
+    },
+    {
+      "sourceId": "ST-052",
+      "parentId": "ST-051",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:302",
+        "apps/web/components/PluginManager.vue:617"
+      ]
+    },
+    {
+      "sourceId": "ST-053",
+      "parentId": "ST-006",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:326",
+        "apps/web/components/PluginManager.vue:519"
+      ]
+    },
+    {
+      "sourceId": "ST-054",
+      "parentId": "ST-006",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:337",
+        "apps/web/components/PluginManager.vue:394",
+        "apps/web/components/PluginManager.vue:413",
+        "apps/web/components/PluginManager.vue:602"
+      ]
+    },
+    {
+      "sourceId": "ST-048",
+      "parentId": "ST-006",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:382",
+        "apps/web/components/PluginManager.vue:425",
+        "apps/web/components/PluginManager.vue:506"
+      ]
+    },
+    {
+      "sourceId": "ST-049",
+      "parentId": "ST-047",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:544",
+        "apps/web/components/PluginManager.vue:591",
+        "apps/web/components/PluginManager.vue:634",
+        "plugins/mcp/manifest.json:27"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-047",
+      "title": "插件已安装目录",
+      "kind": "state",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "已安装tab / 返回插件列表",
+        "parentId": "ST-006"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:50",
+        "apps/web/components/PluginManager.vue:375",
+        "apps/web/components/PluginManager.vue:437"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "配置",
+          "effect": "进入所选插件内页",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "停用 / 启用",
+          "effect": "切换插件运行",
+          "api": "POST /api/platform/plugins/:id/disable|enable",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "升级",
+          "effect": "服务器安装新版本",
+          "api": "POST /api/platform/plugin-installations",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "卸载",
+          "effect": "打开ST-053",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "无已安装插件",
+        "enabled/disabled/starting/stopping/failed",
+        "版本差异升级可见",
+        "保留资料依赖提示"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/plugins.spec.ts:10",
+        "tests/e2e/plugin-config.spec.ts:45"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-051",
+      "title": "插件草稿远端冲突、校验与不确定结果",
+      "kind": "state",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "另一位置配置更新 / 保存或生命周期失败",
+        "parentId": "ST-049"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:203",
+        "apps/web/components/PluginManager.vue:269",
+        "apps/web/components/PluginManager.vue:609"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新载入已保存配置",
+          "effect": "打开ST-052",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新插件状态",
+          "effect": "核对已完成或不确定变更",
+          "api": "GET /api/platform/plugins",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "输入保留但禁保存/启用",
+        "字段格式错误自动展开并聚焦",
+        "重启必须由部署者执行",
+        "操作完成但刷新失败",
+        "传输结果不确定需先核对",
+        "高级JSON错误/secret空保留null清除"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/plugin-config.spec.ts:86",
+        "tests/plugin-config.test.ts:98"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "通用schema渲染boolean/number/enum/string/writeOnly/object/array；当前实际插件仅Git/MCP，未来插件未知字段不当作已存在页面。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-052",
+      "title": "丢弃插件草稿并重新载入确认",
+      "kind": "popover",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "远端已变→重新载入已保存配置",
+        "parentId": "ST-051"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:302",
+        "apps/web/components/PluginManager.vue:617"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "丢弃输入并重新载入",
+          "effect": "替换草稿为最新服务器值",
+          "api": "GET /api/platform/plugins",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "保留当前输入",
+          "effect": "关闭确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "远端冲突警告上下文",
+        "重载中",
+        "重载成功/失败"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/plugin-config.spec.ts:86"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-053",
+      "title": "卸载插件确认",
+      "kind": "dialog",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "插件卡片/配置内页→卸载",
+        "parentId": "ST-006"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:326",
+        "apps/web/components/PluginManager.vue:519"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "确认卸载",
+          "effect": "卸载可执行功能，保留配置与数据",
+          "api": "POST /api/platform/plugins/:id/uninstall",
+          "guard": "非busy；Git活跃任务另有服务器忙保护"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "MCP额外告知授权仍保留",
+        "busy锁关闭",
+        "失败仍保留对话框",
+        "成功返回已安装列表"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-onboarding.spec.ts:42",
+        "tests/plugins-api.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-054",
+      "title": "插件安装、升级、重启和资料依赖状态",
+      "kind": "state",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "安装/升级或重进页面恢复回执",
+        "parentId": "ST-006"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:337",
+        "apps/web/components/PluginManager.vue:394",
+        "apps/web/components/PluginManager.vue:413",
+        "apps/web/components/PluginManager.vue:602"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新插件状态",
+          "effect": "核对安装回执与注册表",
+          "api": "GET /api/platform/plugin-installations; GET /api/platform/plugins",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "安装插件",
+          "effect": "缺依赖且安装源提供时重新安装",
+          "api": "POST /api/platform/plugin-installations",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "下载/安装阶段",
+        "服务器任务离页继续",
+        "succeeded/failed/needs_reconciliation",
+        "重启待生效",
+        "资料missing/unavailable/disabled/version_mismatch/incompatible/invalid"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/plugin-install-jobs.test.ts:1",
+        "tests/plugins-host.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-048",
+      "title": "添加插件目录",
+      "kind": "state",
+      "module": "settings/plugins",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "添加插件tab",
+        "parentId": "ST-006"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:382",
+        "apps/web/components/PluginManager.vue:425",
+        "apps/web/components/PluginManager.vue:506"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "安装",
+          "effect": "提交/恢复服务器安装回执",
+          "api": "POST /api/platform/plugin-installations",
+          "guard": "catalog条目未安装；非busy"
+        }
+      ],
+      "importantStates": [
+        "未安装卡片标题/版本/说明/能力",
+        "没有其他可安装官方插件",
+        "安装过程ST-054",
+        "安装源未提供focusPlugin"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/plugins.spec.ts:10"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-049",
+      "title": "MCP插件配置内页",
+      "kind": "state",
+      "module": "settings/plugins/mcp",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "MCP服务→配置",
+        "parentId": "ST-047"
+      },
+      "sourceRefs": [
+        "apps/web/components/PluginManager.vue:544",
+        "apps/web/components/PluginManager.vue:591",
+        "apps/web/components/PluginManager.vue:634",
+        "plugins/mcp/manifest.json:27"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "启用OAuth连接 / 启用API Key连接",
+          "type": "switch",
+          "required": false,
+          "constraints": "默认均true；保存不自动启用插件",
+          "sensitive": false
+        },
+        {
+          "name": "分域权限",
+          "type": "policy",
+          "required": false,
+          "constraints": "ST-062",
+          "sensitive": false
+        },
+        {
+          "name": "允许访问To Doo清单",
+          "type": "multi-select",
+          "required": false,
+          "constraints": "最多100项，每ID≤128；空=全部",
+          "sensitive": false
+        },
+        {
+          "name": "允许To Doo内容",
+          "type": "multi-select",
+          "required": false,
+          "constraints": "8枚举：tasks/records/focus/habits/anniversaries/calendar/statistics/settings",
+          "sensitive": false
+        },
+        {
+          "name": "外部网页地址",
+          "type": "url",
+          "required": false,
+          "constraints": "可选HTTPS；最长2048；空不返回链接",
+          "sensitive": false
+        },
+        {
+          "name": "旧版兼容设置",
+          "type": "details",
+          "required": false,
+          "constraints": "无permissionPolicy时显示；只读/index/publish/task开关和相对目录最多64项",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存插件配置",
+          "effect": "按configVersion保存；不自动启用",
+          "api": "PUT /api/platform/plugins/mcp/config",
+          "guard": "不busy且无远端冲突"
+        },
+        {
+          "label": "启用插件",
+          "effect": "启用已保存配置",
+          "api": "POST /api/platform/plugins/mcp/enable",
+          "guard": "无dirty、无remoteChanged"
+        },
+        {
+          "label": "停用插件 / 卸载插件",
+          "effect": "暂停运行或打开卸载确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "未启用",
+        "未保存草稿跨插件保留",
+        "配置版本冲突",
+        "重启待生效",
+        "连接指南和实际插件连接调用区域"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/plugin-config.spec.ts:45",
+        "tests/e2e/plugin-config.spec.ts:127",
+        "tests/e2e/plugin-config.spec.ts:185"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "To Doo业务UI不在本次盘点；此处仅MCP权限编辑器的域/清单字段。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-S017",
+  "roles": [
+    "owner-private"
+  ],
+  "selectedState": [
+    "r1 no installed",
+    "r2 Git enabled installedVersion=currentVersion",
+    "r3 Git not installed",
+    "r4 no other available",
+    "r5 dirty plugin",
+    "r6 remoteChanged",
+    "r7 already-expanded legacy prefix invalid field"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n一个A面板内七个独立插件局部样例，竖排留白分隔，使用长画布保持清楚中文，不加每行解释标题。\n第一行：小空态图标及“尚未安装插件，可在「添加插件」中查看。”。\n第二行：完整紧凑Git插件行：分支图标“Git 版本管理 v1.1.3”，状态“已启用”，说明“查看知识库文件版本、恢复单篇笔记，并预览、提交及手动同步 GitHub／Gitee 仓库。”，能力“读取知识库 · 写入知识库 · 本地文件版本”，按钮“配置”“停用”“卸载”可用，无升级按钮。\n第三行：相同Git卡片的未安装样例，标题/版本/说明/能力相同，状态“未安装”，只有蓝色“安装”按钮。\n第四行：空态“当前没有其他可安装的官方插件。”。\n第五行：局部提示“有未保存的更改。返回插件列表后，本页会保留各插件的输入。”，下方“启用插件”灰色禁用、“保存插件配置”蓝色可用。\n第六行：黄色提示标题“已保存配置在其他位置发生变化”，说明“当前输入已保留。请先重新载入最新配置，再检查并重新填写需要保留的更改。”，可用“重新载入已保存配置”；下方“启用插件”“保存插件配置”均灰色禁用。不同时打开丢弃确认。\n第七行：展开的“旧版兼容设置”中的真实目录字段局部，字段标题“允许访问的目录”，必填；四行文本框值“../example”，红色边线并有键盘焦点外圈，帮助“每行一个知识库相对目录或文件，最多64项；不支持上级路径、隐藏目录或绝对路径。”；红字“允许访问的目录格式不正确。每行填写一个知识库内的相对目录或文件，不能包含空行、隐藏目录、上级目录或绝对路径，最多 64 项。”；“保存插件配置”可用。不画高级JSON字段或未知插件字段。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-S017 Component state matrix: owner-private / PluginManager.vue\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | ST-047 | 真实组件局部状态矩阵 | role=owner-private | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\nMCP配置完整内页：OAuth/API开关、分域权限、ToDoo清单/内容授权、HTTPS外部URL、条件性旧兼容设置，保存不启用。\n\n局部矩阵（≤7行/卡）：\nr1 | ST-047 | 实际只画代表：无已安装插件 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/PluginManager.vue\nr2 | ST-047 | 实际只画代表：enabled插件行代表；其他生命周期状态按相同真实插件行与guard复用 | 已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。 | renderer=apps/web/components/PluginManager.vue\nr3 | ST-048 | 实际只画代表：未安装卡片标题/版本/说明/能力 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/PluginManager.vue\nr4 | ST-048 | 实际只画代表：没有其他可安装官方插件 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/PluginManager.vue\nr5 | ST-049 | 实际只画代表：未保存草稿跨插件保留 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/PluginManager.vue\nr6 | ST-049 | 实际只画代表：配置版本冲突 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/PluginManager.vue\nr7 | ST-051 | 实际只画代表：字段格式错误自动展开并聚焦 | 同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。 | renderer=apps/web/components/PluginManager.vue\n\n精确功能/字段/动作guard合同：\nST-047/ST-051/ST-052/ST-053/ST-054/ST-048/ST-049权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-047/ST-051/ST-052/ST-053/ST-054/ST-048字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-049字段顺序：启用OAuth连接 / 启用API Key连接 [switch; 可选]: 默认均true；保存不自动启用插件 | 分域权限 [policy; 可选]: ST-062 | 允许访问To Doo清单 [multi-select; 可选]: 最多100项，每ID≤128；空=全部 | 允许To Doo内容 [multi-select; 可选]: 8枚举：tasks/records/focus/habits/anniversaries/calendar/statistics/settings | 外部网页地址 [url; 可选]: 可选HTTPS；最长2048；空不返回链接 | 旧版兼容设置 [details; 可选]: 无permissionPolicy时显示；只读/index/publish/task开关和相对目录最多64项\nST-047白名单：配置 => 进入所选插件内页；guard=已登录所有者；请求期间禁用重复操作\nST-047白名单：停用 / 启用 => 切换插件运行；guard=已登录所有者；请求期间禁用重复操作；接口约束=POST /api/platform/plugins/:id/disable|enable\nST-047白名单：升级 => 服务器安装新版本；guard=已登录所有者；请求期间禁用重复操作；接口约束=POST /api/platform/plugin-installations\nST-047白名单：卸载 => 打开ST-053；guard=已登录所有者；请求期间禁用重复操作\nST-051白名单：重新载入已保存配置 => 打开ST-052；guard=已登录所有者；请求期间禁用重复操作\nST-051白名单：刷新插件状态 => 核对已完成或不确定变更；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/platform/plugins\nST-052白名单：丢弃输入并重新载入 => 替换草稿为最新服务器值；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/platform/plugins\nST-052白名单：保留当前输入 => 关闭确认；guard=已登录所有者；请求期间禁用重复操作\nST-053白名单：确认卸载 => 卸载可执行功能，保留配置与数据；guard=非busy；Git活跃任务另有服务器忙保护；接口约束=POST /api/platform/plugins/:id/uninstall\nST-053白名单：取消 => 关闭；guard=已登录所有者；请求期间禁用重复操作\nST-054白名单：刷新插件状态 => 核对安装回执与注册表；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/platform/plugin-installations; GET /api/platform/plugins\nST-054白名单：安装插件 => 缺依赖且安装源提供时重新安装；guard=已登录所有者；请求期间禁用重复操作；接口约束=POST /api/platform/plugin-installations\nST-048白名单：安装 => 提交/恢复服务器安装回执；guard=catalog条目未安装；非busy；接口约束=POST /api/platform/plugin-installations\nST-049白名单：保存插件配置 => 按configVersion保存；不自动启用；guard=不busy且无远端冲突；接口约束=PUT /api/platform/plugins/mcp/config\nST-049白名单：启用插件 => 启用已保存配置；guard=无dirty、无remoteChanged；接口约束=POST /api/platform/plugins/mcp/enable\nST-049白名单：停用插件 / 卸载插件 => 暂停运行或打开卸载确认；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\n插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。\n1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。\nSettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n本机readiness不等于公网可达/客户端在线；全局ceiling与grant交集，收窄即时、扩大需显式重授权；稳定资源和目录后代范围必须准确。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-plugins.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "20d3af18e07807e109eee306b74d24cab0fdbe1eadc0e5ed5883c727c9863156",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 61500
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S017.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-4f6188fc-5c57-480a-b8b5-1c984d4e9eb6.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-4f6188fc-5c57-480a-b8b5-1c984d4e9eb6.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T04:10:55.855Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Independent exact-source compact specimens inspected; action guards and visible readonly/error content preserved.",
+    "concerns": []
+  },
+  "sha256": "ed63bcf28abf09dadf6e9309a313b08b52607c7967daa17e8c4c134d00b27346",
+  "dimensions": {
+    "width": 1024,
+    "height": 1536
+  },
+  "bytes": 1354914,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "apps/web/components/PluginManager.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988"
+    },
+    {
+      "path": "plugins/mcp/manifest.json",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "03c6fba6ae3a53d7fe30ed61f2e98fe99ee622b1716f54a077b33381e7c43ba3"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived local state specimens; no actual mutation/network/error/viewport runtime tested. Compact widths are design targets, not screenshots.",
+  "sourceCorrection": "Current installed Git/MCP manifests have no advancedFields after exclusions. Actual reachable legacy allowedPrefixes validation shown already open with invalidField focus. run() sets advancedOpen but does not set legacyOpen; automatic expansion of legacy details is not claimed. No unknown JSON/secret fields invented."
+}

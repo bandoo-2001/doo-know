@@ -1,0 +1,298 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R055",
+  "assetId": "MP-R055",
+  "sourceIds": [
+    "PB-024"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "anonymous guest"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-024",
+      "title": "公开分享：不存在/过期/撤销/轮换390px",
+      "role": "anonymous guest",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent anonymous ShareReader failure pages390/320/320: A/B common 404 with lock/no retry; C transient non404 with refresh icon/reload action. Never distinguish malformed/revoked/rotated/expired private causes or introduce auth/password gates."
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-024",
+      "title": "公开分享：不存在/过期/撤销/轮换320px",
+      "role": "anonymous guest",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent anonymous ShareReader failure pages390/320/320: A/B common 404 with lock/no retry; C transient non404 with refresh icon/reload action. Never distinguish malformed/revoked/rotated/expired private causes or introduce auth/password gates."
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-024",
+      "title": "公开分享：不存在/过期/撤销/轮换320px guard",
+      "role": "anonymous guest",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent anonymous ShareReader failure pages390/320/320: A/B common 404 with lock/no retry; C transient non404 with refresh icon/reload action. Never distinguish malformed/revoked/rotated/expired private causes or introduce auth/password gates."
+    }
+  ],
+  "selectedState": "Three independent anonymous ShareReader failure pages390/320/320: A/B common 404 with lock/no retry; C transient non404 with refresh icon/reload action. Never distinguish malformed/revoked/rotated/expired private causes or introduce auth/password gates.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制并排三个独立公开分享错误窄网页，宽比例390、320、320，白底细灰线蓝色品牌，照第二图真实访客宿主。每页顶部蓝书本DooKnow、分享笔记、眼睛只读徽章；底部细线与“由 DooKnow 分享 | 内容随原笔记保存同步更新”。左390和中320正文居中锁图标、标题“分享不存在或已取消”、说明“请向笔记主人获取有效链接。”，没有任何按钮。右320正文居中刷新图标、标题“暂时无法读取分享笔记”、说明精确“连接可能暂时中断，请稍后重新加载。”，可用蓝色“重新加载”。窄文字自然换行、页脚可达，不加密码、登录、续期、私有错误原因、主人导航或额外操作。",
+  "prompt": "绘制并排三个独立公开分享错误窄网页，宽比例390、320、320，白底细灰线蓝色品牌，照第二图真实访客宿主。每页顶部蓝书本DooKnow、分享笔记、眼睛只读徽章；底部细线与“由 DooKnow 分享 | 内容随原笔记保存同步更新”。左390和中320正文居中锁图标、标题“分享不存在或已取消”、说明“请向笔记主人获取有效链接。”，没有任何按钮。右320正文居中刷新图标、标题“暂时无法读取分享笔记”、说明精确“连接可能暂时中断，请稍后重新加载。”，可用蓝色“重新加载”。窄文字自然换行、页脚可达，不加密码、登录、续期、私有错误原因、主人导航或额外操作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; guest shell only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-share-missing.png",
+      "role": "Actual anonymous404 header/lock/copy/footer",
+      "sha256": "73870ba5823257f6ca773af36e92a258bec2f6fbc1eb542ceb0cee6a1b3eea19",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-reader.png",
+      "role": "Actual anonymous full-note parent only",
+      "sha256": "75e64671275e879f0fb9d6629334fb5224ba789962dbb9c71d9e9aa7c7cabf09",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; guest shell only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-share-missing.png",
+      "role": "Actual anonymous404 header/lock/copy/footer",
+      "sha256": "73870ba5823257f6ca773af36e92a258bec2f6fbc1eb542ceb0cee6a1b3eea19",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-reader.png",
+      "role": "Actual anonymous full-note parent only",
+      "sha256": "75e64671275e879f0fb9d6629334fb5224ba789962dbb9c71d9e9aa7c7cabf09",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制并排三个独立公开分享错误窄网页，宽比例390、320、320，白底细灰线蓝色品牌，照第二图真实访客宿主。每页顶部蓝书本DooKnow、分享笔记、眼睛只读徽章；底部细线与“由 DooKnow 分享 | 内容随原笔记保存同步更新”。左390和中320正文居中锁图标、标题“分享不存在或已取消”、说明“请向笔记主人获取有效链接。”，没有任何按钮。右320正文居中刷新图标、标题“暂时无法读取分享笔记”、说明精确“连接可能暂时中断，请稍后重新加载。”，可用蓝色“重新加载”。窄文字自然换行、页脚可达，不加密码、登录、续期、私有错误原因、主人导航或额外操作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-share-missing.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-reader.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制并排三个独立公开分享错误窄网页，宽比例390、320、320，白底细灰线蓝色品牌，照第二图真实访客宿主。每页顶部蓝书本DooKnow、分享笔记、眼睛只读徽章；底部细线与“由 DooKnow 分享 | 内容随原笔记保存同步更新”。左390和中320正文居中锁图标、标题“分享不存在或已取消”、说明“请向笔记主人获取有效链接。”，没有任何按钮。右320正文居中刷新图标、标题“暂时无法读取分享笔记”、说明精确“连接可能暂时中断，请稍后重新加载。”，可用蓝色“重新加载”。窄文字自然换行、页脚可达，不加密码、登录、续期、私有错误原因、主人导航或额外操作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; guest shell only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-share-missing.png",
+          "role": "Actual anonymous404 header/lock/copy/footer"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-reader.png",
+          "role": "Actual anonymous full-note parent only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-f54f854c-5af0-4211-8176-3eb72971ca21.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-024",
+      "title": "公开分享：不存在/过期/撤销/轮换",
+      "kind": "state",
+      "module": "share",
+      "entry": {
+        "route": "/s/:token",
+        "trigger": "Any share read returns404",
+        "parentId": "PB-022"
+      },
+      "sourceRefs": [
+        "apps/web/components/ShareReader.vue:38",
+        "apps/web/components/ShareReader.vue:163",
+        "packages/core/shares.ts:127"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "Anonymous capability token must remain active and unexpired; no owner session or password gate is required. Public content/resources remain scoped to this shared note."
+      ],
+      "fields": [],
+      "actions": [],
+      "importantStates": [
+        "common missing/private-capability failure with lock icon",
+        "get-valid-link guidance; no retry button"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/reader-feedback.spec.ts:46",
+        "tests/shares-permissions-security.test.ts:280"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Expired, revoked, rotated, malformed and missing links deliberately use the same 404 public message; do not expose the exact private cause.",
+        "No password entry, renewal control or owner status tools."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-024",
+      "parentId": "PB-022",
+      "route": "/s/:token",
+      "roles": [
+        "anonymous guest"
+      ],
+      "sourceRefs": [
+        "apps/web/components/ShareReader.vue:38",
+        "apps/web/components/ShareReader.vue:163",
+        "packages/core/shares.ts:127"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-041.json#MP-R055",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R055",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-f54f854c-5af0-4211-8176-3eb72971ca21.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R055.png",
+  "sha256": "c09832ae4c0b3411d880fbd1486c0165e7484846aaabcbe290e7aaed3261d042",
+  "bytes": 1059295,
+  "dimensions": {
+    "width": 1268,
+    "height": 1240
+  },
+  "generatedAtUtc": "2026-11-05T08:00:01.244074+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: ShareReader.vue generic capability404 or temporary-read error card",
+    "sourceIds": [
+      "PB-024"
+    ],
+    "roles": [
+      "anonymous guest"
+    ],
+    "state": "Three independent anonymous ShareReader failure pages390/320/320: A/B common 404 with lock/no retry; C transient non404 with refresh icon/reload action. Never distinguish malformed/revoked/rotated/expired private causes or introduce auth/password gates.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "missing": true,
+      "error": "分享不存在或已取消",
+      "retry": false
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "missing": true,
+      "error": "分享不存在或已取消",
+      "retry": false
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "missing": false,
+      "error": "暂时无法读取分享笔记",
+      "opening": false,
+      "loading": false,
+      "retry": true
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "assetId": "MP-R073-v2",
+  "sourceIds": [
+    "PB-046"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:48:59.576201+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner local mobile embedded previews A/C and busy expanded desktop profile iframe B; failed C retains previous successful HTML.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed v2 PNG/new SHA and complete targeted/original prompt chain. B fabricated latest-post sidebar removed; real profile layout now has only intro on left and actual featured modules on right. Previous structural P2 closed.",
+    "B preserves actual dialog/device/1100px/scaled-to-window label, busy refresh disabled and generating status, and real text关闭预览 action. A/C source mobile selected/live checkbox/refresh retained with private banner and no public publish action.",
+    "C failed-preview HTML retention is real previewDesign behavior; error payload text is illustrative and implementation must use actual errorMessage rather than adding fixed new explanatory alert fields.",
+    "Actual375/1100 iframe scaling, sandbox(no scripts), debounce/latest-request behavior and Escape/focus remain source authority, without exact raster fit claim."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Implement actual dialog private-preview closing note and existing alert/errorMessage renderer. Compact illustration does not introduce a new static error description API or certify focus/scroll/iframe pixel scale."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-043.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R073-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/blog/BlogDesignStudio.vue:238",
+    "apps/web/components/blog/BlogDesignStudio.vue:313",
+    "apps/web/components/blog/BlogPreviewViewport.vue:34",
+    "apps/server/blog/render.ts:160",
+    "apps/server/blog/styles.ts:190",
+    "docs/design/platform-unification-2026-11-05/design/reviews/MP-R073-review.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R073.json"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "d65ccce3a875506ea1f3206dce8b1c6b8a21c4832b78a5d98fdc511cdd001aa1",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R073-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

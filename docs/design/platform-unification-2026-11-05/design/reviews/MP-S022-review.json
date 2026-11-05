@@ -1,0 +1,73 @@
+{
+  "assetId": "MP-S022",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_state_backlog agent",
+  "reviewedAtUtc": "2026-11-05T04:33:54.750543+00:00",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S022.png",
+  "reviewedImageSha256": "83cc5c39b7d5c479c135c156cf8711255593488f9ec3689b7760f96dfd47e235",
+  "reviewedSidecarSha256": "8d3747c72ada272c321869a434a3d6dc42ff645c793c8057bfc7bf587ca37aa1",
+  "requirementsManifest": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json",
+  "requirementsSha256": "b00025577cc63764c920052eb18432f5956200c2daa4ae915d201c20eea86ba9",
+  "viewMethod": "Actual individual PNG viewed via tools.view_image; full actual submittedPrompt and selectedState read; current template, parent/role/API/guard chain inspected. Matching backup/plugins/library/login baseline PNGs and approved style PNG were directly viewed where applicable.",
+  "sourceIds": [
+    "ST-060"
+  ],
+  "selectedState": [
+    "A narrowing request busy, knowledge-only effective ceiling, read/all resources",
+    "B save outcome unknown, draft retained and controls restored"
+  ],
+  "sourceRefs": [
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/api.ts:30",
+    "apps/server/app.ts:141",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S022.json",
+    "apps/web/components/MCPClientPermissions.vue:12",
+    "apps/web/components/MCPClientPermissions.vue:25",
+    "apps/server/platform/mcp-client-permissions.ts:52",
+    "apps/web/components/MCPConnectionGuide.vue:238",
+    "apps/web/components/MCPDomainPermissions.vue:12",
+    "apps/web/components/MCPDomainPermissions.vue:23",
+    "apps/web/components/MCPDomainPermissions.vue:51",
+    "apps/server/platform/mcp-management.ts:48",
+    "packages/core/auth/grants.ts:206",
+    "apps/web/mcp-permissions.ts:34"
+  ],
+  "reviewedSourceSha256": {
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md": "f78c14e2c450641e9ecc10864168fef272bc07cb0eb47e23e0e0d475bdbf9ff9",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md": "d184372a8eefffe8079b87aa9c2988e487507d95b41b263d6ed7b7a0f7827711",
+    "apps/web/api.ts": "f3cfa4add2ed9f30efb83d401345d9c95e7437b8d2e09cea21fd853ac79b55ec",
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json": "b00025577cc63764c920052eb18432f5956200c2daa4ae915d201c20eea86ba9",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S022.json": "8d3747c72ada272c321869a434a3d6dc42ff645c793c8057bfc7bf587ca37aa1",
+    "apps/web/components/MCPClientPermissions.vue": "9c13dacffebf790c5f3ce1897314e897208c824f7902662113229a41b8202423",
+    "apps/server/platform/mcp-client-permissions.ts": "158b75d21eec29db7bd62e7eaad44a9508ebd1252ecc8fed48631032bcb98122",
+    "apps/web/components/MCPConnectionGuide.vue": "48e5e616137c8434d94d907478bb5dcb8dce2941b93ee16eaaebe9c749a637f7",
+    "apps/web/components/MCPDomainPermissions.vue": "ff9f39761dbe0bac0c2b93a54f083838d8fa013eda7cbd69de78847ee2fab944",
+    "apps/server/platform/mcp-management.ts": "9ebee2b98d784c2d39877d94d12daf7d980fbf7ea81146dca6ca6055688e4200",
+    "packages/core/auth/grants.ts": "a001708ac61c99652b400db4ef30caf3b320b07e97ab44dab48f855ebcf2005b",
+    "apps/web/mcp-permissions.ts": "e2b3b2c985a47ed24642698992dfeaa5f073a357388ee2554bf7c62d3b25e3de"
+  },
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "This is the reusable MCPClientPermissions editor, which is reachable from MCPConnectionGuide with an installed/enabled OAuth service, active matching v2 grant and effective policy. It is not bound to the uninstalled-only MCPAuthorizationManager host.",
+    "Knowledge-only domain ceiling is supported by MCPDomainPermissions domain filtering; an all-resource/read policy yields the drawn preset/scope, hides resource pickers and omits absent blog/To Doo domains without deleting platform capabilities.",
+    "Busy editor disables switch/selects and cancel, save uses loading/duplicate guard. Catch retains draft and restores controls with the exact warning, without success or an invented refresh action. Grant version and client identifiers remain protocol data, not inputs."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Readable white/light-gray local components, fine borders, restrained corners and blue action hierarchy match the shared style direction. Raster shading/texture and approximate scale must become flat CSS tokens; do not regenerate solely for those details."
+    }
+  ],
+  "requiredCorrections": [],
+  "limitations": [
+    "Source-derived static design review only; no runtime API operation, authorization, clipboard, network, keyboard/focus, close/mask/Escape behavior or responsive viewport was executed.",
+    "Local-component specimens are independent; parent role/source bindings remain metadata. Existing baseline references establish host context, not runtime capture of these synthetic error/busy states.",
+    "Raster shading/texture, font/icon geometry and dimensions are approximate. Implement shared flat CSS tokens, responsive wrapping and existing scroll/focus/guard rules; this is not pixel-level CSS approval.",
+    "This per-image result neither completes the non-ToDoo platform unification task nor substitutes for the later global coverage/style/function review or authorizes product implementation.",
+    "Effective policy example requires installed/enabled MCP, OAuth channel enabled, active matching grant/version/notBefore, v2 policy and matching owner/resource binding; disabled/uninstalled/revoked cases cannot reuse its active-rights claims."
+  ]
+}

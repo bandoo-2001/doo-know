@@ -1,0 +1,50 @@
+{
+  "assetId": "MP-S058",
+  "sourceIds": [
+    "PB-034"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:49:01.535088+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Three source-note attachment selector loading/empty/failed-empty excerpts",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed all three rows/full actual prompt and source contracts. loading disables existing attachment-read button and suppresses empty text; loaded images=[] shows original no-images guidance; failed initial read leaves opened=true/images=[] so BOTH actual error and empty guidance remain visible.",
+    "Retry uses same real 从原稿附件中选择封面 action, no new retry/upload controls. Selection/relative path and upload article ownership remain in actual separate canonical D100, current crop is not a complete editor replacement."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster adds a generic 附件选择 heading to each local selector excerpt; current component has no such registered heading. Use existing owner cover section/metadata context in implementation and omit this decorative label. No extra action or field is implied."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-029.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S058.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/blog/BlogArticleCover.vue:28",
+    "apps/web/components/blog/BlogArticleCover.vue:58",
+    "apps/web/blog-workbench.ts:469",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D100.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "4740e93d0888c46b9d275f1618f002a19d6939e5e292a0638d1c8c868bfad0f2",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S058.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

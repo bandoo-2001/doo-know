@@ -1,0 +1,22 @@
+{
+  "id": "owner-rich-paragraph",
+  "title": "段落与标题选择",
+  "sourceIds": [
+    "WS-030"
+  ],
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "1440-owner-rich-paragraph.png",
+  "sha256": "8f375295d05e23c75964014bcd2f63fd27515b5b713973fa969a4583213e4ecc",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "buildFlags": {
+    "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+  },
+  "pageErrors": [],
+  "outerOverflow": 0
+}

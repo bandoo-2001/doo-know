@@ -1,0 +1,381 @@
+{
+  "id": "WS-D018",
+  "title": "Import Markdown entry modal",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-022"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-022",
+      "title": "Import Markdown entry modal",
+      "role": "authenticated owner",
+      "state": "Only single-file Markdown entry and delegated TransferPanel entry points; no native picker or delegated interior.",
+      "presentationInstruction": "Only single-file Markdown entry and delegated TransferPanel entry points; no native picker or delegated interior."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3531, apps/web/components/SetupImport.vue:30, apps/web/components/settings/TransferPanel.vue:385"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-import-markdown.png",
+      "role": "Additional ACTUAL before-change matching component/role reference; actual visible state only, not all alternative states."
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-022",
+      "label": "确认导入",
+      "effect": "Copy Markdown without overwriting source or same-name destination",
+      "api": "POST /api/notes; POST /api/folders (default if needed)",
+      "guard": "File selected; !importBusy"
+    },
+    {
+      "sourceId": "WS-022",
+      "label": "批量导入文件或目录 / 导入便携包",
+      "effect": "Open TransferPanel workflows",
+      "api": "POST /api/manage/import/preview; POST /api/manage/import; POST /api/portable-deliveries/import",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-022",
+      "label": "完成",
+      "effect": "Close when both single/batch import idle",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R009",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "requiredFieldOrder": [
+        "导入到",
+        "选择 Markdown 文件"
+      ],
+      "requiredFields": [
+        {
+          "name": "导入到",
+          "type": "directory",
+          "required": true,
+          "constraints": "Existing folder; may create default 40-Resources.",
+          "sensitive": false
+        },
+        {
+          "name": "选择 Markdown 文件",
+          "type": "file",
+          "required": true,
+          "constraints": ".md suffix, <=256 KiB, strict UTF-8; single-file entry does not import linked images/attachments.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "确认导入",
+          "effect": "Copy Markdown without overwriting source or same-name destination",
+          "api": "POST /api/notes; POST /api/folders (default if needed)",
+          "guard": "File selected; !importBusy"
+        },
+        {
+          "label": "批量导入文件或目录 / 导入便携包",
+          "effect": "Open TransferPanel workflows",
+          "api": "POST /api/manage/import/preview; POST /api/manage/import; POST /api/portable-deliveries/import",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "完成",
+          "effect": "Close when both single/batch import idle",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-022"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. One complete existing DooKnow LOCAL component on neutral light-gray backdrop, not a full invented host page. Simplified Chinese, crisp natural-size controls, flat white/#f7f8fa, dark #272b3a/secondary#657084, thin #e6e9f1 lines, primary#4566c6,8px radii and restrained shadow. PILOT input is STYLE ONLY, no importing its rail/header/tree/content. Actual source templates determine all titles, field order, controls, permissions and selected state. No protocol requestId/version/hash/cursor/CSRF fields, fabricated success/online states, team/AI/ToDoo features or OS/browser-dialog chrome. Secret data empty or masked only. One coherent selected condition; hidden alternatives remain hidden. Preserve header/close/body-scroll/footer actions and actual disabled guards; do not derive new disabled rules from API constraints.\nEXACT actual baseline Import Markdown ENTRY MODAL. Input1 actual matching baseline supplies content and selected initial state; input2 PILOT only style. Crop/redraw only the actual modal, exclude dimmed owner workspace behind it. Title 导入 Markdown and closeX enabled. Source field 导入到 closed directory selector00-Inbox (focused). Below quiet divider, COLLAPSED disclosure 批量导入文件或目录; do NOT render delegated TransferPanel interior or portable-import card outside this closed disclosure.\nExact single-file body 从当前电脑或手机选择一个 Markdown 文件，复制到00-Inbox。原文件保持不变，不会覆盖同名资料。 Dashed file-input container label选择 Markdown 文件, native Choose File / No file chosen in actual baseline (no OS file-picker window). Exact helper 单个文件不超过 256 KiB。文中的图片和附件不会随文件一起导入。 确认导入 button DISABLED because no file. Bottom-right existing 完成 enabled. No import-success/error/selected file summary/batch selection fields/preview or 确认整包 controls, no Cancel replacement for actual完成. Current owner session parent mapped in metadata, no full host redraw.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D018.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-022",
+      "title": "Import Markdown entry modal",
+      "kind": "dialog",
+      "module": "files",
+      "entry": {
+        "route": "/ or /?folder=:path",
+        "trigger": "导入 Markdown",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3531",
+        "apps/web/components/SetupImport.vue:30",
+        "apps/web/components/settings/TransferPanel.vue:385"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "导入到",
+          "type": "directory",
+          "required": true,
+          "constraints": "Existing folder; may create default 40-Resources.",
+          "sensitive": false
+        },
+        {
+          "name": "选择 Markdown 文件",
+          "type": "file",
+          "required": true,
+          "constraints": ".md suffix, <=256 KiB, strict UTF-8; single-file entry does not import linked images/attachments.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "确认导入",
+          "effect": "Copy Markdown without overwriting source or same-name destination",
+          "api": "POST /api/notes; POST /api/folders (default if needed)",
+          "guard": "File selected; !importBusy"
+        },
+        {
+          "label": "批量导入文件或目录 / 导入便携包",
+          "effect": "Open TransferPanel workflows",
+          "api": "POST /api/manage/import/preview; POST /api/manage/import; POST /api/portable-deliveries/import",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "完成",
+          "effect": "Close when both single/batch import idle",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "File selection",
+        "Invalid suffix/size/encoding",
+        "Same-name collision",
+        "Import busy disables dismissal",
+        "Success"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Shared .dialog-card width/min viewport rules and mobile padding apply; exact fit, clipping and focus at target widths remain unverified (apps/web/style.css:783,1271)."
+      },
+      "testRefs": [
+        "tests/e2e/notes-first.spec.ts",
+        "tests/e2e/management-workspace.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "TransferPanel multi-step and portable-bundle interior coverage is owned by settings/management inventory; this row records its workspace host and single-file form."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-022",
+      "parentId": "WS-001",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-022",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-022",
+      "state": "File selection",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-022",
+      "state": "Invalid suffix/size/encoding",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-022",
+      "state": "Same-name collision",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-022",
+      "state": "Import busy disables dismissal",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-022",
+      "state": "Success",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D018",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "actual runtime baseline initial no-file import entry, batch disclosure closed"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. One complete existing DooKnow LOCAL component on neutral light-gray backdrop, not a full invented host page. Simplified Chinese, crisp natural-size controls, flat white/#f7f8fa, dark #272b3a/secondary#657084, thin #e6e9f1 lines, primary#4566c6,8px radii and restrained shadow. PILOT input is STYLE ONLY, no importing its rail/header/tree/content. Actual source templates determine all titles, field order, controls, permissions and selected state. No protocol requestId/version/hash/cursor/CSRF fields, fabricated success/online states, team/AI/ToDoo features or OS/browser-dialog chrome. Secret data empty or masked only. One coherent selected condition; hidden alternatives remain hidden. Preserve header/close/body-scroll/footer actions and actual disabled guards; do not derive new disabled rules from API constraints.\nEXACT actual baseline Import Markdown ENTRY MODAL. Input1 actual matching baseline supplies content and selected initial state; input2 PILOT only style. Crop/redraw only the actual modal, exclude dimmed owner workspace behind it. Title 导入 Markdown and closeX enabled. Source field 导入到 closed directory selector00-Inbox (focused). Below quiet divider, COLLAPSED disclosure 批量导入文件或目录; do NOT render delegated TransferPanel interior or portable-import card outside this closed disclosure.\nExact single-file body 从当前电脑或手机选择一个 Markdown 文件，复制到00-Inbox。原文件保持不变，不会覆盖同名资料。 Dashed file-input container label选择 Markdown 文件, native Choose File / No file chosen in actual baseline (no OS file-picker window). Exact helper 单个文件不超过 256 KiB。文中的图片和附件不会随文件一起导入。 确认导入 button DISABLED because no file. Bottom-right existing 完成 enabled. No import-success/error/selected file summary/batch selection fields/preview or 确认整包 controls, no Cancel replacement for actual完成. Current owner session parent mapped in metadata, no full host redraw.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D018 Import Markdown entry modal\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"full\", \"sourceId\": \"WS-022\", \"title\": \"Import Markdown entry modal\", \"role\": \"authenticated owner\", \"state\": \"Only single-file Markdown entry and delegated TransferPanel entry points; no native picker or delegated interior.\", \"presentationInstruction\": \"Only single-file Markdown entry and delegated TransferPanel entry points; no native picker or delegated interior.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"full\", \"sourceId\": \"WS-022\", \"fieldsInOrder\": [{\"name\": \"导入到\", \"type\": \"directory\", \"required\": true, \"constraints\": \"Existing folder; may create default 40-Resources.\", \"sensitive\": false}, {\"name\": \"选择 Markdown 文件\", \"type\": \"file\", \"required\": true, \"constraints\": \".md suffix, <=256 KiB, strict UTF-8; single-file entry does not import linked images/attachments.\", \"sensitive\": false}], \"actions\": [{\"label\": \"确认导入\", \"effect\": \"Copy Markdown without overwriting source or same-name destination\", \"api\": \"POST /api/notes; POST /api/folders (default if needed)\", \"guard\": \"File selected; !importBusy\"}, {\"label\": \"批量导入文件或目录 / 导入便携包\", \"effect\": \"Open TransferPanel workflows\", \"api\": \"POST /api/manage/import/preview; POST /api/manage/import; POST /api/portable-deliveries/import\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"完成\", \"effect\": \"Close when both single/batch import idle\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"File selection\", \"Invalid suffix/size/encoding\", \"Same-name collision\", \"Import busy disables dismissal\", \"Success\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3531, apps/web/components/SetupImport.vue:30, apps/web/components/settings/TransferPanel.vue:385",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3531, apps/web/components/SetupImport.vue:30, apps/web/components/settings/TransferPanel.vue:385",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-import-markdown.png",
+      "role": "Additional ACTUAL before-change matching component/role reference; actual visible state only, not all alternative states.",
+      "responsibility": "Additional ACTUAL before-change matching component/role reference; actual visible state only, not all alternative states.",
+      "sha256": "be08e92598bc76d5f3c78f22c80b7db73def1c55b60a92e9c8e74aa05b90f102",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 103010
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/windows/1440-import-markdown.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D018.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c9a81672-e9a4-44ca-87de-9c6787104154.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-c9a81672-e9a4-44ca-87de-9c6787104154.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T02:22:46.246Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Actual initial import-entry modal matches baseline: destination00-Inbox, collapsed batch delegation, native single-file input/256KiB helper, confirm disabled and Done enabled; delegated interior absent.",
+    "concerns": [
+      "Static design does not prove role/capability/CAS/dirty-close/focus/scroll behavior or exact responsive CSS fit.",
+      "Minor raster shading/proportions are illustrative; source tokens remain authority."
+    ]
+  },
+  "sha256": "ce549bb8f1534fc209ce40b129425cbe29b92a62752b43aa3d4626fd5d10d5bd",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1145695,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/SetupImport.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "c439fc1d5f8bd485fdd0fce3fb471f1ed775083f0a93ea49b513d58d551cee03"
+    },
+    {
+      "path": "apps/web/components/settings/TransferPanel.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "de54810859e5243fa4db2ac8bafeae0b887ad7900bac346cd623cdad95e5a4f0"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Matching component screenshot supplies selected state; parent context intentionally excluded."
+}

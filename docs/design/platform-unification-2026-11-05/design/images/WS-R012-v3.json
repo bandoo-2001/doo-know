@@ -1,0 +1,1015 @@
+{
+  "id": "WS-R012",
+  "title": "Owner CodeMirror source page at390/320",
+  "kind": "responsive-board",
+  "sourceIds": [
+    "WS-025",
+    "WS-072"
+  ],
+  "panels": [
+    {
+      "label": "phone-390",
+      "sourceId": "WS-025",
+      "title": "Markdown source editing mode",
+      "role": "authenticated owner",
+      "state": "Full source editor phone page; actual chrome, source input and selection/search guards.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "phone-320",
+      "sourceId": "WS-025",
+      "title": "Markdown source editing mode",
+      "role": "authenticated owner",
+      "state": "Same source layout at320; toolbar wraps/overflows as implemented, source scrolls without losing actions.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      }
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-note-source.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3184, apps/web/components/MarkdownEditor.vue:1, apps/web/components/NoteEditorHost.vue:476"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/390-note-read.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3187, apps/web/components/Workspace.vue:3322"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-025",
+      "label": "编辑 / 保存 / 撤销 / 重做",
+      "effect": "Edit same Markdown and shared history",
+      "api": "PUT /api/notes/:id",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-025",
+      "label": "显示行号",
+      "effect": "Toggle source gutter preference",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-025",
+      "label": "同时预览",
+      "effect": "Switch edit versus split mode",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-072",
+      "label": "编辑源码",
+      "effect": "Update primary document session; validate supported primary structure",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-072",
+      "label": "保存",
+      "effect": "Regenerate native/preview as needed and commit",
+      "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R012",
+      "representation": "direct",
+      "reason": "Owner source editor full viewport and CodeMirror family at390/320. Diagram host substitutes only its actual diagram header/tabs/source capabilities; exact source fields, readonly guards and actions are not borrowed from ordinary-note mode.",
+      "reuseSourceId": "WS-025",
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "requiredFieldOrder": [
+        "Markdown 源码"
+      ],
+      "requiredFields": [
+        {
+          "name": "Markdown 源码",
+          "type": "code-editor",
+          "required": true,
+          "constraints": "Same session and lossless source; line numbers preference and wrapping supported.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "编辑 / 保存 / 撤销 / 重做",
+          "effect": "Edit same Markdown and shared history",
+          "api": "PUT /api/notes/:id",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "显示行号",
+          "effect": "Toggle source gutter preference",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "同时预览",
+          "effect": "Switch edit versus split mode",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-025"
+    },
+    {
+      "assetId": "WS-R012",
+      "representation": "shared-geometry",
+      "reason": "Owner source editor full viewport and CodeMirror family at390/320. Diagram host substitutes only its actual diagram header/tabs/source capabilities; exact source fields, readonly guards and actions are not borrowed from ordinary-note mode.",
+      "reuseSourceId": "WS-025",
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [
+        "完整 Markdown"
+      ],
+      "requiredFields": [
+        {
+          "name": "完整 Markdown",
+          "type": "code-editor",
+          "required": true,
+          "constraints": "Entire diagram document source; line numbers; readonly if !editable.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "编辑源码",
+          "effect": "Update primary document session; validate supported primary structure",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "保存",
+          "effect": "Regenerate native/preview as needed and commit",
+          "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-072"
+    }
+  ],
+  "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R012 Owner CodeMirror source page at390/320\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"phone-390\", \"sourceId\": \"WS-025\", \"title\": \"Markdown source editing mode\", \"role\": \"authenticated owner\", \"state\": \"Full source editor phone page; actual chrome, source input and selection/search guards.\", \"viewport\": {\"width\": 390, \"height\": 844}}, {\"label\": \"phone-320\", \"sourceId\": \"WS-025\", \"title\": \"Markdown source editing mode\", \"role\": \"authenticated owner\", \"state\": \"Same source layout at320; toolbar wraps/overflows as implemented, source scrolls without losing actions.\", \"viewport\": {\"width\": 320, \"height\": 844}}]\nVISIBLE CONTRACTS [{\"panel\": \"phone-390\", \"sourceId\": \"WS-025\", \"fieldsInOrder\": [{\"name\": \"Markdown 源码\", \"type\": \"code-editor\", \"required\": true, \"constraints\": \"Same session and lossless source; line numbers preference and wrapping supported.\", \"sensitive\": false}], \"actions\": [{\"label\": \"编辑 / 保存 / 撤销 / 重做\", \"effect\": \"Edit same Markdown and shared history\", \"api\": \"PUT /api/notes/:id\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"显示行号\", \"effect\": \"Toggle source gutter preference\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"同时预览\", \"effect\": \"Switch edit versus split mode\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Source active\", \"Read-only gating inherited\", \"CodeMirror selection/search\", \"Editor unavailable fallback\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"phone-320\", \"sourceId\": \"WS-025\", \"fieldsInOrder\": [{\"name\": \"Markdown 源码\", \"type\": \"code-editor\", \"required\": true, \"constraints\": \"Same session and lossless source; line numbers preference and wrapping supported.\", \"sensitive\": false}], \"actions\": [{\"label\": \"编辑 / 保存 / 撤销 / 重做\", \"effect\": \"Edit same Markdown and shared history\", \"api\": \"PUT /api/notes/:id\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"显示行号\", \"effect\": \"Toggle source gutter preference\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"同时预览\", \"effect\": \"Switch edit versus split mode\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Source active\", \"Read-only gating inherited\", \"CodeMirror selection/search\", \"Editor unavailable fallback\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R012.png",
+  "reviewStatus": "pending-independent-review",
+  "geometryFamily": "owner source editor viewport, CodeMirror and source-defined toolbar slots",
+  "sourceContracts": [
+    {
+      "id": "WS-025",
+      "title": "Markdown source editing mode",
+      "kind": "state",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Markdown 源码 tab",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3184",
+        "apps/web/components/MarkdownEditor.vue:1",
+        "apps/web/components/NoteEditorHost.vue:476"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "Markdown 源码",
+          "type": "code-editor",
+          "required": true,
+          "constraints": "Same session and lossless source; line numbers preference and wrapping supported.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "编辑 / 保存 / 撤销 / 重做",
+          "effect": "Edit same Markdown and shared history",
+          "api": "PUT /api/notes/:id",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "显示行号",
+          "effect": "Toggle source gutter preference",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "同时预览",
+          "effect": "Switch edit versus split mode",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Source active",
+        "Read-only gating inherited",
+        "CodeMirror selection/search",
+        "Editor unavailable fallback"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "testRefs": [
+        "tests/e2e/editor-mode-switch.spec.ts",
+        "tests/editor-preferences-mode.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-072",
+      "title": "Primary diagram Markdown source view",
+      "kind": "state",
+      "module": "diagrams",
+      "entry": {
+        "route": "/?note=:primaryDiagramId",
+        "trigger": "Markdown 源码 tab",
+        "parentId": "WS-068"
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramDocumentWorkspace.vue:763",
+        "apps/web/components/DiagramDocumentWorkspace.vue:805"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "完整 Markdown",
+          "type": "code-editor",
+          "required": true,
+          "constraints": "Entire diagram document source; line numbers; readonly if !editable.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "编辑源码",
+          "effect": "Update primary document session; validate supported primary structure",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "保存",
+          "effect": "Regenerate native/preview as needed and commit",
+          "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Invalid primary declaration/source retained with error",
+        "Unsaved source change"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/diagram-markdown-edits.test.ts",
+        "tests/e2e/diagram-document-chrome.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-025",
+      "parentId": "WS-024",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    },
+    {
+      "sourceId": "WS-072",
+      "parentId": "WS-068",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "stateCoverageRefs": [],
+  "statePatternRefs": [
+    {
+      "sourceId": "WS-025",
+      "assetId": "WS-D021",
+      "representation": "visible"
+    },
+    {
+      "sourceId": "WS-025",
+      "assetId": "WS-D021",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-072",
+      "assetId": "WS-D052",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-R012",
+  "originalManifest": {
+    "id": "WS-R012",
+    "title": "Owner CodeMirror source page at390/320",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-025",
+      "WS-072"
+    ],
+    "panels": [
+      {
+        "label": "phone-390",
+        "sourceId": "WS-025",
+        "title": "Markdown source editing mode",
+        "role": "authenticated owner",
+        "state": "Full source editor phone page; actual chrome, source input and selection/search guards.",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        }
+      },
+      {
+        "label": "phone-320",
+        "sourceId": "WS-025",
+        "title": "Markdown source editing mode",
+        "role": "authenticated owner",
+        "state": "Same source layout at320; toolbar wraps/overflows as implemented, source scrolls without losing actions.",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        }
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/390-note-source.png",
+        "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+      },
+      {
+        "path": "apps/web/components/Workspace.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3184, apps/web/components/MarkdownEditor.vue:1, apps/web/components/NoteEditorHost.vue:476"
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/390-note-read.png",
+        "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+      },
+      {
+        "path": "apps/web/components/Workspace.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3187, apps/web/components/Workspace.vue:3322"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-025",
+        "label": "编辑 / 保存 / 撤销 / 重做",
+        "effect": "Edit same Markdown and shared history",
+        "api": "PUT /api/notes/:id",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-025",
+        "label": "显示行号",
+        "effect": "Toggle source gutter preference",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-025",
+        "label": "同时预览",
+        "effect": "Switch edit versus split mode",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-072",
+        "label": "编辑源码",
+        "effect": "Update primary document session; validate supported primary structure",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-072",
+        "label": "保存",
+        "effect": "Regenerate native/preview as needed and commit",
+        "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-R012",
+        "representation": "direct",
+        "reason": "Owner source editor full viewport and CodeMirror family at390/320. Diagram host substitutes only its actual diagram header/tabs/source capabilities; exact source fields, readonly guards and actions are not borrowed from ordinary-note mode.",
+        "reuseSourceId": "WS-025",
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+        },
+        "requiredFieldOrder": [
+          "Markdown 源码"
+        ],
+        "requiredFields": [
+          {
+            "name": "Markdown 源码",
+            "type": "code-editor",
+            "required": true,
+            "constraints": "Same session and lossless source; line numbers preference and wrapping supported.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "编辑 / 保存 / 撤销 / 重做",
+            "effect": "Edit same Markdown and shared history",
+            "api": "PUT /api/notes/:id",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "显示行号",
+            "effect": "Toggle source gutter preference",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "同时预览",
+            "effect": "Switch edit versus split mode",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-025"
+      },
+      {
+        "assetId": "WS-R012",
+        "representation": "shared-geometry",
+        "reason": "Owner source editor full viewport and CodeMirror family at390/320. Diagram host substitutes only its actual diagram header/tabs/source capabilities; exact source fields, readonly guards and actions are not borrowed from ordinary-note mode.",
+        "reuseSourceId": "WS-025",
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+        },
+        "requiredFieldOrder": [
+          "完整 Markdown"
+        ],
+        "requiredFields": [
+          {
+            "name": "完整 Markdown",
+            "type": "code-editor",
+            "required": true,
+            "constraints": "Entire diagram document source; line numbers; readonly if !editable.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "编辑源码",
+            "effect": "Update primary document session; validate supported primary structure",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "保存",
+            "effect": "Regenerate native/preview as needed and commit",
+            "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-072"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R012 Owner CodeMirror source page at390/320\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"phone-390\", \"sourceId\": \"WS-025\", \"title\": \"Markdown source editing mode\", \"role\": \"authenticated owner\", \"state\": \"Full source editor phone page; actual chrome, source input and selection/search guards.\", \"viewport\": {\"width\": 390, \"height\": 844}}, {\"label\": \"phone-320\", \"sourceId\": \"WS-025\", \"title\": \"Markdown source editing mode\", \"role\": \"authenticated owner\", \"state\": \"Same source layout at320; toolbar wraps/overflows as implemented, source scrolls without losing actions.\", \"viewport\": {\"width\": 320, \"height\": 844}}]\nVISIBLE CONTRACTS [{\"panel\": \"phone-390\", \"sourceId\": \"WS-025\", \"fieldsInOrder\": [{\"name\": \"Markdown 源码\", \"type\": \"code-editor\", \"required\": true, \"constraints\": \"Same session and lossless source; line numbers preference and wrapping supported.\", \"sensitive\": false}], \"actions\": [{\"label\": \"编辑 / 保存 / 撤销 / 重做\", \"effect\": \"Edit same Markdown and shared history\", \"api\": \"PUT /api/notes/:id\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"显示行号\", \"effect\": \"Toggle source gutter preference\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"同时预览\", \"effect\": \"Switch edit versus split mode\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Source active\", \"Read-only gating inherited\", \"CodeMirror selection/search\", \"Editor unavailable fallback\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}, {\"panel\": \"phone-320\", \"sourceId\": \"WS-025\", \"fieldsInOrder\": [{\"name\": \"Markdown 源码\", \"type\": \"code-editor\", \"required\": true, \"constraints\": \"Same session and lossless source; line numbers preference and wrapping supported.\", \"sensitive\": false}], \"actions\": [{\"label\": \"编辑 / 保存 / 撤销 / 重做\", \"effect\": \"Edit same Markdown and shared history\", \"api\": \"PUT /api/notes/:id\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"显示行号\", \"effect\": \"Toggle source gutter preference\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"同时预览\", \"effect\": \"Switch edit versus split mode\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Source active\", \"Read-only gating inherited\", \"CodeMirror selection/search\", \"Editor unavailable fallback\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R012.png",
+    "reviewStatus": "pending-generation",
+    "geometryFamily": "owner source editor viewport, CodeMirror and source-defined toolbar slots",
+    "sourceContracts": [
+      {
+        "id": "WS-025",
+        "title": "Markdown source editing mode",
+        "kind": "state",
+        "module": "editor",
+        "entry": {
+          "route": "/?note=:id",
+          "trigger": "Markdown 源码 tab",
+          "parentId": "WS-024"
+        },
+        "sourceRefs": [
+          "apps/web/components/Workspace.vue:3184",
+          "apps/web/components/MarkdownEditor.vue:1",
+          "apps/web/components/NoteEditorHost.vue:476"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "fields": [
+          {
+            "name": "Markdown 源码",
+            "type": "code-editor",
+            "required": true,
+            "constraints": "Same session and lossless source; line numbers preference and wrapping supported.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "编辑 / 保存 / 撤销 / 重做",
+            "effect": "Edit same Markdown and shared history",
+            "api": "PUT /api/notes/:id",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "显示行号",
+            "effect": "Toggle source gutter preference",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "同时预览",
+            "effect": "Switch edit versus split mode",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Source active",
+          "Read-only gating inherited",
+          "CodeMirror selection/search",
+          "Editor unavailable fallback"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+        },
+        "testRefs": [
+          "tests/e2e/editor-mode-switch.spec.ts",
+          "tests/editor-preferences-mode.test.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      },
+      {
+        "id": "WS-072",
+        "title": "Primary diagram Markdown source view",
+        "kind": "state",
+        "module": "diagrams",
+        "entry": {
+          "route": "/?note=:primaryDiagramId",
+          "trigger": "Markdown 源码 tab",
+          "parentId": "WS-068"
+        },
+        "sourceRefs": [
+          "apps/web/components/DiagramDocumentWorkspace.vue:763",
+          "apps/web/components/DiagramDocumentWorkspace.vue:805"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+        ],
+        "fields": [
+          {
+            "name": "完整 Markdown",
+            "type": "code-editor",
+            "required": true,
+            "constraints": "Entire diagram document source; line numbers; readonly if !editable.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "编辑源码",
+            "effect": "Update primary document session; validate supported primary structure",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "保存",
+            "effect": "Regenerate native/preview as needed and commit",
+            "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Invalid primary declaration/source retained with error",
+          "Unsaved source change"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+        },
+        "testRefs": [
+          "tests/diagram-markdown-edits.test.ts",
+          "tests/e2e/diagram-document-chrome.spec.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-025",
+        "parentId": "WS-024",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      },
+      {
+        "sourceId": "WS-072",
+        "parentId": "WS-068",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "WS-025",
+        "assetId": "WS-D021",
+        "representation": "visible"
+      },
+      {
+        "sourceId": "WS-025",
+        "assetId": "WS-D021",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-072",
+        "assetId": "WS-D052",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "只修复此图两个手机面板：1. 笔记页头灰圆点与星标之间加回两个灰色禁用撤销/重做弯箭头图标；允许该操作区另起一行以保持正常触摸尺寸。2. 保存图标改成浅灰色禁用样式。3. 每个面板正文上方目前重复了两行“Markdown”，删除较下面那个单独“Markdown”行及它的多余空间，只保留唯一一行左“Markdown”右“手动保存 · Ctrl+S”。4. 在书本根图标与当前笔记名之间恢复“…”路径溢出按钮。其余源码、工具栏、模式、章节列表图标、正文统计和底部导航完全不变。不要加后退前进箭头。",
+  "actualToolArguments": {
+    "prompt": "只修复此图两个手机面板：1. 笔记页头灰圆点与星标之间加回两个灰色禁用撤销/重做弯箭头图标；允许该操作区另起一行以保持正常触摸尺寸。2. 保存图标改成浅灰色禁用样式。3. 每个面板正文上方目前重复了两行“Markdown”，删除较下面那个单独“Markdown”行及它的多余空间，只保留唯一一行左“Markdown”右“手动保存 · Ctrl+S”。4. 在书本根图标与当前笔记名之间恢复“…”路径溢出按钮。其余源码、工具栏、模式、章节列表图标、正文统计和底部导航完全不变。不要加后退前进箭头。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R012-v2.png"
+    ],
+    "transparent_background": false
+  },
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R012-v2.png"
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R012-v2.png",
+      "order": 1,
+      "role": "edit target; exact restoration only",
+      "sha256": "75ea4c06fadf5397e179a1acd109f32423380f3239e1c0bdd61f6bec3471275b",
+      "bytes": 1648004,
+      "dimensions": {
+        "width": 1464,
+        "height": 1075
+      }
+    }
+  ],
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/components/MarkdownEditor.vue",
+      "sha256": "b254d767d8259854b1e1ca3ef1b90143b25796f270025f7404624172fa0d7477",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/components/NoteEditorHost.vue",
+      "sha256": "d56fb03aebf95c3b973f743b4ac7582cf3469b448b1ac5b2bc27c3b9e8c029b7",
+      "role": "actual source template/behavior authority; read before generation"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1",
+      "role": "actual source template/behavior authority; read before generation"
+    }
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "fallbackUsed": false,
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "url": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "verifiedModel": "gpt-image-2",
+      "scope": "Codex built-in image generation",
+      "date": "2026-11-05",
+      "apiReference": "https://developers.openai.com/api/reference/resources/images/methods/generate",
+      "apiModelSupported": true,
+      "apiReferenceDoesNotProveBuiltinRouteAlone": true
+    }
+  },
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-97602ed3-33d4-4fb6-9f40-689186abbdeb.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-97602ed3-33d4-4fb6-9f40-689186abbdeb.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generatedAtUtc": "2026-11-05T08:55:23.826Z",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R012-v3.png",
+  "generationCalls": [
+    {
+      "status": "completed-with-tool-receipt",
+      "actualToolArguments": {
+        "prompt": "只修复此图两个手机面板：1. 笔记页头灰圆点与星标之间加回两个灰色禁用撤销/重做弯箭头图标；允许该操作区另起一行以保持正常触摸尺寸。2. 保存图标改成浅灰色禁用样式。3. 每个面板正文上方目前重复了两行“Markdown”，删除较下面那个单独“Markdown”行及它的多余空间，只保留唯一一行左“Markdown”右“手动保存 · Ctrl+S”。4. 在书本根图标与当前笔记名之间恢复“…”路径溢出按钮。其余源码、工具栏、模式、章节列表图标、正文统计和底部导航完全不变。不要加后退前进箭头。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R012-v2.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-97602ed3-33d4-4fb6-9f40-689186abbdeb.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    }
+  ],
+  "generationCallCount": 1,
+  "selfInspection": {
+    "status": "pending-independent-review",
+    "method": "Native PNG inspected against source; unchanged body checked",
+    "concerns": [
+      "A header appears to duplicate more ellipsis; independent review must assess and targeted correction pending if confirmed."
+    ]
+  },
+  "sha256": "1ffa9a82c22f167c1781ff849332d72a80ff4405db7a6760b8a2af989f9465ad",
+  "bytes": 1653500,
+  "dimensions": {
+    "width": 1463,
+    "height": 1075
+  },
+  "revisionOf": "WS-R012-v2.png",
+  "revisionReason": "Restore undo/redo/path overflow, disabled save; remove duplicated panel label",
+  "runtimeResponsiveVerified": false,
+  "responsiveTargetCssWidths": [
+    390,
+    320
+  ],
+  "currentGenerationReceipt": {
+    "toolResultReceiptObserved": true,
+    "receiptRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/remaining-even-receipts-3.json",
+    "actualToolArguments": {
+      "prompt": "只修复此图两个手机面板：1. 笔记页头灰圆点与星标之间加回两个灰色禁用撤销/重做弯箭头图标；允许该操作区另起一行以保持正常触摸尺寸。2. 保存图标改成浅灰色禁用样式。3. 每个面板正文上方目前重复了两行“Markdown”，删除较下面那个单独“Markdown”行及它的多余空间，只保留唯一一行左“Markdown”右“手动保存 · Ctrl+S”。4. 在书本根图标与当前笔记名之间恢复“…”路径溢出按钮。其余源码、工具栏、模式、章节列表图标、正文统计和底部导航完全不变。不要加后退前进箭头。",
+      "referenced_image_paths": [
+        "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R012-v2.png"
+      ],
+      "transparent_background": false
+    },
+    "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-97602ed3-33d4-4fb6-9f40-689186abbdeb.png",
+    "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-97602ed3-33d4-4fb6-9f40-689186abbdeb.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "completionObservedAtUtc": "2026-11-05T08:55:23.826Z",
+    "exactToolServerCompletionTimestampExposed": false
+  },
+  "generatedAtUtcBasis": "Local observation after awaited callback; tool does not expose exact server completion timestamp.",
+  "sourceImageSha256": "1ffa9a82c22f167c1781ff849332d72a80ff4405db7a6760b8a2af989f9465ad",
+  "priorGenerationHistory": {
+    "sidecar": "docs/design/platform-unification-2026-11-05/design/images/WS-R012-v2.json",
+    "sha256": "75ea4c06fadf5397e179a1acd109f32423380f3239e1c0bdd61f6bec3471275b",
+    "submittedPrompt": "只定点修正这张手机设计图的顶部与工具栏：两个手机面板中删除笔记页头的后退/前进两个箭头（手机源码隐藏DocumentNavigation）；面包屑只保留书本根图标、…路径溢出按钮、当前笔记名，不把00-Inbox完整路径写出来；保存状态只保留一个灰点，不显示“已保存”文字；分享与保存按钮只用图标无文字；章节目录按钮只留列表图标无“章节目录”文字。把模式选择行移到格式工具栏上方，格式工具栏仍单行横向滚动，正常字号不缩小。其余正文、模式种类、内容、操作、底部统计与手机底栏完全保持。不要发明新操作。",
+    "generationCalls": [
+      {
+        "status": "completed-with-tool-receipt",
+        "actualToolArguments": {
+          "prompt": "只定点修正这张手机设计图的顶部与工具栏：两个手机面板中删除笔记页头的后退/前进两个箭头（手机源码隐藏DocumentNavigation）；面包屑只保留书本根图标、…路径溢出按钮、当前笔记名，不把00-Inbox完整路径写出来；保存状态只保留一个灰点，不显示“已保存”文字；分享与保存按钮只用图标无文字；章节目录按钮只留列表图标无“章节目录”文字。把模式选择行移到格式工具栏上方，格式工具栏仍单行横向滚动，正常字号不缩小。其余正文、模式种类、内容、操作、底部统计与手机底栏完全保持。不要发明新操作。",
+          "referenced_image_paths": [
+            "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-R012.png"
+          ],
+          "transparent_background": false
+        },
+        "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-0a201920-31e6-4b62-af31-691775576f77.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+      }
+    ],
+    "priorGenerationHistory": {
+      "sidecar": "docs/design/platform-unification-2026-11-05/design/images/WS-R012.json",
+      "sha256": "563a2c517824b87b702bf19b0c0542307fa57a8b50edd30a06d939f70881e47f",
+      "submittedPrompt": "制作两个清晰中文DooKnow手机完整源码笔记页面并排，外部仅A/B，A390、B320窄屏比例，正常文字，不画手机壳或尺寸数字。平面白底浅灰细线蓝色选中。参考源码编辑器内容及真实工具，仅适配手机，侧栏关闭，无桌面左轨/固定章节栏。顶部手机栏：菜单图标、DooKnow、私人笔记。下一层笔记页头：后退/前进图标均灰禁用，书本根入口、面包屑“00-Inbox / 界面盘点样例-72ab64c8”长内容省略；可换行操作区含灰点“已保存”、灰撤销/重做、星标、分享图标、灰禁用保存图标、更多…。格式工具栏横向滚动单行，当前左端可见“标题 1”下拉、B、I、删除线S、行内代码、T×、文字颜色A、左对齐图标，细横向滚动条提示后续真实工具，不缩小。下一行现有三模式“编辑”（选中）“预览”“分屏”，旁边“章节目录”按钮。正文顶栏“Markdown”和“手动保存 · Ctrl+S”。编辑区保持真正可编辑的等宽Markdown源码，语法符号可见：第一行“# 知识与行动”，空行后“用于平台界面盘点的隔离示例，不含用户资料。”，再“## 整理方法”、两个源码行“- 收集想法”“- 按主题整理”、引用源码行“> 保留清晰的下一步。”；长行在编辑区内换行，不显示行号，不呈现富文本表格或渲染预览。底部“源码字符 69”，宿主底部导航“笔记”“最近”“收藏”“应用”“更多”，笔记选中。正常字号和独立正文滚动，两屏同一个权限和布局，没有查找框自动打开、自动保存、访客控件、评审文字。",
+      "generationCalls": [
+        {
+          "status": "completed-with-tool-receipt",
+          "actualToolArguments": {
+            "prompt": "制作两个清晰中文DooKnow手机完整源码笔记页面并排，外部仅A/B，A390、B320窄屏比例，正常文字，不画手机壳或尺寸数字。平面白底浅灰细线蓝色选中。参考源码编辑器内容及真实工具，仅适配手机，侧栏关闭，无桌面左轨/固定章节栏。顶部手机栏：菜单图标、DooKnow、私人笔记。下一层笔记页头：后退/前进图标均灰禁用，书本根入口、面包屑“00-Inbox / 界面盘点样例-72ab64c8”长内容省略；可换行操作区含灰点“已保存”、灰撤销/重做、星标、分享图标、灰禁用保存图标、更多…。格式工具栏横向滚动单行，当前左端可见“标题 1”下拉、B、I、删除线S、行内代码、T×、文字颜色A、左对齐图标，细横向滚动条提示后续真实工具，不缩小。下一行现有三模式“编辑”（选中）“预览”“分屏”，旁边“章节目录”按钮。正文顶栏“Markdown”和“手动保存 · Ctrl+S”。编辑区保持真正可编辑的等宽Markdown源码，语法符号可见：第一行“# 知识与行动”，空行后“用于平台界面盘点的隔离示例，不含用户资料。”，再“## 整理方法”、两个源码行“- 收集想法”“- 按主题整理”、引用源码行“> 保留清晰的下一步。”；长行在编辑区内换行，不显示行号，不呈现富文本表格或渲染预览。底部“源码字符 69”，宿主底部导航“笔记”“最近”“收藏”“应用”“更多”，笔记选中。正常字号和独立正文滚动，两屏同一个权限和布局，没有查找框自动打开、自动保存、访客控件、评审文字。",
+            "referenced_image_paths": [
+              "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D021.png",
+              "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+            ],
+            "transparent_background": false
+          },
+          "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6 as /home/bandoo/.codex/generated_images/01a1aae1-1e01-70c3-bce2-972e18211ca6/exec-d9b4ba93-5496-4565-b775-d9ad402c2108.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        }
+      ],
+      "priorGenerationHistory": null,
+      "interruptionRecovery": null
+    },
+    "interruptionRecovery": null
+  },
+  "metadataAmendments": [
+    {
+      "atUtc": "2026-11-05T09:18:09.836367+00:00",
+      "reason": "Attach observed current receipt, source byte verification and full prior revision chain without changing PNG or rewriting historical no-receipt status."
+    }
+  ]
+}

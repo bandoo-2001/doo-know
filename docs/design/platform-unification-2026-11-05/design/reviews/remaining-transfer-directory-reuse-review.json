@@ -1,0 +1,806 @@
+{
+  "reviewType": "source-and-existing-PNG exact reuse audit; not a pass for a nonexistent PNG",
+  "reviewer": "platform_review_ws01",
+  "reviewedAtUtc": "2026-11-05T06:04:53.922670+00:00",
+  "candidateAssetId": "MP-SX001",
+  "recommendation": "approve-whole-ungenerated-asset-exact-reuse",
+  "canonicalAssetId": "MP-S012-v3",
+  "canonicalImageSha256": "449cc9b8bba96a21632fe8ca8763db86c0b92cac403037d3ae2b938f732914ea",
+  "canonicalIndependentReview": "docs/design/platform-unification-2026-11-05/design/reviews/MP-S012-v3-review.json",
+  "method": "Re-viewed actual existing canonical PNG in child context; matched exact current SHA with independent pass and sidecar; inspected GEN031/canonical full source contracts, sole stateCoverage record and current TransferPanel.vue loadFolders/template. No new image generated or nonexistent image marked passed.",
+  "evidence": [
+    "Candidate has exactly one concrete state row and one canonical stateCoverage record: ST018 目录读取中/失败可重试. Seven family sourceIds/mapping records do not introduce additional concrete rows/fields/actions in this supplement.",
+    "Canonical MP-S012-v3 has identical seven family sourceIds and exact current ST018 renderer. r1 visibly has real foldersLoading disabled selector/loading text, source file controls enabled, no-file preview disabled. r3 visibly has same selector enabled with real foldersError AAlert and 重新读取目录, no simultaneous loading.",
+    "TransferPanel.vue:312..329 starts foldersLoading, clears prior foldersError, reads GET /api/tree, retains available folder tree on failure, binds actual caught error message and finally clears loading. No separate retry method/capability.",
+    "TransferPanel.vue:549..564 uses DirectoryTreeSelect label选择已有目录（可选）, root-label保留完整分类路径, disabled busy||foldersLoading; loading span and foldersError AAlert action with :loading=foldersLoading @click=loadFolders. Same owner-private role, field binding/order, loader/error and action.",
+    "No candidate responsiveMappings; no new role, field, action, host wrapper or viewport layout unique to supplement. Full import/confirm/portable/export owners remain their existing canonical assets, not replaced by a directory fragment."
+  ],
+  "reuseBindings": [
+    {
+      "sourceId": "ST-018",
+      "originalState": "目录读取中/失败可重试",
+      "originalAssetId": "MP-SX001",
+      "originalPanel": "A",
+      "originalMatrixRow": "r1",
+      "visualParts": [
+        {
+          "canonicalAssetId": "MP-S012-v3",
+          "panel": "A",
+          "matrixRow": "r1",
+          "state": "foldersLoading=true; foldersError empty; selector disabled busy||foldersLoading; actual loading text; no files means preview disabled"
+        },
+        {
+          "canonicalAssetId": "MP-S012-v3",
+          "panel": "A",
+          "matrixRow": "r3",
+          "state": "foldersLoading=false; foldersError actual dynamic message; busy=false; enabled retained directory selector; 重新读取目录 calls loadFolders with single-flight guard"
+        }
+      ],
+      "exactDataAndGuardsToRetain": [
+        "folder v-model and availableFolders tree/path identity",
+        "选择已有目录（可选）/保留完整分类路径 labels and field order",
+        "actual caught foldersError message, not fixed synthetic example for every failure",
+        "busy||foldersLoading selection disable; native source chooser uses busy only",
+        "GET /api/tree single-flight loading/reset/error/finally chain",
+        "existing full import path/skip-rename/entries/preview/close guards and host mappings remain separate",
+        "body scroll/selector focus/keyboard/overlay dirty-close behavior inherited from the actual host; raster does not execute them"
+      ]
+    }
+  ],
+  "originalAssetArchivedForRootRuling": {
+    "id": "MP-SX001",
+    "title": "Component state matrix: owner-private / TransferPanel.vue · concrete variant supplement",
+    "kind": "state-board",
+    "sourceIds": [
+      "ST-018",
+      "ST-020",
+      "ST-022",
+      "ST-024",
+      "ST-019",
+      "ST-021",
+      "ST-023"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "ST-018",
+        "title": "真实组件局部状态矩阵",
+        "role": "owner-private",
+        "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口"
+      }
+    ],
+    "viewportIntent": "真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。",
+    "referenceInputs": [
+      {
+        "path": "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-13-settings-preferences.png",
+        "role": "style-only；已实现ToDoo视觉规范，禁止抄任务内容和菜单"
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+        "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+        "role": "精确sourceId字段/动作/权限合同；非图片输入"
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+        "role": "已复核边界与尚未验证运行项；非图片输入"
+      }
+    ],
+    "functionalInvariants": [
+      {
+        "sourceId": "ST-018",
+        "route": "/?view=settings&section=library",
+        "trigger": "批量导入；工作区Markdown导入入口复用inline内容",
+        "parentId": "ST-002",
+        "roles": [
+          "authenticated-owner"
+        ],
+        "permissionRules": [
+          "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+        ],
+        "fields": [
+          {
+            "name": "选择文件 / 选择目录",
+            "type": "file[]",
+            "required": true,
+            "constraints": "每批≤200文件且≤20MiB；Markdown≤1MiB、Excalidraw≤8MiB、附件≤10MiB；目录保留内部结构",
+            "sensitive": false
+          },
+          {
+            "name": "选择已有目录",
+            "type": "tree-select",
+            "required": false,
+            "constraints": "",
+            "sensitive": false
+          },
+          {
+            "name": "导入到知识库目录",
+            "type": "text",
+            "required": false,
+            "constraints": "相对目录最长2000；不可绝对路径、反斜杠、%或非法名称段；可新建；留空保留完整分类路径；拒绝链接祖先",
+            "sensitive": false
+          },
+          {
+            "name": "遇到同名文件",
+            "type": "select",
+            "required": true,
+            "constraints": "skip/rename",
+            "sensitive": false
+          }
+        ],
+        "importantStates": [
+          "未选文件",
+          "文件超限/读取失败",
+          "目录读取中/失败可重试",
+          "已选文件展开列表"
+        ],
+        "notes": [
+          "抽屉请求宽840px；同一内页以inline方式供Workspace外层窗口复用。"
+        ]
+      },
+      {
+        "type": "composition",
+        "details": [
+          "批量导入完整抽屉：文件/目录选件清单、已有目录/目标相对目录、skip/rename、三步进度和预览/取消。"
+        ]
+      },
+      {
+        "sourceId": "ST-020",
+        "route": "/?view=settings&section=library",
+        "trigger": "检查预览→下一步",
+        "parentId": "ST-018",
+        "roles": [
+          "authenticated-owner"
+        ],
+        "permissionRules": [
+          "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+        ],
+        "fields": [],
+        "importantStates": [
+          "目录/数量/处理结果/同名策略摘要",
+          "提交中锁输入及关闭",
+          "成功关闭，任务常驻",
+          "错误可按原requestId重试"
+        ],
+        "notes": []
+      },
+      {
+        "type": "composition",
+        "details": [
+          "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+        ]
+      },
+      {
+        "sourceId": "ST-022",
+        "route": "/?view=settings&section=library",
+        "trigger": "导入便携包",
+        "parentId": "ST-002",
+        "roles": [
+          "authenticated-owner"
+        ],
+        "permissionRules": [
+          "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+        ],
+        "fields": [
+          {
+            "name": "完整解压目录",
+            "type": "file-directory",
+            "required": false,
+            "constraints": "含dooknow-portable.json及完整所需文件；≤10000+1文件、总≤256MiB客户端初检",
+            "sensitive": false
+          },
+          {
+            "name": "便携归档文件",
+            "type": "file",
+            "required": false,
+            "constraints": ".tar.gz/.tgz/application/gzip；与解压目录二选一",
+            "sensitive": false
+          },
+          {
+            "name": "导入目录",
+            "type": "text",
+            "required": false,
+            "constraints": "默认父folderPath；服务端验证",
+            "sensitive": false
+          }
+        ],
+        "importantStates": [
+          "文件配额超限",
+          "上传/预览准备中",
+          "服务错误",
+          "完成ST-023"
+        ],
+        "notes": []
+      },
+      {
+        "type": "composition",
+        "details": [
+          "便携导入完整窗口：完整解压目录或归档二选一、导入目录、配额/完整性提示和导入/关闭。"
+        ]
+      },
+      {
+        "sourceId": "ST-024",
+        "route": "/?view=settings&section=library",
+        "trigger": "导出资料",
+        "parentId": "ST-002",
+        "roles": [
+          "authenticated-owner"
+        ],
+        "permissionRules": [
+          "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+        ],
+        "fields": [
+          {
+            "name": "导出范围",
+            "type": "select",
+            "required": true,
+            "constraints": "整个知识库/library或指定目录/folder",
+            "sensitive": false
+          },
+          {
+            "name": "仅导出指定目录",
+            "type": "tree-select",
+            "required": false,
+            "constraints": "scope=folder必选非空已有目录",
+            "sensitive": false
+          }
+        ],
+        "importantStates": [
+          "目录读取/空选/失败",
+          "提交中",
+          "提交后页面任务处下载",
+          "exportError"
+        ],
+        "notes": [
+          "不包含账户和完整历史；恢复使用加密备份。"
+        ]
+      },
+      {
+        "type": "composition",
+        "details": [
+          "导出完整窗口：整个库/指定目录、已有目录树、重读与导出/取消。"
+        ]
+      },
+      {
+        "sourceId": "ST-019",
+        "route": "/?view=settings&section=library",
+        "trigger": "预览导入成功",
+        "parentId": "ST-018",
+        "roles": [
+          "authenticated-owner"
+        ],
+        "permissionRules": [
+          "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+        ],
+        "fields": [],
+        "importantStates": [
+          "导入位置/类型/新建跳过改名表格",
+          "总文件/字节数",
+          "服务端warning",
+          "横向滚动表"
+        ],
+        "notes": []
+      },
+      {
+        "type": "composition",
+        "details": [
+          "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+        ]
+      },
+      {
+        "sourceId": "ST-021",
+        "route": "/?view=settings&section=library",
+        "trigger": "修改目录/同名策略或请求失败",
+        "parentId": "ST-018",
+        "roles": [
+          "authenticated-owner"
+        ],
+        "permissionRules": [
+          "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+        ],
+        "fields": [],
+        "importantStates": [
+          "原预览失效回到第一步",
+          "进行中修改仍以原位置提交的提示",
+          "旧响应忽略",
+          "文件验证/路径验证/目录读取/提交错误"
+        ],
+        "notes": [
+          "没有覆盖同名已有原文选项，只提供跳过/改名。"
+        ]
+      },
+      {
+        "type": "composition",
+        "details": [
+          "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+        ]
+      },
+      {
+        "sourceId": "ST-023",
+        "route": "/?view=settings&section=library",
+        "trigger": "整包完成；任务→选择原资料继续",
+        "parentId": "ST-022",
+        "roles": [
+          "authenticated-owner"
+        ],
+        "permissionRules": [
+          "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+        ],
+        "fields": [
+          {
+            "name": "续传原始完整资料",
+            "type": "file/directory",
+            "required": true,
+            "constraints": "任务原kind限制归档/目录输入；续传目录锁定；沿用原requestId",
+            "sensitive": false
+          }
+        ],
+        "importantStates": [
+          "完成笔记数/附件数/路径列表",
+          "导入完成后禁用再次提交",
+          "缺原资料需重选",
+          "图形预览准备未完成"
+        ],
+        "notes": []
+      },
+      {
+        "type": "composition",
+        "details": [
+          "在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。"
+        ]
+      },
+      {
+        "type": "role-shell",
+        "rule": "Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities."
+      },
+      {
+        "type": "reuse-justification",
+        "component": "apps/web/components/settings/TransferPanel.vue",
+        "rule": "Same source-confirmed actual component/role. Identical alert/busy geometry reuses message/data/guard bindings; structural rows remain distinct. Maximum7 compact rows/cards; full pages/dense forms/windows have separate complete assets."
+      },
+      {
+        "type": "local-component-composition",
+        "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+      }
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "ST-018",
+        "label": "预览导入",
+        "effect": "服务器生成预览；不提交任务",
+        "api": "POST /api/manage/import/preview",
+        "guard": "文件非空且不busy"
+      },
+      {
+        "sourceId": "ST-018",
+        "label": "清除选择",
+        "effect": "清除文件并废弃旧预览",
+        "api": null,
+        "guard": "已登录所有者；请求期间禁用重复操作"
+      },
+      {
+        "sourceId": "ST-018",
+        "label": "取消",
+        "effect": "dirty显示ST-089",
+        "api": null,
+        "guard": "已登录所有者；请求期间禁用重复操作"
+      },
+      {
+        "sourceId": "ST-020",
+        "label": "返回预览",
+        "effect": "保留预览回到第二步",
+        "api": null,
+        "guard": "已登录所有者；请求期间禁用重复操作"
+      },
+      {
+        "sourceId": "ST-020",
+        "label": "确认导入N个文件",
+        "effect": "创建后台任务；关闭抽屉并保留页面任务列表",
+        "api": "POST /api/manage/import",
+        "guard": "step=3且preview存在；稳定requestId；busy防重"
+      },
+      {
+        "sourceId": "ST-022",
+        "label": "导入整包",
+        "effect": "导入完整归档/目录并完成便携图形预览",
+        "api": "POST /api/portable-deliveries/import?folderPath=&requestId= 或 POST /api/portable-deliveries/import-directory",
+        "guard": "有归档或目录；不busy；未已有结果"
+      },
+      {
+        "sourceId": "ST-022",
+        "label": "关闭",
+        "effect": "输入未提交时显示ST-089",
+        "api": null,
+        "guard": "已登录所有者；请求期间禁用重复操作"
+      },
+      {
+        "sourceId": "ST-024",
+        "label": "导出资料",
+        "effect": "后台打包原文/白板/可读关联附件与清单",
+        "api": "POST /api/manage/export",
+        "guard": "不busy；指定目录时非空"
+      },
+      {
+        "sourceId": "ST-024",
+        "label": "重新读取目录",
+        "effect": "重读目录树",
+        "api": "GET /api/tree",
+        "guard": "已登录所有者；请求期间禁用重复操作"
+      },
+      {
+        "sourceId": "ST-024",
+        "label": "取消",
+        "effect": "dirty显示ST-089",
+        "api": null,
+        "guard": "已登录所有者；请求期间禁用重复操作"
+      },
+      {
+        "sourceId": "ST-019",
+        "label": "返回修改",
+        "effect": "使旧预览失效并返回选择",
+        "api": null,
+        "guard": "已登录所有者；请求期间禁用重复操作"
+      },
+      {
+        "sourceId": "ST-019",
+        "label": "下一步：确认导入",
+        "effect": "进入ST-020；不请求提交",
+        "api": null,
+        "guard": "已登录所有者；请求期间禁用重复操作"
+      },
+      {
+        "sourceId": "ST-021",
+        "label": "重新预览",
+        "effect": "从当前选择生成新预览",
+        "api": "POST /api/manage/import/preview",
+        "guard": "已登录所有者；请求期间禁用重复操作"
+      },
+      {
+        "sourceId": "ST-023",
+        "label": "导入整包",
+        "effect": "按原任务继续，不重复创建已导入笔记",
+        "api": "同ST-022",
+        "guard": "已登录所有者；请求期间禁用重复操作"
+      },
+      {
+        "sourceId": "ST-023",
+        "label": "结果笔记",
+        "effect": "关闭面板并打开新noteId",
+        "api": null,
+        "guard": "已登录所有者；请求期间禁用重复操作"
+      }
+    ],
+    "forbiddenAdditions": [
+      "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+      "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+      "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+      "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+      "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+      "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+    ],
+    "responsiveContract": [
+      {
+        "sourceId": "ST-018",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      },
+      {
+        "sourceId": "ST-020",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      },
+      {
+        "sourceId": "ST-022",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      },
+      {
+        "sourceId": "ST-024",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      },
+      {
+        "sourceId": "ST-019",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      },
+      {
+        "sourceId": "ST-021",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      },
+      {
+        "sourceId": "ST-023",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      }
+    ],
+    "prompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-SX001 Component state matrix: owner-private / TransferPanel.vue · concrete variant supplement\n\n真实组件同角色局部状态矩阵，1外部面板A，最多7个可读提示/控件/局部布局行；主表单/完整窗口在独立master，不压缩。source/data/guard差异明确标为共享模式。\n\n角色壳：Only owner-private context; exact per-source permissions/guards remain authoritative, never merge public and owner capabilities.\n\n独立场景：\nA | ST-018 | 真实组件局部状态矩阵 | role=owner-private | 最多7个独立可读控件/提示/局部布局行；不是多个全窗口\n\n完整上下文在各独立主稿，此板只画真实局部组件，父页面/role由metadata承担：\n批量导入完整抽屉：文件/目录选件清单、已有目录/目标相对目录、skip/rename、三步进度和预览/取消。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n便携导入完整窗口：完整解压目录或归档二选一、导入目录、配额/完整性提示和导入/关闭。\n导出完整窗口：整个库/指定目录、已有目录树、重读与导出/取消。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n在实际宿主中完整呈现该窗口/状态；只使用登记字段和动作。\n\n局部矩阵（≤7行/卡）：\nr1 | ST-018 | 实际只画代表：目录读取失败；显示原有重试 | 既有busy/spinner/禁用控件模式，按原guard锁定。 | renderer=apps/web/components/settings/TransferPanel.vue\n\n精确功能/字段/动作guard合同：\nST-018/ST-020/ST-022/ST-024/ST-019/ST-021/ST-023权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-018字段顺序：选择文件 / 选择目录 [file[]; 必填]: 每批≤200文件且≤20MiB；Markdown≤1MiB、Excalidraw≤8MiB、附件≤10MiB；目录保留内部结构 | 选择已有目录 [tree-select; 可选]: 既有控件 | 导入到知识库目录 [text; 可选]: 相对目录最长2000；不可绝对路径、反斜杠、%或非法名称段；可新建；留空保留完整分类路径；拒绝链接祖先 | 遇到同名文件 [select; 必填]: skip/rename\nST-020/ST-019/ST-021字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-022字段顺序：完整解压目录 [file-directory; 可选]: 含dooknow-portable.json及完整所需文件；≤10000+1文件、总≤256MiB客户端初检 | 便携归档文件 [file; 可选]: .tar.gz/.tgz/application/gzip；与解压目录二选一 | 导入目录 [text; 可选]: 默认父folderPath；服务端验证\nST-024字段顺序：导出范围 [select; 必填]: 整个知识库/library或指定目录/folder | 仅导出指定目录 [tree-select; 可选]: scope=folder必选非空已有目录\nST-023字段顺序：续传原始完整资料 [file/directory; 必填]: 任务原kind限制归档/目录输入；续传目录锁定；沿用原requestId\nST-018白名单：预览导入 => 服务器生成预览；不提交任务；guard=文件非空且不busy；接口约束=POST /api/manage/import/preview\nST-018白名单：清除选择 => 清除文件并废弃旧预览；guard=已登录所有者；请求期间禁用重复操作\nST-018/ST-024白名单：取消 => dirty显示ST-089；guard=已登录所有者；请求期间禁用重复操作\nST-020白名单：返回预览 => 保留预览回到第二步；guard=已登录所有者；请求期间禁用重复操作\nST-020白名单：确认导入N个文件 => 创建后台任务；关闭抽屉并保留页面任务列表；guard=step=3且preview存在；稳定requestId；busy防重；接口约束=POST /api/manage/import\nST-022白名单：导入整包 => 导入完整归档/目录并完成便携图形预览；guard=有归档或目录；不busy；未已有结果；接口约束=POST /api/portable-deliveries/import?folderPath=&requestId= 或 POST /api/portable-deliveries/import-directory\nST-022白名单：关闭 => 输入未提交时显示ST-089；guard=已登录所有者；请求期间禁用重复操作\nST-024白名单：导出资料 => 后台打包原文/白板/可读关联附件与清单；guard=不busy；指定目录时非空；接口约束=POST /api/manage/export\nST-024白名单：重新读取目录 => 重读目录树；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/tree\nST-019白名单：返回修改 => 使旧预览失效并返回选择；guard=已登录所有者；请求期间禁用重复操作\nST-019白名单：下一步：确认导入 => 进入ST-020；不请求提交；guard=已登录所有者；请求期间禁用重复操作\nST-021白名单：重新预览 => 从当前选择生成新预览；guard=已登录所有者；请求期间禁用重复操作；接口约束=POST /api/manage/import/preview\nST-023白名单：导入整包 => 按原任务继续，不重复创建已导入笔记；guard=已登录所有者；请求期间禁用重复操作；接口约束=同ST-022\nST-023白名单：结果笔记 => 关闭面板并打开新noteId；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\nSettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。\n1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-SX001.png",
+    "reviewStatus": "pending-generation",
+    "compositionMode": "compact-state-matrix",
+    "stateMatrix": [
+      {
+        "row": "r1",
+        "sourceId": "ST-018",
+        "title": "目录读取失败；显示原有重试",
+        "renderer": "apps/web/components/settings/TransferPanel.vue",
+        "sourceRefs": [
+          "apps/web/components/settings/TransferPanel.vue:215",
+          "apps/web/components/settings/TransferPanel.vue:356",
+          "apps/web/components/settings/TransferPanel.vue:507",
+          "apps/server/platform/transfer-import.ts:29",
+          "apps/server/platform/transfer-import.ts:94"
+        ],
+        "guardBindings": [
+          {
+            "label": "预览导入",
+            "guard": "文件非空且不busy"
+          },
+          {
+            "label": "清除选择",
+            "guard": "已登录所有者；请求期间禁用重复操作"
+          },
+          {
+            "label": "取消",
+            "guard": "已登录所有者；请求期间禁用重复操作"
+          }
+        ],
+        "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+        "coveredStates": [
+          {
+            "state": "目录读取中/失败可重试",
+            "variant": "目录读取中/失败可重试",
+            "representation": "visible"
+          }
+        ],
+        "coveredSourceIds": [
+          "ST-018",
+          "ST-020",
+          "ST-022",
+          "ST-024"
+        ],
+        "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+      }
+    ],
+    "parentBindings": [
+      {
+        "sourceId": "ST-018",
+        "parentId": "ST-002",
+        "route": "/?view=settings&section=library",
+        "roles": [
+          "authenticated-owner"
+        ],
+        "sourceRefs": [
+          "apps/web/components/settings/TransferPanel.vue:215",
+          "apps/web/components/settings/TransferPanel.vue:356",
+          "apps/web/components/settings/TransferPanel.vue:507",
+          "apps/server/platform/transfer-import.ts:29",
+          "apps/server/platform/transfer-import.ts:94"
+        ]
+      },
+      {
+        "sourceId": "ST-020",
+        "parentId": "ST-018",
+        "route": "/?view=settings&section=library",
+        "roles": [
+          "authenticated-owner"
+        ],
+        "sourceRefs": [
+          "apps/web/components/settings/TransferPanel.vue:271",
+          "apps/web/components/settings/TransferPanel.vue:632"
+        ]
+      },
+      {
+        "sourceId": "ST-022",
+        "parentId": "ST-002",
+        "route": "/?view=settings&section=library",
+        "roles": [
+          "authenticated-owner"
+        ],
+        "sourceRefs": [
+          "apps/web/components/settings/TransferPanel.vue:58",
+          "apps/web/components/settings/TransferPanel.vue:89",
+          "apps/web/components/settings/TransferPanel.vue:412",
+          "shared/portable-resource-limits.ts:4"
+        ]
+      },
+      {
+        "sourceId": "ST-024",
+        "parentId": "ST-002",
+        "route": "/?view=settings&section=library",
+        "roles": [
+          "authenticated-owner"
+        ],
+        "sourceRefs": [
+          "apps/web/components/settings/TransferPanel.vue:336",
+          "apps/web/components/settings/TransferPanel.vue:708"
+        ]
+      },
+      {
+        "sourceId": "ST-019",
+        "parentId": "ST-018",
+        "route": "/?view=settings&section=library",
+        "roles": [
+          "authenticated-owner"
+        ],
+        "sourceRefs": [
+          "apps/web/components/settings/TransferPanel.vue:249",
+          "apps/web/components/settings/TransferPanel.vue:601"
+        ]
+      },
+      {
+        "sourceId": "ST-021",
+        "parentId": "ST-018",
+        "route": "/?view=settings&section=library",
+        "roles": [
+          "authenticated-owner"
+        ],
+        "sourceRefs": [
+          "apps/web/components/settings/TransferPanel.vue:177",
+          "apps/web/components/settings/TransferPanel.vue:249"
+        ]
+      },
+      {
+        "sourceId": "ST-023",
+        "parentId": "ST-022",
+        "route": "/?view=settings&section=library",
+        "roles": [
+          "authenticated-owner"
+        ],
+        "sourceRefs": [
+          "apps/web/components/settings/TransferPanel.vue:78",
+          "apps/web/components/settings/TransferPanel.vue:429",
+          "apps/web/components/settings/TransferPanel.vue:475"
+        ]
+      }
+    ]
+  },
+  "originalMappingRecords": [
+    {
+      "sourceId": "ST-018",
+      "assetId": "MP-SX001",
+      "panel": "A",
+      "reason": "Readable supplement for mutually exclusive concrete variants, same actual component/role."
+    },
+    {
+      "sourceId": "ST-020",
+      "assetId": "MP-SX001",
+      "panel": "A",
+      "reason": "Readable supplement for mutually exclusive concrete variants, same actual component/role."
+    },
+    {
+      "sourceId": "ST-022",
+      "assetId": "MP-SX001",
+      "panel": "A",
+      "reason": "Readable supplement for mutually exclusive concrete variants, same actual component/role."
+    },
+    {
+      "sourceId": "ST-024",
+      "assetId": "MP-SX001",
+      "panel": "A",
+      "reason": "Readable supplement for mutually exclusive concrete variants, same actual component/role."
+    },
+    {
+      "sourceId": "ST-019",
+      "assetId": "MP-SX001",
+      "panel": "A",
+      "reason": "Readable supplement for mutually exclusive concrete variants, same actual component/role."
+    },
+    {
+      "sourceId": "ST-021",
+      "assetId": "MP-SX001",
+      "panel": "A",
+      "reason": "Readable supplement for mutually exclusive concrete variants, same actual component/role."
+    },
+    {
+      "sourceId": "ST-023",
+      "assetId": "MP-SX001",
+      "panel": "A",
+      "reason": "Readable supplement for mutually exclusive concrete variants, same actual component/role."
+    }
+  ],
+  "originalStateCoverageRecords": [
+    {
+      "sourceId": "ST-018",
+      "state": "目录读取中/失败可重试",
+      "assetId": "MP-SX001",
+      "panel": "A",
+      "representation": "visible",
+      "reason": "Separate explicit row for incompatible concrete loading/error/empty/guard variant.",
+      "variant": "目录读取失败；显示原有重试",
+      "matrixRow": "r1",
+      "reuseEvidence": {
+        "component": "apps/web/components/settings/TransferPanel.vue",
+        "sourceRefs": [
+          "apps/web/components/settings/TransferPanel.vue:215",
+          "apps/web/components/settings/TransferPanel.vue:356",
+          "apps/web/components/settings/TransferPanel.vue:507",
+          "apps/server/platform/transfer-import.ts:29",
+          "apps/server/platform/transfer-import.ts:94"
+        ],
+        "stateBindingContract": "目录读取中/失败可重试",
+        "fieldBindingContract": [
+          {
+            "name": "选择文件 / 选择目录",
+            "type": "file[]",
+            "required": true,
+            "constraints": "每批≤200文件且≤20MiB；Markdown≤1MiB、Excalidraw≤8MiB、附件≤10MiB；目录保留内部结构",
+            "sensitive": false
+          },
+          {
+            "name": "选择已有目录",
+            "type": "tree-select",
+            "required": false,
+            "constraints": "",
+            "sensitive": false
+          },
+          {
+            "name": "导入到知识库目录",
+            "type": "text",
+            "required": false,
+            "constraints": "相对目录最长2000；不可绝对路径、反斜杠、%或非法名称段；可新建；留空保留完整分类路径；拒绝链接祖先",
+            "sensitive": false
+          },
+          {
+            "name": "遇到同名文件",
+            "type": "select",
+            "required": true,
+            "constraints": "skip/rename",
+            "sensitive": false
+          }
+        ],
+        "actionGuards": [
+          {
+            "label": "预览导入",
+            "guard": "文件非空且不busy"
+          },
+          {
+            "label": "清除选择",
+            "guard": "已登录所有者；请求期间禁用重复操作"
+          },
+          {
+            "label": "取消",
+            "guard": "已登录所有者；请求期间禁用重复操作"
+          }
+        ]
+      }
+    }
+  ],
+  "originalResponsiveMappingRecords": [],
+  "requiredRootActions": [
+    "Root may retire only this ungenerated supplement, archive original asset/contracts and preserve all seven mapping records as exact family canonical reuse; preserve the single state with both r1/r3 visual parts and exact dynamic data/guards.",
+    "Root owns plan/catalog/queue/GEN031/lane updates; this audit makes no changes to them."
+  ],
+  "globalDesignApproved": false
+}

@@ -1,0 +1,15 @@
+{
+  "id": "public-archive",
+  "title": "公开归档",
+  "width": 390,
+  "audience": "public",
+  "route": "/blog/archive",
+  "file": "390-public-archive.png",
+  "sha256": "f49c4c068e77829913d9b91feafec95ec730c3af863338965d34b48ab5e13deb",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "pageErrors": [],
+  "outerOverflow": 0
+}

@@ -1,0 +1,15 @@
+{
+  "id": "public-articles",
+  "title": "公开文章索引",
+  "width": 1440,
+  "audience": "public",
+  "route": "/blog/-/articles",
+  "file": "1440-public-articles.png",
+  "sha256": "6be685ed3a4e385f4cf3b77a558676f6e655b232df946a1a3af69602741ff957",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "pageErrors": [],
+  "outerOverflow": 0
+}

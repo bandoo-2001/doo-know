@@ -1,0 +1,16 @@
+{
+  "id": "blog-taxonomy",
+  "title": "博客管理 taxonomy",
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?view=apps&app=blog&appSection=taxonomy",
+  "file": "1440-blog-taxonomy.png",
+  "sha256": "ca78d354658d4b7842efdcbd1d479d9dcc7b4e315c1621cede8c3619a6c9435b",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

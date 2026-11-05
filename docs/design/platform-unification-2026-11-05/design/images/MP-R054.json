@@ -1,0 +1,346 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R054",
+  "assetId": "MP-R054",
+  "sourceIds": [
+    "PB-022"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "anonymous guest"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-022",
+      "title": "公开分享阅读：普通笔记390px",
+      "role": "anonymous guest",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three public reader narrow pages: A390 actual view-only full note1heading collapsed TOC; B320 edit-capability full note expanded mobileTOC and real edit action/expiry, not editing; C320 large fragment view-only noTOC, retained body and fragmentError/next action. No private chrome/source/download/owner actions."
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-022",
+      "title": "公开分享阅读：普通笔记320px",
+      "role": "anonymous guest",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three public reader narrow pages: A390 actual view-only full note1heading collapsed TOC; B320 edit-capability full note expanded mobileTOC and real edit action/expiry, not editing; C320 large fragment view-only noTOC, retained body and fragmentError/next action. No private chrome/source/download/owner actions."
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-022",
+      "title": "公开分享阅读：普通笔记320px guard",
+      "role": "anonymous guest",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three public reader narrow pages: A390 actual view-only full note1heading collapsed TOC; B320 edit-capability full note expanded mobileTOC and real edit action/expiry, not editing; C320 large fragment view-only noTOC, retained body and fragmentError/next action. No private chrome/source/download/owner actions."
+    }
+  ],
+  "selectedState": "Three public reader narrow pages: A390 actual view-only full note1heading collapsed TOC; B320 edit-capability full note expanded mobileTOC and real edit action/expiry, not editing; C320 large fragment view-only noTOC, retained body and fragmentError/next action. No private chrome/source/download/owner actions.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制并排三个完整独立公开分享窄网页，宽比例390、320、320，白灰蓝平面，不画主人导航。照第二图访客页：页头蓝书本DooKnow、分享笔记、只读徽章；标题让知识保持可用，更新于2026/11/5 00:50:00；正文“用于公开页面盘点的隔离示例，不包含真实用户资料。”，小标题记录与回顾，段落把观察留下，给下一步提供线索。；页脚由DooKnow分享 | 内容随原笔记保存同步更新。左页本文目录 1 个章节收起。中页保持同正文，页头徽章改可编辑，并保留真实蓝色编辑笔记按钮可换行；标题下有效期至2027/1/1 12:00:00、更新于同左；本文目录 1 个章节展开且只有一个可点击章节链接记录与回顾，正文同左，尚未进入编辑。右页只读页头，同标题/正文和更新，完全没有目录，正文下黄色“下一片段读取失败，当前内容已保留。请检查连接后重试。”，下面“正在阅读当前片段”和可用“下一片段”，原文保留；同真实页脚。窄页面自然换行和纵向滚动，代码/表格若未提供不要新增。不加登录、密码、分享管理、上传、所有者工具栏、源码下载或额外重试按钮。",
+  "prompt": "绘制并排三个完整独立公开分享窄网页，宽比例390、320、320，白灰蓝平面，不画主人导航。照第二图访客页：页头蓝书本DooKnow、分享笔记、只读徽章；标题让知识保持可用，更新于2026/11/5 00:50:00；正文“用于公开页面盘点的隔离示例，不包含真实用户资料。”，小标题记录与回顾，段落把观察留下，给下一步提供线索。；页脚由DooKnow分享 | 内容随原笔记保存同步更新。左页本文目录 1 个章节收起。中页保持同正文，页头徽章改可编辑，并保留真实蓝色编辑笔记按钮可换行；标题下有效期至2027/1/1 12:00:00、更新于同左；本文目录 1 个章节展开且只有一个可点击章节链接记录与回顾，正文同左，尚未进入编辑。右页只读页头，同标题/正文和更新，完全没有目录，正文下黄色“下一片段读取失败，当前内容已保留。请检查连接后重试。”，下面“正在阅读当前片段”和可用“下一片段”，原文保留；同真实页脚。窄页面自然换行和纵向滚动，代码/表格若未提供不要新增。不加登录、密码、分享管理、上传、所有者工具栏、源码下载或额外重试按钮。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; anonymous reader no owner navigation",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-reader.png",
+      "role": "Actual guest header/title/body/mobileTOC/footer and view-only fixture",
+      "sha256": "75e64671275e879f0fb9d6629334fb5224ba789962dbb9c71d9e9aa7c7cabf09",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; anonymous reader no owner navigation",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-reader.png",
+      "role": "Actual guest header/title/body/mobileTOC/footer and view-only fixture",
+      "sha256": "75e64671275e879f0fb9d6629334fb5224ba789962dbb9c71d9e9aa7c7cabf09",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制并排三个完整独立公开分享窄网页，宽比例390、320、320，白灰蓝平面，不画主人导航。照第二图访客页：页头蓝书本DooKnow、分享笔记、只读徽章；标题让知识保持可用，更新于2026/11/5 00:50:00；正文“用于公开页面盘点的隔离示例，不包含真实用户资料。”，小标题记录与回顾，段落把观察留下，给下一步提供线索。；页脚由DooKnow分享 | 内容随原笔记保存同步更新。左页本文目录 1 个章节收起。中页保持同正文，页头徽章改可编辑，并保留真实蓝色编辑笔记按钮可换行；标题下有效期至2027/1/1 12:00:00、更新于同左；本文目录 1 个章节展开且只有一个可点击章节链接记录与回顾，正文同左，尚未进入编辑。右页只读页头，同标题/正文和更新，完全没有目录，正文下黄色“下一片段读取失败，当前内容已保留。请检查连接后重试。”，下面“正在阅读当前片段”和可用“下一片段”，原文保留；同真实页脚。窄页面自然换行和纵向滚动，代码/表格若未提供不要新增。不加登录、密码、分享管理、上传、所有者工具栏、源码下载或额外重试按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-reader.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制并排三个完整独立公开分享窄网页，宽比例390、320、320，白灰蓝平面，不画主人导航。照第二图访客页：页头蓝书本DooKnow、分享笔记、只读徽章；标题让知识保持可用，更新于2026/11/5 00:50:00；正文“用于公开页面盘点的隔离示例，不包含真实用户资料。”，小标题记录与回顾，段落把观察留下，给下一步提供线索。；页脚由DooKnow分享 | 内容随原笔记保存同步更新。左页本文目录 1 个章节收起。中页保持同正文，页头徽章改可编辑，并保留真实蓝色编辑笔记按钮可换行；标题下有效期至2027/1/1 12:00:00、更新于同左；本文目录 1 个章节展开且只有一个可点击章节链接记录与回顾，正文同左，尚未进入编辑。右页只读页头，同标题/正文和更新，完全没有目录，正文下黄色“下一片段读取失败，当前内容已保留。请检查连接后重试。”，下面“正在阅读当前片段”和可用“下一片段”，原文保留；同真实页脚。窄页面自然换行和纵向滚动，代码/表格若未提供不要新增。不加登录、密码、分享管理、上传、所有者工具栏、源码下载或额外重试按钮。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; anonymous reader no owner navigation"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-share-reader.png",
+          "role": "Actual guest header/title/body/mobileTOC/footer and view-only fixture"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-504f5824-0a8d-4ecc-976e-44640afd5110.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-022",
+      "title": "公开分享阅读：普通笔记",
+      "kind": "page",
+      "module": "share",
+      "entry": {
+        "route": "/s/:token",
+        "trigger": "Anonymous capability link",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:61",
+        "apps/web/components/ShareReader.vue:112",
+        "apps/web/components/ShareReader.vue:155",
+        "packages/core/shares.ts:127",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required; 43-character token must be active/unexpired and note exists.",
+        "No password field/gate exists. Public page has noindex,nofollow. Shared content follows latest saved original.",
+        "CanEdit requires edit permission and supported Markdown; large/long-line or graph-document sources remain read-only.",
+        "A resolved embedded whiteboard uses the current share board endpoint and board.capabilities.canDownloadSource; only that resolved capability governs source-tab availability. The server includes source content/path only when allowDiagramSource and the underlying resource permit it.",
+        "DiagramPreview canEdit requires !readOnly && !shareToken && resourceEdit; canGenerate additionally requires editable=true. A guest/shareToken can never edit design, edit diagram source, convert to whiteboard or generate portable preview, even when original-source download is allowed."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "编辑笔记",
+          "effect": "Open public editor",
+          "api": "",
+          "guard": "access.canEdit and no reader error"
+        },
+        {
+          "label": "目录章节",
+          "effect": "Navigate native heading anchor",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "附件/图片链接",
+          "effect": "Read resource authorized by share",
+          "api": "GET /api/public/shares/:token/asset?source=…",
+          "guard": "only current capability resource"
+        }
+      ],
+      "importantStates": [
+        "loading; full content",
+        "view-only or editable badge",
+        "expiry timestamp; edit-unavailable reason",
+        "heading TOC; no headings",
+        "images/attachments through capability; diagram previews read-only",
+        "Public graph-document and Excalidraw-reference read projections may be ordinary PNG preview images with public explanatory body and no source tab/download control; source-allowed setting does not turn such an image into an editor.",
+        "When an embedded whiteboard is actually resolved into DiagramPreview (including public rich editing), canDownloadSource=false hides the source tab and clears a previously visible source panel; preview/expand/retry remain the appropriate read controls.",
+        "For a resolved board whose capability explicitly permits source, source tab reveals only returned sourceText and its local Download source action. The same card still has no edit/convert/generate controls for a shareToken."
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px article becomes single column and desktop TOC changes to native mobile details; code/tables scroll within content (ShareReader.vue:490). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/shares.test.ts:5",
+        "tests/e2e/sharing-permissions.spec.ts:71",
+        "tests/e2e/sharing-permissions.spec.ts:327",
+        "tests/e2e/sharing-permissions.spec.ts:604",
+        "tests/e2e/diagram-public-reader.spec.ts:8",
+        "tests/diagram-public-projection.test.ts:266",
+        "tests/e2e/sharing-permissions.spec.ts:363"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Public guest page must retain guest-only navigation; no owner workspace rails.",
+        "Actual shared component path is apps/web/components/DiagramPreview.vue; there is no PublicDiagramPreview.vue at this baseline.",
+        "Ordinary inline SVG/Mermaid code already present in shared Markdown retains inline rendering; this is distinct from permission to fetch private/native board source. Do not infer original-source access from a source-tab screenshot or from note edit permission alone.",
+        "Download is a local Blob of sourceText: for Excalidraw this is boardSource || provided scene || fence code. The component does not fetch an owner asset or an extra source.path to fill missing source.content; do not depict such a fetch as implemented."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-022",
+      "parentId": null,
+      "route": "/s/:token",
+      "roles": [
+        "anonymous guest"
+      ],
+      "sourceRefs": [
+        "apps/web/App.vue:61",
+        "apps/web/components/ShareReader.vue:112",
+        "apps/web/components/ShareReader.vue:155",
+        "packages/core/shares.ts:127",
+        "apps/web/components/DiagramPreview.vue:42",
+        "apps/web/components/DiagramPreview.vue:115",
+        "apps/web/components/DiagramPreview.vue:127",
+        "apps/web/components/DiagramPreview.vue:299",
+        "apps/web/components/DiagramPreview.vue:329",
+        "apps/web/components/DiagramPreview.vue:193",
+        "packages/core/public-diagram-projection.ts:104",
+        "packages/core/public-diagram-projection.ts:154",
+        "packages/core/public-diagram-projection.ts:190",
+        "apps/web/components/DiagramPreview.vue:46"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-041.json#MP-R054",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R054",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-504f5824-0a8d-4ecc-976e-44640afd5110.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R054.png",
+  "sha256": "0e82fa7e9f0ca1fcfa7e09ab3d1aa2aac64e2fd3ee24786287db2b3a1dc4a6c2",
+  "bytes": 1244269,
+  "dimensions": {
+    "width": 1448,
+    "height": 1086
+  },
+  "generatedAtUtc": "2026-11-05T08:00:01.242000+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: ShareReader.vue capability article/fragment reader and TOC containment",
+    "sourceIds": [
+      "PB-022"
+    ],
+    "roles": [
+      "anonymous guest"
+    ],
+    "state": "Three public reader narrow pages: A390 actual view-only full note1heading collapsed TOC; B320 edit-capability full note expanded mobileTOC and real edit action/expiry, not editing; C320 large fragment view-only noTOC, retained body and fragmentError/next action. No private chrome/source/download/owner actions.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "permission": "view",
+      "canEdit": false,
+      "large": false,
+      "headings": [
+        "记录与回顾"
+      ],
+      "tocOpen": false
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "permission": "edit",
+      "canEdit": true,
+      "editing": false,
+      "expiresAt": "2027-01-01T12:00:00",
+      "large": false,
+      "headings": [
+        "记录与回顾"
+      ],
+      "tocOpen": true
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "permission": "view",
+      "canEdit": false,
+      "large": true,
+      "headings": [],
+      "hasHtml": true,
+      "nextCursor": true,
+      "loading": false,
+      "fragmentError": "下一片段读取失败，当前内容已保留。请检查连接后重试。"
+    }
+  ]
+}

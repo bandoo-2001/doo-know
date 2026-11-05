@@ -1,0 +1,171 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D060",
+  "sourceIds": [
+    "WS-084"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-084",
+      "title": "Native applications home",
+      "role": "authenticated owner",
+      "state": "Actual applications baseline, all three application cards unpinned and each shows 加入左侧菜单",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host."
+    }
+  ],
+  "selectedBaselineState": "unpinned",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "Use case: ui-mockup. Create one full desktop DooKnow owner applications homepage, about 1440x1000. Image 1 is the exact existing apps content, layout, controls and unpinned state authority. Image 2 supplies only unified DooKnow book/header hierarchy, compact flat palette and density. Add horizontal global header DooKnow book identity | 应用. Keep narrow owner rail O account, 笔记, 最近, 收藏, 应用 selected, bottom 回收站/设置. Apps has NO notebook/search/tree sidebar; main begins after the rail. Do not add app-management/navigation controls.\nPreserve eyebrow YOUR WORKSPACE, EXTENDED; title 应用; description 让知识走得更远。为你的笔记，打开新的可能。 Three equal cards, in order: 知识图谱, 博客, To Doo. Each retains its actual source icon, 原生应用 badge, description, decorative preview, summary and arrow. 知识图谱 description 从原文发现概念与关系，沿着证据探索知识。; summary 自动分析 · 关系证据 · 局部探索. 博客 description 把值得分享的笔记，变成你的个人博客。; summary 选稿 · 预览 · 手动发布. To Doo description 带着资料做事，把每一步成果留下来。; summary 目标 · 任务 · 日程 · 专注. The To Doo name belongs only to this existing application card; platform identity stays DooKnow. Under ALL three cards the action is ＋ 加入左侧菜单, matching actual unpinned baseline. No pinned shortcuts in owner rail. Keep bottom lock footnote 资料与应用数据由你掌握，公开分享由你决定。 No app interiors, new app, install, search, edit, notification or toast. Flat white, pale #f7f8fa, #e6e9f1 borders, #272b3a text, #657084 muted, #4566c6 blue, #edf1ff selected, compact clean sans-serif and small line icons. No texture/gradient or browser chrome. Source/state caption belongs in metadata.",
+  "prompt": "Use case: ui-mockup. Create one full desktop DooKnow owner applications homepage, about 1440x1000. Image 1 is the exact existing apps content, layout, controls and unpinned state authority. Image 2 supplies only unified DooKnow book/header hierarchy, compact flat palette and density. Add horizontal global header DooKnow book identity | 应用. Keep narrow owner rail O account, 笔记, 最近, 收藏, 应用 selected, bottom 回收站/设置. Apps has NO notebook/search/tree sidebar; main begins after the rail. Do not add app-management/navigation controls.\nPreserve eyebrow YOUR WORKSPACE, EXTENDED; title 应用; description 让知识走得更远。为你的笔记，打开新的可能。 Three equal cards, in order: 知识图谱, 博客, To Doo. Each retains its actual source icon, 原生应用 badge, description, decorative preview, summary and arrow. 知识图谱 description 从原文发现概念与关系，沿着证据探索知识。; summary 自动分析 · 关系证据 · 局部探索. 博客 description 把值得分享的笔记，变成你的个人博客。; summary 选稿 · 预览 · 手动发布. To Doo description 带着资料做事，把每一步成果留下来。; summary 目标 · 任务 · 日程 · 专注. The To Doo name belongs only to this existing application card; platform identity stays DooKnow. Under ALL three cards the action is ＋ 加入左侧菜单, matching actual unpinned baseline. No pinned shortcuts in owner rail. Keep bottom lock footnote 资料与应用数据由你掌握，公开分享由你决定。 No app interiors, new app, install, search, edit, notification or toast. Flat white, pale #f7f8fa, #e6e9f1 borders, #272b3a text, #657084 muted, #4566c6 blue, #edf1ff selected, compact clean sans-serif and small line icons. No texture/gradient or browser chrome. Source/state caption belongs in metadata.",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-apps.png",
+      "role": "Actual owner applications homepage content and unpinned state",
+      "sha256": "90e079ba201feefff05f3b7c251ec7d7a9136e8c35f882b5729a475995e7736a",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Unified DooKnow palette/density/header/rail hierarchy only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-apps.png",
+      "role": "Actual owner applications homepage content and unpinned state",
+      "sha256": "90e079ba201feefff05f3b7c251ec7d7a9136e8c35f882b5729a475995e7736a",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Unified DooKnow palette/density/header/rail hierarchy only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "sourceReferences": [
+    {
+      "path": "apps/web/components/AppsWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/AppsWorkspace.vue:136, apps/web/app-shortcuts.ts:1, apps/web/blog.css:37, apps/web/blog.css:1433"
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/generation-batch-02.json#WS-D060",
+  "generationCallCount": 1,
+  "generationAttempts": [
+    {
+      "submittedPrompt": "Use case: ui-mockup. Create one full desktop DooKnow owner applications homepage, about 1440x1000. Image 1 is the exact existing apps content, layout, controls and unpinned state authority. Image 2 supplies only unified DooKnow book/header hierarchy, compact flat palette and density. Add horizontal global header DooKnow book identity | 应用. Keep narrow owner rail O account, 笔记, 最近, 收藏, 应用 selected, bottom 回收站/设置. Apps has NO notebook/search/tree sidebar; main begins after the rail. Do not add app-management/navigation controls.\nPreserve eyebrow YOUR WORKSPACE, EXTENDED; title 应用; description 让知识走得更远。为你的笔记，打开新的可能。 Three equal cards, in order: 知识图谱, 博客, To Doo. Each retains its actual source icon, 原生应用 badge, description, decorative preview, summary and arrow. 知识图谱 description 从原文发现概念与关系，沿着证据探索知识。; summary 自动分析 · 关系证据 · 局部探索. 博客 description 把值得分享的笔记，变成你的个人博客。; summary 选稿 · 预览 · 手动发布. To Doo description 带着资料做事，把每一步成果留下来。; summary 目标 · 任务 · 日程 · 专注. The To Doo name belongs only to this existing application card; platform identity stays DooKnow. Under ALL three cards the action is ＋ 加入左侧菜单, matching actual unpinned baseline. No pinned shortcuts in owner rail. Keep bottom lock footnote 资料与应用数据由你掌握，公开分享由你决定。 No app interiors, new app, install, search, edit, notification or toast. Flat white, pale #f7f8fa, #e6e9f1 borders, #272b3a text, #657084 muted, #4566c6 blue, #edf1ff selected, compact clean sans-serif and small line icons. No texture/gradient or browser chrome. Source/state caption belongs in metadata.",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-apps.png",
+          "role": "Actual owner applications homepage content and unpinned state"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Unified DooKnow palette/density/header/rail hierarchy only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-57c8672e-b1cb-42c8-88d5-3ce805a85459.png"
+    }
+  ],
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D060.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-57c8672e-b1cb-42c8-88d5-3ce805a85459.png",
+  "sha256": "fc0a66391e8675404f79118b23d1371fcecd76c4dd6028654875b85eb2c07b7d",
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "bytes": 1133998,
+  "generatedAtUtc": "2026-11-05T01:16:54.391017+00:00",
+  "postprocessing": "None. Original PNG copied byte-for-byte from built-in image tool; no pixel editing.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "sourceIds": [
+      "WS-084"
+    ],
+    "title": "Native applications home",
+    "role": "authenticated owner",
+    "state": "Actual applications baseline, all three application cards unpinned and each shows 加入左侧菜单",
+    "location": "metadata, outside product UI"
+  },
+  "scope": {
+    "presentation": "full-desktop",
+    "hostSourceIds": [
+      "WS-084"
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "baselineConfiguration": {
+    "documentEditorFlag": "not-applicable",
+    "deploymentFlagVerified": false
+  },
+  "sourceStateAndActionContracts": {
+    "functionalInvariants": [
+      "Every input constraint, action guard and important-state contract below is required. This plan is not a claim that incompatible states coexist or that source-only states ran.",
+      "Owner navigation may use the existing ToDoo two-level hierarchy; public guest and standalone reading may not contain private chrome.",
+      "STATE WS-084: Pinned/unpinned card actions",
+      "STATE WS-084: Local storage unavailable warning via toast",
+      "POLICY Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+      "WS-084: Blog and ToDoo interiors explicitly excluded.",
+      "UI structure rather than backend state count determines bitmap jobs. StateCoverage names exact component/bindings/guards and compact matrix rows; shared-pattern is not a claim that incompatible alternatives were visually proven together."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-084",
+        "label": "应用卡片",
+        "effect": "Open existing blog, ToDoo or graph app",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-084",
+        "label": "加入左侧菜单 / 从左侧菜单移除",
+        "effect": "Persist pin preference in browser",
+        "api": "none",
+        "guard": "Workspace reports persistence failure as toast"
+      }
+    ],
+    "otherVariantsDrawn": false
+  },
+  "selfInspection": {
+    "method": "Actual native generated preview viewed against the actual matching baseline, source and viewed PILOT-WS-001.",
+    "concerns": [
+      "Bitmap cannot verify owner enforcement, source action execution, busy guards, keyboard/focus, resize or responsive fit.",
+      "Light raster texture and approximate dimensions remain illustrative; eventual code must use flat shared CSS tokens.",
+      "selectedBaselineState=unpinned intentionally reflects actual baseline; pinned/unpinned alternate source actions remain mapped by WS-084 but are not simultaneously shown.",
+      "To Doo appears solely as an existing application card name, not platform branding or app interior."
+    ],
+    "independentReviewStatus": "pending"
+  }
+}

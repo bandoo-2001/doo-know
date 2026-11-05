@@ -1,0 +1,29 @@
+{
+  "id": "import-markdown",
+  "title": "import-markdown",
+  "sourceIds": [
+    "WS-022"
+  ],
+  "width": 320,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "320-import-markdown.png",
+  "sha256": "31b9cef619314d0ae27e5d955230bccb939e26971ee8d2973b4eeb2549921f1f",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "buildFlags": {
+    "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+  },
+  "status": "captured",
+  "pageErrors": [],
+  "targetBounds": {
+    "x": 14,
+    "y": 115.171875,
+    "width": 292,
+    "height": 613.65625
+  },
+  "targetWithinViewport": true,
+  "outerOverflow": 0
+}

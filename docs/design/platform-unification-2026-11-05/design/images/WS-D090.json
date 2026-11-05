@@ -1,0 +1,243 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D090",
+  "assetId": "WS-D090",
+  "sourceIds": [
+    "WS-124"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "authenticated owner preparing export",
+    "recipient of exported standalone artifact"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-124",
+      "title": "Standalone exported reading HTML / app-owned print document",
+      "role": "authenticated owner",
+      "state": "Source-derived standalone ordinary-note export document: escaped YAML properties, static text/math/callout/footnotes and external link; no image in selected variant",
+      "presentationInstruction": "App-authored standalone script-free reading/print document; ordinary properties/math/footnotes/approved images, no private app chrome or native print UI."
+    }
+  ],
+  "selectedState": "Source-derived standalone ordinary-note export document: escaped YAML properties, static text/math/callout/footnotes and external link; no image in selected variant",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作一张应用导出的独立静态阅读HTML/打印文档视觉图，约1440×1100纯白整页，中央820px左右阅读正文。仅参考输入图的清晰字级/平面表面，绝不出现DooKnow品牌、owner rail、目录树、编辑/保存/打印/导出按钮、表单、网站导航、原生OS/浏览器打印窗或页码设置。source-derived的合成普通笔记，不是primary图形。最上方一块浅灰只读monospace属性pre，原样文字title: 读书笔记及custom: {x: y}，没有额外可见“属性”表单label。下方正文H1读书笔记；段落“公式 x²，见说明¹。”，x²为静态数学排版，¹为脚注锚点；提示callout显示“提示”和“保留原文，记录下一步。”；H2记录方法，两个bullet收集想法/按主题整理；普通不可点击文本相关内容；一个可点击蓝色外部资料链接；底部分割线后脚注“1. 解释”及回链。无内嵌图片（此选定变体未提供图片），不画失效预览或错误提示。无JS控件/交互编辑/原始API路径。白底深色字、细线和克制灰块；只读文档不是产品工作台截图。角色与未runtime验证只存metadata。",
+  "prompt": "制作一张应用导出的独立静态阅读HTML/打印文档视觉图，约1440×1100纯白整页，中央820px左右阅读正文。仅参考输入图的清晰字级/平面表面，绝不出现DooKnow品牌、owner rail、目录树、编辑/保存/打印/导出按钮、表单、网站导航、原生OS/浏览器打印窗或页码设置。source-derived的合成普通笔记，不是primary图形。最上方一块浅灰只读monospace属性pre，原样文字title: 读书笔记及custom: {x: y}，没有额外可见“属性”表单label。下方正文H1读书笔记；段落“公式 x²，见说明¹。”，x²为静态数学排版，¹为脚注锚点；提示callout显示“提示”和“保留原文，记录下一步。”；H2记录方法，两个bullet收集想法/按主题整理；普通不可点击文本相关内容；一个可点击蓝色外部资料链接；底部分割线后脚注“1. 解释”及回链。无内嵌图片（此选定变体未提供图片），不画失效预览或错误提示。无JS控件/交互编辑/原始API路径。白底深色字、细线和克制灰块；只读文档不是产品工作台截图。角色与未runtime验证只存metadata。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Only shared restrained typography/flat surface; exclude every app header/rail/control",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Only shared restrained typography/flat surface; exclude every app header/rail/control",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作一张应用导出的独立静态阅读HTML/打印文档视觉图，约1440×1100纯白整页，中央820px左右阅读正文。仅参考输入图的清晰字级/平面表面，绝不出现DooKnow品牌、owner rail、目录树、编辑/保存/打印/导出按钮、表单、网站导航、原生OS/浏览器打印窗或页码设置。source-derived的合成普通笔记，不是primary图形。最上方一块浅灰只读monospace属性pre，原样文字title: 读书笔记及custom: {x: y}，没有额外可见“属性”表单label。下方正文H1读书笔记；段落“公式 x²，见说明¹。”，x²为静态数学排版，¹为脚注锚点；提示callout显示“提示”和“保留原文，记录下一步。”；H2记录方法，两个bullet收集想法/按主题整理；普通不可点击文本相关内容；一个可点击蓝色外部资料链接；底部分割线后脚注“1. 解释”及回链。无内嵌图片（此选定变体未提供图片），不画失效预览或错误提示。无JS控件/交互编辑/原始API路径。白底深色字、细线和克制灰块；只读文档不是产品工作台截图。角色与未runtime验证只存metadata。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作一张应用导出的独立静态阅读HTML/打印文档视觉图，约1440×1100纯白整页，中央820px左右阅读正文。仅参考输入图的清晰字级/平面表面，绝不出现DooKnow品牌、owner rail、目录树、编辑/保存/打印/导出按钮、表单、网站导航、原生OS/浏览器打印窗或页码设置。source-derived的合成普通笔记，不是primary图形。最上方一块浅灰只读monospace属性pre，原样文字title: 读书笔记及custom: {x: y}，没有额外可见“属性”表单label。下方正文H1读书笔记；段落“公式 x²，见说明¹。”，x²为静态数学排版，¹为脚注锚点；提示callout显示“提示”和“保留原文，记录下一步。”；H2记录方法，两个bullet收集想法/按主题整理；普通不可点击文本相关内容；一个可点击蓝色外部资料链接；底部分割线后脚注“1. 解释”及回链。无内嵌图片（此选定变体未提供图片），不画失效预览或错误提示。无JS控件/交互编辑/原始API路径。白底深色字、细线和克制灰块；只读文档不是产品工作台截图。角色与未runtime验证只存metadata。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Only shared restrained typography/flat surface; exclude every app header/rail/control"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-938c4a92-39e8-4e05-9669-c3b5a1179eb4.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-124",
+      "title": "Standalone exported reading HTML / app-owned print document",
+      "kind": "page",
+      "module": "reading-export",
+      "entry": {
+        "route": "Downloaded sanitized-title.html or app-created about:blank print window",
+        "trigger": "导出HTML or 打印 from note/primary-diagram toolbar",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:181",
+        "apps/web/components/DiagramDocumentWorkspace.vue:466",
+        "apps/web/reading-export.ts:36",
+        "apps/web/reading-export.ts:107",
+        "apps/web/reading-export.ts:225",
+        "apps/web/reading-export.ts:237",
+        "apps/web/reading-export.ts:246"
+      ],
+      "roles": [
+        "authenticated owner preparing export",
+        "recipient of exported standalone artifact"
+      ],
+      "permissionRules": [
+        "Owner controls preparation and authorized resource resolution. The resulting standalone document has no login flow/session check; anyone receiving the actual exported file can read its included content.",
+        "CSP default-src none,img-src data:,style-src unsafe-inline,base-uri none,form-action none; no frontend scripts/external asset engines."
+      ],
+      "fields": [
+        {
+          "name": "阅读正文",
+          "type": "static-html",
+          "required": false,
+          "constraints": "Owner-selected current note snapshot; ordinary YAML shown as escaped属性 pre; diagrams/footnotes/callouts/static MathML; no editable fields or app chrome.",
+          "sensitive": false
+        },
+        {
+          "name": "内嵌图片",
+          "type": "readonly-images",
+          "required": false,
+          "constraints": "Resolved/authorized image types PNG,JPEG,GIF,WebP,AVIF,SVG; <=10MiB each; SVG validated/presentation-only; PNG containing editable diagram source rejected.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "导出HTML",
+          "effect": "Download standalone script-free HTML with sanitized title<=150 characters",
+          "api": "Owner asset lookup GET /api/assets/:id; no API needed to read downloaded document",
+          "guard": "Ordinary note flushes current snapshot and strips stale previews; primary diagram saves clean coherent version and validates source/preview/render binding"
+        },
+        {
+          "label": "打印",
+          "effect": "Open app-created document, await image decode, focus and invoke native print; window closes afterprint",
+          "api": "window.open/document.write/window.print",
+          "guard": "Popup must open; unavailable popup reports existing error; no app print-settings UI exists"
+        },
+        {
+          "label": "外部链接 / 文内锚点",
+          "effect": "Follow retained HTTP(S) non-API URLs and internal fragments",
+          "api": "none",
+          "guard": "Other application/private/local links render as text, not navigation"
+        }
+      ],
+      "importantStates": [
+        "Ordinary note properties + rendered body",
+        "Primary diagram read-only PNG projection without original source grant",
+        "Stale inline preview notice keeps current source",
+        "Malformed math remains readable text",
+        "Unavailable/unapproved image rejects export through existing editor error",
+        "Print popup blocked reports error and closes prepared popup on failed build"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Standalone viewport meta; screen body16px/1.8 and centered main max820px,padding44px24px80px; images max-width100%, pre wraps, math can scroll. Print CSS main max-width none,padding0,body11pt, avoid breaks in pre/blockquote/table/img. Actual320/390/1440 exports unverified."
+      },
+      "testRefs": [
+        "tests/reading-export.test.ts",
+        "tests/reading-export-primary.test.ts",
+        "tests/e2e/diagram-editor-offline-export.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "App-owned rendered HTML/print document is part of UI coverage. OS/browser native print dialog is explicitly excluded; do not invent print settings."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-124",
+      "parentId": "WS-024",
+      "route": "Downloaded sanitized-title.html or app-created about:blank print window",
+      "roles": [
+        "authenticated owner preparing export",
+        "recipient of exported standalone artifact"
+      ],
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:181",
+        "apps/web/components/DiagramDocumentWorkspace.vue:466",
+        "apps/web/reading-export.ts:36",
+        "apps/web/reading-export.ts:107",
+        "apps/web/reading-export.ts:225",
+        "apps/web/reading-export.ts:237",
+        "apps/web/reading-export.ts:246"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-009.json#WS-D090",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D090",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-938c4a92-39e8-4e05-9669-c3b5a1179eb4.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D090.png",
+  "sha256": "7236f7b0fa869cb2464a99e663493e7a12f7dc5186490efc3b9b0a9948f0e18d",
+  "bytes": 1090089,
+  "dimensions": {
+    "width": 1487,
+    "height": 1058
+  },
+  "generatedAtUtc": "2026-11-05T02:17:57.897291+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Standalone exported reading HTML / app-owned print document",
+    "sourceIds": [
+      "WS-124"
+    ],
+    "roles": [
+      "authenticated owner",
+      "authenticated owner preparing export",
+      "recipient of exported standalone artifact"
+    ],
+    "state": "Source-derived standalone ordinary-note export document: escaped YAML properties, static text/math/callout/footnotes and external link; no image in selected variant",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present.",
+      "Ordinary note standalone static document variant selected with properties/math/callout/footnotes and no images. Primary diagram/image/stale-preview/error alternatives are not simultaneously drawn; native print UI excluded."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

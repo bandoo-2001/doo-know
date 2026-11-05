@@ -1,0 +1,338 @@
+{
+  "id": "MP-R081",
+  "title": "Responsive family: render.ts public sanitized about body",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-056"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-056",
+      "title": "公开博客：关于390px",
+      "role": "anonymous guest",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-056",
+      "title": "公开博客：关于320px",
+      "role": "anonymous guest",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-056",
+      "title": "公开博客：关于320px guard",
+      "role": "anonymous guest",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "viewportIntent": "390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/public/390-public-about.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-056",
+      "route": "/blog/about",
+      "trigger": "Public navigation",
+      "parentId": null,
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "importantStates": [
+        "sanitized Markdown about",
+        "fallback from settings.about to design.profile.bio then description",
+        "If all about/profile/description sources are empty, renders heading with empty article-body; no custom empty guidance implemented"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "公开关于完整页：sanitized Markdown；按about/profile.bio/description回退，全部空时仅标题和空正文，无虚构空态引导。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "匿名公开博客壳，仅真实首页/文章/专题/归档/关于/RSS导航；数据来自不可变手动发布快照，无草稿/私有路径。"
+    },
+    {
+      "type": "responsive-family-reuse",
+      "renderer": "render.ts public sanitized about body",
+      "allSourceIds": [
+        "PB-056"
+      ],
+      "rule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-056",
+      "label": "站点导航 / footer",
+      "effect": "Navigate public routes",
+      "api": "",
+      "guard": ""
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-056",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文公开博客UI，参考真实页面内容和访客身份，仅借另一参照的平面白/浅灰、细边线、小圆角与清楚字号。保留已配置文字站名与绿色#44684f，不能换成DooKnow商标或蓝色主人工作区。三个独立窄屏可滚动页面视口并排，外部仅A/B/C，A按390宽、B/C按320宽比例，文字正常可读、长文字自然换行，不把长页面全部缩成缩略图。没有手机壳、尺寸数字、额外说明、私人导航或管理操作。\n三个完整公开关于页：实际公开页头：文字站名“隔离示例手记”，副标题“真实接口驱动的界面盘点样例。”；导航依次“首页”“文章”“专题”“归档”“关于”“RSS”，窄屏自然换行。关于为当前选中。主标题“关于”。A/B正文只有一个普通段落“真实接口驱动的界面盘点样例。”，下面留宽阔白空间。C同款关于页，但副标题与正文都为空，不显示副标题那一行或任何空态说明，只保留站名、导航、主标题“关于”和空白正文。真实页脚为链接“隔离示例手记”、作者“示例作者”、链接“订阅 RSS”，不加其它内容。三面板没有头像、社交链接、联系表单、CTA、登录/编辑或私人导航。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R081.png",
+  "reviewStatus": "pending-independent-review",
+  "responsiveFamily": {
+    "id": "MP-RF081",
+    "actualComponent": "render.ts public sanitized about body",
+    "sourceIds": [
+      "PB-056"
+    ],
+    "roleBoundary": "anonymous-blog",
+    "reuseRule": "Exact shared wrapper/renderer CSS structure is the responsive reference. Each source keeps its exact field order, inner overflow/focus/guard binding in responsiveMappings and its full desktop/dense-form master. This does not assert distinct labels/data or incompatible states are all visible here."
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-056",
+      "parentId": null,
+      "route": "/blog/about",
+      "roles": [
+        "anonymous guest"
+      ],
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:237",
+        "apps/server/blog/render.ts:202"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-056",
+      "title": "公开博客：关于",
+      "kind": "page",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog/about",
+        "trigger": "Public navigation",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:237",
+        "apps/server/blog/render.ts:202"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "站点导航 / footer",
+          "effect": "Navigate public routes",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "sanitized Markdown about",
+        "fallback from settings.about to design.profile.bio then description",
+        "If all about/profile/description sources are empty, renders heading with empty article-body; no custom empty guidance implemented"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/e2e/blog-studio.spec.ts:67",
+        "tests/blog-security.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-R081",
+  "roles": [
+    "anonymous guest",
+    "anonymous guest",
+    "anonymous guest"
+  ],
+  "selectedState": [
+    "anonymous about baseline single-description paragraph",
+    "same target320",
+    "source-derived settings.about/design.profile.bio/settings.description all empty, so heading+empty body; header description absent"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文公开博客UI，参考真实页面内容和访客身份，仅借另一参照的平面白/浅灰、细边线、小圆角与清楚字号。保留已配置文字站名与绿色#44684f，不能换成DooKnow商标或蓝色主人工作区。三个独立窄屏可滚动页面视口并排，外部仅A/B/C，A按390宽、B/C按320宽比例，文字正常可读、长文字自然换行，不把长页面全部缩成缩略图。没有手机壳、尺寸数字、额外说明、私人导航或管理操作。\n三个完整公开关于页：实际公开页头：文字站名“隔离示例手记”，副标题“真实接口驱动的界面盘点样例。”；导航依次“首页”“文章”“专题”“归档”“关于”“RSS”，窄屏自然换行。关于为当前选中。主标题“关于”。A/B正文只有一个普通段落“真实接口驱动的界面盘点样例。”，下面留宽阔白空间。C同款关于页，但副标题与正文都为空，不显示副标题那一行或任何空态说明，只保留站名、导航、主标题“关于”和空白正文。真实页脚为链接“隔离示例手记”、作者“示例作者”、链接“订阅 RSS”，不加其它内容。三面板没有头像、社交链接、联系表单、CTA、登录/编辑或私人导航。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-R081 Responsive family: render.ts public sanitized about body\n\n390/320px实际宽度家族设计板，最多3个独立屏幕，主字段/动作可读；内层内容按各source exact responsiveMappings绑定，正文可纵向延长，不缩成缩略图。\n\n角色壳：匿名公开博客壳，仅真实首页/文章/专题/归档/关于/RSS导航；数据来自不可变手动发布快照，无草稿/私有路径。\n\n独立场景：\nA | PB-056 | 公开博客：关于390px | role=anonymous guest | 390px完整可读代表：字段按登记顺序，动作保持源guard\nB | PB-056 | 公开博客：关于320px | role=anonymous guest | 320px字段/长值/内层滚动与操作可达\nC | PB-056 | 公开博客：关于320px guard | role=anonymous guest | 同源关键禁用/错误/长标签状态，使用已有组件且保留输入\n\n完整构图：\n公开关于完整页：sanitized Markdown；按about/profile.bio/description回退，全部空时仅标题和空正文，无虚构空态引导。\n\n精确功能/字段/动作guard合同：\nPB-056权限：No owner session required. Site must be enabled and requested publication must be publicly available. / Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded.\nPB-056字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nPB-056白名单：站点导航 / footer => Navigate public routes；guard=既有上下文\n\n响应式合同：\nServer HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/public/390-public-about.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "4506b89ada73565eb1f8a9d45bb49f860ada0f7b32bd381cd784446f1692e874",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "bytes": 26929
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/390-public-about.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R081.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-5d1b391c-0d2d-4474-abf8-cc8667774aa4.png",
+  "toolOutputHint": null,
+  "generationCallCount": 1,
+  "generatedAtUtc": null,
+  "selfInspection": {
+    "method": "Recovered default original PNG viewed with native view_image after interrupted call; exact saved submitted prompt and source compared",
+    "status": "pending-independent-review",
+    "pageSpecific": "A/B exact one-paragraph about; C all fallback sources empty leaves actual heading/empty body and removes absent site description; no invented empty guidance.",
+    "concerns": [
+      "Tool callback/result receipt unavailable after user interruption; original default PNG recovered by exclusive-directory plus exact content inspection, full submitted prompt retained."
+    ]
+  },
+  "sha256": "9b429fced19c5b1d0cbd645e62c903ce769a3a373766dd16d2b9643f983d960a",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1163231,
+  "sourceInspection": [
+    {
+      "path": "apps/server/blog/routes.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "3f4444c9f58c14e3dc37005380512f8325ef56894868db5a411d0adc5e231979"
+    },
+    {
+      "path": "apps/server/blog/render.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "0442b17716872b91c0e322647dbc5af343db87218ed8c7d4964c2639ba6af1cf"
+    }
+  ],
+  "responsiveTargetCssWidths": [
+    390,
+    320,
+    320
+  ],
+  "runtimeResponsiveVerified": false,
+  "baselineStatus": "actual matching390 public page viewed;320 and selected lower/empty substate source-derived",
+  "sourceDerivedUnverifiedScope": "No public data mutation, publication or live browser navigation executed. Scroll/empty fixture is a design specimen.",
+  "interruptionRecovery": {
+    "status": "recovered-default-original-no-tool-receipt",
+    "interruption": "User stopped fast mode; parent explicitly resumed.",
+    "toolResultReceiptObserved": false,
+    "toolOutputHintObserved": false,
+    "endpointErrorObserved": false,
+    "toolCellIdAvailable": false,
+    "identityEvidence": "Exclusive child imagegen default directory plus actual native PNG visual inspection against saved exact submitted prompt: R078 retains identical A/B and corrects only C latest container; R081 has exact three about states, distinct from other requests. No timestamp-only inference.",
+    "requestRecord": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-044-requests-b.json",
+    "recoveredAtUtc": "2026-11-05T08:31:16Z"
+  }
+}

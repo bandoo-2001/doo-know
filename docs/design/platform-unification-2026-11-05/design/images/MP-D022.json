@@ -1,0 +1,333 @@
+{
+  "id": "MP-D022",
+  "title": "便携任务与预览恢复",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-028"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-028",
+      "title": "便携任务与预览恢复",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    }
+  ],
+  "viewportIntent": "1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-028",
+      "route": "/?view=settings&section=library",
+      "trigger": "便携任务与结果常驻区",
+      "parentId": "ST-002",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "暂无便携任务",
+        "读取失败",
+        "running/completed/failed/cancelled/interrupted",
+        "待生成预览清单",
+        "需要原资料",
+        "已完成下载"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "便携任务完整区域：预览准备/取消/生成继续/原资料续传/下载/结果笔记。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。"
+    },
+    {
+      "type": "local-component-composition",
+      "rule": "Only draw the actual local window/popover/compact component. Parent page, role and sourceId are metadata, not a reason to redraw or invent host navigation. Captions may remain in metadata; missing in-image caption alone is not failure. Keep public/auth and owner chrome boundaries."
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-028",
+      "label": "刷新结果",
+      "effect": "每2秒轮询且支持手动刷新",
+      "api": "GET /api/portable-jobs",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-028",
+      "label": "取消任务 / 取消预览准备",
+      "effect": "取消原任务",
+      "api": "POST /api/portable-jobs/:id/cancel",
+      "guard": "任务running或未运行但有portablePreviews"
+    },
+    {
+      "sourceId": "ST-028",
+      "label": "生成预览并继续导出 / 重试导出",
+      "effect": "准备便携图形预览后继续原导出",
+      "api": "POST /api/portable-jobs/:id/retry",
+      "guard": "非completed的export"
+    },
+    {
+      "sourceId": "ST-028",
+      "label": "选择原资料继续",
+      "effect": "打开ST-023",
+      "api": "无请求",
+      "guard": "needsSource"
+    },
+    {
+      "sourceId": "ST-028",
+      "label": "下载便携结果 / 结果笔记",
+      "effect": "下载结果或打开已导入笔记",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-028",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n只画“便携任务与结果”的完整常驻小区域，不是弹窗，无关闭X或品牌。小标题“便携任务与结果”，真实小按钮“刷新结果”可用，正文“暂无便携任务。”。不画任务清单、待生成预览、续传/取消/下载/结果按钮、错误/成功/进度或“添加任务”操作。区域简单留白、自然字号，只有这三项真实内容。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D022.png",
+  "reviewStatus": "pending-independent-review",
+  "parentBindings": [
+    {
+      "sourceId": "ST-028",
+      "parentId": "ST-002",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/PortableJobs.vue:32",
+        "apps/web/components/settings/PortableJobs.vue:70"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "ST-028",
+      "title": "便携任务与预览恢复",
+      "kind": "state",
+      "module": "settings/portable-jobs",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "便携任务与结果常驻区",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/PortableJobs.vue:32",
+        "apps/web/components/settings/PortableJobs.vue:70"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新结果",
+          "effect": "每2秒轮询且支持手动刷新",
+          "api": "GET /api/portable-jobs",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消任务 / 取消预览准备",
+          "effect": "取消原任务",
+          "api": "POST /api/portable-jobs/:id/cancel",
+          "guard": "任务running或未运行但有portablePreviews"
+        },
+        {
+          "label": "生成预览并继续导出 / 重试导出",
+          "effect": "准备便携图形预览后继续原导出",
+          "api": "POST /api/portable-jobs/:id/retry",
+          "guard": "非completed的export"
+        },
+        {
+          "label": "选择原资料继续",
+          "effect": "打开ST-023",
+          "api": "无请求",
+          "guard": "needsSource"
+        },
+        {
+          "label": "下载便携结果 / 结果笔记",
+          "effect": "下载结果或打开已导入笔记",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "暂无便携任务",
+        "读取失败",
+        "running/completed/failed/cancelled/interrupted",
+        "待生成预览清单",
+        "需要原资料",
+        "已完成下载"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/portable-owner-workflow.test.ts:1",
+        "tests/e2e/portable-native-preview.spec.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-D022",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "selectedState": [
+    "baseline empty portable jobs/noerror"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "制作清晰中文UI图，只画指定的真实窗口；参考图仅用于白/浅灰平面、深色文字、细边线、蓝色主按钮、小圆角与紧凑字号。画面除逐项指定的真实文案和A/B/C外不写任何解释、组件名称、角色、状态说明或开发术语；不加品牌、背景工作区、账户栏或文件树。\n只画“便携任务与结果”的完整常驻小区域，不是弹窗，无关闭X或品牌。小标题“便携任务与结果”，真实小按钮“刷新结果”可用，正文“暂无便携任务。”。不画任务清单、待生成预览、续传/取消/下载/结果按钮、错误/成功/进度或“添加任务”操作。区域简单留白、自然字号，只有这三项真实内容。",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-D022 便携任务与预览恢复\n\n1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。\n\n角色壳：所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。\n\n独立场景：\nA | ST-028 | 便携任务与预览恢复 | role=authenticated-owner | 实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\n\n完整构图：\n便携任务完整区域：预览准备/取消/生成继续/原资料续传/下载/结果笔记。\n\n精确功能/字段/动作guard合同：\nST-028权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-028字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nST-028白名单：刷新结果 => 每2秒轮询且支持手动刷新；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/portable-jobs\nST-028白名单：取消任务 / 取消预览准备 => 取消原任务；guard=任务running或未运行但有portablePreviews；接口约束=POST /api/portable-jobs/:id/cancel\nST-028白名单：生成预览并继续导出 / 重试导出 => 准备便携图形预览后继续原导出；guard=非completed的export；接口约束=POST /api/portable-jobs/:id/retry\nST-028白名单：选择原资料继续 => 打开ST-023；guard=needsSource；接口约束=无请求\nST-028白名单：下载便携结果 / 结果笔记 => 下载结果或打开已导入笔记；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\n1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 120942
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D022.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-57ff7e85-6cd9-4d9f-91cd-8600d36ecbe2.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-57ff7e85-6cd9-4d9f-91cd-8600d36ecbe2.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T03:34:21.918Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Actual parent-baseline empty PortableJobs area preserves title/refresh/empty text only; pending-preview/source-resume/download branches remain separate.",
+    "concerns": [
+      "Static selected states do not prove polling/cancel/retry/upload/dirty-close/session behavior.",
+      "File summaries are synthetic examples; no completed live task or actual secret data asserted; exact raster scale/texture approximate."
+    ]
+  },
+  "sha256": "cfe06caf5f262b569564519969b05e6ec92cd2e515d0c47cb5ca27c9e971cbe5",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 956890,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/settings/PortableJobs.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "13c0cd8f1cf52e478d9081fa4ffe6e75b67d5eaec5ad1a563a6564eb9cc39e50"
+    },
+    {
+      "path": "apps/web/components/settings/PortableJobs.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "13c0cd8f1cf52e478d9081fa4ffe6e75b67d5eaec5ad1a563a6564eb9cc39e50"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Matching parent baseline contains this empty component; only style input passed to generation, current template text is authority."
+}

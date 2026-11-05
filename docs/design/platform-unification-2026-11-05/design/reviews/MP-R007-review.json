@@ -1,0 +1,46 @@
+{
+  "assetId": "MP-R007",
+  "sourceIds": [
+    "ST-016"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T06:44:09.356202+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "A390/B320 empty share-list filters and C390 active permanent share with clipboard error",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed all narrow panels/full prompt/template. Empty query/all filter/real find/no-results copy match source; no cursor ->no load-more. C query示例/active filter retains real active permanent view-only share, long path/title, open/copy/revoke and error-triggered reread.",
+    "Clipboard error uses exact manual-copy link guidance; public capability is actual anchor href, not a new token/URL input. Revoke only opens existing confirmation, no implied immediate removal or false success; one-second expiry source clock remains implementation behavior.",
+    "Long metadata wraps and actions remain accessible within intended390/320 local component layout; no invented owner/private navigation, exact pixel or runtime keyboard/scroll fit asserted."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-036.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R007.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/ShareManagement.vue:40",
+    "apps/web/components/settings/ShareManagement.vue:95",
+    "apps/web/components/settings/ShareManagement.vue:79",
+    "docs/design/platform-unification-2026-11-05/baseline/390-settings-library.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "6c7f614c1830f447a83a1c0eae1773bfb6a35c3c71ed767811274b91c89cfcc3",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R007.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D047",
+  "assetId": "WS-D047",
+  "sourceIds": [
+    "WS-065",
+    "WS-066"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-066",
+      "title": "Git提交差异",
+      "role": "authenticated owner",
+      "state": "Git history source selected; real commit selector and commit diff / original-diff fallback only.",
+      "presentationInstruction": "No saved-record historical-original, current-fragment, copy or fragment paging controls in this branch.",
+      "selectedState": "Two independent source-derived windows: A Git source selected with loaded commit/raw-diff fallback; B saved-record historical-source fragment with paging, no mixed branch controls"
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-065",
+      "title": "保存记录历史原文片段",
+      "role": "authenticated owner",
+      "state": "Saved-record source selected; historical original/current-fragment view, real copy and fragment-range/paging controls as source permits.",
+      "presentationInstruction": "This is an independent saved-record window, not controls added to panel A.",
+      "selectedState": "Two independent source-derived windows: A Git source selected with loaded commit/raw-diff fallback; B saved-record historical-source fragment with paging, no mixed branch controls"
+    }
+  ],
+  "selectedState": "Two independent source-derived windows: A Git source selected with loaded commit/raw-diff fallback; B saved-record historical-source fragment with paging, no mixed branch controls",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作一个清晰双分区UI DESIGN BOARD，外部A Git提交差异、B保存记录历史原文片段，两个独立历史版本窗口，绝不把互斥来源控件塞同窗。画布约2100×1300可扩大，字可读，代码例子可短但关闭/页脚/字段全。仅局部窗口，无父页导航；平面白浅灰、细线、小圆角、#4566c6蓝色、清晰中文，source-derived说明只metadata。\n每窗header都有时钟icon“历史版本”、文件名示例笔记.md、右上X与来源tabs“保存记录”“Git 提交”。每窗底部保护文案“恢复前会保留当前原文，并检查版本是否变化。”，按钮“关闭”和蓝色“恢复此版本”，当前都可用，不画恢复确认/成功。\nA只选Git 提交。左提交记录2项：选中“整理笔记”，作者示例作者、只读abc12345 · 2026/11/5 12:00；另一“初次记录”，作者示例作者、只读def67890 · 2026/11/4 10:00。右侧只读提交abc12345def0、整理笔记、作者和时间；标题“本次提交变更”，说明“仅显示该提交引入的变化，不包含当前未提交的内容。”。选已读取diff、renderer尚在加载的原始fallback：状态“正在准备差异视图…”，展开“原始差异”，pre含“- 旧段落”“+ 整理后的段落”。这里绝不能出现历史原文tab、复制全文/片段、下一片段或片段范围。\nB只选保存记录。左版本记录2，选中2026/11/4 10:00 · 512 KiB，另一2026/11/3 09:00 · 256 KiB。右参考条“历史版本 11/4 10:00 → 当前已保存版本 11/5 12:00”；内容tabs差异对比/历史原文（历史原文选中）。长历史提示准确“历史正文较长，暂不生成完整对比。可在历史原文中逐页查看，也可直接恢复此版本。”。source工具行“当前片段 · 第 1–1024 行 · 0–131072 字节”，按钮“复制当前片段”。pre为可内部滚动的历史长文本，首几行“# 示例笔记”“历史记录内容。”，其后可见滚动延续，非整篇只两行。下面“下一片段”可用。这里绝不画Git提交元数据/diff原始差异fallback或两套操作混合。无需显示真实hash/token/cursor输入。",
+  "prompt": "制作一个清晰双分区UI DESIGN BOARD，外部A Git提交差异、B保存记录历史原文片段，两个独立历史版本窗口，绝不把互斥来源控件塞同窗。画布约2100×1300可扩大，字可读，代码例子可短但关闭/页脚/字段全。仅局部窗口，无父页导航；平面白浅灰、细线、小圆角、#4566c6蓝色、清晰中文，source-derived说明只metadata。\n每窗header都有时钟icon“历史版本”、文件名示例笔记.md、右上X与来源tabs“保存记录”“Git 提交”。每窗底部保护文案“恢复前会保留当前原文，并检查版本是否变化。”，按钮“关闭”和蓝色“恢复此版本”，当前都可用，不画恢复确认/成功。\nA只选Git 提交。左提交记录2项：选中“整理笔记”，作者示例作者、只读abc12345 · 2026/11/5 12:00；另一“初次记录”，作者示例作者、只读def67890 · 2026/11/4 10:00。右侧只读提交abc12345def0、整理笔记、作者和时间；标题“本次提交变更”，说明“仅显示该提交引入的变化，不包含当前未提交的内容。”。选已读取diff、renderer尚在加载的原始fallback：状态“正在准备差异视图…”，展开“原始差异”，pre含“- 旧段落”“+ 整理后的段落”。这里绝不能出现历史原文tab、复制全文/片段、下一片段或片段范围。\nB只选保存记录。左版本记录2，选中2026/11/4 10:00 · 512 KiB，另一2026/11/3 09:00 · 256 KiB。右参考条“历史版本 11/4 10:00 → 当前已保存版本 11/5 12:00”；内容tabs差异对比/历史原文（历史原文选中）。长历史提示准确“历史正文较长，暂不生成完整对比。可在历史原文中逐页查看，也可直接恢复此版本。”。source工具行“当前片段 · 第 1–1024 行 · 0–131072 字节”，按钮“复制当前片段”。pre为可内部滚动的历史长文本，首几行“# 示例笔记”“历史记录内容。”，其后可见滚动延续，非整篇只两行。下面“下一片段”可用。这里绝不画Git提交元数据/diff原始差异fallback或两套操作混合。无需显示真实hash/token/cursor输入。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exact source defines isolated local component, no matching runtime window capture",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exact source defines isolated local component, no matching runtime window capture",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作一个清晰双分区UI DESIGN BOARD，外部A Git提交差异、B保存记录历史原文片段，两个独立历史版本窗口，绝不把互斥来源控件塞同窗。画布约2100×1300可扩大，字可读，代码例子可短但关闭/页脚/字段全。仅局部窗口，无父页导航；平面白浅灰、细线、小圆角、#4566c6蓝色、清晰中文，source-derived说明只metadata。\n每窗header都有时钟icon“历史版本”、文件名示例笔记.md、右上X与来源tabs“保存记录”“Git 提交”。每窗底部保护文案“恢复前会保留当前原文，并检查版本是否变化。”，按钮“关闭”和蓝色“恢复此版本”，当前都可用，不画恢复确认/成功。\nA只选Git 提交。左提交记录2项：选中“整理笔记”，作者示例作者、只读abc12345 · 2026/11/5 12:00；另一“初次记录”，作者示例作者、只读def67890 · 2026/11/4 10:00。右侧只读提交abc12345def0、整理笔记、作者和时间；标题“本次提交变更”，说明“仅显示该提交引入的变化，不包含当前未提交的内容。”。选已读取diff、renderer尚在加载的原始fallback：状态“正在准备差异视图…”，展开“原始差异”，pre含“- 旧段落”“+ 整理后的段落”。这里绝不能出现历史原文tab、复制全文/片段、下一片段或片段范围。\nB只选保存记录。左版本记录2，选中2026/11/4 10:00 · 512 KiB，另一2026/11/3 09:00 · 256 KiB。右参考条“历史版本 11/4 10:00 → 当前已保存版本 11/5 12:00”；内容tabs差异对比/历史原文（历史原文选中）。长历史提示准确“历史正文较长，暂不生成完整对比。可在历史原文中逐页查看，也可直接恢复此版本。”。source工具行“当前片段 · 第 1–1024 行 · 0–131072 字节”，按钮“复制当前片段”。pre为可内部滚动的历史长文本，首几行“# 示例笔记”“历史记录内容。”，其后可见滚动延续，非整篇只两行。下面“下一片段”可用。这里绝不画Git提交元数据/diff原始差异fallback或两套操作混合。无需显示真实hash/token/cursor输入。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作一个清晰双分区UI DESIGN BOARD，外部A Git提交差异、B保存记录历史原文片段，两个独立历史版本窗口，绝不把互斥来源控件塞同窗。画布约2100×1300可扩大，字可读，代码例子可短但关闭/页脚/字段全。仅局部窗口，无父页导航；平面白浅灰、细线、小圆角、#4566c6蓝色、清晰中文，source-derived说明只metadata。\n每窗header都有时钟icon“历史版本”、文件名示例笔记.md、右上X与来源tabs“保存记录”“Git 提交”。每窗底部保护文案“恢复前会保留当前原文，并检查版本是否变化。”，按钮“关闭”和蓝色“恢复此版本”，当前都可用，不画恢复确认/成功。\nA只选Git 提交。左提交记录2项：选中“整理笔记”，作者示例作者、只读abc12345 · 2026/11/5 12:00；另一“初次记录”，作者示例作者、只读def67890 · 2026/11/4 10:00。右侧只读提交abc12345def0、整理笔记、作者和时间；标题“本次提交变更”，说明“仅显示该提交引入的变化，不包含当前未提交的内容。”。选已读取diff、renderer尚在加载的原始fallback：状态“正在准备差异视图…”，展开“原始差异”，pre含“- 旧段落”“+ 整理后的段落”。这里绝不能出现历史原文tab、复制全文/片段、下一片段或片段范围。\nB只选保存记录。左版本记录2，选中2026/11/4 10:00 · 512 KiB，另一2026/11/3 09:00 · 256 KiB。右参考条“历史版本 11/4 10:00 → 当前已保存版本 11/5 12:00”；内容tabs差异对比/历史原文（历史原文选中）。长历史提示准确“历史正文较长，暂不生成完整对比。可在历史原文中逐页查看，也可直接恢复此版本。”。source工具行“当前片段 · 第 1–1024 行 · 0–131072 字节”，按钮“复制当前片段”。pre为可内部滚动的历史长文本，首几行“# 示例笔记”“历史记录内容。”，其后可见滚动延续，非整篇只两行。下面“下一片段”可用。这里绝不画Git提交元数据/diff原始差异fallback或两套操作混合。无需显示真实hash/token/cursor输入。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; exact source defines isolated local component, no matching runtime window capture"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-f2f3a2bb-c11e-4206-863b-66d4b50853fc.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-065",
+      "title": "Historical raw source and paged fragment view",
+      "kind": "state",
+      "module": "history",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "历史原文 tab",
+        "parentId": "WS-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/NoteHistoryDialog.vue:733",
+        "apps/web/note-history.ts:98"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "复制全文 / 复制当前片段",
+          "effect": "Clipboard selected historical source",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "下一片段",
+          "effect": "Read next historical page",
+          "api": "POST /api/notes/:id/revisions/:revisionId/read",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Complete historical original",
+        "Large historical fragment range",
+        "End-of-source",
+        "Clipboard notice"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/note-history.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-066",
+      "title": "Git commit history source in unified history",
+      "kind": "state",
+      "module": "history",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Git 提交 tab when plugin available",
+        "parentId": "WS-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/NoteHistoryDialog.vue:565",
+        "apps/web/components/NoteHistoryDialog.vue:767",
+        "apps/web/components/NoteHistoryDialog.vue:51"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "Git 提交",
+          "type": "select",
+          "required": true,
+          "constraints": "Commit list available only through installed git plugin.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "选择提交 / 重试读取",
+          "effect": "Read plugin note history/diff",
+          "api": "POST /api/plugins/git/call",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "恢复此版本 / 确认恢复笔记",
+          "effect": "Restore chosen note version through git plugin",
+          "api": "POST /api/plugins/git/call",
+          "guard": "Diff loaded; no restoreBlockedCode/needsReload; plugin available"
+        }
+      ],
+      "importantStates": [
+        "Plugin unavailable warning",
+        "Dirty draft retained",
+        "Prior-note pending restore context",
+        "Restore needs reload",
+        "Git diff fallback",
+        "Pending receipt verification"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/plugin-note-action-history.test.ts",
+        "tests/e2e/unified-note-history.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Git remote/sync management belongs to platform inventory; this is note-level history."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-065",
+      "parentId": "WS-064",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/NoteHistoryDialog.vue:733",
+        "apps/web/note-history.ts:98"
+      ]
+    },
+    {
+      "sourceId": "WS-066",
+      "parentId": "WS-064",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/NoteHistoryDialog.vue:565",
+        "apps/web/components/NoteHistoryDialog.vue:767",
+        "apps/web/components/NoteHistoryDialog.vue:51"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-013.json#WS-D047",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D047",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-f2f3a2bb-c11e-4206-863b-66d4b50853fc.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D047.png",
+  "sha256": "779b88d9eb616b0e0c060707e4def74ea67d7b865388eb9d625d2c74c7594056",
+  "bytes": 1590950,
+  "dimensions": {
+    "width": 1594,
+    "height": 987
+  },
+  "generatedAtUtc": "2026-11-05T02:52:04.097995+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "History branch comparison: Git commit diff and saved original fragment",
+    "sourceIds": [
+      "WS-065",
+      "WS-066"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Two independent source-derived windows: A Git source selected with loaded commit/raw-diff fallback; B saved-record historical-source fragment with paging, no mixed branch controls",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

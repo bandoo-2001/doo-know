@@ -1,0 +1,45 @@
+{
+  "assetId": "MP-D051",
+  "kind": "superseded-initial-pass-audit-not-approval",
+  "reviewedImageSha256": "11924af3fc0886ba894df27431602428f34ac1666b6fbf3b99dc975842e1fa5c",
+  "currentReview": "docs/design/platform-unification-2026-11-05/design/reviews/MP-D051-review.json",
+  "currentVerdict": "needs-revision",
+  "recordedAtUtc": "2026-11-05T04:21:02.569251+00:00",
+  "events": [
+    {
+      "sequence": 1,
+      "event": "initial-pass",
+      "verdict": "pass",
+      "eventAtUtc": null,
+      "eventTimePrecision": "Exact initial timestamp was not retained when the atomic review file was replaced. Event occurred immediately before the API-chain recheck in this review turn; do not infer a fabricated timestamp.",
+      "recordedAtUtc": "2026-11-05T04:21:02.569251+00:00",
+      "reviewedImageSha256": "11924af3fc0886ba894df27431602428f34ac1666b6fbf3b99dc975842e1fa5c",
+      "reason": "Initial actual-image/template comparison accepted policy summaries and guarded action sets; did not yet follow optional effectivePolicy through API credential validity.",
+      "superseded": true
+    },
+    {
+      "sequence": 2,
+      "event": "api-chain-recheck",
+      "eventAtUtc": "2026-11-05T04:18:07.524025+00:00",
+      "recordedAtUtc": "2026-11-05T04:21:02.569251+00:00",
+      "reviewedImageSha256": "11924af3fc0886ba894df27431602428f34ac1666b6fbf3b99dc975842e1fa5c",
+      "sourceEvidence": [
+        "apps/server/platform/mcp-api-keys.ts:140",
+        "packages/core/auth/grants.ts:214",
+        "packages/core/auth/mcp-api-credentials.ts:24",
+        "apps/web/components/MCPApiClients.vue:435"
+      ],
+      "finding": "Expired/revoked/requires_reauthorization credentials return no effectivePolicy, so whole current-effective row is conditionally absent.",
+      "supersededInitialPass": true
+    },
+    {
+      "sequence": 3,
+      "event": "needs-revision",
+      "verdict": "needs-revision",
+      "eventAtUtc": "2026-11-05T04:18:07.524025+00:00",
+      "recordedAtUtc": "2026-11-05T04:21:02.569251+00:00",
+      "reviewedImageSha256": "11924af3fc0886ba894df27431602428f34ac1666b6fbf3b99dc975842e1fa5c",
+      "reason": "P2 MP-D051-F1: remove three impossible current-effective lines; active line and original per-status action sets remain."
+    }
+  ]
+}

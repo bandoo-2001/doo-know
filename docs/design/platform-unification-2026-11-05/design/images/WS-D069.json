@@ -1,0 +1,663 @@
+{
+  "assetId": "WS-D069",
+  "sourceIds": [
+    "WS-093"
+  ],
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "responsive-board",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-093",
+      "title": "Mobile graph node/edge inspector drawer",
+      "role": "authenticated owner",
+      "state": "390/320 mobile drawer variants: note/entity/edge/similarity are conditional and suppressed under another graph panel.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "390/320 mobile drawer variants: note/entity/edge/similarity are conditional and suppressed under another graph panel."
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-093",
+      "title": "Mobile graph node/edge inspector drawer",
+      "role": "authenticated owner",
+      "state": "390/320 mobile drawer variants: note/entity/edge/similarity are conditional and suppressed under another graph panel.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "390/320 mobile drawer variants: note/entity/edge/similarity are conditional and suppressed under another graph panel."
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "Use case: ui-mockup. 高清中文移动端组件设计板，三个独立可读面板，A为390px、B/C为320px宽；无设备外壳，普通字号，不将长表单压缩塞满。白底#fff、浅面#f7f8fa、文字#272b3a、蓝色#4566c6、细线#e6e9f1、8px圆角，参考图1仅作样式，图2仅作现有内容。只画局部组件，不重复外部导航。标题和控件真实自然，不把设计编号或技术合同画进UI。仅画两个独立移动图谱详情抽屉，A390宽为实体，B320为模型关系，不重画图谱宿主。A标题“知识管理”，右上×关闭详情；类型“概念”、1来源、尚未分组，说明“用于整理记录的方法”；1跳关系/2跳关系。展开“整理实体”：新增别名输入“知识整理”、保存别名可用；合并到可搜索select占位选择实体、合并实体禁用。展开“新增人工关系”：目标可搜索select未选、关系text值关联、原文依据可搜索select未选、添加关系禁用。下方原文证据1，一条引用“记录为整理提供线索。”、可用蓝色下划线链接“示例笔记 · L3–4”、只读基础词项分析。正常字号，抽屉内部纵向滚动，底部内容可达。B标题关联右上×，模型关系/待审核/置信度80%徽标；查看起点/查看终点；关系名称input值关联；确认 / 保存为一个完整可用按钮，忽略关系可用；原文证据1引用同上及可点击“示例笔记 · L3–4”链接和模型提取。图2已审三种变体作为内容参照，B准确继承中列动作。不可混入note的打开原文或similarity警示到实体/语义边。",
+  "sourceContracts": [
+    {
+      "id": "WS-093",
+      "title": "Mobile graph node/edge inspector drawer",
+      "kind": "drawer",
+      "module": "graph",
+      "entry": {
+        "route": "/?view=apps&app=graph",
+        "trigger": "Select graph node/edge at viewport<800px",
+        "parentId": "WS-085"
+      },
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:1373",
+        "apps/web/components/graph/GraphInspector.vue:92",
+        "apps/web/components/graph/GraphOverlay.vue:36",
+        "packages/core/graph/analysis-source.ts:31",
+        "packages/core/graph/knowledge-state.ts:166",
+        "packages/core/graph/knowledge-service.ts:934"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).",
+        "Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target."
+      ],
+      "fields": [
+        {
+          "name": "新增别名",
+          "type": "text",
+          "required": false,
+          "constraints": "UImaxlength100; server trimmed nonblank, <=128chars, no U+0000–001F.",
+          "sensitive": false
+        },
+        {
+          "name": "合并到",
+          "type": "entity-select",
+          "required": false,
+          "constraints": "Other visible non-note node.",
+          "sensitive": false
+        },
+        {
+          "name": "目标",
+          "type": "entity-select",
+          "required": false,
+          "constraints": "Other visible non-note node.",
+          "sensitive": false
+        },
+        {
+          "name": "关系 / 关系名称",
+          "type": "text",
+          "required": false,
+          "constraints": "Manual relation UImaxlength100; semantic edge name has no UImaxlength. Server predicate: trimmed nonblank, <=128 chars, no U+0000–001F.",
+          "sensitive": false
+        },
+        {
+          "name": "原文依据",
+          "type": "note-select",
+          "required": false,
+          "constraints": "Visible note node or source evidence note; required for manual relation.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "打开原文 / 证据",
+          "effect": "Open authorized note and evidence line",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "1跳关系 / 2跳关系",
+          "effect": "Focus graph around selected node",
+          "api": "GET /api/graph/explore",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "保存别名 / 合并实体 / 添加关系",
+          "effect": "Persist manual owner graph edits",
+          "api": "POST /api/graph/commands",
+          "guard": "Non-note entity; required fields and !busy"
+        },
+        {
+          "label": "确认 / 保存 / 忽略关系",
+          "effect": "Review selected semantic edge",
+          "api": "POST /api/graph/commands",
+          "guard": "Only semantic edges; !busy and predicate nonblank"
+        },
+        {
+          "label": "关闭详情",
+          "effect": "Clear selected id",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Note/entity/edge/similarity variant",
+        "No evidence empty state",
+        "Entity management collapsible sections",
+        "Mobile drawer suppressed while another graph panel open"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "testRefs": [
+        "tests/graph-overlay.test.ts",
+        "tests/e2e/knowledge-graph-full.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "originalManifestContract": {
+    "id": "WS-D069",
+    "title": "Mobile graph node/edge inspector drawer",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-093"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-093",
+        "title": "Mobile graph node/edge inspector drawer",
+        "role": "authenticated owner",
+        "state": "390/320 mobile drawer variants: note/entity/edge/similarity are conditional and suppressed under another graph panel.",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "presentationInstruction": "390/320 mobile drawer variants: note/entity/edge/similarity are conditional and suppressed under another graph panel."
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-093",
+        "title": "Mobile graph node/edge inspector drawer",
+        "role": "authenticated owner",
+        "state": "390/320 mobile drawer variants: note/entity/edge/similarity are conditional and suppressed under another graph panel.",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "presentationInstruction": "390/320 mobile drawer variants: note/entity/edge/similarity are conditional and suppressed under another graph panel."
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "apps/web/components/GraphWorkspace.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:1373, apps/web/components/graph/GraphInspector.vue:92, apps/web/components/graph/GraphOverlay.vue:36, packages/core/graph/analysis-source.ts:31, packages/core/graph/knowledge-state.ts:166, packages/core/graph/knowledge-service.ts:934"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-093",
+        "label": "打开原文 / 证据",
+        "effect": "Open authorized note and evidence line",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-093",
+        "label": "1跳关系 / 2跳关系",
+        "effect": "Focus graph around selected node",
+        "api": "GET /api/graph/explore",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      },
+      {
+        "sourceId": "WS-093",
+        "label": "保存别名 / 合并实体 / 添加关系",
+        "effect": "Persist manual owner graph edits",
+        "api": "POST /api/graph/commands",
+        "guard": "Non-note entity; required fields and !busy"
+      },
+      {
+        "sourceId": "WS-093",
+        "label": "确认 / 保存 / 忽略关系",
+        "effect": "Review selected semantic edge",
+        "api": "POST /api/graph/commands",
+        "guard": "Only semantic edges; !busy and predicate nonblank"
+      },
+      {
+        "sourceId": "WS-093",
+        "label": "关闭详情",
+        "effect": "Clear selected id",
+        "api": "none (local UI)",
+        "guard": "Owner session; control-specific guards described in permissionRules."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-D069",
+        "representation": "direct",
+        "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+        },
+        "requiredFieldOrder": [
+          "新增别名",
+          "合并到",
+          "目标",
+          "关系 / 关系名称",
+          "原文依据"
+        ],
+        "requiredFields": [
+          {
+            "name": "新增别名",
+            "type": "text",
+            "required": false,
+            "constraints": "UImaxlength100; server trimmed nonblank, <=128chars, no U+0000–001F.",
+            "sensitive": false
+          },
+          {
+            "name": "合并到",
+            "type": "entity-select",
+            "required": false,
+            "constraints": "Other visible non-note node.",
+            "sensitive": false
+          },
+          {
+            "name": "目标",
+            "type": "entity-select",
+            "required": false,
+            "constraints": "Other visible non-note node.",
+            "sensitive": false
+          },
+          {
+            "name": "关系 / 关系名称",
+            "type": "text",
+            "required": false,
+            "constraints": "Manual relation UImaxlength100; semantic edge name has no UImaxlength. Server predicate: trimmed nonblank, <=128 chars, no U+0000–001F.",
+            "sensitive": false
+          },
+          {
+            "name": "原文依据",
+            "type": "note-select",
+            "required": false,
+            "constraints": "Visible note node or source evidence note; required for manual relation.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "打开原文 / 证据",
+            "effect": "Open authorized note and evidence line",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "1跳关系 / 2跳关系",
+            "effect": "Focus graph around selected node",
+            "api": "GET /api/graph/explore",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "保存别名 / 合并实体 / 添加关系",
+            "effect": "Persist manual owner graph edits",
+            "api": "POST /api/graph/commands",
+            "guard": "Non-note entity; required fields and !busy"
+          },
+          {
+            "label": "确认 / 保存 / 忽略关系",
+            "effect": "Review selected semantic edge",
+            "api": "POST /api/graph/commands",
+            "guard": "Only semantic edges; !busy and predicate nonblank"
+          },
+          {
+            "label": "关闭详情",
+            "effect": "Clear selected id",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).",
+          "Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target."
+        ],
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-093"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D069 Mobile graph node/edge inspector drawer\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-093\", \"title\": \"Mobile graph node/edge inspector drawer\", \"role\": \"authenticated owner\", \"state\": \"390/320 mobile drawer variants: note/entity/edge/similarity are conditional and suppressed under another graph panel.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"390/320 mobile drawer variants: note/entity/edge/similarity are conditional and suppressed under another graph panel.\"}, {\"label\": \"B\", \"sourceId\": \"WS-093\", \"title\": \"Mobile graph node/edge inspector drawer\", \"role\": \"authenticated owner\", \"state\": \"390/320 mobile drawer variants: note/entity/edge/similarity are conditional and suppressed under another graph panel.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"390/320 mobile drawer variants: note/entity/edge/similarity are conditional and suppressed under another graph panel.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-093\", \"fieldsInOrder\": [{\"name\": \"新增别名\", \"type\": \"text\", \"required\": false, \"constraints\": \"UImaxlength100; server trimmed nonblank, <=128chars, no U+0000–001F.\", \"sensitive\": false}, {\"name\": \"合并到\", \"type\": \"entity-select\", \"required\": false, \"constraints\": \"Other visible non-note node.\", \"sensitive\": false}, {\"name\": \"目标\", \"type\": \"entity-select\", \"required\": false, \"constraints\": \"Other visible non-note node.\", \"sensitive\": false}, {\"name\": \"关系 / 关系名称\", \"type\": \"text\", \"required\": false, \"constraints\": \"Manual relation UImaxlength100; semantic edge name has no UImaxlength. Server predicate: trimmed nonblank, <=128 chars, no U+0000–001F.\", \"sensitive\": false}, {\"name\": \"原文依据\", \"type\": \"note-select\", \"required\": false, \"constraints\": \"Visible note node or source evidence note; required for manual relation.\", \"sensitive\": false}], \"actions\": [{\"label\": \"打开原文 / 证据\", \"effect\": \"Open authorized note and evidence line\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"1跳关系 / 2跳关系\", \"effect\": \"Focus graph around selected node\", \"api\": \"GET /api/graph/explore\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"保存别名 / 合并实体 / 添加关系\", \"effect\": \"Persist manual owner graph edits\", \"api\": \"POST /api/graph/commands\", \"guard\": \"Non-note entity; required fields and !busy\"}, {\"label\": \"确认 / 保存 / 忽略关系\", \"effect\": \"Review selected semantic edge\", \"api\": \"POST /api/graph/commands\", \"guard\": \"Only semantic edges; !busy and predicate nonblank\"}, {\"label\": \"关闭详情\", \"effect\": \"Clear selected id\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Note/entity/edge/similarity variant\", \"No evidence empty state\", \"Entity management collapsible sections\", \"Mobile drawer suppressed while another graph panel open\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).\", \"Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-093\", \"fieldsInOrder\": [{\"name\": \"新增别名\", \"type\": \"text\", \"required\": false, \"constraints\": \"UImaxlength100; server trimmed nonblank, <=128chars, no U+0000–001F.\", \"sensitive\": false}, {\"name\": \"合并到\", \"type\": \"entity-select\", \"required\": false, \"constraints\": \"Other visible non-note node.\", \"sensitive\": false}, {\"name\": \"目标\", \"type\": \"entity-select\", \"required\": false, \"constraints\": \"Other visible non-note node.\", \"sensitive\": false}, {\"name\": \"关系 / 关系名称\", \"type\": \"text\", \"required\": false, \"constraints\": \"Manual relation UImaxlength100; semantic edge name has no UImaxlength. Server predicate: trimmed nonblank, <=128 chars, no U+0000–001F.\", \"sensitive\": false}, {\"name\": \"原文依据\", \"type\": \"note-select\", \"required\": false, \"constraints\": \"Visible note node or source evidence note; required for manual relation.\", \"sensitive\": false}], \"actions\": [{\"label\": \"打开原文 / 证据\", \"effect\": \"Open authorized note and evidence line\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"1跳关系 / 2跳关系\", \"effect\": \"Focus graph around selected node\", \"api\": \"GET /api/graph/explore\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"保存别名 / 合并实体 / 添加关系\", \"effect\": \"Persist manual owner graph edits\", \"api\": \"POST /api/graph/commands\", \"guard\": \"Non-note entity; required fields and !busy\"}, {\"label\": \"确认 / 保存 / 忽略关系\", \"effect\": \"Review selected semantic edge\", \"api\": \"POST /api/graph/commands\", \"guard\": \"Only semantic edges; !busy and predicate nonblank\"}, {\"label\": \"关闭详情\", \"effect\": \"Clear selected id\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Note/entity/edge/similarity variant\", \"No evidence empty state\", \"Entity management collapsible sections\", \"Mobile drawer suppressed while another graph panel open\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).\", \"Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D069.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-093",
+        "title": "Mobile graph node/edge inspector drawer",
+        "kind": "drawer",
+        "module": "graph",
+        "entry": {
+          "route": "/?view=apps&app=graph",
+          "trigger": "Select graph node/edge at viewport<800px",
+          "parentId": "WS-085"
+        },
+        "sourceRefs": [
+          "apps/web/components/GraphWorkspace.vue:1373",
+          "apps/web/components/graph/GraphInspector.vue:92",
+          "apps/web/components/graph/GraphOverlay.vue:36",
+          "packages/core/graph/analysis-source.ts:31",
+          "packages/core/graph/knowledge-state.ts:166",
+          "packages/core/graph/knowledge-service.ts:934"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).",
+          "Graph commands use expectedVersion and requestId matching /^[A-Za-z0-9_-]{1,128}$/. Stale versions and idempotency conflicts reject; entity ids and source note must exist in current authorized aggregate. Merge/manual relation reject source=target."
+        ],
+        "fields": [
+          {
+            "name": "新增别名",
+            "type": "text",
+            "required": false,
+            "constraints": "UImaxlength100; server trimmed nonblank, <=128chars, no U+0000–001F.",
+            "sensitive": false
+          },
+          {
+            "name": "合并到",
+            "type": "entity-select",
+            "required": false,
+            "constraints": "Other visible non-note node.",
+            "sensitive": false
+          },
+          {
+            "name": "目标",
+            "type": "entity-select",
+            "required": false,
+            "constraints": "Other visible non-note node.",
+            "sensitive": false
+          },
+          {
+            "name": "关系 / 关系名称",
+            "type": "text",
+            "required": false,
+            "constraints": "Manual relation UImaxlength100; semantic edge name has no UImaxlength. Server predicate: trimmed nonblank, <=128 chars, no U+0000–001F.",
+            "sensitive": false
+          },
+          {
+            "name": "原文依据",
+            "type": "note-select",
+            "required": false,
+            "constraints": "Visible note node or source evidence note; required for manual relation.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "打开原文 / 证据",
+            "effect": "Open authorized note and evidence line",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "1跳关系 / 2跳关系",
+            "effect": "Focus graph around selected node",
+            "api": "GET /api/graph/explore",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          },
+          {
+            "label": "保存别名 / 合并实体 / 添加关系",
+            "effect": "Persist manual owner graph edits",
+            "api": "POST /api/graph/commands",
+            "guard": "Non-note entity; required fields and !busy"
+          },
+          {
+            "label": "确认 / 保存 / 忽略关系",
+            "effect": "Review selected semantic edge",
+            "api": "POST /api/graph/commands",
+            "guard": "Only semantic edges; !busy and predicate nonblank"
+          },
+          {
+            "label": "关闭详情",
+            "effect": "Clear selected id",
+            "api": "none (local UI)",
+            "guard": "Owner session; control-specific guards described in permissionRules."
+          }
+        ],
+        "importantStates": [
+          "Note/entity/edge/similarity variant",
+          "No evidence empty state",
+          "Entity management collapsible sections",
+          "Mobile drawer suppressed while another graph panel open"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at 320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+        },
+        "testRefs": [
+          "tests/graph-overlay.test.ts",
+          "tests/e2e/knowledge-graph-full.spec.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-093",
+        "parentId": "WS-085",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-093",
+    "stateCoverageRefs": [
+      {
+        "sourceId": "WS-093",
+        "state": "Note/entity/edge/similarity variant",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-093",
+        "state": "No evidence empty state",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-093",
+        "state": "Entity management collapsible sections",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-093",
+        "state": "Mobile drawer suppressed while another graph panel open",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "statePatternRefs": [],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "manifestReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-045.json",
+  "sourceDerived": true,
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "Use case: ui-mockup. 高清中文移动端组件设计板，三个独立可读面板，A为390px、B/C为320px宽；无设备外壳，普通字号，不将长表单压缩塞满。白底#fff、浅面#f7f8fa、文字#272b3a、蓝色#4566c6、细线#e6e9f1、8px圆角，参考图1仅作样式，图2仅作现有内容。只画局部组件，不重复外部导航。标题和控件真实自然，不把设计编号或技术合同画进UI。仅画两个独立移动图谱详情抽屉，A390宽为实体，B320为模型关系，不重画图谱宿主。A标题“知识管理”，右上×关闭详情；类型“概念”、1来源、尚未分组，说明“用于整理记录的方法”；1跳关系/2跳关系。展开“整理实体”：新增别名输入“知识整理”、保存别名可用；合并到可搜索select占位选择实体、合并实体禁用。展开“新增人工关系”：目标可搜索select未选、关系text值关联、原文依据可搜索select未选、添加关系禁用。下方原文证据1，一条引用“记录为整理提供线索。”、可用蓝色下划线链接“示例笔记 · L3–4”、只读基础词项分析。正常字号，抽屉内部纵向滚动，底部内容可达。B标题关联右上×，模型关系/待审核/置信度80%徽标；查看起点/查看终点；关系名称input值关联；确认 / 保存为一个完整可用按钮，忽略关系可用；原文证据1引用同上及可点击“示例笔记 · L3–4”链接和模型提取。图2已审三种变体作为内容参照，B准确继承中列动作。不可混入note的打开原文或similarity警示到实体/语义边。",
+  "actualToolArguments": {
+    "prompt": "Use case: ui-mockup. 高清中文移动端组件设计板，三个独立可读面板，A为390px、B/C为320px宽；无设备外壳，普通字号，不将长表单压缩塞满。白底#fff、浅面#f7f8fa、文字#272b3a、蓝色#4566c6、细线#e6e9f1、8px圆角，参考图1仅作样式，图2仅作现有内容。只画局部组件，不重复外部导航。标题和控件真实自然，不把设计编号或技术合同画进UI。仅画两个独立移动图谱详情抽屉，A390宽为实体，B320为模型关系，不重画图谱宿主。A标题“知识管理”，右上×关闭详情；类型“概念”、1来源、尚未分组，说明“用于整理记录的方法”；1跳关系/2跳关系。展开“整理实体”：新增别名输入“知识整理”、保存别名可用；合并到可搜索select占位选择实体、合并实体禁用。展开“新增人工关系”：目标可搜索select未选、关系text值关联、原文依据可搜索select未选、添加关系禁用。下方原文证据1，一条引用“记录为整理提供线索。”、可用蓝色下划线链接“示例笔记 · L3–4”、只读基础词项分析。正常字号，抽屉内部纵向滚动，底部内容可达。B标题关联右上×，模型关系/待审核/置信度80%徽标；查看起点/查看终点；关系名称input值关联；确认 / 保存为一个完整可用按钮，忽略关系可用；原文证据1引用同上及可点击“示例笔记 · L3–4”链接和模型提取。图2已审三种变体作为内容参照，B准确继承中列动作。不可混入note的打开原文或similarity警示到实体/语义边。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D092-v3.png"
+    ],
+    "transparent_background": false
+  },
+  "inputs": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    },
+    {
+      "order": 2,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D092-v3.png",
+      "role": "supporting reference",
+      "sha256": "0f49c22607e6c275c93a04b7496597db9f05a2b5d38243ba5cb968e6744b4f72",
+      "dimensions": {
+        "width": 2172,
+        "height": 724
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "inputReferences": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    },
+    {
+      "order": 2,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D092-v3.png",
+      "role": "supporting reference",
+      "sha256": "0f49c22607e6c275c93a04b7496597db9f05a2b5d38243ba5cb968e6744b4f72",
+      "dimensions": {
+        "width": 2172,
+        "height": 724
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-8114a64d-c8cc-4e31-918b-80aa6671171f.png",
+  "toolDefaultOutputSource": "$CODEX_HOME/generated_images (actual path in toolOutputFile)",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D069.png",
+  "sha256": "ddba4c636815ffe37fde2dc903f62131ed6cacecde27217a652a386ccef9e533",
+  "bytes": 1176302,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T08:38:51.069761+00:00",
+  "revisionOf": null,
+  "generationAttempts": [
+    {
+      "actualToolArguments": {
+        "prompt": "Use case: ui-mockup. 高清中文移动端组件设计板，三个独立可读面板，A为390px、B/C为320px宽；无设备外壳，普通字号，不将长表单压缩塞满。白底#fff、浅面#f7f8fa、文字#272b3a、蓝色#4566c6、细线#e6e9f1、8px圆角，参考图1仅作样式，图2仅作现有内容。只画局部组件，不重复外部导航。标题和控件真实自然，不把设计编号或技术合同画进UI。仅画两个独立移动图谱详情抽屉，A390宽为实体，B320为模型关系，不重画图谱宿主。A标题“知识管理”，右上×关闭详情；类型“概念”、1来源、尚未分组，说明“用于整理记录的方法”；1跳关系/2跳关系。展开“整理实体”：新增别名输入“知识整理”、保存别名可用；合并到可搜索select占位选择实体、合并实体禁用。展开“新增人工关系”：目标可搜索select未选、关系text值关联、原文依据可搜索select未选、添加关系禁用。下方原文证据1，一条引用“记录为整理提供线索。”、可用蓝色下划线链接“示例笔记 · L3–4”、只读基础词项分析。正常字号，抽屉内部纵向滚动，底部内容可达。B标题关联右上×，模型关系/待审核/置信度80%徽标；查看起点/查看终点；关系名称input值关联；确认 / 保存为一个完整可用按钮，忽略关系可用；原文证据1引用同上及可点击“示例笔记 · L3–4”链接和模型提取。图2已审三种变体作为内容参照，B准确继承中列动作。不可混入note的打开原文或similarity警示到实体/语义边。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-D092-v3.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-8114a64d-c8cc-4e31-918b-80aa6671171f.png",
+      "status": "saved"
+    }
+  ],
+  "postprocessing": "original PNG copied without pixel modification",
+  "selfInspection": {
+    "method": "Viewed actual inputs and generated native preview; compared selected state to source contracts",
+    "concerns": [
+      "Static design only; exact source controls retained, drawer scrolling/focus not runtime verified."
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "reviewStatus": "pending-independent-review",
+  "pendingReview": true,
+  "exactMasterBindings": [
+    {
+      "assetId": "WS-D092-v3",
+      "sha256": "0f49c22607e6c275c93a04b7496597db9f05a2b5d38243ba5cb968e6744b4f72",
+      "review": "pass",
+      "panels": {
+        "note": "left note controls open-source+1/2-hop, same drawer renderer at widths390/320",
+        "semantic": "middle predicate and accept/ignore drawn independently at320",
+        "similarity": "right origin/target and similarity warning/no evidence, same drawer renderer at widths390/320"
+      },
+      "entity": "actual independently drawn at390 all alias/merge/manual-relation inputs; no missing new control delegated to master"
+    }
+  ]
+}

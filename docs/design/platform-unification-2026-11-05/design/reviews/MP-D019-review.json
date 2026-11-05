@@ -1,0 +1,50 @@
+{
+  "assetId": "MP-D019",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:09:50.186610+00:00",
+  "method": "Actual PNG viewed; full sidecar actual prompt and GEN-010 contract checked against current TransferPanel and SettingsOverlay templates/handlers. Parent baseline is only context; selected local window is explicitly source-derived and not runtime captured.",
+  "selectedState": "Owner local export modal, folder scope with existing 00-Inbox, idle and no errors",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Source range select and conditional existing-folder selector preserved with values 指定目录/00-Inbox; no expanded chooser, arbitrary destination, password/format/filename field.",
+    "Exact export scope/recovery distinction and background-task download explanation retained; cancel and source-specific 导出此目录 enabled. No false completed export.",
+    "Error-only reread action hidden correctly. Folder-scope dirty close is guarded by SettingsOverlay but no discard prompt is shown until actual close; idle close affordance and metadata owner/parent mapping remain valid."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-010.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D019.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/TransferPanel.vue:336",
+    "apps/web/components/settings/TransferPanel.vue:708",
+    "apps/web/components/settings/SettingsOverlay.vue:40"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "bc30c1e9fd39d2379dbce454e15068e05ada4fd9b15419c0992581a138b4a13b",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D019.png",
+  "sourceIds": [
+    "ST-024"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

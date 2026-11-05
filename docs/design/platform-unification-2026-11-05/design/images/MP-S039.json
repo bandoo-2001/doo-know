@@ -1,0 +1,325 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S039",
+  "assetId": "MP-S039",
+  "sourceIds": [
+    "PB-006"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "owner-bootstrap"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-006",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-bootstrap",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Six independent App bootstrap failure specimens: retry busy; desktop idle; narrow390; narrow320; logout busy; logout failure alert. Owner identity retained, no private workspace. Source-derived no runtime baseline."
+    }
+  ],
+  "selectedState": "Six independent App bootstrap failure specimens: retry busy; desktop idle; narrow390; narrow320; logout busy; logout failure alert. Owner identity retained, no private workspace. Source-derived no runtime baseline.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。六个独立紧凑局部卡片。第一行标题“暂时无法打开知识库”，说明“登录信息已保留，请检查连接后重试。”，按钮“重新尝试”转圈且禁用、“退出并重新登录”禁用。第二行同标题说明，两个按钮都可用。第三行相同完整卡片压到390px窄宽，长说明换行、两个按钮可换行且可用。第四行相同卡片320px宽，所有文字按钮完整可达。第五行同标题说明，“重新尝试”禁用、“退出并重新登录”转圈且禁用。第六行同标题说明，再加红色告警“暂时无法退出，请检查连接后重试。”，两个按钮都可用。没有用户名、登录输入、关闭X或任何其他动作。",
+  "prompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。六个独立紧凑局部卡片。第一行标题“暂时无法打开知识库”，说明“登录信息已保留，请检查连接后重试。”，按钮“重新尝试”转圈且禁用、“退出并重新登录”禁用。第二行同标题说明，两个按钮都可用。第三行相同完整卡片压到390px窄宽，长说明换行、两个按钮可换行且可用。第四行相同卡片320px宽，所有文字按钮完整可达。第五行同标题说明，“重新尝试”禁用、“退出并重新登录”转圈且禁用。第六行同标题说明，再加红色告警“暂时无法退出，请检查连接后重试。”，两个按钮都可用。没有用户名、登录输入、关闭X或任何其他动作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; no actual matching runtime baseline or role-shell reference exists",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; no actual matching runtime baseline or role-shell reference exists",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。六个独立紧凑局部卡片。第一行标题“暂时无法打开知识库”，说明“登录信息已保留，请检查连接后重试。”，按钮“重新尝试”转圈且禁用、“退出并重新登录”禁用。第二行同标题说明，两个按钮都可用。第三行相同完整卡片压到390px窄宽，长说明换行、两个按钮可换行且可用。第四行相同卡片320px宽，所有文字按钮完整可达。第五行同标题说明，“重新尝试”禁用、“退出并重新登录”转圈且禁用。第六行同标题说明，再加红色告警“暂时无法退出，请检查连接后重试。”，两个按钮都可用。没有用户名、登录输入、关闭X或任何其他动作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制中文网页局部状态对照板，白底浅灰面、蓝色主动作、细线小圆角、紧凑清晰。各行独立、留白细线分隔，只画指定组件，不画主人导航、浏览器边框或审查元信息。六个独立紧凑局部卡片。第一行标题“暂时无法打开知识库”，说明“登录信息已保留，请检查连接后重试。”，按钮“重新尝试”转圈且禁用、“退出并重新登录”禁用。第二行同标题说明，两个按钮都可用。第三行相同完整卡片压到390px窄宽，长说明换行、两个按钮可换行且可用。第四行相同卡片320px宽，所有文字按钮完整可达。第五行同标题说明，“重新尝试”禁用、“退出并重新登录”转圈且禁用。第六行同标题说明，再加红色告警“暂时无法退出，请检查连接后重试。”，两个按钮都可用。没有用户名、登录输入、关闭X或任何其他动作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only; no actual matching runtime baseline or role-shell reference exists"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-e6193f30-769c-415c-a48a-02e58801bd5d.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-006",
+      "title": "已登录但知识库状态无法读取",
+      "kind": "state",
+      "module": "auth",
+      "entry": {
+        "route": "/; /login; /oauth/consent",
+        "trigger": "Accepted session but platform status fails before workspace mounts",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/App.vue:137",
+        "apps/web/App.vue:162",
+        "apps/web/App.vue:361"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "App selects this surface according to accepted session state; no browser self-registration exists."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新尝试",
+          "effect": "Reload platform status",
+          "api": "GET /api/platform/status",
+          "guard": "not platformBusy/logoutBusy"
+        },
+        {
+          "label": "退出并重新登录",
+          "effect": "Sign out and clear accepted session",
+          "api": "POST /api/auth/sign-out",
+          "guard": "not platformBusy/logoutBusy"
+        }
+      ],
+      "importantStates": [
+        "login identity retained",
+        "platform request failure; retry busy",
+        "logout pending; logout failure alert"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Centered form up to 400px; <=600px reduces page/card padding. 320/390/1440 are review targets; no runtime capture in this inventory."
+      },
+      "testRefs": [
+        "tests/platform-setup.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-006",
+      "parentId": null,
+      "route": "/; /login; /oauth/consent",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/App.vue:137",
+        "apps/web/App.vue:162",
+        "apps/web/App.vue:361"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-027.json#MP-S039",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S039",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-e6193f30-769c-415c-a48a-02e58801bd5d.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S039.png",
+  "sha256": "de33ff22c087960c7476c5c69e7a058458a19d4f160443da818a680045206a65",
+  "bytes": 1356123,
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  },
+  "generatedAtUtc": "2026-11-05T05:05:27.773983+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-bootstrap / App.vue",
+    "sourceIds": [
+      "PB-006"
+    ],
+    "roles": [
+      "authenticated owner",
+      "owner-bootstrap"
+    ],
+    "state": "Six independent App bootstrap failure specimens: retry busy; desktop idle; narrow390; narrow320; logout busy; logout failure alert. Owner identity retained, no private workspace. Source-derived no runtime baseline.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "PB-006",
+      "title": "retry busy",
+      "renderer": "apps/web/App.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:137",
+        "apps/web/App.vue:162",
+        "apps/web/App.vue:361"
+      ],
+      "guardBindings": [
+        {
+          "label": "重新尝试",
+          "guard": "not platformBusy/logoutBusy"
+        },
+        {
+          "label": "退出并重新登录",
+          "guard": "not platformBusy/logoutBusy"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "platform request failure; retry busy",
+          "variant": "retry busy",
+          "representation": "visible"
+        },
+        {
+          "state": "logout pending; logout failure alert",
+          "variant": "logout pending",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "PB-006"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "PB-006",
+      "title": "App已接受owner会话后的完整失败卡与重试/退出动作；不绘私有导航或额外用户名字段",
+      "renderer": "apps/web/App.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:137",
+        "apps/web/App.vue:162",
+        "apps/web/App.vue:361"
+      ],
+      "guardBindings": [
+        {
+          "label": "重新尝试",
+          "guard": "not platformBusy/logoutBusy"
+        },
+        {
+          "label": "退出并重新登录",
+          "guard": "not platformBusy/logoutBusy"
+        }
+      ],
+      "presentation": "完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。",
+      "coveredSourceIds": [
+        "PB-006"
+      ]
+    },
+    {
+      "row": "r3",
+      "sourceId": "PB-006",
+      "title": "完整紧凑组件 390px；全部登记字段/现有动作可达，长值换行、焦点与原guard保持",
+      "renderer": "apps/web/App.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:137",
+        "apps/web/App.vue:162",
+        "apps/web/App.vue:361"
+      ],
+      "guardBindings": [
+        {
+          "label": "重新尝试",
+          "guard": "not platformBusy/logoutBusy"
+        },
+        {
+          "label": "退出并重新登录",
+          "guard": "not platformBusy/logoutBusy"
+        }
+      ],
+      "presentation": "完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。",
+      "coveredSourceIds": [
+        "PB-006"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "row": "r4",
+      "sourceId": "PB-006",
+      "title": "完整紧凑组件 320px；全部登记字段/现有动作可达，长值换行、焦点与原guard保持",
+      "renderer": "apps/web/App.vue",
+      "sourceRefs": [
+        "apps/web/App.vue:137",
+        "apps/web/App.vue:162",
+        "apps/web/App.vue:361"
+      ],
+      "guardBindings": [
+        {
+          "label": "重新尝试",
+          "guard": "not platformBusy/logoutBusy"
+        },
+        {
+          "label": "退出并重新登录",
+          "guard": "not platformBusy/logoutBusy"
+        }
+      ],
+      "presentation": "完整紧凑真实组件/表单；此row显示其全部登记字段、现有动作与状态，不重画宿主导航。",
+      "coveredSourceIds": [
+        "PB-006"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 780
+      }
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": []
+}

@@ -1,0 +1,47 @@
+{
+  "assetId": "WS-M014",
+  "sourceIds": [
+    "WS-110"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T06:14:28.511436+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Seven independent trash initial/error/empty/query/filter/later-page/unreadable states",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed seven specimens/full prompt/contracts. Initial load only status; failed read keeps previous page and available-note checkbox/restore/rename/purge with real retry. !locked&&!loading guards preserved, no loss of old page implied.",
+    "Four empty titles/help obey source priority: nonempty page filtered-out ->state empty; no items with activeQuery ->search empty; no query pageIndex>0 ->later page empty; initial no query ->all empty. Page2 previous enabled/next disabled matches no nextCursor.",
+    "Unreadable original remains visible with exact reason and unknown deletion/size labels; selection/restore/rename/permanent-file-removal disabled. No folder purge or silent disappearance/success invented."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-034.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-M014.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/TrashWorkspace.vue:439",
+    "apps/web/components/TrashWorkspace.vue:459",
+    "apps/web/components/TrashWorkspace.vue:513",
+    "apps/web/components/TrashWorkspace.vue:574",
+    "apps/web/components/TrashWorkspace.vue:601"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "9b5dc5715091cdce0e62183c58fd7c529a97d91ccdf5386d2684c9d75760df6f",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-M014.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

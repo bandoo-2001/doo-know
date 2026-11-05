@@ -1,0 +1,287 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D035",
+  "assetId": "WS-D035",
+  "sourceIds": [
+    "WS-045"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner",
+    "guest holding currently editable public share"
+  ],
+  "panels": [
+    {
+      "label": "desktop",
+      "sourceId": "WS-045",
+      "title": "Shared owner/guest current-note find and replace",
+      "role": "authenticated owner",
+      "state": "Owner query/case/replace/count/previous/next/close widget; source readOnly keeps search active and disables replacement.",
+      "selectedState": "Exact captured owner find/replace initial empty 0/0 widget; writable replacement input but no matches disable next/previous/replace; mobile wrap derived"
+    },
+    {
+      "label": "phone-390",
+      "sourceId": "WS-045",
+      "title": "Shared owner/guest current-note find and replace",
+      "role": "authenticated owner",
+      "state": "Actual owner find/replace widget at390, same fields and source order, wrapped controls and reachable close.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Exact captured owner find/replace initial empty 0/0 widget; writable replacement input but no matches disable next/previous/replace; mobile wrap derived"
+    },
+    {
+      "label": "phone-320",
+      "sourceId": "WS-045",
+      "title": "Shared owner/guest current-note find and replace",
+      "role": "authenticated owner",
+      "state": "Same owner widget at320; readOnly replacement guard retained.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "selectedState": "Exact captured owner find/replace initial empty 0/0 widget; writable replacement input but no matches disable next/previous/replace; mobile wrap derived"
+    }
+  ],
+  "selectedState": "Exact captured owner find/replace initial empty 0/0 widget; writable replacement input but no matches disable next/previous/replace; mobile wrap derived",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作一张清晰三分区对照板，外部只标桌面、390px、320px，表示三个独立视口中的同一窗口，不是同页同时打开。全部字段/按钮保持可读，窄屏自然换行，允许内部滚动，关闭和主动作可达。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。只画现有“当前笔记查找”局部横向工具条，不造弹窗标题栏/保存按钮。桌面一条，390/320自然换行。按顺序：可见label“查找”和空input（焦点细蓝边）；计数“0 / 0”；“↑”“↓”两按钮灰色禁用；未勾checkbox“区分大小写”；可见label“替换”和空input可输入；按钮“替换当前”“全部替换”均灰色禁用；末尾关闭“×”可用。三个视口都保留顺序、全部字段和关闭，不加无结果提示、正文高亮或owner页面背景。",
+  "prompt": "制作一张清晰三分区对照板，外部只标桌面、390px、320px，表示三个独立视口中的同一窗口，不是同页同时打开。全部字段/按钮保持可读，窄屏自然换行，允许内部滚动，关闭和主动作可达。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。只画现有“当前笔记查找”局部横向工具条，不造弹窗标题栏/保存按钮。桌面一条，390/320自然换行。按顺序：可见label“查找”和空input（焦点细蓝边）；计数“0 / 0”；“↑”“↓”两按钮灰色禁用；未勾checkbox“区分大小写”；可见label“替换”和空input可输入；按钮“替换当前”“全部替换”均灰色禁用；末尾关闭“×”可用。三个视口都保留顺序、全部字段和关闭，不加无结果提示、正文高亮或owner页面背景。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-find.png",
+      "role": "Actual matching component/parent reference; only its captured visible state is runtime baseline",
+      "sha256": "088c151d10aba38a07ec7feb665aed5b71cb41508cc0821db1633424350ff0e4",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; omit workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-find.png",
+      "role": "Actual matching component/parent reference; only its captured visible state is runtime baseline",
+      "sha256": "088c151d10aba38a07ec7feb665aed5b71cb41508cc0821db1633424350ff0e4",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; omit workspace shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作一张清晰三分区对照板，外部只标桌面、390px、320px，表示三个独立视口中的同一窗口，不是同页同时打开。全部字段/按钮保持可读，窄屏自然换行，允许内部滚动，关闭和主动作可达。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。只画现有“当前笔记查找”局部横向工具条，不造弹窗标题栏/保存按钮。桌面一条，390/320自然换行。按顺序：可见label“查找”和空input（焦点细蓝边）；计数“0 / 0”；“↑”“↓”两按钮灰色禁用；未勾checkbox“区分大小写”；可见label“替换”和空input可输入；按钮“替换当前”“全部替换”均灰色禁用；末尾关闭“×”可用。三个视口都保留顺序、全部字段和关闭，不加无结果提示、正文高亮或owner页面背景。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-find.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作一张清晰三分区对照板，外部只标桌面、390px、320px，表示三个独立视口中的同一窗口，不是同页同时打开。全部字段/按钮保持可读，窄屏自然换行，允许内部滚动，关闭和主动作可达。只画明确列出的窗口与文案，不加附注或父页导航。平面白/浅灰、深色字、细线、小圆角、#4566c6蓝色、清晰紧凑中文；不画设备外壳。只画现有“当前笔记查找”局部横向工具条，不造弹窗标题栏/保存按钮。桌面一条，390/320自然换行。按顺序：可见label“查找”和空input（焦点细蓝边）；计数“0 / 0”；“↑”“↓”两按钮灰色禁用；未勾checkbox“区分大小写”；可见label“替换”和空input可输入；按钮“替换当前”“全部替换”均灰色禁用；末尾关闭“×”可用。三个视口都保留顺序、全部字段和关闭，不加无结果提示、正文高亮或owner页面背景。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-find.png",
+          "role": "Actual matching component/parent reference; only its captured visible state is runtime baseline"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; omit workspace shell"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-12e75986-a961-4690-9cce-edd943bee0c8.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-045",
+      "title": "Shared owner/guest current-note find and replace",
+      "kind": "popover",
+      "module": "editor",
+      "entry": {
+        "route": "Owner /?note=:id; public guest edit host /s/:token (PB-026/PB-027)",
+        "trigger": "Ctrl/Cmd+F or Ctrl/Cmd+H inside NoteEditorHost in either document/source mode; owner toolbar also exposes 查找替换",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/EditorSearch.vue:1",
+        "apps/web/components/NoteEditorHost.vue:22",
+        "apps/web/components/NoteEditorHost.vue:266",
+        "apps/web/components/PublicShareEditor.vue:224"
+      ],
+      "roles": [
+        "authenticated owner",
+        "guest holding currently editable public share"
+      ],
+      "permissionRules": [
+        "Canonical shared NoteEditorHost/EditorSearch visual for owner and public edit hosts. Owner API authorization is defined by owner host; guest is constrained to public share grant and public editor source. No owner toolbar/menu privilege is granted to guest.",
+        "Ctrl/Cmd+F/H withoutAlt and notIME composition opens search in both modes even without owner toolbar. Replace is blocked by props.readOnly or session.composing; guest host readOnly=busy||loading. Matching count must be nonzero.",
+        "PB-026/PB-027 own external editor page, public save/reload/expiry permissions and host context; this row owns shared find/replace widget."
+      ],
+      "fields": [
+        {
+          "name": "查找内容",
+          "type": "text",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "区分大小写",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        },
+        {
+          "name": "替换内容",
+          "type": "text",
+          "required": false,
+          "constraints": "No additional client constraint found; server validation not otherwise verified.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "上一个 / 下一个 / Enter / Shift+Enter",
+          "effect": "Cycle matches",
+          "api": "none (local UI)",
+          "guard": "Authenticated owner or valid editable-share host; the shared find/replace panel is mounted. No owner-only API permission is required by this local editor action."
+        },
+        {
+          "label": "替换当前 / 全部替换",
+          "effect": "Replace matches in active editor",
+          "api": "none",
+          "guard": "!readOnly, match count>0; no replacement during composition"
+        },
+        {
+          "label": "关闭 / Escape",
+          "effect": "Clear highlights and focus editor",
+          "api": "none (local UI)",
+          "guard": "Authenticated owner or valid editable-share host; the shared find/replace panel is mounted. No owner-only API permission is required by this local editor action."
+        }
+      ],
+      "importantStates": [
+        "0 / 0 match count",
+        "Active match highlight",
+        "Read-only search keeps replacement disabled"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Document-area container queries compact chrome and toolbar; <=720px source editor font 14px and smaller padding. Mobile layout and selection/floating tools still require runtime inspection (apps/web/document.css:440; components/MarkdownEditor.vue:157; document-editor.css:641)."
+      },
+      "testRefs": [
+        "tests/editor-search.test.ts",
+        "tests/e2e/editor-improvements.spec.ts",
+        "tests/share-options.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Public edit host uses same widget via keyboard. Do not infer guest access to owner formatting toolbar, file operations, directory selector, account or sharing management."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-045",
+      "parentId": "WS-024",
+      "route": "Owner /?note=:id; public guest edit host /s/:token (PB-026/PB-027)",
+      "roles": [
+        "authenticated owner",
+        "guest holding currently editable public share"
+      ],
+      "sourceRefs": [
+        "apps/web/components/EditorSearch.vue:1",
+        "apps/web/components/NoteEditorHost.vue:22",
+        "apps/web/components/NoteEditorHost.vue:266",
+        "apps/web/components/PublicShareEditor.vue:224"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-015.json#WS-D035",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D035",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-12e75986-a961-4690-9cce-edd943bee0c8.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D035.png",
+  "sha256": "c99b8fe2ba45e2614959f0972d1b8dac0218e4e10c05132aad93b14f7c08b7be",
+  "bytes": 1067031,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T03:19:34.871277+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Shared owner/guest current-note find and replace",
+    "sourceIds": [
+      "WS-045"
+    ],
+    "roles": [
+      "authenticated owner",
+      "guest holding currently editable public share"
+    ],
+    "state": "Exact captured owner find/replace initial empty 0/0 widget; writable replacement input but no matches disable next/previous/replace; mobile wrap derived",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "failedGenerationAttempts": []
+}

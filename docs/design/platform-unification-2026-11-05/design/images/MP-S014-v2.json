@@ -1,0 +1,381 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S014-v2",
+  "assetId": "MP-S014",
+  "sourceIds": [
+    "ST-028"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-028",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Seven PortableJobs slices: original empty/error retained; five distinct real job cards running export cancel, failed export portable previews/cancel/continue, cancelled export retry, interrupted archive import partial note results and needsSource resume, completed export download"
+    }
+  ],
+  "selectedState": "Seven PortableJobs slices: original empty/error retained; five distinct real job cards running export cancel, failed export portable previews/cancel/continue, cancelled export retry, interrupted archive import partial note results and needsSource resume, completed export download",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "保留现有上方两个空态/读取失败区全部不变，在下方再增加五个相互分离、清晰可读的紧凑局部行，整图合计七行，可纵向加高。新增第三行真实任务卡“便携导出 · 进行中”，唯一按钮“取消任务”。第四行“便携导出 · 失败，尚未完成”，说明“待生成 1 张便携图形预览，原任务尚未完成。”，列表“图谱.excalidraw · 主图”，两个按钮“取消预览准备”“生成预览并继续导出”。第五行“便携导出 · 已取消”，唯一按钮“重试导出”，无预览清单。第六行“归档整包导入 · 已中断，尚未完成”，说明“重新选择原始完整资料后继续。已创建的笔记保留，使用原请求继续不会重复创建。”，可点结果笔记路径“00-Inbox/记录.md”，按钮“选择原资料继续”。第七行“便携导出 · 已完成”，可点下载链接“下载便携结果”，无重试或取消。新增各行是不同任务样例，不可合为同一任务或同时显示互斥按钮。不显示请求编号、成功通知或新功能。",
+  "prompt": "保留现有上方两个空态/读取失败区全部不变，在下方再增加五个相互分离、清晰可读的紧凑局部行，整图合计七行，可纵向加高。新增第三行真实任务卡“便携导出 · 进行中”，唯一按钮“取消任务”。第四行“便携导出 · 失败，尚未完成”，说明“待生成 1 张便携图形预览，原任务尚未完成。”，列表“图谱.excalidraw · 主图”，两个按钮“取消预览准备”“生成预览并继续导出”。第五行“便携导出 · 已取消”，唯一按钮“重试导出”，无预览清单。第六行“归档整包导入 · 已中断，尚未完成”，说明“重新选择原始完整资料后继续。已创建的笔记保留，使用原请求继续不会重复创建。”，可点结果笔记路径“00-Inbox/记录.md”，按钮“选择原资料继续”。第七行“便携导出 · 已完成”，可点下载链接“下载便携结果”，无重试或取消。新增各行是不同任务样例，不可合为同一任务或同时显示互斥按钮。不显示请求编号、成功通知或新功能。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S014.png",
+      "role": "Edit target; preserve existing empty/error samples and add five distinct real PortableJobs conditional job-card specimens",
+      "sha256": "5167783c3bc39801e1a5586ab8788fc3b0897603b0b1085ea6abee916d7f0f7a",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S014.png",
+      "role": "Edit target; preserve existing empty/error samples and add five distinct real PortableJobs conditional job-card specimens",
+      "sha256": "5167783c3bc39801e1a5586ab8788fc3b0897603b0b1085ea6abee916d7f0f7a",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "保留现有上方两个空态/读取失败区全部不变，在下方再增加五个相互分离、清晰可读的紧凑局部行，整图合计七行，可纵向加高。新增第三行真实任务卡“便携导出 · 进行中”，唯一按钮“取消任务”。第四行“便携导出 · 失败，尚未完成”，说明“待生成 1 张便携图形预览，原任务尚未完成。”，列表“图谱.excalidraw · 主图”，两个按钮“取消预览准备”“生成预览并继续导出”。第五行“便携导出 · 已取消”，唯一按钮“重试导出”，无预览清单。第六行“归档整包导入 · 已中断，尚未完成”，说明“重新选择原始完整资料后继续。已创建的笔记保留，使用原请求继续不会重复创建。”，可点结果笔记路径“00-Inbox/记录.md”，按钮“选择原资料继续”。第七行“便携导出 · 已完成”，可点下载链接“下载便携结果”，无重试或取消。新增各行是不同任务样例，不可合为同一任务或同时显示互斥按钮。不显示请求编号、成功通知或新功能。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S014.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "保留现有上方两个空态/读取失败区全部不变，在下方再增加五个相互分离、清晰可读的紧凑局部行，整图合计七行，可纵向加高。新增第三行真实任务卡“便携导出 · 进行中”，唯一按钮“取消任务”。第四行“便携导出 · 失败，尚未完成”，说明“待生成 1 张便携图形预览，原任务尚未完成。”，列表“图谱.excalidraw · 主图”，两个按钮“取消预览准备”“生成预览并继续导出”。第五行“便携导出 · 已取消”，唯一按钮“重试导出”，无预览清单。第六行“归档整包导入 · 已中断，尚未完成”，说明“重新选择原始完整资料后继续。已创建的笔记保留，使用原请求继续不会重复创建。”，可点结果笔记路径“00-Inbox/记录.md”，按钮“选择原资料继续”。第七行“便携导出 · 已完成”，可点下载链接“下载便携结果”，无重试或取消。新增各行是不同任务样例，不可合为同一任务或同时显示互斥按钮。不显示请求编号、成功通知或新功能。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S014.png",
+          "role": "Edit target; preserve existing empty/error samples and add five distinct real PortableJobs conditional job-card specimens"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-9f261e78-3aac-4629-afc2-65e56c515e5a.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-028",
+      "title": "便携任务与预览恢复",
+      "kind": "state",
+      "module": "settings/portable-jobs",
+      "entry": {
+        "route": "/?view=settings&section=library",
+        "trigger": "便携任务与结果常驻区",
+        "parentId": "ST-002"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/PortableJobs.vue:32",
+        "apps/web/components/settings/PortableJobs.vue:70"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新结果",
+          "effect": "每2秒轮询且支持手动刷新",
+          "api": "GET /api/portable-jobs",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消任务 / 取消预览准备",
+          "effect": "取消原任务",
+          "api": "POST /api/portable-jobs/:id/cancel",
+          "guard": "任务running或未运行但有portablePreviews"
+        },
+        {
+          "label": "生成预览并继续导出 / 重试导出",
+          "effect": "准备便携图形预览后继续原导出",
+          "api": "POST /api/portable-jobs/:id/retry",
+          "guard": "非completed的export"
+        },
+        {
+          "label": "选择原资料继续",
+          "effect": "打开ST-023",
+          "api": "无请求",
+          "guard": "needsSource"
+        },
+        {
+          "label": "下载便携结果 / 结果笔记",
+          "effect": "下载结果或打开已导入笔记",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "暂无便携任务",
+        "读取失败",
+        "running/completed/failed/cancelled/interrupted",
+        "待生成预览清单",
+        "需要原资料",
+        "已完成下载"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/portable-owner-workflow.test.ts:1",
+        "tests/e2e/portable-native-preview.spec.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-028",
+      "parentId": "ST-002",
+      "route": "/?view=settings&section=library",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/PortableJobs.vue:32",
+        "apps/web/components/settings/PortableJobs.vue:70"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-023.json#MP-S014",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S014",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-9f261e78-3aac-4629-afc2-65e56c515e5a.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S014-v2.png",
+  "sha256": "8345b66c732b89d5417a77ab3042a4f7701062682c3a126f6547fc66789c8ba3",
+  "bytes": 1228938,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T04:53:54.247619+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S014.png",
+    "sha256": "5167783c3bc39801e1a5586ab8788fc3b0897603b0b1085ea6abee916d7f0f7a",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/MP-S014-review.json"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / PortableJobs.vue",
+    "sourceIds": [
+      "ST-028"
+    ],
+    "roles": [
+      "authenticated-owner",
+      "owner-private"
+    ],
+    "state": "Seven PortableJobs slices: original empty/error retained; five distinct real job cards running export cancel, failed export portable previews/cancel/continue, cancelled export retry, interrupted archive import partial note results and needsSource resume, completed export download",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-028",
+      "title": "暂无便携任务",
+      "renderer": "apps/web/components/settings/PortableJobs.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/PortableJobs.vue:32",
+        "apps/web/components/settings/PortableJobs.vue:70"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新结果",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消任务 / 取消预览准备",
+          "guard": "任务running或未运行但有portablePreviews"
+        },
+        {
+          "label": "生成预览并继续导出 / 重试导出",
+          "guard": "非completed的export"
+        },
+        {
+          "label": "选择原资料继续",
+          "guard": "needsSource"
+        },
+        {
+          "label": "下载便携结果 / 结果笔记",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "暂无便携任务",
+          "variant": "暂无便携任务",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-028"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-028",
+      "title": "读取失败",
+      "renderer": "apps/web/components/settings/PortableJobs.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/PortableJobs.vue:32",
+        "apps/web/components/settings/PortableJobs.vue:70"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新结果",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消任务 / 取消预览准备",
+          "guard": "任务running或未运行但有portablePreviews"
+        },
+        {
+          "label": "生成预览并继续导出 / 重试导出",
+          "guard": "非completed的export"
+        },
+        {
+          "label": "选择原资料继续",
+          "guard": "needsSource"
+        },
+        {
+          "label": "下载便携结果 / 结果笔记",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "读取失败",
+          "variant": "读取失败",
+          "representation": "visible"
+        },
+        {
+          "state": "running/completed/failed/cancelled/interrupted",
+          "variant": "running/completed/failed/cancelled/interrupted",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-028"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": [
+    {
+      "row": "r1",
+      "state": "empty"
+    },
+    {
+      "row": "r2",
+      "state": "fetch-error with jobs empty"
+    },
+    {
+      "row": "r3",
+      "kind": "export",
+      "state": "running",
+      "actions": [
+        "取消任务"
+      ]
+    },
+    {
+      "row": "r4",
+      "kind": "export",
+      "state": "failed",
+      "portablePreviews": 1,
+      "actions": [
+        "取消预览准备",
+        "生成预览并继续导出"
+      ]
+    },
+    {
+      "row": "r5",
+      "kind": "export",
+      "state": "cancelled",
+      "portablePreviews": 0,
+      "actions": [
+        "重试导出"
+      ]
+    },
+    {
+      "row": "r6",
+      "kind": "import-archive",
+      "state": "interrupted",
+      "needsSource": true,
+      "resultNotes": 1,
+      "actions": [
+        "result note path",
+        "选择原资料继续"
+      ],
+      "sourceEvidence": "apps/server/knowledge/portable-owner-jobs.ts:74-114 recovers partial import receipt notes"
+    },
+    {
+      "row": "r7",
+      "kind": "export",
+      "state": "completed",
+      "downloadAvailable": true,
+      "actions": [
+        "下载便携结果"
+      ]
+    }
+  ]
+}

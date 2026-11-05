@@ -1,0 +1,48 @@
+{
+  "assetId": "MP-R028",
+  "sourceIds": [
+    "ST-064"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T07:14:50.948835+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "A390/B320 active enabled API client; C320 service-disabled active client with revoke busy",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed all three panels/full actual prompt/contracts and API effective-policy chain. Enabled active/noform/nosecret has real refresh/create/rename/permissions/rotate/revoke, grants+effective line and readonly suffix/expiry/issued/last-use only, never complete previous secret.",
+    "C plugin/channel service-disabled grants retained but platformPolicy undefined, so current-effective line correctly absent. busy=true locks refresh/create/rename/permissions/rotate/cancel; inline revoke confirm loading replaces ordinary revoke. Disabled alone still permits rename/revoke; this specimen locks them because busy, not a false removal of capability.",
+    "No reauthorize action for statusactive, no extra error/success/modal/secret form. Header/long timestamps/action rows fit intended narrow local card layout; source role/one-time issuance/guard exact, no runtime credential or responsive compliance implied."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-038.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R028.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/MCPApiClients.vue:322",
+    "apps/web/components/MCPApiClients.vue:426",
+    "apps/web/components/MCPConnectionGuide.vue:235",
+    "apps/server/platform/mcp-api-keys.ts:140",
+    "packages/core/auth/grants.ts:214",
+    "packages/core/auth/mcp-api-credentials.ts:24"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "3d44cce151baedab1a8affb2626d4860d226c83359a9384d497f687bf835d2ef",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R028.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

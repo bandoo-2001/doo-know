@@ -1,0 +1,376 @@
+{
+  "kind": "generated-design",
+  "id": "WS-D010",
+  "assetId": "WS-D010",
+  "sourceIds": [
+    "WS-103"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "tree",
+      "sourceId": "WS-103",
+      "title": "Notebook tree expansion, selection and desktop resize",
+      "role": "authenticated owner",
+      "state": "Expanded/selected/context row and resize handle; compact same-tree rows cover Git priorities and clean/aggregate semantics.",
+      "rows": [
+        {
+          "label": "tree-interaction",
+          "sourceId": "WS-103",
+          "state": "Selected entry, expanded/collapsed folders, context-active row and keyboard resize affordance."
+        },
+        {
+          "label": "git-conflict",
+          "sourceId": "WS-103",
+          "state": "Conflict DD/AU/UD/UA/DU/AA/UU red priority5."
+        },
+        {
+          "label": "git-removed",
+          "sourceId": "WS-103",
+          "state": "Removed D red priority4."
+        },
+        {
+          "label": "git-modified",
+          "sourceId": "WS-103",
+          "state": "Modified M/T brown priority3."
+        },
+        {
+          "label": "git-renamed",
+          "sourceId": "WS-103",
+          "state": "Renamed/copied R/C purple priority2."
+        },
+        {
+          "label": "git-new",
+          "sourceId": "WS-103",
+          "state": "Untracked ?? / staged A green priority1; generic change gray priority0."
+        },
+        {
+          "label": "git-aggregate",
+          "sourceId": "WS-103",
+          "state": "Folder highest-priority descendant; clean row no marker; existing title/role=img/aria-label."
+        }
+      ],
+      "selectedState": "Seven source-derived local TreeBranch/SidebarResizer/GitDecoration specimens; actual Git mounted statuses are circles only (no code letters). Conflict priority5 red, deleted4 red, modified3 brown, rename/copy2 purple, new1 green, generic0gray, directory highest descendant. No shell."
+    }
+  ],
+  "selectedState": "Seven source-derived local TreeBranch/SidebarResizer/GitDecoration specimens; actual Git mounted statuses are circles only (no code letters). Conflict priority5 red, deleted4 red, modified3 brown, rename/copy2 purple, new1 green, generic0gray, directory highest descendant. No shell.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制清晰中文网页局部组件对照板，白底浅灰面、细边框小圆角、字体紧凑，独立场景用留白细线分开。只画指定局部，不画外部主人导航、浏览器或审查文字。七个紧凑局部行，实际Git状态装饰只能是文件名旁8px左右的小圆点，不得画M/D/U等字母或状态徽章。1 一段真实目录树：00-Inbox展开，子笔记“示例笔记.md”蓝色浅底选中、文件图标、右侧更多…处于激活；30-Knowledge收起，两个目录均有展开箭头和文件夹图标。树右侧竖向宽度调整手柄有键盘焦点描边。2 一条文件“冲突.md”旁深红圆点#ad0707。3 文件“删除.md”旁同深红圆点。4 文件“修改.md”旁棕色圆点#895503。5 文件“重命名.md”旁紫色圆点#6c6cc4。6 两条文件“新增.md”旁绿色圆点#587c0c，“其他变更.md”旁灰色圆点#646464。7 文件夹“示例目录”展开，父目录旁红色圆点，子项“冲突稿.md”红点、“修改稿.md”棕点、“干净稿.md”没有任何状态圆点。只有真实树行/箭头/更多/调整手柄，无创建/删除/提交/其他工具栏或解释文字。",
+  "prompt": "绘制清晰中文网页局部组件对照板，白底浅灰面、细边框小圆角、字体紧凑，独立场景用留白细线分开。只画指定局部，不画外部主人导航、浏览器或审查文字。七个紧凑局部行，实际Git状态装饰只能是文件名旁8px左右的小圆点，不得画M/D/U等字母或状态徽章。1 一段真实目录树：00-Inbox展开，子笔记“示例笔记.md”蓝色浅底选中、文件图标、右侧更多…处于激活；30-Knowledge收起，两个目录均有展开箭头和文件夹图标。树右侧竖向宽度调整手柄有键盘焦点描边。2 一条文件“冲突.md”旁深红圆点#ad0707。3 文件“删除.md”旁同深红圆点。4 文件“修改.md”旁棕色圆点#895503。5 文件“重命名.md”旁紫色圆点#6c6cc4。6 两条文件“新增.md”旁绿色圆点#587c0c，“其他变更.md”旁灰色圆点#646464。7 文件夹“示例目录”展开，父目录旁红色圆点，子项“冲突稿.md”红点、“修改稿.md”棕点、“干净稿.md”没有任何状态圆点。只有真实树行/箭头/更多/调整手柄，无创建/删除/提交/其他工具栏或解释文字。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+      "role": "Actual matching parent/content baseline only; requested local state source-derived",
+      "sha256": "51bb8ab79f889c547f472e964f39a1e208dd3e708ed7ca0c7ed4ce307025aa35",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; no public/owner role chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+      "role": "Actual matching parent/content baseline only; requested local state source-derived",
+      "sha256": "51bb8ab79f889c547f472e964f39a1e208dd3e708ed7ca0c7ed4ce307025aa35",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; no public/owner role chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制清晰中文网页局部组件对照板，白底浅灰面、细边框小圆角、字体紧凑，独立场景用留白细线分开。只画指定局部，不画外部主人导航、浏览器或审查文字。七个紧凑局部行，实际Git状态装饰只能是文件名旁8px左右的小圆点，不得画M/D/U等字母或状态徽章。1 一段真实目录树：00-Inbox展开，子笔记“示例笔记.md”蓝色浅底选中、文件图标、右侧更多…处于激活；30-Knowledge收起，两个目录均有展开箭头和文件夹图标。树右侧竖向宽度调整手柄有键盘焦点描边。2 一条文件“冲突.md”旁深红圆点#ad0707。3 文件“删除.md”旁同深红圆点。4 文件“修改.md”旁棕色圆点#895503。5 文件“重命名.md”旁紫色圆点#6c6cc4。6 两条文件“新增.md”旁绿色圆点#587c0c，“其他变更.md”旁灰色圆点#646464。7 文件夹“示例目录”展开，父目录旁红色圆点，子项“冲突稿.md”红点、“修改稿.md”棕点、“干净稿.md”没有任何状态圆点。只有真实树行/箭头/更多/调整手柄，无创建/删除/提交/其他工具栏或解释文字。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制清晰中文网页局部组件对照板，白底浅灰面、细边框小圆角、字体紧凑，独立场景用留白细线分开。只画指定局部，不画外部主人导航、浏览器或审查文字。七个紧凑局部行，实际Git状态装饰只能是文件名旁8px左右的小圆点，不得画M/D/U等字母或状态徽章。1 一段真实目录树：00-Inbox展开，子笔记“示例笔记.md”蓝色浅底选中、文件图标、右侧更多…处于激活；30-Knowledge收起，两个目录均有展开箭头和文件夹图标。树右侧竖向宽度调整手柄有键盘焦点描边。2 一条文件“冲突.md”旁深红圆点#ad0707。3 文件“删除.md”旁同深红圆点。4 文件“修改.md”旁棕色圆点#895503。5 文件“重命名.md”旁紫色圆点#6c6cc4。6 两条文件“新增.md”旁绿色圆点#587c0c，“其他变更.md”旁灰色圆点#646464。7 文件夹“示例目录”展开，父目录旁红色圆点，子项“冲突稿.md”红点、“修改稿.md”棕点、“干净稿.md”没有任何状态圆点。只有真实树行/箭头/更多/调整手柄，无创建/删除/提交/其他工具栏或解释文字。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/rich/1440-owner-rich-document.png",
+          "role": "Actual matching parent/content baseline only; requested local state source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only; no public/owner role chrome authority"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-acbb027f-92f2-4836-9a74-3d98a2e4a317.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-103",
+      "title": "Notebook tree expansion, selection and desktop resize",
+      "kind": "state",
+      "module": "knowledge",
+      "entry": {
+        "route": "/ and /?note=:id",
+        "trigger": "Browse notebook tree or drag separator",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/TreeBranch.vue:1",
+        "apps/web/components/SidebarResizer.vue:1",
+        "apps/web/components/Workspace.vue:388",
+        "apps/web/components/Workspace.vue:2988",
+        "apps/web/components/TreeBranch.vue:50",
+        "apps/web/components/PluginSlot.vue:10",
+        "plugins/git/web/index.ts:185",
+        "plugins/git/web/decoration.ts:4"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Git marker exists only when plugin contribution is registered/visible through PluginSlot and component mounted; marker is informational, introduces no new write action."
+      ],
+      "fields": [
+        {
+          "name": "目录宽度",
+          "type": "separator",
+          "required": false,
+          "constraints": "240–400px, default260; rounded whole pixels, arrow16px, Home/End, double click reset; localStorage remembers width.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "展开/折叠目录",
+          "effect": "Toggle existing folder tree branch",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        },
+        {
+          "label": "选择笔记或文件夹",
+          "effect": "Navigate actual note/folder",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        },
+        {
+          "label": "拖拽/键盘/双击调整宽度",
+          "effect": "Resize and persist notebook sidebar",
+          "api": "none (local UI)",
+          "guard": "Owner session; relevant editor and busy guards apply."
+        }
+      ],
+      "importantStates": [
+        "Selected entry",
+        "Collapsed folder",
+        "Context-menu active row",
+        "Keyboard resize",
+        "LocalStorage unavailable retains current-session width",
+        "Mounted Git fileDecoration: conflict DD/AU/UD/UA/DU/AA/UU red priority5; removed D red priority4; modified M/T brown priority3; rename/copy R/C purple priority2; untracked?? or stagedA green priority1; generic change gray priority0",
+        "Folder Git marker aggregates highest-priority descendant; clean entry has no marker; title/role=img/aria-label describe state"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Sidebar resize is desktop surface; <=720px sidebar becomes fixed drawermin(290px,85vw). Desktop rail60px and sidebar variable width; exact target captures unverified."
+      },
+      "testRefs": [
+        "tests/e2e/notes-first.spec.ts",
+        "tests/workspace-main-menu.test.ts",
+        "tests/git-decoration.test.ts",
+        "tests/git-web-regressions.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Canonical tree-host Git decoration coverage is included under WS-103; settings Git management surfaces reference the same widget/state, without a separate new platform feature."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-103",
+      "parentId": "WS-001",
+      "route": "/ and /?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/TreeBranch.vue:1",
+        "apps/web/components/SidebarResizer.vue:1",
+        "apps/web/components/Workspace.vue:388",
+        "apps/web/components/Workspace.vue:2988",
+        "apps/web/components/TreeBranch.vue:50",
+        "apps/web/components/PluginSlot.vue:10",
+        "plugins/git/web/index.ts:185",
+        "plugins/git/web/decoration.ts:4"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-031.json#WS-D010",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-D010",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-acbb027f-92f2-4836-9a74-3d98a2e4a317.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D010.png",
+  "sha256": "5fdf28456dfaa3ef591aba081914d1c025dcad487b57ef5e62b61105aec2e3d4",
+  "bytes": 1038007,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T06:10:25.647222+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Notebook tree, resize and mounted Git decorations",
+    "sourceIds": [
+      "WS-103"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Seven source-derived local TreeBranch/SidebarResizer/GitDecoration specimens; actual Git mounted statuses are circles only (no code letters). Conflict priority5 red, deleted4 red, modified3 brown, rename/copy2 purple, new1 green, generic0gray, directory highest descendant. No shell.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "row": "tree-interaction",
+      "selected": "00-Inbox/示例笔记.md",
+      "expanded": [
+        "00-Inbox"
+      ],
+      "collapsed": [
+        "30-Knowledge"
+      ],
+      "menuPath": "00-Inbox/示例笔记.md",
+      "resizer": "keyboard focus ring, 240–400 default260 with current-session state if storage unavailable"
+    },
+    {
+      "row": "git-conflict",
+      "codes": [
+        "DD",
+        "AU",
+        "UD",
+        "UA",
+        "DU",
+        "AA",
+        "UU"
+      ],
+      "circleColor": "#ad0707",
+      "priority": 5,
+      "title": "存在合并冲突"
+    },
+    {
+      "row": "git-removed",
+      "codes": [
+        "D"
+      ],
+      "circleColor": "#ad0707",
+      "priority": 4,
+      "title": "文件已删除"
+    },
+    {
+      "row": "git-modified",
+      "codes": [
+        "M",
+        "T"
+      ],
+      "circleColor": "#895503",
+      "priority": 3,
+      "title": "文件已修改"
+    },
+    {
+      "row": "git-renamed",
+      "codes": [
+        "R",
+        "C"
+      ],
+      "circleColor": "#6c6cc4",
+      "priority": 2,
+      "title": "文件已重命名或复制"
+    },
+    {
+      "row": "git-new",
+      "codes": [
+        "??",
+        "A"
+      ],
+      "circleColor": "#587c0c",
+      "priority": 1,
+      "generic": {
+        "color": "#646464",
+        "priority": 0
+      }
+    },
+    {
+      "row": "git-aggregate",
+      "descendants": [
+        "UU",
+        "M",
+        "clean"
+      ],
+      "parentCircle": "#ad0707",
+      "cleanMarker": false
+    }
+  ]
+}

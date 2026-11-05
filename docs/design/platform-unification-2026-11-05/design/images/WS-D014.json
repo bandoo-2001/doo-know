@@ -1,0 +1,344 @@
+{
+  "id": "WS-D014",
+  "title": "Unfinished primary diagram creation recovery",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-016"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-016",
+      "title": "Unfinished primary diagram creation recovery",
+      "role": "authenticated owner",
+      "state": "Pending path",
+      "presentationInstruction": "Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host."
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:1628, apps/web/components/Workspace.vue:3675, apps/web/diagrams/primary-creation.ts:1"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-016",
+      "label": "恢复未完成图形",
+      "effect": "Retry pending intent and open result",
+      "api": "GET /api/diagram-documents/intents/:intentId; POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-016",
+      "label": "取消未完成图形",
+      "effect": "Cancel reserved creation",
+      "api": "DELETE /api/diagram-documents/intents/:intentId",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R005",
+      "reuseSourceId": "WS-013",
+      "representation": "shared-pattern",
+      "reason": "GEOMETRY ONLY: Exact implemented host component geometry; original field/action order and conditional controls below are retained, not copied from the exemplar.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "requiredFieldOrder": [],
+      "requiredActions": [
+        {
+          "label": "恢复未完成图形",
+          "effect": "Retry pending intent and open result",
+          "api": "GET /api/diagram-documents/intents/:intentId; POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "取消未完成图形",
+          "effect": "Cancel reserved creation",
+          "api": "DELETE /api/diagram-documents/intents/:intentId",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "requiresActualFitReview": true,
+      "requiredFields": [],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-016"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. One complete existing DooKnow LOCAL component on neutral light-gray backdrop, not a full invented host page. Simplified Chinese, crisp natural-size controls, flat white/#f7f8fa, dark #272b3a/secondary#657084, thin #e6e9f1 lines, primary#4566c6,8px radii and restrained shadow. PILOT input is STYLE ONLY, no importing its rail/header/tree/content. Actual source templates determine all titles, field order, controls, permissions and selected state. No protocol requestId/version/hash/cursor/CSRF fields, fabricated success/online states, team/AI/ToDoo features or OS/browser-dialog chrome. Secret data empty or masked only. One coherent selected condition; hidden alternatives remain hidden. Preserve header/close/body-scroll/footer actions and actual disabled guards; do not derive new disabled rules from API constraints.\nUNFINISHED PRIMARY DIAGRAM CREATION RECOVERY in the REAL 新建白板 MODAL. Image1 actual empty new-whiteboard baseline is form/host reference; pending-intent block is explicitly SOURCE-DERIVED. Draw entire existing modal only, not full owner workspace. Actual template always renders source location/name fields even though generic sourceContracts.fields is empty; preserve them.\nTitle 新建白板 and enabled closeX. Fields exact order 所在目录 closed tree-select00-Inbox, 文件名 EMPTY text input focused with source placeholder 例如：新的想法.md. Existing help 源与 PNG 预览完整保存后创建 Markdown 图形文档，默认私有。 Then actual pending-state status block 未完成的图形：00-Inbox/未完成白板.md (synthetic relative path, read-only), with two real controls 恢复未完成图形 and 取消未完成图形. This block is present, so do NOT also render the v-else generic create help about subfolders. Footer actual 取消 enabled and 创建 DISABLED because newName empty. No quick-record/root-purpose controls (other creation kinds), no requestId/intentId/hash inputs, no resume success/error/busy state, no native scene canvas or file picker. Selected createKind=whiteboard, unfinishedCreation exists, createBusy/inboxBusy=false. Existing recovery/cancel actions preserve server intent semantics; no invented overwrite/copy fields.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D014.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-016",
+      "title": "Unfinished primary diagram creation recovery",
+      "kind": "state",
+      "module": "diagrams",
+      "entry": {
+        "route": "/",
+        "trigger": "Open creation while pending browser intent exists",
+        "parentId": "WS-013"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:1628",
+        "apps/web/components/Workspace.vue:3675",
+        "apps/web/diagrams/primary-creation.ts:1"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "恢复未完成图形",
+          "effect": "Retry pending intent and open result",
+          "api": "GET /api/diagram-documents/intents/:intentId; POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "取消未完成图形",
+          "effect": "Cancel reserved creation",
+          "api": "DELETE /api/diagram-documents/intents/:intentId",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Pending path",
+        "Resume busy",
+        "Error preserves pending state"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/diagram-primary-creation.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json",
+      "fieldsInheritedFrom": [
+        "WS-013"
+      ],
+      "fieldScope": "No new unique fields; this state is rendered inside the parent primary-diagram creation modal and retains its directory/file-name controls and createBusy/inboxBusy guards."
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-016",
+      "parentId": "WS-013",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-016",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-016",
+      "state": "Pending path",
+      "representation": "visible"
+    },
+    {
+      "sourceId": "WS-016",
+      "state": "Resume busy",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-016",
+      "state": "Error preserves pending state",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "inheritedFieldContracts": [
+    {
+      "sourceId": "WS-016",
+      "parentSourceId": "WS-013",
+      "fields": [
+        {
+          "name": "所在目录",
+          "type": "directory",
+          "required": true,
+          "constraints": "Root is disallowed for primary diagram creation by workspace UI.",
+          "sensitive": false
+        },
+        {
+          "name": "文件名",
+          "type": "text",
+          "required": true,
+          "constraints": "Server validName: nonempty, <=180 UTF-8 bytes, no controls / \\ :, no leading dot, no trailing space, no . or .., and not AGENTS.md case-insensitively (packages/core/files.ts:20). Adds .md; title derives from file name.",
+          "sensitive": false
+        }
+      ],
+      "rule": "Keep parent visible fields in the selected unfinished-creation state; empty direct child.fields means no additional unique fields, not no inherited controls.",
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:1628",
+        "apps/web/components/Workspace.vue:3675",
+        "apps/web/diagrams/primary-creation.ts:1"
+      ]
+    }
+  ],
+  "assetId": "WS-D014",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "source-derived whiteboard creation modal with pending path, folder00-Inbox, nameempty/create disabled, nobusy/noerror"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. One complete existing DooKnow LOCAL component on neutral light-gray backdrop, not a full invented host page. Simplified Chinese, crisp natural-size controls, flat white/#f7f8fa, dark #272b3a/secondary#657084, thin #e6e9f1 lines, primary#4566c6,8px radii and restrained shadow. PILOT input is STYLE ONLY, no importing its rail/header/tree/content. Actual source templates determine all titles, field order, controls, permissions and selected state. No protocol requestId/version/hash/cursor/CSRF fields, fabricated success/online states, team/AI/ToDoo features or OS/browser-dialog chrome. Secret data empty or masked only. One coherent selected condition; hidden alternatives remain hidden. Preserve header/close/body-scroll/footer actions and actual disabled guards; do not derive new disabled rules from API constraints.\nUNFINISHED PRIMARY DIAGRAM CREATION RECOVERY in the REAL 新建白板 MODAL. Image1 actual empty new-whiteboard baseline is form/host reference; pending-intent block is explicitly SOURCE-DERIVED. Draw entire existing modal only, not full owner workspace. Actual template always renders source location/name fields even though generic sourceContracts.fields is empty; preserve them.\nTitle 新建白板 and enabled closeX. Fields exact order 所在目录 closed tree-select00-Inbox, 文件名 EMPTY text input focused with source placeholder 例如：新的想法.md. Existing help 源与 PNG 预览完整保存后创建 Markdown 图形文档，默认私有。 Then actual pending-state status block 未完成的图形：00-Inbox/未完成白板.md (synthetic relative path, read-only), with two real controls 恢复未完成图形 and 取消未完成图形. This block is present, so do NOT also render the v-else generic create help about subfolders. Footer actual 取消 enabled and 创建 DISABLED because newName empty. No quick-record/root-purpose controls (other creation kinds), no requestId/intentId/hash inputs, no resume success/error/busy state, no native scene canvas or file picker. Selected createKind=whiteboard, unfinishedCreation exists, createBusy/inboxBusy=false. Existing recovery/cancel actions preserve server intent semantics; no invented overwrite/copy fields.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D014 Unfinished primary diagram creation recovery\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"full\", \"sourceId\": \"WS-016\", \"title\": \"Unfinished primary diagram creation recovery\", \"role\": \"authenticated owner\", \"state\": \"Pending path\", \"presentationInstruction\": \"Preserve this exact source-owned complete surface, all fields/action guards/state text and existing host.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"full\", \"sourceId\": \"WS-016\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"恢复未完成图形\", \"effect\": \"Retry pending intent and open result\", \"api\": \"GET /api/diagram-documents/intents/:intentId; POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"取消未完成图形\", \"effect\": \"Cancel reserved creation\", \"api\": \"DELETE /api/diagram-documents/intents/:intentId\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Pending path\", \"Resume busy\", \"Error preserves pending state\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:1628, apps/web/components/Workspace.vue:3675, apps/web/diagrams/primary-creation.ts:1",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:1628, apps/web/components/Workspace.vue:3675, apps/web/diagrams/primary-creation.ts:1",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/windows/1440-new-whiteboard.png",
+      "role": "actual matching creation-modal fields/geometry reference, pending block is source-derived",
+      "responsibility": "Preserve location/name/source-note/close/cancel/create fields from actual empty baseline; add only actual unfinishedCreation conditional status/actions",
+      "sha256": "7950f183cdc52fde2f7d3b482d13f86b88c59d32314c43ecd3aac6eecd203643",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 92582
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/windows/1440-new-whiteboard.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D014.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-fcc762cd-8953-498a-b486-ab5a94a4fa31.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-fcc762cd-8953-498a-b486-ab5a94a4fa31.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T02:28:29.468Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Source-derived unfinished primary creation retains actual location/name fields and disabled create alongside pending relative path/resume/cancel; no empty generic field-summary deletion.",
+    "concerns": [
+      "Exact selected component state is source-derived; parent baseline only supplies matching context or form geometry.",
+      "Static design does not verify close/focus/session/renderer/YAML-preservation/runtime behavior; exact geometry/raster texture approximate."
+    ]
+  },
+  "sha256": "e0d954fc5ea3b4930faa972f85a6c52c4b82ff547dfa177950138cfa9bc7646d",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1077369,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/diagrams/primary-creation.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d77da98494d5c1fd3a43e825e824354a4cf307c144372d69c3e7a8a053c87276"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source template conditionals select this coherent state; no runtime screenshot for exact selected variant. Synthetic pending path/property values are examples only."
+}

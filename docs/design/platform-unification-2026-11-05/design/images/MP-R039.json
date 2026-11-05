@@ -1,0 +1,300 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R039",
+  "assetId": "MP-R039",
+  "sourceIds": [
+    "ST-082"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-082",
+      "title": "Git实际插件仓库状态与暂存区核对390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent git.settings repository snippets at390/320/320: missing initialization action; ready main with readonly synthetic pending refPublished commit/request receipt and acknowledge; dependency error renderer with no initialization. These are source-derived fixture UI, no actual repository initialized/acknowledged."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-082",
+      "title": "Git实际插件仓库状态与暂存区核对320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent git.settings repository snippets at390/320/320: missing initialization action; ready main with readonly synthetic pending refPublished commit/request receipt and acknowledge; dependency error renderer with no initialization. These are source-derived fixture UI, no actual repository initialized/acknowledged."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-082",
+      "title": "Git实际插件仓库状态与暂存区核对320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent git.settings repository snippets at390/320/320: missing initialization action; ready main with readonly synthetic pending refPublished commit/request receipt and acknowledge; dependency error renderer with no initialization. These are source-derived fixture UI, no actual repository initialized/acknowledged."
+    }
+  ],
+  "selectedState": "Three independent git.settings repository snippets at390/320/320: missing initialization action; ready main with readonly synthetic pending refPublished commit/request receipt and acknowledge; dependency error renderer with no initialization. These are source-derived fixture UI, no actual repository initialized/acknowledged.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制并排三个独立窄网页插件局部，宽比例390、320、320，白灰蓝平面、细边框、文字自然换行，不画父页导航或整个模态框。三块标题都“Git 仓库”。左块只读状态“尚未建立 Git 仓库”，可用按钮“初始化 Git 仓库（main）”，下方“刷新 Git 状态”。中块只读“当前分支：main”，一张待核对回执卡文字“待核对提交：abc1234 · 请求 example-request · refPublished”，说明“请在服务器核对当前分支及暂存区。此操作只确认已核对，不修改文件或暂存区。”，可用“已核对暂存区”，下方可用“刷新 Git 状态”。右块只读状态“需要安装系统 Git 2.39 或更新版本”，下方仅“刷新 Git 状态”。所有回执、请求、分支都是只读文本，不能画成输入；不加文件列表、协议输入、确认窗、远端登录、重试或成功操作结果。",
+  "prompt": "绘制并排三个独立窄网页插件局部，宽比例390、320、320，白灰蓝平面、细边框、文字自然换行，不画父页导航或整个模态框。三块标题都“Git 仓库”。左块只读状态“尚未建立 Git 仓库”，可用按钮“初始化 Git 仓库（main）”，下方“刷新 Git 状态”。中块只读“当前分支：main”，一张待核对回执卡文字“待核对提交：abc1234 · 请求 example-request · refPublished”，说明“请在服务器核对当前分支及暂存区。此操作只确认已核对，不修改文件或暂存区。”，可用“已核对暂存区”，下方可用“刷新 Git 状态”。右块只读状态“需要安装系统 Git 2.39 或更新版本”，下方仅“刷新 Git 状态”。所有回执、请求、分支都是只读文本，不能画成输入；不加文件列表、协议输入、确认窗、远端登录、重试或成功操作结果。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+      "role": "Parent host only; actual plugin-contributed state source-derived",
+      "sha256": "fcadab6d4ed2b937d207abd375e9e0bb6c57bf2a156a7af8530e3df1bf3edf39",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+      "role": "Parent host only; actual plugin-contributed state source-derived",
+      "sha256": "fcadab6d4ed2b937d207abd375e9e0bb6c57bf2a156a7af8530e3df1bf3edf39",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制并排三个独立窄网页插件局部，宽比例390、320、320，白灰蓝平面、细边框、文字自然换行，不画父页导航或整个模态框。三块标题都“Git 仓库”。左块只读状态“尚未建立 Git 仓库”，可用按钮“初始化 Git 仓库（main）”，下方“刷新 Git 状态”。中块只读“当前分支：main”，一张待核对回执卡文字“待核对提交：abc1234 · 请求 example-request · refPublished”，说明“请在服务器核对当前分支及暂存区。此操作只确认已核对，不修改文件或暂存区。”，可用“已核对暂存区”，下方可用“刷新 Git 状态”。右块只读状态“需要安装系统 Git 2.39 或更新版本”，下方仅“刷新 Git 状态”。所有回执、请求、分支都是只读文本，不能画成输入；不加文件列表、协议输入、确认窗、远端登录、重试或成功操作结果。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制并排三个独立窄网页插件局部，宽比例390、320、320，白灰蓝平面、细边框、文字自然换行，不画父页导航或整个模态框。三块标题都“Git 仓库”。左块只读状态“尚未建立 Git 仓库”，可用按钮“初始化 Git 仓库（main）”，下方“刷新 Git 状态”。中块只读“当前分支：main”，一张待核对回执卡文字“待核对提交：abc1234 · 请求 example-request · refPublished”，说明“请在服务器核对当前分支及暂存区。此操作只确认已核对，不修改文件或暂存区。”，可用“已核对暂存区”，下方可用“刷新 Git 状态”。右块只读状态“需要安装系统 Git 2.39 或更新版本”，下方仅“刷新 Git 状态”。所有回执、请求、分支都是只读文本，不能画成输入；不加文件列表、协议输入、确认窗、远端登录、重试或成功操作结果。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-plugins.png",
+          "role": "Parent host only; actual plugin-contributed state source-derived"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-cc93ee60-4332-4d6c-8d37-0548ee454251.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-082",
+      "title": "Git实际插件仓库状态与暂存区核对",
+      "kind": "state",
+      "module": "plugins/git",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "Git配置页settingsPage贡献git.settings",
+        "parentId": "ST-050"
+      },
+      "sourceRefs": [
+        "plugins/git/web/index.ts:116",
+        "plugins/git/server/index.ts:326",
+        "plugins/git/server/index.ts:545"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "初始化Git仓库（main）",
+          "effect": "创建main仓库",
+          "api": "POST /api/plugins/git/call command:git.initialize",
+          "guard": "repository=missing"
+        },
+        {
+          "label": "已核对暂存区",
+          "effect": "确认服务器手工检查过原pending操作",
+          "api": "POST /api/plugins/git/call command:git.acknowledge",
+          "guard": "operationId及confirm=true；不修改文件/暂存区"
+        },
+        {
+          "label": "刷新Git状态",
+          "effect": "读本地repo状态",
+          "api": "POST /api/plugins/git/call provider:git.status",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "loading/missing/ready/异常code",
+        "Git≥2.39依赖提示",
+        "未解决冲突/不可信filter/软链接或子模块暂停写",
+        "pending commit/request/phase"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/git.spec.ts:7",
+        "tests/git-plugin.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-082",
+      "parentId": "ST-050",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "plugins/git/web/index.ts:116",
+        "plugins/git/server/index.ts:326",
+        "plugins/git/server/index.ts:545"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-039.json#MP-R039",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R039",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-cc93ee60-4332-4d6c-8d37-0548ee454251.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R039.png",
+  "sha256": "859f2de066dc26024fb4ac69ad64b7890ccbd46615df4d7c36342462783d524c",
+  "bytes": 1147627,
+  "dimensions": {
+    "width": 1872,
+    "height": 840
+  },
+  "generatedAtUtc": "2026-11-05T07:46:57.952056+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: plugins/git/web/index.ts repository/status acknowledgement region",
+    "sourceIds": [
+      "ST-082"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent git.settings repository snippets at390/320/320: missing initialization action; ready main with readonly synthetic pending refPublished commit/request receipt and acknowledge; dependency error renderer with no initialization. These are source-derived fixture UI, no actual repository initialized/acknowledged.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "repository": "missing",
+      "pending": []
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "repository": "ready",
+      "branch": "main",
+      "pending": [
+        {
+          "commit": "abc1234",
+          "requestId": "example-request",
+          "phase": "refPublished"
+        }
+      ]
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "repository": "error",
+      "code": "GIT_DEPENDENCY_MISSING",
+      "pending": []
+    }
+  ]
+}

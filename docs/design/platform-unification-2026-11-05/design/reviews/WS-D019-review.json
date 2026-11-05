@@ -1,0 +1,75 @@
+{
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-04T17:41:59.974399+00:00",
+  "method": "Actual generated PNG viewed in independent child context, checked against current source components, exact batch job, coverage/workspace.json, style contract and actual ToDoo style reference.",
+  "limitations": [
+    "Raster does not prove executed actions, input filtering, guards, keyboard behavior, focus, responsive fit or permissions.",
+    "Only the chosen compatible visible state was reviewed; incompatible busy/loading/empty/stale variants need separate state coverage."
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-tool-contract",
+    "required": "gpt-image-2",
+    "perCallModelIdentityReceiptExposed": false
+  },
+  "assetId": "WS-D019",
+  "verdict": "needs-revision",
+  "functionalFindings": [
+    {
+      "id": "WS-D019-F01",
+      "severity": "P1",
+      "blocking": true,
+      "finding": "The selected search host is replaced by an invented app with 首页/搜索/知识库/工作空间/标签 navigation while existing owner account/notes/recent/apps/settings and source contextual search/sidebar hierarchy are absent. 标签 and workspace destinations introduce capabilities not present in the source owner menu; this is not an allowed relocation of existing controls.",
+      "evidence": [
+        "apps/web/components/WorkspaceFooter.vue:31",
+        "apps/web/components/WorkspaceFooter.vue:113",
+        "apps/web/components/Workspace.vue:2732",
+        "apps/web/components/Workspace.vue:2812"
+      ]
+    }
+  ],
+  "styleFindings": [
+    {
+      "id": "WS-D019-S01",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "The host borrows ToDoo checkmark branding and 知识/行动/成果 header text, broad navigation and an unexplained adjacent skeleton card motif. Source style authority permits palette/hierarchy reuse, not importing ToDoo identity/content or fabricating a workspace screen.",
+      "evidence": [
+        "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+        ".superpowers/sdd/2026-11-05-platform-ui-unification/workspace-batch-01.json#WS-D019"
+      ]
+    },
+    {
+      "id": "WS-D019-S02",
+      "severity": "observation",
+      "blocking": false,
+      "finding": "The core enabled selector is faithful for this static selection state: 所有目录 root, supplied existing folders, expanded 30-Knowledge ancestors, selected 方法, chevrons/tree guides and no invented confirmation/create/delete/rename controls. Directory search belongs to the same searchable ATreeSelect combobox; a separate search field is not required by actual source."
+    },
+    {
+      "id": "WS-D019-S03",
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Popup/sidebar dimensions and slight surface shading are illustrative. Preserve source bounded internal scrolling, searchable combobox, Escape handling and caller disabled/root/value policies in the eventual specification; this bitmap cannot prove them."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/workspace-batch-01.json#WS-D019",
+    "docs/design/platform-unification-2026-11-05/coverage/workspace.json#WS-023",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-01-overview.png",
+    "apps/web/components/DirectoryTreeSelect.vue:1",
+    "apps/web/components/DirectoryTreeSelect.vue:64",
+    "apps/web/components/DirectoryTreeSelect.vue:126",
+    "apps/web/components/Workspace.vue:2732",
+    "apps/web/components/Workspace.vue:2812",
+    "apps/web/components/WorkspaceFooter.vue:31",
+    "apps/web/components/NoteMoveDialog.vue:130",
+    "apps/web/components/NoteCopyDialog.vue:105"
+  ],
+  "requiredCorrections": [
+    "Replace invented host with the actual Workspace search-sidebar context or a readable close crop: DooKnow book identity, query then search mode then directory combobox, plus only sufficient source-owned surrounding context. Remove unsupported navigation and borrowed ToDoo header/content.",
+    "Retain the correct open searchable directory tree, selected ancestor hierarchy and per-host root/value/busy constraints; do not add a separate search control or management actions."
+  ],
+  "reviewedImageSha256": "afd46c771bb45d10be0db9bcf443962b117f50f0355669147beeddf0b1e67b3c",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D019.png",
+  "metadataExists": true
+}

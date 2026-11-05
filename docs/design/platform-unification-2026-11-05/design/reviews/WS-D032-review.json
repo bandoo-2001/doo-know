@@ -1,0 +1,45 @@
+{
+  "assetId": "WS-D032",
+  "sourceIds": [
+    "WS-042"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T03:14:43.833921+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Three local quick-insert widths, query链, writable, two results and first active.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual query链 matches exactly existing 双向链接 and 链接 snippet labels/keywords, in source order.",
+    "First active row and source descriptions/syntax example retained; rows choose snippets, no extra footer insert/manage/save action.",
+    "Search/native clear affordance and modal close retained; navigation/readOnly/bookmark/epoch guards remain actual source behavior."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-015.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-D032.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/EditorInsertMenu.vue:1",
+    "shared/editor-snippets.ts:1",
+    "apps/web/components/Workspace.vue:178"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "9d7c4dfbc319393ba4ecc7c11343fd5c86671758384d2f6a16978c3edf85ae8e",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-D032.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

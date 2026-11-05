@@ -1,0 +1,807 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S007",
+  "assetId": "MP-S007",
+  "sourceIds": [
+    "ST-007",
+    "ST-043",
+    "ST-044",
+    "ST-045",
+    "ST-046"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-007",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Six independent compact rows r1-r6 per manifest; loading empty/error/current-device, current-password-empty field slice, other-session revocation busy. Synthetic API error/device times; no whole page/modal"
+    }
+  ],
+  "selectedState": "Six independent compact rows r1-r6 per manifest; loading empty/error/current-device, current-password-empty field slice, other-session revocation busy. Synthetic API error/device times; no whole page/modal",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作中文网页组件局部对照板：白底、浅灰面、蓝色动作、细边框小圆角、文字清晰紧凑。每个指定行是独立场景，只画受影响的控件/提示/局部列表，不画外部页面导航、全页头、审查编号或解释性标题。各行用留白和细线明确分离，不能混成一个产品状态。纵向六行。1 登录设备局部：标题“登录设备”、说明“仅显示设备与时间信息。”，带转圈的“刷新设备”，状态“正在读取登录设备…”，底部“退出其他设备”可用。2 同一局部空态：“登录设备”“暂无登录设备。”，刷新设备、退出其他设备可用。3 读取错误局部：红色提示“暂时无法读取登录设备，请重试。”，按钮“刷新设备”“退出其他设备”。4 单个设备列表项“示例浏览器”附蓝色“当前设备”标记，下面“登录于 2026/11/5 10:00”“最近活动 2026/11/5 12:00 · 到期 2026/11/6 10:00”；这一项没有退出按钮。5 仅错误字段切片：标签“当前密码”，带眼睛图标的空白密码框红边，下面红字“请输入当前密码”，不画整个密码弹窗。6 操作切片：一枚“退出设备”按钮转圈且禁用，旁边另一枚“退出设备”和“退出其他设备”灰色禁用。不出现密码明文或额外动作。",
+  "prompt": "制作中文网页组件局部对照板：白底、浅灰面、蓝色动作、细边框小圆角、文字清晰紧凑。每个指定行是独立场景，只画受影响的控件/提示/局部列表，不画外部页面导航、全页头、审查编号或解释性标题。各行用留白和细线明确分离，不能混成一个产品状态。纵向六行。1 登录设备局部：标题“登录设备”、说明“仅显示设备与时间信息。”，带转圈的“刷新设备”，状态“正在读取登录设备…”，底部“退出其他设备”可用。2 同一局部空态：“登录设备”“暂无登录设备。”，刷新设备、退出其他设备可用。3 读取错误局部：红色提示“暂时无法读取登录设备，请重试。”，按钮“刷新设备”“退出其他设备”。4 单个设备列表项“示例浏览器”附蓝色“当前设备”标记，下面“登录于 2026/11/5 10:00”“最近活动 2026/11/5 12:00 · 到期 2026/11/6 10:00”；这一项没有退出按钮。5 仅错误字段切片：标签“当前密码”，带眼睛图标的空白密码框红边，下面红字“请输入当前密码”，不画整个密码弹窗。6 操作切片：一枚“退出设备”按钮转圈且禁用，旁边另一枚“退出设备”和“退出其他设备”灰色禁用。不出现密码明文或额外动作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-account.png",
+      "role": "Actual matching owner settings parent baseline; selected local state matrix source-derived",
+      "sha256": "fd3ded6edb1cec0b726f05588147b12e829f482ffb63f579e154d596a5a146b5",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; local matrix has no owner shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-account.png",
+      "role": "Actual matching owner settings parent baseline; selected local state matrix source-derived",
+      "sha256": "fd3ded6edb1cec0b726f05588147b12e829f482ffb63f579e154d596a5a146b5",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only; local matrix has no owner shell",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作中文网页组件局部对照板：白底、浅灰面、蓝色动作、细边框小圆角、文字清晰紧凑。每个指定行是独立场景，只画受影响的控件/提示/局部列表，不画外部页面导航、全页头、审查编号或解释性标题。各行用留白和细线明确分离，不能混成一个产品状态。纵向六行。1 登录设备局部：标题“登录设备”、说明“仅显示设备与时间信息。”，带转圈的“刷新设备”，状态“正在读取登录设备…”，底部“退出其他设备”可用。2 同一局部空态：“登录设备”“暂无登录设备。”，刷新设备、退出其他设备可用。3 读取错误局部：红色提示“暂时无法读取登录设备，请重试。”，按钮“刷新设备”“退出其他设备”。4 单个设备列表项“示例浏览器”附蓝色“当前设备”标记，下面“登录于 2026/11/5 10:00”“最近活动 2026/11/5 12:00 · 到期 2026/11/6 10:00”；这一项没有退出按钮。5 仅错误字段切片：标签“当前密码”，带眼睛图标的空白密码框红边，下面红字“请输入当前密码”，不画整个密码弹窗。6 操作切片：一枚“退出设备”按钮转圈且禁用，旁边另一枚“退出设备”和“退出其他设备”灰色禁用。不出现密码明文或额外动作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-account.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作中文网页组件局部对照板：白底、浅灰面、蓝色动作、细边框小圆角、文字清晰紧凑。每个指定行是独立场景，只画受影响的控件/提示/局部列表，不画外部页面导航、全页头、审查编号或解释性标题。各行用留白和细线明确分离，不能混成一个产品状态。纵向六行。1 登录设备局部：标题“登录设备”、说明“仅显示设备与时间信息。”，带转圈的“刷新设备”，状态“正在读取登录设备…”，底部“退出其他设备”可用。2 同一局部空态：“登录设备”“暂无登录设备。”，刷新设备、退出其他设备可用。3 读取错误局部：红色提示“暂时无法读取登录设备，请重试。”，按钮“刷新设备”“退出其他设备”。4 单个设备列表项“示例浏览器”附蓝色“当前设备”标记，下面“登录于 2026/11/5 10:00”“最近活动 2026/11/5 12:00 · 到期 2026/11/6 10:00”；这一项没有退出按钮。5 仅错误字段切片：标签“当前密码”，带眼睛图标的空白密码框红边，下面红字“请输入当前密码”，不画整个密码弹窗。6 操作切片：一枚“退出设备”按钮转圈且禁用，旁边另一枚“退出设备”和“退出其他设备”灰色禁用。不出现密码明文或额外动作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/1440-settings-account.png",
+          "role": "Actual matching owner settings parent baseline; selected local state matrix source-derived"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only; local matrix has no owner shell"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-7385ca70-2fa2-47e7-a83a-30a728f507df.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-007",
+      "title": "账号与安全",
+      "kind": "page",
+      "module": "settings/account",
+      "entry": {
+        "route": "/?view=settings&section=account",
+        "trigger": "设置→账号与安全 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:122"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "当前账户",
+          "type": "read-only",
+          "required": false,
+          "constraints": "显示用户名；知识库所有者",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "退出当前设备",
+          "effect": "向Workspace发出logout事件",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "修改密码",
+          "effect": "打开ST-043",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新设备 / 加载更多设备",
+          "effect": "读取分页登录设备",
+          "api": "GET /api/manage/sessions",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "退出设备 / 退出其他设备",
+          "effect": "打开ST-045/ST-046",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "登录设备加载/空/错误",
+        "当前设备标签，无逐项退出按钮",
+        "密码更新成功后其他设备退出"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/management-features.spec.ts:521",
+        "tests/management-api.test.ts:245"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-043",
+      "title": "修改密码",
+      "kind": "dialog",
+      "module": "settings/account",
+      "entry": {
+        "route": "/?view=settings&section=account",
+        "trigger": "修改密码",
+        "parentId": "ST-007"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:46",
+        "apps/web/components/settings/AccountSettings.vue:142",
+        "shared/password-policy.ts:2"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "所有者账户会话；/api/auth/change-password由Better Auth专属路径处理（apps/server/app.ts:177），非普通API hook；UI明确revokeOtherSessions=true。"
+      ],
+      "fields": [
+        {
+          "name": "当前密码",
+          "type": "password",
+          "required": true,
+          "constraints": "autocomplete=current-password",
+          "sensitive": true
+        },
+        {
+          "name": "新密码",
+          "type": "password",
+          "required": true,
+          "constraints": "至少8字符；autocomplete=new-password",
+          "sensitive": true
+        },
+        {
+          "name": "确认新密码",
+          "type": "password",
+          "required": true,
+          "constraints": "非空且与新密码一致",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "更新密码",
+          "effect": "更新并强制退出其他会话",
+          "api": "POST /api/auth/change-password",
+          "guard": "当前密码非空、新密码≥8、确认匹配；revokeOtherSessions=true"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭清空全部密码和字段错误",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "busy锁定关闭",
+        "关闭有草稿ST-089",
+        "成功notice并重读设备"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "modal=min(请求宽度,100vw−24px)",
+          "drawer=min(请求宽度,100vw)",
+          "≤600px",
+          "已有360×460深色测试"
+        ],
+        "behavior": "SettingsOverlay右侧抽屉或居中模态，视窗高度约束、内容滚动、页脚保留；busy阻止遮罩/Escape/关闭；焦点圈定及归还。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:9",
+        "tests/e2e/settings-overlays.spec.ts:65",
+        "tests/e2e/settings-overlays.spec.ts:319"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "/api/auth/change-password由Better Auth专属路径处理，不能将普通/api全局CSRF hook直接套到此路径；本次未追溯依赖内部最大密码长度。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-044",
+      "title": "修改密码字段错误与服务失败",
+      "kind": "state",
+      "module": "settings/account",
+      "entry": {
+        "route": "/?view=settings&section=account",
+        "trigger": "无效提交或change-password失败",
+        "parentId": "ST-043"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:46",
+        "apps/web/components/settings/AccountSettings.vue:151"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [],
+      "importantStates": [
+        "当前密码为空",
+        "新密码少于8",
+        "确认不匹配",
+        "字段aria-invalid/error",
+        "API失败弹窗内alert",
+        "busy所有输入禁用"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-overlays.spec.ts:65",
+        "tests/e2e/settings-overlays.spec.ts:319"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-045",
+      "title": "退出单台其他设备确认",
+      "kind": "popover",
+      "module": "settings/account",
+      "entry": {
+        "route": "/?view=settings&section=account",
+        "trigger": "非当前登录设备→退出设备",
+        "parentId": "ST-007"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:90",
+        "apps/web/components/settings/AccountSettings.vue:234",
+        "apps/server/platform/management.ts:242"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "退出设备",
+          "effect": "删除所选其他会话",
+          "api": "DELETE /api/manage/sessions/:id",
+          "guard": "不能针对current；所有者拥有会话"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "请求中禁用其他退出操作",
+        "成功刷新列表",
+        "错误提示"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/management-api.test.ts:245",
+        "tests/e2e/management-features.spec.ts:521"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-046",
+      "title": "退出所有其他设备确认",
+      "kind": "popover",
+      "module": "settings/account",
+      "entry": {
+        "route": "/?view=settings&section=account",
+        "trigger": "退出其他设备",
+        "parentId": "ST-007"
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:103",
+        "apps/web/components/settings/AccountSettings.vue:251"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "退出其他设备",
+          "effect": "撤销除当前会话外所有登录",
+          "api": "POST /api/manage/sessions/revoke-others",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "请求中",
+        "成功刷新列表",
+        "失败alert"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/management-api.test.ts:7"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-007",
+      "parentId": null,
+      "route": "/?view=settings&section=account",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:122"
+      ]
+    },
+    {
+      "sourceId": "ST-043",
+      "parentId": "ST-007",
+      "route": "/?view=settings&section=account",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:46",
+        "apps/web/components/settings/AccountSettings.vue:142",
+        "shared/password-policy.ts:2"
+      ]
+    },
+    {
+      "sourceId": "ST-044",
+      "parentId": "ST-043",
+      "route": "/?view=settings&section=account",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:46",
+        "apps/web/components/settings/AccountSettings.vue:151"
+      ]
+    },
+    {
+      "sourceId": "ST-045",
+      "parentId": "ST-007",
+      "route": "/?view=settings&section=account",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:90",
+        "apps/web/components/settings/AccountSettings.vue:234",
+        "apps/server/platform/management.ts:242"
+      ]
+    },
+    {
+      "sourceId": "ST-046",
+      "parentId": "ST-007",
+      "route": "/?view=settings&section=account",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:103",
+        "apps/web/components/settings/AccountSettings.vue:251"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-023.json#MP-S007",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S007",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-7385ca70-2fa2-47e7-a83a-30a728f507df.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S007.png",
+  "sha256": "4c0277dc13ab718f23c65e20ef3e3814a0c5764b61b6e55457c516cfe3a1465c",
+  "bytes": 1077543,
+  "dimensions": {
+    "width": 1199,
+    "height": 1312
+  },
+  "generatedAtUtc": "2026-11-05T04:19:54.298346+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / AccountSettings.vue",
+    "sourceIds": [
+      "ST-007",
+      "ST-043",
+      "ST-044",
+      "ST-045",
+      "ST-046"
+    ],
+    "roles": [
+      "authenticated-owner",
+      "owner-private"
+    ],
+    "state": "Six independent compact rows r1-r6 per manifest; loading empty/error/current-device, current-password-empty field slice, other-session revocation busy. Synthetic API error/device times; no whole page/modal",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-007",
+      "title": "设备列表加载中",
+      "renderer": "apps/web/components/settings/AccountSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:122"
+      ],
+      "guardBindings": [
+        {
+          "label": "退出当前设备",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "修改密码",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新设备 / 加载更多设备",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "退出设备 / 退出其他设备",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "登录设备加载/空/错误",
+          "variant": "设备列表加载中",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-007",
+        "ST-043",
+        "ST-044"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-007",
+      "title": "设备列表为空",
+      "renderer": "apps/web/components/settings/AccountSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:122"
+      ],
+      "guardBindings": [
+        {
+          "label": "退出当前设备",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "修改密码",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新设备 / 加载更多设备",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "退出设备 / 退出其他设备",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "登录设备加载/空/错误",
+          "variant": "设备列表为空",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-007"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-007",
+      "title": "设备列表读取错误",
+      "renderer": "apps/web/components/settings/AccountSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:122"
+      ],
+      "guardBindings": [
+        {
+          "label": "退出当前设备",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "修改密码",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新设备 / 加载更多设备",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "退出设备 / 退出其他设备",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "登录设备加载/空/错误",
+          "variant": "设备列表读取错误",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-007",
+        "ST-044",
+        "ST-045",
+        "ST-046"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "ST-007",
+      "title": "当前设备标签，无逐项退出按钮",
+      "renderer": "apps/web/components/settings/AccountSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:122"
+      ],
+      "guardBindings": [
+        {
+          "label": "退出当前设备",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "修改密码",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新设备 / 加载更多设备",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "退出设备 / 退出其他设备",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "当前设备标签，无逐项退出按钮",
+          "variant": "当前设备标签，无逐项退出按钮",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-007"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "ST-044",
+      "title": "当前密码为空",
+      "renderer": "apps/web/components/settings/AccountSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:46",
+        "apps/web/components/settings/AccountSettings.vue:151"
+      ],
+      "guardBindings": [],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "当前密码为空",
+          "variant": "当前密码为空",
+          "representation": "visible"
+        },
+        {
+          "state": "新密码少于8",
+          "variant": "新密码少于8",
+          "representation": "shared-pattern"
+        },
+        {
+          "state": "确认不匹配",
+          "variant": "确认不匹配",
+          "representation": "shared-pattern"
+        },
+        {
+          "state": "字段aria-invalid/error",
+          "variant": "字段aria-invalid/error",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-044"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r6",
+      "sourceId": "ST-045",
+      "title": "请求中禁用其他退出操作",
+      "renderer": "apps/web/components/settings/AccountSettings.vue",
+      "sourceRefs": [
+        "apps/web/components/settings/AccountSettings.vue:90",
+        "apps/web/components/settings/AccountSettings.vue:234",
+        "apps/server/platform/management.ts:242"
+      ],
+      "guardBindings": [
+        {
+          "label": "退出设备",
+          "guard": "不能针对current；所有者拥有会话"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "请求中禁用其他退出操作",
+          "variant": "请求中禁用其他退出操作",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-045"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": []
+}

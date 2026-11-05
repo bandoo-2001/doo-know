@@ -1,0 +1,355 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S023-v3",
+  "assetId": "MP-S023",
+  "sourceIds": [
+    "ST-062"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-062",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Original error and disabled-domain rows preserved; third independent global knowledge card consent=false ceiling absent, bindingChanged true and selected unavailable directory retained, resources=[]"
+    }
+  ],
+  "selectedState": "Original error and disabled-domain rows preserved; third independent global knowledge card consent=false ceiling absent, bindingChanged true and selected unavailable directory retained, resources=[]",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "只修正最下方知识库卡片中“选择知识库资源”下面的选择控件。删除当前绘制的整棵展开树，包括“知识库”虚拟根、根复选框、文件夹树形缩进。替换成一个正常的关闭状态树选择框：框内只显示一枚保留的选中标签“目录 · dir-example（当前不可用或未加载）”，标签有正常移除小叉，框右侧有下拉箭头；不画展开树，不画任何虚拟根。控件下面“已选 1 个目录 · 0 篇笔记”和目录帮助原文不变。全部其余内容，特别原读失败/重试、三个关闭卡、全局旧数据警告及使用当前数据按钮、预设/范围/高级选项保持完全不变。",
+  "prompt": "只修正最下方知识库卡片中“选择知识库资源”下面的选择控件。删除当前绘制的整棵展开树，包括“知识库”虚拟根、根复选框、文件夹树形缩进。替换成一个正常的关闭状态树选择框：框内只显示一枚保留的选中标签“目录 · dir-example（当前不可用或未加载）”，标签有正常移除小叉，框右侧有下拉箭头；不画展开树，不画任何虚拟根。控件下面“已选 1 个目录 · 0 篇笔记”和目录帮助原文不变。全部其余内容，特别原读失败/重试、三个关闭卡、全局旧数据警告及使用当前数据按钮、预设/范围/高级选项保持完全不变。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S023-v2.png",
+      "role": "Edit target; retained resource must be actual closed TreeSelect with selected tag, no invented root",
+      "sha256": "20eb38e9cf553c2ddd7423fe9e228547eb51724d22e723132a924913b7f456af",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S023-v2.png",
+      "role": "Edit target; retained resource must be actual closed TreeSelect with selected tag, no invented root",
+      "sha256": "20eb38e9cf553c2ddd7423fe9e228547eb51724d22e723132a924913b7f456af",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "只修正最下方知识库卡片中“选择知识库资源”下面的选择控件。删除当前绘制的整棵展开树，包括“知识库”虚拟根、根复选框、文件夹树形缩进。替换成一个正常的关闭状态树选择框：框内只显示一枚保留的选中标签“目录 · dir-example（当前不可用或未加载）”，标签有正常移除小叉，框右侧有下拉箭头；不画展开树，不画任何虚拟根。控件下面“已选 1 个目录 · 0 篇笔记”和目录帮助原文不变。全部其余内容，特别原读失败/重试、三个关闭卡、全局旧数据警告及使用当前数据按钮、预设/范围/高级选项保持完全不变。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S023-v2.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "只修正最下方知识库卡片中“选择知识库资源”下面的选择控件。删除当前绘制的整棵展开树，包括“知识库”虚拟根、根复选框、文件夹树形缩进。替换成一个正常的关闭状态树选择框：框内只显示一枚保留的选中标签“目录 · dir-example（当前不可用或未加载）”，标签有正常移除小叉，框右侧有下拉箭头；不画展开树，不画任何虚拟根。控件下面“已选 1 个目录 · 0 篇笔记”和目录帮助原文不变。全部其余内容，特别原读失败/重试、三个关闭卡、全局旧数据警告及使用当前数据按钮、预设/范围/高级选项保持完全不变。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S023-v2.png",
+          "role": "Edit target; retained resource must be actual closed TreeSelect with selected tag, no invented root"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-90bf1a38-8c63-4d0f-bffe-fe01523b037d.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-062",
+      "title": "分域权限编辑器",
+      "kind": "state",
+      "module": "settings/mcp-permissions",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "MCP插件配置 / OAuth收窄 / API客户端权限编辑",
+        "parentId": "ST-049"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPDomainPermissions.vue:24",
+        "apps/web/components/MCPDomainPermissions.vue:47",
+        "apps/web/mcp-permissions.ts:1",
+        "apps/server/platform/mcp-permissions.ts:21"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "知识库 / 博客 / To Doo启用",
+          "type": "switch",
+          "required": false,
+          "constraints": "仅实现的selectableDomains；初值按服务端policy",
+          "sensitive": false
+        },
+        {
+          "name": "知识库能力预设",
+          "type": "select",
+          "required": false,
+          "constraints": "只读/内容编辑/自主整理；受ceiling约束",
+          "sensitive": false
+        },
+        {
+          "name": "资源范围",
+          "type": "select",
+          "required": false,
+          "constraints": "all或selected；ceiling选定范围时禁止扩大为all",
+          "sensitive": false
+        },
+        {
+          "name": "指定资源",
+          "type": "resource-tree/multi-select",
+          "required": false,
+          "constraints": "知识库稳定目录/笔记身份；To Doo清单；博客文章",
+          "sensitive": false
+        },
+        {
+          "name": "独立权限与高级选项",
+          "type": "checkbox[]",
+          "required": false,
+          "constraints": "各域implemented actions；read/write/organize/archive/index/share/manage等独立，受ceiling限制",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "使用当前数据",
+          "effect": "旧业务绑定变化时重绑空授权",
+          "api": "无请求",
+          "guard": "仅插件全局编辑，非consent/ceiling"
+        },
+        {
+          "label": "重试",
+          "effect": "读取权限/资源",
+          "api": "GET /api/platform/mcp/permissions",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "首次读取",
+        "资源读取失败",
+        "禁用域折叠",
+        "旧owner/instance绑定警告",
+        "已选资源未加载/不可用仍保留",
+        "全局收窄立即约束/扩大需重授权",
+        "consent隐藏越权选择"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/mcp-domain-editor.test.ts:1",
+        "tests/e2e/plugin-config.spec.ts:127",
+        "tests/e2e/plugin-config.spec.ts:185"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "只盘点平台MCP授权UI，不修改To Doo基线业务页面。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-062",
+      "parentId": "ST-049",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPDomainPermissions.vue:24",
+        "apps/web/components/MCPDomainPermissions.vue:47",
+        "apps/web/mcp-permissions.ts:1",
+        "apps/server/platform/mcp-permissions.ts:21"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-025.json#MP-S023",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S023",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-90bf1a38-8c63-4d0f-bffe-fe01523b037d.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S023-v3.png",
+  "sha256": "038ad1619b191be72f9d2dfd53ab9308750337f82383d4bef7e25235bb00b02b",
+  "bytes": 1479424,
+  "dimensions": {
+    "width": 1024,
+    "height": 1536
+  },
+  "generatedAtUtc": "2026-11-05T05:18:48.449743+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S023-v2.png",
+    "sha256": "20eb38e9cf553c2ddd7423fe9e228547eb51724d22e723132a924913b7f456af"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / MCPDomainPermissions.vue",
+    "sourceIds": [
+      "ST-062"
+    ],
+    "roles": [
+      "authenticated-owner",
+      "owner-private"
+    ],
+    "state": "Original error and disabled-domain rows preserved; third independent global knowledge card consent=false ceiling absent, bindingChanged true and selected unavailable directory retained, resources=[]",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-062",
+      "title": "资源读取失败",
+      "renderer": "apps/web/components/MCPDomainPermissions.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPDomainPermissions.vue:24",
+        "apps/web/components/MCPDomainPermissions.vue:47",
+        "apps/web/mcp-permissions.ts:1",
+        "apps/server/platform/mcp-permissions.ts:21"
+      ],
+      "guardBindings": [
+        {
+          "label": "使用当前数据",
+          "guard": "仅插件全局编辑，非consent/ceiling"
+        },
+        {
+          "label": "重试",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "资源读取失败",
+          "variant": "资源读取失败",
+          "representation": "visible"
+        },
+        {
+          "state": "旧owner/instance绑定警告",
+          "variant": "旧owner/instance绑定警告",
+          "representation": "shared-pattern"
+        },
+        {
+          "state": "已选资源未加载/不可用仍保留",
+          "variant": "已选资源未加载/不可用仍保留",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-062"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-062",
+      "title": "禁用域折叠",
+      "renderer": "apps/web/components/MCPDomainPermissions.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPDomainPermissions.vue:24",
+        "apps/web/components/MCPDomainPermissions.vue:47",
+        "apps/web/mcp-permissions.ts:1",
+        "apps/server/platform/mcp-permissions.ts:21"
+      ],
+      "guardBindings": [
+        {
+          "label": "使用当前数据",
+          "guard": "仅插件全局编辑，非consent/ceiling"
+        },
+        {
+          "label": "重试",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "禁用域折叠",
+          "variant": "禁用域折叠",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-062"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": [
+    {
+      "row": "r3",
+      "host": "global permission editor",
+      "consent": false,
+      "ceiling": null,
+      "bindingChanged": true,
+      "resources": [],
+      "selectedResources": [
+        {
+          "kind": "directory",
+          "id": "dir-example"
+        }
+      ],
+      "actions": [
+        "使用当前数据"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPDomainPermissions.vue:25-53",
+        "apps/web/knowledge-resource-tree.ts:111"
+      ]
+    }
+  ]
+}

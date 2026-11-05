@@ -1,0 +1,468 @@
+{
+  "kind": "generated-design",
+  "id": "WS-M009",
+  "assetId": "WS-M009",
+  "sourceIds": [
+    "WS-064"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-064",
+      "title": "Saved note history and diff modal — compact component state matrix",
+      "role": "authenticated owner",
+      "state": "NoteHistoryDialog.vue history/diff status region; complete version/select/diff/raw/restore window remains separate canonical host.",
+      "presentation": "ONE compact component matrix, not multiple simultaneously open full windows",
+      "rows": [
+        {
+          "label": "row-1",
+          "sourceId": "WS-064",
+          "title": "Saved note history and diff modal",
+          "role": "authenticated owner",
+          "state": "Loading/empty history",
+          "actionPresentation": "Keep actual earlier-version/read/retry/restore/close guards. Unsaved draft is excluded from saved comparison. No new force restore.",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-2",
+          "sourceId": "WS-064",
+          "title": "Saved note history and diff modal",
+          "role": "authenticated owner",
+          "state": "History fetch failure with retry",
+          "actionPresentation": "Keep actual earlier-version/read/retry/restore/close guards. Unsaved draft is excluded from saved comparison. No new force restore.",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-3",
+          "sourceId": "WS-064",
+          "title": "Saved note history and diff modal",
+          "role": "authenticated owner",
+          "state": "Historical source read/diff computing",
+          "actionPresentation": "Keep actual earlier-version/read/retry/restore/close guards. Unsaved draft is excluded from saved comparison. No new force restore.",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-4",
+          "sourceId": "WS-064",
+          "title": "Saved note history and diff modal",
+          "role": "authenticated owner",
+          "state": "Renderer load/failure with raw-diff fallback",
+          "actionPresentation": "Keep actual earlier-version/read/retry/restore/close guards. Unsaved draft is excluded from saved comparison. No new force restore.",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-5",
+          "sourceId": "WS-064",
+          "title": "Saved note history and diff modal",
+          "role": "authenticated owner",
+          "state": "Baseline stale warning",
+          "actionPresentation": "Keep actual earlier-version/read/retry/restore/close guards. Unsaved draft is excluded from saved comparison. No new force restore.",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-6",
+          "sourceId": "WS-064",
+          "title": "Saved note history and diff modal",
+          "role": "authenticated owner",
+          "state": "Pending restore locks navigation",
+          "actionPresentation": "Keep actual earlier-version/read/retry/restore/close guards. Unsaved draft is excluded from saved comparison. No new force restore.",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        }
+      ],
+      "selectedState": "Seven NoteHistoryDialog local saved-history specimens: loading and empty separate; list error retry; historical read and compare concurrently true per select await compare before finally reading=false; renderer-error raw diff fallback; stale editor baseline reference; pending restore navigation locked check enabled. No full history modal duplication."
+    }
+  ],
+  "selectedState": "Seven NoteHistoryDialog local saved-history specimens: loading and empty separate; list error retry; historical read and compare concurrently true per select await compare before finally reading=false; renderer-error raw diff fallback; stale editor baseline reference; pending restore navigation locked check enabled. No full history modal duplication.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。各行独立以留白细线分开，不画外部主人导航、完整窗口、浏览器或审查注释。七个紧凑独立行。1 普通状态“正在加载历史版本…”。2 时钟图标、粗体“尚无历史版本”，说明“保存笔记修改后，可以在这里查看和恢复之前的内容。”。3 红色“暂时无法读取历史版本。”，现有按钮“重试加载”。4 同一真实读取/对比处理中局部，依次普通状态“正在读取历史原文…”、“正在计算版本差异…”，无按钮。5 普通失败状态“差异视图暂不可用，仍可查看原始差异。”，按钮“重试差异视图”；展开“原始差异”，代码“- 旧正文\\n+ 新正文”，不要将恢复原文变编辑器。6 只读参考行“历史版本 11/4 10:00 → 编辑器原保存版本 11/5 12:00”，说明“原文已更新，当前草稿和编辑器基准仍保留。核对最新原文后可继续对比；历史原文仍可查看。”。7 待恢复核对局部：保存记录/Git 提交两个来源tab均禁用，选择历史版本下拉11/4 10:00禁用，底部关闭禁用、核对恢复结果可用；没有关闭X、确认恢复或恢复此版本按钮。不加协议输入、强制恢复、保存成功或额外动作。",
+  "prompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。各行独立以留白细线分开，不画外部主人导航、完整窗口、浏览器或审查注释。七个紧凑独立行。1 普通状态“正在加载历史版本…”。2 时钟图标、粗体“尚无历史版本”，说明“保存笔记修改后，可以在这里查看和恢复之前的内容。”。3 红色“暂时无法读取历史版本。”，现有按钮“重试加载”。4 同一真实读取/对比处理中局部，依次普通状态“正在读取历史原文…”、“正在计算版本差异…”，无按钮。5 普通失败状态“差异视图暂不可用，仍可查看原始差异。”，按钮“重试差异视图”；展开“原始差异”，代码“- 旧正文\\n+ 新正文”，不要将恢复原文变编辑器。6 只读参考行“历史版本 11/4 10:00 → 编辑器原保存版本 11/5 12:00”，说明“原文已更新，当前草稿和编辑器基准仍保留。核对最新原文后可继续对比；历史原文仍可查看。”。7 待恢复核对局部：保存记录/Git 提交两个来源tab均禁用，选择历史版本下拉11/4 10:00禁用，底部关闭禁用、核对恢复结果可用；没有关闭X、确认恢复或恢复此版本按钮。不加协议输入、强制恢复、保存成功或额外动作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。各行独立以留白细线分开，不画外部主人导航、完整窗口、浏览器或审查注释。七个紧凑独立行。1 普通状态“正在加载历史版本…”。2 时钟图标、粗体“尚无历史版本”，说明“保存笔记修改后，可以在这里查看和恢复之前的内容。”。3 红色“暂时无法读取历史版本。”，现有按钮“重试加载”。4 同一真实读取/对比处理中局部，依次普通状态“正在读取历史原文…”、“正在计算版本差异…”，无按钮。5 普通失败状态“差异视图暂不可用，仍可查看原始差异。”，按钮“重试差异视图”；展开“原始差异”，代码“- 旧正文\\n+ 新正文”，不要将恢复原文变编辑器。6 只读参考行“历史版本 11/4 10:00 → 编辑器原保存版本 11/5 12:00”，说明“原文已更新，当前草稿和编辑器基准仍保留。核对最新原文后可继续对比；历史原文仍可查看。”。7 待恢复核对局部：保存记录/Git 提交两个来源tab均禁用，选择历史版本下拉11/4 10:00禁用，底部关闭禁用、核对恢复结果可用；没有关闭X、确认恢复或恢复此版本按钮。不加协议输入、强制恢复、保存成功或额外动作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。各行独立以留白细线分开，不画外部主人导航、完整窗口、浏览器或审查注释。七个紧凑独立行。1 普通状态“正在加载历史版本…”。2 时钟图标、粗体“尚无历史版本”，说明“保存笔记修改后，可以在这里查看和恢复之前的内容。”。3 红色“暂时无法读取历史版本。”，现有按钮“重试加载”。4 同一真实读取/对比处理中局部，依次普通状态“正在读取历史原文…”、“正在计算版本差异…”，无按钮。5 普通失败状态“差异视图暂不可用，仍可查看原始差异。”，按钮“重试差异视图”；展开“原始差异”，代码“- 旧正文\\n+ 新正文”，不要将恢复原文变编辑器。6 只读参考行“历史版本 11/4 10:00 → 编辑器原保存版本 11/5 12:00”，说明“原文已更新，当前草稿和编辑器基准仍保留。核对最新原文后可继续对比；历史原文仍可查看。”。7 待恢复核对局部：保存记录/Git 提交两个来源tab均禁用，选择历史版本下拉11/4 10:00禁用，底部关闭禁用、核对恢复结果可用；没有关闭X、确认恢复或恢复此版本按钮。不加协议输入、强制恢复、保存成功或额外动作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-b911f52a-2dca-4fb7-a71e-63b11c6b028a.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-064",
+      "title": "Saved note history and diff modal",
+      "kind": "dialog",
+      "module": "history",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "历史版本",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/NoteHistoryDialog.vue:511",
+        "apps/web/components/NoteHistoryDialog.vue:587",
+        "apps/web/note-history.ts:1",
+        "apps/server/app.ts:445"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [
+        {
+          "name": "历史版本",
+          "type": "version-select",
+          "required": true,
+          "constraints": "Saved revisions, 50 per server page; mobile select replaces list.",
+          "sensitive": false
+        },
+        {
+          "name": "历史内容视图",
+          "type": "tabs",
+          "required": true,
+          "constraints": "差异对比 | 历史原文",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "选择版本 / 加载更早版本",
+          "effect": "Fetch version list/source and compute difference",
+          "api": "GET /api/notes/:id/revisions; POST /api/notes/:id/revisions/:revisionId/read",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "恢复此版本",
+          "effect": "Enter explicit second confirmation",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "关闭",
+          "effect": "Close when history not locked",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Loading/empty/error/retry",
+        "Read/diff computing",
+        "Renderer loading/failure with raw-diff fallback",
+        "Unsaved draft excluded from comparison",
+        "Baseline stale",
+        "Pending restore locks navigation"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=720px nearly full viewport (100vw-12px x 100dvh-12px), mobile version picker and stacked chrome; <=360px compact diff tabs/tools; desktop split version list + diff (NoteHistoryDialog.vue:1671,1859)."
+      },
+      "testRefs": [
+        "tests/note-history.test.ts",
+        "tests/e2e/unified-note-history.spec.ts",
+        "tests/note-history-context.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-064",
+      "parentId": "WS-024",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/NoteHistoryDialog.vue:511",
+        "apps/web/components/NoteHistoryDialog.vue:587",
+        "apps/web/note-history.ts:1",
+        "apps/server/app.ts:445"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-033.json#WS-M009",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-M009",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-b911f52a-2dca-4fb7-a71e-63b11c6b028a.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M009.png",
+  "sha256": "2de0be6fee427a11c57b8c2af1f0d5dac09ba717b3feda33df26e7d43dae6eac",
+  "bytes": 1113228,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:00:46.520459+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Saved note history and diff modal — compact component state matrix",
+    "sourceIds": [
+      "WS-064"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Seven NoteHistoryDialog local saved-history specimens: loading and empty separate; list error retry; historical read and compare concurrently true per select await compare before finally reading=false; renderer-error raw diff fallback; stale editor baseline reference; pending restore navigation locked check enabled. No full history modal duplication.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "row": 1,
+      "listLoading": true,
+      "revisions": []
+    },
+    {
+      "row": 2,
+      "listLoading": false,
+      "revisions": [],
+      "listError": ""
+    },
+    {
+      "row": 3,
+      "listError": "暂时无法读取历史版本。",
+      "actions": [
+        "重试加载"
+      ]
+    },
+    {
+      "row": 4,
+      "reading": true,
+      "comparing": true,
+      "sourceEvidence": "NoteHistoryDialog.vue:237-299 select awaits compare before reading finally=false"
+    },
+    {
+      "row": 5,
+      "rendererError": "差异视图暂不可用，仍可查看原始差异。",
+      "patch": "- 旧正文\\n+ 新正文",
+      "rawDiffOpen": true,
+      "actions": [
+        "重试差异视图"
+      ]
+    },
+    {
+      "row": 6,
+      "editorBaselineStale": true,
+      "dirty": false,
+      "referenceCurrentLabel": "编辑器原保存版本",
+      "mode": "source"
+    },
+    {
+      "row": 7,
+      "savePending": true,
+      "savePendingRestore": true,
+      "busy": false,
+      "gitBusy": false,
+      "historyLocked": true,
+      "closable": false,
+      "checkEnabled": true
+    }
+  ],
+  "originalPlanningPanels": [
+    {
+      "label": "A",
+      "sourceId": "WS-064",
+      "title": "Saved note history and diff modal — compact component state matrix",
+      "role": "authenticated owner",
+      "state": "NoteHistoryDialog.vue history/diff status region; complete version/select/diff/raw/restore window remains separate canonical host.",
+      "presentation": "ONE compact component matrix, not multiple simultaneously open full windows",
+      "rows": [
+        {
+          "label": "row-1",
+          "sourceId": "WS-064",
+          "title": "Saved note history and diff modal",
+          "role": "authenticated owner",
+          "state": "Loading/empty history",
+          "actionPresentation": "Keep actual earlier-version/read/retry/restore/close guards. Unsaved draft is excluded from saved comparison. No new force restore.",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-2",
+          "sourceId": "WS-064",
+          "title": "Saved note history and diff modal",
+          "role": "authenticated owner",
+          "state": "History fetch failure with retry",
+          "actionPresentation": "Keep actual earlier-version/read/retry/restore/close guards. Unsaved draft is excluded from saved comparison. No new force restore.",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-3",
+          "sourceId": "WS-064",
+          "title": "Saved note history and diff modal",
+          "role": "authenticated owner",
+          "state": "Historical source read/diff computing",
+          "actionPresentation": "Keep actual earlier-version/read/retry/restore/close guards. Unsaved draft is excluded from saved comparison. No new force restore.",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-4",
+          "sourceId": "WS-064",
+          "title": "Saved note history and diff modal",
+          "role": "authenticated owner",
+          "state": "Renderer load/failure with raw-diff fallback",
+          "actionPresentation": "Keep actual earlier-version/read/retry/restore/close guards. Unsaved draft is excluded from saved comparison. No new force restore.",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-5",
+          "sourceId": "WS-064",
+          "title": "Saved note history and diff modal",
+          "role": "authenticated owner",
+          "state": "Baseline stale warning",
+          "actionPresentation": "Keep actual earlier-version/read/retry/restore/close guards. Unsaved draft is excluded from saved comparison. No new force restore.",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-6",
+          "sourceId": "WS-064",
+          "title": "Saved note history and diff modal",
+          "role": "authenticated owner",
+          "state": "Pending restore locks navigation",
+          "actionPresentation": "Keep actual earlier-version/read/retry/restore/close guards. Unsaved draft is excluded from saved comparison. No new force restore.",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        }
+      ],
+      "selectedState": "Seven NoteHistoryDialog local saved-history specimens: loading and empty separate; list error retry; historical read and compare concurrently true per select await compare before finally reading=false; renderer-error raw diff fallback; stale editor baseline reference; pending restore navigation locked check enabled. No full history modal duplication."
+    }
+  ],
+  "actualRenderedPanels": [
+    {
+      "label": "A",
+      "sourceId": "WS-064",
+      "title": "Saved note history and diff modal — compact component state matrix",
+      "role": "authenticated owner",
+      "state": "NoteHistoryDialog.vue history/diff status region; complete version/select/diff/raw/restore window remains separate canonical host.",
+      "presentation": "ONE compact component matrix, not multiple simultaneously open full windows",
+      "rows": [
+        {
+          "label": "row-1",
+          "sourceId": "WS-064",
+          "role": "authenticated owner",
+          "state": "Loading history",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-2",
+          "sourceId": "WS-064",
+          "role": "authenticated owner",
+          "state": "Empty history",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-3",
+          "sourceId": "WS-064",
+          "role": "authenticated owner",
+          "state": "History fetch failure with retry",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-4",
+          "sourceId": "WS-064",
+          "role": "authenticated owner",
+          "state": "Historical read plus diff computing",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-5",
+          "sourceId": "WS-064",
+          "role": "authenticated owner",
+          "state": "Renderer failure with raw diff fallback",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-6",
+          "sourceId": "WS-064",
+          "role": "authenticated owner",
+          "state": "Baseline stale warning",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        },
+        {
+          "label": "row-7",
+          "sourceId": "WS-064",
+          "role": "authenticated owner",
+          "state": "Pending restore locks navigation with check result",
+          "sourceComponent": "apps/web/components/NoteHistoryDialog.vue"
+        }
+      ]
+    }
+  ],
+  "coverageClarification": "Global independent actual PNG/source audit corrected selected state/row descriptions; PNG, actual submitted prompt, inputs and tool receipt unchanged."
+}

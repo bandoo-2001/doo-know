@@ -1,0 +1,373 @@
+{
+  "id": "MP-D119",
+  "title": "公开博客：文章阅读",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-054"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-054",
+      "title": "公开博客：文章阅读",
+      "role": "anonymous guest",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    }
+  ],
+  "viewportIntent": "1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-reader.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-054",
+      "route": "/blog/:slug",
+      "trigger": "Published post card, index, archive, collection or direct URL",
+      "parentId": null,
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "importantStates": [
+        "long article with TOC/active heading/progress",
+        "short article or no headings; progress hidden when no scroll range",
+        "optional cover/summary/tags/category",
+        "collection previous-next, adjacent posts and related posts when available",
+        "code/table/image/diagram snapshot content; long content containment",
+        "no-JS native anchors/details/navigation stay usable"
+      ],
+      "notes": [
+        "Reading progress, copy/share buttons and active TOC are progressive JS enhancements. Source note editing is not exposed to guests."
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "公开文章阅读完整长页：标题/摘要/封面/正文/元数据/TOC、复制代码/链接/分享、相邻专题/相关文章和回顶，支持长代码表格内部滚动，无私有源路径。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "匿名公开博客壳，仅真实首页/文章/专题/归档/关于/RSS导航；数据来自不可变手动发布快照，无草稿/私有路径。"
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-054",
+      "label": "章节目录 / 返回顶部",
+      "effect": "Native fragment navigation",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-054",
+      "label": "分类 / 标签",
+      "effect": "Navigate public index filter",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-054",
+      "label": "专题/相邻/继续阅读",
+      "effect": "Navigate available published article",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-054",
+      "label": "复制代码",
+      "effect": "Copy code; show success/failure feedback",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-054",
+      "label": "复制链接",
+      "effect": "Copy canonical URL; report status",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-054",
+      "label": "分享文章",
+      "effect": "Native share or clipboard fallback",
+      "api": "",
+      "guard": ""
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。",
+    "认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-054",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. Produce exactly ONE high-fidelity clear Simplified Chinese PUBLIC BLOG webpage design, straight-on complete page, no device/browser frame or developer captions. Image1 is the matching REAL pre-redesign public baseline and is content/role/template/selected-state authority; source render.ts and configured fields are functional authority. Image2 PILOT-WS-001 is ONLY shared restrained flat surfaces, readable typography/density, fine dividers, alignment and small radii reference. NO owner rail/avatar/private note tree/settings/actions and NO new DooKnow wordmark replacing the configured public brand.\nPreserve dynamic configured blog brand EXACTLY “隔离示例手记”, subtitle “真实接口驱动的界面盘点样例。”, configured author “示例作者”, and configured saved accent #44684f (muted forest green). Do NOT override this saved green accent with generic blue. Use calm flat white/light gray surfaces, clear dark text and muted secondary text, thin quiet borders and restrained8px radii, no gradients/textures/heavy shadows. Preserve actual magazine/profile/article template distinctions and all configured module ordering; no homogenizing to note workspace.\nReal public site header: configured brand/title+subtitle at left, horizontal nav at right exactly 首页, 文章, 专题, 归档, 关于, RSS. Select only actual current route. No logo icon added to configured text brand, no hamburger/owner controls, no admin/edit/upload/publish/login button. Footer source: left linked brand 隔离示例手记 and muted author 示例作者; right 订阅 RSS. Social links absent, so none invented.\nRender exactly the baseline visible content and source-existing conditional controls. One coherent state; no all-state composition. No teams/members, AI chat, ToDoo content, protocol fields requestId/version/hash/cursor/CSRF, fake online/connected/success business results. All content is declared isolated fixture; no private paths or real credentials. Keep native readable Chinese, large content may use longer canvas instead of text shrinking.\nSELECTED PAGE:\nPUBLIC BLOG ARTICLE READER, actual published isolated snapshot. Use a complete naturally sized long page around1536×1792, readable Chinese and all existing lower article modules/footer; do not shrink source text. Public nav 文章 active. Preserve source breadcrumb 首页 / 文章 / 正文. Metadata line 示例作者 · 2026-11-04 · 1 分钟阅读 · 方法 (方法 is category link). Large title 让知识保持可用, summary 用于页面盘点的隔离发布快照。, one #记录 tag chip. No cover image because absent.\nMain article left and real desktop TOC right. Body keeps actual duplicated first source heading 让知识保持可用, paragraph 用于公开页面界面盘点的隔离示例，不包含真实用户资料。, second heading 记录与回顾, paragraph 把观察留下，给下一步提供线索。. Right source TOC 文章目录 with exactly two anchors 让知识保持可用 and 记录与回顾; first active green marker. No extra headers/sections, code block, diagram/image/table or source tab invented.\nBelow body retain actual runtime-available reader actions 复制链接 and 分享文章 (normal enabled, no success feedback), plus existing right link 返回顶部 ↑. No numerical scroll progress or fake copied feedback; initial zero-range/zero-position progress should remain visually unobtrusive, not a completion indicator.\nContinue real conditional lower source modules for the same captured isolated fixture: collection card title 记录的方法, muted 专题第 1 / 1 篇; no collection previous/next links because this collection has only one member. Then a separate adjacent-article nav with only 上一篇：让知识保持可用 (the other available fixture post); no arbitrary next link. Then 继续阅读 section with exactly ONE related snapshot article: 置顶, 2026-11-04 · 方法, title 让知识保持可用, summary 用于页面盘点的隔离发布快照。. Keep source footer configured brand/author/RSS. These lower regions are source/fixture-derived continuation below the first captured viewport, not new features. No comments/likes/bookmark/print/edit/private navigation, no download/source/protocol fields. Only legitimate published snapshot content, configured accent and guest navigation.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D119.png",
+  "reviewStatus": "pending-independent-review",
+  "parentBindings": [
+    {
+      "sourceId": "PB-054",
+      "parentId": null,
+      "route": "/blog/:slug",
+      "roles": [
+        "anonymous guest"
+      ],
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:341",
+        "apps/server/blog/render.ts:212",
+        "apps/server/blog/reader-script.ts:2",
+        "packages/core/blog/service.ts:1039"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-054",
+      "title": "公开博客：文章阅读",
+      "kind": "page",
+      "module": "blog-public",
+      "entry": {
+        "route": "/blog/:slug",
+        "trigger": "Published post card, index, archive, collection or direct URL",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/server/blog/routes.ts:341",
+        "apps/server/blog/render.ts:212",
+        "apps/server/blog/reader-script.ts:2",
+        "packages/core/blog/service.ts:1039"
+      ],
+      "roles": [
+        "anonymous guest"
+      ],
+      "permissionRules": [
+        "No owner session required. Site must be enabled and requested publication must be publicly available.",
+        "Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "章节目录 / 返回顶部",
+          "effect": "Native fragment navigation",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "分类 / 标签",
+          "effect": "Navigate public index filter",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "专题/相邻/继续阅读",
+          "effect": "Navigate available published article",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "复制代码",
+          "effect": "Copy code; show success/failure feedback",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "复制链接",
+          "effect": "Copy canonical URL; report status",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "分享文章",
+          "effect": "Native share or clipboard fallback",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "long article with TOC/active heading/progress",
+        "short article or no headings; progress hidden when no scroll range",
+        "optional cover/summary/tags/category",
+        "collection previous-next, adjacent posts and related posts when available",
+        "code/table/image/diagram snapshot content; long content containment",
+        "no-JS native anchors/details/navigation stay usable"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Server HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it."
+      },
+      "testRefs": [
+        "tests/e2e/blog-public-redesign.spec.ts:236",
+        "tests/e2e/blog-public-redesign.spec.ts:330",
+        "tests/blog-reader.test.ts:1"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Reading progress, copy/share buttons and active TOC are progressive JS enhancements. Source note editing is not exposed to guests."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-D119",
+  "roles": [
+    "anonymous guest"
+  ],
+  "selectedState": [
+    "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. Produce exactly ONE high-fidelity clear Simplified Chinese PUBLIC BLOG webpage design, straight-on complete page, no device/browser frame or developer captions. Image1 is the matching REAL pre-redesign public baseline and is content/role/template/selected-state authority; source render.ts and configured fields are functional authority. Image2 PILOT-WS-001 is ONLY shared restrained flat surfaces, readable typography/density, fine dividers, alignment and small radii reference. NO owner rail/avatar/private note tree/settings/actions and NO new DooKnow wordmark replacing the configured public brand.\nPreserve dynamic configured blog brand EXACTLY “隔离示例手记”, subtitle “真实接口驱动的界面盘点样例。”, configured author “示例作者”, and configured saved accent #44684f (muted forest green). Do NOT override this saved green accent with generic blue. Use calm flat white/light gray surfaces, clear dark text and muted secondary text, thin quiet borders and restrained8px radii, no gradients/textures/heavy shadows. Preserve actual magazine/profile/article template distinctions and all configured module ordering; no homogenizing to note workspace.\nReal public site header: configured brand/title+subtitle at left, horizontal nav at right exactly 首页, 文章, 专题, 归档, 关于, RSS. Select only actual current route. No logo icon added to configured text brand, no hamburger/owner controls, no admin/edit/upload/publish/login button. Footer source: left linked brand 隔离示例手记 and muted author 示例作者; right 订阅 RSS. Social links absent, so none invented.\nRender exactly the baseline visible content and source-existing conditional controls. One coherent state; no all-state composition. No teams/members, AI chat, ToDoo content, protocol fields requestId/version/hash/cursor/CSRF, fake online/connected/success business results. All content is declared isolated fixture; no private paths or real credentials. Keep native readable Chinese, large content may use longer canvas instead of text shrinking.\nSELECTED PAGE:\nPUBLIC BLOG ARTICLE READER, actual published isolated snapshot. Use a complete naturally sized long page around1536×1792, readable Chinese and all existing lower article modules/footer; do not shrink source text. Public nav 文章 active. Preserve source breadcrumb 首页 / 文章 / 正文. Metadata line 示例作者 · 2026-11-04 · 1 分钟阅读 · 方法 (方法 is category link). Large title 让知识保持可用, summary 用于页面盘点的隔离发布快照。, one #记录 tag chip. No cover image because absent.\nMain article left and real desktop TOC right. Body keeps actual duplicated first source heading 让知识保持可用, paragraph 用于公开页面界面盘点的隔离示例，不包含真实用户资料。, second heading 记录与回顾, paragraph 把观察留下，给下一步提供线索。. Right source TOC 文章目录 with exactly two anchors 让知识保持可用 and 记录与回顾; first active green marker. No extra headers/sections, code block, diagram/image/table or source tab invented.\nBelow body retain actual runtime-available reader actions 复制链接 and 分享文章 (normal enabled, no success feedback), plus existing right link 返回顶部 ↑. No numerical scroll progress or fake copied feedback; initial zero-range/zero-position progress should remain visually unobtrusive, not a completion indicator.\nContinue real conditional lower source modules for the same captured isolated fixture: collection card title 记录的方法, muted 专题第 1 / 1 篇; no collection previous/next links because this collection has only one member. Then a separate adjacent-article nav with only 上一篇：让知识保持可用 (the other available fixture post); no arbitrary next link. Then 继续阅读 section with exactly ONE related snapshot article: 置顶, 2026-11-04 · 方法, title 让知识保持可用, summary 用于页面盘点的隔离发布快照。. Keep source footer configured brand/author/RSS. These lower regions are source/fixture-derived continuation below the first captured viewport, not new features. No comments/likes/bookmark/print/edit/private navigation, no download/source/protocol fields. Only legitimate published snapshot content, configured accent and guest navigation.",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-D119 公开博客：文章阅读\n\n1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。\n\n角色壳：匿名公开博客壳，仅真实首页/文章/专题/归档/关于/RSS导航；数据来自不可变手动发布快照，无草稿/私有路径。\n\n独立场景：\nA | PB-054 | 公开博客：文章阅读 | role=anonymous guest | 实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\n\n完整构图：\n公开文章阅读完整长页：标题/摘要/封面/正文/元数据/TOC、复制代码/链接/分享、相邻专题/相关文章和回顶，支持长代码表格内部滚动，无私有源路径。\n\n精确功能/字段/动作guard合同：\nPB-054权限：No owner session required. Site must be enabled and requested publication must be publicly available. / Public summaries/content come from immutable manually published snapshots; private drafts, source paths and owner navigation are excluded.\nPB-054字段顺序：无额外编辑字段；源码已有只读state/data仍保留。\nPB-054白名单：章节目录 / 返回顶部 => Native fragment navigation；guard=既有上下文\nPB-054白名单：分类 / 标签 => Navigate public index filter；guard=既有上下文\nPB-054白名单：专题/相邻/继续阅读 => Navigate available published article；guard=既有上下文\nPB-054白名单：复制代码 => Copy code; show success/failure feedback；guard=既有上下文\nPB-054白名单：复制链接 => Copy canonical URL; report status；guard=既有上下文\nPB-054白名单：分享文章 => Native share or clipboard fallback；guard=既有上下文\n\n响应式合同：\nServer HTML includes viewport meta; responsive public styles collapse navigation/modules/cards and wrap long content; reader TOC uses native details and code/tables scroll. 320px source test exists for all templates; this inventory did not execute it.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n认证/首启/OAuth/公开页面绝不出现主人私有导航栏、私有文件名/目录或管理入口。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-reader.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "26be9fdc338467a0d7c2f95a504fa3952e3c359c61be8fed0c15cca6f2e46a30",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 81042
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    }
+  ],
+  "actualImageInputOrder": [
+    "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-reader.png",
+    "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D119.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-4afcdaf3-c1ab-4dff-b54c-af4158cbd397.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-4afcdaf3-c1ab-4dff-b54c-af4158cbd397.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T01:38:52.139Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Published snapshot reader preserves two heading anchors, ordinary guest share controls, configured metadata and no cover/code/source/editor. Lower source/fixture continuation includes one-member collection, one adjacent previous post and one related post.",
+    "concerns": [
+      "Static design does not verify navigation, dynamic configuration, published snapshots or responsive behavior.",
+      "Exact source tokens/card-style/dimensions and minor raster texture require independent review.",
+      "Below-viewport regions derive from actual renderer and isolated-fixture setup; full long-page runtime capture is absent and native tall resolution requires readability review."
+    ]
+  },
+  "sha256": "510dfdebaa9e268d4a4cbb3012b557cf4d90fd04ff960358e9393fcc6e7668b3",
+  "dimensions": {
+    "width": 948,
+    "height": 1659
+  },
+  "bytes": 1087065,
+  "sourceInspection": [
+    {
+      "path": "apps/server/blog/routes.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "3f4444c9f58c14e3dc37005380512f8325ef56894868db5a411d0adc5e231979"
+    },
+    {
+      "path": "apps/server/blog/render.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "0442b17716872b91c0e322647dbc5af343db87218ed8c7d4964c2639ba6af1cf"
+    },
+    {
+      "path": "apps/server/blog/reader-script.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "92064432e2a057e9174f5044a0f09e7993d915338699afa371bcb0006149ec60"
+    },
+    {
+      "path": "packages/core/blog/service.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e3048693c76c55f8e95edc5ff547ea9ddf8d99cac22088ee76b2f22403f6d793"
+    },
+    {
+      "path": ".superpowers/sdd/2026-11-05-platform-ui-unification/capture-public-baseline.ts",
+      "role": "isolated fixture setup/module continuation authority; textual reference only, no services executed",
+      "sha256": "b0dbf050e9bf9de226cac36ab84d2208ed1d3d3622df494a0750b36ecc68db2d"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Lower reader collection/adjacent/related regions continue current renderer and isolated public fixture; fixture has two published posts and one configured one-member collection. Not independent runtime acceptance.",
+  "configuredPublicIdentity": {
+    "brand": "隔离示例手记",
+    "author": "示例作者",
+    "description": "真实接口驱动的界面盘点样例。",
+    "accent": "#44684f",
+    "noOwnerNavigation": true
+  }
+}

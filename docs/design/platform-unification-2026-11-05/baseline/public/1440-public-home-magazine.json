@@ -1,0 +1,15 @@
+{
+  "id": "public-home-magazine",
+  "title": "公开博客 magazine",
+  "width": 1440,
+  "audience": "public",
+  "route": "/blog",
+  "file": "1440-public-home-magazine.png",
+  "sha256": "758c405a5a4d3424b187aeb0509ec3afc02b6b317bc17c2198005738622d68c9",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "pageErrors": [],
+  "outerOverflow": 0
+}

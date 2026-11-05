@@ -1,0 +1,516 @@
+{
+  "id": "MP-D098",
+  "title": "博客管理：文章发布信息",
+  "kind": "generated-design",
+  "sourceIds": [
+    "PB-032"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-032",
+      "title": "博客管理：文章发布信息",
+      "role": "authenticated owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    }
+  ],
+  "viewportIntent": "1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "PB-032",
+      "route": "/?view=apps&app=blog&appSection=articles",
+      "trigger": "Select an article",
+      "parentId": "PB-031",
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "title",
+          "type": "text",
+          "required": true,
+          "constraints": "UI maxlength200; API trimmed nonempty <=256 Unicode codepoints",
+          "sensitive": false
+        },
+        {
+          "name": "summary",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI maxlength1000; API <=2000 chars",
+          "sensitive": false
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "required": false,
+          "constraints": "max80; optional datalist from existing article categories",
+          "sensitive": false
+        },
+        {
+          "name": "tags",
+          "type": "comma text",
+          "required": false,
+          "constraints": "UI max600 total; comma/Chinese-comma split trimmed unique tags; API <=30 tags each<=80",
+          "sensitive": false
+        },
+        {
+          "name": "pinned",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "cover",
+          "type": "local image path",
+          "required": false,
+          "constraints": "nullable; API max8192 chars",
+          "sensitive": false
+        },
+        {
+          "name": "slug",
+          "type": "text",
+          "required": true,
+          "constraints": "lowercase alphanumeric segments joined by hyphens; API<=100; unique/reserved checks; locked after first publication",
+          "sensitive": false
+        }
+      ],
+      "importantStates": [
+        "nothing selected placeholder",
+        "initial detail pending/error/retry",
+        "retained form while rereading",
+        "dirty save-required status; busy guard",
+        "draft/published/withdrawn/unpublished changes badges",
+        "once published slug is read-only"
+      ],
+      "notes": [
+        "Selection is component state; no article-id URL parameter implemented by navigation.ts. Online snapshot changes only through explicit publish, not note save or metadata save."
+      ]
+    },
+    {
+      "type": "composition",
+      "details": [
+        "主人文章发布信息完整长页：标题/摘要/分类/标签/置顶/封面/slug、原稿状态、保存元信息/编辑原稿/私有预览/显式发布或更新/复制链接/核对；首发后slug锁定。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。"
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "PB-032",
+      "label": "保存文章信息",
+      "effect": "CAS update metadata then reread detail",
+      "api": "PATCH /api/blog/posts/:id",
+      "guard": "dirty; not busy/reading"
+    },
+    {
+      "sourceId": "PB-032",
+      "label": "编辑原稿",
+      "effect": "Navigate owner note editor without rewriting source",
+      "api": "",
+      "guard": ""
+    },
+    {
+      "sourceId": "PB-032",
+      "label": "预览文章",
+      "effect": "Toggle private article review",
+      "api": "",
+      "guard": "not dirty/busy/reading"
+    },
+    {
+      "sourceId": "PB-032",
+      "label": "发布文章 / 发布更新",
+      "effect": "Reread and validate source/version, render static diagrams, publish snapshot",
+      "api": "POST /api/blog/publish",
+      "guard": "not dirty/busy/reading; source hash/mtime/version unchanged"
+    },
+    {
+      "sourceId": "PB-032",
+      "label": "复制文章链接",
+      "effect": "Copy canonical saved URL",
+      "api": "",
+      "guard": "post.url exists"
+    },
+    {
+      "sourceId": "PB-032",
+      "label": "重新核对",
+      "effect": "Reread detail retaining local metadata",
+      "api": "GET /api/blog/posts/:id",
+      "guard": "not busy"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "PB-032",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified.",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "Use case: ui-mockup, targeted single-icon semantic correction. Edit the provided complete DooKnow blog draft metadata page image. Preserve ALL content, exact Chinese labels, values, fields, the tall page composition, actual blog rail, disabled-site state, draft selected state, clean metadata/save-disabled guards, expanded cover/pinned/link disclosure and disabled copy icon. Change ONLY the icon on the “预览文章” button: replace its outward-arrow/open-in-new-window icon with a simple thin outlined EYE icon, because this actual source action toggles an in-page private preview and does not open another tab. Keep the label “预览文章”, its enabled state and all geometry unchanged. The “编辑原稿” action's small icon should be a simple RIGHT CHEVRON, matching source forward navigation, not an external-launch icon. No new controls, no preview content (preview stays closed), no new tabs/windows, no source/protocol metadata, no changes to page state, no extra captions. Keep all original raster dimensions and full long-page readability. Output exactly one corrected full-page image.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D098.png",
+  "reviewStatus": "pending-independent-review",
+  "parentBindings": [
+    {
+      "sourceId": "PB-032",
+      "parentId": "PB-031",
+      "route": "/?view=apps&app=blog&appSection=articles",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:508",
+        "apps/web/components/BlogWorkspace.vue:588",
+        "apps/web/blog-workbench.ts:226",
+        "packages/core/blog/service.ts:85"
+      ]
+    }
+  ],
+  "sourceContracts": [
+    {
+      "id": "PB-032",
+      "title": "博客管理：文章发布信息",
+      "kind": "page",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "Select an article",
+        "parentId": "PB-031"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:508",
+        "apps/web/components/BlogWorkspace.vue:588",
+        "apps/web/blog-workbench.ts:226",
+        "packages/core/blog/service.ts:85"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "title",
+          "type": "text",
+          "required": true,
+          "constraints": "UI maxlength200; API trimmed nonempty <=256 Unicode codepoints",
+          "sensitive": false
+        },
+        {
+          "name": "summary",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI maxlength1000; API <=2000 chars",
+          "sensitive": false
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "required": false,
+          "constraints": "max80; optional datalist from existing article categories",
+          "sensitive": false
+        },
+        {
+          "name": "tags",
+          "type": "comma text",
+          "required": false,
+          "constraints": "UI max600 total; comma/Chinese-comma split trimmed unique tags; API <=30 tags each<=80",
+          "sensitive": false
+        },
+        {
+          "name": "pinned",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "cover",
+          "type": "local image path",
+          "required": false,
+          "constraints": "nullable; API max8192 chars",
+          "sensitive": false
+        },
+        {
+          "name": "slug",
+          "type": "text",
+          "required": true,
+          "constraints": "lowercase alphanumeric segments joined by hyphens; API<=100; unique/reserved checks; locked after first publication",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存文章信息",
+          "effect": "CAS update metadata then reread detail",
+          "api": "PATCH /api/blog/posts/:id",
+          "guard": "dirty; not busy/reading"
+        },
+        {
+          "label": "编辑原稿",
+          "effect": "Navigate owner note editor without rewriting source",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "预览文章",
+          "effect": "Toggle private article review",
+          "api": "",
+          "guard": "not dirty/busy/reading"
+        },
+        {
+          "label": "发布文章 / 发布更新",
+          "effect": "Reread and validate source/version, render static diagrams, publish snapshot",
+          "api": "POST /api/blog/publish",
+          "guard": "not dirty/busy/reading; source hash/mtime/version unchanged"
+        },
+        {
+          "label": "复制文章链接",
+          "effect": "Copy canonical saved URL",
+          "api": "",
+          "guard": "post.url exists"
+        },
+        {
+          "label": "重新核对",
+          "effect": "Reread detail retaining local metadata",
+          "api": "GET /api/blog/posts/:id",
+          "guard": "not busy"
+        }
+      ],
+      "importantStates": [
+        "nothing selected placeholder",
+        "initial detail pending/error/retry",
+        "retained form while rereading",
+        "dirty save-required status; busy guard",
+        "draft/published/withdrawn/unpublished changes badges",
+        "once published slug is read-only"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-polish.spec.ts:27",
+        "tests/e2e/blog.spec.ts:196",
+        "tests/e2e/blog.spec.ts:336"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Selection is component state; no article-id URL parameter implemented by navigation.ts. Online snapshot changes only through explicit publish, not note save or metadata save."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "MP-D098",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "source-derived isolated one selected draft; site disabled; dirty=false/busy=false/reading=false; hasUnpublishedChanges=true; preview=false; secondary details open; publishedAt=null/post.url=null; no chosen cover or cropper"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup, targeted single-icon semantic correction. Edit the provided complete DooKnow blog draft metadata page image. Preserve ALL content, exact Chinese labels, values, fields, the tall page composition, actual blog rail, disabled-site state, draft selected state, clean metadata/save-disabled guards, expanded cover/pinned/link disclosure and disabled copy icon. Change ONLY the icon on the “预览文章” button: replace its outward-arrow/open-in-new-window icon with a simple thin outlined EYE icon, because this actual source action toggles an in-page private preview and does not open another tab. Keep the label “预览文章”, its enabled state and all geometry unchanged. The “编辑原稿” action's small icon should be a simple RIGHT CHEVRON, matching source forward navigation, not an external-launch icon. No new controls, no preview content (preview stays closed), no new tabs/windows, no source/protocol metadata, no changes to page state, no extra captions. Keep all original raster dimensions and full long-page readability. Output exactly one corrected full-page image.",
+  "batchOriginalPrompt": "使用已核实内置GPT-Image2制作一个清晰中文UI设计资产。ToDoo仅style-only：浅灰/白底、蓝色主动作、细线小圆角、字体层级/间距/密度与响应式；保留DooKnow及真实模块菜单。\n\nMP-D098 博客管理：文章发布信息\n\n1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。\n\n角色壳：所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。\n\n独立场景：\nA | PB-032 | 博客管理：文章发布信息 | role=authenticated owner | 实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\n\n完整构图：\n主人文章发布信息完整长页：标题/摘要/分类/标签/置顶/封面/slug、原稿状态、保存元信息/编辑原稿/私有预览/显式发布或更新/复制链接/核对；首发后slug锁定。\n\n精确功能/字段/动作guard合同：\nPB-032权限：Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled.\nPB-032字段顺序：title [text; 必填]: UI maxlength200; API trimmed nonempty <=256 Unicode codepoints | summary [textarea; 可选]: UI maxlength1000; API <=2000 chars | category [text; 可选]: max80; optional datalist from existing article categories | tags [comma text; 可选]: UI max600 total; comma/Chinese-comma split trimmed unique tags; API <=30 tags each<=80 | pinned [checkbox; 可选]: 既有控件 | cover [local image path; 可选]: nullable; API max8192 chars | slug [text; 必填]: lowercase alphanumeric segments joined by hyphens; API<=100; unique/reserved checks; locked after first publication\nPB-032白名单：保存文章信息 => CAS update metadata then reread detail；guard=dirty; not busy/reading；接口约束=PATCH /api/blog/posts/:id\nPB-032白名单：编辑原稿 => Navigate owner note editor without rewriting source；guard=既有上下文\nPB-032白名单：预览文章 => Toggle private article review；guard=not dirty/busy/reading\nPB-032白名单：发布文章 / 发布更新 => Reread and validate source/version, render static diagrams, publish snapshot；guard=not dirty/busy/reading; source hash/mtime/version unchanged；接口约束=POST /api/blog/publish\nPB-032白名单：复制文章链接 => Copy canonical saved URL；guard=post.url exists\nPB-032白名单：重新核对 => Reread detail retaining local metadata；guard=not busy；接口约束=GET /api/blog/posts/:id\n\n响应式合同：\n<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified.\n390/320字段label/错误/长值换行，表格代码只在内部滚动，无页面级横溢出；限高窗口正文滚动/页脚可达/焦点可见；SettingsOverlay与PluginPanel关闭保护保持各自源码。逐source字段/滚动/焦点/guard在responsiveMappings。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n局部窗口/浮层/紧凑状态只画真实组件，不重画或发明外部导航。完整主页面保留自己的真实shell，公开/认证不得借主人chrome。sourceID/role/parent/caption可只存metadata，不强制烧录图中；无图内caption不单独构成失败。\n\n使用匹配baseline的隔离内容：knowledge、Asia/Shanghai；公开示例“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客既有accent #44684f与三模板差异保持。未捕获状态仅合成示例，不固定成功数量/在线状态或业务结果。秘密只用掩码/placeholder。\n\n同renderer的message/data/动作guard变体由stateCoverage精确绑定，只声称代表状态可见，不假称互斥状态共存。协议不伪造成输入；源码已有只读任务/回执编号保留占位显示。生成不等于实测或批准；逐图功能/权限/响应式及全局评审后才可开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "991e8739df7f6b01dd5cbeaf3758bcb7c314a377a8dc38177236511d3d2d7126",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 78825
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/public-and-blog.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "4ef74a48cc08f2c60c320c2affc60549becd64fe7949b5b317ea31ebd795131e"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-fcb3a9a7-5d36-4f63-83d8-fca857810eb8.png",
+      "role": "edit-target for semantic icon correction",
+      "responsibility": "Preserve selected draft page and all state/controls; correct preview icon to eye and source-edit icon to forward chevron",
+      "sha256": "de38b93e9c6033f7efe4f62e7c0db131a6f1bc86acafebc0ee9fff5157d83e15",
+      "dimensions": {
+        "width": 948,
+        "height": 1659
+      },
+      "bytes": 1221260
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-fcb3a9a7-5d36-4f63-83d8-fca857810eb8.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D098.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-0ea0e1d5-c28a-49a1-b602-aa49fecbea17.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-0ea0e1d5-c28a-49a1-b602-aa49fecbea17.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T01:32:09.956Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Source-derived one clean selected draft with expanded existing secondary fields. Seven metadata fields, cover upload entry, attachment-choice action, unchecked pinned, editable never-published slug and disabled URL copy retained. Targeted correction uses eye for in-page preview and forward chevron for source edit.",
+    "concerns": [
+      "Static raster does not prove permission guards, interactions or 320/390 responsiveness.",
+      "Exact tokens/proportions and minor raster texture need independent review.",
+      "Long selected-detail page is a source-derived isolated draft example; actual selected-detail runtime baseline is absent. Native tall resolution/readability must receive independent review."
+    ]
+  },
+  "sha256": "f09a229f4601bf547bebabd6d436f9447cfe3a024c3644882a0b4104e3398e6e",
+  "dimensions": {
+    "width": 948,
+    "height": 1660
+  },
+  "bytes": 1640077,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/BlogWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7c4cad934bb1c19d1833445e4d71a99811f06c9afb622f6f50d387e54a371a6c"
+    },
+    {
+      "path": "apps/web/components/BlogWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7c4cad934bb1c19d1833445e4d71a99811f06c9afb622f6f50d387e54a371a6c"
+    },
+    {
+      "path": "apps/web/blog-workbench.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "5f7859526e908362d7420d67e87b1b1119adbe757a84b9bc88bdd3412d6406d5"
+    },
+    {
+      "path": "packages/core/blog/service.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "e3048693c76c55f8e95edc5ff547ea9ddf8d99cac22088ee76b2f22403f6d793"
+    },
+    {
+      "path": "apps/web/components/blog/BlogArticleCover.vue",
+      "role": "actual expanded cover controls and conditional cropper authority",
+      "sha256": "c7f3011ea1fa4c84c458ba30f7335db457a2ff8566bb6529d451d1a49d9a1625"
+    },
+    {
+      "path": "apps/web/components/blog/BlogImageEditor.vue",
+      "role": "actual expanded cover controls and conditional cropper authority",
+      "sha256": "546728a1feeeb50ef54deb0a47f5e52b14d67bd56756a67b5f9a3c6ca40f873d"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "The actual baseline is empty. Selected row/form uses the declared isolated synthetic title/content to expose the true current template's metadata form and guards, not a captured runtime state or successful publication.",
+  "actualInitialImageInputOrder": [
+    "docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+    "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "generationHistory": [
+    {
+      "call": 1,
+      "submittedPrompt": "Use case: ui-mockup. Generate exactly ONE high-fidelity Simplified Chinese DooKnow BLOG OWNER MANAGEMENT desktop design around 1536×1024, straight-on complete application canvas, no device/browser frame or captions. Image1 matching actual blog baseline determines role, content, real module navigation, selected state and existing controls. Image2 PILOT-WS-001 is STYLE ONLY: blue #4566c6, selected #edf1ff, white main/surfaces, #f7f8fa light rail, #272b3a text/#657084 muted, #e6e9f1 fine lines, 8px radii, compact readable hierarchy and flat aligned cards. Do not copy note tree, empty-note content or ToDoo product features.\nKeep ACTUAL BLOG HOST NAVIGATION ONLY: narrow approximately64px blog-specific left rail, top 返回 back button; module destinations 概览, 文章, 装修主页, 分类与标签; bottom 站点设置. Select only the current destination. Do not add owner avatar/recent/favorites/trash/settings rail or more navigation. Existing module header shows book icon and 博客 title, subtitle 从笔记选稿，整理文章与自己的站点。, right source state badge 站点未开启 and blue plus 选择笔记 action. No 访问站点 because saved enabled=false. Preserve pale warning banner with lock: 站点尚未开启。你可以先准备文章，开启后已发布内容才会公开。 and right action 前往设置 →.\nOnly restyle actual controls, layout hierarchy/density/spacing/alignment. Do not fabricate published/connected/success state or change business permissions. No team/member/AI/social controls or API requestId/version/hash/cursor/CSRF fields, no ToDoo brand/task data. Local note saves, metadata saves, explicit article publishing and separately saved site enabled state remain distinct. One coherent selected state, no simultaneous dialogs/all-state cards. Full source contracts are metadata, not product inputs.\nSELECTED PAGE 博客文章发布信息. This is a SOURCE-DERIVED isolated single selected DRAFT example, because Image1 captures the empty host rather than a selected post; source templates and PB032 contract define the shown form. Override landscape default: use one naturally sized complete desktop page around1536×1792 so the full long selected metadata form is clearly readable; do not shrink all fields to fit1024 height. Keep same actual blog module host/nav and disabled-site state; rail 文章 active.\nMain heading 文章, helper 公开的是发布时的快照。编辑原稿后，手动发布更新。 and existing icon-only refresh. Split layout: left article list with 搜索文章… input, 全部状态 select, count 1 篇文章; exactly one selected synthetic draft row title 让知识保持可用, summary 用于页面盘点的隔离示例。, 草稿 badge, date 2026年11月5日, taxonomy 方法 · #记录 #回顾. This one source-derived count/date is illustrative fixture metadata only.\nRight complete 文章发布设置 detail in this single state. Heading eyebrow 文章信息, title 让知识保持可用, 草稿 badge. 关联原稿 source strip same title and 编辑原稿 text action. Keep source draft hint 原稿和文章信息仅自己可见，确认后手动发布。. Metadata is CLEAN (dirty=false, busy=false, reading=false): status 文章信息已保存，可预览并手动发布; 保存文章信息 DISABLED, 预览文章 enabled (preview is CLOSED), 发布文章 primary enabled. Do not show 发布更新 or 下架文章 because this is never-published draft.\nForm groups in exact order: 标题与摘要 with 文章标题 input value 让知识保持可用 and 摘要 textarea value 用于页面盘点的隔离示例。; 分类与标签 with helper 分类用于主题归档；多个标签用逗号分隔。, 分类 input 方法 and 标签 input 记录, 回顾.\nThe existing disclosure 封面、置顶与固定链接 is OPEN as the selected source-derived state. Inside retain all genuine existing controls without opening other dialogs: 封面图片 input EMPTY, placeholder 笔记中的图片路径（可选）, helper 发布时会固定图片副本，请使用你有权公开的图片。; existing image component label 上传并裁切封面 with 选择图片 file-choice button; helper 支持 JPEG、PNG、WebP，最大 10 MB。选择后可调整裁切范围。; action 从原稿附件中选择封面. No file has been selected, no attachment picker/cropper/image preview/remove-image button/sliders. Then unchecked 置顶文章 checkbox. Then 固定链接 group with static /blog/ prefix, EDITABLE slug input knowledge-available because publishedAt=null; small COPY ICON DISABLED because post.url=null for disabled-site unpublished draft. Helper 首次发布前可编辑，使用小写英文、数字与连字符。 No lock/read-only slug in this draft state.\nUnder form preserve source explanatory note 站点尚未开启：发布后仍需在站点设置中开启公开访问。图形预览会在发布时生成。 Bottom action 移除选稿 with status 还未公开发布. No private preview content because preview=false, no confirmation/error/reread controls unless source state needs them, no public URL, hidden version/hash/CSRF/CAS fields, real account or private path. Metadata save is distinct from explicit publishing; site enable is separate. One coherent selected draft long page only, no simultaneous before/after states.",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-fcb3a9a7-5d36-4f63-83d8-fca857810eb8.png",
+      "selected": false,
+      "reason": "External-launch icons implied wrong preview/source-edit behavior",
+      "inputOrder": [
+        "docs/design/platform-unification-2026-11-05/baseline/1440-blog-articles.png",
+        "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "sha256": "de38b93e9c6033f7efe4f62e7c0db131a6f1bc86acafebc0ee9fff5157d83e15",
+      "dimensions": {
+        "width": 948,
+        "height": 1659
+      },
+      "bytes": 1221260
+    },
+    {
+      "call": 2,
+      "submittedPrompt": "Use case: ui-mockup, targeted single-icon semantic correction. Edit the provided complete DooKnow blog draft metadata page image. Preserve ALL content, exact Chinese labels, values, fields, the tall page composition, actual blog rail, disabled-site state, draft selected state, clean metadata/save-disabled guards, expanded cover/pinned/link disclosure and disabled copy icon. Change ONLY the icon on the “预览文章” button: replace its outward-arrow/open-in-new-window icon with a simple thin outlined EYE icon, because this actual source action toggles an in-page private preview and does not open another tab. Keep the label “预览文章”, its enabled state and all geometry unchanged. The “编辑原稿” action's small icon should be a simple RIGHT CHEVRON, matching source forward navigation, not an external-launch icon. No new controls, no preview content (preview stays closed), no new tabs/windows, no source/protocol metadata, no changes to page state, no extra captions. Keep all original raster dimensions and full long-page readability. Output exactly one corrected full-page image.",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-0ea0e1d5-c28a-49a1-b602-aa49fecbea17.png",
+      "selected": true,
+      "inputOrder": [
+        "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-fcb3a9a7-5d36-4f63-83d8-fca857810eb8.png"
+      ],
+      "sha256": "f09a229f4601bf547bebabd6d436f9447cfe3a024c3644882a0b4104e3398e6e",
+      "dimensions": {
+        "width": 948,
+        "height": 1660
+      },
+      "bytes": 1640077
+    }
+  ]
+}

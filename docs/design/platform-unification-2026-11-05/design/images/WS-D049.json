@@ -1,0 +1,418 @@
+{
+  "id": "WS-D049",
+  "title": "Primary mind map editor",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-069"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-069",
+      "title": "Primary mind map editor",
+      "role": "authenticated owner",
+      "state": "Plain-text single-root mindmap only, no rich node data.",
+      "presentationInstruction": "Plain-text single-root mindmap only, no rich node data."
+    }
+  ],
+  "viewportIntent": "Complete 1440×1000 independent page.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:581, apps/web/components/DiagramDocumentWorkspace.vue:804, apps/server/knowledge/diagram-routes.ts:50, shared/diagram-resource.ts:1, apps/web/diagrams/mindmap.ts:24, shared/mindmap-outline.ts:4"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-069",
+      "label": "保存 / Ctrl+S",
+      "effect": "Prepare source+PNG and atomically commit primary document",
+      "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+      "guard": "resource.capabilities.canEdit; !recovered/!loading/!saving"
+    },
+    {
+      "sourceId": "WS-069",
+      "label": "历史版本 / 分享",
+      "effect": "Existing history/share entry windows",
+      "api": "GET /api/notes/:id/revisions; GET /api/notes/:id/share",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-069",
+      "label": "设计 / Markdown 源码 / 阅读 / PNG 预览",
+      "effect": "Switch existing diagram views",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-069",
+      "label": "导出 PNG / HTML / 打印 / 更多",
+      "effect": "Existing export pipeline",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+    "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R025",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Header inherits document-area container queries; native editor fills remaining body. Flowchart body stacks at document-area<=700px; desktop source width48% beside preview. Third-party Excalidraw/MindElixir internal fit unverified."
+      },
+      "requiredFieldOrder": [
+        "脑图节点文字/结构"
+      ],
+      "requiredFields": [
+        {
+          "name": "脑图节点文字/结构",
+          "type": "mindmap",
+          "required": true,
+          "constraints": "Plain text single-root outline only; <=500 nodes, depth<=64, source<=256KiB, topic<=2000 characters, nonblank trimmed no controls; no hidden rich-node fields.",
+          "sensitive": false
+        }
+      ],
+      "requiredActions": [
+        {
+          "label": "保存 / Ctrl+S",
+          "effect": "Prepare source+PNG and atomically commit primary document",
+          "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+          "guard": "resource.capabilities.canEdit; !recovered/!loading/!saving"
+        },
+        {
+          "label": "历史版本 / 分享",
+          "effect": "Existing history/share entry windows",
+          "api": "GET /api/notes/:id/revisions; GET /api/notes/:id/share",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "设计 / Markdown 源码 / 阅读 / PNG 预览",
+          "effect": "Switch existing diagram views",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "导出 PNG / HTML / 打印 / 更多",
+          "effect": "Existing export pipeline",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "canEdit and canDownloadSource are server DiagramResource capabilities; unavailable/unsafe source does not create a blank editable canvas."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-069"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. Generate exactly ONE complete high-fidelity desktop DooKnow authenticated-owner UI design around1536×1024, clear Simplified Chinese, no browser/device frame or developer caption. Image1 actual matching baseline when provided is content/action/selected-state authority; PILOT-WS-001 is ONLY palette, density, flat surfaces and owner rail/global-header hierarchy authority. Current real templates/sourceContracts decide all fields/guards. Never copy PILOT's empty-note content into the selected editor.\nShared owner shell: approximately64px full-height muted light-gray left rail, circular O account avatar at top; exact real destinations 笔记 (only active), 最近, 收藏, separator, 应用, bottom 回收站 and 设置. Blue open-book DooKnow brand in approximately56px horizontal global header, divider and static context 笔记; no invented header actions. Below header a contextual notebook sidebar with 搜索笔记与目录, blue split 新建 button, 笔记本 heading with plus and refresh icons, actual closed folder roots 00-Inbox and 30-Knowledge unless matching baseline explicitly shows expansion; preserve sidebar resize affordance. Main document area fills remaining size. No added teams, AI, ToDoo tasks/calendar menus, counts/notifications or fake status.\nStyle: white #ffffff main and #f7f8fa chrome, #272b3a text/#657084 secondary, #e6e9f1 fine dividers, #4566c6 primary/#edf1ff selected, restrained8px radii, flat surfaces/no texture/gradient/heavy shadows. Native diagram/scene content colors remain its actual content colors, never recolor them into UI blue. One coherent selected state; no combined overlays/error/loading/success variants. No backend requestId/hash/cursor/CSRF/version metadata inputs. Native exact source already contained in a Markdown document may remain code text, not extra protocol controls. Guard-dependent actions stay hidden/disabled as source specifies.\nPrimary diagram document chrome: row1 existing sidebar toggle/back/forward navigation and breadcrumb 笔记本 > 00-Inbox > current document title; right source save-state dot/text, existing history clock icon, 分享, blue 保存, closed 更多 ellipsis. Row2 left type badge and ONLY app-owned icon actions 导出 HTML (code icon), 打印 (printer), 导出 PNG (image); right four tabs use current type label, Markdown 源码, 阅读, PNG 预览; only selected tab active. Preserve source operation guards. No normal rich formatting/insert toolbar. All popovers/dialogs CLOSED unless explicitly requested. Do not turn hidden export/download menus into extra action rows.\nSelected source-derived PRIMARY MINDMAP document, no actual matching mindmap screenshot is captured. Current DiagramDocumentWorkspace, mindmap.ts and mindmap-controls.ts are content/tool authority; PILOT input is style only. Current document title 示例脑图. Source clean readable state editable=true, dirty=false, status 已保存. First type badge/tab 脑图 active; Markdown 源码/阅读/PNG 预览 inactive. Closed folders00-Inbox/30-Knowledge in shared owner context.\nNative MindElixir fills remaining canvas. Exactly one plain-text root “记录与回顾” and three first-level child topics “收集”, “整理”, “回顾”, with clean curved connecting branches in native SIDE layout. Preserve actual MindElixir.THEME scene appearance from local engine: light #f6f6f6 native canvas, dark gray-violet root #4c4f69 with white text and rounded shape, white first-level topic nodes with dark text, native branch palette red #dd7878, pink #ea76cb, violet #8839ef. These diagram content colors are NOT the UI blue and must not be recolored. No rich-node icons/images/links/notes/tags/style editors, no second root or relationship/summary arrows.\nActual app-owned native controls are exactly two small top-right canvas buttons 节点操作 and 快捷键, with both popovers CLOSED. toolBar=false/contextMenu=false disables the library built-in toolbars/menus: no native zoom bar, import/export toolbar, theme chooser, color palette, AI, floating property pane or full context menu invented. Root selection may have subtle native focus ring only. Primary document save/history/share/app export/mode controls stay as above, all relevant guards retained. One full editor page only, no shortcut dialog or node-action menu simultaneously.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D049.png",
+  "reviewStatus": "pending-independent-review",
+  "presentationScope": "complete-independent-page",
+  "geometryFamily": "independent-page:WS-069",
+  "sourceContracts": [
+    {
+      "id": "WS-069",
+      "title": "Primary mind map editor",
+      "kind": "page",
+      "module": "diagrams",
+      "entry": {
+        "route": "/?note=:primaryDiagramId",
+        "trigger": "Open mindmap document",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramDocumentWorkspace.vue:581",
+        "apps/web/components/DiagramDocumentWorkspace.vue:804",
+        "apps/server/knowledge/diagram-routes.ts:50",
+        "shared/diagram-resource.ts:1",
+        "apps/web/diagrams/mindmap.ts:24",
+        "shared/mindmap-outline.ts:4"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "canEdit and canDownloadSource are server DiagramResource capabilities; unavailable/unsafe source does not create a blank editable canvas."
+      ],
+      "fields": [
+        {
+          "name": "脑图节点文字/结构",
+          "type": "mindmap",
+          "required": true,
+          "constraints": "Plain text single-root outline only; <=500 nodes, depth<=64, source<=256KiB, topic<=2000 characters, nonblank trimmed no controls; no hidden rich-node fields.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存 / Ctrl+S",
+          "effect": "Prepare source+PNG and atomically commit primary document",
+          "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+          "guard": "resource.capabilities.canEdit; !recovered/!loading/!saving"
+        },
+        {
+          "label": "历史版本 / 分享",
+          "effect": "Existing history/share entry windows",
+          "api": "GET /api/notes/:id/revisions; GET /api/notes/:id/share",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "设计 / Markdown 源码 / 阅读 / PNG 预览",
+          "effect": "Switch existing diagram views",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "导出 PNG / HTML / 打印 / 更多",
+          "effect": "Existing export pipeline",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Loading",
+        "Autosave after1200ms when dirty and not paused/error/recovery",
+        "Dirty/saving/saved",
+        "Shared status",
+        "Resource source/preview unavailable",
+        "Recoverable local draft",
+        "Read-only when canEdit false"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Header inherits document-area container queries; native editor fills remaining body. Flowchart body stacks at document-area<=700px; desktop source width48% beside preview. Third-party Excalidraw/MindElixir internal fit unverified."
+      },
+      "testRefs": [
+        "tests/e2e/diagram-document-chrome.spec.ts",
+        "tests/e2e/diagram-desktop-session.spec.ts",
+        "tests/diagram-document-session.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-069",
+      "parentId": "WS-001",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "compositionRules": {
+    "fullPage": true,
+    "maxIndependentSections": 1,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-069",
+      "state": "Loading",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-069",
+      "state": "Autosave after1200ms when dirty and not paused/error/recovery",
+      "representation": "nonvisual-data-rule"
+    },
+    {
+      "sourceId": "WS-069",
+      "state": "Dirty/saving/saved",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-069",
+      "state": "Shared status",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-069",
+      "state": "Resource source/preview unavailable",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-069",
+      "state": "Recoverable local draft",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-069",
+      "state": "Read-only when canEdit false",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D049",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "source-derived one plain-text root plus3children; clean/editable; native toolBar/contextMenu false; custom menus closed"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. Generate exactly ONE complete high-fidelity desktop DooKnow authenticated-owner UI design around1536×1024, clear Simplified Chinese, no browser/device frame or developer caption. Image1 actual matching baseline when provided is content/action/selected-state authority; PILOT-WS-001 is ONLY palette, density, flat surfaces and owner rail/global-header hierarchy authority. Current real templates/sourceContracts decide all fields/guards. Never copy PILOT's empty-note content into the selected editor.\nShared owner shell: approximately64px full-height muted light-gray left rail, circular O account avatar at top; exact real destinations 笔记 (only active), 最近, 收藏, separator, 应用, bottom 回收站 and 设置. Blue open-book DooKnow brand in approximately56px horizontal global header, divider and static context 笔记; no invented header actions. Below header a contextual notebook sidebar with 搜索笔记与目录, blue split 新建 button, 笔记本 heading with plus and refresh icons, actual closed folder roots 00-Inbox and 30-Knowledge unless matching baseline explicitly shows expansion; preserve sidebar resize affordance. Main document area fills remaining size. No added teams, AI, ToDoo tasks/calendar menus, counts/notifications or fake status.\nStyle: white #ffffff main and #f7f8fa chrome, #272b3a text/#657084 secondary, #e6e9f1 fine dividers, #4566c6 primary/#edf1ff selected, restrained8px radii, flat surfaces/no texture/gradient/heavy shadows. Native diagram/scene content colors remain its actual content colors, never recolor them into UI blue. One coherent selected state; no combined overlays/error/loading/success variants. No backend requestId/hash/cursor/CSRF/version metadata inputs. Native exact source already contained in a Markdown document may remain code text, not extra protocol controls. Guard-dependent actions stay hidden/disabled as source specifies.\nPrimary diagram document chrome: row1 existing sidebar toggle/back/forward navigation and breadcrumb 笔记本 > 00-Inbox > current document title; right source save-state dot/text, existing history clock icon, 分享, blue 保存, closed 更多 ellipsis. Row2 left type badge and ONLY app-owned icon actions 导出 HTML (code icon), 打印 (printer), 导出 PNG (image); right four tabs use current type label, Markdown 源码, 阅读, PNG 预览; only selected tab active. Preserve source operation guards. No normal rich formatting/insert toolbar. All popovers/dialogs CLOSED unless explicitly requested. Do not turn hidden export/download menus into extra action rows.\nSelected source-derived PRIMARY MINDMAP document, no actual matching mindmap screenshot is captured. Current DiagramDocumentWorkspace, mindmap.ts and mindmap-controls.ts are content/tool authority; PILOT input is style only. Current document title 示例脑图. Source clean readable state editable=true, dirty=false, status 已保存. First type badge/tab 脑图 active; Markdown 源码/阅读/PNG 预览 inactive. Closed folders00-Inbox/30-Knowledge in shared owner context.\nNative MindElixir fills remaining canvas. Exactly one plain-text root “记录与回顾” and three first-level child topics “收集”, “整理”, “回顾”, with clean curved connecting branches in native SIDE layout. Preserve actual MindElixir.THEME scene appearance from local engine: light #f6f6f6 native canvas, dark gray-violet root #4c4f69 with white text and rounded shape, white first-level topic nodes with dark text, native branch palette red #dd7878, pink #ea76cb, violet #8839ef. These diagram content colors are NOT the UI blue and must not be recolored. No rich-node icons/images/links/notes/tags/style editors, no second root or relationship/summary arrows.\nActual app-owned native controls are exactly two small top-right canvas buttons 节点操作 and 快捷键, with both popovers CLOSED. toolBar=false/contextMenu=false disables the library built-in toolbars/menus: no native zoom bar, import/export toolbar, theme chooser, color palette, AI, floating property pane or full context menu invented. Root selection may have subtle native focus ring only. Primary document save/history/share/app export/mode controls stay as above, all relevant guards retained. One full editor page only, no shortcut dialog or node-action menu simultaneously.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D049 Primary mind map editor\nSCOPE complete-independent-page\nVIEW Complete 1440×1000 independent page.\nCOMPOSITION {\"fullPage\": true, \"maxIndependentSections\": 1, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"full\", \"sourceId\": \"WS-069\", \"title\": \"Primary mind map editor\", \"role\": \"authenticated owner\", \"state\": \"Plain-text single-root mindmap only, no rich node data.\", \"presentationInstruction\": \"Plain-text single-root mindmap only, no rich node data.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"full\", \"sourceId\": \"WS-069\", \"fieldsInOrder\": [{\"name\": \"脑图节点文字/结构\", \"type\": \"mindmap\", \"required\": true, \"constraints\": \"Plain text single-root outline only; <=500 nodes, depth<=64, source<=256KiB, topic<=2000 characters, nonblank trimmed no controls; no hidden rich-node fields.\", \"sensitive\": false}], \"actions\": [{\"label\": \"保存 / Ctrl+S\", \"effect\": \"Prepare source+PNG and atomically commit primary document\", \"api\": \"POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit\", \"guard\": \"resource.capabilities.canEdit; !recovered/!loading/!saving\"}, {\"label\": \"历史版本 / 分享\", \"effect\": \"Existing history/share entry windows\", \"api\": \"GET /api/notes/:id/revisions; GET /api/notes/:id/share\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"设计 / Markdown 源码 / 阅读 / PNG 预览\", \"effect\": \"Switch existing diagram views\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"导出 PNG / HTML / 打印 / 更多\", \"effect\": \"Existing export pipeline\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Loading\", \"Autosave after1200ms when dirty and not paused/error/recovery\", \"Dirty/saving/saved\", \"Shared status\", \"Resource source/preview unavailable\", \"Recoverable local draft\", \"Read-only when canEdit false\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"canEdit and canDownloadSource are server DiagramResource capabilities; unavailable/unsafe source does not create a blank editable canvas.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:581, apps/web/components/DiagramDocumentWorkspace.vue:804, apps/server/knowledge/diagram-routes.ts:50, shared/diagram-resource.ts:1, apps/web/diagrams/mindmap.ts:24, shared/mindmap-outline.ts:4",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/DiagramDocumentWorkspace.vue:581, apps/web/components/DiagramDocumentWorkspace.vue:804, apps/server/knowledge/diagram-routes.ts:50, shared/diagram-resource.ts:1, apps/web/diagrams/mindmap.ts:24, shared/mindmap-outline.ts:4",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D049.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-e0f693c3-b3f9-46c0-89de-b06acf243890.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-e0f693c3-b3f9-46c0-89de-b06acf243890.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T01:53:26.877Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Source-derived plain-text single-root mind map retains three child topics and native palette, app-owned 节点操作/快捷键 only. No built-in toolbar/context menu/rich-node/AI actions.",
+    "concerns": [
+      "No matching runtime baseline for this state: source-derived illustrative content/clean state is not acceptance.",
+      "Static raster cannot verify scope/capability guards, scroll interaction or vendor responsive fit; minor texture/proportions approximate."
+    ]
+  },
+  "sha256": "d0e25a4067474bda3b4ac5bede8c6bfdf2e84f30953b802021af1610f617481d",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1036090,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    },
+    {
+      "path": "apps/server/knowledge/diagram-routes.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "f201c25f3792e0ecbc55aebfe31cf2f23425cb5945ab1ea0086fc107ba2a3a48"
+    },
+    {
+      "path": "shared/diagram-resource.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "b9a3d096abeb6f515e14697ddf045875d711c877a6c2aa13adbfa2776e2a81fe"
+    },
+    {
+      "path": "apps/web/diagrams/mindmap.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "47076d431b15c27ffb281b98e4e8fc1979ecae9e6efa28e4237467cacc6fd724"
+    },
+    {
+      "path": "shared/mindmap-outline.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "9af276b0b819c230c703778ab7fbd9460b60a3ec173790558dfa011930ef9fda"
+    },
+    {
+      "path": "apps/web/diagrams/mindmap-controls.ts",
+      "role": "actual textual renderer/control/fixture authority; not an image input",
+      "sha256": "c13e89686ca8e07898ddd3a05d69e8f39908c5daf6be91df17a0025889605458"
+    },
+    {
+      "path": "apps/web/diagrams/mindmap-controls.css",
+      "role": "actual textual renderer/control/fixture authority; not an image input",
+      "sha256": "8d89e2374b995eefc879598905f5dc7b008db807d252398d3f034f60e2f5f4bd"
+    },
+    {
+      "path": "node_modules/mind-elixir/dist/MindElixir.js",
+      "role": "actual textual renderer/control/fixture authority; not an image input",
+      "sha256": "ec31b5fe4986a89a1a195b90f8f557f6c2ebb27e9ae815b9cf03930dc365111a"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "No actual runtime screenshot for this selected surface; templates and source-contract guards are authoritative. Diagram content/chunk counter examples are explicitly synthetic."
+}

@@ -1,0 +1,1124 @@
+{
+  "kind": "generated-design",
+  "id": "MP-S025-v3",
+  "assetId": "MP-S025",
+  "sourceIds": [
+    "ST-064",
+    "ST-065",
+    "ST-066",
+    "ST-067",
+    "ST-068",
+    "ST-072",
+    "ST-070",
+    "ST-071"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner",
+    "owner-private"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-064",
+      "title": "真实组件局部状态矩阵",
+      "role": "owner-private",
+      "state": "最多7个独立可读控件/提示/局部布局行；不是多个全窗口",
+      "selectedState": "Seven corrected API slices: refresh spinner plus retained active policy summaries in first row; error+empty list only second; disabled-channel actions third; custom-date error valid name enabled submit fourth; restored blank-name disabled submit fifth; rename409 sixth; permission409 seventh"
+    }
+  ],
+  "selectedState": "Seven corrected API slices: refresh spinner plus retained active policy summaries in first row; error+empty list only second; disabled-channel actions third; custom-date error valid name enabled submit fourth; restored blank-name disabled submit fifth; rename409 sixth; permission409 seventh",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "请只修正两个遗漏，其他内容完全不变。第一，把第二个红色读取错误区下面的两条“已授予：知识库：读取、内容编辑（整个知识库）”“当前生效：知识库：读取（整个知识库）”整体移到最顶端转圈“刷新 API 客户端”所在的第一区按钮下方。第二个错误区应只保留红色读取失败、尚无API客户端和刷新按钮，不能留这两条摘要。第二，在当前自定义到期时间错误区之后、修改客户端名称409区之前，补回一个独立空名称样例：标签“客户端名称”，空白输入框，按钮“创建并签发密钥”灰色禁用、“取消”可用。必须同时保留当前自定义到期时间样例完整字段/过去日期/将来到期时间错误/可用提交按钮，不可用它覆盖空名称样例。最后整图应为七个独立区：读取中含摘要、读取错误、停用动作、自定义日期错误、空名称、改名409、权限409。可向下加高画布，不删任何其他现有内容。",
+  "prompt": "请只修正两个遗漏，其他内容完全不变。第一，把第二个红色读取错误区下面的两条“已授予：知识库：读取、内容编辑（整个知识库）”“当前生效：知识库：读取（整个知识库）”整体移到最顶端转圈“刷新 API 客户端”所在的第一区按钮下方。第二个错误区应只保留红色读取失败、尚无API客户端和刷新按钮，不能留这两条摘要。第二，在当前自定义到期时间错误区之后、修改客户端名称409区之前，补回一个独立空名称样例：标签“客户端名称”，空白输入框，按钮“创建并签发密钥”灰色禁用、“取消”可用。必须同时保留当前自定义到期时间样例完整字段/过去日期/将来到期时间错误/可用提交按钮，不可用它覆盖空名称样例。最后整图应为七个独立区：读取中含摘要、读取错误、停用动作、自定义日期错误、空名称、改名409、权限409。可向下加高画布，不删任何其他现有内容。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S025-v2.png",
+      "role": "Edit target; move retained summaries into refresh-reading row and restore omitted independent empty-name specimen",
+      "sha256": "7c4c03981d5d46745e1914f6d3db377e9ba00a5fb8a9c467c36390eb48cf1f25",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S025-v2.png",
+      "role": "Edit target; move retained summaries into refresh-reading row and restore omitted independent empty-name specimen",
+      "sha256": "7c4c03981d5d46745e1914f6d3db377e9ba00a5fb8a9c467c36390eb48cf1f25",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "请只修正两个遗漏，其他内容完全不变。第一，把第二个红色读取错误区下面的两条“已授予：知识库：读取、内容编辑（整个知识库）”“当前生效：知识库：读取（整个知识库）”整体移到最顶端转圈“刷新 API 客户端”所在的第一区按钮下方。第二个错误区应只保留红色读取失败、尚无API客户端和刷新按钮，不能留这两条摘要。第二，在当前自定义到期时间错误区之后、修改客户端名称409区之前，补回一个独立空名称样例：标签“客户端名称”，空白输入框，按钮“创建并签发密钥”灰色禁用、“取消”可用。必须同时保留当前自定义到期时间样例完整字段/过去日期/将来到期时间错误/可用提交按钮，不可用它覆盖空名称样例。最后整图应为七个独立区：读取中含摘要、读取错误、停用动作、自定义日期错误、空名称、改名409、权限409。可向下加高画布，不删任何其他现有内容。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S025-v2.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "请只修正两个遗漏，其他内容完全不变。第一，把第二个红色读取错误区下面的两条“已授予：知识库：读取、内容编辑（整个知识库）”“当前生效：知识库：读取（整个知识库）”整体移到最顶端转圈“刷新 API 客户端”所在的第一区按钮下方。第二个错误区应只保留红色读取失败、尚无API客户端和刷新按钮，不能留这两条摘要。第二，在当前自定义到期时间错误区之后、修改客户端名称409区之前，补回一个独立空名称样例：标签“客户端名称”，空白输入框，按钮“创建并签发密钥”灰色禁用、“取消”可用。必须同时保留当前自定义到期时间样例完整字段/过去日期/将来到期时间错误/可用提交按钮，不可用它覆盖空名称样例。最后整图应为七个独立区：读取中含摘要、读取错误、停用动作、自定义日期错误、空名称、改名409、权限409。可向下加高画布，不删任何其他现有内容。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-S025-v2.png",
+          "role": "Edit target; move retained summaries into refresh-reading row and restore omitted independent empty-name specimen"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-8d393c20-7ba8-481c-8a5b-27fcf42b1deb.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-064",
+      "title": "API Key客户端管理清单",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "MCP连接指南内API Key客户端区",
+        "parentId": "ST-049"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:322",
+        "apps/server/platform/mcp-api-keys.ts:197"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。",
+        "签发/权限修改须MCP插件启用、API Key通道开启且配置已保存；改名和撤销仍可独立进行。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "刷新API客户端",
+          "effect": "读取当前账户客户端",
+          "api": "GET /api/platform/mcp/api-clients",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "创建 / 修改名称 / 编辑权限 / 轮换密钥 / 重新授权并签发 / 撤销API连接",
+          "effect": "进入ST-065至ST-072",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "读取中",
+        "尚无客户端",
+        "读取失败",
+        "active/expired/revoked/requires_reauthorization",
+        "已授予/当前有效policy",
+        "密钥尾号/签发/到期/最近使用",
+        "disabled仍允许改名称与撤销"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:87",
+        "tests/mcp-api-keys.test.ts:211"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "列表永不返回完整旧密钥；图中尾号用占位。所有编辑为行内form，不虚构弹窗。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-065",
+      "title": "创建API客户端表单",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "创建API客户端",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:102",
+        "apps/web/components/MCPApiClients.vue:355",
+        "apps/server/platform/mcp-api-keys.ts:45"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "客户端名称",
+          "type": "text",
+          "required": true,
+          "constraints": "trim非空≤100字符",
+          "sensitive": false
+        },
+        {
+          "name": "密钥有效期",
+          "type": "select",
+          "required": true,
+          "constraints": "7/30/90天（默认90）/自定义/永不过期",
+          "sensitive": false
+        },
+        {
+          "name": "自定义到期时间",
+          "type": "datetime-local",
+          "required": false,
+          "constraints": "custom时必填将来时间；转换带时区ISO",
+          "sensitive": false
+        },
+        {
+          "name": "权限及资源范围",
+          "type": "domain-policy",
+          "required": true,
+          "constraints": "至少一项有效权限；不能超过全局ceiling，身份绑定当前owner/instance",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "创建并签发密钥",
+          "effect": "创建身份和授权，显示一次密钥ST-070",
+          "api": "POST /api/platform/mcp/api-clients",
+          "guard": "服务开启、配置无dirty、没有其他form/secret；validConsentPolicy"
+        },
+        {
+          "label": "取消",
+          "effect": "丢弃form",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "读取权限中/失败",
+        "名称缺失禁提交",
+        "日期无效",
+        "域/资源选择",
+        "busy",
+        "409 ST-071"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:87",
+        "tests/mcp-api-keys.test.ts:64"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-066",
+      "title": "修改API客户端名称",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "客户端→修改名称",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:125",
+        "apps/web/components/MCPApiClients.vue:212",
+        "apps/web/components/MCPApiClients.vue:357"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "客户端名称",
+          "type": "text",
+          "required": true,
+          "constraints": "trim非空≤100字符",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存客户端名称",
+          "effect": "按expectedVersion修改",
+          "api": "PATCH /api/platform/mcp/api-clients/:id",
+          "guard": "无busy/form/secret；允许disabled服务或revoked客户端改名"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭行内form",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "busy",
+        "409版本冲突输入保留",
+        "成功notice"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:87"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-067",
+      "title": "编辑API客户端权限",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "active客户端→编辑权限",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:140",
+        "apps/web/components/MCPApiClients.vue:217",
+        "apps/web/components/MCPApiClients.vue:388"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "分域权限及资源",
+          "type": "domain-policy",
+          "required": true,
+          "constraints": "使用当前服务ceiling；有效非空选择",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存客户端权限",
+          "effect": "按expectedGrantVersion更新，后续调用立即使用新权限",
+          "api": "PUT /api/platform/mcp/api-clients/:id/permissions",
+          "guard": "active、MCP/API通道可用、配置已保存、非busy"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭form",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "权限读取失败",
+        "版本冲突保留draft",
+        "busy",
+        "成功notice"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:164",
+        "tests/mcp-api-keys.test.ts:186"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-068",
+      "title": "轮换API Key表单",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "active客户端→轮换密钥",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:222",
+        "apps/web/components/MCPApiClients.vue:367"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "密钥有效期",
+          "type": "select",
+          "required": true,
+          "constraints": "7/30/90天/custom/forever",
+          "sensitive": false
+        },
+        {
+          "name": "自定义到期时间",
+          "type": "datetime-local",
+          "required": false,
+          "constraints": "custom时必须将来时间",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "确认轮换API Key",
+          "effect": "原子轮换；旧密钥立即失效；身份及授权保留",
+          "api": "POST /api/platform/mcp/api-clients/:id/rotate-key",
+          "guard": "active且MCP/API可用；expectedVersion"
+        },
+        {
+          "label": "取消",
+          "effect": "关闭form",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "有效期选择",
+        "永不过期提示",
+        "busy",
+        "409冲突",
+        "签发成功ST-070",
+        "结果不确定须刷新并再轮换"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:87",
+        "tests/mcp-api-keys.test.ts:118"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-072",
+      "title": "撤销API连接行内确认",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "未revoked客户端→撤销API连接",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:269",
+        "apps/web/components/MCPApiClients.vue:481"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "确认撤销API连接",
+          "effect": "原密钥和授权立即失效，清对应secret/form",
+          "api": "POST /api/platform/mcp/api-clients/:id/revoke",
+          "guard": "非revoked；非busy；服务disabled仍允许"
+        },
+        {
+          "label": "取消",
+          "effect": "收起确认",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "busy",
+        "结果未确认需刷新",
+        "刷新核对已撤销",
+        "成功notice"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:87",
+        "tests/mcp-api-keys.test.ts:211"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-070",
+      "title": "新API Key一次性展示",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "创建/轮换/重授权成功",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:234",
+        "apps/web/components/MCPApiClients.vue:298",
+        "apps/web/components/MCPApiClients.vue:340"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "新API Key",
+          "type": "read-only-textarea",
+          "required": false,
+          "constraints": "只在签发响应后内存显示一次；不进入持久草稿；离开/卸载清空",
+          "sensitive": true
+        }
+      ],
+      "actions": [
+        {
+          "label": "复制API Key",
+          "effect": "写剪贴板",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "已保存，关闭密钥",
+          "effect": "清空secret及secretClientId",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "复制成功",
+        "剪贴板失败可手动复制",
+        "尚未关闭密钥时阻止新表单/签发",
+        "撤销对应身份立即清除展示"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:149",
+        "tests/mcp-api-keys.test.ts:286"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "所有图只允许占位掩码，不生成或使用真实token。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-071",
+      "title": "API客户端版本冲突与结果未确认",
+      "kind": "state",
+      "module": "settings/mcp-api-clients",
+      "entry": {
+        "route": "/?view=settings&section=plugins",
+        "trigger": "修改/签发API请求失败",
+        "parentId": "ST-064"
+      },
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:247",
+        "apps/web/components/MCPApiClients.vue:258",
+        "apps/web/components/MCPApiClients.vue:411"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "重新载入客户端",
+          "effect": "重读列表并为原编辑类型重建form",
+          "api": "GET /api/platform/mcp/api-clients",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "刷新API客户端",
+          "effect": "核对服务器状态",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "409客户端/授权变化，草稿保留并禁提交",
+        "其他失败提示先刷新核对",
+        "密钥已签发但未显示→轮换",
+        "重载后对象消失则收起form"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/mcp-api-clients.spec.ts:164"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-064",
+      "parentId": "ST-049",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:322",
+        "apps/server/platform/mcp-api-keys.ts:197"
+      ]
+    },
+    {
+      "sourceId": "ST-065",
+      "parentId": "ST-064",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:102",
+        "apps/web/components/MCPApiClients.vue:355",
+        "apps/server/platform/mcp-api-keys.ts:45"
+      ]
+    },
+    {
+      "sourceId": "ST-066",
+      "parentId": "ST-064",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:125",
+        "apps/web/components/MCPApiClients.vue:212",
+        "apps/web/components/MCPApiClients.vue:357"
+      ]
+    },
+    {
+      "sourceId": "ST-067",
+      "parentId": "ST-064",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:140",
+        "apps/web/components/MCPApiClients.vue:217",
+        "apps/web/components/MCPApiClients.vue:388"
+      ]
+    },
+    {
+      "sourceId": "ST-068",
+      "parentId": "ST-064",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:222",
+        "apps/web/components/MCPApiClients.vue:367"
+      ]
+    },
+    {
+      "sourceId": "ST-072",
+      "parentId": "ST-064",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:269",
+        "apps/web/components/MCPApiClients.vue:481"
+      ]
+    },
+    {
+      "sourceId": "ST-070",
+      "parentId": "ST-064",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:234",
+        "apps/web/components/MCPApiClients.vue:298",
+        "apps/web/components/MCPApiClients.vue:340"
+      ]
+    },
+    {
+      "sourceId": "ST-071",
+      "parentId": "ST-064",
+      "route": "/?view=settings&section=plugins",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:247",
+        "apps/web/components/MCPApiClients.vue:258",
+        "apps/web/components/MCPApiClients.vue:411"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-025.json#MP-S025",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-S025",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-8d393c20-7ba8-481c-8a5b-27fcf42b1deb.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-S025-v3.png",
+  "sha256": "ff4eda86b937e675b85b4f437a5b4f9659a79cc2c15d845dffe8fb3d7da618ab",
+  "bytes": 1614124,
+  "dimensions": {
+    "width": 1041,
+    "height": 1511
+  },
+  "generatedAtUtc": "2026-11-05T05:18:48.520696+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S025-v2.png",
+    "sha256": "7c4c03981d5d46745e1914f6d3db377e9ba00a5fb8a9c467c36390eb48cf1f25"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Component state matrix: owner-private / MCPApiClients.vue",
+    "sourceIds": [
+      "ST-064",
+      "ST-065",
+      "ST-066",
+      "ST-067",
+      "ST-068",
+      "ST-072",
+      "ST-070",
+      "ST-071"
+    ],
+    "roles": [
+      "authenticated-owner",
+      "owner-private"
+    ],
+    "state": "Seven corrected API slices: refresh spinner plus retained active policy summaries in first row; error+empty list only second; disabled-channel actions third; custom-date error valid name enabled submit fourth; restored blank-name disabled submit fifth; rename409 sixth; permission409 seventh",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [
+    {
+      "row": "r1",
+      "sourceId": "ST-064",
+      "title": "读取中",
+      "renderer": "apps/web/components/MCPApiClients.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:322",
+        "apps/server/platform/mcp-api-keys.ts:197"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新API客户端",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "创建 / 修改名称 / 编辑权限 / 轮换密钥 / 重新授权并签发 / 撤销API连接",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "既有busy/spinner/禁用控件模式，按原guard锁定。",
+      "coveredStates": [
+        {
+          "state": "读取中",
+          "variant": "读取中",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-064",
+        "ST-065",
+        "ST-066",
+        "ST-067",
+        "ST-068",
+        "ST-072"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r2",
+      "sourceId": "ST-064",
+      "title": "读取失败",
+      "renderer": "apps/web/components/MCPApiClients.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:322",
+        "apps/server/platform/mcp-api-keys.ts:197"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新API客户端",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "创建 / 修改名称 / 编辑权限 / 轮换密钥 / 重新授权并签发 / 撤销API连接",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "已有错误/告警区域，逐条绑定真实message与guard，不新增按钮。",
+      "coveredStates": [
+        {
+          "state": "读取失败",
+          "variant": "读取失败",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-064",
+        "ST-065",
+        "ST-067",
+        "ST-070",
+        "ST-071"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r3",
+      "sourceId": "ST-064",
+      "title": "已授予/当前有效policy",
+      "renderer": "apps/web/components/MCPApiClients.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:322",
+        "apps/server/platform/mcp-api-keys.ts:197"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新API客户端",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "创建 / 修改名称 / 编辑权限 / 轮换密钥 / 重新授权并签发 / 撤销API连接",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "已授予/当前有效policy",
+          "variant": "已授予/当前有效policy",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-064"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r4",
+      "sourceId": "ST-064",
+      "title": "disabled仍允许改名称与撤销",
+      "renderer": "apps/web/components/MCPApiClients.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:322",
+        "apps/server/platform/mcp-api-keys.ts:197"
+      ],
+      "guardBindings": [
+        {
+          "label": "刷新API客户端",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "创建 / 修改名称 / 编辑权限 / 轮换密钥 / 重新授权并签发 / 撤销API连接",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "disabled仍允许改名称与撤销",
+          "variant": "disabled仍允许改名称与撤销",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-064"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r5",
+      "sourceId": "ST-065",
+      "title": "名称缺失禁提交",
+      "renderer": "apps/web/components/MCPApiClients.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:102",
+        "apps/web/components/MCPApiClients.vue:355",
+        "apps/server/platform/mcp-api-keys.ts:45"
+      ],
+      "guardBindings": [
+        {
+          "label": "创建并签发密钥",
+          "guard": "服务开启、配置无dirty、没有其他form/secret；validConsentPolicy"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "名称缺失禁提交",
+          "variant": "名称缺失禁提交",
+          "representation": "visible"
+        },
+        {
+          "state": "日期无效",
+          "variant": "日期无效",
+          "representation": "shared-pattern"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-065"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r6",
+      "sourceId": "ST-066",
+      "title": "409版本冲突输入保留",
+      "renderer": "apps/web/components/MCPApiClients.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:125",
+        "apps/web/components/MCPApiClients.vue:212",
+        "apps/web/components/MCPApiClients.vue:357"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存客户端名称",
+          "guard": "无busy/form/secret；允许disabled服务或revoked客户端改名"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "409版本冲突输入保留",
+          "variant": "409版本冲突输入保留",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-066"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    },
+    {
+      "row": "r7",
+      "sourceId": "ST-067",
+      "title": "版本冲突保留draft",
+      "renderer": "apps/web/components/MCPApiClients.vue",
+      "sourceRefs": [
+        "apps/web/components/MCPApiClients.vue:140",
+        "apps/web/components/MCPApiClients.vue:217",
+        "apps/web/components/MCPApiClients.vue:388"
+      ],
+      "guardBindings": [
+        {
+          "label": "保存客户端权限",
+          "guard": "active、MCP/API通道可用、配置已保存、非busy"
+        },
+        {
+          "label": "取消",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "presentation": "同一真实组件的该结构状态；聚焦受影响字段/列表/预览区域，保持可读。",
+      "coveredStates": [
+        {
+          "state": "版本冲突保留draft",
+          "variant": "版本冲突保留draft",
+          "representation": "visible"
+        }
+      ],
+      "coveredSourceIds": [
+        "ST-067"
+      ],
+      "reuseRule": "Only named representative is visibly drawn; same actual renderer and role, exact source fields/data/guards remain in stateCoverage."
+    }
+  ],
+  "compositionMode": "compact-state-matrix",
+  "renderedVariants": [
+    {
+      "row": "r1",
+      "reading": true,
+      "clientsRetained": true,
+      "visualParts": [
+        "refresh spinner",
+        "granted/effective summaries"
+      ]
+    },
+    {
+      "row": "r2",
+      "reading": false,
+      "clients": [],
+      "error": true,
+      "visualParts": [
+        "read error",
+        "empty list copy",
+        "manager refresh"
+      ]
+    },
+    {
+      "row": "r4",
+      "form": "create",
+      "expiry": "custom",
+      "expiresAtCustom": "2026-01-01T12:00",
+      "name": "桌面助手",
+      "validConsentPolicy": true,
+      "conflict": false,
+      "submitEnabled": true,
+      "error": "请选择将来的到期时间。"
+    },
+    {
+      "row": "r5",
+      "form": "create",
+      "name": "",
+      "submitEnabled": false
+    },
+    {
+      "row": "r6",
+      "form": "rename",
+      "conflict": true
+    },
+    {
+      "row": "r7",
+      "form": "permissions",
+      "conflict": true
+    }
+  ]
+}

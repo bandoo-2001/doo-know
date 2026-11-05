@@ -1,0 +1,47 @@
+{
+  "assetId": "MP-R063",
+  "sourceIds": [
+    "PB-034"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:21:19.506859+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner local article cover picker: selected first existing image, local crop source absent; C refreshes attachments while retaining prior image choices.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG/full prompt checked against combined BlogImageEditor+BlogArticleCover template. Upload label, choose/remove actions,10MB type help, selected receipt and two filename thumbnail buttons retain actual source controls.",
+    "Only first attachment has selected border, consistent with current cover path and aria-pressed. No cropping editor while source is empty, and no file deletion/extra gallery/search/publish capability.",
+    "C load() keeps existing assets/value and only disables attachment-load action while showing reading text. Choose/remove and existing thumbnail choices remain enabled because child pending=false and thumbnail actions have no loading disable.",
+    "Thumbnail content is illustrative user data, not forced UI branding or an executed upload. Actual relative path computation and note ownership remain source/API authority."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-042.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R063.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/blog/BlogArticleCover.vue:28",
+    "apps/web/components/blog/BlogArticleCover.vue:58",
+    "apps/web/components/blog/BlogImageEditor.vue:109",
+    "apps/web/blog-workbench.ts:483"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "af8f7dd31bf4aa28f43da6db4a42a3d80b81107aadfa0cff92a3840b84b07c84",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R063.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

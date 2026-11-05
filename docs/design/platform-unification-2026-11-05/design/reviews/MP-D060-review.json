@@ -1,0 +1,45 @@
+{
+  "assetId": "MP-D060",
+  "sourceIds": [
+    "ST-076"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T02:37:09.445924+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner new HTTPS credential modal with synthetic mask and encrypted storage selected",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Exact name/platform/kind/user/token order and remember-encrypted/30minute alternative retained; all sample credential data fictional and token masked.",
+    "No SSH private-key/known_hosts/trust or existing-secret retention branch mixed in; save/cancel-edit available with valid name/HTTPS fields, no false saved result."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-011.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D060.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/GitRemotePanel.vue:172",
+    "apps/web/components/GitRemotePanel.vue:567",
+    "apps/web/components/GitRemotePanel.vue:1118",
+    "apps/web/components/GitRemotePanel.vue:1212"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "3c65bff2195133470ba6fdc951018c50f1e8ef0af8f2a2f7a3aca9512ee6064b",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D060.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

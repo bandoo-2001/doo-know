@@ -1,0 +1,50 @@
+{
+  "assetId": "MP-D104",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:48:33.033893+00:00",
+  "method": "Actual final PNG viewed against real corresponding blog baseline, complete actual prompt/history, GEN-006 contracts and current BlogWorkspace template/model conditions.",
+  "selectedState": "Owner blog taxonomy, actual absent categories/tags and empty posts, site off",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Both category/tag zero cards, distinct source empty guidance/picker actions, manual-publish synchronization note and existing blog rail/site-off controls retained.",
+    "Search/clear/view-all toolbar correctly absent when both taxonomy arrays empty; no create/delete/rename taxonomy feature added.",
+    "Owner action color restored to shared blue while public configured accent remains a design datum, not management action theme. No unrelated owner-note nav or public visit action."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Light raster texture/blue shading, approximate scale and dense icon geometry are illustrative. Use shared flat CSS tokens, source toolbar overflow and sidebar resizing; this is not an exact CSS measurement or a regeneration blocker."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-006.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D104.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/BlogWorkspace.vue:92",
+    "apps/web/components/BlogWorkspace.vue:776",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-blog-taxonomy.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "ba5954735a006b4c0b5ecc5d9ca4578f42c4e5adb30cd6321bba500b476a914d",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D104.png",
+  "sourceIds": [
+    "PB-039"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

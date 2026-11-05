@@ -1,0 +1,358 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R001",
+  "assetId": "MP-R001",
+  "sourceIds": [
+    "ST-001"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-001",
+      "title": "通用与编辑390px",
+      "role": "authenticated-owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent narrow settings views: A390 andB320 source-editing feature flag off, clean preferences, all existing settings order/actions with inner scroll; C320 localized flag-on document selected, mode dropdown split option disabled, dirty valid form. Baseline flag off, other states source-derived."
+    },
+    {
+      "label": "B",
+      "sourceId": "ST-001",
+      "title": "通用与编辑320px",
+      "role": "authenticated-owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent narrow settings views: A390 andB320 source-editing feature flag off, clean preferences, all existing settings order/actions with inner scroll; C320 localized flag-on document selected, mode dropdown split option disabled, dirty valid form. Baseline flag off, other states source-derived."
+    },
+    {
+      "label": "C",
+      "sourceId": "ST-001",
+      "title": "通用与编辑320px guard",
+      "role": "authenticated-owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent narrow settings views: A390 andB320 source-editing feature flag off, clean preferences, all existing settings order/actions with inner scroll; C320 localized flag-on document selected, mode dropdown split option disabled, dirty valid form. Baseline flag off, other states source-derived."
+    }
+  ],
+  "selectedState": "Three independent narrow settings views: A390 andB320 source-editing feature flag off, clean preferences, all existing settings order/actions with inner scroll; C320 localized flag-on document selected, mode dropdown split option disabled, dirty valid form. Baseline flag off, other states source-derived.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制三列独立窄网页界面，采用白灰平面、蓝主按钮与细边框，中文清晰，不画手机硬件。左390和中320为第二参考的真实DooKnow移动设置页面，顶栏菜单图标、DooKnow、私人笔记，页头“通用与编辑”、返回、说明“设置当前设备上的阅读与编辑习惯。”；底部导航严格“笔记 最近 收藏 应用 更多”，更多选中。两页给足纵向内容高度并在内容区留滚动指示。卡片“编辑与阅读”，说明设置保存在当前账户的这台浏览器中，保存后用于笔记显示，原文格式保持不变。顶部粘性操作“保存偏好”可用、“取消更改”灰色禁用、“恢复默认设置”可用，状态“当前偏好已保存”。依次字段：默认打开方式=编辑；自动换行开；显示行号关；文字大小=15 px；阅读宽度=舒适；外观=跟随系统。选择框窄屏占满行宽，两个开关保持标签右侧。下面折叠“显示预览”，卡片“键盘操作”、说明“查看常用快捷键，让编辑和浏览更顺手。”、按钮“查看快捷键”。不要添加默认编辑方式字段到这两页。右列320宽独立局部片段不重复完整页面：同粘性三按钮但取消更改可用，状态“有未保存的更改”；默认编辑方式=文档编辑；默认打开方式=编辑且下拉展开，选项编辑、预览、源码与预览分屏，最后一项灰色禁用。右列不加错误或保存成功消息，不增加字段和动作。",
+  "prompt": "绘制三列独立窄网页界面，采用白灰平面、蓝主按钮与细边框，中文清晰，不画手机硬件。左390和中320为第二参考的真实DooKnow移动设置页面，顶栏菜单图标、DooKnow、私人笔记，页头“通用与编辑”、返回、说明“设置当前设备上的阅读与编辑习惯。”；底部导航严格“笔记 最近 收藏 应用 更多”，更多选中。两页给足纵向内容高度并在内容区留滚动指示。卡片“编辑与阅读”，说明设置保存在当前账户的这台浏览器中，保存后用于笔记显示，原文格式保持不变。顶部粘性操作“保存偏好”可用、“取消更改”灰色禁用、“恢复默认设置”可用，状态“当前偏好已保存”。依次字段：默认打开方式=编辑；自动换行开；显示行号关；文字大小=15 px；阅读宽度=舒适；外观=跟随系统。选择框窄屏占满行宽，两个开关保持标签右侧。下面折叠“显示预览”，卡片“键盘操作”、说明“查看常用快捷键，让编辑和浏览更顺手。”、按钮“查看快捷键”。不要添加默认编辑方式字段到这两页。右列320宽独立局部片段不重复完整页面：同粘性三按钮但取消更改可用，状态“有未保存的更改”；默认编辑方式=文档编辑；默认打开方式=编辑且下拉展开，选项编辑、预览、源码与预览分屏，最后一项灰色禁用。右列不加错误或保存成功消息，不增加字段和动作。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-editor.png",
+      "role": "Actual mobile owner header/bottom navigation, Settings editor layout, flag off",
+      "sha256": "f2fbbc498eaeb50cb0513ac14a32de59b2d71cab2cff92cbd982c43efc7406c5",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-editor.png",
+      "role": "Actual mobile owner header/bottom navigation, Settings editor layout, flag off",
+      "sha256": "f2fbbc498eaeb50cb0513ac14a32de59b2d71cab2cff92cbd982c43efc7406c5",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制三列独立窄网页界面，采用白灰平面、蓝主按钮与细边框，中文清晰，不画手机硬件。左390和中320为第二参考的真实DooKnow移动设置页面，顶栏菜单图标、DooKnow、私人笔记，页头“通用与编辑”、返回、说明“设置当前设备上的阅读与编辑习惯。”；底部导航严格“笔记 最近 收藏 应用 更多”，更多选中。两页给足纵向内容高度并在内容区留滚动指示。卡片“编辑与阅读”，说明设置保存在当前账户的这台浏览器中，保存后用于笔记显示，原文格式保持不变。顶部粘性操作“保存偏好”可用、“取消更改”灰色禁用、“恢复默认设置”可用，状态“当前偏好已保存”。依次字段：默认打开方式=编辑；自动换行开；显示行号关；文字大小=15 px；阅读宽度=舒适；外观=跟随系统。选择框窄屏占满行宽，两个开关保持标签右侧。下面折叠“显示预览”，卡片“键盘操作”、说明“查看常用快捷键，让编辑和浏览更顺手。”、按钮“查看快捷键”。不要添加默认编辑方式字段到这两页。右列320宽独立局部片段不重复完整页面：同粘性三按钮但取消更改可用，状态“有未保存的更改”；默认编辑方式=文档编辑；默认打开方式=编辑且下拉展开，选项编辑、预览、源码与预览分屏，最后一项灰色禁用。右列不加错误或保存成功消息，不增加字段和动作。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-editor.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制三列独立窄网页界面，采用白灰平面、蓝主按钮与细边框，中文清晰，不画手机硬件。左390和中320为第二参考的真实DooKnow移动设置页面，顶栏菜单图标、DooKnow、私人笔记，页头“通用与编辑”、返回、说明“设置当前设备上的阅读与编辑习惯。”；底部导航严格“笔记 最近 收藏 应用 更多”，更多选中。两页给足纵向内容高度并在内容区留滚动指示。卡片“编辑与阅读”，说明设置保存在当前账户的这台浏览器中，保存后用于笔记显示，原文格式保持不变。顶部粘性操作“保存偏好”可用、“取消更改”灰色禁用、“恢复默认设置”可用，状态“当前偏好已保存”。依次字段：默认打开方式=编辑；自动换行开；显示行号关；文字大小=15 px；阅读宽度=舒适；外观=跟随系统。选择框窄屏占满行宽，两个开关保持标签右侧。下面折叠“显示预览”，卡片“键盘操作”、说明“查看常用快捷键，让编辑和浏览更顺手。”、按钮“查看快捷键”。不要添加默认编辑方式字段到这两页。右列320宽独立局部片段不重复完整页面：同粘性三按钮但取消更改可用，状态“有未保存的更改”；默认编辑方式=文档编辑；默认打开方式=编辑且下拉展开，选项编辑、预览、源码与预览分屏，最后一项灰色禁用。右列不加错误或保存成功消息，不增加字段和动作。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-settings-editor.png",
+          "role": "Actual mobile owner header/bottom navigation, Settings editor layout, flag off"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-64f0b39e-d14f-4418-ba45-dbe8074fee23.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-001",
+      "title": "通用与编辑",
+      "kind": "page",
+      "module": "settings/editor",
+      "entry": {
+        "route": "/?view=settings&section=editor",
+        "trigger": "主菜单设置→通用与编辑 / 直接地址",
+        "parentId": null
+      },
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:42",
+        "apps/web/settings.ts:8",
+        "apps/web/components/settings/EditorSettings.vue:80"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "默认编辑方式",
+          "type": "select",
+          "required": false,
+          "constraints": "document/source；仅documentEditingEnabled时显示",
+          "sensitive": false
+        },
+        {
+          "name": "默认打开方式",
+          "type": "select",
+          "required": false,
+          "constraints": "edit/preview/split；文档编辑禁用split",
+          "sensitive": false
+        },
+        {
+          "name": "自动换行",
+          "type": "switch",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "显示行号",
+          "type": "switch",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "文字大小",
+          "type": "select",
+          "required": false,
+          "constraints": "14/15/16/18/20px",
+          "sensitive": false
+        },
+        {
+          "name": "阅读宽度",
+          "type": "select",
+          "required": false,
+          "constraints": "comfortable/wide/full",
+          "sensitive": false
+        },
+        {
+          "name": "外观",
+          "type": "select",
+          "required": false,
+          "constraints": "system/light/dark",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存偏好",
+          "effect": "写入当前账户当前浏览器偏好；通知笔记显示更新",
+          "api": null,
+          "guard": "本地偏好，无服务器写入"
+        },
+        {
+          "label": "取消更改",
+          "effect": "载入已保存偏好",
+          "api": null,
+          "guard": "dirty"
+        },
+        {
+          "label": "恢复默认设置",
+          "effect": "只载入预览，保存后生效",
+          "api": null,
+          "guard": "无额外确认"
+        },
+        {
+          "label": "查看快捷键",
+          "effect": "打开ST-009",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "已保存",
+        "未保存",
+        "恢复默认待保存",
+        "文档编辑功能开关影响字段"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "CSS ≤743px",
+          "≤720px",
+          "≤600px",
+          "≤430px；已存在测试含390×844、1280×720、1100×720"
+        ],
+        "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。"
+      },
+      "testRefs": [
+        "tests/e2e/settings-layout.spec.ts:23",
+        "tests/e2e/management-features.spec.ts:190"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-001",
+      "parentId": null,
+      "route": "/?view=settings&section=editor",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/settings/SettingsWorkspace.vue:42",
+        "apps/web/settings.ts:8",
+        "apps/web/components/settings/EditorSettings.vue:80"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-035.json#MP-R001",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R001",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-64f0b39e-d14f-4418-ba45-dbe8074fee23.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R001.png",
+  "sha256": "9705e4e678007efe2fd0133b8c7849d0c5cfef423935c55a19c89685a7f0e901",
+  "bytes": 1250862,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T07:16:12.232621+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: EditorSettings.vue .settings-row / sticky preference actions",
+    "sourceIds": [
+      "ST-001"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Three independent narrow settings views: A390 andB320 source-editing feature flag off, clean preferences, all existing settings order/actions with inner scroll; C320 localized flag-on document selected, mode dropdown split option disabled, dirty valid form. Baseline flag off, other states source-derived.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentEditingEnabled": false,
+      "dirty": false,
+      "wrap": true,
+      "lineNumbers": false
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "documentEditingEnabled": false,
+      "dirty": false,
+      "wrap": true,
+      "lineNumbers": false,
+      "scroll": "Complete long settings content scroll region; header/bottom navigation remain existing mobile shell"
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "scope": "Localized settings field and sticky actions guard specimen",
+      "documentEditingEnabled": true,
+      "editorKind": "document",
+      "mode": "edit",
+      "dirty": true,
+      "splitOptionDisabled": true
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "assetId": "MP-R026",
+  "sourceIds": [
+    "ST-060"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T07:19:08.355014+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Three installed-enabled OAuth narrowing draft forms; selected resource closed-control representation incorrect",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "finding": "A/B/C show a closed selection control as an inline tree row with a branch chevron and checkbox beside30-Knowledge. Actual KnowledgeResourceTreeSelect uses ATreeSelect selected tags when closed; tree checkbox/branch affordances belong to its dropdown. The raster adds unsupported inline expansion/check interaction instead of retaining real closed multi-select.",
+      "sourceEvidence": "KnowledgeResourceTreeSelect.vue:112..150 ATreeSelect :value=selectedValues :open=open tree-checkable tree-check-strictly show-search tree-node-label-prop=label; popup title slot contains actual tree icons. Full submitted prompt explicitly requests selected directory tag and popup closed."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed current corrected PNG and full initial+edit prompts/source/API. Original grant/effective read+write+organize remain readonly while draft presetedit removes organize within original one-directory ceiling; API requiresactive+effective, expectedGrantVersion and subset-only.",
+    "C enabled-but-disabled switch knob correctly right, values retained and all draft controls/cancel busy-disabled/save spinner. Original token invalidation and reauthorize-widening explanation exact, no global rebind/other domains or fake success.",
+    "Three selected-resource controls conflict with declared popup-closed state: an inline expandable checked tree row is not the actual closed selected-tag control."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-038.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R026.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/MCPClientPermissions.vue:12",
+    "apps/web/components/MCPClientPermissions.vue:25",
+    "apps/web/components/MCPDomainPermissions.vue:70",
+    "apps/web/components/KnowledgeResourceTreeSelect.vue:112",
+    "apps/server/platform/mcp-client-permissions.ts:52"
+  ],
+  "requiredCorrections": [
+    "Replace only the three resource controls with real closed ATreeSelect multi-selection showing30-Knowledge selected tag, without inline tree checkbox/branch-expand row. Keep A/B interactive and C disabled, preserve selected1directory0notes summary/help, ceiling/action selections and all other fields/buttons."
+  ],
+  "reviewedImageSha256": "c684aed7e2468574e7a53258291c6c3f95c9faca47d5d00def616a63e454608b",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R026.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

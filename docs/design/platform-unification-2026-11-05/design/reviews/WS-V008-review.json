@@ -1,0 +1,64 @@
+{
+  "assetId": "WS-V008",
+  "sourceIds": [
+    "RTD-014",
+    "RTD-017",
+    "RTD-020"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T07:23:40.104580+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Three complete independent rectangle/arrow/text tool property panels; transparent quick-pick selection missing",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Rectangle background is declared transparent but first transparent quick-pick is drawn as unselected plain white; only far-right current-color trigger receives blue outline. Actual matching baseline and source select the first transparent preset as well. This loses actual selected-value feedback rather than a mere approximate color/pixel issue.",
+      "sourceEvidence": "Locked package TopPicks index.js:2204..2211 sets active when color===activeColor and is-transparent for transparent; actual1440 rectangle baseline shows first transparent background quick-pick selected. Far-right ColorPickerTrigger is a separate control, not this preset."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed all three generated panels and all three real desktop matching baselines, full prompt/runtime contracts/source. Stroke widths/styles/roughness counts and active middle/solid/middle, round-corner right, curved arrow type, endpoint-none/arrow, hand-drawn font/M/left alignment, opacity100 and4layer controls otherwise match.",
+    "Tool selected without scene selection correctly omits delete/group/link/selection action row; transparent background has no fill-style controls. Closed current-color trigger is distinct from actual top-pick selection."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    },
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Checkerboard outside the three component cards is design-board backdrop/transparency illustration, not a product surface token. Implement normal flat host CSS; no additional raster iteration required solely for this background."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-035.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-V008.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:2180",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5460",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5017",
+    "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-shape-properties-panel.png",
+    "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-arrow-properties-panel.png",
+    "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-vendor-text-properties-panel.png"
+  ],
+  "requiredCorrections": [
+    "Change only rectangle background first quick-pick to transparent checker and active selected outline, consistent with transparent current value. Retain five quick-picks plus separate current-color trigger, all property groups/order/selections and no fill-style row."
+  ],
+  "reviewedImageSha256": "10ae1a6b40f7254642b350e777594b11a2c3d88879ff0103bb15bfd5aed4613b",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-V008.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

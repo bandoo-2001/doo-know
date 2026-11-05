@@ -1,0 +1,59 @@
+{
+  "assetId": "MP-S047",
+  "sourceIds": [
+    "PB-022",
+    "PB-023",
+    "PB-025"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T04:54:34.698015+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Seven independent anonymous reader excerpts, readonly/editable headers, TOC/noTOC, resolved readonly card and ordinaryPNG projection.",
+  "functionalFindings": [
+    {
+      "id": "MP-S047-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "r2 binds expiry timestamp/edit-unavailable reason to a readonly header alone, but source renders these as additional article-body readonly lines when access.expiresAt/editUnavailableReason exist. Neither line appears in this board or the declared normal reader references. Header badge does not represent these fields.",
+      "sourceEvidence": "ShareReader.vue article h1 followed by reader-expiry and reader-edit-limitation conditionals."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actual reader headers/edit capability, heading-basedTOC, no-heading body and ordinaryPNG-versus-resolved-card boundary preserved.",
+    "Resolved no-source board has no owneredit/convert/generate/download controls."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-028.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S047.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/ShareReader.vue:156",
+    "apps/web/components/ShareReader.vue:176",
+    "apps/web/components/DiagramPreview.vue:292"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "MP-S047-F1",
+      "correction": "Add a truthful compact reader article metadata specimen (or extend a compatible existing article specimen) with future expiry and actual edit-unavailable reason, keeping no edit button. Or root explicitly rebind these fields to an already-reviewed exact specimen showing them; retain field/capability data/role guards, not just header reuse."
+    }
+  ],
+  "reviewedImageSha256": "2f849d23898622e776e0bfd66ef06e5563fd40af0538e55b3b046e15e9c45075",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S047.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

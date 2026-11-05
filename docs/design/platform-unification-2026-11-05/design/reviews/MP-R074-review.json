@@ -1,0 +1,47 @@
+{
+  "assetId": "MP-R074",
+  "sourceIds": [
+    "PB-048"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:38:30.403972+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner local expanded design history: A empty; B two valid idle published revisions with restore enabled; C same revisions while dirty so restore disabled.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG/full prompt compared with exact history template and backend restore. Empty count0/first-publication message distinct from count2/two version-time rows. No delete/preview revision or editable version numbers.",
+    "B both existing revision restore actions enabled when clean/notbusy. C disabled under actual dirty guard; parent hidden state remains independent source binding, not missing child fields.",
+    "Restore is CAS version-checked and draft-only, with original manual-publish explanation retained. History can include current published revision; source does not disable it solely by equality.",
+    "Raster decoration/row layout does not assert source typography or timestamps executed. Actual source newest10 retention and focus/runtime guard remain implementation authority."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-043.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R074.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/blog/BlogDesignStudio.vue:211",
+    "apps/web/blog-workbench.ts:438",
+    "shared/blog-design.ts:41",
+    "packages/core/blog/studio.ts:265"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "e0491286d614c7f2ebadc16749e2d0025ef81839ccb46f8530f87665ad843578",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R074.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

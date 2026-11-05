@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "v1Snapshot": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan-v1.json",
+  "baselineCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "pass",
+  "counts": {
+    "v1Assets": 179,
+    "finalAssets": 142,
+    "retiredWholeJobs": 40,
+    "addedJobs": 3,
+    "sourceSurfaces": 124,
+    "vendorChildSurfaces": 19,
+    "canonicalMappings": 143,
+    "importantStateFacts": 521,
+    "sourceImportantStateFacts": 502,
+    "vendorRuntimeFacts": 19,
+    "sourceFields": 118,
+    "sourceActions": 299,
+    "fullIndependentMainOrModePages": 22,
+    "compactMatrices": 17,
+    "maxCompactRows": 7,
+    "maxIndependentSections": 3,
+    "approvalStatuses": {
+      "approved-functional-with-style-followups": 1,
+      "pending-generation": 135,
+      "needs-revision": 6
+    },
+    "stateRepresentations": {
+      "same-renderer-substitution": 443,
+      "visible": 41,
+      "nonvisual-data-rule": 37
+    }
+  },
+  "gaps": [],
+  "checks": {
+    "exact124SourceContractsPreserved": true,
+    "exact19VendorContractsPreserved": true,
+    "all521StateFactsPreservedVerbatim": true,
+    "all22IndependentPagesRetained": true,
+    "noDanglingAssetPanelRowReferences": true,
+    "everySourceRetainsExactFieldsActionsPermissionsAndResponsiveContract": true,
+    "everyVendorChildDirectlyVisible": true,
+    "matrixRowsAtMost7": true,
+    "independentSectionsAtMost3": true,
+    "onlyPilotV1Approved": true,
+    "noImageGenerationOrProductEditByThisTask": true
+  },
+  "knownRuntimeGapsPreserved": [
+    {
+      "id": "RTD-G01",
+      "kind": "offscreen-at-390",
+      "surfaceKeys": [
+        "vendor-find-sidebar",
+        "vendor-library-panel"
+      ],
+      "actual": "sidebar x=-295,width=295; Close x=-43,width=31.5; Find textbox x=-248.5,width=226.5; document overflow x=0. Normal Close click fails outside viewport.",
+      "sourceRefs": [
+        "apps/web/style.css:1083",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:17066"
+      ],
+      "sourceInference": "Generic app .sidebar transform:translateX(-100%) at narrow widths may affect vendor sidebar because it shares the class. This is a source-backed hypothesis, not a computed-style root-cause verification."
+    },
+    {
+      "id": "RTD-G02",
+      "kind": "advertised-but-not-reached",
+      "surfaceKeys": [
+        "vendor-command-palette"
+      ],
+      "actual": "Help lists Command palette shortcuts. Ctrl+/ and Ctrl+Shift+P with canvas focus yielded zero palette/search-dialog DOM. The evidence image is the unchanged canvas, marked attempt-no-visible-window.",
+      "sourceRefs": [
+        "apps/web/whiteboards/canvas.ts:40",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12759",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:21056"
+      ]
+    },
+    {
+      "id": "RTD-G03",
+      "kind": "not-rendered-at-390",
+      "surfaceKeys": [
+        "vendor-canvas-shape-properties"
+      ],
+      "actual": "Canvas & Shape properties context action was clickable at 390 but no stats heading/panel appeared. Desktop stats showed Shapes 0.",
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:15454",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:21445"
+      ]
+    }
+  ],
+  "sourceRuntimeOpenQuestionsPreserved": [
+    {
+      "id": "WS-Q01",
+      "question": "Runtime captures at320,390,1440 are not performed by this source-only inventory; verify clipping, popup placement, keyboard/focus, nested-overlay stacking and busy transitions."
+    },
+    {
+      "id": "WS-Q02",
+      "question": "Enumerate third-party Excalidraw internal tool/property/main-menu/context windows in isolated runtime, honoring UIOptions that disable native file/export actions."
+    },
+    {
+      "id": "WS-Q03",
+      "question": "Confirm resource capability canEdit/canDownloadSource error variants with actual degraded source/preview fixtures; do not infer new role permissions."
+    },
+    {
+      "id": "WS-Q04",
+      "question": "Reconcile TransferPanel batch/portable import and Git sync interior ownership with platform/settings; ShareManagement listing belongs settings, full owner ShareDialog belongs workspace, external public reader/editor belongs public. TrashWorkspace belongs workspace. ToDoo bridge backend/card interior retains baseline ownership."
+    },
+    {
+      "id": "WS-Q06",
+      "question": "Flowchart stacking depends on document-area container; unsaved diagram close prompt inset30% needs320/390 inspection."
+    },
+    {
+      "id": "WS-Q07",
+      "question": "Graph query route reports review offset max100000 while service code checks10000; inspect effect before changing behavior, inventory records current source discrepancy only."
+    },
+    {
+      "id": "WS-Q08",
+      "question": "Saved graph view input advertises100 chars but backend accepts80; design must retain clear server error and avoid silently widening backend limits."
+    },
+    {
+      "id": "WS-Q09",
+      "question": "Rich-editor availability is gated by VITE_DOCUMENT_EDITOR_ENABLED=1 and source eligibility. Verify actual isolated build state before screenshot coverage/design decisions."
+    },
+    {
+      "id": "WS-Q10",
+      "question": "Capture global reminder host overlap with note/history/diagram overlays and standalone exported reading/print documents at320/390/1440; native print dialog excluded. ShareDialog busy allows default modal dismissal, so do not assume busy-lock behavior."
+    }
+  ],
+  "pendingReviewIsNotCoverageGap": "Plan structural gaps are distinct from pending image/independent/global/runtime reviews. The full product-code gate remains closed.",
+  "artifactHistoryPolicy": "Existing generated PNG/JSON/reviews untouched. All six failed designs remain needs-revision; v1 pilot only maps to WS-D001.",
+  "snapshotSha256": "72643a6bf220c332a09ebbdd706aae030cbf9e993d31cb1f71e5089e805d7ab6"
+}

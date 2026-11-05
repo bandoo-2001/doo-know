@@ -1,0 +1,48 @@
+{
+  "assetId": "MP-S045",
+  "sourceIds": [
+    "PB-018",
+    "PB-019"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:43:37.658092+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Five isolated modern policy/busy and legacy scopes/directories/invalid-selection OAuth fragments",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed all five snippets/full prompt. Modern allowedPolicy ceiling-controlled knowledge enabled/read-only/all-resource and optional offline access remain distinct from legacy checkbox consent. No global binding rebind in consent/ceiling mode.",
+    "busy locks selects/checkboxes/refuse/allow; legacy requested allowedScopes default read/offline only when allowed, knowledge-read shows directory choices. Empty selected prefixes disables allow while refusal stays enabled.",
+    "Synthetic two-prefix subset is valid allowed request data, not removal of other actual requested scopes. Exact scope dependencies, signed ceiling and manual owner consent remain source/API requirements. No public or owner-rail mixing."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-027.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S045.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/OAuthConsent.vue:25",
+    "apps/web/components/OAuthConsent.vue:79",
+    "apps/web/components/OAuthConsent.vue:96",
+    "apps/web/components/MCPDomainPermissions.vue:53",
+    "apps/server/platform/oauth.ts:89"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "638e7310c0a1da989b64aca9c0a8385e51dc7be1b1a395e8073c00da852bfd31",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S045.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "assetId": "MP-S023",
+  "sourceIds": [
+    "ST-062"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:05:10.388499+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Permission-editor initial readerror/retry and three independently disabled domain cards.",
+  "functionalFindings": [
+    {
+      "id": "MP-S023-F1",
+      "severity": "P2",
+      "blocking": true,
+      "finding": "r1 also claims old-owner/instance binding warning and selected unavailable resources, but read-error retry is a different branch. Binding mismatch has real 使用当前数据 action; selected unavailable resources live in the resource selector rather than absent policy/error-only row.",
+      "sourceEvidence": "MCPDomainPermissions bindingChanged warning/rebind button and options()/KnowledgeResourceTreeSelect selected-resource paths are separate from load-error retry."
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Visible retryable resourceerror and disabled domain collapse match actual source; no save/creation action invented."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-025.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S023.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/MCPDomainPermissions.vue:24",
+    "apps/web/components/MCPDomainPermissions.vue:47"
+  ],
+  "requiredCorrections": [
+    {
+      "findingId": "MP-S023-F1",
+      "correction": "Provide a genuine global binding-mismatch warning with 使用当前数据, or root bind an exact already-reviewed renderer/action specimen. Bind unavailable selected resources to the actual source selector with retained ResourceRef labels/identity and guards, not error-only retry; do not expose rebind in consent/ceiling hosts."
+    }
+  ],
+  "reviewedImageSha256": "949100f61f2671f162f71ea6b5cbd6a35a3e3a148a16d35619be4784dcaff4b5",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S023.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

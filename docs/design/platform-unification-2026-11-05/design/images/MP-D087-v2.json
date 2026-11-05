@@ -1,0 +1,214 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D087-v2",
+  "assetId": "MP-D087",
+  "sourceIds": [
+    "PB-019"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-019",
+      "title": "OAuth 连接授权：兼容目录与操作列表",
+      "role": "authenticated owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Actual legacy OAuth consent baseline; one allowed read scope selected and all nine allowed prefixes checked; no v2 policy/offline scope"
+    }
+  ],
+  "selectedState": "Actual legacy OAuth consent baseline; one allowed read scope selected and all nine allowed prefixes checked; no v2 policy/offline scope",
+  "sourceDerived": false,
+  "baselineStatus": "actual-matching-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "仅把“允许的资料目录”第一行文件名精确改为“README.md”，README 与 md 中间是一个英文句点 .，不是下划线或连字符。保持第一行勾选、图标和位置不变。所有其他目录名、控件、文字、勾选状态、按钮、布局完全保持不变。",
+  "prompt": "仅把“允许的资料目录”第一行文件名精确改为“README.md”，README 与 md 中间是一个英文句点 .，不是下划线或连字符。保持第一行勾选、图标和位置不变。所有其他目录名、控件、文字、勾选状态、按钮、布局完全保持不变。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D087.png",
+      "role": "Edit target; exact first allowed prefix filename punctuation only",
+      "sha256": "243508f33ecaadb7057ef4a2e42d9c8835c90f235c1775f6cf7f0ebd2affe16f",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D087.png",
+      "role": "Edit target; exact first allowed prefix filename punctuation only",
+      "sha256": "243508f33ecaadb7057ef4a2e42d9c8835c90f235c1775f6cf7f0ebd2affe16f",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "仅把“允许的资料目录”第一行文件名精确改为“README.md”，README 与 md 中间是一个英文句点 .，不是下划线或连字符。保持第一行勾选、图标和位置不变。所有其他目录名、控件、文字、勾选状态、按钮、布局完全保持不变。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D087.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "仅把“允许的资料目录”第一行文件名精确改为“README.md”，README 与 md 中间是一个英文句点 .，不是下划线或连字符。保持第一行勾选、图标和位置不变。所有其他目录名、控件、文字、勾选状态、按钮、布局完全保持不变。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D087.png",
+          "role": "Edit target; exact first allowed prefix filename punctuation only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-7c2aca8c-affa-4601-971f-3f9e8ceb053f.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-019",
+      "title": "OAuth 连接授权：兼容目录与操作列表",
+      "kind": "state",
+      "module": "oauth",
+      "entry": {
+        "route": "/oauth/consent?oauth_query=…",
+        "trigger": "Valid request has no allowedPolicy",
+        "parentId": "PB-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:25",
+        "apps/web/components/OAuthConsent.vue:44",
+        "apps/web/components/OAuthConsent.vue:96",
+        "apps/server/platform/oauth.ts:89"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session and ready, completed onboarding required. Signed client request and server policy ceiling remain authoritative."
+      ],
+      "fields": [
+        {
+          "name": "scopes",
+          "type": "checkbox group",
+          "required": true,
+          "constraints": "must include resource scope; allowedScopes subset",
+          "sensitive": false
+        },
+        {
+          "name": "allowedPrefixes",
+          "type": "checkbox group",
+          "required": false,
+          "constraints": "required when selected knowledge scope or blog:publish; subset of allowed prefixes",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "允许访问",
+          "effect": "Grant legacy scoped directory access",
+          "api": "POST /api/platform/mcp/oauth/consent",
+          "guard": "ToDoo write=>read; blog publish=>knowledge read+write; required directories selected"
+        }
+      ],
+      "importantStates": [
+        "legacy scope checkboxes",
+        "directory choices shown for knowledge scope or blog publish",
+        "read/offline defaults only when allowed",
+        "scope dependencies and empty resources disable allow"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Max 640px; <=600px reduces padding, wraps scope text and gives actions equal flexible widths (OAuthConsent.vue:339). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/oauth.spec.ts:4"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Keep compatibility mode distinct from v2 policy UI; do not silently merge their authorization rules."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-019",
+      "parentId": "PB-018",
+      "route": "/oauth/consent?oauth_query=…",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:25",
+        "apps/web/components/OAuthConsent.vue:44",
+        "apps/web/components/OAuthConsent.vue:96",
+        "apps/server/platform/oauth.ts:89"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-021.json#MP-D087",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D087",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-7c2aca8c-affa-4601-971f-3f9e8ceb053f.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D087-v2.png",
+  "sha256": "4e893ecff18e81c2fa200e2dfd685aa58eee8b2d9dcf102cf6fc3181857beef6",
+  "bytes": 1604152,
+  "dimensions": {
+    "width": 1086,
+    "height": 1448
+  },
+  "generatedAtUtc": "2026-11-05T04:12:36.826712+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D087.png",
+    "sha256": "243508f33ecaadb7057ef4a2e42d9c8835c90f235c1775f6cf7f0ebd2affe16f"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "OAuth 连接授权：兼容目录与操作列表",
+    "sourceIds": [
+      "PB-019"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Actual legacy OAuth consent baseline; one allowed read scope selected and all nine allowed prefixes checked; no v2 policy/offline scope",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "renderedVariants": []
+}

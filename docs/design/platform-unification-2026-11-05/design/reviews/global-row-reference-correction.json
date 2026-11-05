@@ -1,0 +1,134 @@
+{
+  "recordedAtUtc": "2026-11-05T10:37:33.498Z",
+  "method": "Preserve current ordinary matrix rows; move only contradictory or non-matrix legacy row coordinates into originalPlanRow. Effective matrixRow(s)/visualParts/source facts remain.",
+  "changes": [
+    {
+      "sourceId": "WS-003",
+      "state": "Degraded hybrid/semantic result with explanation",
+      "old": "row-1",
+      "reason": "conflicts with effective matrix coordinates"
+    },
+    {
+      "sourceId": "WS-003",
+      "state": "Error and retry",
+      "old": "row-1",
+      "reason": "conflicts with effective matrix coordinates"
+    },
+    {
+      "sourceId": "WS-003",
+      "state": "Paginated results including folder, filename and content matches",
+      "old": "row-1",
+      "reason": "conflicts with effective matrix coordinates"
+    },
+    {
+      "sourceId": "WS-009",
+      "state": "Skeleton initial load",
+      "old": "row-1",
+      "reason": "current panel is not that matrix"
+    },
+    {
+      "sourceId": "WS-009",
+      "state": "Empty collection",
+      "old": "row-1",
+      "reason": "current panel is not that matrix"
+    },
+    {
+      "sourceId": "WS-009",
+      "state": "Source version changed banner disables old pagination",
+      "old": "row-1",
+      "reason": "current panel is not that matrix"
+    },
+    {
+      "sourceId": "WS-009",
+      "state": "Partial list remains visible on page error",
+      "old": "row-1",
+      "reason": "current panel is not that matrix"
+    },
+    {
+      "sourceId": "WS-009",
+      "state": "Load-more busy/end status",
+      "old": "row-1",
+      "reason": "current panel is not that matrix"
+    },
+    {
+      "sourceId": "WS-010",
+      "state": "Loading document/list skeleton",
+      "old": "row-1",
+      "reason": "conflicts with effective matrix coordinates"
+    },
+    {
+      "sourceId": "WS-010",
+      "state": "Unavailable service alert",
+      "old": "row-1",
+      "reason": "conflicts with effective matrix coordinates"
+    },
+    {
+      "sourceId": "WS-064",
+      "state": "Loading/empty/error/retry",
+      "old": "row-1",
+      "reason": "conflicts with effective matrix coordinates"
+    },
+    {
+      "sourceId": "WS-064",
+      "state": "Read/diff computing",
+      "old": "row-1",
+      "reason": "conflicts with effective matrix coordinates"
+    },
+    {
+      "sourceId": "WS-064",
+      "state": "Renderer loading/failure with raw-diff fallback",
+      "old": "row-1",
+      "reason": "conflicts with effective matrix coordinates"
+    },
+    {
+      "sourceId": "WS-064",
+      "state": "Baseline stale",
+      "old": "row-5",
+      "reason": "conflicts with effective matrix coordinates"
+    },
+    {
+      "sourceId": "WS-064",
+      "state": "Pending restore locks navigation",
+      "old": "row-6",
+      "reason": "conflicts with effective matrix coordinates"
+    },
+    {
+      "sourceId": "WS-089",
+      "state": "Loading/unavailable config",
+      "old": "row-1",
+      "reason": "conflicts with effective matrix coordinates"
+    },
+    {
+      "sourceId": "WS-089",
+      "state": "Provider-dependent fields",
+      "old": "row-1",
+      "reason": "conflicts with effective matrix coordinates"
+    },
+    {
+      "sourceId": "WS-089",
+      "state": "Saved secret configured",
+      "old": "row-1",
+      "reason": "conflicts with effective matrix coordinates"
+    },
+    {
+      "sourceId": "WS-089",
+      "state": "Unsaved changes close guard",
+      "old": "row-1",
+      "reason": "current panel is not that matrix"
+    },
+    {
+      "sourceId": "WS-089",
+      "state": "Test success/failure",
+      "old": "row-1",
+      "reason": "conflicts with effective matrix coordinates"
+    },
+    {
+      "sourceId": "WS-089",
+      "state": "Version conflict/invalid address/remote permission error",
+      "old": "row-1",
+      "reason": "conflicts with effective matrix coordinates"
+    }
+  ],
+  "sourceFactsRemoved": 0,
+  "productChanges": false
+}

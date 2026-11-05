@@ -1,0 +1,53 @@
+{
+  "assetId": "MP-D117",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:40:44.290835+00:00",
+  "method": "Actual PNG and matching real baseline viewed; complete actual sidecar prompt, GEN-007 source contracts, current public server renderer/routes and template CSS checked.",
+  "selectedState": "Anonymous public profile-template home; baseline two published posts, configured six modules",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Configured text brand 隔离示例手记, author, subtitle, forest-green accent and six actual navigation destinations preserved; no platform-wordmark replacement, private rail or authoring control.",
+    "Distinct profile identity sidebar and right stacked featured/latest columns retained, with two repeated source fixture posts and no invented avatar/cover/bio/social links. No magazine masthead or magazine grid imposed.",
+    "Lower source-derived continuation retains one available-member collection count, empty projects/friends and source footer/RSS in order. Short baseline is not claimed to have runtime-captured the entire long page.",
+    "All guest content is manually published snapshot/configuration; no private draft or original-source management capability inferred."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Preserve configured user green accent/template-specific hierarchy alongside shared flat surfaces, typography/borders and spacing. Raster shading/approximate dimensions are illustrative; no exact CSS, dynamic theme or responsive fit claim."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-007.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D117.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/blog/render.ts:37",
+    "apps/server/blog/render.ts:88",
+    "apps/server/blog/render.ts:109",
+    "apps/server/blog/styles.ts:190",
+    "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-home-profile.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "933ae65808c80417ef4898eb3b631ad78ac2f13297a4fe41ffc5ffed799c7b09",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D117.png",
+  "sourceIds": [
+    "PB-052"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

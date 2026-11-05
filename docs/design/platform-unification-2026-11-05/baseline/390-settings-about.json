@@ -1,0 +1,16 @@
+{
+  "id": "settings-about",
+  "title": "平台设置 about",
+  "width": 390,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?view=settings&section=about",
+  "file": "390-settings-about.png",
+  "sha256": "bbf511c6469d017264f4df2a51981434f8910f4438a870bea926e71d02a5a7a6",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

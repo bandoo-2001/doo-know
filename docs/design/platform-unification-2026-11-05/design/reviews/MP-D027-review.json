@@ -1,0 +1,46 @@
+{
+  "assetId": "MP-D027",
+  "sourceIds": [
+    "ST-033"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T03:37:28.175163+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner restore-from-download drawer reviewstep2 with validated synthetic backup/key files, idle/help collapsed.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Both source file-name/size summaries readonly and key contents hidden; no internal-backup record id/time inputs mixed.",
+    "Choose-file step completed/review current, independent-copy verification/deployment-separate notice and job-continuation helper retained.",
+    "Cancel/back/upload-restore enabled idle, native close retained; no upload-complete/production switch success asserted. Source busy lock and stable request semantics remain implementation requirements."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-018.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D027.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/BackupSettings.vue:183",
+    "apps/web/components/settings/BackupSettings.vue:387",
+    "apps/web/components/settings/BackupSettings.vue:429",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-settings-backup.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "92ca6a74e282be052903cb96d39e6c7f544b8229f3e55da1ca94af95049580cf",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D027.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "assetId": "MP-R084",
+  "sourceIds": [
+    "PB-059"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:53:32.219383+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Anonymous public archive: A/B actual two same-date/title independent published records in descending order; C no published posts and real return link.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG/full submitted prompt and actual390 archive baseline viewed. Correct custom brand/accent/nav/archive selection and complete site identity/author/RSS footer.",
+    "Flat readonly date+title-link rows preserve actual two repeated baseline records. No invented year grouping, timeline/year selector/search/count/owner action or mutable metadata.",
+    "C exact empty text and返回文章列表 href/blog retain source behavior; no renew/publish or private data. Responsive geometry/scroll is illustrative, not runtime verification."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-044.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R084.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/blog/routes.ts:280",
+    "apps/server/blog/render.ts:35",
+    "docs/design/platform-unification-2026-11-05/baseline/public/390-public-archive.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "a7c90e48b7d3a35df4f0147bce42795f96e47c523e42f3414957defa93d33d6f",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R084.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

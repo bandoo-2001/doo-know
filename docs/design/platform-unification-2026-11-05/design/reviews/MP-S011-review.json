@@ -1,0 +1,45 @@
+{
+  "assetId": "MP-S011",
+  "sourceIds": [
+    "ST-016",
+    "ST-017"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T04:42:04.314121+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Independent share clipboard-failure and revoke-busy operation slices.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Copy failure retains active record/open-link/manual recovery affordance with no capability URL printed.",
+    "Busy revoke disables active/expired revoke controls, while copy stays callable per actual source; no fabricated retry/share-create action."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-023.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S011.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/settings/ShareManagement.vue:58",
+    "apps/web/components/settings/ShareManagement.vue:95",
+    "apps/web/components/settings/ShareManagement.vue:165"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "cd6a9732b77df59f3422d2b3edb5d8f6eb391a81811c27e6d931ae239afb0972",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S011.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "assetId": "MP-S067",
+  "sourceIds": [
+    "PB-047",
+    "PB-048"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:42:15.098232+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Independent expanded desktop/mobile preview windows; empty/busy/error retained-HTML preview; empty publication history",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "finding": "PB-048 nonempty publication history is not represented by any current canonical fragment: MP-S067/r5 and MP-D113/A both draw only empty history. Mapping version/time and restore semantics to empty MP-D113/A, or restore disabled to preview-busy MP-S067/r3, hides a distinct history-row action and its draft-only consequence.",
+      "sourceEvidence": [
+        "BlogDesignStudio.vue:211..234 renders history count, nonempty explanation, revision+localized publication time and 恢复到草稿 with :disabled=state.designBusy || dirty.",
+        "blog-workbench.ts:438..453 sends revision/expectedVersion/requestId to /api/blog/design/restore, adopts draft and reports 历史版本已恢复到草稿，预览并发布后生效。"
+      ],
+      "affectedSourceIds": [
+        "PB-048"
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed current PNG and complete current edit prompt/history. r1 has two independent native preview windows with individual real close/viewport controls and configured public navigation; desktop/mobile are alternative fixed viewports, not two simultaneous product windows.",
+    "r2 empty generation; r3 previewBusy disables refresh/generate while device switching and close remain available; r4 retains prior HTML plus actual expanded-dialog error/refresh without inventing inline Studio retry.",
+    "r5 no-history count0/copy matches source, but it supplies no evidence for structurally different nonempty publication-history actions. Preview does not publish. Native focus/Escape/body locking remain implementation requirements, not raster proof."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-030.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S067.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/blog/BlogDesignStudio.vue:211",
+    "apps/web/components/blog/BlogDesignStudio.vue:301",
+    "apps/web/components/blog/BlogPreviewViewport.vue:14",
+    "apps/web/blog-workbench.ts:438",
+    "packages/core/blog/studio.ts:265",
+    "docs/design/platform-unification-2026-11-05/baseline/1440-blog-design.png",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D113.png"
+  ],
+  "requiredCorrections": [
+    "Add a compact genuine nonempty publication-history specimen containing the existing explanation 恢复只会更新草稿；核对并发布后才会影响线上主页。, synthetic revision/time row and 恢复到草稿 action. Retain empty-state evidence in this image or existing MP-D113. Bind dirty/designBusy disabled restoration to this actual action; do not use preview refresh busy as its replacement.",
+    "Preserve draft-only, CAS/version guard and separate later manual publication in exact mapping. Existing preview groups are valid and need no functional redesign."
+  ],
+  "reviewedImageSha256": "2cc0cc9b0f0b6fe9f05b76b59a40a4c60eb301116de463682118d9f5d2e58b46",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S067.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

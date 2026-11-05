@@ -1,0 +1,31 @@
+{
+  "checkedAt": "2026-11-05T03:30:41.515Z",
+  "method": "Read-only streaming SHA256 verification of existing locked inputs; no new package created, no archive extraction/service action",
+  "results": [
+    {
+      "path": "/home/bandoo/workspace/projects/doo-know/.local/release-inputs/node-v22.22.1-linux-x64.tar.xz",
+      "expected": "9a6bc82f9b491279147219f6a18add1e18424dce90d41d2a5fcd69d4924ba3aa",
+      "actual": "9a6bc82f9b491279147219f6a18add1e18424dce90d41d2a5fcd69d4924ba3aa",
+      "bytes": 31060640,
+      "matched": true
+    },
+    {
+      "path": "/home/bandoo/workspace/projects/doo-know/.local/platform-execution/search-artifacts/dooknow-search-bge-zh-cpu-20261015-linux-x64.tar.gz",
+      "expected": "323279a7824437fa1d833151a02d2a714b0063fa72bf8b3649ccba0ff83dd279",
+      "expectedBytes": 492511323,
+      "actual": "323279a7824437fa1d833151a02d2a714b0063fa72bf8b3649ccba0ff83dd279",
+      "bytes": 492511323,
+      "matched": true
+    },
+    {
+      "path": "/home/bandoo/workspace/projects/doo-know/.local/share-release-20261026/artifacts-rc48/dooknow-1.1.0-rc.48-linux-x64.tar.gz",
+      "role": "Published rc48 legacy compatibility-rejection fixture required by existing verify-release.ts",
+      "expected": "24919355e880729645f46a23bc9aa4b035756fcdbc9dd7ebc29719a11fe035c6",
+      "expectedBytes": 228478191,
+      "actual": "24919355e880729645f46a23bc9aa4b035756fcdbc9dd7ebc29719a11fe035c6",
+      "bytes": 228478191,
+      "matched": true
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,299 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D067",
+  "assetId": "MP-D067",
+  "sourceIds": [
+    "ST-083",
+    "ST-084"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-083",
+      "title": "Git实际插件：提交全部变更",
+      "role": "authenticated-owner",
+      "state": "完整git.commitPanel，current有效预览：提交说明、完整文件列表/diff与受preview/request guard保护的确认；结果/未知另由局部矩阵表现",
+      "selectedState": "Source-derived actual git.commitPanel current valid preview, message unchanged, 2 file rows and partial-staging warning; no result/uncertainty/push or diff renderer"
+    }
+  ],
+  "selectedState": "Source-derived actual git.commitPanel current valid preview, message unchanged, 2 file rows and partial-staging warning; no result/uncertainty/push or diff renderer",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "制作完整局部PluginPanel“提交全部变更”，约820px意图宽；header现有标题提交全部变更、右上文字关闭，不画父页。只选实际git.commitPanel有效预览状态，message未改、非busy、无result/uncertain。正文说明“提交包含暂存、未暂存和未忽略的新增、删除。部分暂存文件使用当前工作树的完整版本。”；可见label“提交说明”，3行textarea值“整理笔记”；按钮“预览全部变更”。预览框h“2 项文件变更”，右侧“预览有效至 14:30:00”（合成示例时间）；黄色警告“以下部分暂存文件将提交完整当前版本：notes/example.md”；准确完整两行“M · notes/example.md”“A · notes/ideas.md”；下方蓝色可用“确认提交”和普通可用“取消预览”。严格按实际模板：此插件component不渲染diff，绝不加diff面板；这只提交，不自动推送，绝不画推送/确认并推送、作者配置、成功hash/已完成或核对结果状态。无API协议字段input。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。",
+  "prompt": "制作完整局部PluginPanel“提交全部变更”，约820px意图宽；header现有标题提交全部变更、右上文字关闭，不画父页。只选实际git.commitPanel有效预览状态，message未改、非busy、无result/uncertain。正文说明“提交包含暂存、未暂存和未忽略的新增、删除。部分暂存文件使用当前工作树的完整版本。”；可见label“提交说明”，3行textarea值“整理笔记”；按钮“预览全部变更”。预览框h“2 项文件变更”，右侧“预览有效至 14:30:00”（合成示例时间）；黄色警告“以下部分暂存文件将提交完整当前版本：notes/example.md”；准确完整两行“M · notes/example.md”“A · notes/ideas.md”；下方蓝色可用“确认提交”和普通可用“取消预览”。严格按实际模板：此插件component不渲染diff，绝不加diff面板；这只提交，不自动推送，绝不画推送/确认并推送、作者配置、成功hash/已完成或核对结果状态。无API协议字段input。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exact git.commitPanel plus PluginPanel source controls local component",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette/density only; exact git.commitPanel plus PluginPanel source controls local component",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "制作完整局部PluginPanel“提交全部变更”，约820px意图宽；header现有标题提交全部变更、右上文字关闭，不画父页。只选实际git.commitPanel有效预览状态，message未改、非busy、无result/uncertain。正文说明“提交包含暂存、未暂存和未忽略的新增、删除。部分暂存文件使用当前工作树的完整版本。”；可见label“提交说明”，3行textarea值“整理笔记”；按钮“预览全部变更”。预览框h“2 项文件变更”，右侧“预览有效至 14:30:00”（合成示例时间）；黄色警告“以下部分暂存文件将提交完整当前版本：notes/example.md”；准确完整两行“M · notes/example.md”“A · notes/ideas.md”；下方蓝色可用“确认提交”和普通可用“取消预览”。严格按实际模板：此插件component不渲染diff，绝不加diff面板；这只提交，不自动推送，绝不画推送/确认并推送、作者配置、成功hash/已完成或核对结果状态。无API协议字段input。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "制作完整局部PluginPanel“提交全部变更”，约820px意图宽；header现有标题提交全部变更、右上文字关闭，不画父页。只选实际git.commitPanel有效预览状态，message未改、非busy、无result/uncertain。正文说明“提交包含暂存、未暂存和未忽略的新增、删除。部分暂存文件使用当前工作树的完整版本。”；可见label“提交说明”，3行textarea值“整理笔记”；按钮“预览全部变更”。预览框h“2 项文件变更”，右侧“预览有效至 14:30:00”（合成示例时间）；黄色警告“以下部分暂存文件将提交完整当前版本：notes/example.md”；准确完整两行“M · notes/example.md”“A · notes/ideas.md”；下方蓝色可用“确认提交”和普通可用“取消预览”。严格按实际模板：此插件component不渲染diff，绝不加diff面板；这只提交，不自动推送，绝不画推送/确认并推送、作者配置、成功hash/已完成或核对结果状态。无API协议字段input。统一平面白/浅灰、#272b3a正文、#657084次级、#e6e9f1细线、#4566c6蓝色、#edf1ff选中、清晰紧凑中文无衬线、8px圆角，克制阴影。无纹理渐变/浏览器外壳/owner导航/协议字段输入。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette/density only; exact git.commitPanel plus PluginPanel source controls local component"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-b292f544-c2b6-4c8d-8207-27995028eeb2.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "ST-083",
+      "title": "Git实际插件：提交全部变更",
+      "kind": "dialog",
+      "module": "plugins/git",
+      "entry": {
+        "route": "工作区当前路由",
+        "trigger": "libraryAction“提交全部变更”→git.commitPanel（notePanel贡献）",
+        "parentId": "ST-056"
+      },
+      "sourceRefs": [
+        "plugins/git/web/index.ts:207",
+        "plugins/git/web/index.ts:214",
+        "plugins/git/web/index.ts:291"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [
+        {
+          "name": "Git提交说明",
+          "type": "textarea",
+          "required": true,
+          "constraints": "trim非空；服务器≤8192 UTF8字节、无NUL",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "预览全部变更",
+          "effect": "生成预览token及新requestId",
+          "api": "POST /api/plugins/git/call command:git.preview",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "确认提交 / 核对提交结果",
+          "effect": "幂等提交原预览",
+          "api": "POST /api/plugins/git/call command:git.commit",
+          "guard": "须preview且message一致；未已有result"
+        },
+        {
+          "label": "取消预览",
+          "effect": "取消未提交预览",
+          "api": "POST /api/plugins/git/call command:git.cancelPreview",
+          "guard": "不busy、无result、无uncertain"
+        }
+      ],
+      "importantStates": [
+        "无预览输入",
+        "服务错误",
+        "预览ST-084",
+        "提交未知锁消息",
+        "已完成/生成但需核对暂存区"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/e2e/git.spec.ts:7",
+        "tests/git-web-regressions.test.ts:155"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [
+        "与ST-078云端提交并推送不同：本贡献只提交，不自动推送。PluginPanel容器本身未感知busy。"
+      ],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    },
+    {
+      "id": "ST-084",
+      "title": "Git插件提交预览、部分暂存与结果",
+      "kind": "state",
+      "module": "plugins/git",
+      "entry": {
+        "route": "工作区当前路由",
+        "trigger": "ST-083预览全部变更成功",
+        "parentId": "ST-083"
+      },
+      "sourceRefs": [
+        "plugins/git/web/index.ts:317",
+        "plugins/git/web/index.ts:363"
+      ],
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "确认提交",
+          "effect": "提交完整已审查工作树版本",
+          "api": "POST /api/plugins/git/call command:git.commit",
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        },
+        {
+          "label": "取消预览",
+          "effect": "取消token",
+          "api": null,
+          "guard": "已登录所有者；请求期间禁用重复操作"
+        }
+      ],
+      "importantStates": [
+        "文件数/状态代码/路径滚动列表",
+        "预览到期时间",
+        "部分暂存警告",
+        "说明变化取消旧预览",
+        "未知结果必须沿原请求核对",
+        "成功commit hash / needsReconciliation"
+      ],
+      "responsive": {
+        "supported": true,
+        "widths": [
+          "≤600px",
+          "PluginPanel最大820px",
+          "窄屏100vw−24px"
+        ],
+        "behavior": "插件卡片/操作区换行；PluginPanel内容独立滚动；插件自有样式使用Naive UI与注入CSS。源码支持，未运行。"
+      },
+      "testRefs": [
+        "tests/git-web-regressions.test.ts:155"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "独立内容或交互状态需要单独设计核对。",
+      "notes": [],
+      "reachability": {
+        "status": "confirmed-source",
+        "evidence": "由源码入口/父组件调用链确认；未运行浏览器。"
+      },
+      "inventoryFile": "coverage/settings.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "ST-083",
+      "parentId": "ST-056",
+      "route": "工作区当前路由",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "plugins/git/web/index.ts:207",
+        "plugins/git/web/index.ts:214",
+        "plugins/git/web/index.ts:291"
+      ]
+    },
+    {
+      "sourceId": "ST-084",
+      "parentId": "ST-083",
+      "route": "工作区当前路由",
+      "roles": [
+        "authenticated-owner"
+      ],
+      "sourceRefs": [
+        "plugins/git/web/index.ts:317",
+        "plugins/git/web/index.ts:363"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-011.json#MP-D067",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D067",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-b292f544-c2b6-4c8d-8207-27995028eeb2.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D067.png",
+  "sha256": "2424d29f0b8b927d7b7303da14d7237ad8b3dc01637f6f85496c011c3b05950b",
+  "bytes": 1123312,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T02:33:37.613431+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Git实际插件：提交全部变更",
+    "sourceIds": [
+      "ST-083",
+      "ST-084"
+    ],
+    "roles": [
+      "authenticated-owner"
+    ],
+    "state": "Source-derived actual git.commitPanel current valid preview, message unchanged, 2 file rows and partial-staging warning; no result/uncertainty/push or diff renderer",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  }
+}

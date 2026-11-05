@@ -1,0 +1,22 @@
+{
+  "id": "owner-rich-table",
+  "title": "表格插入选择",
+  "sourceIds": [
+    "WS-031"
+  ],
+  "width": 390,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "390-owner-rich-table.png",
+  "sha256": "8f9ce082f006dfadc21d8ab3a22f60b80a047ec00b160490e88fb7b50aae39e5",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "buildFlags": {
+    "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+  },
+  "pageErrors": [],
+  "outerOverflow": 0
+}

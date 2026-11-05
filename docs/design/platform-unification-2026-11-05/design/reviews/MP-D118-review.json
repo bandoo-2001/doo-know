@@ -1,0 +1,53 @@
+{
+  "assetId": "MP-D118",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:40:44.291830+00:00",
+  "method": "Actual PNG and matching real baseline viewed; complete actual sidecar prompt, GEN-007 source contracts, current public server renderer/routes and template CSS checked.",
+  "selectedState": "Anonymous public article index, default unfiltered two-row single-page fixture",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Configured public brand/author/subtitle/green accent, actual nav with article selected and footer/RSS retained, no owner/admin chrome.",
+    "Search label/input/submit, exact all/category/tag chips, default selection, count two and two published source rows retained. No fabricated state dropdown/page-size selector or visible hidden query metadata.",
+    "No pagination or no-results/clear-filters branch mixed into default nonempty totalPages=1 state. Matching duplicate titles are fixture data, not a reason to invent article content."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Preserve configured user green accent/template-specific hierarchy alongside shared flat surfaces, typography/borders and spacing. Raster shading/approximate dimensions are illustrative; no exact CSS, dynamic theme or responsive fit claim."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-007.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D118.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/blog/render.ts:37",
+    "apps/server/blog/render.ts:170",
+    "apps/server/blog/routes.ts:135",
+    "apps/server/blog/routes.ts:221",
+    "packages/core/blog/service.ts:1094",
+    "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-articles.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "137eaae786a1ecb1148e0c235363976b9b7b5989f9ce0d622264b8de3f1d0245",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D118.png",
+  "sourceIds": [
+    "PB-053"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

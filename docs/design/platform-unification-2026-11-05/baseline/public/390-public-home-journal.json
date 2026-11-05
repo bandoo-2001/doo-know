@@ -1,0 +1,15 @@
+{
+  "id": "public-home-journal",
+  "title": "公开博客 journal",
+  "width": 390,
+  "audience": "public",
+  "route": "/blog",
+  "file": "390-public-home-journal.png",
+  "sha256": "5dfb0cf223ef2b936ba83d8dbaaaef7dde495f380ceee4060ca65cdfe50d12bb",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "status": "captured",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "pageErrors": [],
+  "outerOverflow": 0
+}

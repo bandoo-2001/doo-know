@@ -1,0 +1,235 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D087",
+  "assetId": "MP-D087",
+  "sourceIds": [
+    "PB-019"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-019",
+      "title": "OAuth 连接授权：兼容目录与操作列表",
+      "role": "authenticated owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板",
+      "selectedState": "Actual legacy OAuth consent baseline; one allowed read scope selected and all nine allowed prefixes checked; no v2 policy/offline scope"
+    }
+  ],
+  "selectedState": "Actual legacy OAuth consent baseline; one allowed read scope selected and all nine allowed prefixes checked; no v2 policy/offline scope",
+  "sourceDerived": false,
+  "baselineStatus": "actual-matching-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制清晰中文UI，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读，无主人侧栏。以授权页参考为真实结构，完整保留独立居中授权页面：蓝色书本标志DooKnow、卡片标题“连接 DooKnow”、“连接请求来自”“隔离界面盘点客户端”、“请选择此连接允许的业务能力与资源范围。”；“允许的操作”仅一个勾选项“读取所选目录中的资料”。“允许的资料目录”九个全部勾选的目录行：README.md、00-Inbox、10-Projects、20-Areas、30-Knowledge、40-Resources、50-Journal、90-Archive、99-System。每行目录图标。提示“未选择的业务能力和资源不会开放。可随时在 MCP 设置中收窄或撤销连接。”。页脚“拒绝”“允许访问”均可用；卡片下方“仅在你确认后，连接才能访问所选资料。”。纵向加高显示完整页脚，不添其他权限开关、登录或返回按钮。",
+  "prompt": "绘制清晰中文UI，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读，无主人侧栏。以授权页参考为真实结构，完整保留独立居中授权页面：蓝色书本标志DooKnow、卡片标题“连接 DooKnow”、“连接请求来自”“隔离界面盘点客户端”、“请选择此连接允许的业务能力与资源范围。”；“允许的操作”仅一个勾选项“读取所选目录中的资料”。“允许的资料目录”九个全部勾选的目录行：README.md、00-Inbox、10-Projects、20-Areas、30-Knowledge、40-Resources、50-Journal、90-Archive、99-System。每行目录图标。提示“未选择的业务能力和资源不会开放。可随时在 MCP 设置中收窄或撤销连接。”。页脚“拒绝”“允许访问”均可用；卡片下方“仅在你确认后，连接才能访问所选资料。”。纵向加高显示完整页脚，不添其他权限开关、登录或返回按钮。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png",
+      "role": "Actual matching runtime baseline, content and role authority",
+      "sha256": "2d0e1957205eb4d488fbd90d7a4f3386856e5930b1ec65976a10674e3e2efd8b",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette and density only; no feature or owner chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png",
+      "role": "Actual matching runtime baseline, content and role authority",
+      "sha256": "2d0e1957205eb4d488fbd90d7a4f3386856e5930b1ec65976a10674e3e2efd8b",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Flat palette and density only; no feature or owner chrome authority",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制清晰中文UI，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读，无主人侧栏。以授权页参考为真实结构，完整保留独立居中授权页面：蓝色书本标志DooKnow、卡片标题“连接 DooKnow”、“连接请求来自”“隔离界面盘点客户端”、“请选择此连接允许的业务能力与资源范围。”；“允许的操作”仅一个勾选项“读取所选目录中的资料”。“允许的资料目录”九个全部勾选的目录行：README.md、00-Inbox、10-Projects、20-Areas、30-Knowledge、40-Resources、50-Journal、90-Archive、99-System。每行目录图标。提示“未选择的业务能力和资源不会开放。可随时在 MCP 设置中收窄或撤销连接。”。页脚“拒绝”“允许访问”均可用；卡片下方“仅在你确认后，连接才能访问所选资料。”。纵向加高显示完整页脚，不添其他权限开关、登录或返回按钮。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制清晰中文UI，白底/浅灰面、蓝色主动作、细边框小圆角、紧凑易读，无主人侧栏。以授权页参考为真实结构，完整保留独立居中授权页面：蓝色书本标志DooKnow、卡片标题“连接 DooKnow”、“连接请求来自”“隔离界面盘点客户端”、“请选择此连接允许的业务能力与资源范围。”；“允许的操作”仅一个勾选项“读取所选目录中的资料”。“允许的资料目录”九个全部勾选的目录行：README.md、00-Inbox、10-Projects、20-Areas、30-Knowledge、40-Resources、50-Journal、90-Archive、99-System。每行目录图标。提示“未选择的业务能力和资源不会开放。可随时在 MCP 设置中收窄或撤销连接。”。页脚“拒绝”“允许访问”均可用；卡片下方“仅在你确认后，连接才能访问所选资料。”。纵向加高显示完整页脚，不添其他权限开关、登录或返回按钮。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/public/1440-oauth-consent.png",
+          "role": "Actual matching runtime baseline, content and role authority"
+        },
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Flat palette and density only; no feature or owner chrome authority"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-97b14248-ae8f-4f6a-b208-ef822ac3b221.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-019",
+      "title": "OAuth 连接授权：兼容目录与操作列表",
+      "kind": "state",
+      "module": "oauth",
+      "entry": {
+        "route": "/oauth/consent?oauth_query=…",
+        "trigger": "Valid request has no allowedPolicy",
+        "parentId": "PB-018"
+      },
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:25",
+        "apps/web/components/OAuthConsent.vue:44",
+        "apps/web/components/OAuthConsent.vue:96",
+        "apps/server/platform/oauth.ts:89"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session and ready, completed onboarding required. Signed client request and server policy ceiling remain authoritative."
+      ],
+      "fields": [
+        {
+          "name": "scopes",
+          "type": "checkbox group",
+          "required": true,
+          "constraints": "must include resource scope; allowedScopes subset",
+          "sensitive": false
+        },
+        {
+          "name": "allowedPrefixes",
+          "type": "checkbox group",
+          "required": false,
+          "constraints": "required when selected knowledge scope or blog:publish; subset of allowed prefixes",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "允许访问",
+          "effect": "Grant legacy scoped directory access",
+          "api": "POST /api/platform/mcp/oauth/consent",
+          "guard": "ToDoo write=>read; blog publish=>knowledge read+write; required directories selected"
+        }
+      ],
+      "importantStates": [
+        "legacy scope checkboxes",
+        "directory choices shown for knowledge scope or blog publish",
+        "read/offline defaults only when allowed",
+        "scope dependencies and empty resources disable allow"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Max 640px; <=600px reduces padding, wraps scope text and gives actions equal flexible widths (OAuthConsent.vue:339). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/oauth.spec.ts:4"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete state with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Keep compatibility mode distinct from v2 policy UI; do not silently merge their authorization rules."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-019",
+      "parentId": "PB-018",
+      "route": "/oauth/consent?oauth_query=…",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/OAuthConsent.vue:25",
+        "apps/web/components/OAuthConsent.vue:44",
+        "apps/web/components/OAuthConsent.vue:96",
+        "apps/server/platform/oauth.ts:89"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-021.json#MP-D087",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D087",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-97b14248-ae8f-4f6a-b208-ef822ac3b221.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D087.png",
+  "sha256": "243508f33ecaadb7057ef4a2e42d9c8835c90f235c1775f6cf7f0ebd2affe16f",
+  "bytes": 1123216,
+  "dimensions": {
+    "width": 1086,
+    "height": 1448
+  },
+  "generatedAtUtc": "2026-11-05T04:07:50.982685+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "OAuth 连接授权：兼容目录与操作列表",
+    "sourceIds": [
+      "PB-019"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Actual legacy OAuth consent baseline; one allowed read scope selected and all nine allowed prefixes checked; no v2 policy/offline scope",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "renderedVariants": []
+}

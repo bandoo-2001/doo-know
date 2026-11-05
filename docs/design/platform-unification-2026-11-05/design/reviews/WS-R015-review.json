@@ -1,0 +1,45 @@
+{
+  "assetId": "WS-R015",
+  "sourceIds": [
+    "WS-035"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T09:22:10.073940+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Owner contextual image tools, two independent top/lower scroll positions, readOnly=false and selected image stable.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual PNG/full submitted prompt/current image-context template inspected. A heading/helper/alt/title inputs, B preserved title plus apply/preview/replace/delete actions in exact source order, no added URL/size/alignment/cancel/close/save.",
+    "Both are scroll positions of same bounded actual tool group, not two simultaneously mounted windows. No discarded hidden field/action; real contextual host/selection/bookmark guards remain.",
+    "Actual <=720 context tools max-height min180px/35vh, overflow/focus/readonly behavior must use source CSS. Raster scale is approximate, not measured component height or runtime reachability."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-046.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-R015.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/DocumentEditor.vue:1146",
+    "apps/web/document-editor.css:645",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-D028-v2-review.json"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "4c9350693685cc3210479fa9ac696fea9bbf0174b82ff538b8f4acd4247b2d0b",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-R015.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

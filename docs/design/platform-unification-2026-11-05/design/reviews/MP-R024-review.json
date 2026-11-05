@@ -1,0 +1,48 @@
+{
+  "assetId": "MP-R024",
+  "sourceIds": [
+    "ST-057"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T07:55:37.895709+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Three narrow OAuth Guide positions: disabled-plugin complete/long endpoint copy failure/dirty failed recheck",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed all regions/full prompt/current exact load/endpoint/localReady guards. A plugin-disabled prepared config shows not-enabled/local conditions unmet and no external network/current-online promise; OAuth tutorial/readonlyendpoint+copy/infrastructure/help retained, API create disabled but listrefresh available and no clients.",
+    "B long readonly selected code address and actual manual-copy fallback retain real copy button; no editable endpoint/credential/new retry. C dirty plus failed recheck can retain previously loaded state endpoint because catch does not clearstate, while localReady false/error forces statusunknown; copy disabled by dirty, auth path still available.",
+    "Four progress facts and tutorials remain real individual source conditions. No preserved old successful call incorrectly treatedonline, no automatic grant/create, owner shell or runtime network/clipboard/320fit verification."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-037.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R024.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/MCPConnectionGuide.vue:10",
+    "apps/web/components/MCPConnectionGuide.vue:112",
+    "apps/web/components/MCPConnectionGuide.vue:168",
+    "apps/web/components/MCPConnectionGuide.vue:181",
+    "apps/web/components/MCPConnectionGuide.vue:235",
+    "apps/server/platform/mcp-management.ts:44"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "18b4b971e1202f496dc1535f1a89fe32a6c80a0cf7ab55dde052a614a4ed70b2",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R024.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

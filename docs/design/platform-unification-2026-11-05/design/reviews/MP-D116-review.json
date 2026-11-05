@@ -1,0 +1,54 @@
+{
+  "assetId": "MP-D116",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T01:41:17.437368+00:00",
+  "method": "Actual PNG and matching real baseline viewed; complete actual sidecar prompt, GEN-007 source contracts, current public server renderer/routes and template CSS checked.",
+  "selectedState": "Anonymous magazine-template home with exact fixture modules and corrected featured/latest/lower grids",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Configured brand/subtitle/author/green accent and public nav/footer retained; no private control or DooKnow/platform branding substituted.",
+    "Magazine display masthead and full-width intro retained; featured first card spans two of three columns, second spans one, matching source post-card-featured.",
+    "Latest has equal one-third cards for the two fixture posts with third slot empty, not asymmetric featured reuse; no third post invented.",
+    "Collections/projects occupy lower half-width row, friends next left half; source counts, empty copy, module order and RSS/article/collection entries retained. Long continuation is renderer-derived, not claimed as fully runtime captured."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Preserve configured user green accent/template-specific hierarchy alongside shared flat surfaces, typography/borders and spacing. Raster shading/approximate dimensions are illustrative; no exact CSS, dynamic theme or responsive fit claim."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-007.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-D116.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/blog/render.ts:37",
+    "apps/server/blog/render.ts:109",
+    "apps/server/blog/styles.ts:178",
+    "apps/server/blog/styles.ts:182",
+    "apps/server/blog/styles.ts:185",
+    "docs/design/platform-unification-2026-11-05/baseline/public/1440-public-home-magazine.png"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "c381fe49a61a4cf5fed10424e1c1801a5adcac75244b2f1f71b857faf2f4ba92",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D116.png",
+  "sourceIds": [
+    "PB-051"
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static review does not prove guards, action execution, role enforcement, keyboard/focus, resizing or responsive behavior.",
+    "Selected state only; closed menus and mutually exclusive flag/error/busy/recovery branches remain separately mapped.",
+    "Per-image result does not complete global coverage/consistency review or authorize product implementation."
+  ],
+  "rulingsApplied": [
+    "Caption may reside in metadata.",
+    "Current baseline flag/state and template conditionals override generic all-state lists.",
+    "Existing ToDoo app identity is permitted only within its real app card; shared platform brand remains DooKnow."
+  ]
+}

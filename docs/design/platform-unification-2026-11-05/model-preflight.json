@@ -1,0 +1,54 @@
+{
+  "requiredModel": "gpt-image-2",
+  "builtin": {
+    "tool": "image_gen.imagegen",
+    "modelSelectionExposed": false,
+    "modelIdentityReceiptExposed": false,
+    "verifiedGPTImage2": true,
+    "verificationMethod": "Official Codex image-generation page explicitly identifies the built-in model; tool is enabled in this session.",
+    "liveGenerationSucceeded": true,
+    "firstArtifact": "design/images/PILOT-WS-001.png"
+  },
+  "cli": {
+    "script": "/home/bandoo/.codex/skills/.system/imagegen/scripts/image_gen.py",
+    "defaultModelInScript": "gpt-image-2",
+    "explicitModelArgumentSupported": true,
+    "apiKeyConfigured": false,
+    "openaiPythonInstalled": false,
+    "liveModelAccessVerified": false
+  },
+  "priorBuiltinPngProvenance": {
+    "softwareAgent": "ChatGPT",
+    "version": "gpt-image",
+    "confirmsGPTImage2": false
+  },
+  "connectedTools": {
+    "exactGPTImage2GenerationToolFound": false
+  },
+  "pluginSearch": {
+    "searched": "GPT-Image2 gpt-image-2 image model",
+    "verifiedExactModelConnectionFound": false,
+    "installedAnything": false
+  },
+  "decision": "Use built-in image_gen.imagegen per official model contract gpt-image-2. API key is not required. Do not substitute2.5/1.5. Keep design/global review gate beforeproductcode.",
+  "networkImageCalls": 8,
+  "status": "builtin-model-and-live-generation-verified",
+  "standardCredentialCheck": {
+    "codexAuthMode": "chatgpt",
+    "directOpenAIApiKeyPresent": false,
+    "configuredProjectEnvKeyFound": false,
+    "secretsPrinted": false
+  },
+  "officialDocumentation": {
+    "url": "https://learn.chatgpt.com/docs/image-generation",
+    "statement": "Built-in image generation uses gpt-image-2",
+    "verifiedModel": "gpt-image-2",
+    "scope": "Codex built-in image generation",
+    "date": "2026-11-05",
+    "apiReference": "https://developers.openai.com/api/reference/resources/images/methods/generate",
+    "apiModelSupported": true,
+    "apiReferenceDoesNotProveBuiltinRouteAlone": true
+  },
+  "successfulOutputsAtResume": 8,
+  "runtimeUpdate": "Eight existing successful tool outputs at resume (two pilots, six initial batch), revisions in progress; not complete design coverage."
+}

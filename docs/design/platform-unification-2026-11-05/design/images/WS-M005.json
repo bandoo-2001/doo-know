@@ -1,0 +1,290 @@
+{
+  "kind": "generated-design",
+  "id": "WS-M005",
+  "assetId": "WS-M005",
+  "sourceIds": [
+    "WS-054"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-054",
+      "title": "Local draft recovery prompt — compact component state matrix",
+      "role": "authenticated owner",
+      "state": "DraftRecovery.vue same recovery banner/actions; textarea fallback remains separate WS-055 window.",
+      "presentation": "ONE compact component matrix, not multiple simultaneously open full windows",
+      "rows": [
+        {
+          "label": "row-1",
+          "sourceId": "WS-054",
+          "title": "Local draft recovery prompt",
+          "role": "authenticated owner",
+          "state": "Full-note offered draft baseline unchanged",
+          "actionPresentation": "Actual restore/copy/discard only; fragment changed baseline disables automatic restore and busy disables operations; restoring does not save.",
+          "sourceComponent": "apps/web/components/DraftRecovery.vue"
+        },
+        {
+          "label": "row-2",
+          "sourceId": "WS-054",
+          "title": "Local draft recovery prompt",
+          "role": "authenticated owner",
+          "state": "Full-note offered draft baseline changed",
+          "actionPresentation": "Actual restore/copy/discard only; fragment changed baseline disables automatic restore and busy disables operations; restoring does not save.",
+          "sourceComponent": "apps/web/components/DraftRecovery.vue"
+        },
+        {
+          "label": "row-3",
+          "sourceId": "WS-054",
+          "title": "Local draft recovery prompt",
+          "role": "authenticated owner",
+          "state": "Fragment baseline changed; automatic restore unavailable",
+          "actionPresentation": "Actual restore/copy/discard only; fragment changed baseline disables automatic restore and busy disables operations; restoring does not save.",
+          "sourceComponent": "apps/web/components/DraftRecovery.vue"
+        },
+        {
+          "label": "row-4",
+          "sourceId": "WS-054",
+          "title": "Local draft recovery prompt",
+          "role": "authenticated owner",
+          "state": "Editor inert while recovery decision pending",
+          "actionPresentation": "Actual restore/copy/discard only; fragment changed baseline disables automatic restore and busy disables operations; restoring does not save.",
+          "sourceComponent": "apps/web/components/DraftRecovery.vue"
+        }
+      ],
+      "selectedState": "Five DraftRecovery slices: full-note unchanged/changed; fragment changed restore disabled; readonly editor pending recovery decision; actual clipboard fallback reveals readonly selectable recovery textarea. Restore never saves source."
+    }
+  ],
+  "selectedState": "Five DraftRecovery slices: full-note unchanged/changed; fragment changed restore disabled; readonly editor pending recovery decision; actual clipboard fallback reveals readonly selectable recovery textarea. Restore never saves source.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。各行独立以留白细线分开，不画外部主人导航、完整窗口、浏览器或审查注释。五个纵向独立局部行。1 信息提示“发现未保存的本地草稿”，“保存在此浏览器 · 2026/11/5 12:00”，“原文基准未变化。恢复只放入编辑区，手动保存后才会写入原文。”，三个可用按钮“恢复本地草稿”“复制恢复文本”“丢弃本地草稿”。2 黄色同名提示、相同时间，原文“原文基准已变化。恢复会放入编辑区，请核对后再手动保存。”，同三按钮可用。3 黄色同名提示、相同时间，“片段：第 10–20 行。”，原文“原文基准已变化。为避免错位覆盖，此片段只能复制恢复文本。”，恢复本地草稿禁用，复制恢复文本/丢弃本地草稿可用。4 另一独立恢复提示含同名标题、基准未变化说明和三按钮可用，下方保留只读笔记正文标题“知识与行动”和段落“记录想法”，没有可编辑光标；不能把下方正文恢复等同已保存。5 复制恢复文本失败后的真实局部，普通状态“请在下方文本框中选择并复制恢复文本。”，下面只读可选择多行文本框，内容“# 知识与行动\\n记录想法。”，不加其他按钮。不写保存成功或自动保存。",
+  "prompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。各行独立以留白细线分开，不画外部主人导航、完整窗口、浏览器或审查注释。五个纵向独立局部行。1 信息提示“发现未保存的本地草稿”，“保存在此浏览器 · 2026/11/5 12:00”，“原文基准未变化。恢复只放入编辑区，手动保存后才会写入原文。”，三个可用按钮“恢复本地草稿”“复制恢复文本”“丢弃本地草稿”。2 黄色同名提示、相同时间，原文“原文基准已变化。恢复会放入编辑区，请核对后再手动保存。”，同三按钮可用。3 黄色同名提示、相同时间，“片段：第 10–20 行。”，原文“原文基准已变化。为避免错位覆盖，此片段只能复制恢复文本。”，恢复本地草稿禁用，复制恢复文本/丢弃本地草稿可用。4 另一独立恢复提示含同名标题、基准未变化说明和三按钮可用，下方保留只读笔记正文标题“知识与行动”和段落“记录想法”，没有可编辑光标；不能把下方正文恢复等同已保存。5 复制恢复文本失败后的真实局部，普通状态“请在下方文本框中选择并复制恢复文本。”，下面只读可选择多行文本框，内容“# 知识与行动\\n记录想法。”，不加其他按钮。不写保存成功或自动保存。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved flat palette/density only",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。各行独立以留白细线分开，不画外部主人导航、完整窗口、浏览器或审查注释。五个纵向独立局部行。1 信息提示“发现未保存的本地草稿”，“保存在此浏览器 · 2026/11/5 12:00”，“原文基准未变化。恢复只放入编辑区，手动保存后才会写入原文。”，三个可用按钮“恢复本地草稿”“复制恢复文本”“丢弃本地草稿”。2 黄色同名提示、相同时间，原文“原文基准已变化。恢复会放入编辑区，请核对后再手动保存。”，同三按钮可用。3 黄色同名提示、相同时间，“片段：第 10–20 行。”，原文“原文基准已变化。为避免错位覆盖，此片段只能复制恢复文本。”，恢复本地草稿禁用，复制恢复文本/丢弃本地草稿可用。4 另一独立恢复提示含同名标题、基准未变化说明和三按钮可用，下方保留只读笔记正文标题“知识与行动”和段落“记录想法”，没有可编辑光标；不能把下方正文恢复等同已保存。5 复制恢复文本失败后的真实局部，普通状态“请在下方文本框中选择并复制恢复文本。”，下面只读可选择多行文本框，内容“# 知识与行动\\n记录想法。”，不加其他按钮。不写保存成功或自动保存。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "绘制清晰中文网页局部状态矩阵，平面白底浅灰面、蓝色普通主动作、红色错误、细线小圆角，字体紧凑易读。各行独立以留白细线分开，不画外部主人导航、完整窗口、浏览器或审查注释。五个纵向独立局部行。1 信息提示“发现未保存的本地草稿”，“保存在此浏览器 · 2026/11/5 12:00”，“原文基准未变化。恢复只放入编辑区，手动保存后才会写入原文。”，三个可用按钮“恢复本地草稿”“复制恢复文本”“丢弃本地草稿”。2 黄色同名提示、相同时间，原文“原文基准已变化。恢复会放入编辑区，请核对后再手动保存。”，同三按钮可用。3 黄色同名提示、相同时间，“片段：第 10–20 行。”，原文“原文基准已变化。为避免错位覆盖，此片段只能复制恢复文本。”，恢复本地草稿禁用，复制恢复文本/丢弃本地草稿可用。4 另一独立恢复提示含同名标题、基准未变化说明和三按钮可用，下方保留只读笔记正文标题“知识与行动”和段落“记录想法”，没有可编辑光标；不能把下方正文恢复等同已保存。5 复制恢复文本失败后的真实局部，普通状态“请在下方文本框中选择并复制恢复文本。”，下面只读可选择多行文本框，内容“# 知识与行动\\n记录想法。”，不加其他按钮。不写保存成功或自动保存。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "role": "Approved flat palette/density only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-6d5da326-3b35-46aa-837b-2978dfb5d8ea.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "WS-054",
+      "title": "Local draft recovery prompt",
+      "kind": "state",
+      "module": "editor",
+      "entry": {
+        "route": "/?note=:id",
+        "trigger": "Browser draft newer/different from saved baseline",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/DraftRecovery.vue:1",
+        "apps/web/components/Workspace.vue:3279",
+        "apps/web/useNoteDraft.ts:1"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "恢复本地草稿",
+          "effect": "Load draft into editor without saving",
+          "api": "none",
+          "guard": "For fragment, disabled if base changed; disabled while busy"
+        },
+        {
+          "label": "复制恢复文本",
+          "effect": "Copy draft and reveal fallback textarea",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "丢弃本地草稿",
+          "effect": "Delete offered local draft",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Full note baseline unchanged/changed",
+        "Fragment baseline changed forbids auto restore",
+        "Diagram recovery uses same prompt",
+        "Editor inert/read-only until decision"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <=720px notebook sidebar is a fixed drawer min(290px,85vw), main fills viewport and bottom navigation is used; desktop has rail + resizable sidebar + main. See apps/web/style.css:1032 and apps/web/workbench.css:437."
+      },
+      "testRefs": [
+        "tests/web-note-drafts.test.ts",
+        "tests/diagram-draft-envelope.test.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "WS-054",
+      "parentId": "WS-024",
+      "route": "/?note=:id",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/DraftRecovery.vue:1",
+        "apps/web/components/Workspace.vue:3279",
+        "apps/web/useNoteDraft.ts:1"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-033.json#WS-M005",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json#WS-M005",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-6d5da326-3b35-46aa-837b-2978dfb5d8ea.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M005.png",
+  "sha256": "040754744cd6ad48dd7a119c5d846e587b896f3bbc2ca9f9e11264609496c7ef",
+  "bytes": 1371963,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T06:57:14.811478+00:00",
+  "revisionOf": null,
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Local draft recovery prompt — compact component state matrix",
+    "sourceIds": [
+      "WS-054"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Five DraftRecovery slices: full-note unchanged/changed; fragment changed restore disabled; readonly editor pending recovery decision; actual clipboard fallback reveals readonly selectable recovery textarea. Restore never saves source.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Actual native generated PNG viewed against all input images and exact source template/conditional state contracts.",
+    "concerns": [
+      "Static raster is not proof of executed actions, owner/recipient permissions, focus/keyboard, guard enforcement, canvas topology or responsive fit.",
+      "Light raster shading and approximate geometry are illustrative; exact source labels and shared flat CSS tokens remain implementation requirements.",
+      "Source-derived selected component/state; actual matching runtime capture is unavailable. Supplied actual screenshot is only parent/host reference where present."
+    ],
+    "runtimeBehaviorVerified": false,
+    "independentReviewStatus": "pending"
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "row": 1,
+      "baseChanged": false,
+      "fragment": false,
+      "busy": false
+    },
+    {
+      "row": 2,
+      "baseChanged": true,
+      "fragment": false,
+      "busy": false
+    },
+    {
+      "row": 3,
+      "baseChanged": true,
+      "fragment": true,
+      "busy": false,
+      "range": {
+        "startLine": 10,
+        "endLine": 20
+      },
+      "restoreEnabled": false
+    },
+    {
+      "row": 4,
+      "recoveryDraft": true,
+      "editorReadOnly": true,
+      "busy": false,
+      "recoveryActionsEnabled": true
+    },
+    {
+      "row": 5,
+      "baseChanged": false,
+      "fragment": false,
+      "busy": false,
+      "copyOpen": true,
+      "copyStatus": "请在下方文本框中选择并复制恢复文本。",
+      "textareaReadonly": true
+    }
+  ]
+}

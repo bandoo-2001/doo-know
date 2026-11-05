@@ -46,7 +46,7 @@
 - `.apps-home` belongs to workspace; public/blog may split combined selectors but must preserve it. Workspace adjusts AppsWorkspace scoped rules, not `blog.css`. `reading-export.ts` belongs only to public/blog. Common `DiffView` logic/API remains unchanged.
 - Freeze shared/root files before parallel module edits. Module edits have disjoint files; Workspace content changes are serial after root finishes its outer template. Any later shared-layer fix is coordinated and revalidates affected screenshots.
 
-## Task1: Shared theme, owner chrome and sidebar collision
+### Task 1: Shared theme, owner chrome and sidebar collision
 
 **Files:** root files above; new `tests/e2e/platform-shared-ui.spec.ts`. Read existing `diagram-document-chrome.spec.ts`, `responsive-layout.spec.ts`, `tests/support/browser-test.ts`, `settings-navigation.ts`.
 
@@ -59,7 +59,7 @@
 - [ ] GREEN the new focused tests and run existing `responsive-tabbar.spec.ts`/`to-doo-two-level-navigation.spec.ts` relevant host cases. Verify representative light/dark computed control colors and real screenshots; no palette-constant unit tests. Record original failures and reruns.
 - [ ] Commit shared foundation after focused checks; root publishes stable interfaces to module workers.
 
-## Task2: Workspace/editor/diagram/graph/trash presentation
+### Task 2: Workspace/editor/diagram/graph/trash presentation
 
 **Files:** workspace ownership above; detail input map in `.superpowers/sdd/2026-11-05-platform-ui-unification/workspace-implementation-plan-proposal.md`. New meaningful tests can extend `platform-workspace-unification.spec.ts`.
 
@@ -71,7 +71,7 @@
 - [ ] Run appropriate focused existing save/history/diagram/graph/trash regressions from proposal, consolidating shared cases instead of re-running all suites per file. Save actual scope screenshots for final frozen capture; changed-source captures are historical until final fingerprint confirmed.
 - [ ] Commit task-owned changes with concise result/failed/skipped evidence.
 
-## Task3: Settings/plugins/owner integration surfaces
+### Task 3: Settings/plugins/owner integration surfaces
 
 **Files:** settings ownership above; detailed source map `.superpowers/sdd/2026-11-05-platform-ui-unification/settings-implementation-plan-proposal.md`.
 
@@ -82,7 +82,7 @@
 - [ ] Use targeted existing transfer/status/plugin/MCP/Git tests. Only add a new behavioral test if a real changed layout exposes an uncovered interaction problem; pure radius/color changes receive screenshots and existing regressions.
 - [ ] Verify desktop/390/320 long overlays and explicit dirty/busy states using isolated fixtures; commit only owned files.
 
-## Task4: Authentication/public/guest/blog/SSR/export presentation
+### Task 4: Authentication/public/guest/blog/SSR/export presentation
 
 **Files:** public/blog ownership above; detailed source map `.superpowers/sdd/2026-11-05-platform-ui-unification/public-implementation-plan-proposal.md`.
 
@@ -93,7 +93,7 @@
 - [ ] Run focused existing login/setup/OAuth/share/blog/SSR/security/export tests; new regression only for an actual uncovered behavior. Verify actual320/390 controls, preview iframe Escape/focus, three public templates and exported HTML.
 - [ ] Commit owned files and truthful targeted evidence.
 
-## Task5: Final runtime evidence, broad validation and independent branch review
+### Task 5: Final runtime evidence, broad validation and independent branch review
 
 - [ ] Consolidate module commits; freeze application source/fingerprint. Build actual isolated browser fixtures, no real-user data. Capture all active page/window/state families from coverage at1440/390/320 plus current compact representative dimensions, light/dark representatives and exports. Reuse established188 baseline flows and existing tests rather than redo inventory.
 - [ ] Store new PNGs separately from generated designs/baseline. Index sourceId/role/state/design current asset/viewport/theme/source commit+application fingerprint/hash/target bounds and actual interaction result. Distinguish absent/unmounted/nonvisual/hardware-unverified sources and genuine selector/test failures; design PNGs never count as runtime.
@@ -101,7 +101,7 @@
 - [ ] Central final commands: `npm test -- --maxWorkers=2`, `npm run typecheck`, `npm run build`, `npm run test:e2e`, and `npm run test:e2e -- --config=playwright.diagrams.config.ts --project=desktop`. Include relevant setup/release-browser coverage where existing runner differs. Keep each original run/result, skips and targeted reruns explicit.
 - [ ] Request fresh independent whole-branch review with requirements, frozen design and diff/test/evidence package. Fix important findings with meaningful regression where applicable; run necessary affected checks. Do not claim completion from agent reports alone.
 
-## Task6: Preserve assets, integrate default and verify new executable artifacts
+### Task 6: Preserve assets, integrate default and verify new executable artifacts
 
 - [ ] Verify a separate design/runtime PNG archive outside Git with full hash manifest and restore/hash check; commit text prompts/reviews/indexes plus archive instructions/manifest. Do not commit credentials, databases, private exports, dependencies or unrelated original-workspace changes.
 - [ ] Commit/push this task. Fresh-fetch actual remote default branch and latest tags using existing SSH identity; integrate without force, resolve only task conflicts, validate the actual integrated source and push normally. Do not switch/reset dirty original checkout.

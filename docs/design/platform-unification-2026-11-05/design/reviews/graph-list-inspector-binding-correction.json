@@ -1,0 +1,32 @@
+{
+  "recordedAtUtc": "2026-11-05T09:28:36.469Z",
+  "assetId": "WS-R034",
+  "imageSha256": "87928065849d2b43a6cf18154f046f5ce573784427dd5f51bd3fdb0526131dd8",
+  "from": {
+    "assetId": "WS-D064",
+    "fieldOrder": [
+      "selection triggers mobile graph detail drawer",
+      "node or edge inspector"
+    ],
+    "sha256": "dcad24aa7fa474bdf126827c5f51ecd942072eef6efad9b36ea221bb8b200681",
+    "path": "docs/design/platform-unification-2026-11-05/design/images/WS-D064.png"
+  },
+  "to": {
+    "assetId": "WS-D069",
+    "panels": [
+      "A",
+      "B"
+    ],
+    "sourceId": "WS-093",
+    "fieldOrder": [
+      "selection triggers mobile graph detail drawer",
+      "node or edge inspector"
+    ],
+    "sha256": "ddba4c636815ffe37fde2dc903f62131ed6cacecde27217a652a386ccef9e533",
+    "path": "docs/design/platform-unification-2026-11-05/design/images/WS-D069.png",
+    "review": "design/reviews/WS-D069-review.json",
+    "scope": "Exact already-reviewed mobile node/edge inspector drawer container and conditional inspector presentation. Current list image is unselected; it does not claim an open detail drawer."
+  },
+  "method": "Exact path/hash correction recommended by independent current-image/source review; no pixels, fields, actual prompts, tool args or source roles changed",
+  "independentClosure": "pending scoped recheck by platform_review_gen048"
+}

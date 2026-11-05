@@ -1,0 +1,16 @@
+{
+  "id": "note-read",
+  "title": "笔记阅读",
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "1440-note-read.png",
+  "sha256": "fffcacad3598a52e5518b18759482aa985531a8a5dc85a989418461458be5f22",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

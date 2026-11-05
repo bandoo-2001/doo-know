@@ -1,0 +1,367 @@
+{
+  "kind": "generated-design",
+  "id": "MP-R061-v3",
+  "assetId": "MP-R061",
+  "sourceIds": [
+    "PB-032"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "roles": [
+    "authenticated owner"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-032",
+      "title": "博客管理：文章发布信息390px",
+      "role": "authenticated owner",
+      "state": "390px完整可读代表：字段按登记顺序，动作保持源guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedState": "Three independent narrow local full article-detail regions at390/320/320: A draft clean expanded all metadata/cover/pin/slug readonly? draft slug editable and copy disabled; B published dirty slug readonly, copy enabled, save enabled preview/publish disabled; C published reread with priorerror retains editable title/summary/category/tags, secondarycollapsed, all save/preview/publish disabled but recheck and edit source enabled. Snapshot publication distinct from metadata."
+    },
+    {
+      "label": "B",
+      "sourceId": "PB-032",
+      "title": "博客管理：文章发布信息320px",
+      "role": "authenticated owner",
+      "state": "320px字段/长值/内层滚动与操作可达",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent narrow local full article-detail regions at390/320/320: A draft clean expanded all metadata/cover/pin/slug readonly? draft slug editable and copy disabled; B published dirty slug readonly, copy enabled, save enabled preview/publish disabled; C published reread with priorerror retains editable title/summary/category/tags, secondarycollapsed, all save/preview/publish disabled but recheck and edit source enabled. Snapshot publication distinct from metadata."
+    },
+    {
+      "label": "C",
+      "sourceId": "PB-032",
+      "title": "博客管理：文章发布信息320px guard",
+      "role": "authenticated owner",
+      "state": "同源关键禁用/错误/长标签状态，使用已有组件且保留输入",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "selectedState": "Three independent narrow local full article-detail regions at390/320/320: A draft clean expanded all metadata/cover/pin/slug readonly? draft slug editable and copy disabled; B published dirty slug readonly, copy enabled, save enabled preview/publish disabled; C published reread with priorerror retains editable title/summary/category/tags, secondarycollapsed, all save/preview/publish disabled but recheck and edit source enabled. Snapshot publication distinct from metadata."
+    }
+  ],
+  "selectedState": "Three independent narrow local full article-detail regions at390/320/320: A draft clean expanded all metadata/cover/pin/slug readonly? draft slug editable and copy disabled; B published dirty slug readonly, copy enabled, save enabled preview/publish disabled; C published reread with priorerror retains editable title/summary/category/tags, secondarycollapsed, all save/preview/publish disabled but recheck and edit source enabled. Snapshot publication distinct from metadata.",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-matching-runtime-state",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "只改中间B列最底部“下架文章”和“移除选稿”两个按钮的禁用外观：两者均恢复可用正常状态，下架文章用普通危险动作样式，移除选稿普通可用。中列仅有未保存修改，没有忙态/读取，所以这两个动作不应灰禁用。右C仍读取中，因此右C这两个按钮继续灰禁用，绝不能改右C。其它全部保持不变，包括所有输入、只读固定链接、复制图标、保存/预览/发布守卫、关联原稿普通文字、上传并裁切封面普通标签。",
+  "prompt": "只改中间B列最底部“下架文章”和“移除选稿”两个按钮的禁用外观：两者均恢复可用正常状态，下架文章用普通危险动作样式，移除选稿普通可用。中列仅有未保存修改，没有忙态/读取，所以这两个动作不应灰禁用。右C仍读取中，因此右C这两个按钮继续灰禁用，绝不能改右C。其它全部保持不变，包括所有输入、只读固定链接、复制图标、保存/预览/发布守卫、关联原稿普通文字、上传并裁切封面普通标签。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R061-v2.png",
+      "role": "Edit target B danger actions disabled drift only",
+      "sha256": "5611d705a9a9e63dd8e99df5c59b5a71c5bf491b2d9ed6c28b36f3586d2ff2be",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R061-v2.png",
+      "role": "Edit target B danger actions disabled drift only",
+      "sha256": "5611d705a9a9e63dd8e99df5c59b5a71c5bf491b2d9ed6c28b36f3586d2ff2be",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "只改中间B列最底部“下架文章”和“移除选稿”两个按钮的禁用外观：两者均恢复可用正常状态，下架文章用普通危险动作样式，移除选稿普通可用。中列仅有未保存修改，没有忙态/读取，所以这两个动作不应灰禁用。右C仍读取中，因此右C这两个按钮继续灰禁用，绝不能改右C。其它全部保持不变，包括所有输入、只读固定链接、复制图标、保存/预览/发布守卫、关联原稿普通文字、上传并裁切封面普通标签。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R061-v2.png"
+    ],
+    "transparent_background": false
+  },
+  "generationAttempts": [
+    {
+      "submittedPrompt": "只改中间B列最底部“下架文章”和“移除选稿”两个按钮的禁用外观：两者均恢复可用正常状态，下架文章用普通危险动作样式，移除选稿普通可用。中列仅有未保存修改，没有忙态/读取，所以这两个动作不应灰禁用。右C仍读取中，因此右C这两个按钮继续灰禁用，绝不能改右C。其它全部保持不变，包括所有输入、只读固定链接、复制图标、保存/预览/发布守卫、关联原稿普通文字、上传并裁切封面普通标签。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-R061-v2.png",
+          "role": "Edit target B danger actions disabled drift only"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-6183b836-a64c-4a47-8df1-f2c3ed452c2f.png"
+    }
+  ],
+  "generationCallCount": 1,
+  "sourceContracts": [
+    {
+      "id": "PB-032",
+      "title": "博客管理：文章发布信息",
+      "kind": "page",
+      "module": "blog-owner",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=articles",
+        "trigger": "Select an article",
+        "parentId": "PB-031"
+      },
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:508",
+        "apps/web/components/BlogWorkspace.vue:588",
+        "apps/web/blog-workbench.ts:226",
+        "packages/core/blog/service.ts:85"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for /api/blog; no anonymous management surface. Publication snapshots and site enabled state remain independently controlled."
+      ],
+      "fields": [
+        {
+          "name": "title",
+          "type": "text",
+          "required": true,
+          "constraints": "UI maxlength200; API trimmed nonempty <=256 Unicode codepoints",
+          "sensitive": false
+        },
+        {
+          "name": "summary",
+          "type": "textarea",
+          "required": false,
+          "constraints": "UI maxlength1000; API <=2000 chars",
+          "sensitive": false
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "required": false,
+          "constraints": "max80; optional datalist from existing article categories",
+          "sensitive": false
+        },
+        {
+          "name": "tags",
+          "type": "comma text",
+          "required": false,
+          "constraints": "UI max600 total; comma/Chinese-comma split trimmed unique tags; API <=30 tags each<=80",
+          "sensitive": false
+        },
+        {
+          "name": "pinned",
+          "type": "checkbox",
+          "required": false,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "cover",
+          "type": "local image path",
+          "required": false,
+          "constraints": "nullable; API max8192 chars",
+          "sensitive": false
+        },
+        {
+          "name": "slug",
+          "type": "text",
+          "required": true,
+          "constraints": "lowercase alphanumeric segments joined by hyphens; API<=100; unique/reserved checks; locked after first publication",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "保存文章信息",
+          "effect": "CAS update metadata then reread detail",
+          "api": "PATCH /api/blog/posts/:id",
+          "guard": "dirty; not busy/reading"
+        },
+        {
+          "label": "编辑原稿",
+          "effect": "Navigate owner note editor without rewriting source",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "预览文章",
+          "effect": "Toggle private article review",
+          "api": "",
+          "guard": "not dirty/busy/reading"
+        },
+        {
+          "label": "发布文章 / 发布更新",
+          "effect": "Reread and validate source/version, render static diagrams, publish snapshot",
+          "api": "POST /api/blog/publish",
+          "guard": "not dirty/busy/reading; source hash/mtime/version unchanged"
+        },
+        {
+          "label": "复制文章链接",
+          "effect": "Copy canonical saved URL",
+          "api": "",
+          "guard": "post.url exists"
+        },
+        {
+          "label": "重新核对",
+          "effect": "Reread detail retaining local metadata",
+          "api": "GET /api/blog/posts/:id",
+          "guard": "not busy"
+        }
+      ],
+      "importantStates": [
+        "nothing selected placeholder",
+        "initial detail pending/error/retry",
+        "retained form while rereading",
+        "dirty save-required status; busy guard",
+        "draft/published/withdrawn/unpublished changes badges",
+        "once published slug is read-only"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=860px article list/detail and taxonomy become one column, list retains bounded scroll and stats become two columns; <=680px smaller padding/actions, <=720px compact header (blog-admin.css:1082). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-polish.spec.ts:27",
+        "tests/e2e/blog.spec.ts:196",
+        "tests/e2e/blog.spec.ts:336"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [
+        "Selection is component state; no article-id URL parameter implemented by navigation.ts. Online snapshot changes only through explicit publish, not note save or metadata save."
+      ],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "parentBindings": [
+    {
+      "sourceId": "PB-032",
+      "parentId": "PB-031",
+      "route": "/?view=apps&app=blog&appSection=articles",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/BlogWorkspace.vue:508",
+        "apps/web/components/BlogWorkspace.vue:588",
+        "apps/web/blog-workbench.ts:226",
+        "packages/core/blog/service.ts:85"
+      ]
+    }
+  ],
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-041.json#MP-R061",
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-R061",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-6183b836-a64c-4a47-8df1-f2c3ed452c2f.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-R061-v3.png",
+  "sha256": "5842f32ea2e67e330c27386bef3f05a7bee13709b1a389427d2d24bf8e356845",
+  "bytes": 1685000,
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "generatedAtUtc": "2026-11-05T08:17:59.724315+00:00",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R061-v2.png",
+    "sha256": "5611d705a9a9e63dd8e99df5c59b5a71c5bf491b2d9ed6c28b36f3586d2ff2be"
+  },
+  "postprocessing": "Original built-in PNG copied byte-for-byte; no pixel edits.",
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "Responsive family: BlogWorkspace.vue article metadata/publish full form",
+    "sourceIds": [
+      "PB-032"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Three independent narrow local full article-detail regions at390/320/320: A draft clean expanded all metadata/cover/pin/slug readonly? draft slug editable and copy disabled; B published dirty slug readonly, copy enabled, save enabled preview/publish disabled; C published reread with priorerror retains editable title/summary/category/tags, secondarycollapsed, all save/preview/publish disabled but recheck and edit source enabled. Snapshot publication distinct from metadata.",
+    "location": "metadata"
+  },
+  "selfInspection": {
+    "method": "Existing target viewed before built-in targeted edit; actual generated native revision preview inspected against requested correction.",
+    "concerns": [
+      "Only requested source correction changed; static guards, role behavior and responsive fit remain unverified."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "stateMatrix": [],
+  "compositionMode": null,
+  "renderedVariants": [
+    {
+      "panel": "A",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scope": "local article detail complete expanded fields",
+      "postState": "draft",
+      "publishedAt": null,
+      "dirty": false,
+      "busy": false,
+      "reading": false,
+      "cover": null,
+      "coverPickerOpened": false,
+      "secondaryOpen": true,
+      "slug": "knowledge-example",
+      "url": null
+    },
+    {
+      "panel": "B",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "scope": "local article detail complete expanded fields",
+      "postState": "published",
+      "publishedAt": "2026-11-04",
+      "hasUnpublishedChanges": true,
+      "dirty": true,
+      "busy": false,
+      "reading": false,
+      "cover": null,
+      "secondaryOpen": true,
+      "slug": "knowledge-example",
+      "url": "https://example.invalid/blog/knowledge-example"
+    },
+    {
+      "panel": "C",
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "scope": "local article detail retained form while reading",
+      "postState": "published",
+      "dirty": true,
+      "busy": false,
+      "reading": true,
+      "error": "暂时无法读取文章，请重新核对。",
+      "fieldsRemainEditable": true,
+      "secondaryOpen": false,
+      "savePreviewPublishDisabled": true,
+      "recheckEnabled": true
+    }
+  ]
+}

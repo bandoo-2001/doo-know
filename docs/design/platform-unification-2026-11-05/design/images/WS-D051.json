@@ -1,0 +1,308 @@
+{
+  "id": "WS-D051",
+  "title": "Embedded primary whiteboard editing overlay",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-071"
+  ],
+  "panels": [
+    {
+      "label": "full",
+      "sourceId": "WS-071",
+      "title": "Embedded primary whiteboard editing overlay",
+      "role": "authenticated owner",
+      "state": "Full-screen fixed embedded whiteboard, return-to-note, no standalone breadcrumb/history/share.",
+      "presentationInstruction": "Full-screen fixed embedded whiteboard, return-to-note, no standalone breadcrumb/history/share."
+    }
+  ],
+  "viewportIntent": "Complete 1440×1000 independent page.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3787, apps/web/components/DiagramDocumentWorkspace.vue:866"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-071",
+      "label": "返回笔记",
+      "effect": "Request embedded editor close",
+      "api": "none (local UI)",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    },
+    {
+      "sourceId": "WS-071",
+      "label": "保存 / 导出 / 切换视图",
+      "effect": "Same document session operations as primary editor",
+      "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+      "guard": "Owner session; control-specific guards described in permissionRules."
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.",
+    "No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-R027",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Embedded diagram workspace is position:fixed;inset:0;z-index1600; document-area container queries apply. Native third-party canvas and nested dialogs require runtime inspection."
+      },
+      "requiredFieldOrder": [],
+      "requiredFields": [],
+      "requiredActions": [
+        {
+          "label": "返回笔记",
+          "effect": "Request embedded editor close",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "保存 / 导出 / 切换视图",
+          "effect": "Same document session operations as primary editor",
+          "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-071"
+    }
+  ],
+  "prompt": "Use case: ui-mockup. One full-screen fixed EMBEDDED WHITEBOARD EDITING OVERLAY for DooKnow, around1536×1024, readable Chinese, no browser/device frame or captions. Image1 actual standalone whiteboard baseline is ONLY native zero-element canvas/tool placement reference; Image2 PILOT is ONLY muted flat UI palette/density. This selected embedded overlay is source-derived from Workspace.vue embeddedPrimaryId + DiagramDocumentWorkspace embedded branch; it covers full viewport inset0, not a normal owner workspace page.\nABSOLUTE HOST BOUNDARY: NO owner rail/avatar/global DooKnow header/notebook tree/breadcrumb/root navigation/history/share buttons. The overlay's own top row: left simple BACK ARROW icon with accessible meaning 返回笔记; adjacent existing h1 runtime-whiteboard-1793810927830. Right save-state ● 已保存, blue 保存, closed 更多 ellipsis. No X close icon or additional back-to-directory control invented. Clean editable source state, no unsaved close guard shown. Second row left 白板 kind and app-owned HTML code / 打印 printer / PNG image export icons; right actual tabs 白板 active, Markdown 源码, 阅读, PNG 预览.\nCanvas fills every remaining pixel across full viewport width. Exact blank white zero-element Excalidraw scene, no shapes. Existing native closed hamburger upper-left, centered source toolbar lock/hand/selection(active)/rectangle/diamond/ellipse/arrow/line/freehand/text/image/eraser/extra tools, closed 素材库 trigger upper-right, faint pan-help below. Bottom-left zoom minus/100%/plus and disabled undo/redo, bottom-right help ?. Native loadScene/saveToActiveFile/export/saveAsImage remain disabled; no native load/save/export window/menu entries, no library content/properties popovers.\nFlat white/#f7f8fa, fine #e6e9f1 lines, #272b3a text/#657084 secondary, #4566c6 app actions, small8px radii and restrained native active color. Preserve actual overlay role and operations, no private workspace chrome repeated, no arbitrary labels/API/protocol fields, no AI/ToDoo features. One clean embedded overlay only.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D051.png",
+  "reviewStatus": "pending-independent-review",
+  "presentationScope": "complete-independent-page",
+  "geometryFamily": "independent-page:WS-071",
+  "sourceContracts": [
+    {
+      "id": "WS-071",
+      "title": "Embedded primary whiteboard editing overlay",
+      "kind": "dialog",
+      "module": "diagrams",
+      "entry": {
+        "route": "/?note=:containingNoteId",
+        "trigger": "编辑设计 on referenced whiteboard",
+        "parentId": "WS-024"
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3787",
+        "apps/web/components/DiagramDocumentWorkspace.vue:866"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "返回笔记",
+          "effect": "Request embedded editor close",
+          "api": "none (local UI)",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        },
+        {
+          "label": "保存 / 导出 / 切换视图",
+          "effect": "Same document session operations as primary editor",
+          "api": "POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit",
+          "guard": "Owner session; control-specific guards described in permissionRules."
+        }
+      ],
+      "importantStates": [
+        "Full-screen fixed overlay z1600",
+        "No standalone breadcrumb/history/share buttons",
+        "Unsaved close guard"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Embedded diagram workspace is position:fixed;inset:0;z-index1600; document-area container queries apply. Native third-party canvas and nested dialogs require runtime inspection."
+      },
+      "testRefs": [
+        "tests/e2e/diagram-portability.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted.",
+        "Existing embeddedPrimaryId is used for referenced whiteboard editing; do not infer all primary types are link-embedded."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-071",
+      "parentId": "WS-024",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "compositionRules": {
+    "fullPage": true,
+    "maxIndependentSections": 1,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-071",
+      "state": "Full-screen fixed overlay z1600",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-071",
+      "state": "No standalone breadcrumb/history/share buttons",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-071",
+      "state": "Unsaved close guard",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-D051",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "source-derived clean editable embeddedPrimaryId whiteboard overlay; zero-element existing canvas; no closing guard"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup. One full-screen fixed EMBEDDED WHITEBOARD EDITING OVERLAY for DooKnow, around1536×1024, readable Chinese, no browser/device frame or captions. Image1 actual standalone whiteboard baseline is ONLY native zero-element canvas/tool placement reference; Image2 PILOT is ONLY muted flat UI palette/density. This selected embedded overlay is source-derived from Workspace.vue embeddedPrimaryId + DiagramDocumentWorkspace embedded branch; it covers full viewport inset0, not a normal owner workspace page.\nABSOLUTE HOST BOUNDARY: NO owner rail/avatar/global DooKnow header/notebook tree/breadcrumb/root navigation/history/share buttons. The overlay's own top row: left simple BACK ARROW icon with accessible meaning 返回笔记; adjacent existing h1 runtime-whiteboard-1793810927830. Right save-state ● 已保存, blue 保存, closed 更多 ellipsis. No X close icon or additional back-to-directory control invented. Clean editable source state, no unsaved close guard shown. Second row left 白板 kind and app-owned HTML code / 打印 printer / PNG image export icons; right actual tabs 白板 active, Markdown 源码, 阅读, PNG 预览.\nCanvas fills every remaining pixel across full viewport width. Exact blank white zero-element Excalidraw scene, no shapes. Existing native closed hamburger upper-left, centered source toolbar lock/hand/selection(active)/rectangle/diamond/ellipse/arrow/line/freehand/text/image/eraser/extra tools, closed 素材库 trigger upper-right, faint pan-help below. Bottom-left zoom minus/100%/plus and disabled undo/redo, bottom-right help ?. Native loadScene/saveToActiveFile/export/saveAsImage remain disabled; no native load/save/export window/menu entries, no library content/properties popovers.\nFlat white/#f7f8fa, fine #e6e9f1 lines, #272b3a text/#657084 secondary, #4566c6 app actions, small8px radii and restrained native active color. Preserve actual overlay role and operations, no private workspace chrome repeated, no arbitrary labels/API/protocol fields, no AI/ToDoo features. One clean embedded overlay only.",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-D051 Embedded primary whiteboard editing overlay\nSCOPE complete-independent-page\nVIEW Complete 1440×1000 independent page.\nCOMPOSITION {\"fullPage\": true, \"maxIndependentSections\": 1, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"full\", \"sourceId\": \"WS-071\", \"title\": \"Embedded primary whiteboard editing overlay\", \"role\": \"authenticated owner\", \"state\": \"Full-screen fixed embedded whiteboard, return-to-note, no standalone breadcrumb/history/share.\", \"presentationInstruction\": \"Full-screen fixed embedded whiteboard, return-to-note, no standalone breadcrumb/history/share.\"}]\nVISIBLE CONTRACTS [{\"panel\": \"full\", \"sourceId\": \"WS-071\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"返回笔记\", \"effect\": \"Request embedded editor close\", \"api\": \"none (local UI)\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}, {\"label\": \"保存 / 导出 / 切换视图\", \"effect\": \"Same document session operations as primary editor\", \"api\": \"POST /api/diagram-documents/prepare; POST /api/diagram-documents/commit\", \"guard\": \"Owner session; control-specific guards described in permissionRules.\"}], \"importantStates\": [\"Full-screen fixed overlay z1600\", \"No standalone breadcrumb/history/share buttons\", \"Unsaved close guard\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\", \"Vendor loadScene/saveToActiveFile/export/saveAsImage and independent theme chooser disabled. Keep app-owned guarded exports separate.\", \"No embeddables, populated-library publish/remove, selected-element/crop/group/link panels, unobserved external generation or command palette.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3787, apps/web/components/DiagramDocumentWorkspace.vue:866",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/Workspace.vue:3787, apps/web/components/DiagramDocumentWorkspace.vue:866",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-whiteboard-canvas.png",
+      "role": "supporting native-canvas/tool-placement reference only",
+      "responsibility": "Zero-element Excalidraw scene and existing native tool placement; standalone owner host excluded for embedded overlay",
+      "sha256": "c5a3e3206115a6b4b1098c9dfc4590db7a1a64971f24ac9a59e03750e0d2a699",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 57146
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/diagrams/1440-whiteboard-canvas.png",
+    "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-D051.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-feb18b87-59cb-4e38-ba63-ceb810898e88.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-feb18b87-59cb-4e38-ba63-ceb810898e88.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 1,
+  "generatedAtUtc": "2026-11-05T01:55:55.593Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "Source-derived full-screen embedded overlay contains own return/title/save/more/type/views and native blank whiteboard only; no rail/tree/global header/breadcrumb/history/share.",
+    "concerns": [
+      "Selected state is source-derived; matching exact runtime state is uncaptured.",
+      "Static raster cannot verify capability/unsaved-close/CAS/renderer guards, scroll interaction or vendor responsive fit; geometry and texture approximate."
+    ]
+  },
+  "sha256": "6f2b5a56e13588ddf8fe9ec9af8a1ac02ed6b1d9cd503822e6df12b89f87f33d",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 961259,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/Workspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "d569c58e0e23a3a2e76d7a7eb081e155f423a3462fc1a8903095bb7f2cb16385"
+    },
+    {
+      "path": "apps/web/components/DiagramDocumentWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "No exact runtime capture for selected state; actual templates and sourceContracts determine controls/role. Baseline when supplied is host/editor/tool-placement reference only."
+}

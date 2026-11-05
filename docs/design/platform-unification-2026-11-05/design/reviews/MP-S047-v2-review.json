@@ -1,0 +1,46 @@
+{
+  "assetId": "MP-S047-v2",
+  "sourceIds": [
+    "PB-022",
+    "PB-023",
+    "PB-025"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T05:14:15.406676+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Reader samples with actual future-expiry and graph edit-unavailable article metadata added under readonly header.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actualnewv2 viewed: expiry and actual graph limitation are ordinary readonly article lines, header retainsreadonly/noedit.",
+    "Other independent editableheader/TOC/noTOC/resolved-no-source/ordinaryPNG samples preserved; no private denial reason or source permission expansion."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-028.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S047-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/ShareReader.vue:176",
+    "packages/core/share-policy.ts",
+    "docs/design/platform-unification-2026-11-05/design/reviews/MP-S047-review.json"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "e4be6cf0b8b79ec9b2cb67171558513b0e64310b51ff18729754b241965ac891",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S047-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

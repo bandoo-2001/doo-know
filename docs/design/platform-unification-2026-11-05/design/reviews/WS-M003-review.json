@@ -1,0 +1,60 @@
+{
+  "assetId": "WS-M003",
+  "sourceIds": [
+    "WS-010"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T06:39:40.147082+00:00",
+  "verdict": "needs-revision",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Five valid local workspace progress/error/toast specimens, skeleton structure currently unrepresented",
+  "functionalFindings": [
+    {
+      "severity": "P2",
+      "blocking": true,
+      "finding": "Required WS010 Loading document/list skeleton is mapped to row1 inline spinner retaining old document content, but the actual LoadingState document/list variants add5 skeleton lines with different wrapper layout. Current image contains only inline variant and no exact existing canonical for the missing skeleton structure.",
+      "sourceEvidence": [
+        "LoadingState.vue template uses v-if=variant!==inline for5 skeleton lines; document flex-column/minheight and list align/stretch differ from inline row.",
+        "Workspace.vue:3367 renders LoadingState variant=document in empty startup surface, separately from workspace-load-progress variant=inline at3001.",
+        "workspace-asset-plan stateCoverage Loading document/list skeleton currently points WS-M003/A/row1; WS-M007 not yet generated at inspection time."
+      ]
+    }
+  ],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed five local specimens/full prompt/contracts. Existing content stays visible during note-opening inline status; unavailable-directory retry, source actual service warning/recheck, closable global error without invented retry and actual success toast are valid independent branches.",
+    "Specific canonical WS010 loading-document/list skeleton maps to row1 inline loading, but variant inline has no skeleton; no currently generated independent image with the actual LoadingState skeleton found. Other five valid specimens need no redesign."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-033.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-M003.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/Workspace.vue:3001",
+    "apps/web/components/Workspace.vue:3367",
+    "apps/web/components/Workspace.vue:3585",
+    "apps/web/components/LoadingState.vue:1",
+    "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json"
+  ],
+  "requiredCorrections": [
+    "Represent genuine document/list LoadingState skeleton variants as compact additional snippets (exact label/variant/5lines/role, no invented buttons), or root bind this state to a separately actually viewed and passed exact canonical skeleton fragment once available. Keep row1 inline-preserved-content mapping separate; it cannot alone claim skeleton coverage.",
+    "Preserve current five valid snippets. A later precise composite/canonical binding may close the coverage issue without repainting them; do not mark a not-yet-generated fragment passed."
+  ],
+  "reviewedImageSha256": "0bf05441637878494d25ca851cd50d6910a0e60b412e97ae9282eaa58e6885aa",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-M003.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

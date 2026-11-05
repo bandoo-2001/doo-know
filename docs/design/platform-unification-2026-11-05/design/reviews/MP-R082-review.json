@@ -1,0 +1,56 @@
+{
+  "assetId": "MP-R082",
+  "sourceIds": [
+    "PB-057"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T08:53:32.216631+00:00",
+  "verdict": "pass",
+  "method": "Actual recovered PNG and matching actual baseline viewed; reported frozen request/prompt/input declarations, current template/handler and exact batch contracts compared. Actual image-generation callback receipt/call-to-PNG binding was not observed and is not independently established. Static content review only.",
+  "selectedState": "Anonymous public collection index: A/B single collection with one currently public member; C no configured collections.",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actual current PNG and supplied real390 baseline viewed; compared saved requests-c prompt/input declarations with current source. Visible own brand/description/current专题 navigation/footer and exact collection eyebrow/title/description retained.",
+    "Count1 means currently available published members, not total editor IDs. C no collections uses exact暂无专题合集 without new owner create/search/filter controls.",
+    "PNG content is source-compatible but actual tool-call-to-file receipt binding is explicitly unverified; this static-content pass does not resolve generation provenance."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-044.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R082.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/server/blog/routes.ts:247",
+    "apps/server/blog/render.ts:94",
+    "docs/design/platform-unification-2026-11-05/baseline/public/390-public-collections.png",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-044-requests-c.json"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "b7263cd3de8a1cbc7ee1822820521e80e065b866cc412f49102e47f0c8604cbf",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R082.png",
+  "modelProvenance": {
+    "status": "workflow-declared-official-built-in-gpt-image-2; recovered-PNG-specific-call-not-proven",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation.",
+    "Static content verdict does not certify inferred image generation call, exact actual tool prompt/input execution, completion time or model receipt."
+  ],
+  "reviewVerdictScope": "static-functional-and-style-content-only",
+  "generationProvenanceReview": {
+    "status": "unresolved-call-to-file-binding",
+    "toolReceiptObserved": false,
+    "exactPromptSubmittedVerified": false,
+    "completionTimestampVerified": false,
+    "evidence": "Sidecar declares orphan originals recovered from previous child directory, inferred by unique visual match to frozen requests-c. The inference is not a verified callback. Root must settle provenance independently.",
+    "imageContentActuallyViewed": true
+  }
+}

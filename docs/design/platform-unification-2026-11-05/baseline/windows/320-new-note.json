@@ -1,0 +1,29 @@
+{
+  "id": "new-note",
+  "title": "new-note",
+  "sourceIds": [
+    "WS-011"
+  ],
+  "width": 320,
+  "height": 844,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "320-new-note.png",
+  "sha256": "235a2e9a5260da0c7b6a260b0131cceefdf740c4f885e88d55f89c6fe3f99c05",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "buildFlags": {
+    "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+  },
+  "status": "captured",
+  "pageErrors": [],
+  "targetBounds": {
+    "x": 14,
+    "y": 219.828125,
+    "width": 292,
+    "height": 404.34375
+  },
+  "targetWithinViewport": true,
+  "outerOverflow": 0
+}

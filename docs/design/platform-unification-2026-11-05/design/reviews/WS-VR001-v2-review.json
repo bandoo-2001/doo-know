@@ -1,0 +1,146 @@
+{
+  "assetId": "WS-VR001",
+  "sourceIds": [
+    "RTD-003",
+    "RTD-004",
+    "RTD-008"
+  ],
+  "reviewer": "independent platform_review_gen048, exclusively assigned GEN049 WS-VR001..004",
+  "reviewedAtUtc": "2026-11-05T10:09:56.332338+00:00",
+  "verdict": "pass",
+  "method": "Scoped independent follow-up: actual WS-VR001-v2 PNG A/B/C viewed through tools.view_image; full actual revision prompt/arguments and prior actual edit target compared; current locked ColorInput mobile condition reread and all originally reviewed source hashes checked unchanged. New original tool-output bytes matched the project PNG. No repeated review of unchanged VR002/003/004 and no runtime tests.",
+  "actualViewMethod": {
+    "tool": "tools.view_image",
+    "image": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-VR001-v2.png",
+    "detail": "high",
+    "boardPanelsActuallyViewed": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/WS-VR001-v2.png",
+  "reviewedImageSha256": "c2b36fa3cb5316dcc1e2b07a41c0f3f67c16f8a95a3bb8803b5a10c8b5001b35",
+  "reviewedSidecarSha256": "51c4bbe24a0db8ee45ec5df59527185e40d6f69c79013fbcb7777427fdec927f",
+  "reviewedManifestSha256": "c858cdc33ed20c9bfa0574bd71a76a8e7d84dd1607baca580c20a4ff366e5490",
+  "submissionReview": {
+    "completeSubmittedPromptRead": true,
+    "submittedPromptSha256": "281c6d8d1dab6d1ce6702e9c1f947d72cb9fcbb3f3014a6a8ddf365c8c0a6c3b",
+    "actualToolArgumentsAndAttemptPromptMatch": true,
+    "defaultToolOutputPathRecorded": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-361f64f6-2d24-49ea-a677-2d29c6dc972d.png",
+    "nativeToolOutputBytesMatchReviewedPng": true,
+    "actualToolOutputHintPresent": true
+  },
+  "inputImageChecks": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/WS-VR001.png",
+      "role": "edit target",
+      "sha256": "36af1d26d647a8088d58115f856d68e617de88e5095dc0e83ddcc61d17f4ae2a",
+      "dimensions": {
+        "width": 1721,
+        "height": 914
+      },
+      "viewedBeforeSubmission": true,
+      "actualSha256": "36af1d26d647a8088d58115f856d68e617de88e5095dc0e83ddcc61d17f4ae2a",
+      "actuallyViewedByReviewer": true,
+      "roleChecked": "actual prior failed PNG edit target; correct A/B control content retained, mobile C only correction"
+    }
+  ],
+  "baselineChecks": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-main-menu.png",
+      "sha256": "d1a806c4aa685af3a2011eea023e08e8d25ecff5089f51c381fb19a0f7d5acce",
+      "actuallyViewed": true,
+      "role": "actual before-unification behavior/content/selected-state evidence; not target style or new runtime acceptance"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-canvas-background-color.png",
+      "sha256": "b0fb999ea6f04433979daf97f1604fbc52e57e767536d4215f2e4ef9c4fef2e3",
+      "actuallyViewed": true,
+      "role": "actual before-unification behavior/content/selected-state evidence; not target style or new runtime acceptance"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/diagrams/390-vendor-extra-tools.png",
+      "sha256": "a3fcd6d077ed7c5dec28f23dcdfee864c138d8d8bd0415d58f28198da42161f3",
+      "actuallyViewed": true,
+      "role": "actual before-unification behavior/content/selected-state evidence; not target style or new runtime acceptance"
+    }
+  ],
+  "selectedState": "只修改输入图最右C面板（标题十六进制值的HEX小popover）：删除ffffff输入框最右侧的吸管图标，并删除它左边的那一条竖分隔线。保留C标题“十六进制值”、#前缀、值“ffffff”的普通输入框以及原边框和留白。这个手机HEX组件仅这三项，不要换成其它图标，不加按钮或调色盘。左A完整主菜单及所有画布背景色块/其本来已有的分隔线，和中B完整更多工具菜单，全部逐处原样不动；尤其不要误删A画布背景色块旁那条竖线。所有其它文字、颜色、控件、布局和背景保持。仅删除C中的吸管及其相邻竖线，不能改变A/B。",
+  "fieldActionRoleStateChecks": [
+    "Actual C now has only 十六进制值 heading, # prefix and ffffff textbox; the desktop-only eyedropper trigger and its separator are absent. This matches locked ColorInput condition !device.editor.isMobile at index.js:3166-3198 and closes the original sole finding.",
+    "Actual A retains Find on canvas/CtrlF,help/reset, read-only Excalidraw links group,GitHub/Follow us/Discord and all five background presets plus custom swatch, selected white. Its own preset/custom separator remains correctly present.",
+    "Actual B retains frameF,embeddable,laserK,read-only Generate and Mermaid-to-Excalidraw in original source order. No new icon or action replaces the removed C eyedropper; no native file/export/theme controls or host chrome introduced.",
+    "All original source hashes remain unchanged. Existing owner whiteboard/editability/epoch guards, denied embedding, unmounted external generation/CommandPalette and absent mobile Stats limits remain as previously reviewed. Approximate raster proportions and static menu states do not prove physical phone interaction."
+  ],
+  "functionalFindings": [],
+  "requiredCorrections": [],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster shading/texture/approximate geometry are illustrative. Implement shared flat CSS palette, thin borders and8px corners; use actual source focus/dismissal/keyboard/conditional guards. Normal text is readable on this design board, which does not measure physical320/390 layout or interaction."
+    }
+  ],
+  "sourceRefs": [
+    "docs/design/platform-unification-2026-11-05/design/images/WS-VR001-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/reviews/WS-VR001-review.json",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3166",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-049.json",
+    "docs/design/platform-unification-2026-11-05/design/images/WS-VR001.json",
+    "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/whiteboards/canvas.ts:36",
+    "apps/web/components/DiagramDocumentWorkspace.vue:185",
+    "docs/design/platform-unification-2026-11-05/reviews/vendor-attempt-resolution.md",
+    "docs/design/platform-unification-2026-11-05/reviews/vendor-attempt-resolution.json",
+    "apps/web/whiteboards/canvas.ts:64",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:21056",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:17559",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3296",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3406",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12463",
+    "apps/web/whiteboards/canvas.ts:63",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3101",
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5753"
+  ],
+  "currentSourceSha256": {
+    "node_modules/@excalidraw/excalidraw/dist/dev/index.js": "e10e24df153077770849c7d68f9a8f5db3bb1eb1576d909d1e3c9a5b024d1882",
+    "node_modules/@excalidraw/excalidraw/dist/prod/index.js": "7f651063487849c79a8cdedc3aa6bd04c6b0c717ee63959116f1f12dbc0a51b8",
+    "node_modules/@excalidraw/excalidraw/package.json": "402f54fc7de128b25d22bd4d905fb46dbcdbe2ce6efee567d4da0fc79a29aab1",
+    "package-lock.json": "e224c40bae0c0b2519d0ef5ef956d7fd39e029fb88f27f7bfa7a344462e8d20f",
+    "apps/web/whiteboards/canvas.ts": "421649c508e3da5a25da20249dcbf1fdb889f8efa9f2a3b6adf30440377ab352",
+    "apps/web/components/DiagramDocumentWorkspace.vue": "dd39b28ba22f5ff00c9d1c30c5140a275ead01e0ad58c14780a021af312132f1"
+  },
+  "vendorRuntimeResolution": {
+    "lockedPackageVersion": "0.18.1",
+    "matchesPriorResolutionSourceHashes": true,
+    "commandPalette": "not mounted by current integration; help may advertise the read-only shortcut",
+    "mobileStats": "not rendered in mobile branch; no phone stats panel authorized",
+    "mobileSidebarGap": "RTD-G01 remains an implementation/runtime issue; bounded artwork does not close it"
+  },
+  "permissionAndPersistenceChecks": [
+    "These are local controls inside the authenticated-owner whiteboard design editor. DiagramDocumentWorkspace mounts only design mode with resource.capabilities.canEdit and no recovered draft; vendor changes call parent editSource through the active epoch guard. No separate admin/member role or public editing capability is introduced.",
+    "Vendor loadScene/saveToActiveFile/export/saveAsImage are disabled by canvas.ts. App-owned commit/export flows stay separate and are not declared executed by these local menus.",
+    "External links, OS library file picker, embedding, insertion, keyboard commands and persistence were not invoked. No real library callback token, live note content or secret is displayed."
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static PNG and source inspection do not prove physical phone fit/scrolling, focus/keyboard/dismissal behavior, successful actions/conversion, resource permissions enforcement or server/API outcomes.",
+    "Current per-image content verdict does not pass platform-wide coverage/style/provenance gates or authorize implementation.",
+    "Original runtime unsuccessful/offscreen observations remain unchanged; no new browser run or test was performed."
+  ],
+  "priorReview": {
+    "path": "docs/design/platform-unification-2026-11-05/design/reviews/WS-VR001-review.json",
+    "sha256": "ff565282aeb273d90f17d4baa7c48a7e7d11c5a900ddc2a8e2818f97ff6df773",
+    "verdict": "needs-revision",
+    "reviewedImageSha256": "36af1d26d647a8088d58115f856d68e617de88e5095dc0e83ddcc61d17f4ae2a",
+    "preserved": true
+  },
+  "resolvedFindingCount": 1
+}

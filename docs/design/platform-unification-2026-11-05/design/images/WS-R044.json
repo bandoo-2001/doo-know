@@ -1,0 +1,840 @@
+{
+  "assetId": "WS-R044",
+  "sourceIds": [
+    "WS-107",
+    "WS-109"
+  ],
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "responsive-board",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-107",
+      "title": "Trash workspace page",
+      "role": "authenticated owner",
+      "state": "Full actual trash phone page with search/filter/batch selection, one expanded inline restore-rename row, other item actions below title and reachable paging/results.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. rows preserve original paths/types/availability/selection and all restore/rename/files-only purge actions",
+      "containedSourceIds": [
+        "WS-109"
+      ]
+    },
+    {
+      "label": "B",
+      "sourceId": "WS-107",
+      "title": "Trash workspace page",
+      "role": "authenticated owner",
+      "state": "Full actual trash phone page with search/filter/batch selection, one expanded inline restore-rename row, other item actions below title and reachable paging/results.",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. rows preserve original paths/types/availability/selection and all restore/rename/files-only purge actions",
+      "containedSourceIds": [
+        "WS-109"
+      ]
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "Use case:ui-mockup. 两个独立完整中文手机页面，A390px B320px，普通可读字号，真实正文纵向滚动与底部固定导航，不用手机外壳。样式参考1仅扁平白底、浅灰面、蓝色#4566c6、细边框、小8px圆角。保持DooKnow所有者宿主顶部汉堡/DooKnow/私人笔记，底部笔记/最近/收藏/应用/更多各自真实选中。图2起是现有内容参考。两页完整回收站内容，回收站tab在更多中被选中，顶部知识库管理/回收站/返回笔记，说明“笔记和文件夹均可恢复，保留原笔记标识；原位置被占用时，可以更换名称。”搜索回收站输入空placeholder按原路径或文件名查找；本页文件状态select全部状态、查找/刷新列表。全选本页可读取项目checkbox未选，说明本页3项·已选1项，恢复所选与永久移除所选文件可用（只选一篇可读取笔记）。列表3条，第一勾选“示例笔记”原路径00-Inbox/示例笔记.md，删除时间2026/11/4 16:00大小2.0 KiB；展开恢复时使用的文件名input值示例笔记-恢复.md和取消改名，提示“仅更改名称，仍恢复到原目录；不会覆盖已有项目。” 下方恢复并打开/更换文件名/永久移除文件。第二未选文件夹“旧资料”原路径30-Knowledge/旧资料，元数据文件夹·整体恢复、删除时间未知/大小未知，不伪造值；动作恢复文件夹/更换文件夹名，没有永久删除文件夹。第三“不可读取示例”原路径00-Inbox/不可读取示例.md，checkbox与恢复并打开/更换文件名/永久移除文件全部灰禁用，标暂不可读取。正文正常滚动，页尾上一页禁用/第1页/下一页禁用，真实保留说明“文件夹支持整体恢复，暂不支持永久移除。永久移除仅针对所选回收站原文件，无法在此恢复；历史版本、备份及必要的元数据仍按各自的保留规则保存。”三条列表长页可内滚动，不缩字号。A390/B320同字段与guard，按钮换行可达。",
+  "sourceContracts": [
+    {
+      "id": "WS-107",
+      "title": "Trash workspace page",
+      "kind": "page",
+      "module": "trash",
+      "entry": {
+        "route": "/?view=trash",
+        "trigger": "回收站 main navigation",
+        "parentId": "WS-001"
+      },
+      "sourceRefs": [
+        "apps/web/components/TrashWorkspace.vue:13",
+        "apps/web/components/TrashWorkspace.vue:417",
+        "apps/server/platform/management.ts:301",
+        "shared/management-contracts.ts:57"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported.",
+        "Management route checks ownerId exists in user table. Batch IDs1–100 unique, /^[A-Za-z0-9_-]{1,128}$/; requestId nonempty<=128 and no control characters."
+      ],
+      "fields": [
+        {
+          "name": "搜索回收站",
+          "type": "search",
+          "required": false,
+          "constraints": "maxLength200; trimmed query filters original path/file name on server.",
+          "sensitive": false
+        },
+        {
+          "name": "本页文件状态",
+          "type": "select",
+          "required": true,
+          "constraints": "all | available | unavailable; filters current page only and clears selection.",
+          "sensitive": false
+        },
+        {
+          "name": "选择项目 / 全选本页",
+          "type": "checkboxes",
+          "required": false,
+          "constraints": "Only readable items on current loaded page; page size50 UI; server limit1–100; selection resets on page load.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "查找 / 刷新列表 / 上一页 / 下一页",
+          "effect": "Load signed-cursor page and new confirmation snapshot",
+          "api": "GET /api/manage/trash?limit=50&q=:q&cursor=:cursor",
+          "guard": "!locked&&!loading; cursor required for next"
+        },
+        {
+          "label": "恢复所选 / 恢复并打开 / 恢复文件夹",
+          "effect": "Restore selected originals preserving note identity; only note restore opens editor",
+          "api": "POST /api/manage/trash/restore",
+          "guard": "Current page available items; !locked&&!loading; optional per-id replacement base names"
+        },
+        {
+          "label": "更换文件名/文件夹名",
+          "effect": "Reveal inline restoration rename form",
+          "api": "none (local UI)",
+          "guard": "Authenticated owner; current note/session guards apply."
+        },
+        {
+          "label": "永久移除文件 / 永久移除所选文件",
+          "effect": "Open frozen selection confirmation WS-108",
+          "api": "none",
+          "guard": "Selection nonempty, available and contains no folders"
+        },
+        {
+          "label": "返回笔记",
+          "effect": "Return to retained note context",
+          "api": "none (local UI)",
+          "guard": "Authenticated owner; current note/session guards apply."
+        }
+      ],
+      "importantStates": [
+        "Loading/empty/filter-empty/error",
+        "Unavailable item remains visible",
+        "Note versus whole-folder actions",
+        "Pending request reconciliation",
+        "Partial batch result",
+        "Unknown deletion date/size remain unknown"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Workspace max-width1100px, padding32px clamp(18px,4vw,48px)64px.<=743px search wraps, batch actions full width and item actions move below title;<=420px item buttons flex, rename input wraps and results stack. Actual320/390/1440 fit unverified."
+      },
+      "testRefs": [
+        "tests/trash-workspace.test.ts",
+        "tests/management-api.test.ts",
+        "tests/e2e/folder-trash.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    },
+    {
+      "id": "WS-109",
+      "title": "Trash restore inline rename form",
+      "kind": "state",
+      "module": "trash",
+      "entry": {
+        "route": "/?view=trash",
+        "trigger": "更换文件名/文件夹名 or NAME_CONFLICT result",
+        "parentId": "WS-107"
+      },
+      "sourceRefs": [
+        "apps/web/components/TrashWorkspace.vue:193",
+        "apps/web/components/TrashWorkspace.vue:303",
+        "apps/web/components/TrashWorkspace.vue:520",
+        "packages/core/files.ts:20"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported."
+      ],
+      "fields": [
+        {
+          "name": "恢复时使用的文件名/文件夹名",
+          "type": "text",
+          "required": false,
+          "constraints": "Empty/absent keeps original. Nonempty<=180 UTF-8 bytes; no U+0000–001F/U+007F / \\ :; no leading dot/trailing space; not AGENTS.md. Notes require.md suffix case-insensitively; folders cannot use reserved _doo-assets. Remains in original parent; cannot enter a path.",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "恢复并打开 / 恢复文件夹 / 恢复所选",
+          "effect": "Restore with optional fileNames map",
+          "api": "POST /api/manage/trash/restore",
+          "guard": "!locked&&!loading; all selected names pass validation; never overwrite existing destination"
+        },
+        {
+          "label": "取消改名 / Escape",
+          "effect": "Delete rename draft and field error; restore trigger focus",
+          "api": "none (local UI)",
+          "guard": "Authenticated owner; current note/session guards apply."
+        }
+      ],
+      "importantStates": [
+        "Default original basename",
+        "Folder/note label difference",
+        "Name conflict automatically expands rename form",
+        "Invalid name inline error",
+        "Cancelled hidden field no longer affects restore"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "Workspace max-width1100px, padding32px clamp(18px,4vw,48px)64px.<=743px search wraps, batch actions full width and item actions move below title;<=420px item buttons flex, rename input wraps and results stack. Actual320/390/1440 fit unverified."
+      },
+      "testRefs": [
+        "tests/trash-workspace.test.ts",
+        "tests/e2e/folder-trash.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "originalManifestContract": {
+    "id": "WS-R044",
+    "title": "Trash workspace page",
+    "kind": "responsive-board",
+    "sourceIds": [
+      "WS-107",
+      "WS-109"
+    ],
+    "panels": [
+      {
+        "label": "A",
+        "sourceId": "WS-107",
+        "title": "Trash workspace page",
+        "role": "authenticated owner",
+        "state": "Full actual trash phone page with search/filter/batch selection, one expanded inline restore-rename row, other item actions below title and reachable paging/results.",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. rows preserve original paths/types/availability/selection and all restore/rename/files-only purge actions",
+        "containedSourceIds": [
+          "WS-109"
+        ]
+      },
+      {
+        "label": "B",
+        "sourceId": "WS-107",
+        "title": "Trash workspace page",
+        "role": "authenticated owner",
+        "state": "Full actual trash phone page with search/filter/batch selection, one expanded inline restore-rename row, other item actions below title and reachable paging/results.",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "presentationInstruction": "Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. rows preserve original paths/types/availability/selection and all restore/rename/files-only purge actions",
+        "containedSourceIds": [
+          "WS-109"
+        ]
+      }
+    ],
+    "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+    "referenceInputs": [
+      {
+        "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+        "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+      },
+      {
+        "path": "docs/design/platform-unification-2026-11-05/baseline/390-trash.png",
+        "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state."
+      },
+      {
+        "path": "apps/web/components/TrashWorkspace.vue",
+        "role": "AUTHORITATIVE SOURCE: apps/web/components/TrashWorkspace.vue:13, apps/web/components/TrashWorkspace.vue:417, apps/server/platform/management.ts:301, shared/management-contracts.ts:57"
+      }
+    ],
+    "functionalInvariants": [
+      "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+      "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+      "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+      "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+      "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "WS-107",
+        "label": "查找 / 刷新列表 / 上一页 / 下一页",
+        "effect": "Load signed-cursor page and new confirmation snapshot",
+        "api": "GET /api/manage/trash?limit=50&q=:q&cursor=:cursor",
+        "guard": "!locked&&!loading; cursor required for next"
+      },
+      {
+        "sourceId": "WS-107",
+        "label": "恢复所选 / 恢复并打开 / 恢复文件夹",
+        "effect": "Restore selected originals preserving note identity; only note restore opens editor",
+        "api": "POST /api/manage/trash/restore",
+        "guard": "Current page available items; !locked&&!loading; optional per-id replacement base names"
+      },
+      {
+        "sourceId": "WS-107",
+        "label": "更换文件名/文件夹名",
+        "effect": "Reveal inline restoration rename form",
+        "api": "none (local UI)",
+        "guard": "Authenticated owner; current note/session guards apply."
+      },
+      {
+        "sourceId": "WS-107",
+        "label": "永久移除文件 / 永久移除所选文件",
+        "effect": "Open frozen selection confirmation WS-108",
+        "api": "none",
+        "guard": "Selection nonempty, available and contains no folders"
+      },
+      {
+        "sourceId": "WS-107",
+        "label": "返回笔记",
+        "effect": "Return to retained note context",
+        "api": "none (local UI)",
+        "guard": "Authenticated owner; current note/session guards apply."
+      },
+      {
+        "sourceId": "WS-109",
+        "label": "恢复并打开 / 恢复文件夹 / 恢复所选",
+        "effect": "Restore with optional fileNames map",
+        "api": "POST /api/manage/trash/restore",
+        "guard": "!locked&&!loading; all selected names pass validation; never overwrite existing destination"
+      },
+      {
+        "sourceId": "WS-109",
+        "label": "取消改名 / Escape",
+        "effect": "Delete rename draft and field error; restore trigger focus",
+        "api": "none (local UI)",
+        "guard": "Authenticated owner; current note/session guards apply."
+      }
+    ],
+    "forbiddenAdditions": [
+      "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+      "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+      "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+      "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+      "No native OS/browser picker or print-dialog chrome.",
+      "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+      "No developer/source/API path or review-note text inside product UI."
+    ],
+    "responsiveContract": [
+      {
+        "assetId": "WS-R044",
+        "representation": "direct",
+        "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Workspace max-width1100px, padding32px clamp(18px,4vw,48px)64px.<=743px search wraps, batch actions full width and item actions move below title;<=420px item buttons flex, rename input wraps and results stack. Actual320/390/1440 fit unverified."
+        },
+        "requiredFieldOrder": [
+          "搜索回收站",
+          "本页文件状态",
+          "选择项目 / 全选本页"
+        ],
+        "requiredFields": [
+          {
+            "name": "搜索回收站",
+            "type": "search",
+            "required": false,
+            "constraints": "maxLength200; trimmed query filters original path/file name on server.",
+            "sensitive": false
+          },
+          {
+            "name": "本页文件状态",
+            "type": "select",
+            "required": true,
+            "constraints": "all | available | unavailable; filters current page only and clears selection.",
+            "sensitive": false
+          },
+          {
+            "name": "选择项目 / 全选本页",
+            "type": "checkboxes",
+            "required": false,
+            "constraints": "Only readable items on current loaded page; page size50 UI; server limit1–100; selection resets on page load.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "查找 / 刷新列表 / 上一页 / 下一页",
+            "effect": "Load signed-cursor page and new confirmation snapshot",
+            "api": "GET /api/manage/trash?limit=50&q=:q&cursor=:cursor",
+            "guard": "!locked&&!loading; cursor required for next"
+          },
+          {
+            "label": "恢复所选 / 恢复并打开 / 恢复文件夹",
+            "effect": "Restore selected originals preserving note identity; only note restore opens editor",
+            "api": "POST /api/manage/trash/restore",
+            "guard": "Current page available items; !locked&&!loading; optional per-id replacement base names"
+          },
+          {
+            "label": "更换文件名/文件夹名",
+            "effect": "Reveal inline restoration rename form",
+            "api": "none (local UI)",
+            "guard": "Authenticated owner; current note/session guards apply."
+          },
+          {
+            "label": "永久移除文件 / 永久移除所选文件",
+            "effect": "Open frozen selection confirmation WS-108",
+            "api": "none",
+            "guard": "Selection nonempty, available and contains no folders"
+          },
+          {
+            "label": "返回笔记",
+            "effect": "Return to retained note context",
+            "api": "none (local UI)",
+            "guard": "Authenticated owner; current note/session guards apply."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported.",
+          "Management route checks ownerId exists in user table. Batch IDs1–100 unique, /^[A-Za-z0-9_-]{1,128}$/; requestId nonempty<=128 and no control characters."
+        ],
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-107"
+      },
+      {
+        "assetId": "WS-R044",
+        "representation": "shared-geometry",
+        "reason": "Actual full TrashWorkspace phone page contains expanded rename, results/pending region and responsive row actions at390/320. Frozen request/selection locks, exact filename constraints and retry outcomes remain source-specific.",
+        "reuseSourceId": "WS-107",
+        "widths": [
+          320,
+          390
+        ],
+        "requiresActualFitReview": true,
+        "sourceConstraint": {
+          "supported": "source-defined; runtime at320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Workspace max-width1100px, padding32px clamp(18px,4vw,48px)64px.<=743px search wraps, batch actions full width and item actions move below title;<=420px item buttons flex, rename input wraps and results stack. Actual320/390/1440 fit unverified."
+        },
+        "requiredFieldOrder": [
+          "恢复时使用的文件名/文件夹名"
+        ],
+        "requiredFields": [
+          {
+            "name": "恢复时使用的文件名/文件夹名",
+            "type": "text",
+            "required": false,
+            "constraints": "Empty/absent keeps original. Nonempty<=180 UTF-8 bytes; no U+0000–001F/U+007F / \\ :; no leading dot/trailing space; not AGENTS.md. Notes require.md suffix case-insensitively; folders cannot use reserved _doo-assets. Remains in original parent; cannot enter a path.",
+            "sensitive": false
+          }
+        ],
+        "requiredActions": [
+          {
+            "label": "恢复并打开 / 恢复文件夹 / 恢复所选",
+            "effect": "Restore with optional fileNames map",
+            "api": "POST /api/manage/trash/restore",
+            "guard": "!locked&&!loading; all selected names pass validation; never overwrite existing destination"
+          },
+          {
+            "label": "取消改名 / Escape",
+            "effect": "Delete rename draft and field error; restore trigger focus",
+            "api": "none (local UI)",
+            "guard": "Authenticated owner; current note/session guards apply."
+          }
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported."
+        ],
+        "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+        "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+        "sourceId": "WS-109"
+      }
+    ],
+    "prompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-R044 Trash workspace page\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-107\", \"title\": \"Trash workspace page\", \"role\": \"authenticated owner\", \"state\": \"Full actual trash phone page with search/filter/batch selection, one expanded inline restore-rename row, other item actions below title and reachable paging/results.\", \"viewport\": {\"width\": 390, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. rows preserve original paths/types/availability/selection and all restore/rename/files-only purge actions\", \"containedSourceIds\": [\"WS-109\"]}, {\"label\": \"B\", \"sourceId\": \"WS-107\", \"title\": \"Trash workspace page\", \"role\": \"authenticated owner\", \"state\": \"Full actual trash phone page with search/filter/batch selection, one expanded inline restore-rename row, other item actions below title and reachable paging/results.\", \"viewport\": {\"width\": 320, \"height\": 844}, \"presentationInstruction\": \"Separate phone views,390 then320 as labeled; preserve source field order/conditions/main and secondary actions. rows preserve original paths/types/availability/selection and all restore/rename/files-only purge actions\", \"containedSourceIds\": [\"WS-109\"]}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-107\", \"fieldsInOrder\": [{\"name\": \"搜索回收站\", \"type\": \"search\", \"required\": false, \"constraints\": \"maxLength200; trimmed query filters original path/file name on server.\", \"sensitive\": false}, {\"name\": \"本页文件状态\", \"type\": \"select\", \"required\": true, \"constraints\": \"all | available | unavailable; filters current page only and clears selection.\", \"sensitive\": false}, {\"name\": \"选择项目 / 全选本页\", \"type\": \"checkboxes\", \"required\": false, \"constraints\": \"Only readable items on current loaded page; page size50 UI; server limit1–100; selection resets on page load.\", \"sensitive\": false}], \"actions\": [{\"label\": \"查找 / 刷新列表 / 上一页 / 下一页\", \"effect\": \"Load signed-cursor page and new confirmation snapshot\", \"api\": \"GET /api/manage/trash?limit=50&q=:q&cursor=:cursor\", \"guard\": \"!locked&&!loading; cursor required for next\"}, {\"label\": \"恢复所选 / 恢复并打开 / 恢复文件夹\", \"effect\": \"Restore selected originals preserving note identity; only note restore opens editor\", \"api\": \"POST /api/manage/trash/restore\", \"guard\": \"Current page available items; !locked&&!loading; optional per-id replacement base names\"}, {\"label\": \"更换文件名/文件夹名\", \"effect\": \"Reveal inline restoration rename form\", \"api\": \"none (local UI)\", \"guard\": \"Authenticated owner; current note/session guards apply.\"}, {\"label\": \"永久移除文件 / 永久移除所选文件\", \"effect\": \"Open frozen selection confirmation WS-108\", \"api\": \"none\", \"guard\": \"Selection nonempty, available and contains no folders\"}, {\"label\": \"返回笔记\", \"effect\": \"Return to retained note context\", \"api\": \"none (local UI)\", \"guard\": \"Authenticated owner; current note/session guards apply.\"}], \"importantStates\": [\"Loading/empty/filter-empty/error\", \"Unavailable item remains visible\", \"Note versus whole-folder actions\", \"Pending request reconciliation\", \"Partial batch result\", \"Unknown deletion date/size remain unknown\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported.\", \"Management route checks ownerId exists in user table. Batch IDs1–100 unique, /^[A-Za-z0-9_-]{1,128}$/; requestId nonempty<=128 and no control characters.\"]}, {\"panel\": \"A\", \"sourceId\": \"WS-109\", \"fieldsInOrder\": [{\"name\": \"恢复时使用的文件名/文件夹名\", \"type\": \"text\", \"required\": false, \"constraints\": \"Empty/absent keeps original. Nonempty<=180 UTF-8 bytes; no U+0000–001F/U+007F / \\\\ :; no leading dot/trailing space; not AGENTS.md. Notes require.md suffix case-insensitively; folders cannot use reserved _doo-assets. Remains in original parent; cannot enter a path.\", \"sensitive\": false}], \"actions\": [{\"label\": \"恢复并打开 / 恢复文件夹 / 恢复所选\", \"effect\": \"Restore with optional fileNames map\", \"api\": \"POST /api/manage/trash/restore\", \"guard\": \"!locked&&!loading; all selected names pass validation; never overwrite existing destination\"}, {\"label\": \"取消改名 / Escape\", \"effect\": \"Delete rename draft and field error; restore trigger focus\", \"api\": \"none (local UI)\", \"guard\": \"Authenticated owner; current note/session guards apply.\"}], \"importantStates\": [\"Default original basename\", \"Folder/note label difference\", \"Name conflict automatically expands rename form\", \"Invalid name inline error\", \"Cancelled hidden field no longer affects restore\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-107\", \"fieldsInOrder\": [{\"name\": \"搜索回收站\", \"type\": \"search\", \"required\": false, \"constraints\": \"maxLength200; trimmed query filters original path/file name on server.\", \"sensitive\": false}, {\"name\": \"本页文件状态\", \"type\": \"select\", \"required\": true, \"constraints\": \"all | available | unavailable; filters current page only and clears selection.\", \"sensitive\": false}, {\"name\": \"选择项目 / 全选本页\", \"type\": \"checkboxes\", \"required\": false, \"constraints\": \"Only readable items on current loaded page; page size50 UI; server limit1–100; selection resets on page load.\", \"sensitive\": false}], \"actions\": [{\"label\": \"查找 / 刷新列表 / 上一页 / 下一页\", \"effect\": \"Load signed-cursor page and new confirmation snapshot\", \"api\": \"GET /api/manage/trash?limit=50&q=:q&cursor=:cursor\", \"guard\": \"!locked&&!loading; cursor required for next\"}, {\"label\": \"恢复所选 / 恢复并打开 / 恢复文件夹\", \"effect\": \"Restore selected originals preserving note identity; only note restore opens editor\", \"api\": \"POST /api/manage/trash/restore\", \"guard\": \"Current page available items; !locked&&!loading; optional per-id replacement base names\"}, {\"label\": \"更换文件名/文件夹名\", \"effect\": \"Reveal inline restoration rename form\", \"api\": \"none (local UI)\", \"guard\": \"Authenticated owner; current note/session guards apply.\"}, {\"label\": \"永久移除文件 / 永久移除所选文件\", \"effect\": \"Open frozen selection confirmation WS-108\", \"api\": \"none\", \"guard\": \"Selection nonempty, available and contains no folders\"}, {\"label\": \"返回笔记\", \"effect\": \"Return to retained note context\", \"api\": \"none (local UI)\", \"guard\": \"Authenticated owner; current note/session guards apply.\"}], \"importantStates\": [\"Loading/empty/filter-empty/error\", \"Unavailable item remains visible\", \"Note versus whole-folder actions\", \"Pending request reconciliation\", \"Partial batch result\", \"Unknown deletion date/size remain unknown\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported.\", \"Management route checks ownerId exists in user table. Batch IDs1–100 unique, /^[A-Za-z0-9_-]{1,128}$/; requestId nonempty<=128 and no control characters.\"]}, {\"panel\": \"B\", \"sourceId\": \"WS-109\", \"fieldsInOrder\": [{\"name\": \"恢复时使用的文件名/文件夹名\", \"type\": \"text\", \"required\": false, \"constraints\": \"Empty/absent keeps original. Nonempty<=180 UTF-8 bytes; no U+0000–001F/U+007F / \\\\ :; no leading dot/trailing space; not AGENTS.md. Notes require.md suffix case-insensitively; folders cannot use reserved _doo-assets. Remains in original parent; cannot enter a path.\", \"sensitive\": false}], \"actions\": [{\"label\": \"恢复并打开 / 恢复文件夹 / 恢复所选\", \"effect\": \"Restore with optional fileNames map\", \"api\": \"POST /api/manage/trash/restore\", \"guard\": \"!locked&&!loading; all selected names pass validation; never overwrite existing destination\"}, {\"label\": \"取消改名 / Escape\", \"effect\": \"Delete rename draft and field error; restore trigger focus\", \"api\": \"none (local UI)\", \"guard\": \"Authenticated owner; current note/session guards apply.\"}], \"importantStates\": [\"Default original basename\", \"Folder/note label difference\", \"Name conflict automatically expands rename form\", \"Invalid name inline error\", \"Cancelled hidden field no longer affects restore\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported.\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+    "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R044.png",
+    "reviewStatus": "pending-generation",
+    "sourceContracts": [
+      {
+        "id": "WS-107",
+        "title": "Trash workspace page",
+        "kind": "page",
+        "module": "trash",
+        "entry": {
+          "route": "/?view=trash",
+          "trigger": "回收站 main navigation",
+          "parentId": "WS-001"
+        },
+        "sourceRefs": [
+          "apps/web/components/TrashWorkspace.vue:13",
+          "apps/web/components/TrashWorkspace.vue:417",
+          "apps/server/platform/management.ts:301",
+          "shared/management-contracts.ts:57"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported.",
+          "Management route checks ownerId exists in user table. Batch IDs1–100 unique, /^[A-Za-z0-9_-]{1,128}$/; requestId nonempty<=128 and no control characters."
+        ],
+        "fields": [
+          {
+            "name": "搜索回收站",
+            "type": "search",
+            "required": false,
+            "constraints": "maxLength200; trimmed query filters original path/file name on server.",
+            "sensitive": false
+          },
+          {
+            "name": "本页文件状态",
+            "type": "select",
+            "required": true,
+            "constraints": "all | available | unavailable; filters current page only and clears selection.",
+            "sensitive": false
+          },
+          {
+            "name": "选择项目 / 全选本页",
+            "type": "checkboxes",
+            "required": false,
+            "constraints": "Only readable items on current loaded page; page size50 UI; server limit1–100; selection resets on page load.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "查找 / 刷新列表 / 上一页 / 下一页",
+            "effect": "Load signed-cursor page and new confirmation snapshot",
+            "api": "GET /api/manage/trash?limit=50&q=:q&cursor=:cursor",
+            "guard": "!locked&&!loading; cursor required for next"
+          },
+          {
+            "label": "恢复所选 / 恢复并打开 / 恢复文件夹",
+            "effect": "Restore selected originals preserving note identity; only note restore opens editor",
+            "api": "POST /api/manage/trash/restore",
+            "guard": "Current page available items; !locked&&!loading; optional per-id replacement base names"
+          },
+          {
+            "label": "更换文件名/文件夹名",
+            "effect": "Reveal inline restoration rename form",
+            "api": "none (local UI)",
+            "guard": "Authenticated owner; current note/session guards apply."
+          },
+          {
+            "label": "永久移除文件 / 永久移除所选文件",
+            "effect": "Open frozen selection confirmation WS-108",
+            "api": "none",
+            "guard": "Selection nonempty, available and contains no folders"
+          },
+          {
+            "label": "返回笔记",
+            "effect": "Return to retained note context",
+            "api": "none (local UI)",
+            "guard": "Authenticated owner; current note/session guards apply."
+          }
+        ],
+        "importantStates": [
+          "Loading/empty/filter-empty/error",
+          "Unavailable item remains visible",
+          "Note versus whole-folder actions",
+          "Pending request reconciliation",
+          "Partial batch result",
+          "Unknown deletion date/size remain unknown"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Workspace max-width1100px, padding32px clamp(18px,4vw,48px)64px.<=743px search wraps, batch actions full width and item actions move below title;<=420px item buttons flex, rename input wraps and results stack. Actual320/390/1440 fit unverified."
+        },
+        "testRefs": [
+          "tests/trash-workspace.test.ts",
+          "tests/management-api.test.ts",
+          "tests/e2e/folder-trash.spec.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      },
+      {
+        "id": "WS-109",
+        "title": "Trash restore inline rename form",
+        "kind": "state",
+        "module": "trash",
+        "entry": {
+          "route": "/?view=trash",
+          "trigger": "更换文件名/文件夹名 or NAME_CONFLICT result",
+          "parentId": "WS-107"
+        },
+        "sourceRefs": [
+          "apps/web/components/TrashWorkspace.vue:193",
+          "apps/web/components/TrashWorkspace.vue:303",
+          "apps/web/components/TrashWorkspace.vue:520",
+          "packages/core/files.ts:20"
+        ],
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+          "locked=busy||pendingRequest||purgeDraft; locks selection/search/pagination/new restore/purge while operation or confirmation pending. Only available items selectable; folder restore supported, folder purge unsupported."
+        ],
+        "fields": [
+          {
+            "name": "恢复时使用的文件名/文件夹名",
+            "type": "text",
+            "required": false,
+            "constraints": "Empty/absent keeps original. Nonempty<=180 UTF-8 bytes; no U+0000–001F/U+007F / \\ :; no leading dot/trailing space; not AGENTS.md. Notes require.md suffix case-insensitively; folders cannot use reserved _doo-assets. Remains in original parent; cannot enter a path.",
+            "sensitive": false
+          }
+        ],
+        "actions": [
+          {
+            "label": "恢复并打开 / 恢复文件夹 / 恢复所选",
+            "effect": "Restore with optional fileNames map",
+            "api": "POST /api/manage/trash/restore",
+            "guard": "!locked&&!loading; all selected names pass validation; never overwrite existing destination"
+          },
+          {
+            "label": "取消改名 / Escape",
+            "effect": "Delete rename draft and field error; restore trigger focus",
+            "api": "none (local UI)",
+            "guard": "Authenticated owner; current note/session guards apply."
+          }
+        ],
+        "importantStates": [
+          "Default original basename",
+          "Folder/note label difference",
+          "Name conflict automatically expands rename form",
+          "Invalid name inline error",
+          "Cancelled hidden field no longer affects restore"
+        ],
+        "responsive": {
+          "supported": "source-defined; runtime at320/390/1440 unverified",
+          "widths": [
+            320,
+            390,
+            1440
+          ],
+          "behavior": "Workspace max-width1100px, padding32px clamp(18px,4vw,48px)64px.<=743px search wraps, batch actions full width and item actions move below title;<=420px item buttons flex, rename input wraps and results stack. Actual320/390/1440 fit unverified."
+        },
+        "testRefs": [
+          "tests/trash-workspace.test.ts",
+          "tests/e2e/folder-trash.spec.ts"
+        ],
+        "requiresDistinctImage": true,
+        "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+        "notes": [
+          "Source inventory only; no runtime behavior asserted."
+        ],
+        "inventoryFile": "coverage/workspace.json"
+      }
+    ],
+    "hostContracts": [
+      {
+        "sourceId": "WS-107",
+        "parentId": "WS-001",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      },
+      {
+        "sourceId": "WS-109",
+        "parentId": "WS-107",
+        "role": [
+          "authenticated owner"
+        ],
+        "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+      }
+    ],
+    "presentationScope": "actual-local-component-or-independent-comparison",
+    "compositionRules": {
+      "fullPage": false,
+      "maxIndependentSections": 3,
+      "maxCompactRowsPerRenderer": 7,
+      "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+      "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+      "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+      "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+    },
+    "geometryFamily": "exact source renderer and field/action layout: WS-107,WS-109",
+    "stateCoverageRefs": [],
+    "statePatternRefs": [
+      {
+        "sourceId": "WS-107",
+        "assetId": "WS-D081",
+        "representation": "same-renderer-substitution"
+      },
+      {
+        "sourceId": "WS-109",
+        "assetId": "WS-D083",
+        "representation": "same-renderer-substitution"
+      }
+    ],
+    "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+    "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review."
+  },
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "manifestReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-049.json",
+  "sourceDerived": true,
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "submittedPrompt": "Use case:ui-mockup. 两个独立完整中文手机页面，A390px B320px，普通可读字号，真实正文纵向滚动与底部固定导航，不用手机外壳。样式参考1仅扁平白底、浅灰面、蓝色#4566c6、细边框、小8px圆角。保持DooKnow所有者宿主顶部汉堡/DooKnow/私人笔记，底部笔记/最近/收藏/应用/更多各自真实选中。图2起是现有内容参考。两页完整回收站内容，回收站tab在更多中被选中，顶部知识库管理/回收站/返回笔记，说明“笔记和文件夹均可恢复，保留原笔记标识；原位置被占用时，可以更换名称。”搜索回收站输入空placeholder按原路径或文件名查找；本页文件状态select全部状态、查找/刷新列表。全选本页可读取项目checkbox未选，说明本页3项·已选1项，恢复所选与永久移除所选文件可用（只选一篇可读取笔记）。列表3条，第一勾选“示例笔记”原路径00-Inbox/示例笔记.md，删除时间2026/11/4 16:00大小2.0 KiB；展开恢复时使用的文件名input值示例笔记-恢复.md和取消改名，提示“仅更改名称，仍恢复到原目录；不会覆盖已有项目。” 下方恢复并打开/更换文件名/永久移除文件。第二未选文件夹“旧资料”原路径30-Knowledge/旧资料，元数据文件夹·整体恢复、删除时间未知/大小未知，不伪造值；动作恢复文件夹/更换文件夹名，没有永久删除文件夹。第三“不可读取示例”原路径00-Inbox/不可读取示例.md，checkbox与恢复并打开/更换文件名/永久移除文件全部灰禁用，标暂不可读取。正文正常滚动，页尾上一页禁用/第1页/下一页禁用，真实保留说明“文件夹支持整体恢复，暂不支持永久移除。永久移除仅针对所选回收站原文件，无法在此恢复；历史版本、备份及必要的元数据仍按各自的保留规则保存。”三条列表长页可内滚动，不缩字号。A390/B320同字段与guard，按钮换行可达。",
+  "actualToolArguments": {
+    "prompt": "Use case:ui-mockup. 两个独立完整中文手机页面，A390px B320px，普通可读字号，真实正文纵向滚动与底部固定导航，不用手机外壳。样式参考1仅扁平白底、浅灰面、蓝色#4566c6、细边框、小8px圆角。保持DooKnow所有者宿主顶部汉堡/DooKnow/私人笔记，底部笔记/最近/收藏/应用/更多各自真实选中。图2起是现有内容参考。两页完整回收站内容，回收站tab在更多中被选中，顶部知识库管理/回收站/返回笔记，说明“笔记和文件夹均可恢复，保留原笔记标识；原位置被占用时，可以更换名称。”搜索回收站输入空placeholder按原路径或文件名查找；本页文件状态select全部状态、查找/刷新列表。全选本页可读取项目checkbox未选，说明本页3项·已选1项，恢复所选与永久移除所选文件可用（只选一篇可读取笔记）。列表3条，第一勾选“示例笔记”原路径00-Inbox/示例笔记.md，删除时间2026/11/4 16:00大小2.0 KiB；展开恢复时使用的文件名input值示例笔记-恢复.md和取消改名，提示“仅更改名称，仍恢复到原目录；不会覆盖已有项目。” 下方恢复并打开/更换文件名/永久移除文件。第二未选文件夹“旧资料”原路径30-Knowledge/旧资料，元数据文件夹·整体恢复、删除时间未知/大小未知，不伪造值；动作恢复文件夹/更换文件夹名，没有永久删除文件夹。第三“不可读取示例”原路径00-Inbox/不可读取示例.md，checkbox与恢复并打开/更换文件名/永久移除文件全部灰禁用，标暂不可读取。正文正常滚动，页尾上一页禁用/第1页/下一页禁用，真实保留说明“文件夹支持整体恢复，暂不支持永久移除。永久移除仅针对所选回收站原文件，无法在此恢复；历史版本、备份及必要的元数据仍按各自的保留规则保存。”三条列表长页可内滚动，不缩字号。A390/B320同字段与guard，按钮换行可达。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-trash.png"
+    ],
+    "transparent_background": false
+  },
+  "inputs": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    },
+    {
+      "order": 2,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-trash.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state.",
+      "sha256": "0f75022d513b895e5cdfe000d5509199b2cdcde3811833bcda0da5c2ef1b9204",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "inputReferences": [
+    {
+      "order": 1,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "viewedBeforeSubmission": true
+    },
+    {
+      "order": 2,
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-trash.png",
+      "role": "CONTENT/BEHAVIOR ONLY: actual before-unification fixture, not target style; preserves role and implemented controls, not proof of an unverified flag/state.",
+      "sha256": "0f75022d513b895e5cdfe000d5509199b2cdcde3811833bcda0da5c2ef1b9204",
+      "dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "viewedBeforeSubmission": true
+    }
+  ],
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-6443794c-6d09-4144-b283-dba72721ac62.png",
+  "toolDefaultOutputSource": "$CODEX_HOME/generated_images (actual path in toolOutputFile)",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-R044.png",
+  "sha256": "21f4e3a10b473e643a05140328a0a8d747c45c89ad629c20b7b96c56318e092c",
+  "bytes": 1556514,
+  "dimensions": {
+    "width": 1326,
+    "height": 1187
+  },
+  "generatedAtUtc": "2026-11-05T09:02:55.597079+00:00",
+  "revisionOf": null,
+  "generationAttempts": [
+    {
+      "actualToolArguments": {
+        "prompt": "Use case:ui-mockup. 两个独立完整中文手机页面，A390px B320px，普通可读字号，真实正文纵向滚动与底部固定导航，不用手机外壳。样式参考1仅扁平白底、浅灰面、蓝色#4566c6、细边框、小8px圆角。保持DooKnow所有者宿主顶部汉堡/DooKnow/私人笔记，底部笔记/最近/收藏/应用/更多各自真实选中。图2起是现有内容参考。两页完整回收站内容，回收站tab在更多中被选中，顶部知识库管理/回收站/返回笔记，说明“笔记和文件夹均可恢复，保留原笔记标识；原位置被占用时，可以更换名称。”搜索回收站输入空placeholder按原路径或文件名查找；本页文件状态select全部状态、查找/刷新列表。全选本页可读取项目checkbox未选，说明本页3项·已选1项，恢复所选与永久移除所选文件可用（只选一篇可读取笔记）。列表3条，第一勾选“示例笔记”原路径00-Inbox/示例笔记.md，删除时间2026/11/4 16:00大小2.0 KiB；展开恢复时使用的文件名input值示例笔记-恢复.md和取消改名，提示“仅更改名称，仍恢复到原目录；不会覆盖已有项目。” 下方恢复并打开/更换文件名/永久移除文件。第二未选文件夹“旧资料”原路径30-Knowledge/旧资料，元数据文件夹·整体恢复、删除时间未知/大小未知，不伪造值；动作恢复文件夹/更换文件夹名，没有永久删除文件夹。第三“不可读取示例”原路径00-Inbox/不可读取示例.md，checkbox与恢复并打开/更换文件名/永久移除文件全部灰禁用，标暂不可读取。正文正常滚动，页尾上一页禁用/第1页/下一页禁用，真实保留说明“文件夹支持整体恢复，暂不支持永久移除。永久移除仅针对所选回收站原文件，无法在此恢复；历史版本、备份及必要的元数据仍按各自的保留规则保存。”三条列表长页可内滚动，不缩字号。A390/B320同字段与guard，按钮换行可达。",
+        "referenced_image_paths": [
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+          "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/baseline/390-trash.png"
+        ],
+        "transparent_background": false
+      },
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1aace-b2f1-7513-b31b-32aadbefbb14/exec-6443794c-6d09-4144-b283-dba72721ac62.png",
+      "status": "saved"
+    }
+  ],
+  "postprocessing": "original PNG copied without pixel modification",
+  "selfInspection": {
+    "method": "Viewed actual inputs and generated native preview; compared selected state to source contracts",
+    "concerns": [
+      "Source fields/data examples only; static image does not verify scrolling, permissions or operation result."
+    ],
+    "runtimeBehaviorVerified": false
+  },
+  "reviewStatus": "pending-independent-review",
+  "pendingReview": true
+}

@@ -1,0 +1,295 @@
+{
+  "id": "MP-D002",
+  "title": "知识库与存储",
+  "kind": "generated-design",
+  "sourceIds": [
+    "ST-002"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "ST-002",
+      "title": "知识库与存储",
+      "role": "authenticated-owner",
+      "state": "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+    }
+  ],
+  "viewportIntent": "1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved DooKnow shared palette/density only; existing settings baseline controls/navigation authoritative"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入"
+    }
+  ],
+  "functionalInvariants": [
+    {
+      "sourceId": "ST-002",
+      "route": "/?view=settings&section=library",
+      "trigger": "设置→知识库与存储 / 直接地址",
+      "parentId": null,
+      "roles": [
+        "authenticated-owner"
+      ],
+      "permissionRules": [
+        "管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。"
+      ],
+      "fields": [],
+      "importantStates": [
+        "知识库未绑定/不可用",
+        "分区独立读取失败",
+        "长目录路径",
+        "批量整理、存储、Git、共享链接、任务常驻区域"
+      ],
+      "notes": []
+    },
+    {
+      "type": "composition",
+      "details": [
+        "完整知识库与存储长页：当前库名称/时区/可用性/原文目录details；批量导入/便携导入/导出，便携任务与传输任务、批量整理、存储、云端Git同步、共享链接常驻区域。目录绑定由部署管理，无迁移路径输入。"
+      ]
+    },
+    {
+      "type": "role-shell",
+      "rule": "所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。"
+    }
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "ST-002",
+      "label": "刷新信息",
+      "effect": "更新知识库路径、可用性与时区",
+      "api": "GET /api/manage/overview",
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    },
+    {
+      "sourceId": "ST-002",
+      "label": "批量导入 / 导入便携包 / 导出资料",
+      "effect": "打开ST-018/ST-022/ST-024",
+      "api": null,
+      "guard": "已登录所有者；请求期间禁用重复操作"
+    }
+  ],
+  "forbiddenAdditions": [
+    "ToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。",
+    "不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。",
+    "协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF默认不是可编辑输入；源码明确的只读回执/任务编号可显示合成占位；仅真实登记控件可编辑，state/data绑定中源码明确的只读显示也保留，API清单放设计审查注解而非产品。",
+    "所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。",
+    "本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。",
+    "多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。"
+  ],
+  "responsiveContract": [
+    {
+      "sourceId": "ST-002",
+      "targetWidths": [
+        390,
+        320
+      ],
+      "behavior": "1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。",
+      "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+    }
+  ],
+  "prompt": "Use case: ui-mockup targeted correction of the provided full-page generated DooKnow settings design. Preserve the entire image, exact Chinese content, all fields/controls/values/states, global header, settings sidebar, card hierarchy, full long canvas and all page sections. Make ONLY these precise corrections: (1) Owner rail at far left, top 笔记 icon and its 笔记 label must be neutral gray #657084, matching 最近 and 收藏. The ONLY active owner-rail destination is 设置 at bottom. Keep the account avatar O and all navigation items. Do not remove the pale-blue selected 知识库与存储 row in the secondary contextual sidebar. (2) In the 存储占用 section immediately under the table, add the existing source's small muted read-only line “统计时间：—” above “统计可能不完整，查看统计范围与提示。”; the em dash is an uncaptured-data design placeholder, not an editable field. Do not add time or byte measurements. (3) In the 云端同步 section above the existing unassociated message, retain the source's read-only local repository status line, using only unspecified visual data placeholders: “本地分支：— · 未提交文件：—”. Do not invent connection, branch names, remote URL, push/pull controls or success status. All other pixels/content/meaning/layout unchanged. Keep clear typography, flat white/light-gray surfaces, thin lines and blue only for actual active/primary controls; no new labels, captions, overlays, sources, protocol inputs or hidden fields. Output one complete full-page raster only.\nResolution request: produce approximately 1536×3840 pixels for this 2.5:1 tall document, with readable small Chinese text at native resolution. Preserve the same full-page composition and do not crop. Do not fake resolution by changing UI scale.",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D002.png",
+  "reviewStatus": "pending-independent-review",
+  "generationInstruction": "Style-only unification of one coherent actual baseline settings page. Use actual matching screenshot as content/role/navigation authority and PILOT-WS001 only as muted palette, compact 64px owner rail / global header hierarchy, flat surfaces and aligned fields/toolbar. Preserve settings context labels, currently visible fields, busy/read-only/connection state and existing buttons. Source-hidden fields stay hidden in this selected flag/baseline; other conditions mapped in state matrices. No transfer of note tree into settings, ToDoo logo/text, invented notifications/actions/features, fake connected states or protocol fields. Real template source outranks generic API field summaries. Full concise prompt actually submitted + full job reference/contract mapping must be saved; no developer captions inside product UI.",
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "Use case: ui-mockup targeted correction of the provided full-page generated DooKnow settings design. Preserve the entire image, exact Chinese content, all fields/controls/values/states, global header, settings sidebar, card hierarchy, full long canvas and all page sections. Make ONLY these precise corrections: (1) Owner rail at far left, top 笔记 icon and its 笔记 label must be neutral gray #657084, matching 最近 and 收藏. The ONLY active owner-rail destination is 设置 at bottom. Keep the account avatar O and all navigation items. Do not remove the pale-blue selected 知识库与存储 row in the secondary contextual sidebar. (2) In the 存储占用 section immediately under the table, add the existing source's small muted read-only line “统计时间：—” above “统计可能不完整，查看统计范围与提示。”; the em dash is an uncaptured-data design placeholder, not an editable field. Do not add time or byte measurements. (3) In the 云端同步 section above the existing unassociated message, retain the source's read-only local repository status line, using only unspecified visual data placeholders: “本地分支：— · 未提交文件：—”. Do not invent connection, branch names, remote URL, push/pull controls or success status. All other pixels/content/meaning/layout unchanged. Keep clear typography, flat white/light-gray surfaces, thin lines and blue only for actual active/primary controls; no new labels, captions, overlays, sources, protocol inputs or hidden fields. Output one complete full-page raster only.\nResolution request: produce approximately 1536×3840 pixels for this 2.5:1 tall document, with readable small Chinese text at native resolution. Preserve the same full-page composition and do not crop. Do not fake resolution by changing UI scale.",
+  "batchOriginalPrompt": "用已核实的内置GPT-Image2生成一个中文设计资产。ToDoo仅style-only：浅灰侧栏/白内容、蓝色主动作、细线小圆角、清楚字体层级/间距/密度与响应式；保留DooKnow和真实模块菜单。\n\nMP-D002 知识库与存储\n\n1440 CSS px桌面宿主；主页面/密集表单独立且可延长纵向画布以保留完整字段。窗口按源码宽度约束，板外画布可扩大而不缩成缩略图。\n\n角色壳：所有者私有管理；只用平台真实主导航与8项设置二级菜单/实际插件宿主，不借ToDoo业务菜单。\n\n明确独立场景：\nA | ST-002 | 知识库与存储 | role=authenticated-owner | state=实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板\n\n完整构图：\n完整知识库与存储长页：当前库名称/时区/可用性/原文目录details；批量导入/便携导入/导出，便携任务与传输任务、批量整理、存储、云端Git同步、共享链接常驻区域。目录绑定由部署管理，无迁移路径输入。\n\n精确字段/操作/权限合同（API元数据不画成输入）：\nST-002权限：管理API要求已登录所有者；除独立/auth处理路径外，/api写请求须同源Origin及x-csrf-token；维护模式503（apps/server/app.ts:141）。\nST-002真实可见字段顺序：无额外编辑输入，不发明控件。\nST-002动作白名单：刷新信息 => 更新知识库路径、可用性与时区；guard=已登录所有者；请求期间禁用重复操作；接口约束=GET /api/manage/overview\nST-002动作白名单：批量导入 / 导入便携包 / 导出资料 => 打开ST-018/ST-022/ST-024；guard=已登录所有者；请求期间禁用重复操作\n\n响应式合同：\n1000px最大内容宽度；窄屏缩小内边距、操作区换行；≤600px返回按钮短标签；≤430px非开关偏好行纵排。源码支持，未运行浏览器验证。\n390/320目标：label/错误/长URL路径换行；表格代码仅内层滚动，无页面横向溢出；窗口限高正文滚动/页脚可达，focus可见。SettingsOverlay与PluginPanel各自真实busy/dirty关闭差异不可混用；公开/登录/首启/OAuth无主人私有栏。\n\n硬性禁止：\nToDoo仅是style-only：提取真实两级层级、浅灰侧栏/白底、蓝色主动作、细线、小圆角、字体/间距/密度，禁止复制任务/日历/专注/习惯内容和菜单。DooKnow保留实际模块品牌。\n不新增团队/成员/组织、AI聊天、社交登录、浏览器注册/找回密码或分享密码门。\n协议元数据requestId、expectedVersion/expectedModifiedAt、hash、opaque cursor、nonce、CSRF只是不可见guard，不画成输入；仅fields中的真实UI控件可编辑，API清单放设计审查注解而非产品。\n所有秘密只用掩码或<token>/<private-key>；服务器位置仅用/srv/example占位；不显示真实凭据/原文/私有目录。\n本地保存、Git提交、远端push、加密备份、博客发布/启用独立；不硬编码成功数量、在线状态或业务返回。\n多面板是明确外部标注DESIGN BOARD的独立场景，最多3面板；绝不假装互斥窗口同时打开。\n\n内容参考：匹配真实baseline时沿用knowledge/Asia/Shanghai，公开夹具“隔离示例手记”“示例作者”“让知识保持可用”“记录与回顾”；博客已保存accent #44684f与journal/magazine/profile差异保留。未捕获状态只用明确合成示例，数量/成功/客户端状态不成为固定业务结果。登录空占位、秘密掩码，禁止照搬ToDoo任务内容。\n\n状态编号/说明放产品画面外。仅fields是真实可见输入；requestId/version/hash/cursor/nonce/CSRF等只作后台guard。输出不是实测通过或审批；逐图功能/权限/响应式审查与全局审查完成前不得开发。",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "Approved DooKnow shared palette/density only; existing settings baseline controls/navigation authoritative",
+      "responsibility": "Approved DooKnow shared palette/density only; existing settings baseline controls/navigation authoritative",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+      "role": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "responsibility": "真实改造前匹配页面/宿主内容与角色参考；子状态未必已捕获，不是设计图或批准",
+      "sha256": "294d8b20d8f4b5959afbe60222a94860a9878fa723c69eef48ea8a1bc5480abb",
+      "dimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "bytes": 120942
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/coverage/settings.json",
+      "role": "精确sourceId字段/动作/权限合同；非图片输入",
+      "responsibility": "精确sourceId字段/动作/权限合同；非图片输入",
+      "sha256": "a8b9ad18549d99d16dfec61f10b926eca39bb1d3c8de913e840e31e893635265"
+    },
+    {
+      "path": "docs/design/platform-unification-2026-11-05/reviews/inventory-global-review.md",
+      "role": "已复核边界与尚未验证运行项；非图片输入",
+      "responsibility": "已复核边界与尚未验证运行项；非图片输入",
+      "sha256": "d6a06335490431ef10d6b5eaf879215dbf1a3921fc5a08b8ed0137a9d0cfdc71"
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-3bfce4c0-5ae0-4178-a404-bfc69b33ddc7.png",
+      "role": "edit-target for final targeted source-control correction",
+      "responsibility": "Preserve complete generated long page; correct owner active tint and restore read-only source labels only",
+      "sha256": "bbe164f041722af2b02532b386a63e91f762a4edf7f169dec30ce8d9620da610",
+      "dimensions": {
+        "width": 793,
+        "height": 1983
+      },
+      "bytes": 1199449
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-3bfce4c0-5ae0-4178-a404-bfc69b33ddc7.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D002.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-bf6f0240-5950-42cd-b7b5-81e9ab927d8a.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-bf6f0240-5950-42cd-b7b5-81e9ab927d8a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T01:21:10.341Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "preserved": "Full owner rail, DooKnow global header, actual eight-item settings navigation and matching selected state retained.",
+    "concerns": [
+      "Static raster cannot prove behavior, guards or responsive layouts.",
+      "Generated proportions and minor raster texture need independent review; source tokens remain authoritative.",
+      "Built-in returned 793×1983 for the tall page despite larger resolution request; text remains native raster text and needs independent readability/desktop-scale review."
+    ],
+    "pageSpecific": "Long single page preserves all eight source sections; top baseline ready library and collapsed disclosures retained. Lower source-derived read-only measurements/branch/count/time use em-dash placeholders, not verified business data. Final targeted correction neutralized 笔记 rail and restored read-only timestamp/local repository labels."
+  },
+  "sha256": "4a87f8dbcf942b3b725c2a8f1cd6eb3fdd10cc5bd509ae1e6243905e8e8d856f",
+  "dimensions": {
+    "width": 793,
+    "height": 1983
+  },
+  "bytes": 1338787,
+  "actualInitialImageInputOrder": [
+    "docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+    "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+  ],
+  "generationHistory": [
+    {
+      "call": 1,
+      "submittedPrompt": "Use case: ui-mockup. Produce exactly ONE clear high-fidelity Simplified Chinese desktop DooKnow settings-page design for an authenticated owner, straight-on full application canvas around 1536×1024, no browser/device frame, no external title/caption.\nINPUT AUTHORITY: Image 1 is this exact running pre-redesign settings baseline, authoritative for existing content, controls, navigation, permissions and selected state. Image 2 PILOT-WS-001 is ONLY the approved DooKnow palette, typography/density and rail/header hierarchy reference. Do not import its notebook tree, empty-note content or note toolbar. Real source templates override generic API summaries.\nShared shell: full-height approximately 64px muted gray owner rail at far left, account avatar O at top; real destinations 笔记, 最近, 收藏, separator, 应用; bottom 回收站 and 设置, with 设置 active. Full 56px global header to the right of owner rail: existing blue open-book logo and exact DooKnow wordmark, divider, static context 设置. No invented header actions, counts or notifications. Below header use a light-gray contextual settings sidebar with 返回笔记 and exactly eight destinations in order: 通用与编辑, 知识库与存储, 搜索与索引, 备份与恢复, 后台状态, 插件与连接, 账号与安全, 关于与诊断; select only current destination. Main content is white, flexible max approximately 1000px, aligned card edges/fields and readable compact desktop text. Preserve existing page eyebrow 设置, page title, description and top-right 返回笔记.\nStyle: flat white #ffffff surfaces and #f7f8fa rail/sidebar, text #272b3a secondary #657084, thin #e6e9f1 separators, blue #4566c6 primary actions and #edf1ff selected rows, restrained 8px radii, no gradients/textures/heavy shadows. Preserve exact controls and their enabled/disabled state. Legible Chinese and clear spacing matter more than decorative polish.\nHard invariants: one coherent actual baseline state; do not combine mutually exclusive overlays or states. No ToDoo brand, tasks, calendars, habits, teams, members, AI chat, new features or invented navigation. No protocol metadata fields (requestId, versions, hash, cursor, nonce, CSRF), no developer/contract captions inside UI, no new fake connected/online/success states. Secrets masked, server paths /srv/example only if actually expanded. Static concept does not prove runtime/interaction/responsiveness.\nPAGE-SPECIFIC CONTENT:\nCURRENT PAGE 知识库与存储. This page is naturally long: override the landscape default and use a single full-width approximately 1536×2560 tall desktop application canvas with natural readable font sizes; retain the approximately 1440 CSS px desktop content width/density. Extend vertical canvas instead of shrinking all text. One contiguous settings page, not multiple panels/screens/windows, no overlays. Header and eight-item settings context remain near top, owner rail full height. Description 查看资料位置、空间用量与分享，导入或导出文件。\nPreserve baseline top in order: 当前知识库 section, helper 这里的目录位于运行知识库的服务器上。, 刷新信息; library name knowledge; status 知识库可用 · 时区 Asia/Shanghai; collapsed 服务器上的原文目录 disclosure. No migration/path-edit input and no expanded private server path.\nNext two-column action cards, exact titles and buttons: 批量导入 / 导入便携包 / 导出资料. Their descriptions respectively 导入 Markdown、Excalidraw 白板与附件，支持保留目录结构。 / 导入完整便携归档或解压目录，恢复主图、原件和预览。 / 将整个知识库或指定目录打包，方便迁移原文。 Three cards wrap two on first row, third on next left, as real source. Retain 便携任务与结果 with 刷新结果 and 暂无便携任务。 Next 任务与结果 card, 刷新任务, helper 离开此页后任务仍会继续，也可以从设置中的「后台状态」查看。, empty 暂无相关任务。\nContinue same single page below original screenshot, using the existing source's always-present sections and genuine controls, with no newly invented capabilities. 批量整理 card: helper 移动已保存的笔记，保留身份并更新关联链接。图形预览准备完成后才会提交。, 刷新整理记录, collapsed 选择需要移动的笔记（已选 0 篇）, actual 整理目标目录 tree-select value 00-Inbox, 移动选中笔记 DISABLED because no notes selected; no opened picker or fabricated history.\n存储占用 card: helper 按类别统计当前可读取的文件。, 刷新统计. Preserve actual read-only table columns 类别 / 占用 / 文件数量 and rows 笔记原文 / 附件与其他文件 / 历史版本 / 回收站 / 搜索索引 / 检索模型 / 升级备份. For uncaptured numerical read-only measurements use simple em-dash placeholders “—”, never fabricated successful counts/byte quantities/time. Exact static hint 统计可能不完整，查看统计范围与提示。; collapsed 统计范围. These dashes are visual data placeholders, not editable fields and not claims of runtime results.\n云端同步 card: helper 保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。 and 刷新同步状态. Keep existing unassociated flow only: 尚未关联云端仓库。关联后仍需手动提交和同步。 and existing 云端仓库与认证 action card, description 管理仓库地址、分支和登录凭据。, button 关联云端仓库. Do not invent connected remote/branch/head/ahead counts or show connection form, commit/pull/push buttons or credentials. Those are conditional other states.\nFinal 共享链接 card: description 查看链接的访问权限和有效期，并撤销不再需要的访问。; actual search input placeholder 按标题或路径查找; select 全部状态; button 查找链接; quiet empty 没有符合条件的共享链接。. Do not invent active shares or links. Preserve all sections, scroll continuity and clear reachable buttons. No import/export drawers, note picker contents, authenticated plugin configuration or protocol fields. Lower sections are source-derived design placeholders for uncaptured values; do not write developer notes inside the product UI.",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-3bfce4c0-5ae0-4178-a404-bfc69b33ddc7.png",
+      "selected": false,
+      "reason": "Neutral owner rail note tint and source-only timestamp/local status labels needed correction",
+      "inputOrder": [
+        "docs/design/platform-unification-2026-11-05/baseline/1440-settings-library.png",
+        "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png"
+      ],
+      "sha256": "bbe164f041722af2b02532b386a63e91f762a4edf7f169dec30ce8d9620da610",
+      "dimensions": {
+        "width": 793,
+        "height": 1983
+      },
+      "bytes": 1199449
+    },
+    {
+      "call": 2,
+      "submittedPrompt": "Use case: ui-mockup targeted correction of the provided full-page generated DooKnow settings design. Preserve the entire image, exact Chinese content, all fields/controls/values/states, global header, settings sidebar, card hierarchy, full long canvas and all page sections. Make ONLY these precise corrections: (1) Owner rail at far left, top 笔记 icon and its 笔记 label must be neutral gray #657084, matching 最近 and 收藏. The ONLY active owner-rail destination is 设置 at bottom. Keep the account avatar O and all navigation items. Do not remove the pale-blue selected 知识库与存储 row in the secondary contextual sidebar. (2) In the 存储占用 section immediately under the table, add the existing source's small muted read-only line “统计时间：—” above “统计可能不完整，查看统计范围与提示。”; the em dash is an uncaptured-data design placeholder, not an editable field. Do not add time or byte measurements. (3) In the 云端同步 section above the existing unassociated message, retain the source's read-only local repository status line, using only unspecified visual data placeholders: “本地分支：— · 未提交文件：—”. Do not invent connection, branch names, remote URL, push/pull controls or success status. All other pixels/content/meaning/layout unchanged. Keep clear typography, flat white/light-gray surfaces, thin lines and blue only for actual active/primary controls; no new labels, captions, overlays, sources, protocol inputs or hidden fields. Output one complete full-page raster only.\nResolution request: produce approximately 1536×3840 pixels for this 2.5:1 tall document, with readable small Chinese text at native resolution. Preserve the same full-page composition and do not crop. Do not fake resolution by changing UI scale.",
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-bf6f0240-5950-42cd-b7b5-81e9ab927d8a.png",
+      "selected": true,
+      "inputOrder": [
+        "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-3bfce4c0-5ae0-4178-a404-bfc69b33ddc7.png"
+      ],
+      "sha256": "4a87f8dbcf942b3b725c2a8f1cd6eb3fdd10cc5bd509ae1e6243905e8e8d856f",
+      "dimensions": {
+        "width": 793,
+        "height": 1983
+      },
+      "bytes": 1338787
+    }
+  ],
+  "sourceDerivedUnverifiedScope": {
+    "top": "Actual matching baseline knowledge / ready / Asia/Shanghai / closed path details",
+    "lower": "Organization, storage, cloud sync and share regions derived from current templates; em-dash read-only values are uncaptured design placeholders. No connected remote or successful result is asserted.",
+    "runtimeVerified": false
+  },
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/settings/SettingsWorkspace.vue",
+      "role": "actual UI template content, controls and visibility-condition authority",
+      "sha256": "e9c0b0d2399cae094e29926dfbcf5dbf9a099857330f280e3d532cd1a8887fe7"
+    },
+    {
+      "path": "apps/web/settings.ts",
+      "role": "actual UI template content, controls and visibility-condition authority",
+      "sha256": "95b2194400a131de9e14943a735dba7a7c6100615c573cb8b88547540731c08d"
+    },
+    {
+      "path": "apps/web/components/settings/LibrarySettings.vue",
+      "role": "actual UI template content, controls and visibility-condition authority",
+      "sha256": "81955c3d16b30875946522fd7886d1217eea713f645681f8aaf1f3bfb0c868a5"
+    },
+    {
+      "path": "apps/web/components/settings/TransferPanel.vue",
+      "role": "actual UI template content, controls and visibility-condition authority",
+      "sha256": "de54810859e5243fa4db2ac8bafeae0b887ad7900bac346cd623cdad95e5a4f0"
+    },
+    {
+      "path": "apps/web/components/settings/PortableJobs.vue",
+      "role": "actual UI template content, controls and visibility-condition authority",
+      "sha256": "13c0cd8f1cf52e478d9081fa4ffe6e75b67d5eaec5ad1a563a6564eb9cc39e50"
+    },
+    {
+      "path": "apps/web/components/settings/OrganizationOperations.vue",
+      "role": "actual UI template content, controls and visibility-condition authority",
+      "sha256": "65ad39b1e3a0d6634950a35f8c8145db18fdc233cf24d1e922a25d02d7ac5741"
+    },
+    {
+      "path": "apps/web/components/StorageSettings.vue",
+      "role": "actual UI template content, controls and visibility-condition authority",
+      "sha256": "b307f27daad2eac9637c83ab527416376d8a5251f50afa37b50d7cbd82435f41"
+    },
+    {
+      "path": "apps/web/components/GitRemotePanel.vue",
+      "role": "actual UI template content, controls and visibility-condition authority",
+      "sha256": "1ef7dbfc441518f0aaed509633413592b74a170897c602f802e9c2492ff9fe4c"
+    },
+    {
+      "path": "apps/web/components/settings/ShareManagement.vue",
+      "role": "actual UI template content, controls and visibility-condition authority",
+      "sha256": "c41e741abae5c63aa800ff8839b418811367239e9405cf7a709ce59520fe150c"
+    }
+  ],
+  "assetId": "MP-D002",
+  "roles": [
+    "authenticated-owner"
+  ],
+  "selectedState": [
+    "实际baseline原状态/隔离示例的完整主布局；其他互斥状态另列设计板"
+  ]
+}

@@ -1,0 +1,2718 @@
+{
+  "moduleGroup": "runtime-diagrams",
+  "baselineCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "capturedAtUTC": "2026-11-04T16:58:47.638187+00:00",
+  "scope": "Actual packaged Excalidraw 0.18.1 UI inside one primary whiteboard in the already-running isolated fixture; supplements source inventory without rewriting canonical IDs.",
+  "fixtureSafety": {
+    "origin": "http://127.0.0.1:4479",
+    "dataRootGuard": "/tmp/dooknow-browser-*/data",
+    "knowledgeRootGuard": "same parent as dataRoot",
+    "guardPassed": true,
+    "auth": "existing cookie file used internally; no credential content written",
+    "rateLimitReset": "DELETE rateLimit only after same guards as tests/support/browser-test.ts:45",
+    "createdViaUI": "创建与导入 → 新建白板 → 文件名 → 创建",
+    "fixtureNote": "00-Inbox/runtime-whiteboard-1793810927830.md",
+    "savedNativeElementCount": 0,
+    "lastSaveStatus": "已保存",
+    "productEdits": false,
+    "serverLifecycleChanges": false,
+    "testRuns": false,
+    "vendorLinksFollowed": false,
+    "osFilePickersOpened": false,
+    "clearConfirmed": false,
+    "externalPublishUpload": false
+  },
+  "vendorPackage": {
+    "name": "@excalidraw/excalidraw",
+    "version": "0.18.1",
+    "codeFile": "node_modules/@excalidraw/excalidraw/dist/dev/index.js",
+    "sha256": "e10e24df153077770849c7d68f9a8f5db3bb1eb1576d909d1e3c9a5b024d1882"
+  },
+  "summary": {
+    "actualSurfaceFamilies": 25,
+    "canonicalSurfaceIdsActuallyOpened": [
+      "WS-013",
+      "WS-068",
+      "WS-072",
+      "WS-073",
+      "WS-074",
+      "WS-075"
+    ],
+    "vendorInternalFamilies": 19,
+    "snapshotCount": 55,
+    "snapshotHashesVerified": true,
+    "pageErrorsObserved": 0,
+    "responsiveClaim": "1440 and 390 observations only; 320 representative checks of canvas controls, main menu, help, and app actions; no complete responsive or touch-device certification"
+  },
+  "surfaces": [
+    {
+      "id": "RTD-001",
+      "runtimeKey": "new-whiteboard-dialog",
+      "title": "新建白板文件对话框",
+      "canonicalRefs": [
+        "WS-013"
+      ],
+      "observedVisibleWidths": [
+        1440
+      ],
+      "actualDOMLabels": [
+        "新建白板",
+        "所在目录",
+        "文件名",
+        "取消",
+        "创建"
+      ],
+      "roleEvidence": {
+        "dialog:新建白板": 1,
+        "textbox:文件名": 1,
+        "combobox:所在目录": 1
+      },
+      "sourceRefs": [
+        "apps/web/components/Workspace.vue:3618",
+        "tests/e2e/diagram-document-chrome.spec.ts:44"
+      ],
+      "evidence": [
+        "1440-new-whiteboard-dialog.json"
+      ],
+      "constraints": "Created exactly one uniquely named empty board through UI. Creation stays fixture-only; native scene verified to contain 0 elements."
+    },
+    {
+      "id": "RTD-002",
+      "runtimeKey": "whiteboard-canvas",
+      "title": "Primary whiteboard editor shell",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390,
+        320
+      ],
+      "actualDOMLabels": [
+        "图形工具",
+        "图形视图",
+        "形状",
+        "保存图形",
+        "导出 HTML",
+        "打印",
+        "导出 PNG",
+        "更多操作"
+      ],
+      "roleEvidence": {
+        "toolbar:图形工具": 1,
+        "navigation:图形视图": 1,
+        "region:形状": 1
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramDocumentWorkspace.vue:581",
+        "apps/web/whiteboards/canvas.ts:16"
+      ],
+      "evidence": [
+        "1440-whiteboard-canvas.json",
+        "320-whiteboard-canvas.json",
+        "390-whiteboard-canvas.json"
+      ],
+      "constraints": "Native image input opens an OS picker and was not used. Desktop main-menu trigger is an unnamed button; title/aria-label are absent. At 320 representative controls stayed within viewport."
+    },
+    {
+      "id": "RTD-003",
+      "runtimeKey": "vendor-main-menu",
+      "title": "Packaged Excalidraw main menu",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390,
+        320
+      ],
+      "actualDOMLabels": [
+        "Find on canvas",
+        "帮助",
+        "重置画布",
+        "画布背景",
+        "GitHub",
+        "X",
+        "Discord"
+      ],
+      "roleEvidence": {
+        "button:Find on canvas": 1,
+        "button:重置画布": 1,
+        "link:GitHub": 1,
+        "dialog:unnamed-color-presets": 1
+      },
+      "sourceRefs": [
+        "apps/web/whiteboards/canvas.ts:64",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:21056",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:17559"
+      ],
+      "evidence": [
+        "1440-vendor-main-menu.json",
+        "320-vendor-main-menu.json",
+        "390-vendor-main-menu.json"
+      ],
+      "constraints": "Vendor external links were only enumerated. Native file/export/image entries absent. UIOptions disables loadScene, saveToActiveFile, export, saveAsImage. Theme is supplied by application, so no standalone theme control observed."
+    },
+    {
+      "id": "RTD-004",
+      "runtimeKey": "vendor-canvas-background-color",
+      "title": "Canvas background hex-color popup",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "画布背景",
+        "十六进制值",
+        "ffffff"
+      ],
+      "roleEvidence": {
+        "textbox:画布背景": 1,
+        "dialog:unnamed-page-total": 2
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3296",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3406",
+        "apps/web/whiteboards/canvas.ts:36"
+      ],
+      "evidence": [
+        "1440-vendor-canvas-background-color.json",
+        "390-vendor-canvas-background-color.json"
+      ],
+      "constraints": "Opened without editing background; board stays empty."
+    },
+    {
+      "id": "RTD-005",
+      "runtimeKey": "vendor-find-sidebar",
+      "title": "Find on canvas sidebar",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440
+      ],
+      "actualDOMLabels": [
+        "Find text on canvas...",
+        "关闭"
+      ],
+      "roleEvidence": {
+        "tablist": 1,
+        "tab": 2,
+        "tabpanel": 1,
+        "textbox:Find text on canvas...": 1,
+        "button:关闭": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:17732",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:18241"
+      ],
+      "evidence": [
+        "1440-vendor-find-sidebar.json",
+        "390-vendor-find-sidebar.json"
+      ],
+      "constraints": "At 390 the opened sidebar is x=-295,width=295; Close x=-43. Search content and Close are outside viewport; normal Close click fails. The reachable library trigger closes the sidebar. Do not count 390 content as visibly reachable."
+    },
+    {
+      "id": "RTD-006",
+      "runtimeKey": "vendor-help-dialog",
+      "title": "Excalidraw help and keyboard shortcuts",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390,
+        320
+      ],
+      "actualDOMLabels": [
+        "帮助",
+        "快捷键列表",
+        "工具",
+        "视图",
+        "编辑器",
+        "文档",
+        "浏览我们的博客",
+        "发现问题？提交反馈",
+        "YouTube"
+      ],
+      "roleEvidence": {
+        "dialog:unnamed": 1,
+        "heading:帮助": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:15803"
+      ],
+      "evidence": [
+        "1440-vendor-help-dialog.json",
+        "320-vendor-help-dialog.json",
+        "390-vendor-help-dialog.json"
+      ],
+      "constraints": "External links not followed. Help advertises Command palette even though both shortcut attempts yielded no palette. 320 dialog bounds x=0,y=0,width=320,height=844; content uses its internal scroll."
+    },
+    {
+      "id": "RTD-007",
+      "runtimeKey": "vendor-clear-canvas-confirm",
+      "title": "Clear canvas confirmation",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "清除画布",
+        "这将会清除整个画布。您是否要继续?",
+        "取消",
+        "确定"
+      ],
+      "roleEvidence": {
+        "dialog:unnamed": 1,
+        "button:取消": 1,
+        "button:确定": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12593",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:17315"
+      ],
+      "evidence": [
+        "1440-vendor-clear-canvas-confirm.json",
+        "390-vendor-clear-canvas-confirm.json"
+      ],
+      "constraints": "Opened and cancelled. Clear was never confirmed."
+    },
+    {
+      "id": "RTD-008",
+      "runtimeKey": "vendor-extra-tools",
+      "title": "More tools menu",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "画框工具",
+        "嵌入网页",
+        "激光笔",
+        "Generate",
+        "Mermaid 至 Excalidraw"
+      ],
+      "roleEvidence": {
+        "button:Mermaid 至 Excalidraw": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12463",
+        "apps/web/whiteboards/canvas.ts:63"
+      ],
+      "evidence": [
+        "1440-vendor-extra-tools.json",
+        "390-vendor-extra-tools.json"
+      ],
+      "constraints": "Embeddable validation always returns false. Neither web embedding nor external content insertion was attempted."
+    },
+    {
+      "id": "RTD-009",
+      "runtimeKey": "vendor-mermaid-insert-dialog",
+      "title": "Mermaid to Excalidraw dialog",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "Mermaid 至 Excalidraw",
+        "Write Mermaid diagram defintion here...",
+        "预览",
+        "插入"
+      ],
+      "roleEvidence": {
+        "dialog:unnamed": 1,
+        "tabpanel": 1,
+        "textbox:Write Mermaid diagram defintion here...": 1,
+        "button:插入": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:18580"
+      ],
+      "evidence": [
+        "1440-vendor-mermaid-insert-dialog.json",
+        "390-vendor-mermaid-insert-dialog.json"
+      ],
+      "constraints": "Only opened and dismissed. Default example is vendor fixture text; Insert was not clicked. Mermaid documentation links not followed."
+    },
+    {
+      "id": "RTD-010",
+      "runtimeKey": "vendor-library-panel",
+      "title": "Library sidebar empty state",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440
+      ],
+      "actualDOMLabels": [
+        "素材库",
+        "关闭",
+        "浏览素材库",
+        "尚未添加任何项目……"
+      ],
+      "roleEvidence": {
+        "tablist": 1,
+        "tab": 2,
+        "tabpanel": 1,
+        "button:关闭": 1,
+        "link:浏览素材库": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:11603",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:18241"
+      ],
+      "evidence": [
+        "1440-vendor-library-panel.json",
+        "390-vendor-library-panel.json"
+      ],
+      "constraints": "At 390 this panel also mounts at x=-295,width=295 with Close x=-43, outside viewport. No external library browsed. Generated callback token redacted from DOM records."
+    },
+    {
+      "id": "RTD-011",
+      "runtimeKey": "vendor-library-menu",
+      "title": "Empty library local menu",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440
+      ],
+      "actualDOMLabels": [
+        "打开"
+      ],
+      "roleEvidence": {
+        "button:打开": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:10030",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:11742"
+      ],
+      "evidence": [
+        "1440-vendor-library-menu.json"
+      ],
+      "constraints": "Only Open is offered for the empty library. It would open an OS file picker, which was not clicked. Mobile menu content is offscreen with its sidebar; not force-clicked."
+    },
+    {
+      "id": "RTD-012",
+      "runtimeKey": "vendor-empty-canvas-context-menu",
+      "title": "Empty canvas context menu",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "粘贴",
+        "全部选中",
+        "Toggle grid",
+        "吸附至对象",
+        "禅模式",
+        "查看模式",
+        "Canvas & Shape properties"
+      ],
+      "roleEvidence": {
+        "context-button-count": 7
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:29140"
+      ],
+      "evidence": [
+        "1440-vendor-empty-canvas-context-menu.json",
+        "390-vendor-empty-canvas-context-menu.json"
+      ],
+      "constraints": "Narrow capture uses a real mouse right-click at 390 viewport; no touch/long-press claim. Clipboard content was not read or pasted."
+    },
+    {
+      "id": "RTD-013",
+      "runtimeKey": "vendor-canvas-shape-properties",
+      "title": "Canvas statistics panel",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440
+      ],
+      "actualDOMLabels": [
+        "详细统计信息",
+        "General",
+        "画布 Shapes 0 宽度 0 高度 0"
+      ],
+      "roleEvidence": {
+        "heading:详细统计信息": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:20610",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:21176"
+      ],
+      "evidence": [
+        "1440-vendor-canvas-shape-properties.json",
+        "390-vendor-canvas-shape-properties.json"
+      ],
+      "constraints": "Desktop visible. The same 390 context action produced no stats heading/panel; not counted as a mobile visible surface."
+    },
+    {
+      "id": "RTD-014",
+      "runtimeKey": "vendor-shape-properties-panel",
+      "title": "Rectangle shape properties; mobile Edit sheet",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "选定形状操作",
+        "描边",
+        "背景",
+        "描边宽度",
+        "边框样式",
+        "线条风格",
+        "边角",
+        "透明度 100 0",
+        "图层",
+        "编辑"
+      ],
+      "roleEvidence": {
+        "region:选定形状操作": 1,
+        "group:描边宽度": 1,
+        "group:边框样式": 1,
+        "group:线条风格": 1,
+        "group:边角": 1,
+        "slider:透明度 100 0": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:15454"
+      ],
+      "evidence": [
+        "1440-vendor-shape-properties-panel.json",
+        "390-vendor-mobile-shape-properties-sheet.json",
+        "390-vendor-shape-properties-panel.json"
+      ],
+      "constraints": "Rectangle selected without drawing. At 390 properties require bottom Edit trigger; the sheet overlays tool targets until Edit closes it. Property option radio controls have no accessible names in the actual tree."
+    },
+    {
+      "id": "RTD-015",
+      "runtimeKey": "vendor-stroke-color-popover",
+      "title": "Stroke color picker",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "描边",
+        "取色器",
+        "透明 — q",
+        "白 — w",
+        "色调明暗",
+        "十六进制值"
+      ],
+      "roleEvidence": {
+        "textbox:描边": 1,
+        "dialog:取色器": 1,
+        "dialog:page-total": 4
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3296",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3406"
+      ],
+      "evidence": [
+        "1440-vendor-stroke-color-popover.json",
+        "390-vendor-stroke-color-popover.json"
+      ],
+      "constraints": "Color opened without choosing a value."
+    },
+    {
+      "id": "RTD-016",
+      "runtimeKey": "vendor-fill-color-popover",
+      "title": "Fill color picker",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "背景",
+        "取色器",
+        "transparent",
+        "色调明暗",
+        "十六进制值"
+      ],
+      "roleEvidence": {
+        "textbox:背景": 1,
+        "dialog:取色器": 1,
+        "dialog:page-total": 4
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3296",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3406"
+      ],
+      "evidence": [
+        "1440-vendor-fill-color-popover.json",
+        "390-vendor-fill-color-popover.json"
+      ],
+      "constraints": "Color opened without choosing a value."
+    },
+    {
+      "id": "RTD-017",
+      "runtimeKey": "vendor-arrow-properties-panel",
+      "title": "Arrow tool properties",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "Arrow type",
+        "端点",
+        "arrowhead_start",
+        "arrowhead_end"
+      ],
+      "roleEvidence": {
+        "group:Arrow type": 1,
+        "group:端点": 1,
+        "button:arrowhead_start": 1,
+        "button:arrowhead_end": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5460"
+      ],
+      "evidence": [
+        "1440-vendor-arrow-properties-panel.json",
+        "390-vendor-arrow-properties-panel.json"
+      ],
+      "constraints": "Arrow selected without drawing; same mobile Edit sheet pattern."
+    },
+    {
+      "id": "RTD-018",
+      "runtimeKey": "vendor-arrowhead-end-popover",
+      "title": "End arrowhead picker and expanded options",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "arrowhead_end",
+        "无",
+        "箭头",
+        "三角箭头",
+        "三角箭头（空心）",
+        "More options",
+        "圆点",
+        "圆点（空心）",
+        "菱形",
+        "菱形（空心）",
+        "条状",
+        "Crow's foot (one)",
+        "Crow's foot (many)",
+        "Crow's foot (one or many)"
+      ],
+      "roleEvidence": {
+        "dialog:arrowhead_end": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5460",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3633"
+      ],
+      "evidence": [
+        "1440-vendor-arrowhead-end-popover.json",
+        "1440-vendor-arrowhead-expanded-popover.json",
+        "390-vendor-arrowhead-end-popover.json"
+      ],
+      "constraints": "More options expanded on desktop without choosing a head. More options is a clickable DIV without role/tabindex in inspected DOM."
+    },
+    {
+      "id": "RTD-019",
+      "runtimeKey": "vendor-arrowhead-start-popover",
+      "title": "Start arrowhead picker",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "arrowhead_start",
+        "无",
+        "箭头",
+        "三角箭头",
+        "More options"
+      ],
+      "roleEvidence": {
+        "dialog:arrowhead_start": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5460",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3633"
+      ],
+      "evidence": [
+        "1440-vendor-arrowhead-start-popover.json",
+        "390-vendor-arrowhead-start-popover.json"
+      ],
+      "constraints": "Opened without choosing a head. Expanded-option state is shared by vendor pickers."
+    },
+    {
+      "id": "RTD-020",
+      "runtimeKey": "vendor-text-properties-panel",
+      "title": "Text tool properties",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "字体",
+        "Hand-drawn",
+        "Normal",
+        "Code",
+        "Show font picker",
+        "字体大小",
+        "文本对齐"
+      ],
+      "roleEvidence": {
+        "group:字体": 1,
+        "group:字体大小": 1,
+        "group:文本对齐": 1,
+        "button:Show font picker": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12305",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:5017"
+      ],
+      "evidence": [
+        "1440-vendor-text-properties-panel.json",
+        "390-vendor-text-properties-panel.json"
+      ],
+      "constraints": "Text tool selected without creating text; same mobile Edit sheet pattern."
+    },
+    {
+      "id": "RTD-021",
+      "runtimeKey": "vendor-font-picker-popover",
+      "title": "Font search popup",
+      "canonicalRefs": [
+        "WS-068"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "Quick search",
+        "Available fonts",
+        "Comic Shanns",
+        "Lilita One",
+        "Excalifont",
+        "Nunito"
+      ],
+      "roleEvidence": {
+        "textbox:Quick search": 1,
+        "menu": 1
+      },
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:3917",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:4165"
+      ],
+      "evidence": [
+        "1440-vendor-font-picker-popover.json",
+        "390-vendor-font-picker-popover.json"
+      ],
+      "constraints": "Only opened. No fonts chosen or added."
+    },
+    {
+      "id": "RTD-022",
+      "runtimeKey": "diagram-more-actions",
+      "title": "Diagram download actions",
+      "canonicalRefs": [
+        "WS-075"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390,
+        320
+      ],
+      "actualDOMLabels": [
+        "图形文档操作",
+        "下载完整文档",
+        "下载 Markdown",
+        "下载原件"
+      ],
+      "roleEvidence": {
+        "dialog:图形文档操作": 1,
+        "dialog-child-button-count": 3
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramDocumentWorkspace.vue:651",
+        "apps/web/components/DiagramDocumentWorkspace.vue:511",
+        "apps/web/components/DiagramDocumentWorkspace.vue:525"
+      ],
+      "evidence": [
+        "1440-diagram-more-actions.json",
+        "320-diagram-more-actions.json",
+        "390-diagram-more-actions.json"
+      ],
+      "constraints": "Native original requires canDownloadSource. Markdown is text-only; portable download saves and validates a coherent document. Controls inspected, downloads not executed."
+    },
+    {
+      "id": "RTD-023",
+      "runtimeKey": "diagram-markdown-source",
+      "title": "Diagram Markdown source",
+      "canonicalRefs": [
+        "WS-072"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "Markdown 源码"
+      ],
+      "roleEvidence": {
+        "button:Markdown 源码": 1
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramDocumentWorkspace.vue:763",
+        "apps/web/components/DiagramDocumentWorkspace.vue:805"
+      ],
+      "evidence": [
+        "1440-diagram-markdown-source.json",
+        "390-diagram-markdown-source.json"
+      ],
+      "constraints": "Actual source mode opened with existing metadata and primary binding. Source was not edited."
+    },
+    {
+      "id": "RTD-024",
+      "runtimeKey": "diagram-png-preview",
+      "title": "Saved diagram PNG preview",
+      "canonicalRefs": [
+        "WS-073"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "PNG 预览"
+      ],
+      "roleEvidence": {
+        "button:PNG 预览": 1
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramDocumentWorkspace.vue:779",
+        "apps/web/components/DiagramDocumentWorkspace.vue:844"
+      ],
+      "evidence": [
+        "1440-diagram-png-preview.json",
+        "390-diagram-png-preview.json"
+      ],
+      "constraints": "Empty-board saved PNG present. Nonempty-content fit was not checked."
+    },
+    {
+      "id": "RTD-025",
+      "runtimeKey": "diagram-reading",
+      "title": "Diagram reading view",
+      "canonicalRefs": [
+        "WS-074"
+      ],
+      "observedVisibleWidths": [
+        1440,
+        390
+      ],
+      "actualDOMLabels": [
+        "阅读"
+      ],
+      "roleEvidence": {
+        "button:阅读": 1
+      },
+      "sourceRefs": [
+        "apps/web/components/DiagramDocumentWorkspace.vue:839"
+      ],
+      "evidence": [
+        "1440-diagram-reading.json",
+        "390-diagram-reading.json"
+      ],
+      "constraints": "Empty-board reading projection opened. Nonempty-content fit was not checked."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "diagram-markdown-source",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-diagram-markdown-source.png",
+      "sha256": "6cd760be5fa5e8c4f339eed246e6726567611e9e5fbc69548c8cfde1391ff557",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 43,
+        "complementary": 1,
+        "contentinfo": 1,
+        "heading": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 2,
+        "textbox": 2,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "diagram-more-actions",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-diagram-more-actions.png",
+      "sha256": "7d2bea222e2b75784af61a7280b95dd96cd3a9c192a88dfdba7302cb49352a7c",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 54,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 1,
+        "heading": 3,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 11,
+        "region": 2,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 15,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "diagram-png-preview",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-diagram-png-preview.png",
+      "sha256": "4c9af4cca73f6a666d5a453b63e6aaa99049dc2eccc95cfb4b5b20c5a4080c4c",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 43,
+        "complementary": 1,
+        "contentinfo": 1,
+        "heading": 1,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 2,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "diagram-reading",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-diagram-reading.png",
+      "sha256": "881a14d1f24d6c95168b69c8ccd1a09cfaf8c3e082dbfab40638dfa7d07bbc4a",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "article": 1,
+        "button": 43,
+        "complementary": 1,
+        "contentinfo": 1,
+        "heading": 2,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "paragraph": 1,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 2,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "new-whiteboard-dialog",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-new-whiteboard-dialog.png",
+      "sha256": "4b5399296d1a8d61863b158151243f85fdc62e2c36342bda463013f577a0896a",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 22,
+        "combobox": 1,
+        "complementary": 1,
+        "contentinfo": 1,
+        "dialog": 1,
+        "heading": 3,
+        "list": 1,
+        "listitem": 2,
+        "main": 1,
+        "navigation": 2,
+        "paragraph": 3,
+        "separator": 1,
+        "strong": 1,
+        "text": 3,
+        "textbox": 2
+      }
+    },
+    {
+      "id": "vendor-arrow-properties-panel",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-arrow-properties-panel.png",
+      "sha256": "03449dff0bc919e9176e669cb87ce1593593a598752055fbf0d2c44c883011ed",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 63,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 1,
+        "group": 6,
+        "heading": 4,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 23,
+        "region": 3,
+        "separator": 1,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 23,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-arrowhead-end-popover",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-arrowhead-end-popover.png",
+      "sha256": "2a18b04a79da41733697c202f721be86d62e858c0edec654918014e83ce9f822",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 67,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 3,
+        "group": 6,
+        "heading": 4,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 23,
+        "region": 3,
+        "separator": 1,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 24,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-arrowhead-expanded-popover",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-arrowhead-expanded-popover.png",
+      "sha256": "c9d41bc36955a7d96870cc392fe63ad5c9ff6dee06b08d9b24e4e17e2d505b8c",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 75,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 3,
+        "group": 6,
+        "heading": 4,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 23,
+        "region": 3,
+        "separator": 1,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 24,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-arrowhead-start-popover",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-arrowhead-start-popover.png",
+      "sha256": "83a1feb6d8aa06fd2fe0c7002ac3b0290216e7e49d5c490d04cc54580528746b",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 75,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 3,
+        "group": 6,
+        "heading": 4,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 23,
+        "region": 3,
+        "separator": 1,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 24,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-canvas-background-color",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-canvas-background-color.png",
+      "sha256": "a8929d97ab9e28e7cb355c4b256aceb2e8af6f5226252f6e842cdf6d726736e1",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 50,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 2,
+        "heading": 3,
+        "img": 2,
+        "link": 3,
+        "list": 1,
+        "listitem": 2,
+        "main": 1,
+        "navigation": 4,
+        "paragraph": 1,
+        "radio": 11,
+        "region": 2,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 19,
+        "textbox": 2,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-canvas-shape-properties",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-canvas-shape-properties.png",
+      "sha256": "ca8e0fa6d061db9f209e9541004bf2865d5880bc77534f556117ab10e826e675",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 51,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "heading": 5,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 11,
+        "region": 2,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 16,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-clear-canvas-confirm",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-clear-canvas-confirm.png",
+      "sha256": "7e0f024b61970fd23d3f508fb82dc5792b09ca74dbeb63b0c0820276b4112426",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 53,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 1,
+        "heading": 4,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "paragraph": 1,
+        "radio": 11,
+        "region": 2,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 15,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-command-palette",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-command-palette.png",
+      "sha256": "a86e1fb618a0df4f458c8568388464cd199a4460fba479d939c0f48388477b28",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "attempt-no-visible-window",
+      "pageAccessibilityRoleCounts": {
+        "button": 51,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "heading": 3,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 11,
+        "region": 2,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 15,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-empty-canvas-context-menu",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-empty-canvas-context-menu.png",
+      "sha256": "703bf7b37f043cbd5ce4b08b33e25799112951d1f1ed70f5abc6fbc6a519eef4",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 58,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "heading": 3,
+        "img": 1,
+        "list": 3,
+        "listitem": 14,
+        "main": 1,
+        "navigation": 4,
+        "radio": 11,
+        "region": 2,
+        "separator": 3,
+        "status": 1,
+        "strong": 1,
+        "text": 15,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-extra-tools",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-extra-tools.png",
+      "sha256": "089ad1fe13b957493590af3b73fbe09037a2517ee6c8c3dae5822690e46a2f76",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 55,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "heading": 3,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 11,
+        "region": 2,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 16,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-fill-color-popover",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-fill-color-popover.png",
+      "sha256": "9605bc08b57aaa62914d294d9b1cc34ed7779bc70056e432fccf6f7ecbd90a8c",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 83,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 4,
+        "group": 5,
+        "heading": 4,
+        "img": 2,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 22,
+        "region": 3,
+        "separator": 1,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 24,
+        "textbox": 2,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-find-sidebar",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-find-sidebar.png",
+      "sha256": "297d372269aae254720e9f920fa2e103cce47e80e55801d7e53b0ef72557479d",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 42,
+        "checkbox": 1,
+        "complementary": 1,
+        "contentinfo": 2,
+        "heading": 3,
+        "img": 1,
+        "list": 1,
+        "listitem": 2,
+        "main": 1,
+        "navigation": 4,
+        "radio": 11,
+        "region": 2,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "tab": 2,
+        "tablist": 1,
+        "tabpanel": 1,
+        "text": 13,
+        "textbox": 2,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-font-picker-popover",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-font-picker-popover.png",
+      "sha256": "2a6f9544bfcf2ebb763ad7752877c3a86c1aa0b106ff678bd0cc82190d4624f4",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 69,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 3,
+        "group": 4,
+        "heading": 4,
+        "img": 2,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "menu": 1,
+        "navigation": 4,
+        "paragraph": 1,
+        "radio": 18,
+        "region": 3,
+        "separator": 1,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 21,
+        "textbox": 2,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-help-dialog",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-help-dialog.png",
+      "sha256": "ec775046c74d8f857f685c2a6bdd599b9192a1ff8e40d4698fac440e618173e3",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 51,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 1,
+        "heading": 8,
+        "img": 1,
+        "link": 4,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 11,
+        "region": 2,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 18,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-library-menu",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-library-menu.png",
+      "sha256": "ecdb2f3fd721ad3d11f126ade730a830050e95e92721a4564ab135603355acb5",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 54,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "heading": 3,
+        "img": 1,
+        "link": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 11,
+        "region": 2,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "tab": 2,
+        "tablist": 1,
+        "tabpanel": 1,
+        "text": 15,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-library-panel",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-library-panel.png",
+      "sha256": "199d1baade9af042a003cba0f0efbcc6ad510c11acb175475a49b1d175b926fe",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 53,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "heading": 3,
+        "img": 1,
+        "link": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 11,
+        "region": 2,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "tab": 2,
+        "tablist": 1,
+        "tabpanel": 1,
+        "text": 15,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-main-menu",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-main-menu.png",
+      "sha256": "4d5a38ae9789e3c065cf2c1d066bea870a8274d81b83f88e7bffdf0f51413eef",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 50,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 1,
+        "heading": 3,
+        "img": 1,
+        "link": 3,
+        "list": 1,
+        "listitem": 2,
+        "main": 1,
+        "navigation": 4,
+        "paragraph": 1,
+        "radio": 11,
+        "region": 2,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 18,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-mermaid-insert-dialog",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-mermaid-insert-dialog.png",
+      "sha256": "b992366ce21b79b7b07c75a57839d4abfc3ba1aa4bf6470dee558d90051ed916",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 52,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 1,
+        "heading": 3,
+        "img": 1,
+        "link": 3,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "paragraph": 1,
+        "radio": 11,
+        "region": 2,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "tabpanel": 1,
+        "text": 21,
+        "textbox": 2,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-shape-properties-panel",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-shape-properties-panel.png",
+      "sha256": "6f34617db07a5ed33de101e242309e5a1f0ab4ec519f058d166a48b5084d2ad8",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 67,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 2,
+        "group": 5,
+        "heading": 4,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 22,
+        "region": 3,
+        "separator": 1,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 21,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-stroke-color-popover",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-stroke-color-popover.png",
+      "sha256": "0a804acc4f82d21b7bec38bfb9d5c3fcd134ed9a8be16d1ee958492148c49550",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 83,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 4,
+        "group": 5,
+        "heading": 4,
+        "img": 2,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 22,
+        "region": 3,
+        "separator": 1,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 24,
+        "textbox": 2,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-text-properties-panel",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-vendor-text-properties-panel.png",
+      "sha256": "e5bb09d49db9bc420d8dcb581ba28b90636ac7da737033a4fd4701435d92897f",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 65,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "dialog": 2,
+        "group": 4,
+        "heading": 4,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 4,
+        "radio": 18,
+        "region": 3,
+        "separator": 1,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 21,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "whiteboard-canvas",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "1440-whiteboard-canvas.png",
+      "sha256": "c5a3e3206115a6b4b1098c9dfc4590db7a1a64971f24ac9a59e03750e0d2a699",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 41,
+        "checkbox": 2,
+        "complementary": 1,
+        "contentinfo": 2,
+        "heading": 3,
+        "img": 1,
+        "list": 1,
+        "listitem": 2,
+        "main": 1,
+        "navigation": 4,
+        "radio": 11,
+        "region": 2,
+        "separator": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 15,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "diagram-more-actions",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "file": "320-diagram-more-actions.png",
+      "sha256": "5af9648618e372c192f2ce239d73c1b61cc8db6f736ac8b1e321fb4fca924c7d",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 47,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 1,
+        "heading": 2,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 4,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-help-dialog",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "file": "320-vendor-help-dialog.png",
+      "sha256": "84ab3c5dbf5b9a7d62f1aa6974a2bfce1917dd60b5e46ed34db325e66ee07117",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 45,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 1,
+        "heading": 7,
+        "img": 1,
+        "link": 4,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 7,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-main-menu",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "file": "320-vendor-main-menu.png",
+      "sha256": "eaa938afab4635efffd2f69cd25d195d6731725e718a206099a9000feff54392",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 53,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 1,
+        "heading": 2,
+        "img": 1,
+        "link": 3,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "paragraph": 1,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 7,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "whiteboard-canvas",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "file": "320-whiteboard-canvas.png",
+      "sha256": "2622effc5e2b43f9e8ee788e003362ef0c3fd4ccc9f0ca788e2ac341df28d562",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 44,
+        "checkbox": 2,
+        "complementary": 1,
+        "heading": 2,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 4,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "diagram-markdown-source",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-diagram-markdown-source.png",
+      "sha256": "bf047260347dda7e88768054095fa3098b844b288190b21a9473ff502f12bae6",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 43,
+        "complementary": 1,
+        "dialog": 1,
+        "heading": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "status": 1,
+        "strong": 1,
+        "text": 3,
+        "textbox": 2,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "diagram-more-actions",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-diagram-more-actions.png",
+      "sha256": "e892cde201e697b43e894efcddf322a6fa25753c183c09ca7da350cbdddcb7e6",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 47,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 1,
+        "heading": 2,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 4,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "diagram-png-preview",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-diagram-png-preview.png",
+      "sha256": "c8e6c32028d81c79b334bc221c829d2ee398aeb9a81b717739c046ec2545ae55",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 40,
+        "complementary": 1,
+        "heading": 1,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "status": 1,
+        "strong": 1,
+        "text": 3,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "diagram-reading",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-diagram-reading.png",
+      "sha256": "a79f8ff66a437176fbd5428b88f22e9655816257afe2600492bdb9913598578a",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "article": 1,
+        "button": 40,
+        "complementary": 1,
+        "heading": 2,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "paragraph": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 3,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-arrow-properties-panel",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-arrow-properties-panel.png",
+      "sha256": "c75b75a3417379bdbbfd1fb5e1967e4d4ca93ad1cbe9d2d9df0fbf3a5fd4b023",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 57,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 1,
+        "group": 6,
+        "heading": 3,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 23,
+        "region": 2,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 13,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-arrowhead-end-popover",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-arrowhead-end-popover.png",
+      "sha256": "a41d888790afda75c8e7fc20b223ad97956b04c784368525b0ff4475e67a4250",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 69,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 3,
+        "group": 6,
+        "heading": 3,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 23,
+        "region": 2,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 14,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-arrowhead-start-popover",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-arrowhead-start-popover.png",
+      "sha256": "0a159bc71c2c3883333fbf7b1131797bcd086d75e5f604922364b1f1a4bf0227",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 69,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 3,
+        "group": 6,
+        "heading": 3,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 23,
+        "region": 2,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 14,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-canvas-background-color",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-canvas-background-color.png",
+      "sha256": "b0fb999ea6f04433979daf97f1604fbc52e57e767536d4215f2e4ef9c4fef2e3",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 53,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 2,
+        "heading": 2,
+        "img": 2,
+        "link": 3,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "paragraph": 1,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 8,
+        "textbox": 2,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-canvas-shape-properties",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-canvas-shape-properties.png",
+      "sha256": "0bebb48b4aa5100e31ba1b21324ae06f623eafbdb948dca4cef8c7e1613719b8",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "attempt-no-visible-window",
+      "pageAccessibilityRoleCounts": {
+        "button": 44,
+        "checkbox": 2,
+        "complementary": 1,
+        "heading": 2,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 4,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-clear-canvas-confirm",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-clear-canvas-confirm.png",
+      "sha256": "263f387b5b4ffbe53ea7db914cc47e73602292d4691b5b6324c7629088c2789e",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 47,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 1,
+        "heading": 3,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "paragraph": 1,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 4,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-empty-canvas-context-menu",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-empty-canvas-context-menu.png",
+      "sha256": "de8004f66ca7efb97866e0799ea84515f7c83a82fdb28401407b6a2e4bb22d4e",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 51,
+        "checkbox": 2,
+        "complementary": 1,
+        "heading": 2,
+        "img": 1,
+        "list": 3,
+        "listitem": 14,
+        "main": 1,
+        "navigation": 3,
+        "radio": 11,
+        "region": 1,
+        "separator": 2,
+        "status": 1,
+        "strong": 1,
+        "text": 4,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-extra-tools",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-extra-tools.png",
+      "sha256": "a3fcd6d077ed7c5dec28f23dcdfee864c138d8d8bd0415d58f28198da42161f3",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 48,
+        "checkbox": 2,
+        "complementary": 1,
+        "heading": 2,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 5,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-fill-color-popover",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-fill-color-popover.png",
+      "sha256": "5ec1a99cec6048c1327308a6c6c063db89541d1aaeb13116b173e07e605f5caa",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 77,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 4,
+        "group": 5,
+        "heading": 3,
+        "img": 2,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 22,
+        "region": 2,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 14,
+        "textbox": 2,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-find-sidebar",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-find-sidebar.png",
+      "sha256": "c6f851363f1562f502b5bd4d46c759f1823e394b207a35a06bacb7fa33450a0f",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "opened-but-content-offscreen",
+      "pageAccessibilityRoleCounts": {
+        "button": 45,
+        "checkbox": 2,
+        "complementary": 1,
+        "heading": 2,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "tab": 2,
+        "tablist": 1,
+        "tabpanel": 1,
+        "text": 4,
+        "textbox": 2,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-font-picker-popover",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-font-picker-popover.png",
+      "sha256": "2463b863344a47275c5bc58b2c879e3967d7fd531d0876f3529ec14d101fcb6c",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 63,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 3,
+        "group": 4,
+        "heading": 3,
+        "img": 2,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "menu": 1,
+        "navigation": 3,
+        "paragraph": 1,
+        "radio": 18,
+        "region": 2,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 11,
+        "textbox": 2,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-help-dialog",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-help-dialog.png",
+      "sha256": "10833d1ca796d5de8506335b5ae872f920bb0f7814badff4691c719842abf868",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 45,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 1,
+        "heading": 7,
+        "img": 1,
+        "link": 4,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 7,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-library-panel",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-library-panel.png",
+      "sha256": "ab192d543009a19ee0e8297c9bfc012f5a5862ff09438947378f2218d8d6a64f",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "opened-but-content-offscreen",
+      "pageAccessibilityRoleCounts": {
+        "button": 46,
+        "checkbox": 2,
+        "complementary": 1,
+        "heading": 2,
+        "img": 1,
+        "link": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "tab": 2,
+        "tablist": 1,
+        "tabpanel": 1,
+        "text": 5,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-main-menu",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-main-menu.png",
+      "sha256": "d1a806c4aa685af3a2011eea023e08e8d25ecff5089f51c381fb19a0f7d5acce",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 53,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 1,
+        "heading": 2,
+        "img": 1,
+        "link": 3,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "paragraph": 1,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 7,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-mermaid-insert-dialog",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-mermaid-insert-dialog.png",
+      "sha256": "d64dd88002b3fd61a8c2a2b5487f716efa94ae0a6bf227fa3e87270c60f5910a",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 46,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 1,
+        "heading": 2,
+        "img": 1,
+        "link": 3,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "paragraph": 1,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "tabpanel": 1,
+        "text": 10,
+        "textbox": 2,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-mobile-shape-properties-sheet",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-mobile-shape-properties-sheet.png",
+      "sha256": "9210597e44d965b5d56cd3fe7d428d653d58cc402b69a3e6ba12e5903f7a1fa3",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 61,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 2,
+        "group": 5,
+        "heading": 3,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 22,
+        "region": 2,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 11,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-shape-properties-panel",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-shape-properties-panel.png",
+      "sha256": "61bd725a1ce956c9d53979f095be7724d40be0cc7d348be35771c239d065b7c9",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "attempt-no-visible-window",
+      "pageAccessibilityRoleCounts": {
+        "button": 45,
+        "checkbox": 2,
+        "complementary": 1,
+        "heading": 2,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 4,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-stroke-color-popover",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-stroke-color-popover.png",
+      "sha256": "aa80bb23051305c4f49224ba1a82ab2aa2429ec26bb74b33fbf0255be08511cf",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 77,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 4,
+        "group": 5,
+        "heading": 3,
+        "img": 2,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 22,
+        "region": 2,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 14,
+        "textbox": 2,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "vendor-text-properties-panel",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-vendor-text-properties-panel.png",
+      "sha256": "e18144b6e686e5e502d1907af52aa72028d8705a879ac567394eb081417499d4",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 59,
+        "checkbox": 2,
+        "complementary": 1,
+        "dialog": 2,
+        "group": 4,
+        "heading": 3,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 18,
+        "region": 2,
+        "slider": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 11,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    },
+    {
+      "id": "whiteboard-canvas",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "390-whiteboard-canvas.png",
+      "sha256": "24a6700d60e334d4bfd4a794891b95c3c3e9fcf89dd177bced7582ddfa9bd29d",
+      "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+      "status": "captured-visible",
+      "pageAccessibilityRoleCounts": {
+        "button": 44,
+        "checkbox": 2,
+        "complementary": 1,
+        "heading": 2,
+        "img": 1,
+        "list": 2,
+        "listitem": 7,
+        "main": 1,
+        "navigation": 3,
+        "radio": 11,
+        "region": 1,
+        "status": 1,
+        "strong": 1,
+        "text": 4,
+        "textbox": 1,
+        "toolbar": 1
+      }
+    }
+  ],
+  "confirmedGaps": [
+    {
+      "id": "RTD-G01",
+      "kind": "offscreen-at-390",
+      "surfaceKeys": [
+        "vendor-find-sidebar",
+        "vendor-library-panel"
+      ],
+      "actual": "sidebar x=-295,width=295; Close x=-43,width=31.5; Find textbox x=-248.5,width=226.5; document overflow x=0. Normal Close click fails outside viewport.",
+      "sourceRefs": [
+        "apps/web/style.css:1083",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:17066"
+      ],
+      "sourceInference": "Generic app .sidebar transform:translateX(-100%) at narrow widths may affect vendor sidebar because it shares the class. This is a source-backed hypothesis, not a computed-style root-cause verification."
+    },
+    {
+      "id": "RTD-G02",
+      "kind": "advertised-but-not-reached",
+      "surfaceKeys": [
+        "vendor-command-palette"
+      ],
+      "actual": "Help lists Command palette shortcuts. Ctrl+/ and Ctrl+Shift+P with canvas focus yielded zero palette/search-dialog DOM. The evidence image is the unchanged canvas, marked attempt-no-visible-window.",
+      "sourceRefs": [
+        "apps/web/whiteboards/canvas.ts:40",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:12759",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:21056"
+      ]
+    },
+    {
+      "id": "RTD-G03",
+      "kind": "not-rendered-at-390",
+      "surfaceKeys": [
+        "vendor-canvas-shape-properties"
+      ],
+      "actual": "Canvas & Shape properties context action was clickable at 390 but no stats heading/panel appeared. Desktop stats showed Shapes 0.",
+      "sourceRefs": [
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:15454",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:21445"
+      ]
+    }
+  ],
+  "disabledOrExcluded": [
+    {
+      "scope": "Vendor open/save/export/image dialogs",
+      "reason": "loadScene, saveToActiveFile, export, saveAsImage=false; runtime menu has none. JSON/image dialogs also gated in vendor LayerUI.",
+      "sourceRefs": [
+        "apps/web/whiteboards/canvas.ts:64",
+        "node_modules/@excalidraw/excalidraw/dist/dev/index.js:21103"
+      ]
+    },
+    {
+      "scope": "Vendor theme selector",
+      "reason": "App supplies light/dark theme; no independent theme chooser in observed menu.",
+      "sourceRefs": [
+        "apps/web/whiteboards/canvas.ts:40"
+      ]
+    },
+    {
+      "scope": "OS picker/print browser chrome",
+      "reason": "Not app-owned UI; library Open, insert-image, browser native print were not triggered."
+    },
+    {
+      "scope": "Element-selection/link/crop/group-specific panels, paste-table dialog, populated library edit/publish/remove",
+      "reason": "Would require elements, clipboard/OS files, or external actions beyond the authorized empty-board enumeration. Not claimed reachable."
+    },
+    {
+      "scope": "External vendor libraries, social/docs links, library upload/publish",
+      "reason": "Enumerated labels only; never followed or invoked."
+    }
+  ],
+  "remainingCanonicalRuntimeGaps": [
+    {
+      "canonicalIds": [
+        "WS-014",
+        "WS-015",
+        "WS-016",
+        "WS-063",
+        "WS-069",
+        "WS-070",
+        "WS-071",
+        "WS-076",
+        "WS-077",
+        "WS-078",
+        "WS-079",
+        "WS-080",
+        "WS-081",
+        "WS-082",
+        "WS-102"
+      ],
+      "status": "Source inventory remains reference; not runtime-covered by this empty-whiteboard pass."
+    },
+    {
+      "canonicalIds": [
+        "WS-068",
+        "WS-072",
+        "WS-073",
+        "WS-074",
+        "WS-075"
+      ],
+      "status": "Nonempty content, errors, offline, readonly, recovery, save-conflict and permission states remain unverified. Export controls were enumerated, not executed."
+    }
+  ],
+  "targetedSourceResolution": {
+    "report": "reviews/vendor-attempt-resolution.json",
+    "commandPalette": "not-currently-mounted-by-integrated-locked-renderer",
+    "mobileStats": "desktop-only stats render path in current locked renderer; mobile context action does not mount a stats panel",
+    "originalNoTargetAttemptsStillRetained": true,
+    "noAdditionalCurrentUiAssetRequired": true
+  }
+}

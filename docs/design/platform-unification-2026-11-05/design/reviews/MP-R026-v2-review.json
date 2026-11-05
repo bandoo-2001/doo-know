@@ -1,0 +1,46 @@
+{
+  "assetId": "MP-R026-v2",
+  "sourceIds": [
+    "ST-060"
+  ],
+  "reviewer": "independent platform_review_ws01 child agent",
+  "reviewedAtUtc": "2026-11-05T07:25:01.754580+00:00",
+  "verdict": "pass",
+  "method": "Actual PNG viewed in the independent child context; complete actual submitted sidecar prompt/history and batch source contracts compared with current source template/handlers and matching real baseline where available. No generation or product runtime tests.",
+  "selectedState": "Same installed-enabled OAuth narrowing form; closed selected-tag controls corrected",
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Actually viewed new v2 SHA898816bae27f7aaef3ea8e00fb2b9d9744c4d82591be7a9093fc9f4e9582444d and complete targeted edit/prior prompts. All three selected-resource fields now show actual closed multiselect with30-Knowledge tag instead of inline checkbox/branch row. A/B can edit, C visibly disabled; previous P2 closed.",
+    "Exact selected1directory0notes/help, original granted/effective read/write/organize versus draft read/write only, ceiling constraint and manual save/token invalidation remain. C enabled-but-disabled switch staysright and busy locks all values/cancel while save spins. No new domain/rebind/role or API execution asserted."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Raster texture/shading and approximate geometry remain illustrative. Use shared flat CSS tokens and source conditional scrolling/focus/disabled behavior; no exact CSS or responsive/runtime compliance claimed."
+    }
+  ],
+  "sourceRefs": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-038.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-R026-v2.json",
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/components/KnowledgeResourceTreeSelect.vue:112",
+    "apps/web/components/MCPDomainPermissions.vue:70",
+    "apps/web/components/MCPClientPermissions.vue:12",
+    "apps/server/platform/mcp-client-permissions.ts:52",
+    "docs/design/platform-unification-2026-11-05/design/reviews/MP-R026-review.json"
+  ],
+  "requiredCorrections": [],
+  "reviewedImageSha256": "898816bae27f7aaef3ea8e00fb2b9d9744c4d82591be7a9093fc9f4e9582444d",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-R026-v2.png",
+  "modelProvenance": {
+    "status": "accept-supplied-official-built-in-gpt-image-2-contract",
+    "perCallIdentityReceiptExposed": false
+  },
+  "limitations": [
+    "Static design review does not prove API execution, permissions, dirty/busy/close guards, focus/keyboard, persistence, canvas topology or responsive fit.",
+    "Only declared compatible state reviewed; hidden mutually exclusive branches remain separate mappings. Source-derived examples are not captured runtime results.",
+    "Per-image verdict does not complete full-design global consistency/coverage review or authorize product implementation."
+  ]
+}

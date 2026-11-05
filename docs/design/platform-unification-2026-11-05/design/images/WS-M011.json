@@ -1,0 +1,369 @@
+{
+  "id": "WS-M011",
+  "title": "Graph analysis task progress modal — compact component state matrix",
+  "kind": "generated-design",
+  "sourceIds": [
+    "WS-088"
+  ],
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "WS-088",
+      "title": "Graph analysis task progress modal — compact component state matrix",
+      "role": "authenticated owner",
+      "state": "GraphWorkspace.vue panel=tasks task-status/progress strip, six compact rows; main task window exists separately.",
+      "presentation": "ONE compact component matrix, not multiple simultaneously open full windows",
+      "rows": [
+        {
+          "label": "row-1",
+          "sourceId": "WS-088",
+          "title": "Graph analysis task progress modal",
+          "role": "authenticated owner",
+          "state": "idle",
+          "actionPresentation": "SOURCE VERIFIED: all five buttons 暂停/继续/重试失败/重建索引/取消任务 remain rendered for every status; only state.busy disables buttons. status state changes badge/progress, completed/total counters, automatic/modelReady tags and actual errors.",
+          "sourceComponent": "apps/web/components/GraphWorkspace.vue"
+        },
+        {
+          "label": "row-2",
+          "sourceId": "WS-088",
+          "title": "Graph analysis task progress modal",
+          "role": "authenticated owner",
+          "state": "running",
+          "actionPresentation": "SOURCE VERIFIED: all five buttons 暂停/继续/重试失败/重建索引/取消任务 remain rendered for every status; only state.busy disables buttons. status state changes badge/progress, completed/total counters, automatic/modelReady tags and actual errors.",
+          "sourceComponent": "apps/web/components/GraphWorkspace.vue"
+        },
+        {
+          "label": "row-3",
+          "sourceId": "WS-088",
+          "title": "Graph analysis task progress modal",
+          "role": "authenticated owner",
+          "state": "paused",
+          "actionPresentation": "SOURCE VERIFIED: all five buttons 暂停/继续/重试失败/重建索引/取消任务 remain rendered for every status; only state.busy disables buttons. status state changes badge/progress, completed/total counters, automatic/modelReady tags and actual errors.",
+          "sourceComponent": "apps/web/components/GraphWorkspace.vue"
+        },
+        {
+          "label": "row-4",
+          "sourceId": "WS-088",
+          "title": "Graph analysis task progress modal",
+          "role": "authenticated owner",
+          "state": "waiting-model",
+          "actionPresentation": "SOURCE VERIFIED: all five buttons 暂停/继续/重试失败/重建索引/取消任务 remain rendered for every status; only state.busy disables buttons. status state changes badge/progress, completed/total counters, automatic/modelReady tags and actual errors.",
+          "sourceComponent": "apps/web/components/GraphWorkspace.vue"
+        },
+        {
+          "label": "row-5",
+          "sourceId": "WS-088",
+          "title": "Graph analysis task progress modal",
+          "role": "authenticated owner",
+          "state": "failed",
+          "actionPresentation": "SOURCE VERIFIED: all five buttons 暂停/继续/重试失败/重建索引/取消任务 remain rendered for every status; only state.busy disables buttons. status state changes badge/progress, completed/total counters, automatic/modelReady tags and actual errors.",
+          "sourceComponent": "apps/web/components/GraphWorkspace.vue"
+        },
+        {
+          "label": "row-6",
+          "sourceId": "WS-088",
+          "title": "Graph analysis task progress modal",
+          "role": "authenticated owner",
+          "state": "queued",
+          "actionPresentation": "SOURCE VERIFIED: all five buttons 暂停/继续/重试失败/重建索引/取消任务 remain rendered for every status; only state.busy disables buttons. status state changes badge/progress, completed/total counters, automatic/modelReady tags and actual errors.",
+          "sourceComponent": "apps/web/components/GraphWorkspace.vue"
+        }
+      ]
+    }
+  ],
+  "viewportIntent": "At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.",
+  "referenceInputs": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup."
+    },
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:979, apps/server/graph/semantic-routes.ts:151, packages/core/graph/analysis-source.ts:31"
+    }
+  ],
+  "functionalInvariants": [
+    "Current source and exact sourceContracts are functional authority; style-contract.md and actual ToDoo are style-only authority.",
+    "Preserve every field/order/constraint, implemented action, role and guard in sourceContracts. Backend/protocol/identity rules are nonvisual and never become editable fields.",
+    "One exact renderer may substitute source text/data/disabled/conditional values; substitutions do not certify that incompatible states coexist or that runtime fit passed.",
+    "Full independent main pages remain full frames; dense forms remain complete full large-window frames; other local components do not redraw owner chrome.",
+    "No full parent canvas substitutes for explicitly planned vendor child menus, pickers, sidebars, dialogs or properties."
+  ],
+  "allowedActions": [
+    {
+      "sourceId": "WS-088",
+      "label": "暂停 / 继续 / 重试失败 / 重建索引 / 取消任务",
+      "effect": "Control existing background analysis",
+      "api": "POST /api/graph/jobs",
+      "guard": "!state.busy; action must pause/resume/retry/rebuild/cancel"
+    }
+  ],
+  "forbiddenAdditions": [
+    "Brand is DooKnow; ToDoo is an existing app and style reference only.",
+    "No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.",
+    "No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.",
+    "Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.",
+    "No native OS/browser picker or print-dialog chrome.",
+    "No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.",
+    "No developer/source/API path or review-note text inside product UI."
+  ],
+  "responsiveContract": [
+    {
+      "assetId": "WS-D064",
+      "representation": "direct",
+      "reason": "Explicit390/320 layout-family job; stated panel distribution governs. All unique content contracts remain required.",
+      "sourceConstraint": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "requiredFieldOrder": [],
+      "requiredFields": [],
+      "requiredActions": [
+        {
+          "label": "暂停 / 继续 / 重试失败 / 重建索引 / 取消任务",
+          "effect": "Control existing background analysis",
+          "api": "POST /api/graph/jobs",
+          "guard": "!state.busy; action must pause/resume/retry/rebuild/cancel"
+        }
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31)."
+      ],
+      "widths": [
+        320,
+        390
+      ],
+      "requiresActualFitReview": true,
+      "scrollContract": "Retain the actual source body/list/text/canvas scroll owner, bounded max height and reachable primary/secondary/close actions. Text wrapping never removes fields; keyboard and safe viewport still require runtime verification.",
+      "focusContract": "Retain source autofocus, focus loop/return, Escape/backdrop/dismissal and selection/bookmark/epoch guards. Do not infer a busy close lock from the reference family.",
+      "sourceId": "WS-088"
+    }
+  ],
+  "prompt": "只修正第五行“部分失败”的进度状态，其余六行布局、文本、标签、全部按钮及错误详情都保留不变。第五行当前8/10资料，进度条长度保持80%，但条本身必须为错误红色；条右侧用小红色叉号状态图标取代当前的“80%”数字，表示失败进度状态。不要修改其它五行的进度色或数字，不加说明文字或新控件。",
+  "outputFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M011.png",
+  "reviewStatus": "pending-independent-review",
+  "sourceContracts": [
+    {
+      "id": "WS-088",
+      "title": "Graph analysis task progress modal",
+      "kind": "dialog",
+      "module": "graph",
+      "entry": {
+        "route": "/?view=apps&app=graph",
+        "trigger": "Analysis status pill / task navigation",
+        "parentId": "WS-085"
+      },
+      "sourceRefs": [
+        "apps/web/components/GraphWorkspace.vue:979",
+        "apps/server/graph/semantic-routes.ts:151",
+        "packages/core/graph/analysis-source.ts:31"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.",
+        "Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31)."
+      ],
+      "fields": [],
+      "actions": [
+        {
+          "label": "暂停 / 继续 / 重试失败 / 重建索引 / 取消任务",
+          "effect": "Control existing background analysis",
+          "api": "POST /api/graph/jobs",
+          "guard": "!state.busy; action must pause/resume/retry/rebuild/cancel"
+        }
+      ],
+      "importantStates": [
+        "Idle/running/paused/waiting-model/failed/queued",
+        "Processed,total,pending,failed counters",
+        "Automatic on/off; model ready/basic analysis",
+        "Expandable per-source error code",
+        "Rebuild retains human decisions/saved views"
+      ],
+      "responsive": {
+        "supported": "source-defined; runtime at 320/390/1440 unverified",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "At <800px JS uses a details drawer; <=799px CSS stacks search and form columns, single-column graph body; desktop shows inspector beside canvas. GraphOverlay width min(requested,100vw-24px), drawer <=100vw and body scrolls (apps/web/graph.css:394; components/graph/GraphOverlay.vue:36)."
+      },
+      "testRefs": [
+        "tests/graph-analysis.test.ts",
+        "tests/e2e/knowledge-graph-full.spec.ts"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "Existing user-visible surface requires baseline-aligned hierarchy, controls, feedback and responsive treatment without adding behavior.",
+      "notes": [
+        "Source inventory only; no runtime behavior asserted."
+      ],
+      "inventoryFile": "coverage/workspace.json"
+    }
+  ],
+  "hostContracts": [
+    {
+      "sourceId": "WS-088",
+      "parentId": "WS-085",
+      "role": [
+        "authenticated owner"
+      ],
+      "scope": "Complete owner shell only in complete main-page assets; this child uses actual parent metadata and a neutral local crop."
+    }
+  ],
+  "presentationScope": "actual-local-component-or-independent-comparison",
+  "compositionRules": {
+    "fullPage": false,
+    "maxIndependentSections": 3,
+    "maxCompactRowsPerRenderer": 7,
+    "hostRendering": "Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.",
+    "incompatibleStates": "Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.",
+    "captions": "Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.",
+    "legibility": "Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count."
+  },
+  "geometryFamily": "exact source renderer and field/action layout: WS-088",
+  "stateCoverageRefs": [
+    {
+      "sourceId": "WS-088",
+      "state": "Idle/running/paused/waiting-model/failed/queued",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-088",
+      "state": "Processed,total,pending,failed counters",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-088",
+      "state": "Automatic on/off; model ready/basic analysis",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-088",
+      "state": "Expandable per-source error code",
+      "representation": "same-renderer-substitution"
+    },
+    {
+      "sourceId": "WS-088",
+      "state": "Rebuild retains human decisions/saved views",
+      "representation": "same-renderer-substitution"
+    }
+  ],
+  "statePatternRefs": [],
+  "planFile": "docs/design/platform-unification-2026-11-05/design/workspace-asset-plan.json",
+  "generationInstruction": "Read generation-execution-contract.md. Use actual template/role and selected baseline visible state before generic plan text. Submit a concise exact prompt for this one asset; full source/state/field/action contracts remain in this manifest and original plan. Draw independent labeled matrix rows/panels as specified, not incompatible states in one product page. Local component designs do not redraw full host. Full pages use their actual role-specific shell. Source-derived states are examples, not runtime acceptance. No invented features/inputs/buttons/permissions or fake saved/connected outcomes. Keep every existing visible action and actual disabled guard. Save full actual submittedPrompt and input responsibilities in SHA-bound sidecar, pending independent review.",
+  "assetId": "WS-M011",
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": [
+    "idle10/10",
+    "running4/10",
+    "paused4/10 automatic off",
+    "waiting-model0/10 pending exists",
+    "failed8/10 with source error expanded and exception progress",
+    "queued0/10"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "submittedPrompt": "只修正第五行“部分失败”的进度状态，其余六行布局、文本、标签、全部按钮及错误详情都保留不变。第五行当前8/10资料，进度条长度保持80%，但条本身必须为错误红色；条右侧用小红色叉号状态图标取代当前的“80%”数字，表示失败进度状态。不要修改其它五行的进度色或数字，不加说明文字或新控件。",
+  "batchOriginalPrompt": "Create GPT Image2 design for the existing DooKnow UI under design/style-contract.md. Actual ToDoo screenshot is STYLE ONLY; sourceContracts and current product are content/action/role authority. Flat ToDoo palette, thin borders,8px corners, restrained shadow; no raster texture/gradients in intended CSS.\nASSET WS-M011 Graph analysis task progress modal — compact component state matrix\nSCOPE actual-local-component-or-independent-comparison\nVIEW At most3 readable independent local sections; any phone sections have exact390/320 viewport metadata. Compact component matrices have at most7 rows per renderer.\nCOMPOSITION {\"fullPage\": false, \"maxIndependentSections\": 3, \"maxCompactRowsPerRenderer\": 7, \"hostRendering\": \"Complete authoritative owner/standalone host for full pages. Other surfaces use actual local component on a neutral background or only a small truthful parent cue; do not repeat full rail/sidebar/header. Large windows retain real title/close/body scrolling/footer.\", \"incompatibleStates\": \"Never combine mutually exclusive conditions into one apparent app screen; compact rows/sections are independent specimens.\", \"captions\": \"Source/title/role/state are recorded here as metadata; optional external labels never become product UI. Missing outer caption alone is not a functional failure.\", \"legibility\": \"Every field/action/row must remain readable at reference scale. Increase artifact canvas or split this job if necessary; never shrink or delete content to meet a job count.\"}\nPANELS [{\"label\": \"A\", \"sourceId\": \"WS-088\", \"title\": \"Graph analysis task progress modal — compact component state matrix\", \"role\": \"authenticated owner\", \"state\": \"GraphWorkspace.vue panel=tasks task-status/progress strip, six compact rows; main task window exists separately.\", \"presentation\": \"ONE compact component matrix, not multiple simultaneously open full windows\", \"rows\": [{\"label\": \"row-1\", \"sourceId\": \"WS-088\", \"title\": \"Graph analysis task progress modal\", \"role\": \"authenticated owner\", \"state\": \"idle\", \"actionPresentation\": \"SOURCE VERIFIED: all five buttons 暂停/继续/重试失败/重建索引/取消任务 remain rendered for every status; only state.busy disables buttons. status state changes badge/progress, completed/total counters, automatic/modelReady tags and actual errors.\", \"sourceComponent\": \"apps/web/components/GraphWorkspace.vue\"}, {\"label\": \"row-2\", \"sourceId\": \"WS-088\", \"title\": \"Graph analysis task progress modal\", \"role\": \"authenticated owner\", \"state\": \"running\", \"actionPresentation\": \"SOURCE VERIFIED: all five buttons 暂停/继续/重试失败/重建索引/取消任务 remain rendered for every status; only state.busy disables buttons. status state changes badge/progress, completed/total counters, automatic/modelReady tags and actual errors.\", \"sourceComponent\": \"apps/web/components/GraphWorkspace.vue\"}, {\"label\": \"row-3\", \"sourceId\": \"WS-088\", \"title\": \"Graph analysis task progress modal\", \"role\": \"authenticated owner\", \"state\": \"paused\", \"actionPresentation\": \"SOURCE VERIFIED: all five buttons 暂停/继续/重试失败/重建索引/取消任务 remain rendered for every status; only state.busy disables buttons. status state changes badge/progress, completed/total counters, automatic/modelReady tags and actual errors.\", \"sourceComponent\": \"apps/web/components/GraphWorkspace.vue\"}, {\"label\": \"row-4\", \"sourceId\": \"WS-088\", \"title\": \"Graph analysis task progress modal\", \"role\": \"authenticated owner\", \"state\": \"waiting-model\", \"actionPresentation\": \"SOURCE VERIFIED: all five buttons 暂停/继续/重试失败/重建索引/取消任务 remain rendered for every status; only state.busy disables buttons. status state changes badge/progress, completed/total counters, automatic/modelReady tags and actual errors.\", \"sourceComponent\": \"apps/web/components/GraphWorkspace.vue\"}, {\"label\": \"row-5\", \"sourceId\": \"WS-088\", \"title\": \"Graph analysis task progress modal\", \"role\": \"authenticated owner\", \"state\": \"failed\", \"actionPresentation\": \"SOURCE VERIFIED: all five buttons 暂停/继续/重试失败/重建索引/取消任务 remain rendered for every status; only state.busy disables buttons. status state changes badge/progress, completed/total counters, automatic/modelReady tags and actual errors.\", \"sourceComponent\": \"apps/web/components/GraphWorkspace.vue\"}, {\"label\": \"row-6\", \"sourceId\": \"WS-088\", \"title\": \"Graph analysis task progress modal\", \"role\": \"authenticated owner\", \"state\": \"queued\", \"actionPresentation\": \"SOURCE VERIFIED: all five buttons 暂停/继续/重试失败/重建索引/取消任务 remain rendered for every status; only state.busy disables buttons. status state changes badge/progress, completed/total counters, automatic/modelReady tags and actual errors.\", \"sourceComponent\": \"apps/web/components/GraphWorkspace.vue\"}]}]\nVISIBLE CONTRACTS [{\"panel\": \"A\", \"sourceId\": \"WS-088\", \"fieldsInOrder\": [], \"actions\": [{\"label\": \"暂停 / 继续 / 重试失败 / 重建索引 / 取消任务\", \"effect\": \"Control existing background analysis\", \"api\": \"POST /api/graph/jobs\", \"guard\": \"!state.busy; action must pause/resume/retry/rebuild/cancel\"}], \"importantStates\": [\"Idle/running/paused/waiting-model/failed/queued\", \"Processed,total,pending,failed counters\", \"Automatic on/off; model ready/basic analysis\", \"Expandable per-source error code\", \"Rebuild retains human decisions/saved views\"], \"permissionRules\": [\"Authenticated owner browser session; /api owner hook returns 401 if absent and 503 during maintenance. Mutations require configured Origin and CSRF token (apps/server/app.ts:141). No administrator/member role split is implemented for these owner surfaces.\", \"Graph rejects share principals. Graph control/state/command management requires principal.id=web-owner; evidence/explore scope follows sourceAccess authorization (analysis-source.ts:31).\"]}]\nFAMILY REUSE: reuseSourceIds are exact metadata substitutions, not extra simultaneous fields/actions. Never blend multiple complete surfaces into one UI. Render each section in its stated role; child components use neutral local framing, complete main pages use actual role-specific shell. All states remain mapped separately in stateCoverage, not simultaneous screen assertions.\nFORBIDDEN [\"Brand is DooKnow; ToDoo is an existing app and style reference only.\", \"No invented fields, actions, role hierarchy, authentication gate, password sharing gate, automatic save guarantee or backend expansion.\", \"No real secrets, share capabilities or private data: use fictional legal example content, example.invalid URLs, masked secret fields.\", \"Never render API protocol metadata requestId/hash/cursor/expectedVersion as editable fields unless the actual source UI has that input.\", \"No native OS/browser picker or print-dialog chrome.\", \"No owner account/tree/file/share-management/upload/generate controls in a public guest or standalone export host.\", \"No developer/source/API path or review-note text inside product UI.\"]\nActual 320/390 scrolling/focus/keyboard/stacking, action execution and permissions remain unverified until runtime. All planned images and per-image/global functional review must pass before product implementation.",
+  "inputReferences": [
+    {
+      "path": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+      "role": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "responsibility": "APPROVED STYLE ONLY. Actual source decides role-specific chrome; never transfer owner rail to public/auth/setup.",
+      "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1010972
+    },
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "role": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:979, apps/server/graph/semantic-routes.ts:151, packages/core/graph/analysis-source.ts:31",
+      "responsibility": "AUTHORITATIVE SOURCE: apps/web/components/GraphWorkspace.vue:979, apps/server/graph/semantic-routes.ts:151, packages/core/graph/analysis-source.ts:31",
+      "sha256": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e"
+    },
+    {
+      "path": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-70186b6e-bcbd-47ab-86d6-47a4b69f6ba6.png",
+      "role": "initial generated candidate targeted edit",
+      "responsibility": "Correct failed task AProgress exception red/icon while preserving actual controls",
+      "sha256": "807205830cea777be51c455177d7a6ddeaffc978c0e0606e3ef6c00ff5d7c087",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "bytes": 1279129
+    }
+  ],
+  "actualImageInputOrder": [
+    "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-70186b6e-bcbd-47ab-86d6-47a4b69f6ba6.png"
+  ],
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task official preflight",
+      "limitation": "Tool exposes neither a model selector nor a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/WS-M011.png",
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-2ed11755-5c05-414d-bb01-a4b3907a868b.png",
+  "toolOutputHint": "Generated images are saved to /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274 as /home/bandoo/.codex/generated_images/01a1a941-dddd-7442-89cc-69b7064ae274/exec-2ed11755-5c05-414d-bb01-a4b3907a868b.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "generationCallCount": 2,
+  "generatedAtUtc": "2026-11-05T06:03:52.545Z",
+  "selfInspection": {
+    "method": "Native generated image preview inspected in delegated generation thread",
+    "status": "pending-independent-review",
+    "pageSpecific": "All five actual controls remain for each status; failed progress is exception-red; per-source diagnostic readonly.",
+    "concerns": []
+  },
+  "sha256": "2c21b1bfe727010de8c2f99200d9cf5b1e4e94bf645becac3998b4ba92f0a62c",
+  "dimensions": {
+    "width": 1536,
+    "height": 1024
+  },
+  "bytes": 1520396,
+  "sourceInspection": [
+    {
+      "path": "apps/web/components/GraphWorkspace.vue",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "7546f1aac707666a6004e9e1260185f2898ddf540eb0b1f3e95a289d3293aa4e"
+    },
+    {
+      "path": "apps/server/graph/semantic-routes.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "0f4d81250bee2aa5d27fdfd65bb5209f52525fdec1275f8ac680e17f7ea8f12a"
+    },
+    {
+      "path": "packages/core/graph/analysis-source.ts",
+      "role": "source-template/behavior authority, textual input only",
+      "sha256": "c87083ae267c60d4d876a82ca93d7f51d87cb6156f7f325c778fe3e77362eca1"
+    }
+  ],
+  "sourceDerivedUnverifiedScope": "Source-derived local specimens, synthetic counters/providers/model values. No model call, credential save, test, task command or responsive runtime executed.",
+  "exactTaskGuard": "GraphWorkspace tasks template renders all five buttons for all status values; disabled only state.busy. No invented pending/failed counter inputs (actual local heading is completed/total).",
+  "generationHistoryFiles": [
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-034-WS-M011-call-01-output.json",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-034-WS-M011-call-02-output.json"
+  ]
+}

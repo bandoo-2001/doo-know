@@ -1,0 +1,197 @@
+{
+  "reviewId": "PILOT-WS-001-independent-content-review",
+  "assetId": "PILOT-WS-001",
+  "reviewedAtUtc": "2026-11-04 17:18:59 UTC",
+  "reviewer": "independent platform_pilot_review child agent",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.png",
+  "artifactSha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f",
+  "artifactKind": "generated-design concept; not a runtime screenshot or implemented UI",
+  "surfaceIds": [
+    "WS-001"
+  ],
+  "contextSurfaceIds": [
+    "WS-002",
+    "WS-098"
+  ],
+  "authority": {
+    "contentAndFunction": "docs/design/platform-unification-2026-11-05/baseline/1440-workspace-empty.png",
+    "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+    "sourceInventory": "docs/design/platform-unification-2026-11-05/coverage-index.json",
+    "prompt": "docs/design/platform-unification-2026-11-05/design/images/PILOT-WS-001.json",
+    "styleOnly": "docs/design/to-doo/two-level-implementation-2026-11-04/screenshots/1440-02-tasks-list-v2.png",
+    "sourceChecks": [
+      "apps/web/components/Workspace.vue:2702",
+      "apps/web/components/Workspace.vue:2731",
+      "apps/web/components/Workspace.vue:2790",
+      "apps/web/components/Workspace.vue:2988",
+      "apps/web/components/Workspace.vue:3367",
+      "apps/web/components/WorkspaceFooter.vue:31",
+      "apps/web/components/WorkspaceFooter.vue:114",
+      "apps/web/components/WorkspaceMainMenu.vue:106",
+      "apps/web/navigation.ts:54"
+    ]
+  },
+  "method": {
+    "visualInspection": "All three original local images viewed using view_image in the independent child context; no image embedded in main conversation.",
+    "comparison": "Compared actual rendered content to baseline, exact prompt, WS-001/WS-002/WS-098 source inventory, and existing source navigation/account/create/empty-state controls.",
+    "runtimeTestPerformed": false,
+    "imageModified": false,
+    "additionalGenerationPerformed": false
+  },
+  "verdict": "pass-with-minor-style-followups",
+  "functionalContent": {
+    "status": "pass-for-this-static-desktop-state",
+    "blockingFindings": [],
+    "observations": [
+      {
+        "id": "account",
+        "visible": "O circular account trigger near rail top",
+        "sourceMeaning": "Existing personal-account popup; account settings, help/shortcuts, logout remain source actions behind the closed trigger.",
+        "status": "retained"
+      },
+      {
+        "id": "primary-navigation",
+        "visible": "笔记 active; 最近; 收藏; separator; 应用",
+        "sourceMeaning": "Navigate existing notes, recent, favorites, and apps destinations.",
+        "status": "retained"
+      },
+      {
+        "id": "utility-navigation",
+        "visible": "回收站 and 设置 at rail bottom",
+        "sourceMeaning": "Navigate existing trash and settings destinations.",
+        "status": "retained"
+      },
+      {
+        "id": "brand-and-context",
+        "visible": "Outlined blue book, DooKnow wordmark, divider, 笔记 context in horizontal header",
+        "sourceMeaning": "Static identity/context only; no added header action.",
+        "status": "retained"
+      },
+      {
+        "id": "search",
+        "visible": "Empty search input with magnifier and 搜索笔记与目录 placeholder",
+        "sourceMeaning": "Existing optional note/directory query; no fabricated result or new search mode shown.",
+        "status": "retained"
+      },
+      {
+        "id": "create-split-control",
+        "visible": "Blue + 新建 main segment and distinct downward-chevron segment; menu closed",
+        "sourceMeaning": "Main segment opens existing note creation; arrow opens existing create/import menu, retaining source guards.",
+        "status": "retained"
+      },
+      {
+        "id": "folder-controls",
+        "visible": "笔记本 heading with separate + and circular refresh icons",
+        "sourceMeaning": "Existing 新建文件夹 and 刷新目录 actions; neither is removed or merged.",
+        "status": "retained"
+      },
+      {
+        "id": "folder-tree",
+        "visible": "Two closed roots: 00-Inbox and 30-Knowledge, each with right-pointing chevron and outlined folder",
+        "sourceMeaning": "Existing directory selection/expansion; no invented folder, note, or count.",
+        "status": "retained"
+      },
+      {
+        "id": "sidebar-resizer",
+        "visible": "Thin vertical boundary and small dotted grip between context sidebar and main",
+        "sourceMeaning": "Existing sidebar resize affordance; it is not a collapse or new navigation button.",
+        "status": "retained"
+      },
+      {
+        "id": "empty-state",
+        "visible": "Book icon; 选择一篇笔记; 从左侧目录打开笔记，或新建笔记开始记录。",
+        "sourceMeaning": "Ready owner workspace with no selected note; no editor or detail panel.",
+        "status": "retained"
+      },
+      {
+        "id": "empty-state-actions",
+        "visible": "快速记录 primary and 导入 Markdown secondary text action",
+        "sourceMeaning": "Existing inbox quick-note creation and Markdown import entry remain distinguishable.",
+        "status": "retained"
+      }
+    ]
+  },
+  "rolesAndPermissions": {
+    "status": "no-visible-permission-drift",
+    "role": "authenticated owner",
+    "visibleRoleControls": "No administrator/member split, team switcher, invitation, collaboration, OAuth login or public editing affordance.",
+    "sourceContract": "Retain existing owner browser session, 401/503 behavior, configured Origin plus CSRF mutation guards, quickBusy and treeLoaded/treeRefreshing guards; no such behavior is proved by a raster.",
+    "runtimeVerified": false
+  },
+  "forbiddenContentCheck": {
+    "status": "pass",
+    "noVisibleAdditions": [
+      "To Doo brand or task navigation/content",
+      "task counts or note/folder counts",
+      "AI assistant/chat input",
+      "team/collaboration functions",
+      "notification control or notification count",
+      "saved/upload status",
+      "fabricated sample notes or metadata",
+      "selected note/editor/toolbar/properties",
+      "right-hand detail pane",
+      "extra header controls, back button or workspace switcher"
+    ],
+    "branding": "DooKnow is spelled correctly, paired with the existing book identity.",
+    "textWhitelist": "No visible text outside the prompt whitelist detected."
+  },
+  "style": {
+    "status": "aligned-with-minor-nonblocking-followups",
+    "aligned": [
+      "Two-level navigation hierarchy",
+      "Horizontal header and static app/context identity",
+      "Calm blue-gray rail/sidebar and flexible white main area",
+      "Thin separators and line icons",
+      "Restrained blue active navigation and main actions",
+      "No borrowed task content or right detail panel"
+    ],
+    "followups": [
+      {
+        "id": "P2-STYLE-001",
+        "severity": "P2",
+        "category": "style-only",
+        "blocking": false,
+        "finding": "Primary rail and context sidebar look roomier than the compact ToDoo reference and approximate prompt proportions.",
+        "correction": "Use the agreed compact shared rail/sidebar/header tokens when the full design set is consolidated, preserving the existing resizable sidebar and flexible main canvas. Do not treat raster pixel widths as a CSS contract or a functional blocker."
+      },
+      {
+        "id": "P2-STYLE-002",
+        "severity": "P2",
+        "category": "style-only",
+        "blocking": false,
+        "finding": "The generated blue buttons and light surfaces carry subtle gradients/texture beyond the flatter ToDoo reference.",
+        "correction": "Use the reference's flat color surfaces and established border/button tokens in the consolidated specification; do not reproduce generated raster texture in CSS."
+      }
+    ]
+  },
+  "findingsSummary": {
+    "P1": 0,
+    "P2": 2,
+    "functionalOrPermissionBlockers": 0,
+    "styleFollowupsAreBlocking": false
+  },
+  "scopeLimits": [
+    "WS-002 mobile drawer and WS-098 compact more-navigation are context only; this desktop image does not validate their layouts, focus or breakpoints.",
+    "Closed account/create menus and folder expansion contents are not visible; their retained source behavior must be preserved in implementation.",
+    "Image cannot verify keyboard/touch behavior, accessible names, action guards, actual API permissions, hit targets, responsive layout or resizer operation."
+  ],
+  "modelProvenance": {
+    "status": "accept-supplied-official-tool-contract",
+    "requiredModel": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "officialContract": "https://learn.chatgpt.com/docs/image-generation",
+    "perCallModelIdentityReceiptExposed": false,
+    "note": "Parent preflight and generation metadata supply model provenance; this review does not invent an unexposed per-call receipt."
+  },
+  "gate": {
+    "pilotContentReview": "passed-with-style-followups",
+    "fullDesignSetReview": "not-complete",
+    "implementationAuthorizedByThisReview": false,
+    "globalDesignGate": "closed",
+    "reason": "One static WS-001 pilot is not full surface coverage or global design approval."
+  },
+  "filesWritten": [
+    "docs/design/platform-unification-2026-11-05/design/reviews/PILOT-WS-001-review.json",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/pilot-independent-review.md"
+  ]
+}

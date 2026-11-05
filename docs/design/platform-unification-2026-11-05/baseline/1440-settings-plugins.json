@@ -1,0 +1,16 @@
+{
+  "id": "settings-plugins",
+  "title": "平台设置 plugins",
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?view=settings&section=plugins",
+  "file": "1440-settings-plugins.png",
+  "sha256": "20d3af18e07807e109eee306b74d24cab0fdbe1eadc0e5ed5883c727c9863156",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured"
+}

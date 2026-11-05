@@ -1,0 +1,362 @@
+{
+  "kind": "generated-design",
+  "id": "MP-D107-v2",
+  "assetId": "MP-D107",
+  "sourceIds": [
+    "PB-042"
+  ],
+  "source933": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "panels": [
+    {
+      "label": "A",
+      "sourceId": "PB-042",
+      "title": "博客装修：首页模块",
+      "role": "authenticated owner",
+      "state": "Source-derived modules tab with exact default six saved modules, all visible, no local modification, empty preview inherited from matching host baseline"
+    }
+  ],
+  "roles": [
+    "authenticated owner"
+  ],
+  "selectedState": "Source-derived modules tab with exact default six saved modules, all visible, no local modification, empty preview inherited from matching host baseline",
+  "sourceDerived": true,
+  "baselineStatus": "source-derived-no-runtime-baseline",
+  "model": {
+    "required": "gpt-image-2",
+    "actualTool": "tools.image_gen__imagegen",
+    "modelSelectionExposed": false,
+    "perCallModelIdentityReceiptExposed": false,
+    "verification": {
+      "method": "official-built-in-tool-model-contract",
+      "document": "https://learn.chatgpt.com/docs/image-generation",
+      "statement": "Built-in image generation uses gpt-image-2",
+      "upstreamRecord": "docs/design/platform-unification-2026-11-05/model-preflight.json",
+      "verifiedBy": "parent task preflight",
+      "limitation": "The tool does not expose a per-call model identity receipt."
+    },
+    "fallbackUsed": false
+  },
+  "transparentBackground": false,
+  "submittedPrompt": "只编辑这张已生成DooKnow博客装修首页模块图：在左编辑区最底部、当前值“最近更新”的模块类型下拉框正上方补回清晰可见的小号label“新模块”。该label只对应原有下拉框，不新增输入或按钮。保持所有其他文字、6条模块、数值、勾选、边界禁用、图标操作、添加模块按钮、页头、博客rail、预览、保存/发布禁用状态、页脚、布局、颜色、尺寸全部不变。仅做这一处缺失label补齐。",
+  "prompt": "只编辑这张已生成DooKnow博客装修首页模块图：在左编辑区最底部、当前值“最近更新”的模块类型下拉框正上方补回清晰可见的小号label“新模块”。该label只对应原有下拉框，不新增输入或按钮。保持所有其他文字、6条模块、数值、勾选、边界禁用、图标操作、添加模块按钮、页头、博客rail、预览、保存/发布禁用状态、页脚、布局、颜色、尺寸全部不变。仅做这一处缺失label补齐。",
+  "inputs": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D107.png",
+      "role": "Edit target: current reviewed modules page; only restore missing visible source label",
+      "sha256": "4c86d31234942b6815d824374ba033eed3d606ac10f8de66010525a9bfdd16ac",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      }
+    }
+  ],
+  "inputReferences": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D107.png",
+      "role": "Edit target: current reviewed modules page; only restore missing visible source label",
+      "sha256": "4c86d31234942b6815d824374ba033eed3d606ac10f8de66010525a9bfdd16ac",
+      "dimensions": {
+        "width": 1086,
+        "height": 1448
+      }
+    }
+  ],
+  "actualToolArguments": {
+    "prompt": "只编辑这张已生成DooKnow博客装修首页模块图：在左编辑区最底部、当前值“最近更新”的模块类型下拉框正上方补回清晰可见的小号label“新模块”。该label只对应原有下拉框，不新增输入或按钮。保持所有其他文字、6条模块、数值、勾选、边界禁用、图标操作、添加模块按钮、页头、博客rail、预览、保存/发布禁用状态、页脚、布局、颜色、尺寸全部不变。仅做这一处缺失label补齐。",
+    "referenced_image_paths": [
+      "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D107.png"
+    ],
+    "transparent_background": false
+  },
+  "contractReference": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-006.json#MP-D107",
+  "sourceReferences": [
+    {
+      "sourceId": "PB-042",
+      "parentId": "PB-041",
+      "route": "/?view=apps&app=blog&appSection=design (modules tab)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignModules.vue:5",
+        "apps/web/components/blog/BlogDesignModules.vue:28",
+        "packages/core/blog/studio.ts:88"
+      ]
+    }
+  ],
+  "originalPlanReference": "docs/design/platform-unification-2026-11-05/design/management-public-asset-plan.json#MP-D107",
+  "executionContract": "docs/design/platform-unification-2026-11-05/design/generation-execution-contract.md",
+  "generationCallCount": 1,
+  "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-74467304-754e-434e-9603-79a592256732.png",
+  "generatedFile": "docs/design/platform-unification-2026-11-05/design/images/MP-D107-v2.png",
+  "sha256": "b7f37a2ea6d2cad3d19028228753657b5874d973379cc69fb917a87240ef03dd",
+  "dimensions": {
+    "width": 1086,
+    "height": 1448
+  },
+  "bytes": 1596286,
+  "generatedAtUtc": "2026-11-05T01:52:38.917485+00:00",
+  "postprocessing": "Original built-in tool PNG copied byte-for-byte; no pixel editing.",
+  "revisionOf": {
+    "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-D107.png",
+    "sha256": "4c86d31234942b6815d824374ba033eed3d606ac10f8de66010525a9bfdd16ac",
+    "review": "docs/design/platform-unification-2026-11-05/design/reviews/MP-D107-review.json"
+  },
+  "pendingReview": true,
+  "reviewStatus": "pending-independent-review",
+  "caption": {
+    "title": "博客装修：首页模块",
+    "sourceIds": [
+      "PB-042"
+    ],
+    "roles": [
+      "authenticated owner"
+    ],
+    "state": "Source-derived modules tab with exact default six saved modules, all visible, no local modification, empty preview inherited from matching host baseline",
+    "location": "metadata, outside product UI"
+  },
+  "parentBindings": [
+    {
+      "sourceId": "PB-042",
+      "parentId": "PB-041",
+      "route": "/?view=apps&app=blog&appSection=design (modules tab)",
+      "roles": [
+        "authenticated owner"
+      ],
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignModules.vue:5",
+        "apps/web/components/blog/BlogDesignModules.vue:28",
+        "packages/core/blog/studio.ts:88"
+      ]
+    }
+  ],
+  "sourceStateAndActionContracts": {
+    "functionalInvariants": [
+      {
+        "sourceId": "PB-042",
+        "route": "/?view=apps&app=blog&appSection=design (modules tab)",
+        "trigger": "首页模块 tab",
+        "parentId": "PB-041",
+        "roles": [
+          "authenticated owner"
+        ],
+        "permissionRules": [
+          "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+        ],
+        "fields": [
+          {
+            "name": "kind",
+            "type": "select",
+            "required": true,
+            "constraints": "intro,featured,latest,collections,projects,links",
+            "sensitive": false
+          },
+          {
+            "name": "module.title",
+            "type": "text",
+            "required": false,
+            "constraints": "UI<=120; server<=256",
+            "sensitive": false
+          },
+          {
+            "name": "module.enabled",
+            "type": "checkbox",
+            "required": true,
+            "constraints": "",
+            "sensitive": false
+          },
+          {
+            "name": "module.limit",
+            "type": "number",
+            "required": true,
+            "constraints": "integer1..50; default6; server array<=30 unique ids",
+            "sensitive": false
+          }
+        ],
+        "importantStates": [
+          "no modules guidance",
+          "visible/hidden items retain settings",
+          "first/last movement disabled",
+          "dirty draft; validation via shared studio banner"
+        ],
+        "notes": []
+      },
+      {
+        "type": "composition",
+        "details": [
+          "装修模块完整页：intro/featured/latest/collections/projects/links，title/enabled/limit1..50、添加/排序/删除及底部保存草稿/发布，边界禁移动。"
+        ]
+      },
+      {
+        "type": "role-shell",
+        "rule": "所有者私有博客管理/装修，真实博客二级菜单；保存元信息/设计草稿/历史恢复均不发布，显式发布与保存enabled分别处理。"
+      }
+    ],
+    "allowedActions": [
+      {
+        "sourceId": "PB-042",
+        "label": "添加模块",
+        "effect": "Append local module",
+        "api": "",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-042",
+        "label": "上移 / 下移",
+        "effect": "Reorder local module list",
+        "api": "",
+        "guard": "not boundary"
+      },
+      {
+        "sourceId": "PB-042",
+        "label": "显示",
+        "effect": "Toggle module inclusion",
+        "api": "",
+        "guard": ""
+      },
+      {
+        "sourceId": "PB-042",
+        "label": "删除",
+        "effect": "Remove local module; save/publish required",
+        "api": "",
+        "guard": ""
+      }
+    ],
+    "responsiveContract": [
+      {
+        "sourceId": "PB-042",
+        "targetWidths": [
+          390,
+          320
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified.",
+        "status": "design targets; 390/1440 actual primary baselines exist, 320 and many state fixtures remain unverified"
+      }
+    ],
+    "otherVariantsDrawn": false
+  },
+  "selfInspection": {
+    "method": "Reviewed v1 target viewed; actual generated v2 native preview inspected after exact 新模块 label edit.",
+    "concerns": [
+      "Only missing 新模块 visible label restored; all six defaults and guards remain source-derived and runtime-unverified.",
+      "Minor raster 下方 prefix and illustrative geometry remain advisory source-copy/CSS guidance."
+    ],
+    "independentReviewStatus": "pending",
+    "runtimeBehaviorVerified": false
+  },
+  "sourceContracts": [
+    {
+      "id": "PB-042",
+      "title": "博客装修：首页模块",
+      "kind": "page",
+      "module": "studio",
+      "entry": {
+        "route": "/?view=apps&app=blog&appSection=design (modules tab)",
+        "trigger": "首页模块 tab",
+        "parentId": "PB-041"
+      },
+      "sourceRefs": [
+        "apps/web/components/blog/BlogDesignModules.vue:5",
+        "apps/web/components/blog/BlogDesignModules.vue:28",
+        "packages/core/blog/studio.ts:88"
+      ],
+      "roles": [
+        "authenticated owner"
+      ],
+      "permissionRules": [
+        "Owner session required for design/media APIs. Saving a draft, private preview or restoring history does not publish; version-checked explicit publish changes guest homepage."
+      ],
+      "fields": [
+        {
+          "name": "kind",
+          "type": "select",
+          "required": true,
+          "constraints": "intro,featured,latest,collections,projects,links",
+          "sensitive": false
+        },
+        {
+          "name": "module.title",
+          "type": "text",
+          "required": false,
+          "constraints": "UI<=120; server<=256",
+          "sensitive": false
+        },
+        {
+          "name": "module.enabled",
+          "type": "checkbox",
+          "required": true,
+          "constraints": "",
+          "sensitive": false
+        },
+        {
+          "name": "module.limit",
+          "type": "number",
+          "required": true,
+          "constraints": "integer1..50; default6; server array<=30 unique ids",
+          "sensitive": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "添加模块",
+          "effect": "Append local module",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "上移 / 下移",
+          "effect": "Reorder local module list",
+          "api": "",
+          "guard": "not boundary"
+        },
+        {
+          "label": "显示",
+          "effect": "Toggle module inclusion",
+          "api": "",
+          "guard": ""
+        },
+        {
+          "label": "删除",
+          "effect": "Remove local module; save/publish required",
+          "api": "",
+          "guard": ""
+        }
+      ],
+      "importantStates": [
+        "no modules guidance",
+        "visible/hidden items retain settings",
+        "first/last movement disabled",
+        "dirty draft; validation via shared studio banner"
+      ],
+      "responsive": {
+        "supported": "Source-defined responsive layout; not runtime-verified in this read-only inventory",
+        "widths": [
+          320,
+          390,
+          1440
+        ],
+        "behavior": "<=1250px editor/preview stack; <=760px forms/cards/dialog compress. Preview internally keeps 1100px desktop or 375px mobile viewport and scales to host (BlogPreviewViewport.vue:34). Runtime unverified."
+      },
+      "testRefs": [
+        "tests/e2e/blog-studio.spec.ts:67"
+      ],
+      "requiresDistinctImage": true,
+      "designReason": "A concrete page with its own content, action hierarchy and business state; include in the GPT Image 2 review queue before implementation.",
+      "notes": [],
+      "inventoryFile": "coverage/public-and-blog.json"
+    }
+  ],
+  "baselineScope": "Appearance host capture only; selected studio tab is source-derived",
+  "generationAttempts": [
+    {
+      "submittedPrompt": "只编辑这张已生成DooKnow博客装修首页模块图：在左编辑区最底部、当前值“最近更新”的模块类型下拉框正上方补回清晰可见的小号label“新模块”。该label只对应原有下拉框，不新增输入或按钮。保持所有其他文字、6条模块、数值、勾选、边界禁用、图标操作、添加模块按钮、页头、博客rail、预览、保存/发布禁用状态、页脚、布局、颜色、尺寸全部不变。仅做这一处缺失label补齐。",
+      "inputs": [
+        {
+          "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/design/images/MP-D107.png",
+          "role": "Edit target: current reviewed modules page; only restore missing visible source label"
+        }
+      ],
+      "toolOutputFile": "/home/bandoo/.codex/generated_images/01a1a937-214c-7702-ae04-fb6fffb8a5a3/exec-74467304-754e-434e-9603-79a592256732.png"
+    }
+  ]
+}

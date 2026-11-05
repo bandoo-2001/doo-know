@@ -1,0 +1,95 @@
+{
+  "assetId": "MP-S017",
+  "verdict": "pass",
+  "reviewer": "independent platform_review_state_backlog agent",
+  "reviewedAtUtc": "2026-11-05T04:33:54.750543+00:00",
+  "artifact": "docs/design/platform-unification-2026-11-05/design/images/MP-S017.png",
+  "reviewedImageSha256": "ed63bcf28abf09dadf6e9309a313b08b52607c7967daa17e8c4c134d00b27346",
+  "reviewedSidecarSha256": "cae05fb47f3499d487bd291256e48a847fe9b92a21cd33a5b68b73dd93339ed2",
+  "requirementsManifest": ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json",
+  "requirementsSha256": "b00025577cc63764c920052eb18432f5956200c2daa4ae915d201c20eea86ba9",
+  "viewMethod": "Actual individual PNG viewed via tools.view_image; full actual submittedPrompt and selectedState read; current template, parent/role/API/guard chain inspected. Matching backup/plugins/library/login baseline PNGs and approved style PNG were directly viewed where applicable.",
+  "sourceIds": [
+    "ST-047",
+    "ST-051",
+    "ST-052",
+    "ST-053",
+    "ST-054",
+    "ST-048",
+    "ST-049"
+  ],
+  "selectedState": [
+    "r1 no installed",
+    "r2 Git enabled installedVersion=currentVersion",
+    "r3 Git not installed",
+    "r4 no other available",
+    "r5 dirty plugin",
+    "r6 remoteChanged",
+    "r7 already-expanded legacy prefix invalid field"
+  ],
+  "sourceRefs": [
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md",
+    "apps/web/api.ts:30",
+    "apps/server/app.ts:141",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S017.json",
+    "apps/web/components/PluginManager.vue:50",
+    "apps/web/components/PluginManager.vue:375",
+    "apps/web/components/PluginManager.vue:437",
+    "apps/web/components/PluginManager.vue:203",
+    "apps/web/components/PluginManager.vue:269",
+    "apps/web/components/PluginManager.vue:609",
+    "apps/web/components/PluginManager.vue:302",
+    "apps/web/components/PluginManager.vue:617",
+    "apps/web/components/PluginManager.vue:326",
+    "apps/web/components/PluginManager.vue:519",
+    "apps/web/components/PluginManager.vue:337",
+    "apps/web/components/PluginManager.vue:394",
+    "apps/web/components/PluginManager.vue:413",
+    "apps/web/components/PluginManager.vue:602",
+    "apps/web/components/PluginManager.vue:382",
+    "apps/web/components/PluginManager.vue:425",
+    "apps/web/components/PluginManager.vue:506",
+    "apps/web/components/PluginManager.vue:544",
+    "apps/web/components/PluginManager.vue:591",
+    "apps/web/components/PluginManager.vue:634",
+    "plugins/mcp/manifest.json:27",
+    "plugins/git/manifest.json:1",
+    "apps/web/plugin-config.ts:1",
+    "apps/web/components/PluginManager.vue:570",
+    "apps/web/components/PluginManager.vue:636"
+  ],
+  "reviewedSourceSha256": {
+    "docs/design/platform-unification-2026-11-05/design/review-execution-contract.md": "f78c14e2c450641e9ecc10864168fef272bc07cb0eb47e23e0e0d475bdbf9ff9",
+    "docs/design/platform-unification-2026-11-05/design/style-contract.md": "d184372a8eefffe8079b87aa9c2988e487507d95b41b263d6ed7b7a0f7827711",
+    "apps/web/api.ts": "f3cfa4add2ed9f30efb83d401345d9c95e7437b8d2e09cea21fd853ac79b55ec",
+    "apps/server/app.ts": "e864fc72af432987682d386e35a1cfe85500ab4b1d17af7303ae1d05acba9b1f",
+    ".superpowers/sdd/2026-11-05-platform-ui-unification/GEN-024.json": "b00025577cc63764c920052eb18432f5956200c2daa4ae915d201c20eea86ba9",
+    "docs/design/platform-unification-2026-11-05/design/images/MP-S017.json": "cae05fb47f3499d487bd291256e48a847fe9b92a21cd33a5b68b73dd93339ed2",
+    "apps/web/components/PluginManager.vue": "1b5ceea5c74a463917da93c030d2313d816bde21a0a9691849e4e1a41a395988",
+    "plugins/mcp/manifest.json": "03c6fba6ae3a53d7fe30ed61f2e98fe99ee622b1716f54a077b33381e7c43ba3",
+    "plugins/git/manifest.json": "076e74a1741fa1b9cd9b50a0c4c2c585773a3a16f982b2b1ffd2ccd50769ebc9",
+    "apps/web/plugin-config.ts": "15373edf910a012c0582ce46516c32fc0ee70a8ad961024df98010d4045322a4"
+  },
+  "functionalFindings": [],
+  "fieldActionRoleStateChecks": [
+    "Seven separately framed specimens preserve installed/add empty states; Git manifest v1.1.3 title, description and three capability labels match current source. Enabled current version exposes configure/disable/uninstall and no upgrade; uninstalled exposes install only.",
+    "Dirty disabled-plugin case correctly disables enable while keeping save available; remoteChanged case disables enable/save and keeps reload, with the discard popconfirm not falsely already opened.",
+    "Expanded legacy allowedPrefixes invalid sample is a reachable legacy field with focus/error treatment and current error text. No advanced JSON or unknown plugin config field was fabricated; the open legacy detail is an explicitly selected specimen rather than claimed automatic expansion."
+  ],
+  "styleFindings": [
+    {
+      "severity": "advisory",
+      "blocking": false,
+      "finding": "Readable white/light-gray local components, fine borders, restrained corners and blue action hierarchy match the shared style direction. Raster shading/texture and approximate scale must become flat CSS tokens; do not regenerate solely for those details."
+    }
+  ],
+  "requiredCorrections": [],
+  "limitations": [
+    "Source-derived static design review only; no runtime API operation, authorization, clipboard, network, keyboard/focus, close/mask/Escape behavior or responsive viewport was executed.",
+    "Local-component specimens are independent; parent role/source bindings remain metadata. Existing baseline references establish host context, not runtime capture of these synthetic error/busy states.",
+    "Raster shading/texture, font/icon geometry and dimensions are approximate. Implement shared flat CSS tokens, responsive wrapping and existing scroll/focus/guard rules; this is not pixel-level CSS approval.",
+    "This per-image result neither completes the non-ToDoo platform unification task nor substitutes for the later global coverage/style/function review or authorizes product implementation."
+  ]
+}

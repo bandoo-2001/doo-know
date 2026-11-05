@@ -1,0 +1,17 @@
+{
+  "id": "note-document",
+  "title": "笔记默认编辑（当前构建配置）",
+  "width": 1440,
+  "height": 1000,
+  "audience": "owner",
+  "route": "/?note=<fixture-note-id>",
+  "file": "1440-note-document.png",
+  "sha256": "0a04d2c0e011c63831b6ab763ea88a6a126d52effbbae29746d311639952e6b7",
+  "sourceCommit": "933d63d942b6499fee964f8a060c7b22b9d299d1",
+  "kind": "actual-before-ui-unification",
+  "isolatedFixture": true,
+  "outerOverflow": 0,
+  "pageErrors": [],
+  "status": "captured",
+  "runtimeNote": "This baseline does not by itself verify the owner rich-editor enabled build; that flag combination remains separately pending."
+}
