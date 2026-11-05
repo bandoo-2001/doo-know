@@ -782,9 +782,7 @@ h3 {
 }
 .dialog-card {
   width: min(550px, calc(100vw - 28px));
-  border-radius: 12px !important;
   max-height: 90dvh;
-  overflow: auto;
 }
 .dialog-card .n-card-header__main {
   font-size: 22px !important;

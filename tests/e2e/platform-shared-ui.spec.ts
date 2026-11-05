@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import type { Locator, Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
-import { closeSidebar, showMainMenu, showSidebar } from '../support/settings-navigation';
+import { closeSidebar, openSettingsSection, showMainMenu, showSidebar } from '../support/settings-navigation';
 
 test.setTimeout(90000);
 test.beforeEach(async ({ context }) => {
@@ -78,6 +78,8 @@ test('owner chrome keeps context and content aligned while navigation and resize
     await trigger.click();
     await expect(trigger).toHaveAttribute('aria-expanded', 'true');
     await insideWindow(page, page.getByPlaceholder('搜索笔记与目录'));
+    if (viewport.height === 390)
+      await expect(page.locator('#notebook-navigation')).toHaveCSS('padding-top', '8px');
     const close = page.getByRole('button', { name: '关闭侧栏', exact: true });
     await canReceivePointer(close);
     await close.click();
@@ -106,8 +108,8 @@ test('native canvas find and library controls stay inside 390 and 320 viewports'
   await expect(workspace.getByRole('status')).toContainText('已保存');
   await closeSidebar(page);
 
-  for (const width of [390, 320]) {
-    await page.setViewportSize({ width, height: 844 });
+  for (const [width, height] of [[390, 844], [320, 844], [844, 390]]) {
+    await page.setViewportSize({ width, height });
     await native.getByTestId('main-menu-trigger').click();
     await native.getByTestId('search-menu-button').click();
     const find = native.getByRole('textbox', { name: 'Find text on canvas...', exact: true });
@@ -141,4 +143,126 @@ test('native canvas find and library controls stay inside 390 and 320 viewports'
     await expect(browse).toBeHidden();
     await native.locator('canvas.interactive').click({ position: { x: 100, y: 100 } });
   }
+});
+
+test('Escape closes the create menu before its notebook drawer and returns focus one level at a time', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await showSidebar(page);
+  const create = page.getByRole('button', { name: '创建与导入', exact: true });
+  await insideWindow(page, create);
+  await create.click();
+  const menu = page.getByRole('dialog', { name: '创建与导入', exact: true });
+  await expect(menu).toBeVisible();
+  await create.focus();
+  await create.press('Escape');
+  await expect(menu).toBeHidden();
+  await expect(page.locator('#notebook-navigation')).toHaveClass(/\bopen\b/);
+  await expect(create).toBeFocused();
+  await create.press('Escape');
+  await expect(page.locator('#notebook-navigation')).not.toHaveClass(/\bopen\b/);
+  await expect(page.getByRole('button', { name: '打开侧栏', exact: true })).toBeFocused();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await create.click();
+  await expect(menu).toBeVisible();
+  await create.focus();
+  await create.press('Escape');
+  await expect(menu).toBeHidden();
+  await create.press('Escape');
+  await expect(create).toBeFocused();
+  await expect(create).toBeVisible();
+});
+
+test('closed notebook navigation is skipped by Tab and settings selection focuses visible content', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await closeSidebar(page);
+  const aside = page.locator('#notebook-navigation');
+  const trigger = page.getByRole('button', { name: '打开侧栏', exact: true });
+  await trigger.focus();
+  await trigger.press('Enter');
+  await expect.poll(() => aside.evaluate(el => el.contains(document.activeElement))).toBe(true);
+  await page.keyboard.press('Escape');
+  await expect(trigger).toBeFocused();
+  await page.keyboard.press('Tab');
+  expect(await aside.evaluate(el => el.contains(document.activeElement))).toBe(false);
+  await insideWindow(page, page.locator(':focus'));
+
+  await openSettingsSection(page, '后台状态');
+  await expect(aside).not.toHaveClass(/\bopen\b/);
+  await expect(page.locator('.main-content')).toBeFocused();
+  await page.keyboard.press('Tab');
+  expect(await aside.evaluate(el => el.contains(document.activeElement))).toBe(false);
+  await insideWindow(page, page.locator(':focus'));
+});
+
+test('long import card keeps its title and close control while scrolling to the final action', async ({ page }, info) => {
+  await page.setViewportSize({ width: 390, height: 460 });
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: '创建与导入', exact: true })).toBeEnabled();
+  await closeSidebar(page);
+  await page.locator('.workspace-empty').getByRole('button', { name: '导入 Markdown', exact: true }).click();
+  const dialog = page.getByRole('dialog').filter({
+    has: page.getByRole('heading', { name: '导入 Markdown', exact: true }),
+  });
+  await expect(dialog).toBeVisible();
+  await dialog.locator('summary').filter({ hasText: '批量导入文件或目录' }).click();
+  const complete = dialog.getByRole('button', { name: '完成', exact: true });
+  await complete.scrollIntoViewIfNeeded();
+  await expect(dialog).toHaveCSS('border-radius', '8px');
+  expect(await dialog.locator(':scope > .n-card-content').evaluate(el => el.scrollTop)).toBeGreaterThan(0);
+  const header = dialog.locator(':scope > .n-card-header');
+  await insideWindow(page, header);
+  const close = header.getByRole('button', { name: /^(close|关闭)$/ });
+  await insideWindow(page, close);
+  await canReceivePointer(close);
+  await insideWindow(page, complete);
+  await canReceivePointer(complete);
+  await page.screenshot({ path: info.outputPath('long-import-scroll.png'), animations: 'disabled' });
+  await close.click();
+  await expect(dialog).toBeHidden();
+});
+
+test('owner light and dark controls provide visual theme evidence', async ({ page }, info) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: '新建笔记', exact: true })).toBeEnabled();
+  for (const theme of ['light', 'dark'] as const) {
+    await page.evaluate(async selected => {
+      const path = '/preferences.ts';
+      const preferences = await import(path);
+      preferences.setEditorPreferences({ theme: selected });
+      await document.fonts.ready;
+    }, theme);
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+    const button = page.getByRole('button', { name: '新建笔记', exact: true });
+    const colors = await button.evaluate(el => ({ color: getComputedStyle(el).color, background: getComputedStyle(el).backgroundColor }));
+    console.log(`owner ${theme} Ant primary: ${JSON.stringify(colors)}`);
+    await page.screenshot({ path: info.outputPath(`owner-${theme}.png`), animations: 'disabled' });
+  }
+});
+
+test('native library controls remain usable in short landscape', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  await page.getByRole('button', { name: '创建与导入', exact: true }).click();
+  await page.getByRole('button', { name: '新建白板', exact: true }).click();
+  const create = page.getByRole('dialog', { name: '新建白板', exact: true });
+  await create.getByLabel('文件名', { exact: true }).fill('short-library-' + crypto.randomUUID());
+  await create.getByRole('button', { name: '创建', exact: true }).click();
+  const workspace = page.getByTestId('diagram-document-workspace');
+  const native = workspace.locator('.excalidraw');
+  await expect(native.locator('canvas.interactive')).toBeVisible({ timeout: 30000 });
+  await expect(workspace.getByRole('status')).toContainText('已保存');
+  await closeSidebar(page);
+  await page.setViewportSize({ width: 844, height: 390 });
+  const trigger = native.locator('label.sidebar-trigger__label-element').filter({ has: page.getByRole('checkbox', { name: '素材库', exact: true }) });
+  await insideWindow(page, trigger);
+  await canReceivePointer(trigger);
+  await trigger.click();
+  const browse = native.getByRole('link', { name: '浏览素材库', exact: true });
+  await insideWindow(page, browse);
+  await canReceivePointer(browse);
+  await native.getByRole('button', { name: '关闭', exact: true }).click();
 });

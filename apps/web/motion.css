@@ -161,7 +161,7 @@
 }
 
 @media (max-width: 720px) {
-  .sidebar {
+  #notebook-navigation {
     transition: transform var(--motion-slow) var(--motion-ease);
   }
 }

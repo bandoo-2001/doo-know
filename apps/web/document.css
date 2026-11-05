@@ -528,7 +528,7 @@
   .workspace.sidebar-collapsed {
     grid-template-columns: minmax(0, 1fr);
   }
-  .workspace.sidebar-collapsed > .sidebar,
+  .workspace.sidebar-collapsed > #notebook-navigation,
   .workspace.sidebar-collapsed > .sidebar-resizer {
     display: none;
   }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onScopeDispose, ref, useId, watch } from 'vue';
 import Icon from './Icon.vue';
+import { compactWorkspaceQuery } from '../workspace-layout';
 import type { WorkspaceMainMenuDefinition, WorkspaceMainMenuItem } from '../workspace-main-menu';
 import '../workspace-main-menu.css';
 const props = defineProps<{ definition: WorkspaceMainMenuDefinition }>();
@@ -32,9 +33,7 @@ function trackFocus(event: FocusEvent) {
 }
 onMounted(() => {
   document.addEventListener('focusin', trackFocus);
-  const media = window.matchMedia(
-    '(max-width: 720px), (max-width: 960px) and (max-height: 500px), (max-width: 1100px) and (orientation: portrait), (max-width: 1366px) and (orientation: portrait) and (pointer: coarse)',
-  );
+  const media = window.matchMedia(compactWorkspaceQuery);
   const update = () => {
     const navigationHadFocus =
       navigationFocused ||

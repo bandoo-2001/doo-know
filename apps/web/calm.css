@@ -611,7 +611,6 @@ button:disabled {
 }
 .dialog-card {
   border: 1px solid var(--border);
-  border-radius: 10px !important;
   box-shadow: 0 18px 60px #202d4a18;
 }
 .dialog-card .n-card-header__main {

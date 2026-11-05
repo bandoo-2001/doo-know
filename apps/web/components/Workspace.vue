@@ -50,6 +50,7 @@ import DocumentOutline from './DocumentOutline.vue';
 import { outlineFromTokens, type OutlineHeading } from '../document-outline';
 import WorkspaceFooter from './WorkspaceFooter.vue';
 import WorkspaceHeader from './WorkspaceHeader.vue';
+import { compactWorkspaceQuery } from '../workspace-layout';
 import { provideWorkspaceMainMenu, createAppNavigationMemory } from '../workspace-main-menu';
 import SettingsWorkspace from './settings/SettingsWorkspace.vue';
 import SettingsOverlay from './settings/SettingsOverlay.vue';
@@ -1944,12 +1945,14 @@ function rememberedSetting(): SettingsSection {
   }
 }
 function scrollSetting(section: SettingsSection, syncUrl = true) {
+  const restoreMainFocus = compactSidebar.value && !!sidebarRef.value?.contains(document.activeElement);
   activeSetting.value = section;
   try {
     sessionStorage.setItem('dooknow.lastSettings', section);
   } catch {}
   if (syncUrl && panel.value === 'settings') navigation.commit({ view: 'settings', section });
   drawer.value = false;
+  if (restoreMainFocus) void nextTick(() => mainRef.value?.focus({ preventScroll: true }));
 }
 async function settings(section?: string, syncUrl = true, intent = ++navigationIntent) {
   if (!currentIntent(intent)) return;
@@ -2699,6 +2702,33 @@ onBeforeUnmount(() => {
   window.removeEventListener('keydown', shortcut);
   window.removeEventListener('beforeunload', unload);
 });
+const sidebarRef = ref<HTMLElement>();
+const compactSidebar = ref(false);
+let sidebarMedia: MediaQueryList | undefined;
+function updateSidebarCompact() { compactSidebar.value = !!sidebarMedia?.matches; }
+onMounted(() => {
+  sidebarMedia = window.matchMedia(compactWorkspaceQuery);
+  updateSidebarCompact();
+  sidebarMedia.addEventListener('change', updateSidebarCompact);
+});
+onBeforeUnmount(() => sidebarMedia?.removeEventListener('change', updateSidebarCompact));
+async function openNotebookDrawer() {
+  drawer.value = true;
+  await nextTick();
+  if (compactSidebar.value) sidebarRef.value?.querySelector<HTMLElement>('button:not(:disabled), input:not(:disabled)')?.focus();
+}
+function sidebarEscape(event: KeyboardEvent) {
+  if (!compactSidebar.value || !drawer.value) return;
+  event.preventDefault();
+  event.stopPropagation();
+  void closeNotebookDrawer();
+}
+function createTriggerEscape(event: KeyboardEvent) {
+  if (!createMenuOpen.value) return;
+  event.preventDefault();
+  event.stopPropagation();
+  createMenuOpen.value = false;
+}
 async function closeNotebookDrawer() {
   drawer.value = false;
   await nextTick();
@@ -2717,13 +2747,13 @@ async function closeNotebookDrawer() {
       :app="!!activeAppMenu"
       :status="activeAppMenu ? '应用工作空间' : dirty ? '未保存' : '私人笔记'"
       :drawer-open="drawer"
-      @open-sidebar="drawer = true"
+      @open-sidebar="openNotebookDrawer"
       @return-app="returnFromApp"
     />
     <Transition name="scrim">
       <div v-if="drawer" class="drawer-scrim" @click="closeNotebookDrawer"></div>
     </Transition>
-    <aside id="notebook-navigation" :class="['sidebar', { open: drawer }]" aria-label="笔记导航" @keydown.esc.stop.prevent="closeNotebookDrawer">
+    <aside id="notebook-navigation" ref="sidebarRef" :class="['sidebar', { open: drawer }]" :inert="compactSidebar && !drawer" aria-label="笔记导航" @keydown.esc="sidebarEscape">
       <div class="brand">
         <Icon :name="activeAppMenu?.icon || 'book'" :size="31" /><strong>{{ activeAppMenu?.label || 'DooKnow' }}</strong
         ><button class="mobile-only icon-button" aria-label="关闭侧栏" @click="closeNotebookDrawer">
@@ -2798,6 +2828,7 @@ async function closeNotebookDrawer() {
                 aria-label="创建与导入"
                 title="创建与导入"
                 :aria-expanded="createMenuOpen"
+                @keydown.esc="createTriggerEscape"
               >
                 <Icon name="chevron" :size="12" />
               </button>
