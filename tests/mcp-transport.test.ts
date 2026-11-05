@@ -97,7 +97,7 @@ it('serves both packaged MCP endpoints through the SDK with independent authenti
         await client.connect(new StreamableHTTPClientTransport(new URL(f.config.origin + path), {
           fetch: fixture.httpFetch, requestInit: { headers: { authorization: 'Bearer ' + token } },
         }));
-        expect(client.getServerVersion()).toMatchObject({ name: 'doo-know', version: '2.0.0' });
+        expect(client.getServerVersion()).toMatchObject({ name: 'doo-know', version: '2.0.1' });
         const names: string[] = [];
         let cursor: string | undefined;
         do {

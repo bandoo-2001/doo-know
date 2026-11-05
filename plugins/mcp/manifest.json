@@ -1,6 +1,6 @@
 {
   "id": "mcp",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "apiVersion": "^1.4.0",
   "title": "MCP 服务",
   "description": "通过独立授权连接知识库、博客与 To Doo，管理业务工具与调用状态。",
