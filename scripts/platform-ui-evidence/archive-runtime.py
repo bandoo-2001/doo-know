@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import tarfile
@@ -30,9 +31,11 @@ for path in sorted(root.rglob("*")):
     if path.is_file():
         entries[str(path)] = {"bytes": path.stat().st_size, "sha256": digest(path)}
 
-with tarfile.open(archive, "x:gz", compresslevel=1) as output:
-    for name in entries:
-        output.add(name, arcname=name, recursive=False)
+with archive.open("xb") as stream:
+    os.fchmod(stream.fileno(), 0o600)
+    with tarfile.open(fileobj=stream, mode="w:gz", compresslevel=1) as output:
+        for name in entries:
+            output.add(name, arcname=name, recursive=False)
 with tempfile.TemporaryDirectory(prefix="dooknow-platform-runtime-restore-") as temporary:
     seen = set()
     with tarfile.open(archive, "r:gz") as output:
