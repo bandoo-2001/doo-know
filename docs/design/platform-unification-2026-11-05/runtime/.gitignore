@@ -1,0 +1,7 @@
+# Full browser receipts, PNGs, probe details, and historical failures are kept
+# byte-for-byte in the verified runtime archive listed in runtime-artifacts.json.
+2026-*/
+harness-plan/
+merged-definitions-*/
+original-full-regression-*/
+password-focus-reproduction-*/
