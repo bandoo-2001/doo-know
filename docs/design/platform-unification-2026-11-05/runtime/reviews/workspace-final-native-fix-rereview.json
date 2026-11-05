@@ -1,0 +1,285 @@
+{
+  "baseline": "a14936d225c5c5aa8b252b3571df93489607287e",
+  "patchSha256": "986ae4776f9c123979b381b89a41612d653339fbe34fc9d6ac5359485acc490f",
+  "fiveFileFingerprint": "48b9bb693219d2398dbaf3ca16ea06b3d04b4f26363cde9dcf7dc5f719553e9b",
+  "scope": "限定三个原P2与同源两个P3；独立工作树实拍。",
+  "findings": {
+    "P2-toolbar-more": "ADDRESSED：暗色笔记与图形宿主的三个点清晰，实测13.55:1；浅色焦点态4.25:1。非文本符号下限3:1；相同最终断言使旧1.23:1失败。",
+    "P2-stroke-short": "ADDRESSED：844×390 下描边和填充 HEX 均在 y266.89 到294.89，底栏从322开始；中心命中，真实选择并输入后手动保存，矩形描边 #c92a2a、填充 #d5eadc。",
+    "P2-mermaid-insert": "ADDRESSED：320/390×844 的插入控件滚动后均在 y733.78 到768.78，低于底栏起点776，中心命中；实际点击原始示例并手动保存后服务端有对应文字和图形。",
+    "P3-share-status": "ADDRESSED：共享条的主题表面与次要正文色，深6.14:1、浅4.70:1，均高于正文要求4.5:1。",
+    "P3-creation-copy": "ADDRESSED：仅 note/folder 显示各自帮助；白板实际截图只有图形 Markdown 说明，三个图形类型共享此条件。"
+  },
+  "newCriticalOrImportant": [],
+  "method": "核对4份基线/5份最终文件和完整补丁，阅读实际新增 E2E、测量与已保存场景；逐张打开12份原始PNG。",
+  "images": [
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-rich-results/platform-final-native-fix--0d0e2-e-above-navigation-at-390px-desktop/mermaid-insert-scrolled.png",
+      "sha256": "bed2f71a36cff6ca9e13d68602d55274b5581ac9d1d8ccff8ccf2cfe89ed2dac",
+      "actuallyViewed": true,
+      "observation": "内部滚动后蓝紫色插入按钮完整显示在底导航之上，Christmas 源码与预览仍可见。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-rich-results/platform-final-native-fix--0d0e2-e-above-navigation-at-390px-desktop/mermaid-inserted-saved.png",
+      "sha256": "7888235e8280551d013bd70a8f41f50e0f2a1bc1342e5062a3031d23b0acba4a",
+      "actuallyViewed": true,
+      "observation": "返回主图后可见已插入并选中的流程节点；完整数据以服务端 scene JSON 核实。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-desktop/fill-hex-open.png",
+      "sha256": "e256bb07a17178e84d0ba9b47ae9247c1860b6f8b38394804dea03d180f60415",
+      "actuallyViewed": true,
+      "observation": "同一位置的填充透明值字段可见。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-desktop/stroke-hex-open.png",
+      "sha256": "8d95b1f243dc234f3ae3b057ec65a67c86afcea9c56255c428641b5576cc3a49",
+      "actuallyViewed": true,
+      "observation": "短横屏中描边 HEX 1e1e1e 完整在导航上方，色板当前滚动到下部。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-desktop/stroke-saved.png",
+      "sha256": "8d8c7ba0c81e63741a5109568040e33e6792b9ad49fcdb920914bfc5a6b683ab",
+      "actuallyViewed": true,
+      "observation": "已保存状态，属性板同时显示红色描边样本与浅绿色填充样本。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-rich-results/platform-final-native-fix--e6270-e-above-navigation-at-320px-desktop/mermaid-insert-scrolled.png",
+      "sha256": "852590ca05142ea82c7d2474cafa5e1ae325306f4f283c19f0ebc433e4efb71d",
+      "actuallyViewed": true,
+      "observation": "内部滚动后蓝紫色插入按钮完整显示在底导航之上，Christmas 源码与预览仍可见。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-rich-results/platform-final-native-fix--e6270-e-above-navigation-at-320px-desktop/mermaid-inserted-saved.png",
+      "sha256": "e8f9f4abbc5f29922b7f52f30f63157117896a33eca2a4dc2852443de05a9508",
+      "actuallyViewed": true,
+      "observation": "返回主图后可见已插入并选中的流程节点；完整数据以服务端 scene JSON 核实。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-diagram-more.png",
+      "sha256": "8093b1cfff6a09e516af80b0b7627403daa6b9073bec74dc149f16bc565803a7",
+      "actuallyViewed": true,
+      "observation": "深色图形宿主中更多与保存按钮相邻且各自可辨。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-note-more.png",
+      "sha256": "bd8c00ecf1707b0523bb8ace839a63bd9acaabecb807cf410af9316c8efd3ef0",
+      "actuallyViewed": true,
+      "observation": "深色编辑器末位三个浅色点出现在深色边框按钮上，分享提示采用浅面深色主题。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/light-diagram-more.png",
+      "sha256": "bc83c121c0dcb4aeeeda4968ee05d0fe1186a2d1f4cc1d86f71a8ae7ef363f59",
+      "actuallyViewed": true,
+      "observation": "浅色图形更多按钮焦点环清楚。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/light-note-more.png",
+      "sha256": "ac64a06b9b693430c02b437b04cf8516248fc3e5c411b2beaceede46ecbc9274",
+      "actuallyViewed": true,
+      "observation": "浅色笔记更多按钮焦点环可见，提示带与正文分隔。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/new-whiteboard-document-form.png",
+      "sha256": "c1cb9314012c906b297bf294a42b284742c05d31eecddf926cb45fea6451a9c8",
+      "actuallyViewed": true,
+      "observation": "文件名及 Markdown 图形说明后即为取消和创建，未出现创建子文件夹说明。"
+    }
+  ],
+  "checkedEvidence": [
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-rich-results/platform-final-native-fix--0d0e2-e-above-navigation-at-390px-desktop/inserted-scene.json",
+      "sha256": "8033b4d14aff84caba00bd90982fcc324913941a1fb97fbfca15bc63ba9179e9",
+      "measurement": {
+        "liveElementCount": 21,
+        "types": [
+          "arrow",
+          "diamond",
+          "rectangle",
+          "text"
+        ],
+        "text": [
+          "Christmas",
+          "Go shopping",
+          "Let me\nthink",
+          "Laptop",
+          "iPhone",
+          "Car",
+          "Get money",
+          "One",
+          "Two",
+          "Three"
+        ],
+        "canvasColor": "#ffffff",
+        "rectangleStyle": [
+          [
+            "#1e1e1e",
+            "transparent"
+          ]
+        ]
+      }
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-rich-results/platform-final-native-fix--0d0e2-e-above-navigation-at-390px-desktop/mermaid-insert-scrolled-geometry.json",
+      "sha256": "f7d80661ae45f0862b52aa12a776ef43544334e2f31616447087fae3056ed9ed",
+      "measurement": {
+        "x": 35,
+        "y": 733.78125,
+        "width": 262.25,
+        "height": 35,
+        "navTop": 776,
+        "centerHit": true,
+        "hit": "<div class=\"\">插入<span><svg aria-hidden=\"true\" focusable=\"false\" role=\"img\" viewBox=\"0 0 20 20\" class=\"\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g stroke-width=\"1.25\"><path d=\"M4.16602 10H15.8327\"></path><path d=\"M12.5 13.3333L15.8333 10\"></path><path d=\"M12."
+      }
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-desktop/fill-hex-open-geometry.json",
+      "sha256": "c8763513906f805b15052733435d3b7bb3007b78dbd774ad9aab0e09523a81df",
+      "measurement": {
+        "x": 259.5,
+        "y": 266.890625,
+        "width": 81,
+        "height": 28,
+        "navTop": 322,
+        "centerHit": true,
+        "hit": "<input spellcheck=\"false\" class=\"color-picker-input\" aria-label=\"背景\" tabindex=\"-1\" value=\"transparent\" style=\"border: 0px; padding: 0px;\">"
+      }
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-desktop/saved-rectangle.json",
+      "sha256": "907d41d1a692cfdbd70cfb5ef23f2bc21f6628a68da08551cf3543fcb1c1afe6",
+      "measurement": {
+        "liveElementCount": 1,
+        "types": [
+          "rectangle"
+        ],
+        "text": [],
+        "canvasColor": "#ffffff",
+        "rectangleStyle": [
+          [
+            "#c92a2a",
+            "#d5eadc"
+          ]
+        ]
+      }
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-desktop/stroke-hex-open-geometry.json",
+      "sha256": "db6d372ff68bc77c5468d1b815489f1387b6fb716dba4032429c832cc08542d3",
+      "measurement": {
+        "x": 259.5,
+        "y": 266.890625,
+        "width": 81,
+        "height": 28,
+        "navTop": 322,
+        "centerHit": true,
+        "hit": "<input spellcheck=\"false\" class=\"color-picker-input\" aria-label=\"描边\" tabindex=\"-1\" value=\"1e1e1e\" style=\"border: 0px; padding: 0px;\">"
+      }
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-rich-results/platform-final-native-fix--e6270-e-above-navigation-at-320px-desktop/inserted-scene.json",
+      "sha256": "459e356a2e6cf9cf591f8e649e3ba85120c0f5302d00f15a0f2946ce4549cf5d",
+      "measurement": {
+        "liveElementCount": 21,
+        "types": [
+          "arrow",
+          "diamond",
+          "rectangle",
+          "text"
+        ],
+        "text": [
+          "Christmas",
+          "Go shopping",
+          "Let me\nthink",
+          "Laptop",
+          "iPhone",
+          "Car",
+          "Get money",
+          "One",
+          "Two",
+          "Three"
+        ],
+        "canvasColor": "#ffffff",
+        "rectangleStyle": [
+          [
+            "#1e1e1e",
+            "transparent"
+          ]
+        ]
+      }
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-rich-results/platform-final-native-fix--e6270-e-above-navigation-at-320px-desktop/mermaid-insert-scrolled-geometry.json",
+      "sha256": "9887f0eb108f884f877de559229e1f3251d66428fba66af436f0d7841f0f7a9b",
+      "measurement": {
+        "x": 35,
+        "y": 733.78125,
+        "width": 192.25,
+        "height": 35,
+        "navTop": 776,
+        "centerHit": true,
+        "hit": "<div class=\"\">插入<span><svg aria-hidden=\"true\" focusable=\"false\" role=\"img\" viewBox=\"0 0 20 20\" class=\"\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g stroke-width=\"1.25\"><path d=\"M4.16602 10H15.8327\"></path><path d=\"M12.5 13.3333L15.8333 10\"></path><path d=\"M12."
+      }
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-diagram-more-contrast.json",
+      "sha256": "0ab26bf5f0c53f969fa3b2a7f4e6bbfd0f8a799cbd0b2e6bbc13d3c4ddd3b77c",
+      "measurement": {
+        "foreground": "rgb(229, 232, 240)",
+        "background": "rgb(27, 30, 41)",
+        "contrast": 13.550649248227648
+      }
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-note-more-contrast.json",
+      "sha256": "0ab26bf5f0c53f969fa3b2a7f4e6bbfd0f8a799cbd0b2e6bbc13d3c4ddd3b77c",
+      "measurement": {
+        "foreground": "rgb(229, 232, 240)",
+        "background": "rgb(27, 30, 41)",
+        "contrast": 13.550649248227648
+      }
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-shared-status-contrast.json",
+      "sha256": "56692097b61da39a646eb76665aa99706cdec39f0cc6934a1279ae0f2bcb07ab",
+      "measurement": {
+        "foreground": "rgb(161, 169, 187)",
+        "background": "rgb(37, 41, 55)",
+        "contrast": 6.139310103565397
+      }
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/light-diagram-more-contrast.json",
+      "sha256": "4c584d339069325d0b0216be2be91cb722b34733a5ad3e4ee975ca56b476514d",
+      "measurement": {
+        "foreground": "rgb(86, 118, 212)",
+        "background": "rgb(255, 255, 255)",
+        "contrast": 4.252946378938786
+      }
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/light-note-more-contrast.json",
+      "sha256": "4c584d339069325d0b0216be2be91cb722b34733a5ad3e4ee975ca56b476514d",
+      "measurement": {
+        "foreground": "rgb(86, 118, 212)",
+        "background": "rgb(255, 255, 255)",
+        "contrast": 4.252946378938786
+      }
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-final-native-fix/doo-know/.local/platform-final-native-fix/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/light-shared-status-contrast.json",
+      "sha256": "9b767213a4f284ebb13caf3cbde4f723f41152d5c8e70d63e1d3fa63202530fb",
+      "measurement": {
+        "foreground": "rgb(101, 112, 132)",
+        "background": "rgb(247, 248, 250)",
+        "contrast": 4.700592526143111
+      }
+    }
+  ],
+  "limitations": [
+    "手机 Chromium 测试尺寸；不外推物理软键盘或所有设备。",
+    "Mermaid 的可达性结论为滚动后可点击，未宣称弹窗内容均首屏显示。图形本身的数据颜色继续由作者决定。",
+    "最后一次 P3 色条调整后重跑主题用例；几何证据取自相同几何实现的上一轮定向测试。",
+    "未重跑服务、全量测试或修改产品、Git。最终合并后的正式截图另由交付席绑定。原关闭提示按钮等权偏差不在本轮。"
+  ]
+}

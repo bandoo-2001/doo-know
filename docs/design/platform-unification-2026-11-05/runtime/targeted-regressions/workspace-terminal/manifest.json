@@ -1,0 +1,420 @@
+{
+  "base": "a14936d225c5c5aa8b252b3571df93489607287e",
+  "fullPatchSha256": "986ae4776f9c123979b381b89a41612d653339fbe34fc9d6ac5359485acc490f",
+  "sourceCommit": "f609205a32313d945d0e5465f8a40514d3e69aaf",
+  "verifiedOriginalMedia": 103,
+  "copiedOriginalPNGsAndJSON": [
+    {
+      "file": "targeted-regressions/workspace-terminal/final-red-results/.last-run.json",
+      "sha256": "c995f2756f2b36b751b7c2df941aeaa80ee679ba38d8df5c0e02f3212bbe1dbe"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-red-results/platform-final-native-fix--0d0e2-e-above-navigation-at-390px-desktop/mermaid-insert-scrolled-geometry.json",
+      "sha256": "5302078861c20ef1b30454181c8aa2fdfa1841c75c453f20481ec7142ec202ae"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-red-results/platform-final-native-fix--0d0e2-e-above-navigation-at-390px-desktop/mermaid-insert-scrolled.png",
+      "sha256": "1144bce65d243091b1ba3185bf7463a51a7910aba9f779196a47c252c1374d5e"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-red-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-diagram-more.png",
+      "sha256": "8ff7ed8b8a122fdf2f30136f9655e93f7fca6c8bcd985e56ce35954d6e4ba913"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-red-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/new-whiteboard-document-form.png",
+      "sha256": "fb1d79942accdd6f1f87a7107f5e9b0e90c241b51b0b1571a9d04744ecde0a19"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-red-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-desktop/stroke-hex-open-geometry.json",
+      "sha256": "821a864c1644e7ebd55b408d56473e599cb7c3e09aa91fff3c924a83d2a76f7d"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-red-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-desktop/stroke-hex-open.png",
+      "sha256": "d7a436133a229bad87ee113a5d779d7f9ff5bb2c96389d7d66d12dad82eb3696"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-red-results/platform-final-native-fix--e6270-e-above-navigation-at-320px-desktop/mermaid-insert-scrolled-geometry.json",
+      "sha256": "a233e5f427f1e7778ec7a0e6a9261189bef03037bb8f481485c9f4f7666cff8f"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-red-results/platform-final-native-fix--e6270-e-above-navigation-at-320px-desktop/mermaid-insert-scrolled.png",
+      "sha256": "0fa36cf9a6e9b7ebf29ba34d8bef91034f3af8b7818694c5862dd2ce6d5f0043"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--0d0e2-e-above-navigation-at-390px-desktop/inserted-scene.json",
+      "sha256": "8033b4d14aff84caba00bd90982fcc324913941a1fb97fbfca15bc63ba9179e9"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--0d0e2-e-above-navigation-at-390px-desktop/mermaid-insert-scrolled-geometry.json",
+      "sha256": "f7d80661ae45f0862b52aa12a776ef43544334e2f31616447087fae3056ed9ed"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--0d0e2-e-above-navigation-at-390px-desktop/mermaid-insert-scrolled.png",
+      "sha256": "bed2f71a36cff6ca9e13d68602d55274b5581ac9d1d8ccff8ccf2cfe89ed2dac"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--0d0e2-e-above-navigation-at-390px-desktop/mermaid-inserted-saved.png",
+      "sha256": "7888235e8280551d013bd70a8f41f50e0f2a1bc1342e5062a3031d23b0acba4a"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--0d0e2-e-above-navigation-at-390px-mobile/inserted-scene.json",
+      "sha256": "58870fd78559f9d467adbb0fc8d078be7a1c37129d7e47c4b1790dc716250816"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--0d0e2-e-above-navigation-at-390px-mobile/mermaid-insert-scrolled-geometry.json",
+      "sha256": "f7d80661ae45f0862b52aa12a776ef43544334e2f31616447087fae3056ed9ed"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--0d0e2-e-above-navigation-at-390px-mobile/mermaid-insert-scrolled.png",
+      "sha256": "cd1ecea13f6cebc3e8198ce999c29ddf87bef7a63b05cb43cdcf17fef6e867a6"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--0d0e2-e-above-navigation-at-390px-mobile/mermaid-inserted-saved.png",
+      "sha256": "f9762498b45163c5070397ed4489aaeb316dcf350fb0625ec4be0f9b5ad8ca63"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-diagram-more-contrast.json",
+      "sha256": "0ab26bf5f0c53f969fa3b2a7f4e6bbfd0f8a799cbd0b2e6bbc13d3c4ddd3b77c"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-diagram-more.png",
+      "sha256": "624ce8e01c10d9ea896925fac3185c196441d393f92e802dd273f06f01499d73"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-note-more-contrast.json",
+      "sha256": "0ab26bf5f0c53f969fa3b2a7f4e6bbfd0f8a799cbd0b2e6bbc13d3c4ddd3b77c"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-note-more.png",
+      "sha256": "6d406ce2bd9c12fc3ce429b0ad99b094a76bb40539aef29ef86287042d533271"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/light-diagram-more-contrast.json",
+      "sha256": "4c584d339069325d0b0216be2be91cb722b34733a5ad3e4ee975ca56b476514d"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/light-diagram-more.png",
+      "sha256": "af57592cf469d6d3e3c94dee231c382f3b3e01e9338dc12d348fdb87826d1a3c"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/light-note-more-contrast.json",
+      "sha256": "4c584d339069325d0b0216be2be91cb722b34733a5ad3e4ee975ca56b476514d"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/light-note-more.png",
+      "sha256": "ae1d27caa1b7db57729718db14d127cecf7c323e24b496b1a6f3f70cc33f4b7d"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/new-whiteboard-document-form.png",
+      "sha256": "bf539b26797e5ca8583dcfde0b3241204eb9544858d9aae9d815f27a982a4932"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/dark-diagram-more-contrast.json",
+      "sha256": "0ab26bf5f0c53f969fa3b2a7f4e6bbfd0f8a799cbd0b2e6bbc13d3c4ddd3b77c"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/dark-diagram-more.png",
+      "sha256": "2c87052647b1ebca34a4d8c3021928c20d754d3d1709b04539def6ccdf748719"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/dark-note-more-contrast.json",
+      "sha256": "0ab26bf5f0c53f969fa3b2a7f4e6bbfd0f8a799cbd0b2e6bbc13d3c4ddd3b77c"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/dark-note-more.png",
+      "sha256": "c69a167d555f9ec21f58af646a338c29abfae94b45009d8eb6a393660e5939d9"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/light-diagram-more-contrast.json",
+      "sha256": "4c584d339069325d0b0216be2be91cb722b34733a5ad3e4ee975ca56b476514d"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/light-diagram-more.png",
+      "sha256": "667809456e10c4755a8b43d5de24d287965d11ad7b5206135c1bb9deccfba4f3"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/light-note-more-contrast.json",
+      "sha256": "4c584d339069325d0b0216be2be91cb722b34733a5ad3e4ee975ca56b476514d"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/light-note-more.png",
+      "sha256": "84c38e3e2e1645c1da73ad0fe2307df9ce513c0bedf13be9bfeb61ec0a11b959"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/new-whiteboard-document-form.png",
+      "sha256": "3c45e9022c9143ebe9f74adf4ccb65fb45d1f03e25050f32e6bcc823e1600520"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-desktop/fill-hex-open-geometry.json",
+      "sha256": "c8763513906f805b15052733435d3b7bb3007b78dbd774ad9aab0e09523a81df"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-desktop/fill-hex-open.png",
+      "sha256": "e256bb07a17178e84d0ba9b47ae9247c1860b6f8b38394804dea03d180f60415"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-desktop/saved-rectangle.json",
+      "sha256": "907d41d1a692cfdbd70cfb5ef23f2bc21f6628a68da08551cf3543fcb1c1afe6"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-desktop/stroke-hex-open-geometry.json",
+      "sha256": "db6d372ff68bc77c5468d1b815489f1387b6fb716dba4032429c832cc08542d3"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-desktop/stroke-hex-open.png",
+      "sha256": "8d95b1f243dc234f3ae3b057ec65a67c86afcea9c56255c428641b5576cc3a49"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-desktop/stroke-saved.png",
+      "sha256": "8d8c7ba0c81e63741a5109568040e33e6792b9ad49fcdb920914bfc5a6b683ab"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-mobile/fill-hex-open-geometry.json",
+      "sha256": "c8763513906f805b15052733435d3b7bb3007b78dbd774ad9aab0e09523a81df"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-mobile/fill-hex-open.png",
+      "sha256": "5ac43ed20d6b6c48c0d53f45e6f3eba5ac461c75b53dc3d8d686d2897570f3e1"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-mobile/saved-rectangle.json",
+      "sha256": "ea745f0571d09d15f81456fe75cf1e42c6ccdee6a8d494c477fc26f91e030106"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-mobile/stroke-hex-open-geometry.json",
+      "sha256": "db6d372ff68bc77c5468d1b815489f1387b6fb716dba4032429c832cc08542d3"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-mobile/stroke-hex-open.png",
+      "sha256": "655046b1ffddf8fc20b5feb016c67dba0d9b0055102802e700ef8a65fbdd8018"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--a94d0--saved-rectangle-in-844x390-mobile/stroke-saved.png",
+      "sha256": "218718164f97cd2228effca8e8402708ac3dbb3f73cc61802c80aa0c8aec68df"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--e6270-e-above-navigation-at-320px-desktop/inserted-scene.json",
+      "sha256": "459e356a2e6cf9cf591f8e649e3ba85120c0f5302d00f15a0f2946ce4549cf5d"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--e6270-e-above-navigation-at-320px-desktop/mermaid-insert-scrolled-geometry.json",
+      "sha256": "9887f0eb108f884f877de559229e1f3251d66428fba66af436f0d7841f0f7a9b"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--e6270-e-above-navigation-at-320px-desktop/mermaid-insert-scrolled.png",
+      "sha256": "852590ca05142ea82c7d2474cafa5e1ae325306f4f283c19f0ebc433e4efb71d"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--e6270-e-above-navigation-at-320px-desktop/mermaid-inserted-saved.png",
+      "sha256": "e8f9f4abbc5f29922b7f52f30f63157117896a33eca2a4dc2852443de05a9508"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--e6270-e-above-navigation-at-320px-mobile/inserted-scene.json",
+      "sha256": "b9f60846d54610bca064e90b13d908539985eaf3a8b3e80457c6e36ec3e7ae0a"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--e6270-e-above-navigation-at-320px-mobile/mermaid-insert-scrolled-geometry.json",
+      "sha256": "9887f0eb108f884f877de559229e1f3251d66428fba66af436f0d7841f0f7a9b"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--e6270-e-above-navigation-at-320px-mobile/mermaid-insert-scrolled.png",
+      "sha256": "d652c7d49cab90ccb91c39724a1fd606085a05da94ff92f04a8a57d47b5d8798"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-final-native-fix--e6270-e-above-navigation-at-320px-mobile/mermaid-inserted-saved.png",
+      "sha256": "256cc7524aabba913b57a02cbff8b135470aa8eef263d0b66f367d01c53dbfb1"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-native-visual-reg-0a192-e-app-navigation-at-844x390-desktop/color-applied-canvas.png",
+      "sha256": "b130a9cb0b774345bca0f0cca950d3dc20290def9b87e9dd0fb5656851120c5a"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-native-visual-reg-0a192-e-app-navigation-at-844x390-desktop/color-popover-open.png",
+      "sha256": "8db83e9a80526e31753bbd984bf07c73477301fb86873cec51e7ab1a68e11055"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-native-visual-reg-0a192-e-app-navigation-at-844x390-mobile/color-applied-canvas.png",
+      "sha256": "f69f028fc1fce3233f2ab39a59dc0edb5fc1fb1f427be72ea616b3cc9afe7b0d"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-native-visual-reg-0a192-e-app-navigation-at-844x390-mobile/color-popover-open.png",
+      "sha256": "6d5d5639d62b80e8d3fa048e1eff32d495485d538e10024be93bb9c11af1aacc"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-native-visual-reg-a6825-e-app-navigation-at-390x844-desktop/color-applied-canvas.png",
+      "sha256": "7773bbfc86775549df52eec40b4959a5911abf89b21021b0fe6205c62e154b26"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-native-visual-reg-a6825-e-app-navigation-at-390x844-desktop/color-popover-open.png",
+      "sha256": "885c76e3ccd287b00be0e0c2b05d8b77b0c53ef00c1a65868b9982d182d2dab0"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-native-visual-reg-a6825-e-app-navigation-at-390x844-mobile/color-applied-canvas.png",
+      "sha256": "5558417803b81c50cbfef48bfef55fc741bbb9afe27096ad5c53f672a706a8e4"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-native-visual-reg-a6825-e-app-navigation-at-390x844-mobile/color-popover-open.png",
+      "sha256": "a2dae9f9dba2f8496156fe00d075df70e50c982cac321e57455166340cff7c55"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-native-visual-reg-eb6ab-e-app-navigation-at-320x844-desktop/color-applied-canvas.png",
+      "sha256": "8b285d117b5c5aa6ebc09481b39a504cc87b7c711228cca7020e3b5d1155ff4d"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-native-visual-reg-eb6ab-e-app-navigation-at-320x844-desktop/color-popover-open.png",
+      "sha256": "bf5d76d9bfb111348194670ccf2db81d08c5481ef0a6f3c0aeae90f2c3ee5969"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-native-visual-reg-eb6ab-e-app-navigation-at-320x844-mobile/color-applied-canvas.png",
+      "sha256": "684d55e7e50506bf95e94d1f0d7ae92d11a52b34d9241a50159286f83f699de8"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-native-visual-reg-eb6ab-e-app-navigation-at-320x844-mobile/color-popover-open.png",
+      "sha256": "a7f5d3e0600870dd0b052a0d5cc94622c1b648e6e9b43edab6790aa9f5a7979a"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-find-320.png",
+      "sha256": "90093ca39e74cb2af97e3b54c85988cefbf8eabe245934133fe9af7f68169c92"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-find-390.png",
+      "sha256": "a6d8878ae800536629c201da1ca674598cd2eff40e37498f31968b8536529007"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-find-844.png",
+      "sha256": "e1c428a444e7d7d7aedce87f4066fe523571736ed03c25d323161297b2783326"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-library-320.png",
+      "sha256": "d3638e4a3a4f6000589387120dbdf5c21c324923f3a6d1f4529abca395d9e1b4"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-library-390.png",
+      "sha256": "d450d7a82761c6955f08184767a701aeaf416c37a754b0ec441d59b5230bfe4b"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-library-844.png",
+      "sha256": "21ab396c789338b5f324e9982b034d01045760c2de94b6eb5156e30cc4682f57"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-mobile/canvas-find-320.png",
+      "sha256": "008837cf0e82ff10fc2b622d7f182385b156cc148b9a73646833372305f2e525"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-mobile/canvas-find-390.png",
+      "sha256": "b315d33c73e9f4c7a5c568dcea56a396c51686e31fcfcf397f2a5f75cd8cb9af"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-mobile/canvas-find-844.png",
+      "sha256": "183977febec3c5eb4fadb17ee978d10e53615614b5e513c6a257ebef35c17442"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-mobile/canvas-library-320.png",
+      "sha256": "fb6da5936cf999f59071a4dcf064b86e4ff8a6f79f243c6370e04a6fb62351d1"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-mobile/canvas-library-390.png",
+      "sha256": "40266d64a5374be6f370401fc6f5ae153e2aff3db064e534bb0e1d699c08dea3"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-rich-results/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-mobile/canvas-library-844.png",
+      "sha256": "8ae197e6d1a6769a6b46ae5c1a7b73915e17dbe104ae82d86e85982373274fe8"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-diagram-more-contrast.json",
+      "sha256": "0ab26bf5f0c53f969fa3b2a7f4e6bbfd0f8a799cbd0b2e6bbc13d3c4ddd3b77c"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-diagram-more.png",
+      "sha256": "8093b1cfff6a09e516af80b0b7627403daa6b9073bec74dc149f16bc565803a7"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-note-more-contrast.json",
+      "sha256": "0ab26bf5f0c53f969fa3b2a7f4e6bbfd0f8a799cbd0b2e6bbc13d3c4ddd3b77c"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-note-more.png",
+      "sha256": "bd8c00ecf1707b0523bb8ace839a63bd9acaabecb807cf410af9316c8efd3ef0"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/dark-shared-status-contrast.json",
+      "sha256": "56692097b61da39a646eb76665aa99706cdec39f0cc6934a1279ae0f2bcb07ab"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/light-diagram-more-contrast.json",
+      "sha256": "4c584d339069325d0b0216be2be91cb722b34733a5ad3e4ee975ca56b476514d"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/light-diagram-more.png",
+      "sha256": "bc83c121c0dcb4aeeeda4968ee05d0fe1186a2d1f4cc1d86f71a8ae7ef363f59"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/light-note-more-contrast.json",
+      "sha256": "4c584d339069325d0b0216be2be91cb722b34733a5ad3e4ee975ca56b476514d"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/light-note-more.png",
+      "sha256": "ac64a06b9b693430c02b437b04cf8516248fc3e5c411b2beaceede46ecbc9274"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/light-shared-status-contrast.json",
+      "sha256": "9b767213a4f284ebb13caf3cbde4f723f41152d5c8e70d63e1d3fa63202530fb"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-desktop/new-whiteboard-document-form.png",
+      "sha256": "c1cb9314012c906b297bf294a42b284742c05d31eecddf926cb45fea6451a9c8"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/dark-diagram-more-contrast.json",
+      "sha256": "0ab26bf5f0c53f969fa3b2a7f4e6bbfd0f8a799cbd0b2e6bbc13d3c4ddd3b77c"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/dark-diagram-more.png",
+      "sha256": "321c5fb76c2aa291c112a7044f4ae63ae04aa4c76bcb697dc5278f7bf9475e4b"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/dark-note-more-contrast.json",
+      "sha256": "0ab26bf5f0c53f969fa3b2a7f4e6bbfd0f8a799cbd0b2e6bbc13d3c4ddd3b77c"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/dark-note-more.png",
+      "sha256": "bbcda038a57eb312c3977e92ec043678d208d2517f0b386ab1f891da771a0c64"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/dark-shared-status-contrast.json",
+      "sha256": "56692097b61da39a646eb76665aa99706cdec39f0cc6934a1279ae0f2bcb07ab"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/light-diagram-more-contrast.json",
+      "sha256": "4c584d339069325d0b0216be2be91cb722b34733a5ad3e4ee975ca56b476514d"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/light-diagram-more.png",
+      "sha256": "c60a9f778a6514b8e1f1e77be88801678d4a97c5c5737018932c602dfb8a3dff"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/light-note-more-contrast.json",
+      "sha256": "4c584d339069325d0b0216be2be91cb722b34733a5ad3e4ee975ca56b476514d"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/light-note-more.png",
+      "sha256": "9fef1e10cafe4eaa33360b19967ee0454f1cec44eb9ff02e953a34a30c14de9c"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/light-shared-status-contrast.json",
+      "sha256": "9b767213a4f284ebb13caf3cbde4f723f41152d5c8e70d63e1d3fa63202530fb"
+    },
+    {
+      "file": "targeted-regressions/workspace-terminal/final-status-results/platform-final-native-fix--13463-ght-note-and-diagram-chrome-mobile/new-whiteboard-document-form.png",
+      "sha256": "c055f8be6630c82e455fbc8433421a9907d599ceda0093f114b92e7019902d98"
+    }
+  ]
+}

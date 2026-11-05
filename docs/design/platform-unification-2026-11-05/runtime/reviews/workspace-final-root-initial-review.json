@@ -5,9 +5,10 @@
   "designAssetsViewedInThisRootSession": 86,
   "method": "All24 actual main PNGs viewed in full-screen/contact+enlarged target; SHA matched. Canonical style contract and86 frozen design refs actually viewed in contact sheets.",
   "counts": {
-    "visible-composition-pass": 16,
+    "visible-composition-pass": 15,
     "pass-empty-diagram-reading-layout-only": 3,
-    "historical-desktop-to-target-resize-not-initial-fit": 5
+    "historical-desktop-to-target-resize-not-initial-fit": 5,
+    "needs-shared-control-contrast-fix": 1
   },
   "rows": [
     {
@@ -1683,8 +1684,8 @@
       "viewMode": "full-screen scaled-to-fit; target enlarged beneath",
       "actuallyViewed": true,
       "reviewer": "root",
-      "verdict": "visible-composition-pass",
-      "observation": "Actual dark owner chrome surrounds preserved white mindmap canvas; wrapped root and child visible at desktop, pale More trigger remains a known separately tracked contrast issue.",
+      "verdict": "needs-shared-control-contrast-fix",
+      "observation": "Wrapped root and child visible in preserved white canvas; actual dark owner More trigger has pale foreground on white background. Shared calm.css P2 is independently reproduced and pending fix; do not count this image as current control-contrast pass.",
       "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
       "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
       "designRefs": [
@@ -1730,6 +1731,9 @@
       "limits": [
         "Visual captured state only; no universal business/interaction claim.",
         "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ],
+      "issueIds": [
+        "WS-final-dark-more-contrast"
       ]
     }
   ]

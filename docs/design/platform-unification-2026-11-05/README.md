@@ -1,13 +1,13 @@
 # DooKnow 其余平台 UI 统一：覆盖清单与执行状态
 
-日期：2026-11-05（Asia/Shanghai）。本目录是当前唯一主任务的持久化入口：**除已完成 ToDoo 外的全平台 UI 统一，直至设计、实现、验证、主分支整合与新版本打包交付**。**设计门槛已通过，当前正在实现后的集中验证阶段；本轮主分支整合与新版本交付尚未完成。**
+日期：2026-11-05（Asia/Shanghai）。本目录是当前唯一主任务的持久化入口：**除已完成 ToDoo 外的全平台 UI 统一，直至设计、实现、验证、主分支整合与新版本打包交付**。实现后的页面、窗口、业务状态及版本归属可在[实际截图索引](./runtime/index.html)查看。源码与可执行制品各自绑定提交，结果入口见[实现与验证](./IMPLEMENTATION.md)。
 
-[机器可核对目录](./design/catalog.json)记录 **390/390 个计划资产已生成并通过逐图审查**，待审、待修、缺失、映射错误和来源未决均为 0；[独立全局设计审查](./design/reviews/global-design-review.json)为 `pass`，冻结覆盖摘要为 `b422b7cb1336e0322291ad9ed619fa3c719f02859ec7f5427b7c76a2d6435879`。目录中的全部设计门槛及 `developmentPermitted` 均为 `true`。图稿与审查冻结保留，后续实现截图另行取证；设计通过不等于运行、整合或发行通过。精确当前图稿与历史版本仍以[设计图集](./design/index.html)为准，按需展开原图。
+[机器可核对目录](./design/catalog.json)记录 **390/390 个计划资产已生成并通过逐图审查**，待审、待修、缺失、映射错误和来源未决均为 0；[独立全局设计审查](./design/reviews/global-design-review.json)为 `pass`，冻结覆盖摘要为 `b422b7cb1336e0322291ad9ed619fa3c719f02859ec7f5427b7c76a2d6435879`。目录中的全部设计门槛及 `developmentPermitted` 均为 `true`。图稿与审查冻结保留，实现截图及原始失败与设计原图分开登记。精确当前图稿与历史版本仍以[设计图集](./design/index.html)为准，按需展开原图。
 
 - 本轮盘点和设计的源码基线：`txj/doo-know-web-v1@933d63d942b6499fee964f8a060c7b22b9d299d1`；这是上一任务已整合版本，本轮最终整合仍须重新核对远端。
 - ToDoo 基准：应用源码 `f44d608`；沿用其布局层级、主题、配色、密度、组件与响应式做法。已完成的 ToDoo 内部页面不重复设计，但共享宿主及后续回归仍需覆盖。
 - 本轮独立工作区：`/home/bandoo/.codex/worktrees/60c5/doo-know`，分支 `txj/platform-ui-unification`。原项目及其他任务工作区未覆盖、切换、重置或清理。
-- 当前实现源码冻结点：`12b7798`。共享主题/所有者外壳、工作区与编辑器/图形/图谱/回收站、设置/插件/Git/MCP、认证/分享/博客/SSR/导出已进入实现；定点验证已记录，集中全量检查和运行覆盖仍在进行。详见[实现状态](./IMPLEMENTATION.md)和[实施计划](../../superpowers/plans/2026-11-05-platform-ui-implementation.md)。
+- 实施产物包括共享外壳、工作区/编辑器/图形/图谱/回收站、设置/插件/Git/MCP，以及认证/分享/博客/SSR/导出。各次截图的实际源码提交、控件范围和审阅结论随图保留。见[运行证据说明](./runtime/README.md)和[实施计划](../../superpowers/plans/2026-11-05-platform-ui-implementation.md)。
 
 ## 图像工具核验（已通过）
 

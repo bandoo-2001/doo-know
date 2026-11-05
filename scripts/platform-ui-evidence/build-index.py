@@ -57,6 +57,15 @@ def source_relationship(commit, changed, row):
     ids = set(row.get('sourceIds', []))
     if changed & catalog_files and (scene in ('plugin-catalog','settings-plugins','plugin-uninstall') or ids & {'ST-047','ST-048','ST-049','ST-050','ST-051','ST-052','ST-053','ST-054'}):
         return 'earlier plugin catalog versions; scoped layout reference only'
+    # The terminal patch only changes app-hosted color popovers and the
+    # body-level Mermaid insertion portal. Earlier canvas.ts changes were
+    # broader and still require the historical/source-specific classification.
+    if "apps/web/whiteboards/canvas.ts" not in changed and not any(
+            word in scene for word in ("color", "mermaid-dialog", "stroke", "fill")):
+        changed -= {"apps/web/whiteboards/viewport-popovers.ts", "apps/web/whiteboards/whiteboards.css"}
+    if "apps/web/calm.css" in changed and row.get("theme") == "dark" and (
+            "note=" in row.get("route", "") or scene in ("source","rich-editor","whiteboard","mindmap","flowchart")):
+        return "earlier dark note toolbar colors; scoped layout reference only"
     short_footer_only = ('apps/web/components/BlogWorkspace.vue' not in changed and
                          'apps/web/components/blog/BlogDesignStudio.vue' not in changed and
                          bool(changed & {'apps/web/blog-savebar.ts','apps/web/blog-admin.css'}))
@@ -93,10 +102,14 @@ def html_index(selected, coverage):
     for scene, entries in sorted(groups.items()):
         cards = []
         for entry in entries:
+            relationship = entry["relationship"]
+            version = ("最终应用源码" if relationship == "same application tree" else
+                       "组件范围等价" if relationship == "component-equivalent under scoped changes" else
+                       "历史画面，范围见索引")
             url = escape(entry["png"], quote=True)
             label = escape(entry["id"] + " · " + entry["sourceCommit"][:7])
             info = escape(" / ".join(item["verdict"] for item in entry["review"]) or "尚无逐图复核记录")
-            cards.append(f'<figure><a href="{url}"><img loading="lazy" src="{url}" alt="{label}"></a><figcaption>{label}<br>{info}</figcaption></figure>')
+            cards.append(f'<figure><a href="{url}"><img loading="lazy" src="{url}" alt="{label}"></a><figcaption>{label} · {version}<br>{info}</figcaption></figure>')
         names = " / ".join(titles.get(key, key) for key in entries[0]["sourceIds"])
         heading = escape(" · ".join([names, scene, ", ".join(entries[0]["sourceIds"])]))
         sections.append(f'<details><summary>{heading} ({len(entries)})</summary><div class="grid">{"".join(cards)}</div></details>')

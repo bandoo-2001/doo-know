@@ -168,9 +168,18 @@
     }
   },
   "preservedOriginalLogSHA256": {
+    "closeout-combined-build.log": "62c3a49d9d48972ae9e6edf62d9b3f2728f1ea3675931bfdcae3e5a2f12a58e6",
+    "closeout-combined-typecheck.log": "1ac9c1a571d12a40f9e6010fe2d5751efa7f87a37f4ed863e3205b8fa4d9ea2f",
     "closeout-final-diagrams.log": "d445852de9aef7054de73fe87cf483f643e06b98b0a23094cfb83eb38183c158",
     "closeout-final-production-build.log": "681082a767ab4a876f19719d2b9dea6aa498e4681a2a23f857a4adfe104d3020",
     "closeout-final-typecheck.log": "1ac9c1a571d12a40f9e6010fe2d5751efa7f87a37f4ed863e3205b8fa4d9ea2f",
+    "closeout-plugin-label-green.log": "30e24197b9dc610f8d25f730b1e6a7473cd94a3d41c4654fa1d4c438b65778fe",
+    "closeout-plugin-label-red.log": "e4744caa33775f0b57596a60cf929ff44c2d965031843dcc90060bdc94bb0d04",
+    "closeout-plugin-upgrade-browser-1.log": "6974aa531707f6cc2b7d43f0c247e68cdc44f220e9795638fcd09e26990d7d49",
+    "closeout-plugin-upgrade-browser-2.log": "2bd8a42eb2babc56aafcb8955224e5a8ef21f4ec8a2b0bd0dcdca44a96937885",
+    "closeout-plugin-upgrade-final.log": "52a0d3c8003c7c15629805dcaf1f60985021d0e0c743b5dfbe4f52373ab63cf9",
+    "closeout-plugin-version-green.log": "f8e615b042e15d03dc6af45459dce5833d97b9b0987806a0ecc60bd9a0d3e4b5",
+    "closeout-plugin-version-red.log": "057393a197b427ad2beecdafeff147ce0396a982b4adb46f8c7158d76259555b",
     "final-diagrams-1.log": "c8c73918e04fa32df5bec3ab35e3e9aabe3c8f90591e8345634b6f6f99f88d75",
     "final-e2e-1.log": "f7b2240bc6c46064332c7b48c3e6c168544d382b1059a8ef83389126ff49f12e",
     "final-unit-1.log": "a9cdfdaf45ac74e120ead7497f99bfbaf51ffeb9cc3f0b2ffa17ceffc301b613",
@@ -183,44 +192,66 @@
     "task-2-final-visual-fix-2-red.log": "3589a9d5f9b66b1c17f3b8ed0123c1d6bf113f52dab443d201c24db5014ebbb9",
     "task-2-final-visual-fix-2-unit.log": "dd05c6deaab069d6632133c2dd1225b2a1525e0b961be57c9fccdbbbdc428843",
     "task-2-selection-fix-e2e.log": "628b8e0555112c4a6e233a388dd96cfed74c7e541ad45c6e58eb80ba2ffc8e58",
-    "updated-layout-contract-e2e.log": "5ec4f0c48d62c83cf58c7799c630629b3c1936ee5cc58fde40b2909b358176fd"
+    "terminal-build.log": "9341fb161e39dbd2bca5b2aa609a2d73d6ac541b4fc0f3f60640c95cb2a0df8d",
+    "terminal-diagrams.log": "7233bbf99eadaf2ce0ef8682e96d49934d73b553dcc3196bbb45c4c16b5ee3a6",
+    "terminal-typecheck.log": "1ac9c1a571d12a40f9e6010fe2d5751efa7f87a37f4ed863e3205b8fa4d9ea2f",
+    "updated-layout-contract-e2e.log": "5ec4f0c48d62c83cf58c7799c630629b3c1936ee5cc58fde40b2909b358176fd",
+    "ws-terminal-delivery-typecheck.log": "1ac9c1a571d12a40f9e6010fe2d5751efa7f87a37f4ed863e3205b8fa4d9ea2f",
+    "ws-terminal-final-desktop.log": "9b3b8bb48c3abb4d0610e3de17b8d16a18a23ec054574a4dee96e13977df69ab",
+    "ws-terminal-final-red.log": "3d481148c09597e3720bfe0cca60c0a0b9c58af1e5967cf891a4a6b696d8bc00",
+    "ws-terminal-final-rich.log": "52148675470b224d281542f93122f5c33e38f849bc604809088f14a278778ceb",
+    "ws-terminal-final-status.log": "e82a8bea5ea0401b0ec13e5bf368a3e51da087fae71512731b507a8f4096cfe3",
+    "ws-terminal-final-typecheck.log": "1ac9c1a571d12a40f9e6010fe2d5751efa7f87a37f4ed863e3205b8fa4d9ea2f",
+    "ws-terminal-green-1.log": "6587ce459d13cd05f6d187451330d63621c6416f7799ae75844298379ebf1b0b",
+    "ws-terminal-green-2.log": "1c416e928e4a6614f696eb0449ee4a27f569a14b3637be71ba2d8e8c0dac3133",
+    "ws-terminal-red-stroke.log": "72418203b2908a31f462c02360abd829824691b6c91034732205e556e54016d5",
+    "ws-terminal-red.log": "e500785e7b0339d52c0caa604d5ab47f377fc88809e6be6502fdcb832cb3d6c5",
+    "ws-terminal-status-red.log": "df20e8d8ae11c4a7209708efd463ca92215f4eac69ef2c5382d586448d713905",
+    "ws-terminal-typecheck.log": "1ac9c1a571d12a40f9e6010fe2d5751efa7f87a37f4ed863e3205b8fa4d9ea2f",
+    "ws-terminal-unit.log": "bac3fcaeaccbcd525ad02bc5ceffd5b2d2ac025e758a3645c3cca2246dfc242f"
   },
   "scope": "Original whole-suite nonzero results are retained separately from targeted reruns. See desktop-original-failures.md for classified desktop failures. Failure provenance and unverified actions remain explicit.",
   "finalApplication": {
-    "sourceCommit": "a14936d225c5c5aa8b252b3571df93489607287e",
-    "applicationFingerprint": "9bde3f787b55ea0f8c10d82fcff428b9dfb6a006cb0a5c55803a2700a33df5d8",
+    "sourceCommit": "f609205a32313d945d0e5465f8a40514d3e69aaf",
+    "applicationFingerprint": "ee3802b6a21251b068818ccfc4d31234cc46ccc9cb295992e72d42d0a7edbc66",
+    "filesInBrowserFingerprint": 624,
     "typecheckExit": 0,
     "productionBuildExit": 0,
     "buildEnvironment": {
       "VITE_DOCUMENT_EDITOR_ENABLED": "1"
     },
-    "dedicatedDiagrams": {
-      "source": "efe5d152290975e4f84b985be31ce607832d0682",
+    "dedicatedDiagramBrowserSuite": {
+      "sourceCommit": "f609205a32313d945d0e5465f8a40514d3e69aaf",
+      "project": "desktop",
       "passed": 11,
-      "exitCode": 0,
-      "changedSinceRun": "Blog savebar, plugin release metadata/version display and evidence helpers; native diagram application sources unchanged."
+      "exitCode": 0
     },
-    "shortFocusPatch": {
-      "testsPassed": 2,
-      "originalThreeWidthPreservationPassed": 36,
-      "unitPassed": 57,
-      "screenshotsViewedIndependently": 18,
-      "source": "a14936d",
-      "combinedTargetsMeasured": {
-        "360x460": {
-          "failures": 0
-        },
-        "844x390": {
-          "failures": 0
-        }
+    "lastNativeFixChecks": {
+      "desktopCombinedPassed": 17,
+      "richDesktopMobilePassed": 18,
+      "themeReceiptRerunPassed": 2,
+      "relatedUnitPassed": 21,
+      "typecheckExit": 0,
+      "originalFailuresPreserved": true
+    },
+    "lastNativeCapture": {
+      "captured": 83,
+      "requested": 83,
+      "flowFailures": 0,
+      "probeReviews": 55,
+      "captureExit": 1,
+      "sourceStable": true,
+      "criticalTargets": {
+        "320/390 Mermaid Insert": "actual visible, focused and center-hit after scrolling",
+        "844x390 stroke HEX": "y=266.890625 h=28 above tabbar y=322, centerHit=true and focused=true"
       }
     }
   },
   "distSnapshot": {
     "algorithm": "sha256(sorted-path-NUL-file-sha256-newline)",
-    "sha256": "ef4bcaf5e0d59edadb8049a3215c56b0bfcccb46aa043c7680b575f0ccb48a69",
+    "sha256": "c82651f44fa14c6604d3ed50173cbe32edd613be09d6414e5c214bfdff6bf375",
     "fileCount": 1148,
-    "sourceCommit": "a14936d225c5c5aa8b252b3571df93489607287e"
+    "sourceCommit": "f609205a32313d945d0e5465f8a40514d3e69aaf"
   },
   "pluginReleaseReachability": {
     "sourceCommit": "72cfd74",
@@ -266,6 +297,36 @@
       "unitTestsPassed": 82,
       "files": 5,
       "typecheckExit": 0
+    }
+  },
+  "preTerminalCombinedApplication": {
+    "sourceCommit": "a14936d225c5c5aa8b252b3571df93489607287e",
+    "applicationFingerprint": "9bde3f787b55ea0f8c10d82fcff428b9dfb6a006cb0a5c55803a2700a33df5d8",
+    "typecheckExit": 0,
+    "productionBuildExit": 0,
+    "buildEnvironment": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "dedicatedDiagrams": {
+      "source": "efe5d152290975e4f84b985be31ce607832d0682",
+      "passed": 11,
+      "exitCode": 0,
+      "changedSinceRun": "Blog savebar, plugin release metadata/version display and evidence helpers; native diagram application sources unchanged."
+    },
+    "shortFocusPatch": {
+      "testsPassed": 2,
+      "originalThreeWidthPreservationPassed": 36,
+      "unitPassed": 57,
+      "screenshotsViewedIndependently": 18,
+      "source": "a14936d",
+      "combinedTargetsMeasured": {
+        "360x460": {
+          "failures": 0
+        },
+        "844x390": {
+          "failures": 0
+        }
+      }
     }
   }
 }
