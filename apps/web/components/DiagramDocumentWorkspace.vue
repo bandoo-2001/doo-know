@@ -911,6 +911,12 @@ defineExpose({ save, discard, settleSave: () => saveJob, reload:load, requestClo
   height: 100%;
   min-height: 0;
 }
+/* Native canvas controls need vertical room even in short landscape windows.
+   Keep the surrounding document body scrollable when that room exceeds it. */
+@media (max-width: 960px) and (max-height: 500px) {
+  .diagram-document-body:has(.diagram-native-mount) { overflow: auto; }
+  .diagram-native-mount { flex: 0 0 auto; min-height: 360px; }
+}
 .diagram-document-body > :deep(.markdown-editor) {
   flex: 1;
   min-width: 0;
