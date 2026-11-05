@@ -252,7 +252,12 @@ test('a cover upload completing after selection changes only updates its owning 
     pinned: false,
     cover: null,
   };
-  model.state.forms.b = { ...model.state.forms.a, slug: 'b', title: 'B', cover: '_doo-assets/b.png' };
+  model.state.forms.b = {
+    ...model.state.forms.a,
+    slug: 'b',
+    title: 'B',
+    cover: '_doo-assets/b.png',
+  };
   model.state.selectedId = 'a';
   const upload = model
     .uploadCover('note-a', new File(['image'], 'a.png', { type: 'image/png' }))
@@ -263,4 +268,26 @@ test('a cover upload completing after selection changes only updates its owning 
   expect(model.state.forms.a.cover).toBe('_doo-assets/a.png');
   expect(model.state.forms.b.cover).toBe('_doo-assets/b.png');
   expect(model.state.selectedId).toBe('b');
+});
+
+test('network-unknown design save keeps edits and only reconciles through an explicit version read', async () => {
+  const requests: { url: string; method?: string; body?: any }[] = [];
+  const model = createBlogWorkbench(async (url, method, body) => {
+    requests.push({ url, method, body });
+    if (method === 'PATCH') throw new TypeError('Failed to fetch');
+    return snapshot();
+  });
+  await model.loadDesign();
+  model.state.design!.profile.name = 'Retained unknown outcome';
+  await model.saveDesign();
+  expect(model.state.designError).toContain('结果尚未确认');
+  expect(model.state.designError).not.toContain('Failed to fetch');
+  expect(model.state.design!.profile.name).toBe('Retained unknown outcome');
+  expect(model.designDirty()).toBe(true);
+  expect(requests.filter((request) => request.method === 'PATCH')).toHaveLength(1);
+  const requestId = requests.find((request) => request.method === 'PATCH')!.body.requestId;
+  await model.loadDesign();
+  expect(requests.filter((request) => request.method === 'PATCH')).toHaveLength(1);
+  expect(requests.find((request) => request.method === 'PATCH')!.body.requestId).toBe(requestId);
+  expect(model.state.design!.profile.name).toBe('Retained unknown outcome');
 });

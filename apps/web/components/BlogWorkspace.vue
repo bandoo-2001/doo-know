@@ -9,6 +9,7 @@ import type { TreeEntry } from '../../../shared/contracts';
 import type { BlogPost } from '../../../shared/blog-contracts';
 import '../blog-admin.css';
 import { blogNotePicker, type BlogSection, type BlogWorkbench } from '../blog-workbench';
+import { useBlogSavebar } from '../blog-savebar';
 const props = defineProps<{
   section: BlogSection;
   tree: TreeEntry[];
@@ -21,6 +22,11 @@ const emit = defineEmits<{
   'open-note': [id: string];
 }>();
 const state = props.model.state;
+const {
+  form: settingsForm,
+  savebar: settingsSavebar,
+  focusin: protectSettingsFocus,
+} = useBlogSavebar();
 const tabs: [BlogSection, string, string][] = [
   ['overview', '概览', 'apps'],
   ['articles', '文章', 'file'],
@@ -901,7 +907,12 @@ onMounted(() => {
             <p>给你的文字，一个自己的家。</p>
           </div>
         </div>
-        <form class="blog-form" @submit.prevent="model.saveSettings()">
+        <form
+          ref="settingsForm"
+          class="blog-form"
+          @focusin="protectSettingsFocus"
+          @submit.prevent="model.saveSettings()"
+        >
           <section class="blog-visibility" aria-labelledby="blog-visibility-title">
             <div>
               <h3 id="blog-visibility-title">
@@ -932,17 +943,6 @@ onMounted(() => {
                 aria-label="开启博客站点" /><span></span
             ></label>
           </section>
-          <div v-if="state.settingsError" class="blog-alert error" role="alert">
-            {{ state.settingsError
-            }}<button
-              type="button"
-              class="blog-text-button"
-              :disabled="state.settingsBusy"
-              @click="model.reviewSettings()"
-            >
-              重新核对设置
-            </button>
-          </div>
           <div v-if="state.settingsNotice" class="blog-alert success" role="status">
             {{ state.settingsNotice }}
           </div>
@@ -1018,7 +1018,22 @@ onMounted(() => {
               </label>
             </section>
           </div>
-          <div class="blog-settings-footer blog-admin-settings-savebar">
+          <div ref="settingsSavebar" class="blog-settings-footer blog-admin-settings-savebar">
+            <div
+              v-if="state.settingsError"
+              class="blog-alert error blog-save-feedback"
+              role="alert"
+            >
+              {{ state.settingsError }}
+              <button
+                type="button"
+                class="blog-text-button"
+                :disabled="state.settingsBusy"
+                @click="model.reviewSettings()"
+              >
+                重新核对设置
+              </button>
+            </div>
             <span
               class="blog-admin-settings-state"
               :class="{ 'blog-unsaved': settingsDirty }"

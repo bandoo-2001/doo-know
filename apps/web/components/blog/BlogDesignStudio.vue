@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { BlogWorkbench } from '../../blog-workbench';
+import { useBlogSavebar } from '../../blog-savebar';
 import BlogDesignAppearance from './BlogDesignAppearance.vue';
 import BlogDesignLinks from './BlogDesignLinks.vue';
 import BlogDesignModules from './BlogDesignModules.vue';
@@ -10,6 +11,7 @@ import BlogPreviewViewport from './BlogPreviewViewport.vue';
 import '../../blog-studio-admin.css';
 const props = defineProps<{ model: BlogWorkbench }>();
 const state = props.model.state;
+const { form: studioForm, savebar: studioSavebar, focusin: protectStudioFocus } = useBlogSavebar();
 const tab = ref('appearance'),
   size = ref('desktop'),
   live = ref(true);
@@ -120,7 +122,7 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', beforeUnload));
         </button>
       </div>
     </div>
-    <div v-if="state.designError" class="blog-alert error" role="alert">
+    <div v-if="state.designError && !state.design" class="blog-alert error" role="alert">
       {{ state.designError
       }}<button
         type="button"
@@ -152,7 +154,12 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', beforeUnload));
             {{ label }}
           </button>
         </nav>
-        <form class="blog-form" @submit.prevent="model.saveDesign()">
+        <form
+          ref="studioForm"
+          class="blog-form"
+          @focusin="protectStudioFocus"
+          @submit.prevent="model.saveDesign()"
+        >
           <BlogDesignAppearance
             v-if="tab === 'appearance'"
             :design="state.design"
@@ -172,7 +179,18 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', beforeUnload));
               :links="state.design.friendLinks"
           /></template>
           <BlogDesignProjects v-else-if="tab === 'projects'" :projects="state.design.projects" />
-          <div class="blog-studio-savebar">
+          <div ref="studioSavebar" class="blog-studio-savebar">
+            <div v-if="state.designError" class="blog-alert error blog-save-feedback" role="alert">
+              {{ state.designError }}
+              <button
+                type="button"
+                class="blog-text-button"
+                :disabled="state.designBusy || state.designLoading"
+                @click="model.loadDesign()"
+              >
+                重新核对版本
+              </button>
+            </div>
             <div class="blog-studio-save-status" role="status">
               <strong>{{
                 state.designBusy ? '正在处理更改…' : dirty ? '有未保存修改' : '装修草稿已保存'
