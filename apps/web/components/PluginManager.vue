@@ -1016,7 +1016,7 @@ onMounted(() => {
   color: var(--blue);
 }
 .plugin-field-error {
-  color: var(--todo-danger);
+  color: var(--ui-danger-text);
   font-size: 12px;
 }
 .muted {
@@ -1053,7 +1053,7 @@ onMounted(() => {
   color: var(--blue);
 }
 .plugin-field-error {
-  color: var(--todo-danger);
+  color: var(--ui-danger-text);
   font-size: 12px;
 }
 .muted {
@@ -1073,7 +1073,7 @@ onMounted(() => {
   padding-top: 2px;
 }
 .plugin-form-footer .form-success {
-  color: var(--todo-green);
+  color: var(--ui-success-text);
   margin: 0;
 }
 .plugin-live-settings {
@@ -1100,7 +1100,7 @@ onMounted(() => {
   color: var(--blue);
 }
 .plugin-field-error {
-  color: var(--todo-danger);
+  color: var(--ui-danger-text);
   font-size: 12px;
 }
 .muted {

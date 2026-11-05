@@ -145,10 +145,10 @@
 .settings-workspace .settings-field-error {
   margin: 0;
   font-size: 12px;
-  color: var(--todo-danger);
+  color: var(--ui-danger-text);
 }
 .settings-workspace .settings-success {
-  color: var(--todo-green);
+  color: var(--ui-success-text);
   font-size: 13px;
 }
 .settings-workspace .settings-list {

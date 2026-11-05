@@ -20,6 +20,11 @@
   --workspace-rail-width: 64px;
   --ui-radius: 8px;
   --on-accent: #fff;
+  /* Semantic seeds also paint icons/fills; small text needs its own readable
+     foreground on soft status surfaces without changing the ToDoo palette. */
+  --ui-success-text: color-mix(in srgb, var(--todo-green) 70%, var(--todo-ink));
+  --ui-warning-text: color-mix(in srgb, var(--todo-warning) 70%, var(--todo-ink));
+  --ui-danger-text: color-mix(in srgb, var(--todo-danger) 70%, var(--todo-ink));
   color: var(--text);
   background: var(--bg);
 }
