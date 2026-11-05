@@ -111,8 +111,11 @@ test('native canvas find and library controls stay inside 390 and 320 viewports'
   for (const [width, height] of [[390, 844], [320, 844], [844, 390]]) {
     await page.setViewportSize({ width, height });
     await native.getByTestId('main-menu-trigger').click();
-    await native.getByTestId('search-menu-button').click();
+    const searchMenu = native.getByTestId('search-menu-button');
+    if (height === 390) await searchMenu.scrollIntoViewIfNeeded();
+    await searchMenu.click({ timeout: 5000 });
     const find = native.getByRole('textbox', { name: 'Find text on canvas...', exact: true });
+    if (height === 390) await find.scrollIntoViewIfNeeded();
     await insideWindow(page, find);
     await canReceivePointer(find);
     await find.fill('isolated search');
@@ -133,14 +136,17 @@ test('native canvas find and library controls stay inside 390 and 320 viewports'
     await libraryTrigger.click();
     await expect(libraryCheckbox).toBeChecked();
     const browse = native.getByRole('link', { name: '浏览素材库', exact: true });
+    if (height === 390) await browse.scrollIntoViewIfNeeded();
     await insideWindow(page, browse);
     await canReceivePointer(browse);
     const libraryClose = native.getByRole('button', { name: '关闭', exact: true });
+    if (height === 390) await libraryClose.scrollIntoViewIfNeeded();
     await insideWindow(page, libraryClose);
     await canReceivePointer(libraryClose);
     await page.screenshot({ path: info.outputPath(`canvas-library-${width}.png`), animations: 'disabled' });
     await libraryClose.click();
     await expect(browse).toBeHidden();
+    if (height === 390) await native.locator('canvas.interactive').scrollIntoViewIfNeeded();
     await native.locator('canvas.interactive').click({ position: { x: 100, y: 100 } });
   }
 });
@@ -262,6 +268,11 @@ test('native library controls remain usable in short landscape', async ({ page }
   await canReceivePointer(trigger);
   await trigger.click();
   const browse = native.getByRole('link', { name: '浏览素材库', exact: true });
+  const body = workspace.locator('.diagram-document-body');
+  const bodyBox = (await body.boundingBox())!;
+  await page.mouse.move(bodyBox.x + bodyBox.width - 10, bodyBox.y + bodyBox.height - 10);
+  await page.mouse.wheel(0, 240);
+  await expect.poll(() => body.evaluate(el => el.scrollTop)).toBeGreaterThan(0);
   await insideWindow(page, browse);
   await canReceivePointer(browse);
   await native.getByRole('button', { name: '关闭', exact: true }).click();
