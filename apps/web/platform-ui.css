@@ -12,6 +12,8 @@
   --surface: var(--todo-soft);
   --surface-soft: var(--todo-soft);
   --blue-soft: var(--todo-tint);
+  /* Text selections need stronger separation than selected menu surfaces. */
+  --editor-selection: color-mix(in srgb, var(--blue) 25%, var(--panel));
   --workbench-rail: var(--todo-soft);
   --workbench-sidebar: var(--todo-soft);
   --workbench-paper: var(--todo-paper);

@@ -193,7 +193,7 @@
 }
 .document-code-block .cm-selectionBackground,
 .document-code-block .cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground {
-  background: var(--blue-soft);
+  background: var(--editor-selection, var(--blue-soft));
 }
 .document-code-copy {
   display: block;
