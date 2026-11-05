@@ -124,3 +124,49 @@ h1, h2, h3 { color: var(--text); }
   .workspace-header-brand > svg { display: none; }
   .workspace-header-context { flex-shrink: 1; }
 }
+
+/* Opt-in form action rows only; never restyle editor/vendor native buttons. */
+.platform-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.platform-dialog-actions > .btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 36px;
+  max-width: 100%;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius, 8px);
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: none;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: normal;
+  text-align: center;
+  cursor: pointer;
+}
+.platform-dialog-actions > .btn.primary {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: var(--on-accent, #fff);
+}
+.platform-dialog-actions > .btn:hover:not(:disabled) { border-color: var(--blue); }
+.platform-dialog-actions > .btn:focus-visible {
+  outline: 2px solid var(--focus, var(--blue));
+  outline-offset: 2px;
+}
+.platform-dialog-actions > .btn:disabled {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: not-allowed;
+}

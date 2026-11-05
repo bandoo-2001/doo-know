@@ -24,7 +24,7 @@ function insert() {
         autofocus
         placeholder="# 标题&#10;&#10;在这里粘贴 Markdown…"
       />
-      <div class="markdown-paste-actions">
+      <div class="markdown-paste-actions platform-dialog-actions">
         <button type="button" class="btn" @click="emit('close')">取消</button>
         <button type="submit" class="btn primary" :disabled="readOnly || !text.trim()">
           插入 Markdown

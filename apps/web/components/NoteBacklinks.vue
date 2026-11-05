@@ -98,9 +98,9 @@ onBeforeUnmount(() => {
       </p>
       <p v-if="busy" role="status" class="backlinks-description">正在查找…</p>
       <p v-if="message" role="alert" class="backlinks-error">{{ message }}</p>
-      <div class="backlinks-actions">
+      <div class="backlinks-actions platform-dialog-actions">
         <button type="button" class="btn" @click="emit('close')">关闭</button>
-        <button type="button" class="btn" :disabled="busy" @click="lookup(true)">重新查找</button>
+        <button type="button" class="btn" :class="{ primary: !message && !nextCursor }" :disabled="busy" @click="lookup(true)">重新查找</button>
         <button
           v-if="message"
           type="button"
