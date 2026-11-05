@@ -443,7 +443,11 @@ onMounted(() => {
               :size="20"
           /></span>
           <h3>
-            {{ entry.title }} <small>v{{ entry.version }}</small>
+            {{ entry.title }}
+            <small>v{{ installedById.get(entry.id)?.installedVersion || entry.version }}</small>
+            <small v-if="installedById.has(entry.id) && installedById.get(entry.id)?.installedVersion !== entry.version">
+              可升级至 v{{ entry.version }}
+            </small>
           </h3>
         </div>
         <span
