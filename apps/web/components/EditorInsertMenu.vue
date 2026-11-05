@@ -90,7 +90,7 @@ function keydown(event: KeyboardEvent) {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--panel, #fff);
   color: var(--text);
   font: inherit;
@@ -108,7 +108,7 @@ function keydown(event: KeyboardEvent) {
   width: 100%;
   padding: 10px 12px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   background: transparent;
   color: var(--text);
   text-align: left;

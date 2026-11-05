@@ -108,3 +108,10 @@ function action(kind: 'history' | 'upload' | 'delete' | 'move' | 'download' | 'p
     </div>
   </NPopover>
 </template>
+
+<style scoped>
+.note-action-menu { color: var(--text); max-width: calc(100vw - 48px); }
+.note-action-menu button,
+.note-action-menu .line-number-option { border-radius: var(--ui-radius, 8px); }
+.note-action-menu .danger-action { color: var(--ui-danger-text); }
+</style>

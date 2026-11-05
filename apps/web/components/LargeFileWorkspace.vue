@@ -559,7 +559,10 @@ defineExpose({ save, discard, reload, flushLocalDraft });
 </template>
 <style scoped>
 .large-workspace {
-  padding: 24px 28px;
+  padding: 24px;
+  min-width: 0;
+  background: var(--panel);
+  overflow-wrap: anywhere;
   overflow: auto;
   flex: 1;
   min-height: 0;
@@ -591,6 +594,8 @@ defineExpose({ save, discard, reload, flushLocalDraft });
 }
 .large-preview {
   margin-top: 20px;
+  overflow: auto;
+  background: var(--panel);
   border: 1px solid var(--border, #e3e6ec);
   border-radius: 8px;
 }

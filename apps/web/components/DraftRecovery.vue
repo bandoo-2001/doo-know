@@ -97,7 +97,7 @@ async function copy() {
   box-sizing: border-box;
   resize: vertical;
   border: 1px solid var(--border, #dfe3eb);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   padding: 8px;
   color: inherit;
   background: var(--surface, #fff);

@@ -251,11 +251,9 @@ onBeforeUnmount(() => {
   z-index: 2050;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--panel, #fff);
-  box-shadow:
-    0 12px 36px #18243a14,
-    0 2px 8px #18243a0a;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
 }
 .table-picker-panel {
   width: min(280px, calc(100vw - 32px));
@@ -287,7 +285,7 @@ onBeforeUnmount(() => {
 .table-picker-preview-wrap {
   padding: 12px 16px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--surface);
 }
 .table-picker-preview {
@@ -328,7 +326,7 @@ onBeforeUnmount(() => {
   height: 34px;
   padding: 6px 8px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--panel, #fff);
   color: var(--text);
   font: inherit;
@@ -347,7 +345,7 @@ onBeforeUnmount(() => {
   min-height: 32px;
   padding: 6px 12px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--panel, #fff);
   color: var(--text);
   font: inherit;
@@ -372,7 +370,7 @@ onBeforeUnmount(() => {
   outline-offset: 2px;
 }
 .table-picker-panel input[aria-invalid='true'] {
-  border-color: #dc2626;
+  border-color: var(--ui-danger-text);
 }
 .table-picker-hint,
 .table-picker-error {
@@ -382,7 +380,7 @@ onBeforeUnmount(() => {
   line-height: 1.6;
 }
 .table-picker-error {
-  color: #b91c1c;
+  color: var(--ui-danger-text);
 }
 .table-picker-actions {
   display: flex;
@@ -393,7 +391,7 @@ onBeforeUnmount(() => {
 .table-picker-panel .table-picker-insert {
   border-color: var(--blue);
   background: var(--blue);
-  color: #fff;
+  color: var(--on-accent, #fff);
 }
 .table-picker-panel .table-picker-insert:hover:not(:disabled) {
   background: color-mix(in srgb, var(--blue) 90%, #000);

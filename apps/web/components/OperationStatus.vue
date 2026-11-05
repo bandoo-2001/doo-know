@@ -47,7 +47,7 @@ const labels: Record<string, string> = {
   margin: 12px 0;
   padding: 10px 13px;
   border: 1px solid var(--border, #e3e6ec);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--surface-soft, #fafbfc);
   font-size: 12px;
   color: var(--muted, #7a8190);
@@ -67,10 +67,10 @@ const labels: Record<string, string> = {
 }
 .operation-failed .operation-label i,
 .operation-needs_reconciliation .operation-label i {
-  background: #b27c41;
+  background: var(--todo-warning);
 }
 .operation-cancelled .operation-label i {
-  background: #b7bdc7;
+  background: var(--muted);
 }
 .operation-status > .ant-btn {
   margin-left: auto;

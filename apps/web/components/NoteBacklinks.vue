@@ -73,7 +73,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <AModal :open="true" title="提及此笔记" :width="640" :footer="null" @cancel="emit('close')">
+  <AModal centered class="note-backlinks-dialog" :open="true" title="提及此笔记" :width="640" :footer="null" @cancel="emit('close')">
     <div class="note-backlinks" :aria-busy="busy">
       <p class="backlinks-description">
         查找其他笔记中指向当前笔记的链接。结果分批检查，较大或暂时无法读取的笔记会跳过。
@@ -125,6 +125,19 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+:global(.note-backlinks-dialog .ant-modal-content) {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 32px);
+  border-radius: var(--ui-radius, 8px);
+}
+:global(.note-backlinks-dialog .ant-modal-header) { flex-shrink: 0; }
+:global(.note-backlinks-dialog .ant-modal-body) {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
 .note-backlinks {
   color: var(--text);
 }
@@ -171,7 +184,7 @@ onBeforeUnmount(() => {
   gap: 8px;
 }
 .backlinks-error {
-  color: var(--danger, #b42318);
+  color: var(--ui-danger-text);
   font-size: 12px;
 }
 </style>

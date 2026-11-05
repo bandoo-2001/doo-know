@@ -354,7 +354,7 @@ onBeforeUnmount(() => {
   max-width: 100%;
   margin: 18px 0;
   border: 1px solid var(--border, #e0e5ed);
-  border-radius: 12px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--panel, #fff);
   color: var(--text, #263249);
   line-height: 1.6;
@@ -390,14 +390,14 @@ onBeforeUnmount(() => {
   gap: 3px;
 }
 .diagram-view-tabs button[aria-pressed='true'] {
-  background: var(--surface, #f0f4ff);
+  background: var(--blue-soft);
   color: var(--text, #263249);
 }
 .diagram-feedback {
   padding: 10px 14px;
-  color: var(--danger, #bc3030);
+  color: var(--ui-danger-text);
 }
-.diagram-stale-preview { padding: 10px 14px; color: var(--warning, #a16100); background: color-mix(in srgb, #f5b338 9%, transparent); }
+.diagram-stale-preview { padding: 10px 14px; color: var(--ui-warning-text); background: color-mix(in srgb, var(--todo-warning) 9%, transparent); }
 .diagram-source-panel {
   padding: 12px;
   overflow: auto;
@@ -417,7 +417,7 @@ onBeforeUnmount(() => {
   padding: 4px 9px;
   min-height: 28px;
   border: 1px solid var(--border, #dfe5ee);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--panel, #fff);
   color: var(--blue, #4566c6);
   font: inherit;

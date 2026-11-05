@@ -244,6 +244,7 @@ defineExpose({ close, requestClose });
 }
 .graph-overlay-body {
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 .graph-overlay-discard {
   display: grid;
@@ -258,6 +259,8 @@ defineExpose({ close, requestClose });
 }
 :global(.graph-ant-modal .ant-modal-content) {
   max-height: calc(100dvh - 32px);
+  border-radius: var(--ui-radius, 8px);
+  border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
 }

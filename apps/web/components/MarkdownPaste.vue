@@ -12,7 +12,7 @@ function insert() {
 </script>
 
 <template>
-  <AModal :open="true" title="按 Markdown 粘贴" :width="620" :footer="null" @cancel="emit('close')">
+  <AModal centered class="markdown-paste-dialog" :open="true" title="按 Markdown 粘贴" :width="620" :footer="null" @cancel="emit('close')">
     <form class="markdown-paste" @submit.prevent="insert">
       <p>粘贴 Markdown 后插入，标题、列表和代码块会转换为正文格式。暂不支持的语法会保留原文。</p>
       <label for="markdown-paste-content">Markdown 内容</label>
@@ -35,6 +35,19 @@ function insert() {
 </template>
 
 <style scoped>
+:global(.markdown-paste-dialog .ant-modal-content) {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 32px);
+  border-radius: var(--ui-radius, 8px);
+}
+:global(.markdown-paste-dialog .ant-modal-header) { flex-shrink: 0; }
+:global(.markdown-paste-dialog .ant-modal-body) {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
 .markdown-paste p {
   color: var(--muted);
   font-size: 13px;
@@ -63,6 +76,7 @@ function insert() {
 }
 .markdown-paste-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
   margin-top: 18px;

@@ -71,7 +71,7 @@ function menuKey(entry: TreeEntry, event: KeyboardEvent) {
   margin: 8px 16px 16px;
   padding: 7px;
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: var(--ui-radius, 8px);
   background: transparent;
   color: var(--muted);
   font-size: 11px;

@@ -12,7 +12,7 @@
   display: flex;
   flex-direction: column;
   padding: 0;
-  background: linear-gradient(105deg, #f8fbff, #fafcff 65%, #f7faff);
+  background: var(--panel);
 }
 .note-topline {
   display: flex;
@@ -36,10 +36,10 @@
   width: 30px;
   height: 30px;
   min-width: 30px;
-  color: #66748b;
+  color: var(--muted);
 }
 .note-header button:disabled {
-  color: #b8c0cf;
+  color: var(--muted);
   cursor: default;
 }
 .document-identity.document-breadcrumb {
@@ -61,7 +61,7 @@
   border: 0;
   padding: 4px 2px;
   background: transparent;
-  color: #7c8aa0;
+  color: var(--muted);
   font: inherit;
   font-size: 13px;
   cursor: pointer;
@@ -78,10 +78,10 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  border-radius: 5px;
+  border-radius: var(--ui-radius, 8px);
 }
 .document-breadcrumb > .breadcrumb-overflow:hover {
-  background: #edf1fa;
+  background: var(--blue-soft);
 }
 .document-breadcrumb > .breadcrumb-overflow-single {
   display: none;
@@ -95,7 +95,7 @@
   flex-shrink: 0;
 }
 .document-breadcrumb .breadcrumb-chevron {
-  color: #bac4d6;
+  color: var(--muted);
 }
 .note-header .document-title {
   flex: 1 1 80px;
@@ -117,16 +117,16 @@
   width: 100%;
   padding: 10px 8px;
   border: 0;
-  border-radius: 5px;
+  border-radius: var(--ui-radius, 8px);
   text-align: left;
   background: transparent;
-  color: #536178;
+  color: var(--text);
   font: inherit;
   cursor: pointer;
 }
 .breadcrumb-menu button:hover,
 .breadcrumb-menu button:focus-visible {
-  background: #f0f3fc;
+  background: var(--blue-soft);
   color: var(--blue);
 }
 .breadcrumb-menu button > svg {
@@ -148,7 +148,7 @@
 .breadcrumb-menu-path {
   margin-top: 2px;
   font-size: 11px;
-  color: #8692a5;
+  color: var(--muted);
 }
 .note-header .toolbar {
   width: auto;
@@ -169,7 +169,7 @@
   min-height: 52px;
   padding: 4px 20px;
   gap: 16px;
-  border-top: 1px solid #edf1f7;
+  border-top: 1px solid var(--border);
 }
 .format-toolbar {
   display: flex;
@@ -192,7 +192,7 @@
 .format-divider {
   width: 1px;
   height: 20px;
-  background: #dfe6f1;
+  background: var(--border);
   flex-shrink: 0;
 }
 .format-toolbar button,
@@ -204,9 +204,9 @@
   height: 32px;
   flex: 0 0 auto;
   border: 0;
-  border-radius: 5px;
+  border-radius: var(--ui-radius, 8px);
   background: transparent;
-  color: #46556e;
+  color: var(--text);
   font-family: inherit;
   font-size: 17px;
   cursor: pointer;
@@ -219,15 +219,15 @@
     18px Georgia,
     serif;
   line-height: 21px;
-  color: #46556e;
+  color: var(--text);
 }
 .format-toolbar button:hover:not(:disabled),
 .heading-select:hover:not(:disabled) {
-  background: #eaf0fa;
+  background: var(--blue-soft);
 }
 .format-toolbar button[aria-pressed='true'] {
   color: var(--blue);
-  background: #e4ebfc;
+  background: var(--blue-soft);
 }
 .format-toolbar button b,
 .format-toolbar button i,
@@ -250,8 +250,8 @@
 .note-header .mode-tabs {
   flex-shrink: 0;
   padding: 2px;
-  border-radius: 6px;
-  background: #edf2fa;
+  border-radius: var(--ui-radius, 8px);
+  background: var(--surface);
   gap: 0;
 }
 .note-header .mode-tabs button {
@@ -263,9 +263,9 @@
   cursor: pointer;
 }
 .note-header .mode-tabs button.active {
-  background: #fff;
+  background: var(--panel);
   color: var(--blue);
-  box-shadow: 0 1px 3px #304c7210;
+  box-shadow: none;
 }
 .note-header .shared-status {
   margin: 0 20px 8px;
@@ -357,7 +357,7 @@
   display: block;
   padding: 7px 10px;
   border: 0;
-  border-radius: 5px;
+  border-radius: var(--ui-radius, 8px);
   background: transparent;
   color: inherit;
   font: inherit;

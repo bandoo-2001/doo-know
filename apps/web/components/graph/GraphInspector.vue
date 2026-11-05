@@ -285,6 +285,8 @@ watch(
 }
 .inspector-actions {
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin: 16px 0;
 }
 .inspector-management {
@@ -307,6 +309,8 @@ watch(
 }
 .inspector-evidence-card {
   margin: 0;
+  border-color: var(--border);
+  border-radius: var(--ui-radius, 8px);
   background: var(--surface-soft, #f5f6f8);
 }
 .inspector-evidence-card blockquote {

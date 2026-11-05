@@ -879,7 +879,7 @@ defineExpose({ save, discard, settleSave: () => saveJob, reload:load, requestClo
   font-size: 12px;
 }
 .save-state.has-error {
-  color: var(--danger, #bf5258);
+  color: var(--ui-danger-text);
 }
 .diagram-document-menu {
   max-height: calc(100dvh - 100px);
@@ -888,7 +888,7 @@ defineExpose({ save, discard, settleSave: () => saveJob, reload:load, requestClo
 .diagram-document-error button,
 .diagram-document-close button {
   border: 1px solid var(--border, #ddd);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   padding: 6px 10px;
   background: var(--surface, #fafafa);
   color: var(--text, #333);
@@ -967,17 +967,46 @@ defineExpose({ save, discard, settleSave: () => saveJob, reload:load, requestClo
 }
 .diagram-document-error {
   padding: 10px 18px;
-  background: #fff0e7;
-  color: #9e3300;
+  background: color-mix(in srgb, var(--todo-danger) 8%, var(--panel));
+  color: var(--ui-danger-text);
 }
 .diagram-document-close {
   position: absolute;
-  inset: 30%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: min(520px, calc(100% - 24px));
+  max-height: calc(100% - 24px);
+  overflow: auto;
+  overscroll-behavior: contain;
   background: var(--panel, #fff);
   padding: 24px;
-  border: 1px solid #999;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius, 8px);
   box-shadow: 0 0 0 100vmax #0004;
   z-index: 5;
+}
+.diagram-document-close p {
+  flex: 1 1 100%;
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+.diagram-document-close button {
+  min-height: 36px;
+  max-width: 100%;
+}
+@container document-area (max-width: 360px) {
+  .diagram-document-close {
+    padding: 16px;
+  }
+  .diagram-document-close button {
+    flex: 1 1 100%;
+  }
 }
 @container document-area (max-width: 700px) {
   .diagram-document-body:has(.diagram-flow-source) {

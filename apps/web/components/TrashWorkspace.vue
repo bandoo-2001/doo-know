@@ -686,7 +686,7 @@ onBeforeUnmount(() => {
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
-  padding: 32px clamp(18px, 4vw, 48px) 64px;
+  padding: 24px clamp(16px, 3vw, 32px) 64px;
   min-width: 0;
   color: var(--text, #152c48);
   overflow-wrap: anywhere;
@@ -717,7 +717,7 @@ h2 {
   color: inherit;
 }
 h1 {
-  font-size: 26px;
+  font-size: 24px;
   margin: 5px 0 10px;
 }
 h2 {
@@ -738,7 +738,7 @@ p {
   border: 1px solid var(--border, #dae8f5);
   background: var(--panel, #fff);
   color: inherit;
-  border-radius: 7px;
+  border-radius: var(--ui-radius, 8px);
   min-height: 36px;
   font-size: 13px;
   white-space: nowrap;
@@ -754,18 +754,18 @@ p {
 .action.primary {
   background: var(--blue, #1688ff);
   border-color: var(--blue, #1688ff);
-  color: #fff;
+  color: var(--on-accent, #fff);
 }
 .action.primary:hover:not(:disabled) {
-  color: #fff;
+  color: var(--on-accent, #fff);
   filter: brightness(1.06);
 }
 .action.danger {
-  color: var(--danger, #b43e3e);
+  color: var(--ui-danger-text);
 }
 .action.danger:hover:not(:disabled) {
-  border-color: var(--danger, #b43e3e);
-  color: var(--danger, #b43e3e);
+  border-color: var(--ui-danger-text);
+  color: var(--ui-danger-text);
 }
 .action.quiet {
   border-color: transparent;
@@ -786,10 +786,10 @@ select {
   border: 1px solid var(--border, #dae8f5);
   background: var(--panel, #fff);
   color: inherit;
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
 }
 input[aria-invalid='true'] {
-  border-color: var(--danger, #b43e3e);
+  border-color: var(--ui-danger-text);
 }
 input[type='checkbox'] {
   accent-color: var(--blue, #1688ff);
@@ -859,7 +859,7 @@ input[type='checkbox'] {
   flex-wrap: wrap;
 }
 .unavailable {
-  color: var(--danger, #b43e3e);
+  color: var(--ui-danger-text);
 }
 .item-actions {
   flex-direction: column;
@@ -890,14 +890,14 @@ input[type='checkbox'] {
 }
 .callout.error,
 .field-error {
-  color: var(--danger, #b43e3e);
+  color: var(--ui-danger-text);
 }
 .callout.warning {
-  border-color: var(--warning, #bb8b35);
+  border-color: var(--ui-warning-text);
 }
 .success,
 .result-success {
-  color: var(--success, #34815a);
+  color: var(--ui-success-text);
 }
 .empty {
   text-align: center;

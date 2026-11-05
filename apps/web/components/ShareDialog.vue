@@ -216,7 +216,7 @@ async function copy() {
   min-width: 0;
   padding: 7px 10px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--panel, #fff);
   color: var(--text);
   font: inherit;

@@ -111,7 +111,7 @@ function apply() {
 </script>
 
 <template>
-  <AModal :open="true" title="笔记属性" :width="560" :footer="null" @cancel="emit('close')">
+  <AModal centered class="document-properties-dialog" :open="true" title="笔记属性" :width="560" :footer="null" @cancel="emit('close')">
     <form class="document-properties" @submit.prevent="apply">
       <p class="properties-description">
         属性保存在笔记开头的 YAML 中。更改会进入当前草稿，保存笔记后生效。
@@ -175,6 +175,19 @@ function apply() {
 </template>
 
 <style scoped>
+:global(.document-properties-dialog .ant-modal-content) {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 32px);
+  border-radius: var(--ui-radius, 8px);
+}
+:global(.document-properties-dialog .ant-modal-header) { flex-shrink: 0; }
+:global(.document-properties-dialog .ant-modal-body) {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
 .document-properties {
   color: var(--text);
 }
@@ -199,7 +212,7 @@ function apply() {
   width: 100%;
   padding: 8px 10px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   color: var(--text);
   background: var(--panel, #fff);
   font: inherit;
@@ -209,6 +222,7 @@ function apply() {
 }
 .property-add {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin: 16px 0;
 }
@@ -221,12 +235,13 @@ function apply() {
 }
 .properties-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
   margin-top: 20px;
 }
 .properties-message {
-  color: var(--danger, #b42318);
+  color: var(--ui-danger-text);
   font-size: 13px;
 }
 </style>

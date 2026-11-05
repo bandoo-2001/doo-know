@@ -154,7 +154,7 @@ async function move() {
   margin-block: 14px;
   padding: 12px;
   background: var(--surface);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   font-size: 13px;
   line-height: 1.7;
   overflow-wrap: anywhere;

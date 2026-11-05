@@ -90,14 +90,14 @@ onMounted(() => input.value?.focus());
   max-width: 35vw;
   padding: 5px 8px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--surface-soft);
   color: var(--text);
 }
 .editor-search button {
   padding: 5px 8px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--panel);
   color: var(--text);
   cursor: pointer;

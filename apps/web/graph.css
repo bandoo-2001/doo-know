@@ -3,6 +3,8 @@
   min-width: 0;
   padding: 24px;
   overflow: auto;
+  overscroll-behavior: contain;
+  background: var(--panel);
   color: var(--text, inherit);
 }
 .graph-header {
@@ -10,11 +12,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 .graph-heading h1 {
   margin: 0;
-  font-size: 21px;
+  font-size: 24px;
   font-weight: 600;
   line-height: 1.4;
 }
@@ -99,8 +101,6 @@
   position: relative;
   overflow: hidden;
   background-color: var(--panel, #fff);
-  background-image: radial-gradient(var(--border, #e6e9f0) 0.7px, transparent 0.7px);
-  background-size: 22px 22px;
 }
 .graph-canvas {
   height: max(480px, calc(100dvh - 260px));
@@ -113,9 +113,9 @@
   left: 16px;
   padding: 4px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--panel, #fff);
-  box-shadow: 0 2px 6px rgb(0 0 0 / 3%);
+  box-shadow: none;
 }
 .graph-canvas-tools .ant-divider {
   margin-inline: 2px;

@@ -91,26 +91,26 @@ onMounted(() => {
       syntaxHighlighting(
         HighlightStyle.define([
           ...defaultHighlightStyle.specs,
-          { tag: tags.heading1, fontSize: '1.4em', fontWeight: '650', color: '#262d3b' },
-          { tag: tags.heading2, fontSize: '1.18em', fontWeight: '600', color: '#303747' },
-          { tag: tags.heading3, fontSize: '1.1em', fontWeight: '600', color: '#40495b' },
+          { tag: tags.heading1, fontSize: '1.4em', fontWeight: '650', color: 'var(--text)' },
+          { tag: tags.heading2, fontSize: '1.18em', fontWeight: '600', color: 'var(--text)' },
+          { tag: tags.heading3, fontSize: '1.1em', fontWeight: '600', color: 'var(--text)' },
           {
             tag: tags.heading4,
             fontSize: '1em',
             fontWeight: '600',
-            color: '#4c566a',
+            color: 'var(--text)',
             textDecoration: 'none',
           },
           {
             tag: tags.heading5,
             fontSize: '.95em',
             fontWeight: '600',
-            color: '#566177',
+            color: 'var(--text)',
             textDecoration: 'none',
           },
-          { tag: tags.processingInstruction, color: '#a0a8b8' },
-          { tag: tags.link, color: '#4566c6' },
-          { tag: tags.quote, color: '#8791a6' },
+          { tag: tags.processingInstruction, color: 'var(--muted)' },
+          { tag: tags.link, color: 'var(--blue)' },
+          { tag: tags.quote, color: 'var(--muted)' },
           {
             tag: tags.monospace,
             fontFamily: '"SFMono-Regular",Consolas,monospace',
@@ -125,7 +125,7 @@ onMounted(() => {
       wrapping.of(props.wrap === false ? [] : EditorView.lineWrapping),
       EditorView.contentAttributes.of({ 'aria-label': 'Markdown 正文' }),
       EditorView.theme({
-        '&': { height: '100%', fontSize: '15px', color: '#343c4a' },
+        '&': { height: '100%', fontSize: '15px', color: 'var(--text)' },
         '&.cm-focused': { outline: 'none' },
         '.cm-scroller': {
           overflow: 'auto',
@@ -135,25 +135,25 @@ onMounted(() => {
               : 'Inter,-apple-system,"Noto Sans CJK SC","Microsoft YaHei",sans-serif',
           lineHeight: '1.7',
         },
-        '.cm-content': { padding: '28px 24px 64px', caretColor: '#4566c6' },
+        '.cm-content': { padding: '28px 24px 64px', caretColor: 'var(--blue)' },
         '.cm-line': { padding: '0 4px' },
         '.cm-gutters': {
-          backgroundColor: '#ffffff',
-          color: '#69778c',
+          backgroundColor: 'var(--panel)',
+          color: 'var(--muted)',
           borderRight: '0',
           fontSize: '10px',
         },
-        '.cm-activeLineGutter': { backgroundColor: '#f5f7fc', color: '#8594b5' },
+        '.cm-activeLineGutter': { backgroundColor: 'var(--surface)', color: 'var(--muted)' },
         // CodeMirror draws selections behind the text. Keep the active line
         // translucent so it cannot cover the selection on that same line.
-        '.cm-activeLine': { backgroundColor: '#4566c60a' },
+        '.cm-activeLine': { backgroundColor: 'color-mix(in srgb, var(--blue) 4%, transparent)' },
         '.cm-selectionBackground': {
-          backgroundColor: '#dce5fa',
+          backgroundColor: 'var(--blue-soft)',
         },
         '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground': {
-          backgroundColor: '#dce5fa',
+          backgroundColor: 'var(--blue-soft)',
         },
-        '.cm-cursor': { borderLeftColor: '#4566c6', borderLeftWidth: '2px' },
+        '.cm-cursor': { borderLeftColor: 'var(--blue)', borderLeftWidth: '2px' },
         '@media (max-width: 720px)': {
           '&': { fontSize: '14px' },
           '.cm-content': { padding: '22px 14px 70px' },

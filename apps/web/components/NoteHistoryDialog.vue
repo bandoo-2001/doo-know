@@ -1002,10 +1002,8 @@ onBeforeUnmount(() => {
   max-height: calc(100dvh - 32px);
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow:
-    0 24px 90px #17223b30,
-    0 4px 16px #17223b0a;
+  border-radius: var(--ui-radius, 8px);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 12%);
   color: var(--text);
 }
 :global(.note-history-dialog > .n-card-header) {
@@ -1052,7 +1050,7 @@ onBeforeUnmount(() => {
   gap: 7px;
   padding: 6px 12px;
   border: 1px solid transparent;
-  border-radius: 7px;
+  border-radius: var(--ui-radius, 8px);
   background: transparent;
   color: var(--muted);
   font: inherit;
@@ -1127,7 +1125,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 6px;
   padding: 3px 7px;
-  border-radius: 5px;
+  border-radius: var(--ui-radius, 8px);
   background: color-mix(in srgb, var(--blue) 7%, transparent);
   color: var(--blue);
   font-size: 11px;
@@ -1170,12 +1168,8 @@ onBeforeUnmount(() => {
   flex: 0 0 32px;
   height: 32px;
   border: 1px solid color-mix(in srgb, var(--blue) 13%, transparent);
-  border-radius: 9px;
-  background: linear-gradient(
-    145deg,
-    color-mix(in srgb, var(--blue) 11%, transparent),
-    color-mix(in srgb, var(--blue) 4%, transparent)
-  );
+  border-radius: var(--ui-radius, 8px);
+  background: var(--blue-soft);
   color: var(--blue);
 }
 .note-history-heading > div {
@@ -1241,7 +1235,7 @@ onBeforeUnmount(() => {
   height: 21px;
   padding: 0 5px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--n-color, #fff);
   color: var(--muted);
   font-size: 11px;
@@ -1264,7 +1258,7 @@ onBeforeUnmount(() => {
   min-height: 72px;
   padding: 12px 10px;
   border: 1px solid transparent;
-  border-radius: 9px;
+  border-radius: var(--ui-radius, 8px);
   background: transparent;
   color: var(--text);
   text-align: left;
@@ -1369,7 +1363,7 @@ onBeforeUnmount(() => {
   margin-bottom: 10px;
   padding: 8px 12px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--surface-soft, #fafbfc);
 }
 .note-history-reference {
@@ -1394,7 +1388,7 @@ onBeforeUnmount(() => {
   background: var(--blue);
 }
 .note-history-reference-current .note-history-reference-dot {
-  background: #56a386;
+  background: var(--todo-green);
 }
 .note-history-reference time {
   color: var(--text);
@@ -1415,9 +1409,9 @@ onBeforeUnmount(() => {
 .note-history-draft {
   margin: 0 0 14px;
   padding: 8px 11px;
-  border: 1px solid color-mix(in srgb, #bc8a32 16%, transparent);
-  border-radius: 7px;
-  background: color-mix(in srgb, #bc8a32 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--todo-warning) 16%, transparent);
+  border-radius: var(--ui-radius, 8px);
+  background: color-mix(in srgb, var(--todo-warning) 7%, transparent);
   font-size: 12px;
 }
 .note-history-control-row {
@@ -1447,7 +1441,7 @@ onBeforeUnmount(() => {
   margin: 0 0 8px;
   padding: 2px;
   border: 1px solid var(--border);
-  border-radius: 9px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--surface-soft, #fafbfc);
 }
 .note-history-tabs button {
@@ -1457,7 +1451,7 @@ onBeforeUnmount(() => {
   gap: 6px;
   padding: 4px 10px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   background: transparent;
   color: var(--muted);
   font: inherit;
@@ -1497,7 +1491,7 @@ onBeforeUnmount(() => {
   padding: 16px;
   overflow: auto;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--surface-soft, #fafbfc);
   color: var(--text);
   font:
@@ -1518,13 +1512,13 @@ onBeforeUnmount(() => {
   margin-bottom: 8px;
   padding: 2px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--surface-soft, #fafbfc);
 }
 .note-history-detail :deep(.git-diff-toolbar button) {
   padding: 3px 10px;
   border: 0;
-  border-radius: 5px;
+  border-radius: var(--ui-radius, 8px);
   background: transparent;
   color: var(--muted);
   font-size: 11px;
@@ -1541,7 +1535,7 @@ onBeforeUnmount(() => {
 .note-history-detail :deep(.git-diff-files) {
   max-height: none;
   overflow: visible;
-  border-radius: 10px;
+  border-radius: var(--ui-radius, 8px);
 }
 .note-history-detail :deep(.git-diff-file-heading) {
   align-items: center;
@@ -1557,7 +1551,7 @@ onBeforeUnmount(() => {
 .note-history-detail :deep(.git-diff-count) {
   padding: 2px 7px;
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--n-color, #fff);
   font-size: 10px;
 }
@@ -1610,7 +1604,7 @@ onBeforeUnmount(() => {
   height: 52px;
   margin-bottom: 5px;
   border: 1px solid var(--border);
-  border-radius: 15px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--surface-soft, #fafbfc);
   color: var(--blue);
 }
@@ -1639,7 +1633,7 @@ onBeforeUnmount(() => {
 }
 .note-history-protection > svg {
   flex-shrink: 0;
-  color: #5c9a83;
+  color: var(--ui-success-text);
 }
 .note-history-footer p {
   margin: 0;
@@ -1662,7 +1656,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   height: 34px;
   padding: 0 15px;
-  border-radius: 7px;
+  border-radius: var(--ui-radius, 8px);
   font-size: 12px;
 }
 .note-history-footer-actions :deep(.ant-btn-primary) {
@@ -1695,7 +1689,7 @@ onBeforeUnmount(() => {
     width: calc(100vw - 12px);
     height: calc(100dvh - 12px);
     max-height: calc(100dvh - 12px);
-    border-radius: 10px;
+    border-radius: var(--ui-radius, 8px);
   }
   :global(.note-history-dialog > .n-card-header) {
     padding: 10px 42px 10px 12px;
@@ -1709,7 +1703,7 @@ onBeforeUnmount(() => {
   .note-history-heading-icon {
     flex-basis: 28px;
     height: 28px;
-    border-radius: 8px;
+    border-radius: var(--ui-radius, 8px);
   }
   .note-history-heading h2 {
     font-size: 16px;
@@ -1743,7 +1737,7 @@ onBeforeUnmount(() => {
     height: 32px;
     padding: 0 10px;
     border: 1px solid var(--border);
-    border-radius: 7px;
+    border-radius: var(--ui-radius, 8px);
     background: var(--n-color, #fff);
     color: var(--muted);
   }
@@ -1781,7 +1775,7 @@ onBeforeUnmount(() => {
     gap: 9px;
     margin-bottom: 8px;
     padding: 7px 10px;
-    border-radius: 8px;
+    border-radius: var(--ui-radius, 8px);
   }
   .note-history-reference {
     flex-direction: column;

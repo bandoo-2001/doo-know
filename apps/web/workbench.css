@@ -233,8 +233,8 @@
   box-shadow: none;
 }
 .note-topline {
-  min-height: 46px;
-  padding: 7px 22px;
+  min-height: 52px;
+  padding: 10px 24px;
   gap: 10px;
 }
 .document-navigation {
@@ -270,7 +270,7 @@
 }
 .document-format-row {
   min-height: 42px;
-  padding: 3px 22px;
+  padding: 6px 24px;
   gap: 12px;
   border-top: 1px solid var(--workbench-line);
 }
@@ -339,12 +339,14 @@
   scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 .folder-header {
-  padding: 18px 28px 17px;
+  padding: 24px;
   border-bottom: 1px solid var(--workbench-line);
   background: var(--workbench-paper);
 }
 .folder-header > .breadcrumb {
   display: block;
+  overflow-wrap: anywhere;
+  color: var(--muted);
   font-size: 11px;
   margin-bottom: 8px;
 }
@@ -359,7 +361,7 @@
 }
 .folder-header h1 {
   margin: 0;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 600;
   overflow-wrap: anywhere;
 }
@@ -413,7 +415,7 @@
   width: 32px;
   min-height: 32px;
   padding: 0;
-  border-radius: 5px;
+  border-radius: var(--ui-radius, 8px);
   color: var(--muted);
 }
 .folder-entry-more > svg {
@@ -431,6 +433,16 @@
 .folder-empty {
   padding-top: clamp(40px, 10vh, 100px);
 }
+.workspace-empty .utility-empty > svg {
+  border-radius: var(--ui-radius, 8px);
+  color: var(--muted);
+  background: var(--surface);
+}
+.workspace-empty .utility-empty h1 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
 .tree-delete-path {
   overflow-wrap: anywhere;
 }

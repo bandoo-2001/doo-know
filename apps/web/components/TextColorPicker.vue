@@ -301,11 +301,9 @@ onBeforeUnmount(() => {
 }
 .text-color-menu-popover.ant-popover .ant-popover-inner {
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--panel, #fff);
-  box-shadow:
-    0 12px 36px #18243a14,
-    0 2px 8px #18243a0a;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
 }
 .text-color-palette {
   width: min(280px, calc(100vw - 32px));
@@ -344,7 +342,7 @@ onBeforeUnmount(() => {
   gap: 8px;
   padding: 7px 8px;
   border: 0;
-  border-radius: 7px;
+  border-radius: var(--ui-radius, 8px);
   color: var(--text);
   background: transparent;
   text-align: left;
@@ -368,7 +366,7 @@ onBeforeUnmount(() => {
   height: 21px;
   flex: 0 0 21px;
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: var(--ui-radius, 8px);
   background: linear-gradient(
     135deg,
     var(--panel, #fff) 47%,
@@ -397,7 +395,7 @@ onBeforeUnmount(() => {
   min-height: 22px;
   padding: 0;
   border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
-  border-radius: 5px;
+  border-radius: var(--ui-radius, 8px);
   transition:
     transform 120ms ease,
     box-shadow 120ms ease;
@@ -433,7 +431,7 @@ onBeforeUnmount(() => {
 .palette-custom {
   margin: 4px 0 0;
   padding: 12px 8px 8px;
-  border-radius: 7px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--surface-soft);
 }
 .palette-custom label {
@@ -451,7 +449,7 @@ onBeforeUnmount(() => {
   flex: 0 0 32px;
   height: 32px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
 }
 .palette-hex-row input {
   width: 100%;
@@ -459,7 +457,7 @@ onBeforeUnmount(() => {
   height: 32px;
   padding: 5px 9px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   color: var(--text);
   background: var(--panel);
   font: inherit;
@@ -478,7 +476,7 @@ onBeforeUnmount(() => {
   min-height: 30px;
   padding: 4px 10px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--panel);
   color: var(--text);
 }
@@ -486,7 +484,7 @@ onBeforeUnmount(() => {
   border-color: var(--blue);
 }
 .palette-custom-actions .palette-apply {
-  color: var(--panel, #fff);
+  color: var(--on-accent, #fff);
   background: var(--blue);
   border-color: var(--blue);
 }
@@ -496,7 +494,7 @@ onBeforeUnmount(() => {
 }
 .palette-color-error {
   margin: 6px 0 0;
-  color: var(--danger, #b43e3e);
+  color: var(--ui-danger-text);
   font-size: 11px;
 }
 @media (prefers-reduced-motion: reduce) {

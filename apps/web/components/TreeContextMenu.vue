@@ -200,9 +200,9 @@ defineExpose({ open });
   padding: 6px;
   border: 1px solid var(--border, #dce0e7);
   border-radius: 8px;
-  background: var(--bg, #fff);
+  background: var(--panel, #fff);
   color: var(--text, #303746);
-  box-shadow: 0 8px 28px #0002;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
 }
 .tree-menu-title {
   padding: 5px 10px 8px;
@@ -218,7 +218,7 @@ defineExpose({ open });
   min-height: 36px;
   padding: 7px 10px;
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--ui-radius, 8px);
   background: transparent;
   color: inherit;
   text-align: left;
@@ -233,6 +233,6 @@ defineExpose({ open });
   outline-offset: -2px;
 }
 .tree-context-menu button.danger {
-  color: #d34444;
+  color: var(--ui-danger-text);
 }
 </style>

@@ -191,7 +191,7 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   gap: 10px;
   padding: 0 9px;
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   color: var(--text);
   font-size: 13px;
   white-space: nowrap;
@@ -217,11 +217,9 @@ onBeforeUnmount(() => {
   z-index: 2050;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--panel, #fff);
-  box-shadow:
-    0 12px 36px #18243a14,
-    0 2px 8px #18243a0a;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
 }
 .heading-menu {
   display: flex;
@@ -262,7 +260,7 @@ onBeforeUnmount(() => {
   gap: 12px;
   padding: 8px 10px;
   border: 0;
-  border-radius: 7px;
+  border-radius: var(--ui-radius, 8px);
   background: transparent;
   color: var(--text);
   font: inherit;

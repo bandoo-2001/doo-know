@@ -192,3 +192,59 @@ watch(
     </p>
   </section>
 </template>
+
+<style scoped>
+/* The application directory shares the owner palette; blog content owns its
+   independent brand values in BlogWorkspace rather than this entry surface. */
+.apps-home {
+  --blog-ink: var(--text);
+  --blog-muted: var(--muted);
+  --blog-line: var(--border);
+  --blog-surface: var(--panel);
+  --blog-soft: var(--surface);
+  --blog-accent: var(--blue);
+  --blog-accent-soft: var(--blue-soft);
+  padding: 24px;
+  color: var(--text);
+  background: var(--panel);
+}
+.apps-home h1 { font-size: 24px; letter-spacing: -0.02em; }
+.apps-eyebrow { color: var(--muted); letter-spacing: 0.08em; }
+.apps-description { line-height: 1.7; overflow-wrap: anywhere; }
+.apps-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 330px));
+  gap: 16px;
+  margin-top: 24px;
+}
+.app-card {
+  padding: 20px 20px 0;
+  border-radius: var(--ui-radius, 8px);
+  border-color: var(--border);
+  box-shadow: none;
+  transition: border-color 0.15s;
+}
+.app-card:hover { transform: none; box-shadow: none; border-color: var(--blue); }
+.blog-app-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--ui-radius, 8px);
+  border-color: var(--border);
+  color: var(--blue);
+  background: var(--blue-soft);
+}
+.app-native { border-radius: var(--ui-radius, 8px); }
+.app-card h2 { margin-top: 16px; font-size: 20px; }
+.app-card-preview > span,
+.app-card-preview > i { background: var(--border); }
+.app-card-preview > span:first-child,
+.app-card-preview > div { background: var(--blue-soft); }
+.app-card-bottom { margin-inline: -20px; padding-inline: 20px; }
+.app-pin-button { border-radius: var(--ui-radius, 8px); white-space: normal; }
+.apps-footnote { display: flex; align-items: flex-start; gap: 8px; line-height: 1.7; }
+.apps-footnote > svg { flex: 0 0 auto; margin-top: 3px; }
+@media (max-width: 600px) {
+  .apps-home { padding: 20px 16px; }
+  .apps-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .app-card { transition: none; } }
+</style>

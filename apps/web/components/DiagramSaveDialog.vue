@@ -61,9 +61,11 @@ function close() {
 .diagram-save-dialog p {
   margin: 0 0 14px;
   line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 .diagram-save-needs {
-  max-height: 30vh;
+  max-height: 30dvh;
+  overscroll-behavior: contain;
   overflow-y: auto;
   margin: 0 0 14px;
   padding: 0;
@@ -84,7 +86,7 @@ function close() {
   font-size: 13px;
 }
 .diagram-save-error {
-  color: var(--danger, #dc2626);
+  color: var(--ui-danger-text);
 }
 .diagram-save-actions {
   display: flex;

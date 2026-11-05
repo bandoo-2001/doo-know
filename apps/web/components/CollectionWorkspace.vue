@@ -303,7 +303,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 30px 32px 24px;
+  padding: 24px;
   border-bottom: 1px solid var(--workbench-line, #edf0f5);
 }
 .collection-eyebrow {
@@ -314,7 +314,7 @@ onBeforeUnmount(() => {
 }
 .collection-heading h1 {
   margin: 0;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 650;
   letter-spacing: -0.03em;
   line-height: 1.35;
@@ -342,21 +342,21 @@ onBeforeUnmount(() => {
   justify-content: center;
   gap: 6px;
   min-height: 31px;
-  border-radius: 5px;
+  border-radius: var(--ui-radius, 8px);
   font-size: 12px;
 }
 .collection-refresh {
   width: 31px;
   padding: 0;
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--panel);
   color: var(--muted);
 }
 .collection-create {
   padding: 5px 11px;
   border: 1px solid var(--blue);
   background: var(--blue);
-  color: #fff;
+  color: var(--on-accent, #fff);
 }
 .collection-scroll {
   flex: 1;
@@ -365,7 +365,7 @@ onBeforeUnmount(() => {
   overflow: auto;
   overscroll-behavior: contain;
   overflow-anchor: none;
-  padding: 24px 32px 18px;
+  padding: 24px 24px 18px;
   scrollbar-gutter: stable;
   outline-offset: -3px;
 }
@@ -379,8 +379,8 @@ onBeforeUnmount(() => {
   min-width: 0;
   height: var(--collection-card-height);
   border: 1px solid var(--border, #e3e6ec);
-  border-radius: 9px;
-  background: #fff;
+  border-radius: var(--ui-radius, 8px);
+  background: var(--panel);
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
@@ -388,8 +388,8 @@ onBeforeUnmount(() => {
 .collection-card:hover,
 .collection-card:focus-within,
 .collection-card.menu-open {
-  border-color: #b9c7e8;
-  box-shadow: 0 3px 12px #283c6408;
+  border-color: var(--blue);
+  box-shadow: none;
 }
 .collection-card-open {
   display: flex;
@@ -425,20 +425,20 @@ onBeforeUnmount(() => {
   -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
   margin: 0;
-  color: #657083;
+  color: var(--muted);
   font-size: 13px;
   line-height: 20px;
   overflow-wrap: anywhere;
 }
 .collection-card-summary.summary-empty {
-  color: #9aa3b1;
+  color: var(--muted);
 }
 .collection-card-meta {
   display: grid;
   flex: 0 0 auto;
   gap: 4px;
   min-width: 0;
-  color: #929baa;
+  color: var(--muted);
   font-size: 10px;
   line-height: 15px;
 }
@@ -475,9 +475,9 @@ onBeforeUnmount(() => {
   height: 27px;
   padding: 0;
   border: 0;
-  border-radius: 5px;
-  background: #fff;
-  color: #9ba5b4;
+  border-radius: var(--ui-radius, 8px);
+  background: var(--panel);
+  color: var(--muted);
 }
 .collection-card-actions button:hover {
   background: var(--blue-soft);
@@ -494,7 +494,7 @@ onBeforeUnmount(() => {
   flex: 0 0 auto;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 32px;
+  padding: 8px 24px;
   background: var(--blue-soft);
   color: var(--blue);
   font-size: 12px;
@@ -515,7 +515,7 @@ onBeforeUnmount(() => {
   min-height: 320px;
   padding: 24px;
   text-align: center;
-  color: #a9b4c5;
+  color: var(--muted);
 }
 .collection-empty h2 {
   margin: 18px 0 6px;
@@ -537,32 +537,32 @@ onBeforeUnmount(() => {
   justify-content: center;
   gap: 15px;
   min-height: 66px;
-  color: #929baa;
+  color: var(--muted);
   font-size: 11px;
 }
 .collection-load-more,
 .collection-load-error button {
   padding: 7px 12px;
   border: 1px solid var(--border);
-  border-radius: 5px;
-  background: #fff;
+  border-radius: var(--ui-radius, 8px);
+  background: var(--panel);
   color: var(--blue);
   font-size: 12px;
 }
 .collection-load-error {
   margin: 18px 0;
   padding: 14px;
-  border: 1px solid #edd6d6;
-  border-radius: 7px;
-  background: #fff8f8;
-  color: #a24a4a;
+  border: 1px solid color-mix(in srgb, var(--todo-danger) 35%, var(--border));
+  border-radius: var(--ui-radius, 8px);
+  background: color-mix(in srgb, var(--todo-danger) 6%, var(--panel));
+  color: var(--ui-danger-text);
   font-size: 12px;
 }
 .collection-skeleton {
   height: var(--collection-card-height);
   padding: 20px;
   border: 1px solid var(--border);
-  border-radius: 9px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--panel, #fff);
 }
 .collection-skeleton i {
