@@ -17,7 +17,7 @@ import { createDraftStore, type DraftScope, type DraftRecord } from '../drafts';
 import { createDocumentSession, type DocumentSessionState } from '../diagrams/document-session';
 import { readCoherentDiagramDocument } from '../diagrams/document-read';
 import { documentDraft, restoreDocumentDraft } from '../diagrams/document-draft';
-import { heldDraftDownload } from '../diagrams/document-draft';
+import { heldDraftDownload, currentDraftDownload } from '../diagrams/document-draft';
 import { readDiagram, renderPrimaryPng, preparePrimary, commitPrimary } from '../diagrams/primary-api';
 import { hashDiagramSource } from '../diagrams/preview-artifact';
 import { markdownDestination } from '../markdown-links';
@@ -58,6 +58,29 @@ const mount = ref<HTMLElement>(),
   attachmentSources = ref<Record<string, string>>({}),
   closing = ref(false),
   discarding = ref(false);
+const closePrompt = ref<HTMLDialogElement>();
+let closeReturnFocus: HTMLElement | null = null;
+watch(closing, async (open) => {
+  if (open) {
+    closeReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    await nextTick();
+    if (closing.value && closePrompt.value && !closePrompt.value.open) closePrompt.value.showModal();
+  } else {
+    closePrompt.value?.close();
+    if (closeReturnFocus?.isConnected) closeReturnFocus.focus({ preventScroll: true });
+    closeReturnFocus = null;
+  }
+});
+function cycleCloseFocus(event: KeyboardEvent) {
+  if (event.key !== 'Tab') return;
+  const buttons = [...(closePrompt.value?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? [])];
+  const first = buttons[0], last = buttons.at(-1);
+  if (!first || !last) return;
+  if ((event.shiftKey && document.activeElement === first) || (!event.shiftKey && document.activeElement === last)) {
+    event.preventDefault();
+    (event.shiftKey ? last : first).focus();
+  }
+}
 let doc: NoteDocument | undefined,
   resource: DiagramResource | undefined,
   session: ReturnType<typeof createDocumentSession> | undefined,
@@ -538,10 +561,21 @@ function download(markdown = false) {
             : '.outline.md'),
   );
 }
-function downloadDraft(){
-  if(!recovered.value){download();return;}
-  const held=heldDraftDownload(recovered.value);
-  downloadBlob(new Blob([held.content],{type:'text/plain;charset=utf-8'}),(doc?.title||'diagram')+held.extension);
+function downloadDraft() {
+  const held = recovered.value
+    ? heldDraftDownload(recovered.value)
+    : session && doc && resource
+      ? currentDraftDownload(session.state, {
+          markdown: doc.content,
+          source: resource.source.content ?? '',
+          title: parseDiagramDocument(doc.content).status === 'diagram' ? doc.title : session.state.title,
+        })
+      : undefined;
+  if (!held) return;
+  const type = held.extension === '.md' ? 'text/markdown;charset=utf-8'
+    : held.extension === '.draft.json' ? 'application/json;charset=utf-8'
+    : 'text/plain;charset=utf-8';
+  downloadBlob(new Blob([held.content], { type }), (doc?.title || 'diagram') + held.extension);
 }
 function key(event: KeyboardEvent) {
   if (
@@ -551,7 +585,7 @@ function key(event: KeyboardEvent) {
   ) {
     event.preventDefault();
     event.stopImmediatePropagation();
-    void save();
+    if (!closing.value) void save();
   }
 }
 function unload(event: BeforeUnloadEvent) {
@@ -847,11 +881,11 @@ defineExpose({ save, discard, settleSave: () => saveJob, reload:load, requestClo
         <p v-else>预览暂不可用，原文已保留。</p>
       </div>
     </div>
-    <div v-if="closing" class="diagram-document-close" role="dialog" aria-label="保留图形草稿">
+    <dialog v-if="closing" ref="closePrompt" class="diagram-document-close" aria-label="保留图形草稿" @cancel.prevent @keydown="cycleCloseFocus">
       <p>当前图形尚未保存。</p>
-      <button @click="closing = false">继续编辑</button><button @click="downloadDraft">下载草稿</button
+      <button autofocus @click="closing = false">继续编辑</button><button @click="downloadDraft">下载草稿</button
       ><button :disabled="saving" @click="abandon">放弃修改并返回</button>
-    </div>
+    </dialog>
   </section>
 </template>
 <style scoped>
@@ -971,7 +1005,9 @@ defineExpose({ save, discard, settleSave: () => saveJob, reload:load, requestClo
   color: var(--ui-danger-text);
 }
 .diagram-document-close {
-  position: absolute;
+  position: fixed;
+  margin: 0;
+  color: var(--text);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -980,16 +1016,18 @@ defineExpose({ save, discard, settleSave: () => saveJob, reload:load, requestClo
   align-items: center;
   gap: 8px;
   box-sizing: border-box;
-  width: min(520px, calc(100% - 24px));
-  max-height: calc(100% - 24px);
+  width: min(520px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 24px);
   overflow: auto;
   overscroll-behavior: contain;
   background: var(--panel, #fff);
   padding: 24px;
   border: 1px solid var(--border);
   border-radius: var(--ui-radius, 8px);
-  box-shadow: 0 0 0 100vmax #0004;
-  z-index: 5;
+}
+.diagram-document-close::backdrop {
+  background: rgb(0 0 0 / 27%);
 }
 .diagram-document-close p {
   flex: 1 1 100%;

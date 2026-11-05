@@ -2,9 +2,41 @@ import { parseDiagramDocument } from '../../../shared/diagram-document';
 import { canRestoreNoteDraft, type DiagramDraftEnvelope, type DraftRecord } from '../drafts';
 import type { DocumentSessionState, PendingDocumentCommit } from './document-session';
 import { diagramFormat } from './primary-api';
+const draftExtensions = { markdown: '.md', excalidraw: '.excalidraw', mermaid: '.mmd', 'markdown-outline': '.outline.md' };
+function envelopeDownload(envelope: DiagramDraftEnvelope) {
+  return { content: JSON.stringify(envelope, null, 2), extension: '.draft.json' };
+}
+/** Keep both representations and exact pending receipts in one portable recovery file. */
 export function heldDraftDownload(record: DraftRecord) {
-  const formats = { markdown: '.md', excalidraw: '.excalidraw', mermaid: '.mmd', 'markdown-outline': '.outline.md' };
-  return { content: record.content, extension: record.diagram ? formats[record.diagram.payloadFormat] : '.md' };
+  const held = record.diagram;
+  if (held && (held.pending || (held.documentMarkdown !== undefined && held.documentMarkdown !== record.content)))
+    return envelopeDownload(held);
+  return { content: record.content, extension: held ? draftExtensions[held.payloadFormat] : '.md' };
+}
+export function currentDraftDownload(
+  state: DocumentSessionState,
+  baseline: { markdown: string; source: string; title: string },
+) {
+  const markdownChanged = state.markdown !== baseline.markdown;
+  const sourceChanged = state.source !== baseline.source;
+  if (state.pending) return envelopeDownload(documentDraft(state));
+  const parsed = parseDiagramDocument(state.markdown);
+  // A native root can return to its saved title while Markdown still holds an
+  // interim title. Preserve the complete current state, not only baseline deltas.
+  if (parsed.status === 'diagram'
+    ? parsed.type !== state.type || parsed.title !== state.title
+    : state.title !== baseline.title)
+    return envelopeDownload(documentDraft(state));
+  if (markdownChanged && sourceChanged) {
+    // Inline authoritative sources can be complete in Markdown. An independent
+    // native source (or malformed source) must not be replaced by stale bindings.
+    if (parsed.status !== 'diagram' || parsed.type !== state.type ||
+        parsed.primary.source.format === 'excalidraw' ||
+        parsed.primary.source.content !== state.source || parsed.title !== state.title)
+      return envelopeDownload(documentDraft(state));
+  }
+  if (markdownChanged) return { content: state.markdown, extension: '.md' };
+  return { content: state.source, extension: draftExtensions[diagramFormat[state.type]] };
 }
 export function documentDraft(state: DocumentSessionState): DiagramDraftEnvelope {
   return {

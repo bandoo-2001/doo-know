@@ -346,6 +346,7 @@
 .folder-header > .breadcrumb {
   display: block;
   overflow-wrap: anywhere;
+  white-space: normal;
   color: var(--muted);
   font-size: 11px;
   margin-bottom: 8px;
