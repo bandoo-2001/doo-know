@@ -51,11 +51,17 @@ async function library(env: SceneEnv) {
   await expect(native(env).getByRole('link', { name: '浏览素材库', exact: true })).toBeVisible();
   await expect(native(env).locator('.sidebar:visible')).toContainText('尚未添加任何项目');
 }
+function shapePanel(page: Page) {
+  const region = page.locator('.excalidraw').getByRole('region', { name: '选定形状操作', exact: true });
+  // Desktop positions the visible 175px-wide Island inside a zero-height
+  // semantic section. The mobile sheet has a visible section of its own.
+  return region.and(page.locator(':visible')).or(region.locator('.Island:visible')).first();
+}
 async function shape(env: SceneEnv, label: '矩形' | '箭头' | '文字') {
   const radio = native(env).getByRole('radio', { name: label, exact: true });
   await native(env).locator('label').filter({ has: env.page.getByRole('radio', { name: label, exact: true }) }).click();
   await expect(radio).toBeChecked();
-  const panel = native(env).getByRole('region', { name: '选定形状操作', exact: true });
+  const panel = shapePanel(env.page);
   const edit = button(env, '编辑');
   // Tool selection and property rendering commit separately in React.
   await expect.poll(async () => await panel.isVisible() || await edit.isVisible(), { timeout: 10000 }).toBe(true);
@@ -160,13 +166,13 @@ export const vendorScenes: Scene[] = [
       throw Error('UNAVAILABLE: integrated vendor uses MobileMenu, whose locked source has no Stats renderer; actual context action did not mount stats.');
     await expect(stats.getByRole('heading', { name: '详细统计信息', exact: true })).toBeVisible();
   }),
-  scene('rectangle-properties', 'RTD-014', 'Actual selected rectangle-tool properties including mobile Edit sheet', page => page.locator('.excalidraw').getByRole('region', { name: '选定形状操作', exact: true }),
+  scene('rectangle-properties', 'RTD-014', 'Actual selected rectangle-tool properties including mobile Edit sheet', shapePanel,
     async env => { await shape(env, '矩形'); await expect(native(env).getByRole('group', { name: '描边宽度', exact: true })).toBeVisible(); }),
   scene('stroke-color', 'RTD-015', 'Actual stroke color picker without choosing a replacement color', page => popupWithTextbox(page, '描边'),
     async env => { await shape(env, '矩形'); await button(env, '描边').click(); await expect(env.page.getByRole('textbox', { name: '描边', exact: true })).toBeVisible(); }),
   scene('fill-color', 'RTD-016', 'Actual fill color picker without choosing a replacement color', page => popupWithTextbox(page, '背景'),
     async env => { await shape(env, '矩形'); await button(env, '背景').click(); await expect(env.page.getByRole('textbox', { name: '背景', exact: true })).toBeVisible(); }),
-  scene('arrow-properties', 'RTD-017', 'Actual selected arrow-tool properties', page => page.locator('.excalidraw').getByRole('region', { name: '选定形状操作', exact: true }),
+  scene('arrow-properties', 'RTD-017', 'Actual selected arrow-tool properties', shapePanel,
     async env => { await shape(env, '箭头'); await expect(native(env).getByRole('group', { name: 'Arrow type', exact: true })).toBeVisible(); }),
   ...[['arrowhead-end', 'RTD-018', 'arrowhead_end'], ['arrowhead-start', 'RTD-019', 'arrowhead_start']].map(([id, sourceId, label]): Scene => scene(id, sourceId,
     'Actual arrow endpoint picker ' + label, page => page.getByRole('dialog', { name: label, exact: true }), async env => {
@@ -178,7 +184,7 @@ export const vendorScenes: Scene[] = [
         await expect(extra).toBeVisible();
       }
     })),
-  scene('text-properties', 'RTD-020', 'Actual selected text-tool font/size/alignment properties', page => page.locator('.excalidraw').getByRole('region', { name: '选定形状操作', exact: true }),
+  scene('text-properties', 'RTD-020', 'Actual selected text-tool font/size/alignment properties', shapePanel,
     async env => { await shape(env, '文字'); await expect(native(env).getByRole('group', { name: '字体', exact: true })).toBeVisible(); }),
   scene('font-picker', 'RTD-021', 'Actual vendor font picker with search; no font selected or added', page => popupWithTextbox(page, 'Quick search'), async env => {
     await shape(env, '文字'); await button(env, 'Show font picker').click(); const picker = popupWithTextbox(env.page, 'Quick search');
