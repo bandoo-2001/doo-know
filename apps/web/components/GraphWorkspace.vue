@@ -1249,7 +1249,7 @@ onBeforeUnmount(() => {
                 ><AInput
                   v-model:value="viewName"
                   aria-label="保存当前视图"
-                  :maxlength="100"
+                  :maxlength="80"
                   placeholder="为当前探索命名"
                 /><AButton
                   type="primary"
