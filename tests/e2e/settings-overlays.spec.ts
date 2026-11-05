@@ -1,5 +1,6 @@
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
+import { showSource } from '../support/editor-navigation';
 test.use({ actionTimeout: 7000 });
 
 test.beforeEach(async ({ context }) => {
@@ -319,7 +320,12 @@ test('Git 连接草稿在取消凭据编辑后保留，凭据秘密不会再次�
 test('窄且低的深色视窗保留弹窗边界、可滚动内容与清晰文字', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 460 });
   await page.goto('/?view=settings&section=account');
-  await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
+  await page.evaluate(async () => {
+    const modulePath = '/preferences.ts';
+    const preferences = await import(modulePath);
+    preferences.setEditorPreferences({ theme: 'dark' });
+  });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.getByRole('button', { name: '修改密码', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '修改密码', exact: true });
   await expect(dialog).toBeVisible();
@@ -335,7 +341,28 @@ test('窄且低的深色视窗保留弹窗边界、可滚动内容与清晰文�
   expect(mutedColor).not.toMatch(/^rgba?\(0,\s*0,\s*0(?:,|\))/);
   const passwordIcons = dialog.locator('.ant-input-password-icon');
   await expect(passwordIcons).toHaveCount(3);
-  for (const icon of await passwordIcons.all()) await expect(icon).toHaveCSS('color', mutedColor);
+  for (const icon of await passwordIcons.all()) {
+    // Ant's retained dark algorithm derives icon colors independently of the
+    // descriptive text token. Test actual visibility on its composed surface.
+    const ratio = await icon.evaluate((element) => {
+      const context = new OffscreenCanvas(1, 1).getContext('2d')!;
+      const layers: string[] = [];
+      for (let parent: Element | null = element; parent; parent = parent.parentElement)
+        layers.push(getComputedStyle(parent).backgroundColor);
+      context.fillStyle = '#fff'; context.fillRect(0, 0, 1, 1);
+      for (const layer of layers.reverse()) { context.fillStyle = layer; context.fillRect(0, 0, 1, 1); }
+      const background = [...context.getImageData(0, 0, 1, 1).data].slice(0, 3);
+      context.fillStyle = getComputedStyle(element).color; context.fillRect(0, 0, 1, 1);
+      const foreground = [...context.getImageData(0, 0, 1, 1).data].slice(0, 3);
+      const color = { luminance(channels: number[]) {
+        return channels.map(n => n / 255).map(n => n <= .04045 ? n / 12.92 : ((n + .055) / 1.055) ** 2.4)
+          .reduce((sum, n, i) => sum + n * [.2126, .7152, .0722][i], 0);
+      } };
+      const a = color.luminance(background), b = color.luminance(foreground);
+      return (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+    });
+    expect(ratio, 'password visibility icon contrast').toBeGreaterThanOrEqual(3);
+  }
   const layout = await dialog.evaluate((element) => {
     const body = element.querySelector('.settings-overlay-body') as HTMLElement;
     const labels = Array.from(
@@ -406,7 +433,7 @@ test('工作区 Git 返回保存仅确认一次，取消保留凭据草稿，放
   expect(response.status()).toBe(201);
   const note = await response.json();
   await page.goto('/?note=' + note.id);
-  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
+  await showSource(page);
   const editor = page.locator('.cm-content');
   await editor.click();
   await page.keyboard.press('ControlOrMeta+End');

@@ -9,7 +9,7 @@ test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
 });
 
-test('app rail owns main functions and settings while only contextual pages have a secondary directory', async ({
+test('app rail and contextual directories retain the confirmed two-level navigation', async ({
   page,
 }, info) => {
   await page.goto('/?view=apps&app=to-doo&appSection=tasks');
@@ -21,16 +21,19 @@ test('app rail owns main functions and settings while only contextual pages have
   await closeSidebar(page);
   await expect(page).toHaveURL(/appSection=matrix/);
   await expect(page.locator('.todo-topbar').getByText('To Doo', { exact: true })).toBeVisible();
-  await expect(page.locator('aside.todo-sidebar')).not.toBeVisible();
+  if (info.project.name === 'mobile') await expect(page.locator('aside.todo-sidebar')).toBeHidden();
+  else await expect(page.locator('aside.todo-sidebar')).toBeVisible();
   if (info.project.name === 'desktop') {
     const main = await page.locator('.todo-main').boundingBox();
-    expect(main!.x).toBeLessThan(80);
+    const directory = await page.locator('aside.todo-sidebar').boundingBox();
+    expect(main!.x).toBeCloseTo(directory!.x + directory!.width, 0);
   }
   await showMainMenu(page);
   await menu.getByRole('button', { name: '专注', exact: true }).click();
   await closeSidebar(page);
   await expect(page).toHaveURL(/appSection=focus/);
-  await expect(page.locator('aside.todo-sidebar')).not.toBeVisible();
+  if (info.project.name === 'mobile') await expect(page.locator('aside.todo-sidebar')).toBeHidden();
+  else await expect(page.locator('aside.todo-sidebar')).toBeVisible();
   await expect(page.locator('.todo-topbar').getByText('To Doo', { exact: true })).toBeVisible();
   await showMainMenu(page);
   await page
@@ -42,7 +45,8 @@ test('app rail owns main functions and settings while only contextual pages have
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   await expandToDooGroup(app, '日期与提醒');
   await expect(app.getByLabel('显示时区', { exact: true })).toBeVisible();
-  await expect(page.locator('aside.todo-sidebar')).not.toBeVisible();
+  if (info.project.name === 'mobile') await expect(page.locator('aside.todo-sidebar')).toBeHidden();
+  else await expect(page.locator('aside.todo-sidebar')).toBeVisible();
   await showMainMenu(page);
   await page
     .locator('.workspace-footer')

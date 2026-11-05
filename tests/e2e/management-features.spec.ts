@@ -213,7 +213,7 @@ test('saved display preferences change the actual editor and survive reload with
   await expect(page.locator('.cm-content')).toHaveCSS('white-space', 'pre');
   await expect(page.locator('.cm-content')).toHaveCSS('max-width', '1080px');
   await expect(page.locator('.cm-lineNumbers')).toBeVisible();
-  await expect(editor).toHaveCSS('background-color', 'rgb(23, 32, 51)');
+  await expect(editor).toHaveCSS('background-color', 'rgb(27, 30, 41)');
   await page.reload();
   await expect(editor).toHaveCSS('font-size', '20px');
   await expect(page.locator('.cm-lineNumbers')).toBeVisible();

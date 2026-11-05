@@ -24,7 +24,7 @@ test('new-note creation waits for the initial folder list before choosing its de
   try {
     await page.goto('/');
     await showSidebar(page);
-    await expect(page.locator('.sidebar .brand')).toBeVisible();
+    await expect(page.getByRole('complementary', { name: '笔记导航', exact: true })).toBeVisible();
     await expect(
       page.locator('.sidebar').getByRole('button', { name: '新建笔记', exact: true }),
     ).toBeDisabled();

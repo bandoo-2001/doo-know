@@ -33,7 +33,7 @@ async function expectApplicationLayout(page: Page, mobile: boolean) {
   await closeSidebar(page);
   await expect
     .poll(async () => (await page.locator('.main-content').boundingBox())!.x)
-    .toBeCloseTo(mobile ? 0 : 60, 0);
+    .toBeCloseTo(mobile ? 0 : 64, 0);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);

@@ -34,7 +34,7 @@ test('text selections remain visibly blue on the active line and after focusing 
 }, info) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
-  await expect(page.locator('.sidebar .brand')).toBeVisible();
+  await expect(page.getByRole('complementary', { name: '笔记导航', exact: true })).toBeVisible();
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const text = '选中这段文字检查高亮';
   const original = `# 选区验收\n\n${text}\n\n下一段文字`;
