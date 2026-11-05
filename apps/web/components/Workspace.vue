@@ -49,6 +49,7 @@ import { emptyToolbarState, type MarkdownAction } from '../editor/toolbar-state'
 import DocumentOutline from './DocumentOutline.vue';
 import { outlineFromTokens, type OutlineHeading } from '../document-outline';
 import WorkspaceFooter from './WorkspaceFooter.vue';
+import WorkspaceHeader from './WorkspaceHeader.vue';
 import { provideWorkspaceMainMenu, createAppNavigationMemory } from '../workspace-main-menu';
 import SettingsWorkspace from './settings/SettingsWorkspace.vue';
 import SettingsOverlay from './settings/SettingsOverlay.vue';
@@ -2698,19 +2699,34 @@ onBeforeUnmount(() => {
   window.removeEventListener('keydown', shortcut);
   window.removeEventListener('beforeunload', unload);
 });
+async function closeNotebookDrawer() {
+  drawer.value = false;
+  await nextTick();
+  document.getElementById('workspace-sidebar-toggle')?.focus({ preventScroll: true });
+}
+
 </script>
 <template>
   <div
-    :class="['workspace', { 'sidebar-collapsed': panel === 'apps' || (sidebarCollapsed && panel === 'note') }]"
+    :class="['workspace', { 'workspace-platform-shell': activeAppMenu?.id !== 'to-doo', 'sidebar-collapsed': panel === 'apps' || (sidebarCollapsed && panel === 'note') }]"
     :style="{ '--sidebar-width': sidebarWidth + 'px', '--outline-width': outlineWidth + 'px' }"
   >
+    <WorkspaceHeader
+      v-if="activeAppMenu?.id !== 'to-doo'"
+      :context="panel === 'settings' ? '设置' : panel === 'trash' ? '回收站' : panel === 'apps' ? activeAppMenu?.label || '应用' : '笔记'"
+      :app="!!activeAppMenu"
+      :status="activeAppMenu ? '应用工作空间' : dirty ? '未保存' : '私人笔记'"
+      :drawer-open="drawer"
+      @open-sidebar="drawer = true"
+      @return-app="returnFromApp"
+    />
     <Transition name="scrim">
-      <div v-if="drawer" class="drawer-scrim" @click="drawer = false"></div>
+      <div v-if="drawer" class="drawer-scrim" @click="closeNotebookDrawer"></div>
     </Transition>
-    <aside id="notebook-navigation" :class="['sidebar', { open: drawer }]" aria-label="笔记导航">
+    <aside id="notebook-navigation" :class="['sidebar', { open: drawer }]" aria-label="笔记导航" @keydown.esc.stop.prevent="closeNotebookDrawer">
       <div class="brand">
         <Icon :name="activeAppMenu?.icon || 'book'" :size="31" /><strong>{{ activeAppMenu?.label || 'DooKnow' }}</strong
-        ><button class="mobile-only icon-button" aria-label="关闭侧栏" @click="drawer = false">
+        ><button class="mobile-only icon-button" aria-label="关闭侧栏" @click="closeNotebookDrawer">
           <Icon name="close" />
         </button>
       </div>
@@ -2992,12 +3008,7 @@ onBeforeUnmount(() => {
       :aria-busy="noteOpening || (!treeLoaded && treeRefreshing)"
       :tabindex="['settings', 'trash', 'apps'].includes(panel) ? 0 : undefined"
     >
-      <div v-if="activeAppMenu?.id !== 'to-doo'" class="mobile-bar">
-        <button v-if="activeAppMenu" type="button" class="icon-button mobile-app-return" aria-label="返回 DooKnow" @click="returnFromApp"><Icon name="back" /></button>
-        <button v-if="!activeAppMenu" class="icon-button" aria-label="打开侧栏" @click="drawer = true">
-          <Icon name="menu" /></button
-        ><b>{{ activeAppMenu?.label || 'DooKnow' }}</b><span>{{ activeAppMenu ? '应用工作空间' : dirty ? '未保存' : '私人笔记' }}</span>
-      </div>
+
       <div v-if="noteOpening || (!treeLoaded && treeRefreshing)" class="workspace-load-progress">
         <LoadingState variant="inline" :label="noteOpening ? '正在打开笔记…' : '正在读取目录…'" />
       </div>

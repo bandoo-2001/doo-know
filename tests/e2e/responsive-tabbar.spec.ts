@@ -74,12 +74,18 @@ test('phone tabs switch pages directly and keep a selected overflow page identif
   await expect(fullMenu).toBeHidden();
   await expect(more).toHaveAttribute('aria-expanded', 'false');
   await expect(more).toHaveAttribute('aria-current', 'page');
-  await expect(more).toContainText('习惯');
+  // The confirmed two-level menu keeps the overflow trigger named 更多;
+  // identify its active destination through the page and selected menu entry.
+  await expect(more).toContainText('更多');
   await expectBottomNavigation(page, navigation);
   await capture(page, info, 'phone-overflow-selection');
 
   await more.click();
   await expect(fullMenu).toBeVisible();
+  await expect(fullMenu.getByRole('button', { name: '习惯', exact: true })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
   await page.keyboard.press('Escape');
   await expect(fullMenu).toBeHidden();
   await expect(more).toHaveAttribute('aria-expanded', 'false');

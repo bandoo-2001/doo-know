@@ -71,18 +71,18 @@ button:disabled {
 .workspace {
   grid-template-columns: var(--sidebar-width, 280px) minmax(0, 1fr);
 }
-.sidebar {
+#notebook-navigation {
   padding-top: 24px;
   background: var(--surface);
   overflow-x: hidden;
   overflow-y: hidden;
 }
-.sidebar > .brand {
+#notebook-navigation > .brand {
   font-size: 22px;
   padding: 0 20px 24px;
   line-height: 1.25;
 }
-.sidebar > .brand svg {
+#notebook-navigation > .brand svg {
   width: 29px;
   height: 29px;
 }
@@ -715,11 +715,11 @@ button:disabled {
   .workspace {
     display: block;
   }
-  .sidebar {
+  #notebook-navigation {
     width: min(284px, 87vw);
     padding-top: 20px;
   }
-  .sidebar > .brand {
+  #notebook-navigation > .brand {
     padding-bottom: 20px;
     font-size: 21px;
   }
@@ -841,7 +841,7 @@ button:disabled {
 .workspace {
   position: relative;
 }
-.sidebar > .brand {
+#notebook-navigation > .brand {
   padding-bottom: 20px;
 }
 .tree-heading {

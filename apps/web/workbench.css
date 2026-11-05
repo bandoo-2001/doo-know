@@ -116,17 +116,17 @@
   fill: currentColor;
   color: #bd8c22;
 }
-.sidebar {
+#notebook-navigation {
   min-width: 0;
   background: var(--workbench-sidebar);
 }
-.sidebar > .brand {
+#notebook-navigation > .brand {
   padding: 0 16px 18px;
   font-size: 17px;
   font-weight: 600;
   letter-spacing: -0.02em;
 }
-.sidebar > .brand svg {
+#notebook-navigation > .brand svg {
   width: 23px;
   height: 23px;
 }
@@ -453,7 +453,7 @@
   .workspace {
     grid-template-columns: 60px var(--sidebar-width, 260px) minmax(0, 1fr);
   }
-  .workspace > .sidebar {
+  .workspace > #notebook-navigation {
     grid-column: 2;
     grid-row: 1;
     padding-top: 20px;
@@ -548,14 +548,14 @@
   .workspace.sidebar-collapsed {
     grid-template-columns: 60px 0 minmax(0, 1fr);
   }
-  .workspace.sidebar-collapsed > .sidebar {
+  .workspace.sidebar-collapsed > #notebook-navigation {
     display: flex;
     width: 0;
     padding: 0;
     overflow: visible;
     border: 0;
   }
-  .workspace.sidebar-collapsed > .sidebar > :not(.workspace-footer) {
+  .workspace.sidebar-collapsed > #notebook-navigation > :not(.workspace-footer) {
     display: none;
   }
   .workspace.sidebar-collapsed > .sidebar-resizer {
@@ -577,11 +577,11 @@
   .workspace {
     display: block;
   }
-  .sidebar > .brand {
+  #notebook-navigation > .brand {
     padding-top: 0;
     font-size: 20px;
   }
-  .sidebar > .brand svg {
+  #notebook-navigation > .brand svg {
     width: 26px;
     height: 26px;
   }

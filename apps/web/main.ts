@@ -13,6 +13,8 @@ import './workbench.css';
 import './motion.css';
 import './scrollbars.css';
 import './workspace-tabbar.css';
+import './to-doo-tokens.css';
+import './platform-ui.css';
 const app = createApp(App);
 installAntDesign(app);
 app.mount('#app');

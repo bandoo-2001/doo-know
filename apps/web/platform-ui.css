@@ -1,0 +1,116 @@
+/* Shared owner chrome and framework-independent aliases. ToDoo supplies the
+   palette; document fonts, reading widths and user content colors stay local. */
+:root,
+:root[data-theme='dark'] {
+  --blue: var(--todo-accent);
+  --focus: var(--todo-accent);
+  --text: var(--todo-ink);
+  --muted: var(--todo-muted);
+  --border: var(--todo-line);
+  --panel: var(--todo-paper);
+  --bg: var(--todo-bg);
+  --surface: var(--todo-soft);
+  --surface-soft: var(--todo-soft);
+  --blue-soft: var(--todo-tint);
+  --workbench-rail: var(--todo-soft);
+  --workbench-sidebar: var(--todo-soft);
+  --workbench-paper: var(--todo-paper);
+  --workbench-line: var(--todo-line);
+  --workspace-topbar-height: 56px;
+  --workspace-rail-width: 64px;
+  --ui-radius: 8px;
+  --on-accent: #fff;
+  color: var(--text);
+  background: var(--bg);
+}
+:root[data-theme='dark'] { --on-accent: #13151e; }
+body { color: var(--text); background: var(--bg); }
+h1, h2, h3 { color: var(--text); }
+
+.workspace.workspace-platform-shell {
+  grid-template-columns: var(--workspace-rail-width) var(--sidebar-width, 260px) minmax(0, 1fr);
+  grid-template-rows: var(--workspace-topbar-height) minmax(0, 1fr);
+  background: var(--panel);
+}
+.workspace.workspace-platform-shell.sidebar-collapsed {
+  grid-template-columns: var(--workspace-rail-width) 0 minmax(0, 1fr);
+}
+.workspace-header {
+  grid-column: 2 / -1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  height: var(--workspace-topbar-height);
+  padding-inline: 20px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+.workspace-header-brand { display: flex; align-items: center; gap: 9px; flex: 0 0 auto; color: var(--blue); font-size: 20px; }
+.workspace-header-brand strong { font-weight: 650; letter-spacing: -0.035em; }
+.workspace-header-divider { width: 1px; height: 20px; background: var(--border); flex: 0 0 auto; }
+.workspace-header-context { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; font-weight: 600; }
+.workspace-header-status { margin-left: auto; color: var(--muted); font-size: 12px; white-space: nowrap; }
+.workspace-header-menu { display: none; }
+.workspace.workspace-platform-shell > #notebook-navigation { grid-column: 2; grid-row: 2; padding-top: 16px; background: var(--workbench-sidebar); }
+.workspace.workspace-platform-shell > #notebook-navigation > .brand { display: none; }
+.workspace.workspace-platform-shell > .main-content { grid-column: 3; grid-row: 2; min-height: 0; min-width: 0; background: var(--panel); }
+.workspace.workspace-platform-shell > .sidebar-resizer {
+  top: var(--workspace-topbar-height);
+  left: calc(var(--workspace-rail-width) + var(--sidebar-width, 260px) - 4px);
+}
+.workspace.workspace-platform-shell .workspace-footer:not([role='dialog']) { width: var(--workspace-rail-width); background: var(--workbench-rail); border-right-color: var(--border); }
+.workspace.workspace-platform-shell .workspace-footer[role='dialog'] { background: var(--panel); border-color: var(--border); }
+.workspace.workspace-platform-shell .workspace-main-menu button,
+.workspace.workspace-platform-shell .settings-sidebar button { border-radius: var(--ui-radius); }
+.workspace.workspace-platform-shell .workspace-main-menu button[aria-current='page'] { box-shadow: none; }
+
+:root .dialog-card.n-card {
+  display: flex;
+  flex-direction: column;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 24px);
+  border-radius: var(--ui-radius);
+  color: var(--text);
+  background: var(--panel);
+}
+.dialog-card.n-card > .n-card-header,
+.dialog-card.n-card > .n-card__footer,
+.dialog-card.n-card > .n-card__action { flex: 0 0 auto; }
+.dialog-card.n-card > .n-card__content { min-height: 0; overflow: auto; overscroll-behavior: contain; }
+
+/* Match the existing WorkspaceMainMenu compact contract, including tablets and
+   short landscape windows. The header is outside the main scroll container. */
+@media (max-width: 720px),
+  (max-width: 960px) and (max-height: 500px),
+  (max-width: 1100px) and (orientation: portrait),
+  (max-width: 1366px) and (orientation: portrait) and (pointer: coarse) {
+  .workspace.workspace-platform-shell,
+  .workspace.workspace-platform-shell.sidebar-collapsed { display: block; }
+  .workspace.workspace-platform-shell > .workspace-header { gap: 10px; padding-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right)); }
+  .workspace-header-menu { display: flex; flex: 0 0 32px; min-height: 36px; }
+  .workspace-header-brand { gap: 6px; font-size: 18px; }
+  .workspace-header-context { font-size: 13px; }
+  .workspace-header-divider { height: 16px; }
+  .workspace-header-status { max-width: 30%; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
+  .workspace.workspace-platform-shell > .main-content {
+    width: 100%;
+    height: calc(100dvh - var(--workspace-bottom-inset) - var(--workspace-topbar-height));
+    margin: 0;
+  }
+  .workspace.workspace-platform-shell > #notebook-navigation,
+  .workspace.workspace-platform-shell.sidebar-collapsed > #notebook-navigation {
+    display: flex;
+    width: min(320px, 85vw);
+    height: calc(100dvh - var(--workspace-bottom-inset));
+    padding-top: 16px;
+  }
+  .workspace.workspace-platform-shell > #notebook-navigation > .brand { display: flex; }
+  .workspace.workspace-platform-shell > #notebook-navigation .notebook-sidebar-content { display: flex; }
+  .workspace.workspace-platform-shell > .sidebar-resizer { display: none; }
+}
+@media (max-width: 420px) {
+  .workspace-header-brand > svg { display: none; }
+  .workspace-header-context { flex-shrink: 1; }
+}

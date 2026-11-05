@@ -282,7 +282,7 @@ h3 {
   grid-template-rows: minmax(0, 1fr);
   overflow: hidden;
 }
-.sidebar {
+#notebook-navigation {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -292,11 +292,11 @@ h3 {
   border-right: 1px solid var(--border);
   padding-top: 23px;
 }
-.sidebar > .brand,
-.sidebar > .workspace-footer {
+#notebook-navigation > .brand,
+#notebook-navigation > .workspace-footer {
   flex-shrink: 0;
 }
-.sidebar > .brand {
+#notebook-navigation > .brand {
   padding: 0 22px 22px;
   font-size: 25px;
 }
@@ -969,7 +969,7 @@ h3 {
   .workspace {
     grid-template-columns: 310px minmax(0, 1fr);
   }
-  .sidebar {
+  #notebook-navigation {
     padding-top: 28px;
   }
   .tree-row {
@@ -1006,7 +1006,7 @@ h3 {
   .workspace {
     grid-template-columns: 245px minmax(0, 1fr);
   }
-  .sidebar > .brand {
+  #notebook-navigation > .brand {
     font-size: 22px;
   }
   .note-topline {
@@ -1080,7 +1080,7 @@ h3 {
   .workspace {
     display: block;
   }
-  .sidebar {
+  #notebook-navigation {
     position: fixed;
     inset: 0 auto 0 0;
     width: min(290px, 85vw);
@@ -1088,13 +1088,13 @@ h3 {
     transform: translateX(-100%);
     transition: transform 0.18s;
   }
-  .sidebar.open {
+  #notebook-navigation.open {
     transform: translateX(0);
   }
-  .sidebar > .brand {
+  #notebook-navigation > .brand {
     font-size: 24px;
   }
-  .sidebar .brand .icon-button {
+  #notebook-navigation .brand .icon-button {
     margin-left: auto;
   }
   .drawer-scrim {

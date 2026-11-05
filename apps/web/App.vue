@@ -4,6 +4,7 @@ import { NConfigProvider, NModal, NAlert, NButton, darkTheme } from 'naive-ui';
 import { ConfigProvider as AConfigProvider, theme as antAlgorithms } from 'ant-design-vue';
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import { antTheme } from './ant-design';
+import { platformAntTokens, platformNaiveOverrides } from './platform-theme';
 import type { PlatformStatus } from '../../shared/platform-contracts';
 import { api, ApiError, refreshCsrf, resetCsrf } from './api';
 import { clearPluginDrafts, hasUnsavedPluginDrafts } from './plugin-drafts';
@@ -81,19 +82,7 @@ const activeAntTheme = computed(() => ({
   ...antTheme,
   algorithm:
     resolvedTheme.value === 'dark' ? antAlgorithms.darkAlgorithm : antAlgorithms.defaultAlgorithm,
-  token: {
-    ...antTheme.token,
-    ...(resolvedTheme.value === 'dark'
-      ? {
-          colorText: '#e5e7eb',
-          colorTextSecondary: '#a6b0c0',
-          colorBorder: '#354158',
-          colorBgLayout: '#101827',
-          colorBgContainer: '#172033',
-          colorPrimary: '#8ba4ff',
-        }
-      : {}),
-  },
+  token: platformAntTokens(resolvedTheme.value),
 }));
 const oauthMode =
   location.pathname === '/oauth/consent'
@@ -184,53 +173,8 @@ function completeLogout() {
   ownerId.value = '';
   username.value = '';
 }
-const scrollbarTheme = {
-  scrollbarColor: 'var(--scrollbar-thumb)',
-  scrollbarColorHover: 'var(--scrollbar-thumb-hover)',
-  scrollbarWidth: '6px',
-  scrollbarHeight: '6px',
-};
-const lightTheme = {
-  common: {
-    ...scrollbarTheme,
-    primaryColor: '#4566c6',
-    primaryColorHover: '#5676d4',
-    primaryColorPressed: '#3453ac',
-    primaryColorSuppl: '#4566c6',
-    borderRadius: '6px',
-    textColorBase: '#262b36',
-    fontFamily: 'Inter,"Noto Sans CJK SC","Microsoft YaHei",Arial,sans-serif',
-  },
-  Input: {
-    color: '#ffffff',
-    colorFocus: '#ffffff',
-    border: '1px solid #dfe3eb',
-    borderHover: '1px solid #a2b0db',
-    boxShadowFocus: '0 0 0 3px #4566c614',
-  },
-  Card: {
-    borderColor: '#e3e6ec',
-    borderRadius: '10px',
-    titleFontSizeMedium: '17px',
-    titleFontWeight: '600',
-    paddingMedium: '24px',
-  },
-  Select: { peers: { InternalSelection: { border: '1px solid #dfe3eb', color: '#ffffff' } } },
-  Button: { fontWeight: '500' },
-};
-const activeNaiveTheme = computed(() =>
-  resolvedTheme.value === 'dark'
-    ? {
-        common: {
-          ...scrollbarTheme,
-          primaryColor: '#8ba4ff',
-          primaryColorHover: '#a4b6ff',
-          primaryColorPressed: '#7188e8',
-          borderRadius: '6px',
-        },
-      }
-    : lightTheme,
-);
+const activeNaiveTheme = computed(() => platformNaiveOverrides(resolvedTheme.value));
+
 async function acceptSession(
   session: {
     user?: { id?: string; displayUsername?: string; username?: string; name?: string };
