@@ -331,6 +331,13 @@ try {
       const animations = await waitAnimationSettle(page, 10000);
       await phase('animation-settle', { completed: true, animations });
       assertSceneActive(page); await phase('screenshot');
+      const renderedTheme = await target.evaluate(element => ({
+        documentTheme: document.documentElement.dataset.theme ?? null,
+        rootColorScheme: getComputedStyle(document.documentElement).colorScheme,
+        browserPrefersDark: matchMedia('(prefers-color-scheme: dark)').matches,
+        bodyBackground: getComputedStyle(document.body).backgroundColor,
+        targetBackground: getComputedStyle(element).backgroundColor,
+      }));
       const before = await screenshot(page, id + '.png');
       await phase('target-controls-probe');
       const metrics = await probe(target, page, scene);
@@ -364,7 +371,7 @@ try {
       }
       if (scene.evidenceKind === 'downloaded-html' && !artifactEvidence) throw Error('Standalone HTML evidence requires an actual downloaded artifact, not the owner shell');
       assertSceneActive(page); await phase('record-capture');
-      records.push({ ...baseRecord, status: 'captured', readinessAssertions, route: safeRoute(page.url()), ...before, controlsScreenshot: after,
+      records.push({ ...baseRecord, status: 'captured', readinessAssertions, renderedTheme, route: safeRoute(page.url()), ...before, controlsScreenshot: after,
         ...metrics, interactionResult, dismissal,
         ...(scene.evidenceKind === 'downloaded-html' ? { triggerScreenshot: before, triggerControlsScreenshot: after,
           triggerMetrics: metrics, ...artifactEvidence } : {}) });

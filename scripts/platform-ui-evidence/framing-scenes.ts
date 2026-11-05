@@ -1,10 +1,12 @@
 /** Explicit supplementary scroll frames; they do not replace original views. */
+import { randomUUID } from 'node:crypto';
 import { expect, type Locator, type Page } from '@playwright/test';
 import { scenes } from './scenes';
 import { settingsScenes } from './settings-scenes';
+import { workspaceScenes } from './workspace-scenes';
 import type { Scene } from './model';
 
-const originals = [...scenes, ...settingsScenes];
+const originals = [...scenes, ...settingsScenes, ...workspaceScenes];
 function frame(id: string, locate: (page: Page) => Locator, assertState?: (page: Page) => Promise<void>): Scene {
   const source = originals.find(scene => scene.id === id);
   if (!source) throw Error('Missing framing source: ' + id);
@@ -26,7 +28,48 @@ function frame(id: string, locate: (page: Page) => Locator, assertState?: (page:
   };
 }
 
+const originalSiteThemes = new WeakMap<Page, 'system' | 'light'>();
+const readingScene = originals.find(scene => scene.id === 'public-reader')!;
+
 export const framingScenes: Scene[] = [
+  {
+    ...readingScene, id: 'public-reader-system-theme', title: '公开文章跟随系统主题',
+    state: 'Published site explicitly follows real browser color preference',
+    before: async ({ page, fixture }) => {
+      const settings = await fixture.api('/api/blog/settings');
+      originalSiteThemes.set(page, settings.theme);
+      await fixture.api('/api/blog/settings', 'PATCH', { settings: { ...settings, theme: 'system' }, requestId: randomUUID() });
+    },
+    open: async ({ page, variant }) => {
+      await expect(page.locator('html')).toHaveAttribute('data-theme', 'system');
+      await expect(page.locator('html')).toHaveCSS('color-scheme', variant.theme);
+      await expect(page.getByRole('heading', { name: '让知识保持可用', exact: true }).first()).toBeVisible();
+    },
+    afterCapture: async ({ page, fixture }) => {
+      const settings = await fixture.api('/api/blog/settings');
+      await fixture.api('/api/blog/settings', 'PATCH', { settings: { ...settings, theme: originalSiteThemes.get(page) }, requestId: randomUUID() });
+      return { publishedThemeRestored: true };
+    },
+  },
+  frame('ws-extra-trash-request-uncertain', page => page.locator('.trash-workspace .callout[role="status"]')
+    .filter({ has: page.getByRole('button', { name: '按原请求核对结果', exact: true }) })),
+  frame('ws-extra-fragment-preview', page => page.locator('.large-preview').getByRole('heading', { name: 'Large capture', exact: true })),
+  {
+    ...originals.find(scene => scene.id === 'directory-open')!,
+    id: 'directory-search-results-frame', sourceIds: ['WS-003'], title: '目录中实际搜索结果',
+    state: 'Actual filename match in opened notebook search', representative: false,
+    target: '#notebook-navigation',
+    open: async env => {
+      await originals.find(scene => scene.id === 'directory-open')!.open!(env);
+      const note = await env.fixture.api('/api/notes/' + env.fixture.noteId);
+      const fileName = note.relativePath.split('/').pop().replace(/\.md$/, '');
+      const nav = env.page.locator('#notebook-navigation');
+      await nav.getByRole('textbox', { name: '搜索笔记与目录', exact: true }).fill(fileName);
+      const result = nav.locator('.search-result').filter({ hasText: fileName });
+      await expect(result.first()).toBeVisible();
+      await expect(nav.locator('.tree-scroll')).toHaveAttribute('aria-busy', 'false', { timeout: 30000 });
+    },
+  },
   frame('mcp-create-client', page => page.getByRole('textbox', { name: '客户端名称', exact: true }),
     async page => { await expect(page.getByRole('combobox', { name: '密钥有效期', exact: true })).toBeVisible(); }),
   frame('preferences-preview', page => page.locator('.editor-preview'), async page => { await expect(page.locator('.editor-preview-details')).toHaveJSProperty('open', true); }),

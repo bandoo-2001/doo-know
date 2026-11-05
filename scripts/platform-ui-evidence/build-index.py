@@ -42,7 +42,7 @@ def reviews():
     return result
 
 
-def source_relationship(commit, canonical, changed, row):
+def source_relationship(commit, changed, row):
     if not changed:
         return "same application tree"
     # Explicit component-level equivalence for the final narrow patches. Keep
@@ -122,12 +122,19 @@ for metadata in sorted(RUNTIME.glob("*/run.json")):
         if commit not in differences:
             differences[commit] = git("diff", "--name-only", commit, canonical, "--", *application).splitlines()
             git_is_old[commit] = subprocess.run(["git", "merge-base", "--is-ancestor", "55174d4", commit], check=False).returncode != 0 and subprocess.run(["git","merge-base","--is-ancestor","6b93769",commit],check=False).returncode != 0
-        relation = source_relationship(commit, canonical, differences[commit], row)
+        relation = source_relationship(commit, differences[commit], row)
         # A broad page screenshot never proves content in closed or offscreen children.
-        entry = {k: row.get(k) for k in ["id","sceneId","suite","title","state","role","sourceIds","theme","viewport","sourceCommit","applicationFingerprint","sha256","targetBounds","targetWithinViewport","probeStatus","interactionResult"]}
+        entry = {k: row.get(k) for k in ["id","sceneId","suite","title","state","role","sourceIds","theme","viewport","sourceCommit","applicationFingerprint","sha256","targetBounds","targetWithinViewport","probeStatus","interactionResult","faultInjection","renderedTheme","readinessAssertions","failureControlIndices","outerOverflow"]}
+        shot = row.get("controlsScreenshot")
+        if shot and shot.get("file"):
+            control = directory / shot["file"]
+            if digest(control) != shot["sha256"]:
+                raise ValueError(f"Controls PNG mismatch: {control}")
+            entry["controlsScreenshot"] = {"png": str(control.relative_to(RUNTIME)), "sha256": shot["sha256"]}
         entry.update({"run": directory.name, "record": str(path.relative_to(RUNTIME)), "png": str(png.relative_to(RUNTIME)),
             "relationship": relation, "review": references[row["sha256"]],
-            "designs": [d.get("assetId") for d in row.get("designAssets",[])], "capturedAt": run["startedAt"]})
+            "designs": [{"assetId": d.get("assetId"), "png": (d.get("current") or {}).get("file"),
+                         "sha256": (d.get("current") or {}).get("sha256")} for d in row.get("designAssets", [])], "capturedAt": run["startedAt"]})
         candidates[row["id"]].append(entry)
     runs.append({"run": directory.name, "sourceCommit":run["sourceCommit"], "status": receipt.get("runStatus", receipt.get("status")), "counts":dict(counts)})
 selected = []
@@ -135,15 +142,18 @@ for key, entries in sorted(candidates.items()):
     entries.sort(key=lambda e: e["capturedAt"])
     selected.append(entries[-1])
 catalog=read(ROOT/"design/catalog.json")
+dormant = {record["sourceId"] for record in catalog["coverage"] if record.get("dormant")}
 coverage=[]
 for inventory in ["workspace","settings","public-and-blog","runtime-diagrams"]:
     for surface in read(ROOT/f"coverage/{inventory}.json")["surfaces"]:
         linked=[e for e in selected if surface["id"] in e["sourceIds"]]
         coverage.append({"sourceId":surface["id"], "title":surface["title"], "inventory":inventory,
             "importantStates":surface.get("importantStates",[]), "selectedFrameIds":[e["id"] for e in linked],
-            "status":"visible-family-evidence" if linked else ("nonvisual HTTP" if surface["id"]=="PB-060" else "no eligible visual capture")})
+            "status": ("visible-family-evidence" if linked else "dormant-unmounted" if surface["id"] in dormant
+                       else "conditional-source-only" if surface["id"] == "PB-016"
+                       else "nonvisual HTTP" if surface["id"] == "PB-060" else "no eligible visual capture")})
 result={"schema":1,"applicationCommit":canonical,"approvedDesignDigest":catalog["coverageDigest"],
-    "policy":"Latest actual captured image per scene and viewport after explicit invalidations. Version relationships derive from scoped component changes. Each verdict concerns only what its image shows. Attempts include failures, unavailable states and incomplete runs. OS picker, native share delivery, physical keyboard, actual printing and external delivery are unverified.",
+    "policy":"Latest actual captured image per scene and viewport after explicit invalidations. Version relationships derive from scoped component changes. Theme is the requested browser setting. Actual rendered theme is reported independently where measured; login/public chrome and published light blogs can stay light in a dark context. Each verdict concerns only what its image shows. Each faultInjection field identifies simulated failures, latency and fixture-supplied read models. Those rows demonstrate the rendered UI and cannot establish live business outcomes. Attempts include failures, unavailable states and incomplete runs. OS picker, native share delivery, physical keyboard, actual printing and external delivery are unverified.",
     "applicationFilesChangedByCapturedCommit":differences,"runs":runs,"sources":coverage,"attempts":attempts,"frames":selected}
 dump(RUNTIME/"effective-index.json",result)
 (RUNTIME/"index.html").write_text(html_index(selected))
