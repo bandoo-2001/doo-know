@@ -1,4 +1,4 @@
-/** Keep the app-hosted background HEX popover out of fixed owner navigation.
+/** Keep the app-hosted color HEX popovers out of fixed owner navigation.
  * Radix positions against the browser viewport, which includes the app tabbar.
  * This adapter changes only popup geometry, never Excalidraw state or assets. */
 export function installCanvasPopoverViewport(container: HTMLElement) {
@@ -23,7 +23,7 @@ export function installCanvasPopoverViewport(container: HTMLElement) {
     const bounds = { left: Math.max(left, host.left) + 8, top: Math.max(top, host.top) + 8,
       right: Math.min(right, host.right) - 8, bottom: usableBottom - 8 };
     if (bounds.right <= bounds.left || bounds.bottom <= bounds.top) return;
-    for (const input of container.querySelectorAll<HTMLInputElement>('input[aria-label="画布背景"]')) {
+    for (const input of container.querySelectorAll<HTMLInputElement>('input.color-picker-input')) {
       const popup = input.closest<HTMLElement>('[data-radix-popper-content-wrapper]');
       if (!popup || !popup.getClientRects().length) continue;
       const content = popup.firstElementChild;

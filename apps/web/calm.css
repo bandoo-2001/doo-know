@@ -311,10 +311,10 @@ button:disabled {
   font-size: 12px;
 }
 .toolbar .n-button:not(.n-button--primary-type) {
-  background: #fff;
+  background: var(--panel);
 }
 .toolbar .n-button:not(.n-button--primary-type) .n-button__border {
-  border-color: #e7e9ee;
+  border-color: var(--border);
 }
 .toolbar svg {
   width: 17px;
@@ -351,8 +351,8 @@ button:disabled {
   color: var(--blue);
 }
 .shared-status {
-  background: #f3f5fb;
-  color: #7785a6;
+  background: var(--surface);
+  color: var(--muted);
   padding: 6px 9px;
   margin: 0 0 6px;
   border-radius: 4px;

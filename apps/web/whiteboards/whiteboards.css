@@ -270,3 +270,10 @@
   flex: 1;
   height: 0;
 }
+
+/* Vendor Mermaid mounts under body, outside the editor's clipped content.
+   Keep its existing scrollable card above owner navigation without changing
+   the textarea, preview, insertion action or vendor package. */
+.excalidraw.excalidraw-modal-container .Modal.Dialog.ttd-dialog {
+  bottom: var(--workspace-bottom-inset, 0px);
+}

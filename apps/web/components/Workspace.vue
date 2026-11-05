@@ -3782,7 +3782,7 @@ async function closeNotebookDrawer() {
             <button type="button" class="btn" :disabled="createBusy || inboxBusy" @click="cancelUnfinishedCreation">取消未完成图形</button>
           </div>
         </div>
-        <p v-else class="muted">
+        <p v-else-if="createKind === 'note' || createKind === 'folder'" class="muted">
           {{
             !newFolder
               ? createKind === 'note'
