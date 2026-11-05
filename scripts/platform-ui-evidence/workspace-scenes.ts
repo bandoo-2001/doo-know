@@ -83,6 +83,18 @@ export async function openPrimaryDiagram(env: SceneEnv, kind: '白板' | '脑图
   const workspace = env.page.getByTestId('diagram-document-workspace');
   await expect(workspace).toBeVisible({ timeout: 45000 }); await expect(workspace.getByRole('status')).toContainText('已保存', { timeout: 45000 });
   if (kind === '白板') await expect(workspace.locator('canvas.interactive')).toBeVisible({ timeout: 45000 });
+  if (kind === '脑图') {
+    const canvas = workspace.locator('.map-container');
+    await expect.poll(() => canvas.evaluate(element => {
+      const box = element.getBoundingClientRect();
+      const nodes = [...element.querySelectorAll('me-tpc')];
+      return nodes.length >= 2 && nodes.every(node => {
+        const bounds = node.getBoundingClientRect();
+        return bounds.width > 0 && bounds.height > 0 && bounds.left >= box.left - 1 &&
+          bounds.right <= box.right + 1 && bounds.top >= box.top - 1 && bounds.bottom <= box.bottom + 1;
+      });
+    }), { timeout: 30000 }).toBe(true);
+  }
   const id = new URL(env.page.url()).searchParams.get('note')!; values(env).boardId = id;
   return { workspace, id };
 }

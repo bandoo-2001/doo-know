@@ -331,6 +331,12 @@ try {
       const animations = await waitAnimationSettle(page, 10000);
       await phase('animation-settle', { completed: true, animations });
       assertSceneActive(page); await phase('screenshot');
+      // Async plugin contributions can insert whole cards after the early scroll.
+      // The supplemental frame must show its actual target at the instant of capture.
+      if (scene.captureTargetInViewport) {
+        await target.scrollIntoViewIfNeeded();
+        await expect(target).toBeInViewport({ ratio: 0.95 });
+      }
       const renderedTheme = await target.evaluate(element => ({
         documentTheme: document.documentElement.dataset.theme ?? null,
         rootColorScheme: getComputedStyle(document.documentElement).colorScheme,
@@ -339,6 +345,7 @@ try {
         targetBackground: getComputedStyle(element).backgroundColor,
       }));
       const before = await screenshot(page, id + '.png');
+      if (scene.captureTargetInViewport) await expect(target).toBeInViewport({ ratio: 0.95, timeout: 1000 });
       await phase('target-controls-probe');
       const metrics = await probe(target, page, scene);
       const after = await screenshot(page, id + '-controls.png');

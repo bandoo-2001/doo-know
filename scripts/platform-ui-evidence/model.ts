@@ -42,6 +42,7 @@ export type Scene = {
   representative?: boolean;
   widths?: number[];
   window?: boolean;
+  captureTargetInViewport?: boolean;
   fault?: string;
   tests: string[];
   // Exact inventory strings only; an omitted important state remains untested.

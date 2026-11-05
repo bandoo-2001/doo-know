@@ -226,8 +226,10 @@ export const scenes: Scene[] = [
 // Primary diagrams are created through the same UI as existing browser tests.
 // Each independent scene owns a new real native resource; no vendor panel is synthesized.
 async function primary(env: SceneEnv, name = '新建白板') {
-  await env.page.setViewportSize({ width: 1440, height: 1000 });
   const kind = name === '新建脑图' ? '脑图' : name === '新建流程图' ? '流程图' : '白板';
+  // MindElixir fits the initial map when it mounts. Create at the requested
+  // viewport so the primary screenshot is an initial view, not a desktop pan.
+  if (kind !== '脑图') await env.page.setViewportSize({ width: 1440, height: 1000 });
   const created = await openPrimaryDiagram(env, kind);
   if (kind === '脑图') await expect(created.workspace.locator('me-root me-tpc')).toBeVisible({ timeout: 45000 });
   if (kind === '流程图') await expect(created.workspace.locator('.diagram-flow-source .cm-content')).toBeVisible({ timeout: 45000 });

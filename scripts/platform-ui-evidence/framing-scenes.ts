@@ -13,6 +13,7 @@ function frame(id: string, locate: (page: Page) => Locator, assertState?: (page:
   return {
     ...source,
     id: id + '-state-frame',
+    captureTargetInViewport: true,
     title: source.title + ' · supplementary state frame',
     state: source.state + '; explicit scroll to the actual state region',
     representative: false,

@@ -31,6 +31,8 @@ def reviews():
     result = defaultdict(list)
     for path in sorted((RUNTIME / "reviews").glob("*.json")):
         report = read(path)
+        if not isinstance(report, dict):
+            continue  # Contact-sheet manifests are inventories, not review verdicts.
         for row in report.get("rows", []) + report.get("entries", []) + report.get("images", []) + report.get("actualAfterImages", []):
             if any(row.get(key) is False for key in ["actuallyViewed", "actuallyViewedThisPass", "primaryViewed", "viewedByIndependentReviewer"]):
                 continue
@@ -50,9 +52,25 @@ def source_relationship(commit, changed, row):
     scene = row["sceneId"]
     if git_is_old[commit]:
         return "historical application"
+    changed = set(changed)
+    catalog_files = {'plugins/mcp/manifest.json','plugins/git/manifest.json'}
+    ids = set(row.get('sourceIds', []))
+    if changed & catalog_files and (scene in ('plugin-catalog','settings-plugins','plugin-uninstall') or ids & {'ST-047','ST-048','ST-049','ST-050','ST-051','ST-052','ST-053','ST-054'}):
+        return 'earlier plugin catalog versions; scoped layout reference only'
+    short_footer_only = ('apps/web/components/BlogWorkspace.vue' not in changed and
+                         'apps/web/components/blog/BlogDesignStudio.vue' not in changed and
+                         bool(changed & {'apps/web/blog-savebar.ts','apps/web/blog-admin.css'}))
+    if short_footer_only and (row.get('viewport',{}).get('height',0) >= 800 or
+        not (scene.startswith('blog-design') or scene == 'blog-settings' or
+             (scene.startswith('blog-feedback-') and 'article' not in scene) or
+             scene in ('public-blog-history-restore','public-blog-expanded-preview'))):
+        # The final short-viewport patch only changes the savebar owned by the
+        # settings and design forms. Taller view evidence is bound by the final
+        # three-width rendering/interaction checks. Preserve its original SHA.
+        changed -= {'apps/web/blog-savebar.ts','apps/web/blog-admin.css'}
     affected = (
         ("Setup", ("setup",)), ("GitRemotePanel", ("git-", "cloud-sync", "history-git")),
-        ("PluginManager", ("plugin-config", "settings-plugins", "mcp-config")),
+        ("PluginManager", ("plugin-catalog", "plugin-config", "settings-plugins", "mcp-config")),
         ("PublicShareEditor", ("guest-",)), ("Blog", ("blog-",)), ("blog-", ("blog-",)),
         ("MarkdownEditor", ("source", "selection", "editor", "paragraph")),
         ("Workspace.vue", ("unfinished", "new-whiteboard", "new-mindmap", "new-flowchart")),
@@ -66,7 +84,8 @@ def source_relationship(commit, changed, row):
     return "component-equivalent under scoped changes"
 
 
-def html_index(selected):
+def html_index(selected, coverage):
+    titles = {row["sourceId"]: row["title"] for row in coverage}
     groups = defaultdict(list)
     for entry in selected:
         groups[entry["sceneId"]].append(entry)
@@ -78,7 +97,8 @@ def html_index(selected):
             label = escape(entry["id"] + " · " + entry["sourceCommit"][:7])
             info = escape(" / ".join(item["verdict"] for item in entry["review"]) or "尚无逐图复核记录")
             cards.append(f'<figure><a href="{url}"><img loading="lazy" src="{url}" alt="{label}"></a><figcaption>{label}<br>{info}</figcaption></figure>')
-        heading = escape(" · ".join([scene, entries[0]["title"], ", ".join(entries[0]["sourceIds"])]))
+        names = " / ".join(titles.get(key, key) for key in entries[0]["sourceIds"])
+        heading = escape(" · ".join([names, scene, ", ".join(entries[0]["sourceIds"])]))
         sections.append(f'<details><summary>{heading} ({len(entries)})</summary><div class="grid">{"".join(cards)}</div></details>')
     return """<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>非 ToDoo 平台实际界面</title>
 <style>body{margin:2rem auto;padding:0 1rem;max-width:92rem;font:16px/1.6 system-ui;color:#223047}details{padding:.5rem 0;border-bottom:1px solid #ccd3df}summary{cursor:pointer}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(17rem,100%),1fr));gap:.8rem}figure{margin:0}img{width:100%;height:15rem;object-fit:contain;background:#f3f5f9}figcaption{font-size:.85rem}input{font:inherit;padding:.3rem;width:min(25rem,90%)}a{color:#384fa4}</style>
@@ -154,7 +174,13 @@ for inventory in ["workspace","settings","public-and-blog","runtime-diagrams"]:
                        else "nonvisual HTTP" if surface["id"] == "PB-060" else "no eligible visual capture")})
 result={"schema":1,"applicationCommit":canonical,"approvedDesignDigest":catalog["coverageDigest"],
     "policy":"Latest actual captured image per scene and viewport after explicit invalidations. Version relationships derive from scoped component changes. Theme is the requested browser setting. Actual rendered theme is reported independently where measured; login/public chrome and published light blogs can stay light in a dark context. Each verdict concerns only what its image shows. Each faultInjection field identifies simulated failures, latency and fixture-supplied read models. Those rows demonstrate the rendered UI and cannot establish live business outcomes. Attempts include failures, unavailable states and incomplete runs. OS picker, native share delivery, physical keyboard, actual printing and external delivery are unverified.",
+    "equivalenceBoundary": {"wholeApp":"same application tree requires zero differences across the tracked app fingerprint inputs",
+        "workspace":"post-551 Workspace changes are restricted to the unfinished-creation form and operation ownership; whiteboard popovers, initial mind-map fit, diagram recovery and opaque markup each have separate captures",
+        "theme":"post-551 global platform-ui.css change is the editor selection token; document-editor.css affects selection and opaque-card danger controls",
+        "settings":"setup, Git feedback, and plugin configuration are separately rendered. Earlier plugin version labels are historical; an actual rc61-to-current click-through separately checks before/after labels",
+        "blog":"final short-viewport behavior is local to measured settings/design savebars; regression samples at tall 1440/390/320 and short 360/844 are separately bound to their actual commits",
+        "images":"a matched family or geometry is not equivalent to successful network delivery, all controls, identical pixels or a different role/state"},
     "applicationFilesChangedByCapturedCommit":differences,"runs":runs,"sources":coverage,"attempts":attempts,"frames":selected}
 dump(RUNTIME/"effective-index.json",result)
-(RUNTIME/"index.html").write_text(html_index(selected))
+(RUNTIME/"index.html").write_text(html_index(selected, coverage))
 print(json.dumps({"frames":len(selected),"attempts":len(attempts),"runs":len(runs),"sources":len(coverage),"relationships":dict(Counter(e["relationship"] for e in selected))}))
