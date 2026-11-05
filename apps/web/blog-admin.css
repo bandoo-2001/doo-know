@@ -27,6 +27,18 @@
 .blog-workspace.blog-admin :is(button, a, input, textarea, select) {
   scroll-margin-block: 24px;
 }
+.blog-workspace.blog-admin .blog-form :is(input, textarea, select, summary),
+.blog-workspace.blog-admin .blog-form .blog-row-actions button,
+.blog-workspace.blog-admin .blog-form .blog-template-choice,
+.blog-workspace.blog-admin .blog-form .blog-studio-card-heading button,
+.blog-workspace.blog-admin .blog-form .blog-module-add button {
+  scroll-margin-block-end: var(--blog-savebar-clearance, 24px);
+}
+.blog-workspace.blog-admin .blog-save-feedback {
+  flex: 1 0 100%;
+  width: 100%;
+  margin: 0;
+}
 
 .blog-workspace.blog-admin :is(small, .blog-muted) {
   font-size: 13px;
@@ -902,6 +914,7 @@
   bottom: 12px;
   z-index: 14;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;

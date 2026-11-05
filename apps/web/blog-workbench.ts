@@ -68,7 +68,17 @@ function mergeDraft<T extends object>(local: T, baseline: T, remote: T): T {
     }),
   ) as T;
 }
-const errorMessage = (cause: unknown) => (cause instanceof Error ? cause.message : String(cause));
+const errorMessage = (cause: unknown) => {
+  if (
+    (cause instanceof TypeError &&
+      /failed to fetch|fetch failed|networkerror|network request failed|load failed/i.test(
+        cause.message,
+      )) ||
+    (cause instanceof DOMException && ['TimeoutError', 'NetworkError'].includes(cause.name))
+  )
+    return '连接中断，操作结果尚未确认。当前修改已保留，请恢复连接后重新读取并核对版本，再决定是否保存。';
+  return cause instanceof Error ? cause.message : String(cause);
+};
 const unwrap = (reply: BlogPost | { post: BlogPost }): BlogPost =>
   'post' in reply ? reply.post : reply;
 export function createBlogWorkbench(

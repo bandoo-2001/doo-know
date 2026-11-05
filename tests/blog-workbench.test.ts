@@ -479,3 +479,26 @@ test('withdrawal updates publication state without relabeling an older reviewed 
     post: { state: 'withdrawn', version: 2, sourceHash: 'hash-1', sourceModifiedAt: 'mtime-1' },
   });
 });
+
+test('network-unknown settings save preserves edits and a version review never repeats its write', async () => {
+  let writes = 0;
+  const model = createBlogWorkbench(async (url, method) => {
+    if (method === 'PATCH') {
+      writes++;
+      throw new TypeError('Failed to fetch');
+    }
+    return url === '/api/blog/settings'
+      ? settings
+      : { settings, posts: [], total: 0, nextCursor: null, taxonomy: { categories: [], tags: [] } };
+  });
+  await model.load();
+  model.state.settings!.title = 'Retained site settings';
+  await model.saveSettings();
+  expect(model.state.settingsError).toContain('结果尚未确认');
+  expect(model.state.settingsError).not.toContain('Failed to fetch');
+  expect(model.state.settings!.title).toBe('Retained site settings');
+  expect(writes).toBe(1);
+  await model.reviewSettings();
+  expect(writes).toBe(1);
+  expect(model.state.settings!.title).toBe('Retained site settings');
+});

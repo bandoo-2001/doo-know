@@ -273,6 +273,10 @@ onBeforeUnmount(() => {
   </section>
 </template>
 <style scoped>
+:global(.share-page:has(> .public-share-editor) > .reader-header) {
+  height: auto;
+  flex-shrink: 0;
+}
 .public-share-editor {
   width: 100%;
   max-width: 1120px;
