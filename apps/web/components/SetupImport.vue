@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import { Button as AButton, Alert as AAlert } from 'ant-design-vue';
 import { api, ApiError } from '../api';
 import type { TreeEntry } from '../../../shared/contracts';
-const props = defineProps<{ destination?: string }>();
+const props = defineProps<{ destination?: string; disabled?: boolean }>();
 const emit = defineEmits<{
   busy: [value: boolean];
   imported: [value: { id: string; relativePath: string }];
@@ -24,6 +24,7 @@ watch(
   },
 );
 function select(event: Event) {
+  if (props.disabled || busy.value) return;
   file.value = (event.target as HTMLInputElement).files?.[0];
   requestId = crypto.randomUUID();
   error.value = '';
@@ -31,7 +32,7 @@ function select(event: Event) {
 }
 async function upload() {
   const source = file.value;
-  if (!source || busy.value) return;
+  if (!source || busy.value || props.disabled) return;
   error.value = '';
   imported.value = '';
   if (!source.name.toLowerCase().endsWith('.md')) {
@@ -103,18 +104,18 @@ async function upload() {
         ref="fileInput"
         type="file"
         accept=".md,text/markdown"
-        :disabled="busy"
+        :disabled="busy || props.disabled"
         aria-label="选择 Markdown 文件"
         aria-describedby="import-limits"
         @change="select"
     /></label>
     <p id="import-limits" class="hint">
-      单个文件不超过 256 KiB。文中的图片和附件不会随文件一起导入。
+      单个文件不超过 256 KiB（262144 字节）。文中的图片和附件不会随文件一起导入。
     </p>
-    <p v-if="file" class="import-selection">
-      已选择 {{ file.name }} · {{ (file.size / 1024).toFixed(1) }} KiB
-    </p>
-    <AButton :loading="busy" :disabled="!file || busy" @click="upload">确认导入</AButton>
+    <p v-if="file" class="import-selection">已选择 {{ file.name }} · {{ file.size }} 字节</p>
+    <AButton :loading="busy" :disabled="!file || busy || props.disabled" @click="upload"
+      >确认导入</AButton
+    >
     <AAlert v-if="error" type="error" show-icon role="alert" :message="error" />
     <AAlert
       v-if="imported"

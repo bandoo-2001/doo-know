@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { readFile, readdir, rmdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { testPassword } from '../support/credentials.js';
+import { DOO_DATA_DIRECTORY } from '../../shared/storage-paths.js';
 test('first login binds an empty knowledge base and creates its first root note, category and nested note', async ({
   page,
 }, info) => {
@@ -100,13 +101,15 @@ test('first login binds an empty knowledge base and creates its first root note,
     );
     return route.fulfill({ json: job });
   });
+  await page.getByRole('button', { name: '重新读取可选功能', exact: true }).click();
   await page.getByRole('button', { name: '添加连接设置', exact: true }).click();
+  await page.getByText('旧版兼容设置', { exact: true }).click();
   const prefixes = page.getByRole('textbox', { name: '允许的目录', exact: true });
   await expect(prefixes).toHaveValue('00-Inbox');
   expect(installedRequests).toEqual(['mcp']);
   expect(installationPolls).toContain('mcp');
   await page.getByRole('button', { name: '添加版本记录', exact: true }).click();
-  await expect(page.getByRole('alert')).toContainText('可以先跳过');
+  await expect(page.locator('.setup-features > [role="alert"]')).toContainText('可以先跳过');
   expect(installedRequests).toEqual(['mcp', 'git']);
   expect(installationPolls).toContain('git');
   await page.route('**/api/platform/search-runtime', (route) =>
@@ -202,6 +205,7 @@ test('first login binds an empty knowledge base and creates its first root note,
     '00-Inbox',
     '40-Resources',
     'README.md',
+    DOO_DATA_DIRECTORY,
   ]);
 
   await page.locator('.tree-scroll').getByRole('button', { name: '00-Inbox', exact: true }).click();

@@ -16,6 +16,8 @@ import Icon from './Icon.vue';
 const expanded = ref(''),
   busy = ref(''),
   error = ref('');
+const registryReady = ref(false),
+  registryBusy = ref(false);
 const installation = ref<PluginInstallation>();
 const controller = new AbortController();
 let active = true;
@@ -45,8 +47,19 @@ const features = [
 function installed(id: string) {
   return pluginRegistry.value.installed.find((p) => p.id === id);
 }
+function available(id: string) {
+  return (
+    registryReady.value &&
+    (!!installed(id) || pluginRegistry.value.catalog.some((item) => item.id === id))
+  );
+}
+async function readRegistry() {
+  registryReady.value = false;
+  await refreshPlugins();
+  if (active) registryReady.value = true;
+}
 async function configure(id: string) {
-  if (busy.value) return;
+  if (busy.value || registryBusy.value || !available(id)) return;
   error.value = '';
   busy.value = id;
   try {
@@ -58,7 +71,7 @@ async function configure(id: string) {
         },
       });
     if (!active) return;
-    await refreshPlugins();
+    await readRegistry();
     expanded.value = expanded.value === id ? '' : id;
   } catch (e) {
     if (active) error.value = gitError(e) + ' 你可以先跳过，以后在设置中添加。';
@@ -66,9 +79,12 @@ async function configure(id: string) {
     busy.value = '';
   }
 }
-onMounted(async () => {
+async function readFeatures() {
+  if (busy.value || registryBusy.value) return;
+  registryBusy.value = true;
+  error.value = '';
   try {
-    await refreshPlugins();
+    await readRegistry();
     if (!active) return;
     const receipt = await api<{ items: PluginInstallation[] }>(
       '/api/platform/plugin-installations',
@@ -84,7 +100,7 @@ onMounted(async () => {
         },
       });
       if (active) {
-        await refreshPlugins();
+        await readRegistry();
         busy.value = '';
       }
     }
@@ -94,13 +110,20 @@ onMounted(async () => {
         ? gitError(e)
         : '暂时无法读取可选功能。你可以先跳过，以后再设置。';
   } finally {
-    if (active) busy.value = '';
+    if (active) {
+      busy.value = '';
+      registryBusy.value = false;
+    }
   }
-});
+}
+onMounted(readFeatures);
 </script>
 <template>
   <div class="setup-features">
     <AAlert v-if="error" type="warning" show-icon role="alert" :message="error" />
+    <AButton :loading="registryBusy" :disabled="registryBusy || !!busy" @click="readFeatures"
+      >重新读取可选功能</AButton
+    >
     <p v-if="installation" role="status">
       {{ jobPhases[installation.phase] || '准备安装' }} ·
       {{
@@ -118,18 +141,22 @@ onMounted(async () => {
           <h2>{{ feature.title }}</h2>
           <p>{{ feature.description }}</p>
           <span class="feature-state">{{
-            installed(feature.id)?.state === 'enabled'
-              ? '已启用 · 可继续检查设置'
-              : installed(feature.id)
-                ? '已添加 · 还需完成设置'
-                : '可选 · 随时添加'
+            !registryReady
+              ? registryBusy
+                ? '正在确认可用性…'
+                : '尚未确认可用性，请重新读取或暂时跳过'
+              : installed(feature.id)?.state === 'enabled'
+                ? '已启用 · 可继续检查设置'
+                : installed(feature.id)
+                  ? '已添加 · 还需完成设置'
+                  : '可选 · 随时添加'
           }}</span>
         </div>
       </div>
       <p class="feature-detail">{{ feature.detail }}</p>
       <AButton
         :loading="busy === feature.id"
-        :disabled="!!busy"
+        :disabled="!!busy || registryBusy || !available(feature.id)"
         :aria-expanded="expanded === feature.id"
         :aria-controls="`setup-feature-${feature.id}`"
         @click="configure(feature.id)"
@@ -137,7 +164,11 @@ onMounted(async () => {
         }}{{ feature.id === 'mcp' ? '连接设置' : '版本记录' }}</AButton
       >
       <span
-        v-if="!pluginRegistry.catalog.some((p) => p.id === feature.id) && !installed(feature.id)"
+        v-if="
+          registryReady &&
+          !pluginRegistry.catalog.some((p) => p.id === feature.id) &&
+          !installed(feature.id)
+        "
         class="unavailable"
         >暂未提供此功能，可以稍后再设置</span
       >
