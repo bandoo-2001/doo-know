@@ -1,0 +1,1613 @@
+{
+  "schema": 1,
+  "reviewedAt": "2026-11-05T18:00:23.400701+00:00",
+  "verdict": "scoped-pass",
+  "provenance": "Independent inspection of the 36 actual screenshots in the author manifest. Uncommitted working tree, not the integrated product commit.",
+  "sourceBase": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+  "patch": {
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/task-4-final-visual-fix-patch",
+    "sha256": "b4536386d37bebb84c6c060e92c5cfd945f189367ffe240f2968d142c842d10a",
+    "bytes": 30235,
+    "reverseApplyCheck": "passed"
+  },
+  "manifest": {
+    "file": ".superpowers/sdd/2026-11-05-platform-ui-implementation/task-4-final-visual-fix-manifest.json",
+    "sha256": "81ed66d6d87419c4a8b60270f3113125c0e9f50723a97c89ea44056de16337bb"
+  },
+  "beforeReview": {
+    "file": "docs/design/platform-unification-2026-11-05/runtime/reviews/public-main-review.json",
+    "sha256": "d9881ac6cfc6fac4316012e23f4b4202d511ddb9f2071c79800c02c54133b593"
+  },
+  "scopedFindings": {
+    "GUEST-BADGE": {
+      "status": "addressed",
+      "affectedWidth": "320px original; 1440/390 also checked"
+    },
+    "NETWORK-TEXT": {
+      "status": "addressed",
+      "affectedWidth": "1440/390/320 reviewed"
+    },
+    "STUDIO-FEEDBACK": {
+      "status": "addressed",
+      "affectedWidth": "1440/390/320 reviewed"
+    },
+    "FOCUS-COVERED": {
+      "status": "addressed",
+      "affectedWidth": "1440/390/320 reviewed"
+    }
+  },
+  "rerunByReviewer": false,
+  "authorValidation": {
+    "relatedUnitFiles": 4,
+    "relatedUnitTestsPassed": 57,
+    "focusedThreeWidthE2EPassed": 36,
+    "existingPreviewPreservationPassed": 2,
+    "typecheckExit": 0,
+    "diffCheck": "passed",
+    "publicEditorScriptTemplateBytesUnchanged": true,
+    "fullSuiteRan": false,
+    "fixtureOrigin": "http://127.0.0.1:4779",
+    "fixtureAPIPort": 4780,
+    "mainProductUntouched": true
+  },
+  "limitations": [
+    "Role, scroll, clipping, labels and feedback independently visible in the images. The original failure was default focus/scroll center occlusion; previously manual extra scrolling could expose those fields. The exact browser center hit, retained iframe identity, reconciliation read/single write come from existing author tests.",
+    "Only actual stated viewports, captured light appearance and listed inputs/buttons and states. An expanded error alert consumes more vertical space, but actions and feedback remain fully visible in the three captured sizes. Shorter viewport with simultaneous expanded error and long virtual keyboard is unverified. Historical advisories/evidence gaps remain separate. No newly observed blocker in this repair scope."
+  ],
+  "rows": [
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-design-confli-ddcef-ciles-without-another-write-desktop/design-conflict.png",
+      "sha256": "a0d7d3ca45bfe90e7bed8aaae79727e12b7bc9deb74183317efc860f443c8bdb",
+      "width": 1440,
+      "height": 1000,
+      "scene": "design-conflict",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "“博客装修已变化”与重新核对版本出现在保存栏，未保存状态保留。",
+      "issueIds": [
+        "STUDIO-FEEDBACK"
+      ],
+      "sourceIds": [
+        "PB-049"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/1440-light-blog-feedback-version-conflict.png",
+      "beforeSha256": "cf9deeff46a763001ef459431f78590c2cfc7279c688d4a40f258e1a6411f403",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-R075",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R075-v2.png",
+          "sha256": "a6a229ee3b2482c2fb91d1b26b28db14d684523930d34cf4847059e0cd788490"
+        },
+        {
+          "assetId": "MP-S055",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S055-v2.png",
+          "sha256": "f3ac457605e5fbe12320aa142a19bc8f2bc9db8c6aacb650a3f301b9c3ef94df"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-S057",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S057-v2.png",
+          "sha256": "9d1e5951881756673f7a9d66dbe48d6bc4177217df6680b24c3258898e38391b"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-design-confli-ddcef-ciles-without-another-write-phone320/design-conflict.png",
+      "sha256": "c297b9ced363a39d092f7a8e74c60e71c607a522711cea44e93d8b2537667fcf",
+      "width": 320,
+      "height": 844,
+      "scene": "design-conflict",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "“博客装修已变化”与重新核对版本出现在保存栏，未保存状态保留。",
+      "issueIds": [
+        "STUDIO-FEEDBACK"
+      ],
+      "sourceIds": [
+        "PB-049"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/320-light-blog-feedback-version-conflict.png",
+      "beforeSha256": "aef8e8dcc069f26e4242011a96a1f27d4f3f96d87b41cd947acc200accabb129",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-R075",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R075-v2.png",
+          "sha256": "a6a229ee3b2482c2fb91d1b26b28db14d684523930d34cf4847059e0cd788490"
+        },
+        {
+          "assetId": "MP-S055",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S055-v2.png",
+          "sha256": "f3ac457605e5fbe12320aa142a19bc8f2bc9db8c6aacb650a3f301b9c3ef94df"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-S057",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S057-v2.png",
+          "sha256": "9d1e5951881756673f7a9d66dbe48d6bc4177217df6680b24c3258898e38391b"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-design-confli-ddcef-ciles-without-another-write-phone390/design-conflict.png",
+      "sha256": "489d78ea2b4327d6c6511bf113546efc0664a93a3fb01b2f25e3e53030020a8b",
+      "width": 390,
+      "height": 844,
+      "scene": "design-conflict",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "“博客装修已变化”与重新核对版本出现在保存栏，未保存状态保留。",
+      "issueIds": [
+        "STUDIO-FEEDBACK"
+      ],
+      "sourceIds": [
+        "PB-049"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/390-light-blog-feedback-version-conflict.png",
+      "beforeSha256": "1b21ce6e09b6a29387bf3263365eabf2353134f151c55d8f279bb61d864a1fa9",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-R075",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R075-v2.png",
+          "sha256": "a6a229ee3b2482c2fb91d1b26b28db14d684523930d34cf4847059e0cd788490"
+        },
+        {
+          "assetId": "MP-S055",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S055-v2.png",
+          "sha256": "f3ac457605e5fbe12320aa142a19bc8f2bc9db8c6aacb650a3f301b9c3ef94df"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-S057",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S057-v2.png",
+          "sha256": "9d1e5951881756673f7a9d66dbe48d6bc4177217df6680b24c3258898e38391b"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-design-unknow-9a82a-ciles-without-another-write-desktop/design-unknown.png",
+      "sha256": "a24e6426ed1191cd551c316c53a18ce6a75c89b55606d4c1a85a2bcf9606a150",
+      "width": 1440,
+      "height": 1000,
+      "scene": "design-unknown",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "提交结果未知、草稿保留与先读取核对版本的中文提示贴近保存栏；核对与保存/发布分列，发布受限。",
+      "issueIds": [
+        "NETWORK-TEXT",
+        "STUDIO-FEEDBACK"
+      ],
+      "sourceIds": [
+        "PB-049"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/1440-light-blog-feedback-save-network-error.png",
+      "beforeSha256": "9c70da54303e78147a95c5ec2fc80692015a42adcaf791eee0c23af35ba6a4b8",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-R075",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R075-v2.png",
+          "sha256": "a6a229ee3b2482c2fb91d1b26b28db14d684523930d34cf4847059e0cd788490"
+        },
+        {
+          "assetId": "MP-S055",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S055-v2.png",
+          "sha256": "f3ac457605e5fbe12320aa142a19bc8f2bc9db8c6aacb650a3f301b9c3ef94df"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-S057",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S057-v2.png",
+          "sha256": "9d1e5951881756673f7a9d66dbe48d6bc4177217df6680b24c3258898e38391b"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-design-unknow-9a82a-ciles-without-another-write-phone320/design-unknown.png",
+      "sha256": "4882b4563b5b91c0365767c277b47fb61de5714cb132257d3b48d3a754ec3028",
+      "width": 320,
+      "height": 844,
+      "scene": "design-unknown",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "提交结果未知、草稿保留与先读取核对版本的中文提示贴近保存栏；核对与保存/发布分列，发布受限。",
+      "issueIds": [
+        "NETWORK-TEXT",
+        "STUDIO-FEEDBACK"
+      ],
+      "sourceIds": [
+        "PB-049"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/320-light-blog-feedback-save-network-error.png",
+      "beforeSha256": "67af98a7590d3e47422c25455889f521bb8b4347da39571f7403e3515f35402b",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-R075",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R075-v2.png",
+          "sha256": "a6a229ee3b2482c2fb91d1b26b28db14d684523930d34cf4847059e0cd788490"
+        },
+        {
+          "assetId": "MP-S055",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S055-v2.png",
+          "sha256": "f3ac457605e5fbe12320aa142a19bc8f2bc9db8c6aacb650a3f301b9c3ef94df"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-S057",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S057-v2.png",
+          "sha256": "9d1e5951881756673f7a9d66dbe48d6bc4177217df6680b24c3258898e38391b"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-design-unknow-9a82a-ciles-without-another-write-phone390/design-unknown.png",
+      "sha256": "ad3d07d62b22a02d2015a1f73380cda3fc0fe4e9318bcae917a86e3a11a57227",
+      "width": 390,
+      "height": 844,
+      "scene": "design-unknown",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "提交结果未知、草稿保留与先读取核对版本的中文提示贴近保存栏；核对与保存/发布分列，发布受限。",
+      "issueIds": [
+        "NETWORK-TEXT",
+        "STUDIO-FEEDBACK"
+      ],
+      "sourceIds": [
+        "PB-049"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/390-light-blog-feedback-save-network-error.png",
+      "beforeSha256": "151bb226eee40711470f945d8433a9e6472a4dac0e3704e529220052671c38f4",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-R075",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R075-v2.png",
+          "sha256": "a6a229ee3b2482c2fb91d1b26b28db14d684523930d34cf4847059e0cd788490"
+        },
+        {
+          "assetId": "MP-S055",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S055-v2.png",
+          "sha256": "f3ac457605e5fbe12320aa142a19bc8f2bc9db8c6aacb650a3f301b9c3ef94df"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-S057",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S057-v2.png",
+          "sha256": "9d1e5951881756673f7a9d66dbe48d6bc4177217df6680b24c3258898e38391b"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-84d78-er-and-hittable-in-document-desktop/guest-document.png",
+      "sha256": "5b7629fa8c3a07645225909f4596117e7a18691bd3dda8ed183e9fe236966e5e",
+      "width": 1440,
+      "height": 1000,
+      "scene": "guest-document",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "文档编辑，卡片上独立显示“可编辑”；没有私人栏。",
+      "issueIds": [
+        "GUEST-BADGE"
+      ],
+      "sourceIds": [
+        "PB-026"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/1440-light-guest-document.png",
+      "beforeSha256": "141f9514439c05d38cf04c2a43adcc4f3fc2282ac9bde7e468433022519335f9",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D092",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D092.png",
+          "sha256": "b259c1bc9f415649670fe4ec9dc53ec9db4f975d24c8dd31309b3f2601e2ccf1"
+        },
+        {
+          "assetId": "MP-R056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R056.png",
+          "sha256": "56e756dfdb73e19e3142d9f6a0d24267c53b6ab6ffc7ea232dd32b99ed2f8750"
+        },
+        {
+          "assetId": "MP-S049",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S049-v3.png",
+          "sha256": "820cc849cd833312889f6926204e320e38a0900c02d5caff929694e93771ae3e"
+        },
+        {
+          "assetId": "MP-S050",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S050.png",
+          "sha256": "ceba8df2aeafe84bf6b359fb6b44510d485e4c6f29b30299934397af84e1c114"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-84d78-er-and-hittable-in-document-phone320/guest-document.png",
+      "sha256": "20a1a4f2976a02fac29bc1b752be5e3abcb839be94518542410865cb215a4247",
+      "width": 320,
+      "height": 844,
+      "scene": "guest-document",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "文档编辑，卡片上独立显示“可编辑”；没有私人栏。 320px 使用独立第二行徽标，下面才是编辑工具栏。",
+      "issueIds": [
+        "GUEST-BADGE"
+      ],
+      "sourceIds": [
+        "PB-026"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/320-light-guest-document.png",
+      "beforeSha256": "674463bce58759555a1e78324c468e929a4811faa5d4696cbc05e4203e2e7111",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D092",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D092.png",
+          "sha256": "b259c1bc9f415649670fe4ec9dc53ec9db4f975d24c8dd31309b3f2601e2ccf1"
+        },
+        {
+          "assetId": "MP-R056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R056.png",
+          "sha256": "56e756dfdb73e19e3142d9f6a0d24267c53b6ab6ffc7ea232dd32b99ed2f8750"
+        },
+        {
+          "assetId": "MP-S049",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S049-v3.png",
+          "sha256": "820cc849cd833312889f6926204e320e38a0900c02d5caff929694e93771ae3e"
+        },
+        {
+          "assetId": "MP-S050",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S050.png",
+          "sha256": "ceba8df2aeafe84bf6b359fb6b44510d485e4c6f29b30299934397af84e1c114"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-84d78-er-and-hittable-in-document-phone390/guest-document.png",
+      "sha256": "57b03a5998a2acc5ceffc623c756e1d2f4d619bddaf2ede79295c47e41c340d2",
+      "width": 390,
+      "height": 844,
+      "scene": "guest-document",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "文档编辑，卡片上独立显示“可编辑”；没有私人栏。",
+      "issueIds": [
+        "GUEST-BADGE"
+      ],
+      "sourceIds": [
+        "PB-026"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/390-light-guest-document.png",
+      "beforeSha256": "36e3830eb1546d7ba1d2eee93f1521668c59761191da38bd5455f83b6d83a7ff",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D092",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D092.png",
+          "sha256": "b259c1bc9f415649670fe4ec9dc53ec9db4f975d24c8dd31309b3f2601e2ccf1"
+        },
+        {
+          "assetId": "MP-R056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R056.png",
+          "sha256": "56e756dfdb73e19e3142d9f6a0d24267c53b6ab6ffc7ea232dd32b99ed2f8750"
+        },
+        {
+          "assetId": "MP-S049",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S049-v3.png",
+          "sha256": "820cc849cd833312889f6926204e320e38a0900c02d5caff929694e93771ae3e"
+        },
+        {
+          "assetId": "MP-S050",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S050.png",
+          "sha256": "ceba8df2aeafe84bf6b359fb6b44510d485e4c6f29b30299934397af84e1c114"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-8c630-nd-hittable-in-cas-conflict-desktop/guest-cas-conflict.png",
+      "sha256": "be6e225e2050d1ebe3afcc05ae42f9eaac7ff6bb879570542f5de7021167d961",
+      "width": 1440,
+      "height": 1000,
+      "scene": "guest-cas-conflict",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "冲突提示、重新载入以及保留的访客草稿可见；权限标未与操作行重叠。",
+      "issueIds": [
+        "GUEST-BADGE"
+      ],
+      "sourceIds": [
+        "PB-028"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/1440-light-public-guest-cas-conflict.png",
+      "beforeSha256": "fc9f9fa751e97520977d43772d0de7cb5f94a70cda8f1f22b8d2011009123a6c",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-S050",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S050.png",
+          "sha256": "ceba8df2aeafe84bf6b359fb6b44510d485e4c6f29b30299934397af84e1c114"
+        },
+        {
+          "assetId": "MP-S053",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S053.png",
+          "sha256": "26903f4fdc2cde27846d95f2338995159224150b3eea5bff0948a530a1e06485"
+        },
+        {
+          "assetId": "MP-R056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R056.png",
+          "sha256": "56e756dfdb73e19e3142d9f6a0d24267c53b6ab6ffc7ea232dd32b99ed2f8750"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-8c630-nd-hittable-in-cas-conflict-phone320/guest-cas-conflict.png",
+      "sha256": "62e43b0332dd394bfa2640098afdd8d2d08ebe9fc8fc7f26713221a051a66f98",
+      "width": 320,
+      "height": 844,
+      "scene": "guest-cas-conflict",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "冲突提示、重新载入以及保留的访客草稿可见；权限标未与操作行重叠。 320px 使用独立第二行徽标，下面才是编辑工具栏。",
+      "issueIds": [
+        "GUEST-BADGE"
+      ],
+      "sourceIds": [
+        "PB-028"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/320-light-public-guest-cas-conflict.png",
+      "beforeSha256": "32ce00f9b42331c6388e97fcced9a8cf085c2fb0b9a7bc9f9fc13157662c07cc",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-S050",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S050.png",
+          "sha256": "ceba8df2aeafe84bf6b359fb6b44510d485e4c6f29b30299934397af84e1c114"
+        },
+        {
+          "assetId": "MP-S053",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S053.png",
+          "sha256": "26903f4fdc2cde27846d95f2338995159224150b3eea5bff0948a530a1e06485"
+        },
+        {
+          "assetId": "MP-R056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R056.png",
+          "sha256": "56e756dfdb73e19e3142d9f6a0d24267c53b6ab6ffc7ea232dd32b99ed2f8750"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-8c630-nd-hittable-in-cas-conflict-phone390/guest-cas-conflict.png",
+      "sha256": "78dea7c03a7f779cabf057fe5f79db295d434dfc9c775973a84e3eaa68ab6849",
+      "width": 390,
+      "height": 844,
+      "scene": "guest-cas-conflict",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "冲突提示、重新载入以及保留的访客草稿可见；权限标未与操作行重叠。",
+      "issueIds": [
+        "GUEST-BADGE"
+      ],
+      "sourceIds": [
+        "PB-028"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/390-light-public-guest-cas-conflict.png",
+      "beforeSha256": "49d096e1c177ce67b367b02b999b5a747062cfc86b6dda3ab5afb9a5f09f4cb2",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-S050",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S050.png",
+          "sha256": "ceba8df2aeafe84bf6b359fb6b44510d485e4c6f29b30299934397af84e1c114"
+        },
+        {
+          "assetId": "MP-S053",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S053.png",
+          "sha256": "26903f4fdc2cde27846d95f2338995159224150b3eea5bff0948a530a1e06485"
+        },
+        {
+          "assetId": "MP-R056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R056.png",
+          "sha256": "56e756dfdb73e19e3142d9f6a0d24267c53b6ab6ffc7ea232dd32b99ed2f8750"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-ecdd7-ader-and-hittable-in-source-desktop/guest-source.png",
+      "sha256": "217847788ecd67e632501cab394928cfe6adfd131cb925ab9ec6108d1d5eaa12",
+      "width": 1440,
+      "height": 1000,
+      "scene": "guest-source",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "源码语法可见，权限标与源码/文档切换行分开。",
+      "issueIds": [
+        "GUEST-BADGE"
+      ],
+      "sourceIds": [
+        "PB-027"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/1440-light-guest-source.png",
+      "beforeSha256": "bdfc3d54f23cb72e3092a782428a21938bb6c00bd3985784e9b21bcd1ad573ab",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D093",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D093.png",
+          "sha256": "2c85d07661f8ef7da93a11dc7844080081160cdea7809007ffc0951e87194e8c"
+        },
+        {
+          "assetId": "MP-R057",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R057-v2.png",
+          "sha256": "42d670e6e6d1383cc99373ae03fe87d75e6a6eb472f5c754734193b63e3f2ef5"
+        },
+        {
+          "assetId": "MP-S049",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S049-v3.png",
+          "sha256": "820cc849cd833312889f6926204e320e38a0900c02d5caff929694e93771ae3e"
+        },
+        {
+          "assetId": "MP-S050",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S050.png",
+          "sha256": "ceba8df2aeafe84bf6b359fb6b44510d485e4c6f29b30299934397af84e1c114"
+        },
+        {
+          "assetId": "MP-S053",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S053.png",
+          "sha256": "26903f4fdc2cde27846d95f2338995159224150b3eea5bff0948a530a1e06485"
+        },
+        {
+          "assetId": "MP-D092",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D092.png",
+          "sha256": "b259c1bc9f415649670fe4ec9dc53ec9db4f975d24c8dd31309b3f2601e2ccf1"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-ecdd7-ader-and-hittable-in-source-phone320/guest-source.png",
+      "sha256": "51e982869827bb4c41d74f4601b7a4d5374cb4c4456825fccdd389ec5fb6b9da",
+      "width": 320,
+      "height": 844,
+      "scene": "guest-source",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "源码语法可见，权限标与源码/文档切换行分开。 320px 使用独立第二行徽标，下面才是编辑工具栏。",
+      "issueIds": [
+        "GUEST-BADGE"
+      ],
+      "sourceIds": [
+        "PB-027"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/320-light-guest-source.png",
+      "beforeSha256": "f4b18842a30a437bedf5b2908c1752d73e82a023a4a9f49bd42207441a19d13e",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D093",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D093.png",
+          "sha256": "2c85d07661f8ef7da93a11dc7844080081160cdea7809007ffc0951e87194e8c"
+        },
+        {
+          "assetId": "MP-R057",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R057-v2.png",
+          "sha256": "42d670e6e6d1383cc99373ae03fe87d75e6a6eb472f5c754734193b63e3f2ef5"
+        },
+        {
+          "assetId": "MP-S049",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S049-v3.png",
+          "sha256": "820cc849cd833312889f6926204e320e38a0900c02d5caff929694e93771ae3e"
+        },
+        {
+          "assetId": "MP-S050",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S050.png",
+          "sha256": "ceba8df2aeafe84bf6b359fb6b44510d485e4c6f29b30299934397af84e1c114"
+        },
+        {
+          "assetId": "MP-S053",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S053.png",
+          "sha256": "26903f4fdc2cde27846d95f2338995159224150b3eea5bff0948a530a1e06485"
+        },
+        {
+          "assetId": "MP-D092",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D092.png",
+          "sha256": "b259c1bc9f415649670fe4ec9dc53ec9db4f975d24c8dd31309b3f2601e2ccf1"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-ecdd7-ader-and-hittable-in-source-phone390/guest-source.png",
+      "sha256": "80e0a7859454fb8e11b08791c525688ed959febb9b7f93c9d3e2e603815ff585",
+      "width": 390,
+      "height": 844,
+      "scene": "guest-source",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "源码语法可见，权限标与源码/文档切换行分开。",
+      "issueIds": [
+        "GUEST-BADGE"
+      ],
+      "sourceIds": [
+        "PB-027"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/390-light-guest-source.png",
+      "beforeSha256": "12354ec97b570ba816ea7793493f354e31f8eb5f07252d1c709f3172b5ff5dbe",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D093",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D093.png",
+          "sha256": "2c85d07661f8ef7da93a11dc7844080081160cdea7809007ffc0951e87194e8c"
+        },
+        {
+          "assetId": "MP-R057",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R057-v2.png",
+          "sha256": "42d670e6e6d1383cc99373ae03fe87d75e6a6eb472f5c754734193b63e3f2ef5"
+        },
+        {
+          "assetId": "MP-S049",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S049-v3.png",
+          "sha256": "820cc849cd833312889f6926204e320e38a0900c02d5caff929694e93771ae3e"
+        },
+        {
+          "assetId": "MP-S050",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S050.png",
+          "sha256": "ceba8df2aeafe84bf6b359fb6b44510d485e4c6f29b30299934397af84e1c114"
+        },
+        {
+          "assetId": "MP-S053",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S053.png",
+          "sha256": "26903f4fdc2cde27846d95f2338995159224150b3eea5bff0948a530a1e06485"
+        },
+        {
+          "assetId": "MP-D092",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D092.png",
+          "sha256": "b259c1bc9f415649670fe4ec9dc53ec9db4f975d24c8dd31309b3f2601e2ccf1"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-036c3-f-the-actual-sticky-savebar-desktop/focus-navigation.png",
+      "sha256": "9f7f23aaafd6f262edf3dee72105c59259a244f63c7477b268f7fa143629b739",
+      "width": 1440,
+      "height": 1000,
+      "scene": "focus-navigation",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "第三条友情链接的名称/地址和排序按钮在保存栏之前，未被保存按钮挡住。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-044"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/1440-light-blog-design-navigation.png",
+      "beforeSha256": "34d83cd97eaec02be50692bc9bdb26861d5df560e7c9f37a858ac6ff6b36730c",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D109",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D109.png",
+          "sha256": "8fef32e02f21f24b30b5e39998562f04b4a32bb72bb5207c16e8340d6af0e242"
+        },
+        {
+          "assetId": "MP-R072",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R072.png",
+          "sha256": "52979f74a5071db7cc3a902fd6ec605afea324d92512259d9d70336952673a41"
+        },
+        {
+          "assetId": "MP-S064",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S064.png",
+          "sha256": "3b873eabcf1f346fe2da7fddb9bb5140174f625d8bd5f19c4ad0b094bd6d0cf6"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-036c3-f-the-actual-sticky-savebar-phone320/focus-navigation.png",
+      "sha256": "e3edb3ee0e753783711d8119df2d92979b1e7c70f29e82416ef3dd5aeaeb3533",
+      "width": 320,
+      "height": 844,
+      "scene": "focus-navigation",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "第三条友情链接的名称/地址和排序按钮在保存栏之前，未被保存按钮挡住。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-044"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/320-light-blog-design-navigation.png",
+      "beforeSha256": "394c9492ad0fd368e1cef9531b0fa549cdb8aaa25f71babb0814c118484f599f",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D109",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D109.png",
+          "sha256": "8fef32e02f21f24b30b5e39998562f04b4a32bb72bb5207c16e8340d6af0e242"
+        },
+        {
+          "assetId": "MP-R072",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R072.png",
+          "sha256": "52979f74a5071db7cc3a902fd6ec605afea324d92512259d9d70336952673a41"
+        },
+        {
+          "assetId": "MP-S064",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S064.png",
+          "sha256": "3b873eabcf1f346fe2da7fddb9bb5140174f625d8bd5f19c4ad0b094bd6d0cf6"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-036c3-f-the-actual-sticky-savebar-phone390/focus-navigation.png",
+      "sha256": "7981d2eef178bc24af071461467db133225974a75a0007bc623fe1302d0e6460",
+      "width": 390,
+      "height": 844,
+      "scene": "focus-navigation",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "第三条友情链接的名称/地址和排序按钮在保存栏之前，未被保存按钮挡住。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-044"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/390-light-blog-design-navigation.png",
+      "beforeSha256": "12d527b2c5eea59df9c4b43010694508f67bfc7c7ecef3d026f8227e59b963f4",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D109",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D109.png",
+          "sha256": "8fef32e02f21f24b30b5e39998562f04b4a32bb72bb5207c16e8340d6af0e242"
+        },
+        {
+          "assetId": "MP-R072",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R072.png",
+          "sha256": "52979f74a5071db7cc3a902fd6ec605afea324d92512259d9d70336952673a41"
+        },
+        {
+          "assetId": "MP-S064",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S064.png",
+          "sha256": "3b873eabcf1f346fe2da7fddb9bb5140174f625d8bd5f19c4ad0b094bd6d0cf6"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-0adad-f-the-actual-sticky-savebar-desktop/focus-collections.png",
+      "sha256": "df050638e7b7b0d84ebc99506eae57b2141b47972061fae416dfe8bb9470e972",
+      "width": 1440,
+      "height": 1000,
+      "scene": "focus-collections",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "专题成员的上移/下移/移出及专题删除区在保存栏上方可见。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-043"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/1440-light-blog-design-collections.png",
+      "beforeSha256": "3a2c8cc60ae468e6f7f0f8d041567a2e20afc40c8ce50fb2ce107db701dfd46d",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D108",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D108-v2.png",
+          "sha256": "4c53b4abfd555d032d20f6752a9ebb58730534dd2f89f8033702d459ebc09c84"
+        },
+        {
+          "assetId": "MP-R071",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R071-v3.png",
+          "sha256": "d830e3af020a97c934b829ef908628c835f1f8bf7cba5fb9c682155249a64463"
+        },
+        {
+          "assetId": "MP-S063",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S063.png",
+          "sha256": "b331ee3832bc466208f44e85bc52013e18190c3f0cc9319e2d185b17982af94d"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-0adad-f-the-actual-sticky-savebar-phone320/focus-collections.png",
+      "sha256": "23a185103c078caa105e1d4d294cbaf1941ed1a208a020844feb1a024f801ca1",
+      "width": 320,
+      "height": 844,
+      "scene": "focus-collections",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "专题成员的上移/下移/移出及专题删除区在保存栏上方可见。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-043"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/320-light-blog-design-collections.png",
+      "beforeSha256": "1f1174e458c80ec478c6592dbac1fef5db15c1307cc3d7ef82ed36f2788a5a7d",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D108",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D108-v2.png",
+          "sha256": "4c53b4abfd555d032d20f6752a9ebb58730534dd2f89f8033702d459ebc09c84"
+        },
+        {
+          "assetId": "MP-R071",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R071-v3.png",
+          "sha256": "d830e3af020a97c934b829ef908628c835f1f8bf7cba5fb9c682155249a64463"
+        },
+        {
+          "assetId": "MP-S063",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S063.png",
+          "sha256": "b331ee3832bc466208f44e85bc52013e18190c3f0cc9319e2d185b17982af94d"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-0adad-f-the-actual-sticky-savebar-phone390/focus-collections.png",
+      "sha256": "9c4d249c4989172d4906c67b475ad1126386515657279467eb028a3ba5654160",
+      "width": 390,
+      "height": 844,
+      "scene": "focus-collections",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "专题成员的上移/下移/移出及专题删除区在保存栏上方可见。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-043"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/390-light-blog-design-collections.png",
+      "beforeSha256": "a8a7724381d3a5a4a18b475006530180f5e76e22837eac43e4e217486e91ee35",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D108",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D108-v2.png",
+          "sha256": "4c53b4abfd555d032d20f6752a9ebb58730534dd2f89f8033702d459ebc09c84"
+        },
+        {
+          "assetId": "MP-R071",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R071-v3.png",
+          "sha256": "d830e3af020a97c934b829ef908628c835f1f8bf7cba5fb9c682155249a64463"
+        },
+        {
+          "assetId": "MP-S063",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S063.png",
+          "sha256": "b331ee3832bc466208f44e85bc52013e18190c3f0cc9319e2d185b17982af94d"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-1a92f-f-the-actual-sticky-savebar-desktop/focus-appearance.png",
+      "sha256": "00a21b0e9d9221bd60744394b57719bc452e792d4b1c03c673bb5ffa076a51a1",
+      "width": 1440,
+      "height": 1000,
+      "scene": "focus-appearance",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "个人简介焦点描边完整落在保存栏上方，预览和编辑宿主连续。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-041",
+        "PB-046"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/1440-light-blog-design.png",
+      "beforeSha256": "4df023d24110cda8053aa0c40005318d929b321699f64c89be15fe4353c3cffb",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D106",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D106.png",
+          "sha256": "79bb05eac1df3c11fb9dc23e6a093b110e283efd011fae534ccbe97237b7d1e1"
+        },
+        {
+          "assetId": "MP-R069",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R069.png",
+          "sha256": "a7f4cfdb6aea863449c4eddabd715366486bec89b7a618dc169bf510f5bec7a8"
+        },
+        {
+          "assetId": "MP-S061",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S061.png",
+          "sha256": "7b393a51237671d8fc7312a97aa10f6e393129b0802240e60ddd93ac029aee80"
+        },
+        {
+          "assetId": "MP-D111",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D111.png",
+          "sha256": "a139ff4a0f837b31dc9b9ef6c599a7f4b3d1bb99ad1547d086b84ccffb64aaf8"
+        },
+        {
+          "assetId": "MP-D126",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D126.png",
+          "sha256": "967ca49f271c4c91c646db1f71cc278be2cee179682cf0d07b37ac04c9029f9f"
+        },
+        {
+          "assetId": "MP-R073",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R073-v2.png",
+          "sha256": "d65ccce3a875506ea1f3206dce8b1c6b8a21c4832b78a5d98fdc511cdd001aa1"
+        },
+        {
+          "assetId": "MP-R-GET046",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R-GET046.png",
+          "sha256": "900a9f6a22d265ee403e4419501deee6eaa092e9af3cfbb1b93f0f65e67c31ce"
+        },
+        {
+          "assetId": "MP-S066",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S066.png",
+          "sha256": "655a4b6283ab04aca90ba036f5975b0a7e846e1cddde590909234a68a4653d79"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-1a92f-f-the-actual-sticky-savebar-phone320/focus-appearance.png",
+      "sha256": "b4e1f9cae08e0a48a50c31bb81bed56ae1b52e3a1400ff89f14a998be40dd25c",
+      "width": 320,
+      "height": 844,
+      "scene": "focus-appearance",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "个人简介焦点描边完整落在保存栏上方，预览和编辑宿主连续。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-041",
+        "PB-046"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/320-light-blog-design.png",
+      "beforeSha256": "9d580365c126461d00fbc43be322761ed9c7c4646d20ae5aefd2581ca2288549",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D106",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D106.png",
+          "sha256": "79bb05eac1df3c11fb9dc23e6a093b110e283efd011fae534ccbe97237b7d1e1"
+        },
+        {
+          "assetId": "MP-R069",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R069.png",
+          "sha256": "a7f4cfdb6aea863449c4eddabd715366486bec89b7a618dc169bf510f5bec7a8"
+        },
+        {
+          "assetId": "MP-S061",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S061.png",
+          "sha256": "7b393a51237671d8fc7312a97aa10f6e393129b0802240e60ddd93ac029aee80"
+        },
+        {
+          "assetId": "MP-D111",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D111.png",
+          "sha256": "a139ff4a0f837b31dc9b9ef6c599a7f4b3d1bb99ad1547d086b84ccffb64aaf8"
+        },
+        {
+          "assetId": "MP-D126",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D126.png",
+          "sha256": "967ca49f271c4c91c646db1f71cc278be2cee179682cf0d07b37ac04c9029f9f"
+        },
+        {
+          "assetId": "MP-R073",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R073-v2.png",
+          "sha256": "d65ccce3a875506ea1f3206dce8b1c6b8a21c4832b78a5d98fdc511cdd001aa1"
+        },
+        {
+          "assetId": "MP-R-GET046",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R-GET046.png",
+          "sha256": "900a9f6a22d265ee403e4419501deee6eaa092e9af3cfbb1b93f0f65e67c31ce"
+        },
+        {
+          "assetId": "MP-S066",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S066.png",
+          "sha256": "655a4b6283ab04aca90ba036f5975b0a7e846e1cddde590909234a68a4653d79"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-1a92f-f-the-actual-sticky-savebar-phone390/focus-appearance.png",
+      "sha256": "666298542d0e0523ac6dddde0a6f33d4c924ed781fc65ceb427b0cdf5ba91b25",
+      "width": 390,
+      "height": 844,
+      "scene": "focus-appearance",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "个人简介焦点描边完整落在保存栏上方，预览和编辑宿主连续。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-041",
+        "PB-046"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/390-light-blog-design.png",
+      "beforeSha256": "dc172b1bc667be77a36c95cd4979c87a2ac3bc1c92c8bf79893c906bb931442b",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D106",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D106.png",
+          "sha256": "79bb05eac1df3c11fb9dc23e6a093b110e283efd011fae534ccbe97237b7d1e1"
+        },
+        {
+          "assetId": "MP-R069",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R069.png",
+          "sha256": "a7f4cfdb6aea863449c4eddabd715366486bec89b7a618dc169bf510f5bec7a8"
+        },
+        {
+          "assetId": "MP-S061",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S061.png",
+          "sha256": "7b393a51237671d8fc7312a97aa10f6e393129b0802240e60ddd93ac029aee80"
+        },
+        {
+          "assetId": "MP-D111",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D111.png",
+          "sha256": "a139ff4a0f837b31dc9b9ef6c599a7f4b3d1bb99ad1547d086b84ccffb64aaf8"
+        },
+        {
+          "assetId": "MP-D126",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D126.png",
+          "sha256": "967ca49f271c4c91c646db1f71cc278be2cee179682cf0d07b37ac04c9029f9f"
+        },
+        {
+          "assetId": "MP-R073",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R073-v2.png",
+          "sha256": "d65ccce3a875506ea1f3206dce8b1c6b8a21c4832b78a5d98fdc511cdd001aa1"
+        },
+        {
+          "assetId": "MP-R-GET046",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R-GET046.png",
+          "sha256": "900a9f6a22d265ee403e4419501deee6eaa092e9af3cfbb1b93f0f65e67c31ce"
+        },
+        {
+          "assetId": "MP-S066",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S066.png",
+          "sha256": "655a4b6283ab04aca90ba036f5975b0a7e846e1cddde590909234a68a4653d79"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-6c810-f-the-actual-sticky-savebar-desktop/focus-settings.png",
+      "sha256": "25ae733bdb39f3978ac7d523a8c42e78b059754e613598bd33e731aa2b50032b",
+      "width": 1440,
+      "height": 1000,
+      "scene": "focus-settings",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "长文本框的上下焦点边界都在当前视口内、保存栏上方。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-040"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/1440-light-blog-settings.png",
+      "beforeSha256": "328a837dfbc4685a03527194121b04d41a851e2be82dc61fe2039d4eda6b5648",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D105",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D105.png",
+          "sha256": "963aae4ee08561e0bf3b1258104d108305f4eeeadb40347092801ba77d6a2d49"
+        },
+        {
+          "assetId": "MP-R068",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R068.png",
+          "sha256": "10093677478af52fa97d66339007cfc00abb2570cb2aae40baf7377a2d3614b4"
+        },
+        {
+          "assetId": "MP-S054",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S054.png",
+          "sha256": "a74aaf4467919ab4eaf2d73172b0ec6acd89a7e9a8968b48925a116db3b19d10"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-6c810-f-the-actual-sticky-savebar-phone320/focus-settings.png",
+      "sha256": "b4cc67238d94ddf46b9d3aff68f20b82412e75451e4a8455e1803d0846ed7490",
+      "width": 320,
+      "height": 844,
+      "scene": "focus-settings",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "长文本框的上下焦点边界都在当前视口内、保存栏上方。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-040"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/320-light-blog-settings.png",
+      "beforeSha256": "fc693cc1c744773e563afbaaf5875f42a2f569da53dcb256661bd456b1f2e553",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D105",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D105.png",
+          "sha256": "963aae4ee08561e0bf3b1258104d108305f4eeeadb40347092801ba77d6a2d49"
+        },
+        {
+          "assetId": "MP-R068",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R068.png",
+          "sha256": "10093677478af52fa97d66339007cfc00abb2570cb2aae40baf7377a2d3614b4"
+        },
+        {
+          "assetId": "MP-S054",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S054.png",
+          "sha256": "a74aaf4467919ab4eaf2d73172b0ec6acd89a7e9a8968b48925a116db3b19d10"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-6c810-f-the-actual-sticky-savebar-phone390/focus-settings.png",
+      "sha256": "b3d5ea5ba4d01e3a3d37a452c72c5e2a9f7882a4cf2b52a67abd4c62a911d57e",
+      "width": 390,
+      "height": 844,
+      "scene": "focus-settings",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "长文本框的上下焦点边界都在当前视口内、保存栏上方。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-040"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/390-light-blog-settings.png",
+      "beforeSha256": "0412474353cbb40185083df6316de9ad39123080cda3c85e2645cfb638f076c9",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D105",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D105.png",
+          "sha256": "963aae4ee08561e0bf3b1258104d108305f4eeeadb40347092801ba77d6a2d49"
+        },
+        {
+          "assetId": "MP-R068",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R068.png",
+          "sha256": "10093677478af52fa97d66339007cfc00abb2570cb2aae40baf7377a2d3614b4"
+        },
+        {
+          "assetId": "MP-S054",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S054.png",
+          "sha256": "a74aaf4467919ab4eaf2d73172b0ec6acd89a7e9a8968b48925a116db3b19d10"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-e9605-f-the-actual-sticky-savebar-desktop/focus-modules.png",
+      "sha256": "3efd628bac6f5a33233f62bca0a5571c76890cedb609b5b120333d09f24a3a82",
+      "width": 1440,
+      "height": 1000,
+      "scene": "focus-modules",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "模块名称、显示数量、排序按钮及添加新模块区域出现在栏上方，窄屏上下排列。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-042"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/1440-light-blog-design-modules.png",
+      "beforeSha256": "64611cd511d763ed6af486593b98ece9e56049645c3df0af292786ab99034211",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D107",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D107-v2.png",
+          "sha256": "b7f37a2ea6d2cad3d19028228753657b5874d973379cc69fb917a87240ef03dd"
+        },
+        {
+          "assetId": "MP-R070",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R070-v2.png",
+          "sha256": "96b1544d790a090a94f41b1b86e4a1f0b0eef602a626d82a9db15374e032dcd8"
+        },
+        {
+          "assetId": "MP-S062",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S062-v2.png",
+          "sha256": "762965c6ba4303d664bf5032a0ae3f7e76d63847d8f5384d22ce502aada7f851"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-e9605-f-the-actual-sticky-savebar-phone320/focus-modules.png",
+      "sha256": "e086091fee24d7fe3d00bff6faaca54030778972610150fd093ebdb379dae06e",
+      "width": 320,
+      "height": 844,
+      "scene": "focus-modules",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "模块名称、显示数量、排序按钮及添加新模块区域出现在栏上方，窄屏上下排列。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-042"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/320-light-blog-design-modules.png",
+      "beforeSha256": "dbafa4e64d9fa5a07c39af243c624b1d701f300a2ccc612fc1ab77b1a59147d5",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D107",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D107-v2.png",
+          "sha256": "b7f37a2ea6d2cad3d19028228753657b5874d973379cc69fb917a87240ef03dd"
+        },
+        {
+          "assetId": "MP-R070",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R070-v2.png",
+          "sha256": "96b1544d790a090a94f41b1b86e4a1f0b0eef602a626d82a9db15374e032dcd8"
+        },
+        {
+          "assetId": "MP-S062",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S062-v2.png",
+          "sha256": "762965c6ba4303d664bf5032a0ae3f7e76d63847d8f5384d22ce502aada7f851"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-e9605-f-the-actual-sticky-savebar-phone390/focus-modules.png",
+      "sha256": "66fdabb65bc05b4dbcfc5d475491bc1e7f665b045ff1bc04063f9aec823e97aa",
+      "width": 390,
+      "height": 844,
+      "scene": "focus-modules",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "模块名称、显示数量、排序按钮及添加新模块区域出现在栏上方，窄屏上下排列。",
+      "issueIds": [
+        "FOCUS-COVERED"
+      ],
+      "sourceIds": [
+        "PB-042"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/390-light-blog-design-modules.png",
+      "beforeSha256": "fecf6b76e8e1428ad530da3ef9e6ded8b7e0324a68d6c4b5cb2be75235f15b0a",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D107",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D107-v2.png",
+          "sha256": "b7f37a2ea6d2cad3d19028228753657b5874d973379cc69fb917a87240ef03dd"
+        },
+        {
+          "assetId": "MP-R070",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R070-v2.png",
+          "sha256": "96b1544d790a090a94f41b1b86e4a1f0b0eef602a626d82a9db15374e032dcd8"
+        },
+        {
+          "assetId": "MP-S062",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S062-v2.png",
+          "sha256": "762965c6ba4303d664bf5032a0ae3f7e76d63847d8f5384d22ce502aada7f851"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-settings-conf-96e3d-ciles-without-another-write-desktop/settings-conflict.png",
+      "sha256": "488cccae9dbbe75739c777dbbc877bfe9e82146c3e481e9141703f893648f4d7",
+      "width": 1440,
+      "height": 1000,
+      "scene": "settings-conflict",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "站点设置已变化、重新核对设置及保存按钮在同一操作区，窄屏正文字句可读。",
+      "issueIds": [
+        "STUDIO-FEEDBACK"
+      ],
+      "sourceIds": [
+        "PB-040"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/1440-light-blog-settings.png",
+      "beforeSha256": "328a837dfbc4685a03527194121b04d41a851e2be82dc61fe2039d4eda6b5648",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D105",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D105.png",
+          "sha256": "963aae4ee08561e0bf3b1258104d108305f4eeeadb40347092801ba77d6a2d49"
+        },
+        {
+          "assetId": "MP-R068",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R068.png",
+          "sha256": "10093677478af52fa97d66339007cfc00abb2570cb2aae40baf7377a2d3614b4"
+        },
+        {
+          "assetId": "MP-S054",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S054.png",
+          "sha256": "a74aaf4467919ab4eaf2d73172b0ec6acd89a7e9a8968b48925a116db3b19d10"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-settings-conf-96e3d-ciles-without-another-write-phone320/settings-conflict.png",
+      "sha256": "8ea42242d74efbf13d74997a3f0098eea879a53ee8587b1c98fd75c944bc7250",
+      "width": 320,
+      "height": 844,
+      "scene": "settings-conflict",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "站点设置已变化、重新核对设置及保存按钮在同一操作区，窄屏正文字句可读。",
+      "issueIds": [
+        "STUDIO-FEEDBACK"
+      ],
+      "sourceIds": [
+        "PB-040"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/320-light-blog-settings.png",
+      "beforeSha256": "fc693cc1c744773e563afbaaf5875f42a2f569da53dcb256661bd456b1f2e553",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D105",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D105.png",
+          "sha256": "963aae4ee08561e0bf3b1258104d108305f4eeeadb40347092801ba77d6a2d49"
+        },
+        {
+          "assetId": "MP-R068",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R068.png",
+          "sha256": "10093677478af52fa97d66339007cfc00abb2570cb2aae40baf7377a2d3614b4"
+        },
+        {
+          "assetId": "MP-S054",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S054.png",
+          "sha256": "a74aaf4467919ab4eaf2d73172b0ec6acd89a7e9a8968b48925a116db3b19d10"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-settings-conf-96e3d-ciles-without-another-write-phone390/settings-conflict.png",
+      "sha256": "d01274d19105df7b10cd91d3d8973705f28e424db717037593be2ad40d033d2c",
+      "width": 390,
+      "height": 844,
+      "scene": "settings-conflict",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "站点设置已变化、重新核对设置及保存按钮在同一操作区，窄屏正文字句可读。",
+      "issueIds": [
+        "STUDIO-FEEDBACK"
+      ],
+      "sourceIds": [
+        "PB-040"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/390-light-blog-settings.png",
+      "beforeSha256": "0412474353cbb40185083df6316de9ad39123080cda3c85e2645cfb638f076c9",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D105",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D105.png",
+          "sha256": "963aae4ee08561e0bf3b1258104d108305f4eeeadb40347092801ba77d6a2d49"
+        },
+        {
+          "assetId": "MP-R068",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R068.png",
+          "sha256": "10093677478af52fa97d66339007cfc00abb2570cb2aae40baf7377a2d3614b4"
+        },
+        {
+          "assetId": "MP-S054",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S054.png",
+          "sha256": "a74aaf4467919ab4eaf2d73172b0ec6acd89a7e9a8968b48925a116db3b19d10"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-settings-unkn-014da-ciles-without-another-write-desktop/settings-unknown.png",
+      "sha256": "9f1cc992b657f1237826d022d4e06028fa923930f0784cb9d939d79c902a411c",
+      "width": 1440,
+      "height": 1000,
+      "scene": "settings-unknown",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "中文未知结果说明、重新核对设置与保存按钮在当前视口中，保留本地未保存提示。",
+      "issueIds": [
+        "NETWORK-TEXT",
+        "STUDIO-FEEDBACK"
+      ],
+      "sourceIds": [
+        "PB-040"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/1440-light-blog-settings.png",
+      "beforeSha256": "328a837dfbc4685a03527194121b04d41a851e2be82dc61fe2039d4eda6b5648",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D105",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D105.png",
+          "sha256": "963aae4ee08561e0bf3b1258104d108305f4eeeadb40347092801ba77d6a2d49"
+        },
+        {
+          "assetId": "MP-R068",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R068.png",
+          "sha256": "10093677478af52fa97d66339007cfc00abb2570cb2aae40baf7377a2d3614b4"
+        },
+        {
+          "assetId": "MP-S054",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S054.png",
+          "sha256": "a74aaf4467919ab4eaf2d73172b0ec6acd89a7e9a8968b48925a116db3b19d10"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-settings-unkn-014da-ciles-without-another-write-phone320/settings-unknown.png",
+      "sha256": "d006390eb52db5f6d677e1c77eed29b4188b9f1b3db3e5a9ecd045dfb8141e29",
+      "width": 320,
+      "height": 844,
+      "scene": "settings-unknown",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "中文未知结果说明、重新核对设置与保存按钮在当前视口中，保留本地未保存提示。",
+      "issueIds": [
+        "NETWORK-TEXT",
+        "STUDIO-FEEDBACK"
+      ],
+      "sourceIds": [
+        "PB-040"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/320-light-blog-settings.png",
+      "beforeSha256": "fc693cc1c744773e563afbaaf5875f42a2f569da53dcb256661bd456b1f2e553",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D105",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D105.png",
+          "sha256": "963aae4ee08561e0bf3b1258104d108305f4eeeadb40347092801ba77d6a2d49"
+        },
+        {
+          "assetId": "MP-R068",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R068.png",
+          "sha256": "10093677478af52fa97d66339007cfc00abb2570cb2aae40baf7377a2d3614b4"
+        },
+        {
+          "assetId": "MP-S054",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S054.png",
+          "sha256": "a74aaf4467919ab4eaf2d73172b0ec6acd89a7e9a8968b48925a116db3b19d10"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-settings-unkn-014da-ciles-without-another-write-phone390/settings-unknown.png",
+      "sha256": "cb0fe1b85bb01c187b3090824ca6d2fc468ab7e0cb3979468a3fb1f3e55f0931",
+      "width": 390,
+      "height": 844,
+      "scene": "settings-unknown",
+      "actuallyViewed": true,
+      "verdict": "addressed-in-author-patch",
+      "observation": "中文未知结果说明、重新核对设置与保存按钮在当前视口中，保留本地未保存提示。",
+      "issueIds": [
+        "NETWORK-TEXT",
+        "STUDIO-FEEDBACK"
+      ],
+      "sourceIds": [
+        "PB-040"
+      ],
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-main-remaining/390-light-blog-settings.png",
+      "beforeSha256": "0412474353cbb40185083df6316de9ad39123080cda3c85e2645cfb638f076c9",
+      "designComparisonRefsFromPriorReview": [
+        {
+          "assetId": "MP-D105",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D105.png",
+          "sha256": "963aae4ee08561e0bf3b1258104d108305f4eeeadb40347092801ba77d6a2d49"
+        },
+        {
+          "assetId": "MP-R068",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R068.png",
+          "sha256": "10093677478af52fa97d66339007cfc00abb2570cb2aae40baf7377a2d3614b4"
+        },
+        {
+          "assetId": "MP-S054",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S054.png",
+          "sha256": "a74aaf4467919ab4eaf2d73172b0ec6acd89a7e9a8968b48925a116db3b19d10"
+        },
+        {
+          "assetId": "MP-S056",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S056-v2.png",
+          "sha256": "873dca9ea57ca7692f5c0c6a347246d6eea1b28262e726b2151053eba4225d18"
+        },
+        {
+          "assetId": "MP-SX002",
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-SX002.png",
+          "sha256": "6332458faafc3ecbf6bc4d2c3f8ac63adbaad9253ec8993d4ef7ba8a798209d9"
+        }
+      ]
+    }
+  ]
+}

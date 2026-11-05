@@ -1,0 +1,1512 @@
+{
+  "sourceCommit": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+  "batch": "2026-11-05-55174d4-reviewed-state-fixes",
+  "reviewedAtUtc": "2026-11-05T14:38:53.102777+00:00",
+  "reviewMethod": "Matched primary screenshot and approved designs viewed in scene-by-scene sheets, including both narrow screenshots at native size. SHA-256 rechecked on all originals. Independently viewed both narrow large-file-controls screenshots after inner scrolling. The HTML export screenshot is the downloaded artifact page, not the owner trigger.",
+  "priorReview": "runtime/reviews/workspace-review.json",
+  "coverageLimits": "Three Chromium light viewports, ten visible states. Focus probes supplementary only. Physical mobile/IME, keyboard traversal/return, form submission, hidden branches and other graph states outside scope.",
+  "legacyUnresolved": [
+    {
+      "scene": "graph-note-mode",
+      "sourceIds": [
+        "WS-106"
+      ],
+      "previousSource": "68616eab4d3e9f84fa78f423e8bb4762c93f59e4",
+      "issue": "历史画布上两个同名节点重叠，本批未重拍或修复。"
+    }
+  ],
+  "images": [
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/1440-light-backlinks.png",
+      "sha256": "a03e4d19fa29442081921235e0bf249ebe663a7ccaa20d716484c37034fc9fba",
+      "sourceIds": [
+        "WS-046"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D036",
+          "file": "design/images/WS-D036.png",
+          "sha256": "56c0a5a9400e972017f1732b6886ccd05dc450655c056bec03f3cc9a9ad44a63"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "扫描完成后的计数、跳过与未找到提及等消息依序排列；关闭为轻描边次按钮，重新查找为实底主按钮。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 400,
+          "y": 393.609375,
+          "width": 640,
+          "height": 212.78125
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 5,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": [],
+        "footerButtonProbe": [
+          {
+            "label": "关闭",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          },
+          {
+            "label": "重新查找",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          }
+        ]
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/320-light-backlinks.png",
+      "sha256": "cacc435be5b57286f56bd0774dd88d602a4bbef94ea0b06ed5ead21f4a5ad3a6",
+      "sourceIds": [
+        "WS-046"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D036",
+          "file": "design/images/WS-D036.png",
+          "sha256": "56c0a5a9400e972017f1732b6886ccd05dc450655c056bec03f3cc9a9ad44a63"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "扫描完成后的计数、跳过与未找到提及等消息依序排列；关闭为轻描边次按钮，重新查找为实底主按钮。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 16,
+          "y": 294.015625,
+          "width": 288,
+          "height": 255.96875
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 5,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": [],
+        "footerButtonProbe": [
+          {
+            "label": "关闭",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          },
+          {
+            "label": "重新查找",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          }
+        ]
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/390-light-backlinks.png",
+      "sha256": "682162484930f81a07f423a5389c6c3be37a89015eedb02c4757ab8109939e4c",
+      "sourceIds": [
+        "WS-046"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D036",
+          "file": "design/images/WS-D036.png",
+          "sha256": "56c0a5a9400e972017f1732b6886ccd05dc450655c056bec03f3cc9a9ad44a63"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "扫描完成后的计数、跳过与未找到提及等消息依序排列；关闭为轻描边次按钮，重新查找为实底主按钮。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 16,
+          "y": 294.015625,
+          "width": 358,
+          "height": 255.96875
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 5,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": [],
+        "footerButtonProbe": [
+          {
+            "label": "关闭",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          },
+          {
+            "label": "重新查找",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          }
+        ]
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/1440-light-diagram-png.png",
+      "sha256": "1e025ed60705aad8ce923e84af0b088c3e7bc7bc56961ac5781f3af77f117288",
+      "sourceIds": [
+        "WS-073"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D053",
+          "file": "design/images/WS-D053.png",
+          "sha256": "68f4ecd1dbaf7c68cde80e55124747b684030c170b0d4e72015f6b91e9fe44f6"
+        },
+        {
+          "assetId": "WS-R028",
+          "file": "design/images/WS-R028-v2.png",
+          "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "PNG 预览为选中模式，中部显示真实保存的黑色矩形，图形及四边完整。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 324,
+          "y": 56,
+          "width": 1116,
+          "height": 944
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 17,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/320-light-diagram-png.png",
+      "sha256": "56acb796f2f126d53be2b7007d50bb85bde782359bb4f3fe71da8d26a71ddcf6",
+      "sourceIds": [
+        "WS-073"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D053",
+          "file": "design/images/WS-D053.png",
+          "sha256": "68f4ecd1dbaf7c68cde80e55124747b684030c170b0d4e72015f6b91e9fe44f6"
+        },
+        {
+          "assetId": "WS-R028",
+          "file": "design/images/WS-R028-v2.png",
+          "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "PNG 预览为选中模式，中部显示真实保存的黑色矩形，图形及四边完整。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 0,
+          "y": 56,
+          "width": 320,
+          "height": 720
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 17,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/390-light-diagram-png.png",
+      "sha256": "a158cac38afef764ec17c5b735c5a8e53e243491208303dc27763a469c204a11",
+      "sourceIds": [
+        "WS-073"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D053",
+          "file": "design/images/WS-D053.png",
+          "sha256": "68f4ecd1dbaf7c68cde80e55124747b684030c170b0d4e72015f6b91e9fe44f6"
+        },
+        {
+          "assetId": "WS-R028",
+          "file": "design/images/WS-R028-v2.png",
+          "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "PNG 预览为选中模式，中部显示真实保存的黑色矩形，图形及四边完整。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 0,
+          "y": 56,
+          "width": 390,
+          "height": 720
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 17,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/1440-light-diagram-read.png",
+      "sha256": "381cd497ee02cbe7a788ee8bbfdfd75542e3de5a2352586d42c0fd654d759070",
+      "sourceIds": [
+        "WS-074"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D054",
+          "file": "design/images/WS-D054.png",
+          "sha256": "2c374a4c5ae3878329e7e8ecad8d4720a36ff5644a18a79f9827250acd4fd33c"
+        },
+        {
+          "assetId": "WS-R028",
+          "file": "design/images/WS-R028-v2.png",
+          "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03"
+        },
+        {
+          "assetId": "WS-R050",
+          "file": "design/images/WS-R050.png",
+          "sha256": "306abc1aaa378041757b8c15c03871c436e26be531ddbd1d445b788682f946aa"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "阅读为选中模式，真实正文标题显示。长夹具名在窄屏折行，页面没有画布编辑工具或保存失败提示。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 324,
+          "y": 56,
+          "width": 1116,
+          "height": 944
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 17,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/320-light-diagram-read.png",
+      "sha256": "b2d1f382cb4a10040ffbc4c388250a49168278df7b0fe6822c09a21329ccb051",
+      "sourceIds": [
+        "WS-074"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D054",
+          "file": "design/images/WS-D054.png",
+          "sha256": "2c374a4c5ae3878329e7e8ecad8d4720a36ff5644a18a79f9827250acd4fd33c"
+        },
+        {
+          "assetId": "WS-R028",
+          "file": "design/images/WS-R028-v2.png",
+          "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03"
+        },
+        {
+          "assetId": "WS-R050",
+          "file": "design/images/WS-R050.png",
+          "sha256": "306abc1aaa378041757b8c15c03871c436e26be531ddbd1d445b788682f946aa"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "阅读为选中模式，真实正文标题显示。长夹具名在窄屏折行，页面没有画布编辑工具或保存失败提示。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 0,
+          "y": 56,
+          "width": 320,
+          "height": 720
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 17,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/390-light-diagram-read.png",
+      "sha256": "cfce9dd5e1d512b7275557d955f53b63759422b5a333b2c84efca894d241849d",
+      "sourceIds": [
+        "WS-074"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D054",
+          "file": "design/images/WS-D054.png",
+          "sha256": "2c374a4c5ae3878329e7e8ecad8d4720a36ff5644a18a79f9827250acd4fd33c"
+        },
+        {
+          "assetId": "WS-R028",
+          "file": "design/images/WS-R028-v2.png",
+          "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03"
+        },
+        {
+          "assetId": "WS-R050",
+          "file": "design/images/WS-R050.png",
+          "sha256": "306abc1aaa378041757b8c15c03871c436e26be531ddbd1d445b788682f946aa"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "阅读为选中模式，真实正文标题显示。长夹具名在窄屏折行，页面没有画布编辑工具或保存失败提示。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 0,
+          "y": 56,
+          "width": 390,
+          "height": 720
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 17,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/1440-light-export-reading-html-export.png",
+      "sha256": "c975f952b4f8bd226e923374dcd07e331b8d0c9cebfc73a4526cc725f80a93f2",
+      "sourceIds": [
+        "WS-124"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D090",
+          "file": "design/images/WS-D090.png",
+          "sha256": "7236f7b0fa869cb2464a99e663493e7a12f7dc5186490efc3b9b0a9948f0e18d"
+        },
+        {
+          "assetId": "WS-R049",
+          "file": "design/images/WS-R049.png",
+          "sha256": "9b63bf7722b335ac37311acfc8e8d9916ad90ad9cfd92edc4a71b8f70c1fe5af"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "独立 HTML 呈现标题、说明、列表、表格、链接与代码块，正文独占页面，窄屏文字自然换行。",
+      "issues": [],
+      "supplemental": [
+        {
+          "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/1440-light-export-reading-html-download.html",
+          "sha256": "fa62b18be461ca6210457ded1bac98bd03ba18c4ba89b5fd2489a8b02846a390",
+          "purpose": "已校验下载 HTML 哈希及无 script 元素。"
+        }
+      ],
+      "probe": {
+        "targetBounds": {
+          "x": 310,
+          "y": 0,
+          "width": 820,
+          "height": 652.453125
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 1,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/320-light-export-reading-html-export.png",
+      "sha256": "20a40483a83d1176b77b42f4ffb3b6703faf6c17a6fde8d56dba2eae0404f0fa",
+      "sourceIds": [
+        "WS-124"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D090",
+          "file": "design/images/WS-D090.png",
+          "sha256": "7236f7b0fa869cb2464a99e663493e7a12f7dc5186490efc3b9b0a9948f0e18d"
+        },
+        {
+          "assetId": "WS-R049",
+          "file": "design/images/WS-R049.png",
+          "sha256": "9b63bf7722b335ac37311acfc8e8d9916ad90ad9cfd92edc4a71b8f70c1fe5af"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "独立 HTML 呈现标题、说明、列表、表格、链接与代码块，正文独占页面，窄屏文字自然换行。",
+      "issues": [],
+      "supplemental": [
+        {
+          "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/320-light-export-reading-html-download.html",
+          "sha256": "fa62b18be461ca6210457ded1bac98bd03ba18c4ba89b5fd2489a8b02846a390",
+          "purpose": "已校验下载 HTML 哈希及无 script 元素。"
+        }
+      ],
+      "probe": {
+        "targetBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 670.046875
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 1,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/390-light-export-reading-html-export.png",
+      "sha256": "01b11e9c2c91fc4a63a6a64dec11ea0465508fa923ac9159e3e9269488d6d183",
+      "sourceIds": [
+        "WS-124"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D090",
+          "file": "design/images/WS-D090.png",
+          "sha256": "7236f7b0fa869cb2464a99e663493e7a12f7dc5186490efc3b9b0a9948f0e18d"
+        },
+        {
+          "assetId": "WS-R049",
+          "file": "design/images/WS-R049.png",
+          "sha256": "9b63bf7722b335ac37311acfc8e8d9916ad90ad9cfd92edc4a71b8f70c1fe5af"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "独立 HTML 呈现标题、说明、列表、表格、链接与代码块，正文独占页面，窄屏文字自然换行。",
+      "issues": [],
+      "supplemental": [
+        {
+          "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/390-light-export-reading-html-download.html",
+          "sha256": "fa62b18be461ca6210457ded1bac98bd03ba18c4ba89b5fd2489a8b02846a390",
+          "purpose": "已校验下载 HTML 哈希及无 script 元素。"
+        }
+      ],
+      "probe": {
+        "targetBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 670.046875
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 1,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/1440-light-large-file.png",
+      "sha256": "c211c7d872632747baa3ef792e7e26db7d7ef860f33bc38e09b0141ce8c5b200",
+      "sourceIds": [
+        "WS-049"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D037",
+          "file": "design/images/WS-D037.png",
+          "sha256": "4a5ba23af3510c89f9ed53b2b866f3379e407655b6626d048fec488cdcd97e6e"
+        },
+        {
+          "assetId": "WS-R022",
+          "file": "design/images/WS-R022-v2.png",
+          "sha256": "d379fa7c03f9d37176211112d0ee834a1faa090b2b3e3aeb41218f96a7a70694"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "已完成、已保存、章节、1–100 行与字节范围同时显示，真实首片段中 FIRST 行及连续行号可辨。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 324,
+          "y": 109,
+          "width": 1116,
+          "height": 891
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 6,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/320-light-large-file.png",
+      "sha256": "8ce39d74484be7ec1152e7d97e0111f840995aa19dd0a573afe3c063c3088641",
+      "sourceIds": [
+        "WS-049"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D037",
+          "file": "design/images/WS-D037.png",
+          "sha256": "4a5ba23af3510c89f9ed53b2b866f3379e407655b6626d048fec488cdcd97e6e"
+        },
+        {
+          "assetId": "WS-R022",
+          "file": "design/images/WS-R022-v2.png",
+          "sha256": "d379fa7c03f9d37176211112d0ee834a1faa090b2b3e3aeb41218f96a7a70694"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "已完成、已保存、章节、1–100 行与字节范围同时显示，真实首片段中 FIRST 行及连续行号可辨。 内层滚动后，预览、保存、下一片段、重新读取和下载完整文件全部在底部导航上方，按钮排为两行。",
+      "issues": [],
+      "supplemental": [
+        {
+          "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/320-light-large-file-controls.png",
+          "sha256": "8fa161fdd7f201ec1b81f53e56f972576c0229cb80e31ba971e81907883a09dc",
+          "purpose": "另打开原尺寸焦点探针后画面，核实滚动后的操作区。"
+        }
+      ],
+      "probe": {
+        "targetBounds": {
+          "x": 0,
+          "y": 135,
+          "width": 320,
+          "height": 641
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 6,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": [
+          {
+            "tag": "SECTION",
+            "className": "large-workspace",
+            "clientHeight": 641,
+            "scrollHeight": 780,
+            "scrollTop": 139
+          }
+        ]
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/390-light-large-file.png",
+      "sha256": "1a76c52e6d6897f9411b6f81115d21f9807f8de10fd68feabf7dff408e8b0fbe",
+      "sourceIds": [
+        "WS-049"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D037",
+          "file": "design/images/WS-D037.png",
+          "sha256": "4a5ba23af3510c89f9ed53b2b866f3379e407655b6626d048fec488cdcd97e6e"
+        },
+        {
+          "assetId": "WS-R022",
+          "file": "design/images/WS-R022-v2.png",
+          "sha256": "d379fa7c03f9d37176211112d0ee834a1faa090b2b3e3aeb41218f96a7a70694"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "已完成、已保存、章节、1–100 行与字节范围同时显示，真实首片段中 FIRST 行及连续行号可辨。 内层滚动后，预览、保存、下一片段、重新读取和下载完整文件全部在底部导航上方，按钮排为两行。",
+      "issues": [],
+      "supplemental": [
+        {
+          "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/390-light-large-file-controls.png",
+          "sha256": "5b51f4c74891d16a70bce70d2f076e239e8ac1b6a58bbbaf4e8abcb9cf011070",
+          "purpose": "另打开原尺寸焦点探针后画面，核实滚动后的操作区。"
+        }
+      ],
+      "probe": {
+        "targetBounds": {
+          "x": 0,
+          "y": 135,
+          "width": 390,
+          "height": 641
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 6,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": [
+          {
+            "tag": "SECTION",
+            "className": "large-workspace",
+            "clientHeight": 641,
+            "scrollHeight": 758,
+            "scrollTop": 117
+          }
+        ]
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/1440-light-markdown-paste.png",
+      "sha256": "ebffe348bef26d20f4d31bfb02779ffd074056a58e3db51a637e031995ac0d5d",
+      "sourceIds": [
+        "WS-044"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D034",
+          "file": "design/images/WS-D034.png",
+          "sha256": "935f39833042039f9964217af2012ad896748b24e7fa480f9a95e83b39352bf6"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "标题、说明、带标签的粘贴区和页脚清楚；取消为次按钮，空文本时插入 Markdown 的禁用外观清楚。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 410,
+          "y": 278.984375,
+          "width": 620,
+          "height": 442.03125
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 6,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": [],
+        "footerButtonProbe": [
+          {
+            "label": "取消",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          },
+          {
+            "label": "插入 Markdown",
+            "disabled": true,
+            "focused": null,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          }
+        ]
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/320-light-markdown-paste.png",
+      "sha256": "a9addb9fe7930d90b0ff6a82718821241ed8d60ab3d4e21a0bfae5e896b4de56",
+      "sourceIds": [
+        "WS-044"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D034",
+          "file": "design/images/WS-D034.png",
+          "sha256": "935f39833042039f9964217af2012ad896748b24e7fa480f9a95e83b39352bf6"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "标题、说明、带标签的粘贴区和页脚清楚；取消为次按钮，空文本时插入 Markdown 的禁用外观清楚。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 16,
+          "y": 178.890625,
+          "width": 288,
+          "height": 486.21875
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 6,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": [],
+        "footerButtonProbe": [
+          {
+            "label": "取消",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          },
+          {
+            "label": "插入 Markdown",
+            "disabled": true,
+            "focused": null,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          }
+        ]
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/390-light-markdown-paste.png",
+      "sha256": "d6bf69d10800dbb2c2a2cf14e6a2f28af60836b2f042d12b29bb7e740b402d15",
+      "sourceIds": [
+        "WS-044"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D034",
+          "file": "design/images/WS-D034.png",
+          "sha256": "935f39833042039f9964217af2012ad896748b24e7fa480f9a95e83b39352bf6"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "标题、说明、带标签的粘贴区和页脚清楚；取消为次按钮，空文本时插入 Markdown 的禁用外观清楚。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 16,
+          "y": 189.9375,
+          "width": 358,
+          "height": 464.125
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 6,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": [],
+        "footerButtonProbe": [
+          {
+            "label": "取消",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          },
+          {
+            "label": "插入 Markdown",
+            "disabled": true,
+            "focused": null,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          }
+        ]
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/1440-light-properties.png",
+      "sha256": "e326121a4f018a39421cf7e805b557b7a80c9bd508b45ed21f454f195415e39b",
+      "sourceIds": [
+        "WS-043"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D033",
+          "file": "design/images/WS-D033.png",
+          "sha256": "7058ec9cc6cfd323f32a5685c02a3525975f7d1083803d2fea3688f17e369f59"
+        },
+        {
+          "assetId": "WS-R019",
+          "file": "design/images/WS-R019.png",
+          "sha256": "a2b2ef58e54b7cd17d53f3d0c23bc7b260a47620895a0733cd301006bfaef4af"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "标题、标签和新增属性输入依次排列；添加属性在空输入时禁用。应用到草稿为蓝色主按钮、取消为轻描边按钮。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 440,
+          "y": 299.296875,
+          "width": 560,
+          "height": 401.390625
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 9,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": [],
+        "footerButtonProbe": [
+          {
+            "label": "取消",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          },
+          {
+            "label": "应用到草稿",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          }
+        ]
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/320-light-properties.png",
+      "sha256": "58f874731f2448b666841ef7abde9d9d5630fcb0736a03f0d4d4d6c2b1bc987d",
+      "sourceIds": [
+        "WS-043"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D033",
+          "file": "design/images/WS-D033.png",
+          "sha256": "7058ec9cc6cfd323f32a5685c02a3525975f7d1083803d2fea3688f17e369f59"
+        },
+        {
+          "assetId": "WS-R019",
+          "file": "design/images/WS-R019.png",
+          "sha256": "a2b2ef58e54b7cd17d53f3d0c23bc7b260a47620895a0733cd301006bfaef4af"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "标题、标签和新增属性输入依次排列；添加属性在空输入时禁用。应用到草稿为蓝色主按钮、取消为轻描边按钮。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 16,
+          "y": 211.109375,
+          "width": 288,
+          "height": 421.78125
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 9,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": [],
+        "footerButtonProbe": [
+          {
+            "label": "取消",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          },
+          {
+            "label": "应用到草稿",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          }
+        ]
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/390-light-properties.png",
+      "sha256": "09f9feae561e73b1f3e10cedc567a6533c9437a2fa842e932230c7bb48e9aebc",
+      "sourceIds": [
+        "WS-043"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D033",
+          "file": "design/images/WS-D033.png",
+          "sha256": "7058ec9cc6cfd323f32a5685c02a3525975f7d1083803d2fea3688f17e369f59"
+        },
+        {
+          "assetId": "WS-R019",
+          "file": "design/images/WS-R019.png",
+          "sha256": "a2b2ef58e54b7cd17d53f3d0c23bc7b260a47620895a0733cd301006bfaef4af"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "标题、标签和新增属性输入依次排列；添加属性在空输入时禁用。应用到草稿为蓝色主按钮、取消为轻描边按钮。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 16,
+          "y": 211.109375,
+          "width": 358,
+          "height": 421.78125
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 9,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": [],
+        "footerButtonProbe": [
+          {
+            "label": "取消",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          },
+          {
+            "label": "应用到草稿",
+            "disabled": false,
+            "focused": true,
+            "withinViewport": true,
+            "centerHit": true,
+            "height": 36
+          }
+        ]
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/1440-light-share-expired.png",
+      "sha256": "7032eab9b456b889c91e9ee365c88b63ef831d398453c0fcd04a07db5c3f5966",
+      "sourceIds": [
+        "WS-099",
+        "WS-116"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D086",
+          "file": "design/images/WS-D086.png",
+          "sha256": "f6963f7e7b71547eef9963372ef786adc9e47b162981788e383c362d171026bc"
+        },
+        {
+          "assetId": "WS-R041",
+          "file": "design/images/WS-R041.png",
+          "sha256": "a4c8c49d9a570b7c1890499d2ada92ee2463dbd3542913969e8f3c26711da114"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "分享已到期徽标、无法访问说明、自定义时间、生成分享链接及完成操作同时可见。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 445,
+          "y": 165.140625,
+          "width": 550,
+          "height": 669.71875
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 7,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/320-light-share-expired.png",
+      "sha256": "84fb3529ab7802e935263ecfc36022bf099aaf288251ae75d0abcc13dcc4eee4",
+      "sourceIds": [
+        "WS-099",
+        "WS-116"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D086",
+          "file": "design/images/WS-D086.png",
+          "sha256": "f6963f7e7b71547eef9963372ef786adc9e47b162981788e383c362d171026bc"
+        },
+        {
+          "assetId": "WS-R041",
+          "file": "design/images/WS-R041.png",
+          "sha256": "a4c8c49d9a570b7c1890499d2ada92ee2463dbd3542913969e8f3c26711da114"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "分享已到期徽标、无法访问说明、自定义时间、生成分享链接及完成操作同时可见。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 14,
+          "y": 23.09375,
+          "width": 292,
+          "height": 797.8125
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 7,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/390-light-share-expired.png",
+      "sha256": "a55a50ea87ac46bd890f2900daf1ac2c989f9aab698ffb98559a194f4f1e902e",
+      "sourceIds": [
+        "WS-099",
+        "WS-116"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D086",
+          "file": "design/images/WS-D086.png",
+          "sha256": "f6963f7e7b71547eef9963372ef786adc9e47b162981788e383c362d171026bc"
+        },
+        {
+          "assetId": "WS-R041",
+          "file": "design/images/WS-R041.png",
+          "sha256": "a4c8c49d9a570b7c1890499d2ada92ee2463dbd3542913969e8f3c26711da114"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "分享已到期徽标、无法访问说明、自定义时间、生成分享链接及完成操作同时可见。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 14,
+          "y": 23.09375,
+          "width": 362,
+          "height": 797.8125
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 7,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/1440-light-share-private.png",
+      "sha256": "6e2f81e0a083f21232fd017c35fda8971360f8cc98f34dc02ded2c9837aaee7c",
+      "sourceIds": [
+        "WS-099",
+        "WS-114"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D075",
+          "file": "design/images/WS-D075.png",
+          "sha256": "86e0969ab24235dd7e3dc959916a4c2a603548fad6f8cb3d5a2e965a99761d9c"
+        },
+        {
+          "assetId": "WS-R041",
+          "file": "design/images/WS-R041.png",
+          "sha256": "a4c8c49d9a570b7c1890499d2ada92ee2463dbd3542913969e8f3c26711da114"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "私密笔记徽标、仅查看和 7 天有效期可辨，生成分享链接为主要动作。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 445,
+          "y": 232.125,
+          "width": 550,
+          "height": 535.75
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 6,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/320-light-share-private.png",
+      "sha256": "7c92e55027f1551fb7cb1d3c79caf9b42aa7fa9689440f5c5f83f32ec08c2bd5",
+      "sourceIds": [
+        "WS-099",
+        "WS-114"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D075",
+          "file": "design/images/WS-D075.png",
+          "sha256": "86e0969ab24235dd7e3dc959916a4c2a603548fad6f8cb3d5a2e965a99761d9c"
+        },
+        {
+          "assetId": "WS-R041",
+          "file": "design/images/WS-R041.png",
+          "sha256": "a4c8c49d9a570b7c1890499d2ada92ee2463dbd3542913969e8f3c26711da114"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "私密笔记徽标、仅查看和 7 天有效期可辨，生成分享链接为主要动作。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 14,
+          "y": 89.078125,
+          "width": 292,
+          "height": 665.84375
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 6,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/390-light-share-private.png",
+      "sha256": "70fb44e15e5925b11ba5049dcefc3fcaf1d5f0b3428020e754ae61da173643b7",
+      "sourceIds": [
+        "WS-099",
+        "WS-114"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D075",
+          "file": "design/images/WS-D075.png",
+          "sha256": "86e0969ab24235dd7e3dc959916a4c2a603548fad6f8cb3d5a2e965a99761d9c"
+        },
+        {
+          "assetId": "WS-R041",
+          "file": "design/images/WS-R041.png",
+          "sha256": "a4c8c49d9a570b7c1890499d2ada92ee2463dbd3542913969e8f3c26711da114"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "私密笔记徽标、仅查看和 7 天有效期可辨，生成分享链接为主要动作。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 14,
+          "y": 89.078125,
+          "width": 362,
+          "height": 665.84375
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 6,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/1440-light-share-revoked.png",
+      "sha256": "9422840b404e36cc39f8a413fcd96bab9117e0762e0b15910c349e9db825bb91",
+      "sourceIds": [
+        "WS-099",
+        "WS-117"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D086",
+          "file": "design/images/WS-D086.png",
+          "sha256": "f6963f7e7b71547eef9963372ef786adc9e47b162981788e383c362d171026bc"
+        },
+        {
+          "assetId": "WS-R041",
+          "file": "design/images/WS-R041.png",
+          "sha256": "a4c8c49d9a570b7c1890499d2ada92ee2463dbd3542913969e8f3c26711da114"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "分享已取消徽标可辨；可重新生成链接；界面没有继续复制或撤销旧链接的操作。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 445,
+          "y": 232.125,
+          "width": 550,
+          "height": 535.75
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 6,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/320-light-share-revoked.png",
+      "sha256": "635b26cb41c76500ebeb023f8de23d66bb92bbca99168b960dc9510b06e7642c",
+      "sourceIds": [
+        "WS-099",
+        "WS-117"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D086",
+          "file": "design/images/WS-D086.png",
+          "sha256": "f6963f7e7b71547eef9963372ef786adc9e47b162981788e383c362d171026bc"
+        },
+        {
+          "assetId": "WS-R041",
+          "file": "design/images/WS-R041.png",
+          "sha256": "a4c8c49d9a570b7c1890499d2ada92ee2463dbd3542913969e8f3c26711da114"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "分享已取消徽标可辨；可重新生成链接；界面没有继续复制或撤销旧链接的操作。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 14,
+          "y": 89.078125,
+          "width": 292,
+          "height": 665.84375
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 6,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    },
+    {
+      "file": "runtime/2026-11-05-55174d4-reviewed-state-fixes/390-light-share-revoked.png",
+      "sha256": "50d40449b49149e22a4aba87d58968525d299da78f714d998046bfc2852e7b30",
+      "sourceIds": [
+        "WS-099",
+        "WS-117"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D086",
+          "file": "design/images/WS-D086.png",
+          "sha256": "f6963f7e7b71547eef9963372ef786adc9e47b162981788e383c362d171026bc"
+        },
+        {
+          "assetId": "WS-R041",
+          "file": "design/images/WS-R041.png",
+          "sha256": "a4c8c49d9a570b7c1890499d2ada92ee2463dbd3542913969e8f3c26711da114"
+        }
+      ],
+      "verdict": "visible-composition-and-target-state-pass",
+      "observation": "分享已取消徽标可辨；可重新生成链接；界面没有继续复制或撤销旧链接的操作。",
+      "issues": [],
+      "supplemental": [],
+      "probe": {
+        "targetBounds": {
+          "x": 14,
+          "y": 89.078125,
+          "width": 362,
+          "height": 665.84375
+        },
+        "targetWithinViewport": true,
+        "outerOverflow": 0,
+        "probeStatus": "measured-no-failure",
+        "controlsFound": 6,
+        "controlProbeTruncated": false,
+        "failureControlIndices": [],
+        "scrollOwners": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "rows": [
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-legacy-oauth/1440-light-public-oauth-legacy.png",
+      "sha256": "9fc9b458307d880d3610af75a5b050e59cdd38613fa04734af4230ad31a3a0e7",
+      "sourceIds": [
+        "PB-019"
+      ],
+      "sourceCommit": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "actuallyViewed": true,
+      "verdict": "pass-visible-composition",
+      "observation": "The signed legacy client, checked read/offline operations, individually listed resource directories and scrolled deny/allow buttons are visibly distinct. No consent was sent. The fixture labels README.md alongside directory choices, which is preserved as rendered.",
+      "controlsActuallyViewed": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-legacy-oauth/1440-light-public-oauth-legacy-controls.png",
+      "controlsSHA256": "d05b411ef36e78856d479f2983dadbc364947d9b1bb6ed3bd349f1cf7620764c",
+      "designsActuallyViewed": [
+        "MP-D087-v2",
+        "MP-R052",
+        "MP-S045 (legacy branch only)"
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-legacy-oauth/320-light-public-oauth-legacy.png",
+      "sha256": "9b0098fb4dce9bea5c46f89b55664d84d30397f1f1e7a4ea3690c348a466fb4d",
+      "sourceIds": [
+        "PB-019"
+      ],
+      "sourceCommit": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "actuallyViewed": true,
+      "verdict": "pass-visible-composition",
+      "observation": "The signed legacy client, checked read/offline operations, individually listed resource directories and scrolled deny/allow buttons are visibly distinct. No consent was sent. The fixture labels README.md alongside directory choices, which is preserved as rendered.",
+      "controlsActuallyViewed": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-legacy-oauth/320-light-public-oauth-legacy-controls.png",
+      "controlsSHA256": "454f69afc3bfca1a03805976fd3ba315de67b2126bd47b2b24ace528f3c66389",
+      "designsActuallyViewed": [
+        "MP-D087-v2",
+        "MP-R052",
+        "MP-S045 (legacy branch only)"
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-legacy-oauth/390-light-public-oauth-legacy.png",
+      "sha256": "1c2d9e74987d7765027b847b53ccaa3d5ee5470fc742ff50d77ed1e0d0e67cde",
+      "sourceIds": [
+        "PB-019"
+      ],
+      "sourceCommit": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actuallyViewed": true,
+      "verdict": "pass-visible-composition",
+      "observation": "The signed legacy client, checked read/offline operations, individually listed resource directories and scrolled deny/allow buttons are visibly distinct. No consent was sent. The fixture labels README.md alongside directory choices, which is preserved as rendered.",
+      "controlsActuallyViewed": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-legacy-oauth/390-light-public-oauth-legacy-controls.png",
+      "controlsSHA256": "ed5af2a5a780635ceeb7db946170e9b9274a769ca96eb8548fa25d2b70fdddb7",
+      "designsActuallyViewed": [
+        "MP-D087-v2",
+        "MP-R052",
+        "MP-S045 (legacy branch only)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1736 @@
+{
+  "schema": 1,
+  "scope": "First24 final contact-map rows (pages1–4), disjoint from peer final pages5–40. Main source efe5d15; before final contrast/popover changes.",
+  "actuallyViewed": 24,
+  "designAssetsViewedInThisRootSession": 86,
+  "method": "All24 actual main PNGs viewed in full-screen/contact+enlarged target; SHA matched. Canonical style contract and86 frozen design refs actually viewed in contact sheets.",
+  "counts": {
+    "visible-composition-pass": 16,
+    "pass-empty-diagram-reading-layout-only": 3,
+    "historical-desktop-to-target-resize-not-initial-fit": 5
+  },
+  "rows": [
+    {
+      "queueIndex": 119,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-diagram-more.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-diagram-more.png",
+      "sceneId": "diagram-more",
+      "sourceIds": [
+        "WS-075"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "sha256": "4de5c71d3449158d339a7afa7ed5d7260c68263b06ec9d13fe4e246929d655c9",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-01.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Actual document export menu shows whole document / full Markdown / original source choices inside the viewport.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-075",
+          "assetId": "WS-D055",
+          "current": {
+            "file": "design/images/WS-D055.png",
+            "metadata": "design/images/WS-D055.json",
+            "review": "design/reviews/WS-D055-review.json",
+            "sha256": "7a61a23532cc6a18eff886c3683c1f839737f536ab03f00b15c99bb298f6e4da",
+            "metadataSha256": "5c5672f6d2025b830f5d6bde392c771314c28a222a491d6d9903e49690cfbf6f",
+            "reviewSha256": "5186c18f336200064cb3105f6b76842ac91fa8688e4c4ac4b66dfaf7a063ea67",
+            "width": 1774,
+            "height": 887,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-075",
+          "assetId": "WS-R024",
+          "current": {
+            "file": "design/images/WS-R024.png",
+            "metadata": "design/images/WS-R024.json",
+            "review": "design/reviews/WS-R024-review.json",
+            "sha256": "9baad8528845692212f0a27c27bf483db0a3f7889ac29625b38613d9ad8c6c20",
+            "metadataSha256": "aebb695708e7571d7395a0118a581110bb527cacc956b4140fe636e557046d53",
+            "reviewSha256": "92fb815d7589e87164ad3904c40552f41c2b12ef0e56023b018a21bab5ee23f1",
+            "width": 1444,
+            "height": 1089,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 56,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-diagram-more.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-diagram-more.png",
+      "sceneId": "diagram-more",
+      "sourceIds": [
+        "WS-075"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "sha256": "1e433525ee09f024994fb925fbfdda3e10930b3acb5e42d3e42a97e39c15b5a3",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-01.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Actual document export menu shows whole document / full Markdown / original source choices inside the viewport.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-075",
+          "assetId": "WS-D055",
+          "current": {
+            "file": "design/images/WS-D055.png",
+            "metadata": "design/images/WS-D055.json",
+            "review": "design/reviews/WS-D055-review.json",
+            "sha256": "7a61a23532cc6a18eff886c3683c1f839737f536ab03f00b15c99bb298f6e4da",
+            "metadataSha256": "5c5672f6d2025b830f5d6bde392c771314c28a222a491d6d9903e49690cfbf6f",
+            "reviewSha256": "5186c18f336200064cb3105f6b76842ac91fa8688e4c4ac4b66dfaf7a063ea67",
+            "width": 1774,
+            "height": 887,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-075",
+          "assetId": "WS-R024",
+          "current": {
+            "file": "design/images/WS-R024.png",
+            "metadata": "design/images/WS-R024.json",
+            "review": "design/reviews/WS-R024-review.json",
+            "sha256": "9baad8528845692212f0a27c27bf483db0a3f7889ac29625b38613d9ad8c6c20",
+            "metadataSha256": "aebb695708e7571d7395a0118a581110bb527cacc956b4140fe636e557046d53",
+            "reviewSha256": "92fb815d7589e87164ad3904c40552f41c2b12ef0e56023b018a21bab5ee23f1",
+            "width": 1444,
+            "height": 1089,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 0,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/1440-light-diagram-more.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/1440-light-diagram-more.png",
+      "sceneId": "diagram-more",
+      "sourceIds": [
+        "WS-075"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "sha256": "647b154511359aa5b08a41bef29757b08722f9241b7c98afec0aa5d8dee87d08",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-01.jpg",
+      "viewMode": "full-screen scaled-to-fit; target enlarged beneath",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Actual document export menu shows whole document / full Markdown / original source choices inside the viewport.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-075",
+          "assetId": "WS-D055",
+          "current": {
+            "file": "design/images/WS-D055.png",
+            "metadata": "design/images/WS-D055.json",
+            "review": "design/reviews/WS-D055-review.json",
+            "sha256": "7a61a23532cc6a18eff886c3683c1f839737f536ab03f00b15c99bb298f6e4da",
+            "metadataSha256": "5c5672f6d2025b830f5d6bde392c771314c28a222a491d6d9903e49690cfbf6f",
+            "reviewSha256": "5186c18f336200064cb3105f6b76842ac91fa8688e4c4ac4b66dfaf7a063ea67",
+            "width": 1774,
+            "height": 887,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-075",
+          "assetId": "WS-R024",
+          "current": {
+            "file": "design/images/WS-R024.png",
+            "metadata": "design/images/WS-R024.json",
+            "review": "design/reviews/WS-R024-review.json",
+            "sha256": "9baad8528845692212f0a27c27bf483db0a3f7889ac29625b38613d9ad8c6c20",
+            "metadataSha256": "aebb695708e7571d7395a0118a581110bb527cacc956b4140fe636e557046d53",
+            "reviewSha256": "92fb815d7589e87164ad3904c40552f41c2b12ef0e56023b018a21bab5ee23f1",
+            "width": 1444,
+            "height": 1089,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 120,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-diagram-png.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-diagram-png.png",
+      "sceneId": "diagram-png",
+      "sourceIds": [
+        "WS-073"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "sha256": "89bfad68ee630cd3a2f8352553fe80c24501aab879395dd4377d8f6ce3cbba53",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-01.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Actual saved nonempty rectangle PNG renders at three widths; source/preview tabs remain distinct.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-073",
+          "assetId": "WS-D053",
+          "current": {
+            "file": "design/images/WS-D053.png",
+            "metadata": "design/images/WS-D053.json",
+            "review": "design/reviews/WS-D053-review.json",
+            "sha256": "68f4ecd1dbaf7c68cde80e55124747b684030c170b0d4e72015f6b91e9fe44f6",
+            "metadataSha256": "8c072d44d25b4fccaca5acc1289c1e6bacdee09cdafb7effe9aeeb031718cc7c",
+            "reviewSha256": "adcfc057bcd4070d4c6b915a6f39510fa207775b50952f39dc46f86a7d792f9a",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-073",
+          "assetId": "WS-R028",
+          "current": {
+            "file": "design/images/WS-R028-v2.png",
+            "metadata": "design/images/WS-R028-v2.json",
+            "review": "design/reviews/WS-R028-v2-review.json",
+            "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03",
+            "metadataSha256": "6d43ea44dc0bf255d64ee772ce0ecf799bd80602d08aaea434df7bd385e1b3c7",
+            "reviewSha256": "5c9e2edc0dfd8d98ba45afedb543e8d772b5c48c860d4cd4a89ad80bdcdb5897",
+            "width": 1439,
+            "height": 1093,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 57,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-diagram-png.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-diagram-png.png",
+      "sceneId": "diagram-png",
+      "sourceIds": [
+        "WS-073"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "sha256": "6b39f3d219f41247e95cdba2ea87907373c85ca4b1a61290f557af47dfa5f18e",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-01.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Actual saved nonempty rectangle PNG renders at three widths; source/preview tabs remain distinct.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-073",
+          "assetId": "WS-D053",
+          "current": {
+            "file": "design/images/WS-D053.png",
+            "metadata": "design/images/WS-D053.json",
+            "review": "design/reviews/WS-D053-review.json",
+            "sha256": "68f4ecd1dbaf7c68cde80e55124747b684030c170b0d4e72015f6b91e9fe44f6",
+            "metadataSha256": "8c072d44d25b4fccaca5acc1289c1e6bacdee09cdafb7effe9aeeb031718cc7c",
+            "reviewSha256": "adcfc057bcd4070d4c6b915a6f39510fa207775b50952f39dc46f86a7d792f9a",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-073",
+          "assetId": "WS-R028",
+          "current": {
+            "file": "design/images/WS-R028-v2.png",
+            "metadata": "design/images/WS-R028-v2.json",
+            "review": "design/reviews/WS-R028-v2-review.json",
+            "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03",
+            "metadataSha256": "6d43ea44dc0bf255d64ee772ce0ecf799bd80602d08aaea434df7bd385e1b3c7",
+            "reviewSha256": "5c9e2edc0dfd8d98ba45afedb543e8d772b5c48c860d4cd4a89ad80bdcdb5897",
+            "width": 1439,
+            "height": 1093,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 1,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/1440-light-diagram-png.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/1440-light-diagram-png.png",
+      "sceneId": "diagram-png",
+      "sourceIds": [
+        "WS-073"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "sha256": "aaa3daff282bf9ec67ce3dd3400b00d4810d28b54c3e65261f0457f1d3f4fbc7",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-01.jpg",
+      "viewMode": "full-screen scaled-to-fit; target enlarged beneath",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Actual saved nonempty rectangle PNG renders at three widths; source/preview tabs remain distinct.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-073",
+          "assetId": "WS-D053",
+          "current": {
+            "file": "design/images/WS-D053.png",
+            "metadata": "design/images/WS-D053.json",
+            "review": "design/reviews/WS-D053-review.json",
+            "sha256": "68f4ecd1dbaf7c68cde80e55124747b684030c170b0d4e72015f6b91e9fe44f6",
+            "metadataSha256": "8c072d44d25b4fccaca5acc1289c1e6bacdee09cdafb7effe9aeeb031718cc7c",
+            "reviewSha256": "adcfc057bcd4070d4c6b915a6f39510fa207775b50952f39dc46f86a7d792f9a",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-073",
+          "assetId": "WS-R028",
+          "current": {
+            "file": "design/images/WS-R028-v2.png",
+            "metadata": "design/images/WS-R028-v2.json",
+            "review": "design/reviews/WS-R028-v2-review.json",
+            "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03",
+            "metadataSha256": "6d43ea44dc0bf255d64ee772ce0ecf799bd80602d08aaea434df7bd385e1b3c7",
+            "reviewSha256": "5c9e2edc0dfd8d98ba45afedb543e8d772b5c48c860d4cd4a89ad80bdcdb5897",
+            "width": 1439,
+            "height": 1093,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 121,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-diagram-read.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-diagram-read.png",
+      "sceneId": "diagram-read",
+      "sourceIds": [
+        "WS-074"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "sha256": "c67b6bb706019b6776a78a948551a04328ec0d98e3171d8af1ccb2f0c95d05a0",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-02.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "pass-empty-diagram-reading-layout-only",
+      "observation": "Reading tab of an initially empty primary shows actual title and blank preview; not proof of populated rendering (populated PNG tested separately).",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-074",
+          "assetId": "WS-D054",
+          "current": {
+            "file": "design/images/WS-D054.png",
+            "metadata": "design/images/WS-D054.json",
+            "review": "design/reviews/WS-D054-review.json",
+            "sha256": "2c374a4c5ae3878329e7e8ecad8d4720a36ff5644a18a79f9827250acd4fd33c",
+            "metadataSha256": "1be5db6cf149c2aa499f4bb5ad250ad666be92509bc0166e07a1f2f85f73d051",
+            "reviewSha256": "5b1ca526c1006aa35cae727645133024af45aec79986adeb3524109d620eea73",
+            "width": 1487,
+            "height": 1058,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-074",
+          "assetId": "WS-R028",
+          "current": {
+            "file": "design/images/WS-R028-v2.png",
+            "metadata": "design/images/WS-R028-v2.json",
+            "review": "design/reviews/WS-R028-v2-review.json",
+            "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03",
+            "metadataSha256": "6d43ea44dc0bf255d64ee772ce0ecf799bd80602d08aaea434df7bd385e1b3c7",
+            "reviewSha256": "5c9e2edc0dfd8d98ba45afedb543e8d772b5c48c860d4cd4a89ad80bdcdb5897",
+            "width": 1439,
+            "height": 1093,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-074",
+          "assetId": "WS-R050",
+          "current": {
+            "file": "design/images/WS-R050.png",
+            "metadata": "design/images/WS-R050.json",
+            "review": "design/reviews/WS-R050-review.json",
+            "sha256": "306abc1aaa378041757b8c15c03871c436e26be531ddbd1d445b788682f946aa",
+            "metadataSha256": "031236eb33af5cae144b51d5ca7d228ea8e4265c73201cd521fd33b40103699c",
+            "reviewSha256": "2d9607b885a662941793c65411454837f3378c72d249e7d4c924af3b89d3708d",
+            "width": 1510,
+            "height": 1042,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 58,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-diagram-read.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-diagram-read.png",
+      "sceneId": "diagram-read",
+      "sourceIds": [
+        "WS-074"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "sha256": "de77e3b241dbaf6c7c821ce8ff732d0407ccf8bbc09f8ebca68a3d151d9a986a",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-02.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "pass-empty-diagram-reading-layout-only",
+      "observation": "Reading tab of an initially empty primary shows actual title and blank preview; not proof of populated rendering (populated PNG tested separately).",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-074",
+          "assetId": "WS-D054",
+          "current": {
+            "file": "design/images/WS-D054.png",
+            "metadata": "design/images/WS-D054.json",
+            "review": "design/reviews/WS-D054-review.json",
+            "sha256": "2c374a4c5ae3878329e7e8ecad8d4720a36ff5644a18a79f9827250acd4fd33c",
+            "metadataSha256": "1be5db6cf149c2aa499f4bb5ad250ad666be92509bc0166e07a1f2f85f73d051",
+            "reviewSha256": "5b1ca526c1006aa35cae727645133024af45aec79986adeb3524109d620eea73",
+            "width": 1487,
+            "height": 1058,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-074",
+          "assetId": "WS-R028",
+          "current": {
+            "file": "design/images/WS-R028-v2.png",
+            "metadata": "design/images/WS-R028-v2.json",
+            "review": "design/reviews/WS-R028-v2-review.json",
+            "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03",
+            "metadataSha256": "6d43ea44dc0bf255d64ee772ce0ecf799bd80602d08aaea434df7bd385e1b3c7",
+            "reviewSha256": "5c9e2edc0dfd8d98ba45afedb543e8d772b5c48c860d4cd4a89ad80bdcdb5897",
+            "width": 1439,
+            "height": 1093,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-074",
+          "assetId": "WS-R050",
+          "current": {
+            "file": "design/images/WS-R050.png",
+            "metadata": "design/images/WS-R050.json",
+            "review": "design/reviews/WS-R050-review.json",
+            "sha256": "306abc1aaa378041757b8c15c03871c436e26be531ddbd1d445b788682f946aa",
+            "metadataSha256": "031236eb33af5cae144b51d5ca7d228ea8e4265c73201cd521fd33b40103699c",
+            "reviewSha256": "2d9607b885a662941793c65411454837f3378c72d249e7d4c924af3b89d3708d",
+            "width": 1510,
+            "height": 1042,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 2,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/1440-light-diagram-read.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/1440-light-diagram-read.png",
+      "sceneId": "diagram-read",
+      "sourceIds": [
+        "WS-074"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "sha256": "29101ac595cb49524620634bf63adc219bd7c9b75fc80bfd27e26b21a8ed0c9b",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-02.jpg",
+      "viewMode": "full-screen scaled-to-fit; target enlarged beneath",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "pass-empty-diagram-reading-layout-only",
+      "observation": "Reading tab of an initially empty primary shows actual title and blank preview; not proof of populated rendering (populated PNG tested separately).",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-074",
+          "assetId": "WS-D054",
+          "current": {
+            "file": "design/images/WS-D054.png",
+            "metadata": "design/images/WS-D054.json",
+            "review": "design/reviews/WS-D054-review.json",
+            "sha256": "2c374a4c5ae3878329e7e8ecad8d4720a36ff5644a18a79f9827250acd4fd33c",
+            "metadataSha256": "1be5db6cf149c2aa499f4bb5ad250ad666be92509bc0166e07a1f2f85f73d051",
+            "reviewSha256": "5b1ca526c1006aa35cae727645133024af45aec79986adeb3524109d620eea73",
+            "width": 1487,
+            "height": 1058,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-074",
+          "assetId": "WS-R028",
+          "current": {
+            "file": "design/images/WS-R028-v2.png",
+            "metadata": "design/images/WS-R028-v2.json",
+            "review": "design/reviews/WS-R028-v2-review.json",
+            "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03",
+            "metadataSha256": "6d43ea44dc0bf255d64ee772ce0ecf799bd80602d08aaea434df7bd385e1b3c7",
+            "reviewSha256": "5c9e2edc0dfd8d98ba45afedb543e8d772b5c48c860d4cd4a89ad80bdcdb5897",
+            "width": 1439,
+            "height": 1093,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-074",
+          "assetId": "WS-R050",
+          "current": {
+            "file": "design/images/WS-R050.png",
+            "metadata": "design/images/WS-R050.json",
+            "review": "design/reviews/WS-R050-review.json",
+            "sha256": "306abc1aaa378041757b8c15c03871c436e26be531ddbd1d445b788682f946aa",
+            "metadataSha256": "031236eb33af5cae144b51d5ca7d228ea8e4265c73201cd521fd33b40103699c",
+            "reviewSha256": "2d9607b885a662941793c65411454837f3378c72d249e7d4c924af3b89d3708d",
+            "width": 1510,
+            "height": 1042,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 122,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-diagram-source.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-diagram-source.png",
+      "sceneId": "diagram-source",
+      "sourceIds": [
+        "WS-072"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "sha256": "1ae9752a972f4cca0eb7b688d0adb83404a471690d4846a6e960b9d8e7f156c4",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-02.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Full editable Markdown document source with native metadata/reference block renders and wraps within source pane.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-072",
+          "assetId": "WS-D052",
+          "current": {
+            "file": "design/images/WS-D052.png",
+            "metadata": "design/images/WS-D052.json",
+            "review": "design/reviews/WS-D052-review.json",
+            "sha256": "3574a2aaea636ddcc23720db6526ef9147846e55f539464cd4bc22b6816751f3",
+            "metadataSha256": "926fccf554ec0c1c6f95c44cd7ead5b3538613bee4d5cf385d2d10daf2412a1e",
+            "reviewSha256": "1c027bf7dc1c49e1d99121d91c10a9dc8b8e0f72cfc28b1b6af5d4612b7fd0f1",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-072",
+          "assetId": "WS-R028",
+          "current": {
+            "file": "design/images/WS-R028-v2.png",
+            "metadata": "design/images/WS-R028-v2.json",
+            "review": "design/reviews/WS-R028-v2-review.json",
+            "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03",
+            "metadataSha256": "6d43ea44dc0bf255d64ee772ce0ecf799bd80602d08aaea434df7bd385e1b3c7",
+            "reviewSha256": "5c9e2edc0dfd8d98ba45afedb543e8d772b5c48c860d4cd4a89ad80bdcdb5897",
+            "width": 1439,
+            "height": 1093,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-072",
+          "assetId": "WS-R012",
+          "current": {
+            "file": "design/images/WS-R012-v4.png",
+            "metadata": "design/images/WS-R012-v4.json",
+            "review": "design/reviews/WS-R012-v4-review.json",
+            "sha256": "6e8ecedb02f6ba019d888a09e36a3113c69a61db146345088ba665fbb5962cf1",
+            "metadataSha256": "4f883a2188317aa2d3fbe5552264f1d6f2a6a146021bc540d22cb9d1081a74fb",
+            "reviewSha256": "675f190cd301bafa8114e6d96671d0d521e50d2f1ac0d1039acb7f3fbbf25108",
+            "width": 1463,
+            "height": 1075,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 59,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-diagram-source.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-diagram-source.png",
+      "sceneId": "diagram-source",
+      "sourceIds": [
+        "WS-072"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "sha256": "b4a9b0801a72dcd027da81a6f715936a4d65fdebd2dad82c7f8e4dd49009bcb4",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-02.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Full editable Markdown document source with native metadata/reference block renders and wraps within source pane.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-072",
+          "assetId": "WS-D052",
+          "current": {
+            "file": "design/images/WS-D052.png",
+            "metadata": "design/images/WS-D052.json",
+            "review": "design/reviews/WS-D052-review.json",
+            "sha256": "3574a2aaea636ddcc23720db6526ef9147846e55f539464cd4bc22b6816751f3",
+            "metadataSha256": "926fccf554ec0c1c6f95c44cd7ead5b3538613bee4d5cf385d2d10daf2412a1e",
+            "reviewSha256": "1c027bf7dc1c49e1d99121d91c10a9dc8b8e0f72cfc28b1b6af5d4612b7fd0f1",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-072",
+          "assetId": "WS-R028",
+          "current": {
+            "file": "design/images/WS-R028-v2.png",
+            "metadata": "design/images/WS-R028-v2.json",
+            "review": "design/reviews/WS-R028-v2-review.json",
+            "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03",
+            "metadataSha256": "6d43ea44dc0bf255d64ee772ce0ecf799bd80602d08aaea434df7bd385e1b3c7",
+            "reviewSha256": "5c9e2edc0dfd8d98ba45afedb543e8d772b5c48c860d4cd4a89ad80bdcdb5897",
+            "width": 1439,
+            "height": 1093,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-072",
+          "assetId": "WS-R012",
+          "current": {
+            "file": "design/images/WS-R012-v4.png",
+            "metadata": "design/images/WS-R012-v4.json",
+            "review": "design/reviews/WS-R012-v4-review.json",
+            "sha256": "6e8ecedb02f6ba019d888a09e36a3113c69a61db146345088ba665fbb5962cf1",
+            "metadataSha256": "4f883a2188317aa2d3fbe5552264f1d6f2a6a146021bc540d22cb9d1081a74fb",
+            "reviewSha256": "675f190cd301bafa8114e6d96671d0d521e50d2f1ac0d1039acb7f3fbbf25108",
+            "width": 1463,
+            "height": 1075,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 3,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/1440-light-diagram-source.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/1440-light-diagram-source.png",
+      "sceneId": "diagram-source",
+      "sourceIds": [
+        "WS-072"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "sha256": "93ba9b8f2520411c7039f210826b9037df239f745b8990cd1421632986995c47",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-02.jpg",
+      "viewMode": "full-screen scaled-to-fit; target enlarged beneath",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Full editable Markdown document source with native metadata/reference block renders and wraps within source pane.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-072",
+          "assetId": "WS-D052",
+          "current": {
+            "file": "design/images/WS-D052.png",
+            "metadata": "design/images/WS-D052.json",
+            "review": "design/reviews/WS-D052-review.json",
+            "sha256": "3574a2aaea636ddcc23720db6526ef9147846e55f539464cd4bc22b6816751f3",
+            "metadataSha256": "926fccf554ec0c1c6f95c44cd7ead5b3538613bee4d5cf385d2d10daf2412a1e",
+            "reviewSha256": "1c027bf7dc1c49e1d99121d91c10a9dc8b8e0f72cfc28b1b6af5d4612b7fd0f1",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-072",
+          "assetId": "WS-R028",
+          "current": {
+            "file": "design/images/WS-R028-v2.png",
+            "metadata": "design/images/WS-R028-v2.json",
+            "review": "design/reviews/WS-R028-v2-review.json",
+            "sha256": "d0a271882c30d6acdf2cc3bae34056ac89ca181be7508c0ba774a8c37bd5fa03",
+            "metadataSha256": "6d43ea44dc0bf255d64ee772ce0ecf799bd80602d08aaea434df7bd385e1b3c7",
+            "reviewSha256": "5c9e2edc0dfd8d98ba45afedb543e8d772b5c48c860d4cd4a89ad80bdcdb5897",
+            "width": 1439,
+            "height": 1093,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-072",
+          "assetId": "WS-R012",
+          "current": {
+            "file": "design/images/WS-R012-v4.png",
+            "metadata": "design/images/WS-R012-v4.json",
+            "review": "design/reviews/WS-R012-v4-review.json",
+            "sha256": "6e8ecedb02f6ba019d888a09e36a3113c69a61db146345088ba665fbb5962cf1",
+            "metadataSha256": "4f883a2188317aa2d3fbe5552264f1d6f2a6a146021bc540d22cb9d1081a74fb",
+            "reviewSha256": "675f190cd301bafa8114e6d96671d0d521e50d2f1ac0d1039acb7f3fbbf25108",
+            "width": 1463,
+            "height": 1075,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 123,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-flowchart.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-flowchart.png",
+      "sceneId": "flowchart",
+      "sourceIds": [
+        "WS-070"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "sha256": "effc279fe34b6fe3791d4c45ac7c8a7e5a45be2717b5dfc47f2b292964cf35f4",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-03.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Actual Mermaid source and rendered start/end diagram visible; desktop split and mobile vertical composition fit.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-070",
+          "assetId": "WS-D050",
+          "current": {
+            "file": "design/images/WS-D050.png",
+            "metadata": "design/images/WS-D050.json",
+            "review": "design/reviews/WS-D050-review.json",
+            "sha256": "064c3b03347ce8d1a541f929d3388757d92b4599d4058b3eb45d67c802b4126d",
+            "metadataSha256": "2b83a009b7ed7a49d2992ff78584d70087060bf22798b2f87c68c2db058fdd39",
+            "reviewSha256": "7ae05a380abf538ffbc9b9936c3e874ad75e5c6fe55616e5fb515560e68d5c90",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-070",
+          "assetId": "WS-R026",
+          "current": {
+            "file": "design/images/WS-R026-v2.png",
+            "metadata": "design/images/WS-R026-v2.json",
+            "review": "design/reviews/WS-R026-v2-review.json",
+            "sha256": "13b097f4ceaf92a26eaeae8caf06edb5a23925acd97754de7b963ac4b753b11a",
+            "metadataSha256": "3e264c35e35d167887c58a5865c8b5d2a974ee3251be357e049c89b92f191dfd",
+            "reviewSha256": "e77993b287f24c334753e8b05c084929c7fcb0fcfd8932724ac6c82bf757a329",
+            "width": 1221,
+            "height": 1289,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 60,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-flowchart.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-flowchart.png",
+      "sceneId": "flowchart",
+      "sourceIds": [
+        "WS-070"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "sha256": "97ed2dd1073582369bd072b312afc87ef46587d75afcd25eaccb943ff45bd4f0",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-03.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Actual Mermaid source and rendered start/end diagram visible; desktop split and mobile vertical composition fit.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-070",
+          "assetId": "WS-D050",
+          "current": {
+            "file": "design/images/WS-D050.png",
+            "metadata": "design/images/WS-D050.json",
+            "review": "design/reviews/WS-D050-review.json",
+            "sha256": "064c3b03347ce8d1a541f929d3388757d92b4599d4058b3eb45d67c802b4126d",
+            "metadataSha256": "2b83a009b7ed7a49d2992ff78584d70087060bf22798b2f87c68c2db058fdd39",
+            "reviewSha256": "7ae05a380abf538ffbc9b9936c3e874ad75e5c6fe55616e5fb515560e68d5c90",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-070",
+          "assetId": "WS-R026",
+          "current": {
+            "file": "design/images/WS-R026-v2.png",
+            "metadata": "design/images/WS-R026-v2.json",
+            "review": "design/reviews/WS-R026-v2-review.json",
+            "sha256": "13b097f4ceaf92a26eaeae8caf06edb5a23925acd97754de7b963ac4b753b11a",
+            "metadataSha256": "3e264c35e35d167887c58a5865c8b5d2a974ee3251be357e049c89b92f191dfd",
+            "reviewSha256": "e77993b287f24c334753e8b05c084929c7fcb0fcfd8932724ac6c82bf757a329",
+            "width": 1221,
+            "height": 1289,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 4,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/1440-light-flowchart.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/1440-light-flowchart.png",
+      "sceneId": "flowchart",
+      "sourceIds": [
+        "WS-070"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "sha256": "03e812888435a4ce0b78ab1b27499ca71d6c11b1bad355d1e4b656c9dbdf28ab",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-03.jpg",
+      "viewMode": "full-screen scaled-to-fit; target enlarged beneath",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Actual Mermaid source and rendered start/end diagram visible; desktop split and mobile vertical composition fit.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-070",
+          "assetId": "WS-D050",
+          "current": {
+            "file": "design/images/WS-D050.png",
+            "metadata": "design/images/WS-D050.json",
+            "review": "design/reviews/WS-D050-review.json",
+            "sha256": "064c3b03347ce8d1a541f929d3388757d92b4599d4058b3eb45d67c802b4126d",
+            "metadataSha256": "2b83a009b7ed7a49d2992ff78584d70087060bf22798b2f87c68c2db058fdd39",
+            "reviewSha256": "7ae05a380abf538ffbc9b9936c3e874ad75e5c6fe55616e5fb515560e68d5c90",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-070",
+          "assetId": "WS-R026",
+          "current": {
+            "file": "design/images/WS-R026-v2.png",
+            "metadata": "design/images/WS-R026-v2.json",
+            "review": "design/reviews/WS-R026-v2-review.json",
+            "sha256": "13b097f4ceaf92a26eaeae8caf06edb5a23925acd97754de7b963ac4b753b11a",
+            "metadataSha256": "3e264c35e35d167887c58a5865c8b5d2a974ee3251be357e049c89b92f191dfd",
+            "reviewSha256": "e77993b287f24c334753e8b05c084929c7fcb0fcfd8932724ac6c82bf757a329",
+            "width": 1221,
+            "height": 1289,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 124,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-insert-whiteboard.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-insert-whiteboard.png",
+      "sceneId": "insert-whiteboard",
+      "sourceIds": [
+        "WS-102"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "sha256": "7c3660592368f36492b1ad0d7e88c31afbb4425cf8a134e2c8ec876133a5eb68",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-03.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Actual native-reference chooser renders current isolated library data (desktop empty, later phone lists populated) with create/cancel footer.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-102",
+          "assetId": "WS-D078",
+          "current": {
+            "file": "design/images/WS-D078.png",
+            "metadata": "design/images/WS-D078.json",
+            "review": "design/reviews/WS-D078-review.json",
+            "sha256": "572244d77874c00dcdd5537c6eecd3a84e3e6555ffcbbfa0273d6dc3ad533466",
+            "metadataSha256": "0ccd44d182298b5a76c7e76c7a08b35f20bf03e0023d3f72ca3866127bac29d5",
+            "reviewSha256": "fda6718efd6f6dc60d43a60b1ee01943ebac1798fec925e79a28afa86ef66147",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-102",
+          "assetId": "WS-R024",
+          "current": {
+            "file": "design/images/WS-R024.png",
+            "metadata": "design/images/WS-R024.json",
+            "review": "design/reviews/WS-R024-review.json",
+            "sha256": "9baad8528845692212f0a27c27bf483db0a3f7889ac29625b38613d9ad8c6c20",
+            "metadataSha256": "aebb695708e7571d7395a0118a581110bb527cacc956b4140fe636e557046d53",
+            "reviewSha256": "92fb815d7589e87164ad3904c40552f41c2b12ef0e56023b018a21bab5ee23f1",
+            "width": 1444,
+            "height": 1089,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 61,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-insert-whiteboard.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-insert-whiteboard.png",
+      "sceneId": "insert-whiteboard",
+      "sourceIds": [
+        "WS-102"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "sha256": "11e36b62ac2a4b1bc796d6eec49da2b365710d61ade43f5754ada6504420e85b",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-03.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Actual native-reference chooser renders current isolated library data (desktop empty, later phone lists populated) with create/cancel footer.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-102",
+          "assetId": "WS-D078",
+          "current": {
+            "file": "design/images/WS-D078.png",
+            "metadata": "design/images/WS-D078.json",
+            "review": "design/reviews/WS-D078-review.json",
+            "sha256": "572244d77874c00dcdd5537c6eecd3a84e3e6555ffcbbfa0273d6dc3ad533466",
+            "metadataSha256": "0ccd44d182298b5a76c7e76c7a08b35f20bf03e0023d3f72ca3866127bac29d5",
+            "reviewSha256": "fda6718efd6f6dc60d43a60b1ee01943ebac1798fec925e79a28afa86ef66147",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-102",
+          "assetId": "WS-R024",
+          "current": {
+            "file": "design/images/WS-R024.png",
+            "metadata": "design/images/WS-R024.json",
+            "review": "design/reviews/WS-R024-review.json",
+            "sha256": "9baad8528845692212f0a27c27bf483db0a3f7889ac29625b38613d9ad8c6c20",
+            "metadataSha256": "aebb695708e7571d7395a0118a581110bb527cacc956b4140fe636e557046d53",
+            "reviewSha256": "92fb815d7589e87164ad3904c40552f41c2b12ef0e56023b018a21bab5ee23f1",
+            "width": 1444,
+            "height": 1089,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 5,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/1440-light-insert-whiteboard.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/1440-light-insert-whiteboard.png",
+      "sceneId": "insert-whiteboard",
+      "sourceIds": [
+        "WS-102"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "sha256": "a10ad805134962d85af5bfc9aeccbf29a6b550453703bf500c366301e2abb573",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-03.jpg",
+      "viewMode": "full-screen scaled-to-fit; target enlarged beneath",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Actual native-reference chooser renders current isolated library data (desktop empty, later phone lists populated) with create/cancel footer.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-102",
+          "assetId": "WS-D078",
+          "current": {
+            "file": "design/images/WS-D078.png",
+            "metadata": "design/images/WS-D078.json",
+            "review": "design/reviews/WS-D078-review.json",
+            "sha256": "572244d77874c00dcdd5537c6eecd3a84e3e6555ffcbbfa0273d6dc3ad533466",
+            "metadataSha256": "0ccd44d182298b5a76c7e76c7a08b35f20bf03e0023d3f72ca3866127bac29d5",
+            "reviewSha256": "fda6718efd6f6dc60d43a60b1ee01943ebac1798fec925e79a28afa86ef66147",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-102",
+          "assetId": "WS-R024",
+          "current": {
+            "file": "design/images/WS-R024.png",
+            "metadata": "design/images/WS-R024.json",
+            "review": "design/reviews/WS-R024-review.json",
+            "sha256": "9baad8528845692212f0a27c27bf483db0a3f7889ac29625b38613d9ad8c6c20",
+            "metadataSha256": "aebb695708e7571d7395a0118a581110bb527cacc956b4140fe636e557046d53",
+            "reviewSha256": "92fb815d7589e87164ad3904c40552f41c2b12ef0e56023b018a21bab5ee23f1",
+            "width": 1444,
+            "height": 1089,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 212,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-compact/844-short-mindmap.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-compact/844-short-mindmap.png",
+      "sceneId": "mindmap",
+      "sourceIds": [
+        "WS-069"
+      ],
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "theme": "light",
+      "sha256": "1504b7cdd9ea3f0d628c9f2faf1f823a85925e6ca5760540e5110d7d74f73273",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-04.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "historical-desktop-to-target-resize-not-initial-fit",
+      "observation": "Root is outside view after harness initializes desktop then resizes. Cannot count as initial target-viewport fit; current actual first-mount captures required and assigned to peer.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-069",
+          "assetId": "WS-D049",
+          "current": {
+            "file": "design/images/WS-D049.png",
+            "metadata": "design/images/WS-D049.json",
+            "review": "design/reviews/WS-D049-review.json",
+            "sha256": "d0e25a4067474bda3b4ac5bede8c6bfdf2e84f30953b802021af1610f617481d",
+            "metadataSha256": "2ada2824da54dfd28669a05e5fd06eef4506a88efae68b76e61dfe118ddfe408",
+            "reviewSha256": "e76161ae5398b16fe523ee8c3fc96b7542f44e68b8f9e828b85daeaf63898a34",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-069",
+          "assetId": "WS-R025",
+          "current": {
+            "file": "design/images/WS-R025-v2.png",
+            "metadata": "design/images/WS-R025-v2.json",
+            "review": "design/reviews/WS-R025-v2-review.json",
+            "sha256": "67b1dba246cd1434098809e3bf8a500dbbd85a914a5fe41880d96fb57fc5299c",
+            "metadataSha256": "f4a1d2221b90cc8ce1c0dcb5f7dc150512eca6110eceb930ea337868af8e5bb9",
+            "reviewSha256": "8ad95d9b257003a104af99d0e4ff5e690396b4d8344de67d8ab9246e497bf2bc",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 189,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-compact/360-short-dark-mindmap.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-compact/360-short-dark-mindmap.png",
+      "sceneId": "mindmap",
+      "sourceIds": [
+        "WS-069"
+      ],
+      "viewport": {
+        "width": 360,
+        "height": 460
+      },
+      "theme": "dark",
+      "sha256": "f8d0b371428fb5cabcd16a385e1990afe2a34f90857d7fb2490080aefac22773",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-04.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "historical-desktop-to-target-resize-not-initial-fit",
+      "observation": "Root is outside view after harness initializes desktop then resizes. Cannot count as initial target-viewport fit; current actual first-mount captures required and assigned to peer.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-069",
+          "assetId": "WS-D049",
+          "current": {
+            "file": "design/images/WS-D049.png",
+            "metadata": "design/images/WS-D049.json",
+            "review": "design/reviews/WS-D049-review.json",
+            "sha256": "d0e25a4067474bda3b4ac5bede8c6bfdf2e84f30953b802021af1610f617481d",
+            "metadataSha256": "2ada2824da54dfd28669a05e5fd06eef4506a88efae68b76e61dfe118ddfe408",
+            "reviewSha256": "e76161ae5398b16fe523ee8c3fc96b7542f44e68b8f9e828b85daeaf63898a34",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-069",
+          "assetId": "WS-R025",
+          "current": {
+            "file": "design/images/WS-R025-v2.png",
+            "metadata": "design/images/WS-R025-v2.json",
+            "review": "design/reviews/WS-R025-v2-review.json",
+            "sha256": "67b1dba246cd1434098809e3bf8a500dbbd85a914a5fe41880d96fb57fc5299c",
+            "metadataSha256": "f4a1d2221b90cc8ce1c0dcb5f7dc150512eca6110eceb930ea337868af8e5bb9",
+            "reviewSha256": "8ad95d9b257003a104af99d0e4ff5e690396b4d8344de67d8ab9246e497bf2bc",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 197,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-compact/390-dark-mindmap.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-compact/390-dark-mindmap.png",
+      "sceneId": "mindmap",
+      "sourceIds": [
+        "WS-069"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "dark",
+      "sha256": "36ae25a0f3010e4cb531bdb30c860fd44ae5ef74f69a73dcc47c83162ecdb1c4",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-04.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "historical-desktop-to-target-resize-not-initial-fit",
+      "observation": "Root is outside view after harness initializes desktop then resizes. Cannot count as initial target-viewport fit; current actual first-mount captures required and assigned to peer.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-069",
+          "assetId": "WS-D049",
+          "current": {
+            "file": "design/images/WS-D049.png",
+            "metadata": "design/images/WS-D049.json",
+            "review": "design/reviews/WS-D049-review.json",
+            "sha256": "d0e25a4067474bda3b4ac5bede8c6bfdf2e84f30953b802021af1610f617481d",
+            "metadataSha256": "2ada2824da54dfd28669a05e5fd06eef4506a88efae68b76e61dfe118ddfe408",
+            "reviewSha256": "e76161ae5398b16fe523ee8c3fc96b7542f44e68b8f9e828b85daeaf63898a34",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-069",
+          "assetId": "WS-R025",
+          "current": {
+            "file": "design/images/WS-R025-v2.png",
+            "metadata": "design/images/WS-R025-v2.json",
+            "review": "design/reviews/WS-R025-v2-review.json",
+            "sha256": "67b1dba246cd1434098809e3bf8a500dbbd85a914a5fe41880d96fb57fc5299c",
+            "metadataSha256": "f4a1d2221b90cc8ce1c0dcb5f7dc150512eca6110eceb930ea337868af8e5bb9",
+            "reviewSha256": "8ad95d9b257003a104af99d0e4ff5e690396b4d8344de67d8ab9246e497bf2bc",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 125,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-mindmap.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-mindmap.png",
+      "sceneId": "mindmap",
+      "sourceIds": [
+        "WS-069"
+      ],
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "sha256": "307ce6a148f88bbd93076ecd967a6af48ec36c4bb626e248351f8326cc3d8d09",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-04.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "historical-desktop-to-target-resize-not-initial-fit",
+      "observation": "Root is outside view after harness initializes desktop then resizes. Cannot count as initial target-viewport fit; current actual first-mount captures required and assigned to peer.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-069",
+          "assetId": "WS-D049",
+          "current": {
+            "file": "design/images/WS-D049.png",
+            "metadata": "design/images/WS-D049.json",
+            "review": "design/reviews/WS-D049-review.json",
+            "sha256": "d0e25a4067474bda3b4ac5bede8c6bfdf2e84f30953b802021af1610f617481d",
+            "metadataSha256": "2ada2824da54dfd28669a05e5fd06eef4506a88efae68b76e61dfe118ddfe408",
+            "reviewSha256": "e76161ae5398b16fe523ee8c3fc96b7542f44e68b8f9e828b85daeaf63898a34",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-069",
+          "assetId": "WS-R025",
+          "current": {
+            "file": "design/images/WS-R025-v2.png",
+            "metadata": "design/images/WS-R025-v2.json",
+            "review": "design/reviews/WS-R025-v2-review.json",
+            "sha256": "67b1dba246cd1434098809e3bf8a500dbbd85a914a5fe41880d96fb57fc5299c",
+            "metadataSha256": "f4a1d2221b90cc8ce1c0dcb5f7dc150512eca6110eceb930ea337868af8e5bb9",
+            "reviewSha256": "8ad95d9b257003a104af99d0e4ff5e690396b4d8344de67d8ab9246e497bf2bc",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 62,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-mindmap.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-mindmap.png",
+      "sceneId": "mindmap",
+      "sourceIds": [
+        "WS-069"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "theme": "light",
+      "sha256": "0c051b5d60b33b4648a33c07a043b7a552b78b55af23c747b2f976030986fb6b",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-04.jpg",
+      "viewMode": "full-screen scaled-to-fit",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "historical-desktop-to-target-resize-not-initial-fit",
+      "observation": "Root is outside view after harness initializes desktop then resizes. Cannot count as initial target-viewport fit; current actual first-mount captures required and assigned to peer.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-069",
+          "assetId": "WS-D049",
+          "current": {
+            "file": "design/images/WS-D049.png",
+            "metadata": "design/images/WS-D049.json",
+            "review": "design/reviews/WS-D049-review.json",
+            "sha256": "d0e25a4067474bda3b4ac5bede8c6bfdf2e84f30953b802021af1610f617481d",
+            "metadataSha256": "2ada2824da54dfd28669a05e5fd06eef4506a88efae68b76e61dfe118ddfe408",
+            "reviewSha256": "e76161ae5398b16fe523ee8c3fc96b7542f44e68b8f9e828b85daeaf63898a34",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-069",
+          "assetId": "WS-R025",
+          "current": {
+            "file": "design/images/WS-R025-v2.png",
+            "metadata": "design/images/WS-R025-v2.json",
+            "review": "design/reviews/WS-R025-v2-review.json",
+            "sha256": "67b1dba246cd1434098809e3bf8a500dbbd85a914a5fe41880d96fb57fc5299c",
+            "metadataSha256": "f4a1d2221b90cc8ce1c0dcb5f7dc150512eca6110eceb930ea337868af8e5bb9",
+            "reviewSha256": "8ad95d9b257003a104af99d0e4ff5e690396b4d8344de67d8ab9246e497bf2bc",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    },
+    {
+      "queueIndex": 182,
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-compact/1440-dark-mindmap.json",
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-compact/1440-dark-mindmap.png",
+      "sceneId": "mindmap",
+      "sourceIds": [
+        "WS-069"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "dark",
+      "sha256": "9e783cb392e0e1b9bd25bd648076e69b0377cc20ff7699a497483cf3c7ec0683",
+      "contactSheet": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/root-final-contact-sheets/page-04.jpg",
+      "viewMode": "full-screen scaled-to-fit; target enlarged beneath",
+      "actuallyViewed": true,
+      "reviewer": "root",
+      "verdict": "visible-composition-pass",
+      "observation": "Actual dark owner chrome surrounds preserved white mindmap canvas; wrapped root and child visible at desktop, pale More trigger remains a known separately tracked contrast issue.",
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+      "designRefs": [
+        {
+          "sourceId": "WS-069",
+          "assetId": "WS-D049",
+          "current": {
+            "file": "design/images/WS-D049.png",
+            "metadata": "design/images/WS-D049.json",
+            "review": "design/reviews/WS-D049-review.json",
+            "sha256": "d0e25a4067474bda3b4ac5bede8c6bfdf2e84f30953b802021af1610f617481d",
+            "metadataSha256": "2ada2824da54dfd28669a05e5fd06eef4506a88efae68b76e61dfe118ddfe408",
+            "reviewSha256": "e76161ae5398b16fe523ee8c3fc96b7542f44e68b8f9e828b85daeaf63898a34",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "WS-069",
+          "assetId": "WS-R025",
+          "current": {
+            "file": "design/images/WS-R025-v2.png",
+            "metadata": "design/images/WS-R025-v2.json",
+            "review": "design/reviews/WS-R025-v2-review.json",
+            "sha256": "67b1dba246cd1434098809e3bf8a500dbbd85a914a5fe41880d96fb57fc5299c",
+            "metadataSha256": "f4a1d2221b90cc8ce1c0dcb5f7dc150512eca6110eceb930ea337868af8e5bb9",
+            "reviewSha256": "8ad95d9b257003a104af99d0e4ff5e690396b4d8344de67d8ab9246e497bf2bc",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ],
+      "limits": [
+        "Visual captured state only; no universal business/interaction claim.",
+        "Root wrote earlier shared outer shell; separate fresh whole-branch reviewer handles independence."
+      ]
+    }
+  ]
+}

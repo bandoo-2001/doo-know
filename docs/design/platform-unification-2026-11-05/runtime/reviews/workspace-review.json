@@ -1,0 +1,1398 @@
+{
+  "sourceCommit": "68616eab4d3e9f84fa78f423e8bb4762c93f59e4",
+  "batch": "2026-11-05-68616ea-batch02",
+  "scope": "Completed WS-/RTD-mapped primary screenshots only. Each runtime/design comparison viewed side by side, SHA-256 verified for both originals. Controls probes provide supplementary evidence. Visible-composition-pass applies only to visible state; no unseen branch, focus, input, hardware, flow or viewport inferred.",
+  "reviewedAtUtc": "2026-11-05T14:09:18.230897+00:00",
+  "images": [
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-apps.png",
+      "sha256": "0cb5fdab492b3f5d0697462c58b18b804153c6b2cdadf0d1228fee80c9044897",
+      "sourceIds": [
+        "WS-084"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D060",
+          "file": "design/images/WS-D060.png",
+          "sha256": "fc0a66391e8675404f79118b23d1371fcecd76c4dd6028654875b85eb2c07b7d"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "三个应用卡片及各自添加入口对齐，所有者导航可见。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-backlinks.png",
+      "sha256": "f14041839f408abe612ee178825eeb73c1c66e9a2bab8b2039d50e25248e8183",
+      "sourceIds": [
+        "WS-046"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D036",
+          "file": "design/images/WS-D036.png",
+          "sha256": "56c0a5a9400e972017f1732b6886ccd05dc450655c056bec03f3cc9a9ad44a63"
+        }
+      ],
+      "verdict": "visual-revision",
+      "observation": "扫描完成且无提及。反馈行及底部两项操作可见。",
+      "issues": [
+        "底部动作为原生灰色细黑边按钮，主要与次要动作缺少已审设计的主次样式。"
+      ],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-create-menu.png",
+      "sha256": "00f2844f187fe5f387251dd58ba630621a829708b8227cb8af9adba864f1863e",
+      "sourceIds": [
+        "WS-004"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D004",
+          "file": "design/images/WS-D004.png",
+          "sha256": "a6ba10e6f1673a466e4590453d4b99aa3075663cf8715976ef2949aef23660b1"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "新建按钮下方可见六行按图标对齐的导入与创建入口。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-directory-open.png",
+      "sha256": "d293b83a934330948c919ce9e4f8413e6a1a589b6b725e57b2bce85e269e14ef",
+      "sourceIds": [
+        "WS-002",
+        "WS-003",
+        "WS-103"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D002",
+          "file": "design/images/WS-D002.png",
+          "sha256": "5c37dd9599e8e01cb70147c3acd33916fad64e15e4ee61cd99c370896b3690dd"
+        },
+        {
+          "assetId": "WS-D003",
+          "file": "design/images/WS-D003-v3.png",
+          "sha256": "3ec6f161897d4e9cc007d01ecbff02afc4ebdd5a8f9bac74d6d4e52af269e09d"
+        }
+      ],
+      "verdict": "partial-state-only",
+      "observation": "桌面树显示两个顶层目录，可见搜索与创建入口。尚未键入搜索词，不能验证匹配结果及加载更多。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-directory-picker.png",
+      "sha256": "7483f868c5b2e3f91c0109de6258304f8bd30f305ece6c64df26dbfc6c6fecc1",
+      "sourceIds": [
+        "WS-023",
+        "ST-015"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D019",
+          "file": "design/images/WS-D019-v2.png",
+          "sha256": "6c310f8430cfea4c5b6444dbb1d7b30b2e295fc9848155e30310f66bdc0c8a86"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "目录选择树展开，顶层与子目录缩进可辨。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-favorites.png",
+      "sha256": "9a80a9a2cb134f2a104d6988322a71596bc3e9842ef603965b299b8d6ce5d1fe",
+      "sourceIds": [
+        "WS-008",
+        "WS-009"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D008",
+          "file": "design/images/WS-D008-v2.png",
+          "sha256": "7715a67ce591c579dbc9cf7e0a5458a920ca267a47a1251fa23d16a95615159e"
+        },
+        {
+          "assetId": "WS-D009",
+          "file": "design/images/WS-D009-v2.png",
+          "sha256": "cbdd41481c5765fe964b118994994fa97d0ee4e6ca223443bf5a5e7812a14f7d"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "收藏空态、星标指引与标题操作可见。未触发加载骨架。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-folder.png",
+      "sha256": "e7f9b294415c5524aad3b071efd852ea18e01d7a8c0fd6d7269da36b0187930d",
+      "sourceIds": [
+        "WS-006"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D006",
+          "file": "design/images/WS-D006-v2.png",
+          "sha256": "9ddad6b8c8fd42bcc416c5217ec49fc58272cae62014d84841845a70bb55ce5a"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "选中目录与带行操作的文件清单分栏，标题和表列对齐。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-import-markdown.png",
+      "sha256": "062d85e8e7bd4a001f486ce290f60740bfbd8e5071b4e6b6c6e17724913fbe22",
+      "sourceIds": [
+        "WS-022"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D018",
+          "file": "design/images/WS-D018.png",
+          "sha256": "ce549bb8f1534fc209ce40b129425cbe29b92a62752b43aa3d4626fd5d10d5bd"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "目录选择、批量折叠入口、文件输入及底部动作顺序清楚。",
+      "issues": [],
+      "interactionLimitations": [
+        "组合框已取得焦点，透明 input 中心命中失败。该静帧无法验证本场景点击/方向键选择全过程。"
+      ]
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-insert-table.png",
+      "sha256": "d7b1703221e09ee71f6528f4cc687000dffe8014a747d14f28d89697ecf537d6",
+      "sourceIds": [
+        "WS-031"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D026",
+          "file": "design/images/WS-D026-v3.png",
+          "sha256": "f7608ebf79c28594fdb4c5330a795d9bf763d72c3a3e06efb2d5e033fc44926a"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "已展开带预览、行列值、尺寸预设与插入动作的菜单。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-insert-whiteboard.png",
+      "sha256": "f403f33b4e5a1a4d0248d521feef2d1616c4f53e88dca68d57a5c79e42c3b44b",
+      "sourceIds": [
+        "WS-102"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D078",
+          "file": "design/images/WS-D078.png",
+          "sha256": "572244d77874c00dcdd5537c6eecd3a84e3e6555ffcbbfa0273d6dc3ad533466"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "空白板列表、说明、取消和新建并插入动作可见。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-markdown-paste.png",
+      "sha256": "ee4866ec98654fe2f057acad04c278cd28472ade12ec8a04aee6371e6ce1669d",
+      "sourceIds": [
+        "WS-044"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D034",
+          "file": "design/images/WS-D034.png",
+          "sha256": "935f39833042039f9964217af2012ad896748b24e7fa480f9a95e83b39352bf6"
+        }
+      ],
+      "verdict": "visual-revision",
+      "observation": "文本区完整，取消与禁用插入动作可见。",
+      "issues": [
+        "底部动作为原生灰色细黑边按钮，主要与次要动作缺少已审设计的主次样式。"
+      ],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-new-flowchart.png",
+      "sha256": "ef9b832da0cce88228a948d7667bfffae9852f3d74b7e081d5e1db1075f156ba",
+      "sourceIds": [
+        "WS-015"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D011",
+          "file": "design/images/WS-D011.png",
+          "sha256": "451b626f4dc7363e45014baa22cc5a8e579b03364ff8cb1a48bedba45600a51d"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "空创建表单中目录、名称、取消与禁用创建动作可辨，仅验证当前目录及空名称。",
+      "issues": [],
+      "interactionLimitations": [
+        "组合框已取得焦点，透明 input 中心命中失败。该静帧无法验证本场景点击/方向键选择全过程。"
+      ]
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-new-folder.png",
+      "sha256": "bed3effd55965478f96ea52d294ca3829a1cebc48cd8800ea7eb6a44e255382d",
+      "sourceIds": [
+        "WS-012"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D011",
+          "file": "design/images/WS-D011.png",
+          "sha256": "451b626f4dc7363e45014baa22cc5a8e579b03364ff8cb1a48bedba45600a51d"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "空创建表单中目录、名称、取消与禁用创建动作可辨，仅验证当前目录及空名称。",
+      "issues": [],
+      "interactionLimitations": [
+        "组合框已取得焦点，透明 input 中心命中失败。该静帧无法验证本场景点击/方向键选择全过程。"
+      ]
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-new-mindmap.png",
+      "sha256": "cffded66b8f8126552442a41e66cc3b03e7bfa3e49d26a31b8a085058fdf2d1f",
+      "sourceIds": [
+        "WS-014"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D011",
+          "file": "design/images/WS-D011.png",
+          "sha256": "451b626f4dc7363e45014baa22cc5a8e579b03364ff8cb1a48bedba45600a51d"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "空创建表单中目录、名称、取消与禁用创建动作可辨，仅验证当前目录及空名称。",
+      "issues": [],
+      "interactionLimitations": [
+        "组合框已取得焦点，透明 input 中心命中失败。该静帧无法验证本场景点击/方向键选择全过程。"
+      ]
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-new-note.png",
+      "sha256": "ee4c69d1004c275b5a2d63881d944d44b511a9f0ae6cd3130e31aa8cb3b189fe",
+      "sourceIds": [
+        "WS-011"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D011",
+          "file": "design/images/WS-D011.png",
+          "sha256": "451b626f4dc7363e45014baa22cc5a8e579b03364ff8cb1a48bedba45600a51d"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "空创建表单中目录、名称、取消与禁用创建动作可辨，仅验证当前目录及空名称。",
+      "issues": [],
+      "interactionLimitations": [
+        "组合框已取得焦点，透明 input 中心命中失败。该静帧无法验证本场景点击/方向键选择全过程。"
+      ]
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-new-whiteboard.png",
+      "sha256": "b84afdc5c2f8902352a0ee211d138c650a9e199bbac02625322a3c525075af34",
+      "sourceIds": [
+        "WS-013"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D011",
+          "file": "design/images/WS-D011.png",
+          "sha256": "451b626f4dc7363e45014baa22cc5a8e579b03364ff8cb1a48bedba45600a51d"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "空创建表单中目录、名称、取消与禁用创建动作可辨，仅验证当前目录及空名称。",
+      "issues": [],
+      "interactionLimitations": [
+        "组合框已取得焦点，透明 input 中心命中失败。该静帧无法验证本场景点击/方向键选择全过程。"
+      ]
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-note-copy.png",
+      "sha256": "f0575f7c71738b7633c59c71c2564e9c5732277263ae1621ca542dcba88b58f1",
+      "sourceIds": [
+        "WS-019"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D015",
+          "file": "design/images/WS-D015-v2.png",
+          "sha256": "3124014e57f49b2ff4838f0e0596d639a57216cdc3d33b49e32b49af582672e2"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "副本目录、文件名与创建副本按钮排列清楚。",
+      "issues": [],
+      "interactionLimitations": [
+        "组合框已取得焦点，透明 input 中心命中失败。该静帧无法验证本场景点击/方向键选择全过程。"
+      ]
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-note-history.png",
+      "sha256": "6fce1f17acb2c5b5769c3084c3494013909d2424ad4049daecef0005e2c1765e",
+      "sourceIds": [
+        "WS-064"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D046",
+          "file": "design/images/WS-D046.png",
+          "sha256": "d6471a1732da6ab1b9b32ac3ea8aecd3fb40fd4da891e36703d70eaefe239626"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "历史版本覆盖层拥有顶栏与底栏，空态在中部。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-note-more.png",
+      "sha256": "22d8374b1005efdd2a688937cf0777da159d1932fef6e193938a7d30b959cb6f",
+      "sourceIds": [
+        "WS-028"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D024",
+          "file": "design/images/WS-D024-v3.png",
+          "sha256": "915d4461e2dec0e0474135a5be1d29b56d2c99a8c96017326e96e65ac2a6ab03"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "右上菜单显示下载、历史、插入、关联任务与危险动作，各行未重叠。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-note-move.png",
+      "sha256": "b75e3b4b310b5b331e0140f009dff4602ce6149ca74b57b699b610384087cc0c",
+      "sourceIds": [
+        "WS-017"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D015",
+          "file": "design/images/WS-D015-v2.png",
+          "sha256": "3124014e57f49b2ff4838f0e0596d639a57216cdc3d33b49e32b49af582672e2"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "目标目录、文件名与确认移动动作排列清楚，引用冲突分支未触发。",
+      "issues": [],
+      "interactionLimitations": [
+        "组合框已取得焦点，透明 input 中心命中失败。该静帧无法验证本场景点击/方向键选择全过程。"
+      ]
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-note-trash.png",
+      "sha256": "8b126524bc74022883b015fac099cae3c7015f292ee314c5a73b2dc4a878aa69",
+      "sourceIds": [
+        "WS-020"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D017",
+          "file": "design/images/WS-D017.png",
+          "sha256": "59b483449d909fa7b536edbd0cc42a050881792f443f212603e66b6d0be43afa"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "警告文本与红色确认和次级取消清楚，未执行删除。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-outline.png",
+      "sha256": "4fb51160c96d4ac97e2ce9980d70f4b69df3da3b8046064cef8f08cd68d33a37",
+      "sourceIds": [
+        "WS-047"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D024",
+          "file": "design/images/WS-D024-v3.png",
+          "sha256": "915d4461e2dec0e0474135a5be1d29b56d2c99a8c96017326e96e65ac2a6ab03"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "目录内两级标题清楚，选中态明显。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-paragraph.png",
+      "sha256": "014ea80f8c28f65b16c4f84ec45d6d86ae35d3da47b63a17e4dca6bb1a968da1",
+      "sourceIds": [
+        "WS-030"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D026",
+          "file": "design/images/WS-D026-v3.png",
+          "sha256": "f7608ebf79c28594fdb4c5330a795d9bf763d72c3a3e06efb2d5e033fc44926a"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "段落类型菜单展开，标题层级与当前选择清楚。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-properties.png",
+      "sha256": "4995a0b499587c9dab1241dfbc0e250e9441c647d3af16fbe9228cfff5d6aa99",
+      "sourceIds": [
+        "WS-043"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D033",
+          "file": "design/images/WS-D033.png",
+          "sha256": "7058ec9cc6cfd323f32a5685c02a3525975f7d1083803d2fea3688f17e369f59"
+        }
+      ],
+      "verdict": "visual-revision",
+      "observation": "空 YAML 属性表单显示标题、标签和添加属性，底部可见草稿动作。",
+      "issues": [
+        "底部动作为原生灰色细黑边按钮，主要与次要动作缺少已审设计的主次样式。"
+      ],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-quick-insert.png",
+      "sha256": "efd9b1b0f44b8f5080091ebb8c1d6ee37f651b67a21c6ee5673e4e60c2874725",
+      "sourceIds": [
+        "WS-042"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D032",
+          "file": "design/images/WS-D032.png",
+          "sha256": "9d7c4dfbc319393ba4ecc7c11343fd5c86671758384d2f6a16978c3edf85ae8e"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "空搜索下有真实命令列表及高亮首项。过滤结果未触发。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-read.png",
+      "sha256": "e6b7e2e0fe4d22552f0fae5e9c4091964f4167b03a00ab4527daa8a408e593dc",
+      "sourceIds": [
+        "WS-027"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D023",
+          "file": "design/images/WS-D023.png",
+          "sha256": "ddba258fa4644ba822860dcffaad086aa26481a68b0976090a8c7d0a713db75b"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "阅读正文、章节目录和阅读模式选中态可见。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-recent.png",
+      "sha256": "7f4d528ac2696ec91d3650be067643f5e83af2468333d56b2da12692129a9b5f",
+      "sourceIds": [
+        "WS-007",
+        "WS-009"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D007",
+          "file": "design/images/WS-D007-v2.png",
+          "sha256": "ac8d25731f068c9173372cdc536363be0bc4da4ebb9182183171963d80dba85d"
+        },
+        {
+          "assetId": "WS-D009",
+          "file": "design/images/WS-D009-v2.png",
+          "sha256": "cbdd41481c5765fe964b118994994fa97d0ee4e6ca223443bf5a5e7812a14f7d"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "列表已加载，卡片标题、摘要、目录、日期及操作可辨；未触发骨架或加载失败。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-rich-editor.png",
+      "sha256": "92b520def266b6f8c7357d1bb15a489f30368ba28883ae8862b2015dd1bfac8b",
+      "sourceIds": [
+        "WS-024",
+        "WS-029",
+        "WS-083"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D020",
+          "file": "design/images/WS-D020.png",
+          "sha256": "92233fe058857af291ec456be8275f2d2ab87211ce4fbe90b86a1bef27e0b38d"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "正文、格式工具、章节目录、表格及代码块可见。",
+      "issues": [],
+      "interactionLimitations": [
+        "代码 pre 焦点转给名为代码内容的 textbox，尚未验证键入与保存。"
+      ]
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-rich-link.png",
+      "sha256": "5dc6a4cf9bf45db5ba2dbb585b954fb9c579c21d036b032b9fb67190db86eeb2",
+      "sourceIds": [
+        "WS-037"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D029",
+          "file": "design/images/WS-D029-v3.png",
+          "sha256": "e34b52c952997fae374355e207f4715a186e923426360d4603483c5c188b1203"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "显示文字、链接地址、标题三个字段及底部操作可见。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-rich-table-context.png",
+      "sha256": "7a2932d1686976056c6fa930320babc1e1bdeb82dab7a6e1181ece26a232a395",
+      "sourceIds": [
+        "WS-034"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D028",
+          "file": "design/images/WS-D028-v2.png",
+          "sha256": "22835d30ffaf69a558ac7223b569b4ed41a2904b815c6865cdf9dbbac7cece5f"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "真实表格上方出现行列/对齐等操作；图片与链接上下文不在本帧。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-share-active.png",
+      "sha256": "578b13ea382ec4236facb7602bcd5bb80b3775270aa5dda4efe9f7c1606ac17f",
+      "sourceIds": [
+        "WS-099",
+        "WS-115"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D075",
+          "file": "design/images/WS-D075.png",
+          "sha256": "86e0969ab24235dd7e3dc959916a4c2a603548fad6f8cb3d5a2e965a99761d9c"
+        },
+        {
+          "assetId": "WS-D086",
+          "file": "design/images/WS-D086.png",
+          "sha256": "f6963f7e7b71547eef9963372ef786adc9e47b162981788e383c362d171026bc"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "可见已开启徽标、打码链接、复制、权限和取消分享动作。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-share-copy.png",
+      "sha256": "50e538d3e8951b01cb9d36ef71c320fe386e8ecada7c68636691d69835724b17",
+      "sourceIds": [
+        "WS-122"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D088",
+          "file": "design/images/WS-D088.png",
+          "sha256": "c676df6313e23c940b5e9e66d6adab8b990be618d6bcd8789914206ce260fc5c"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "可见「已复制」按钮反馈，打码链接旁操作可辨；不证明系统剪贴板内容。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-share-custom-expiry.png",
+      "sha256": "e07ea19919e5e10a66634ad2511dd94767182a55a07745d67e9b89b5aa06cc28",
+      "sourceIds": [
+        "WS-118"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D086",
+          "file": "design/images/WS-D086.png",
+          "sha256": "f6963f7e7b71547eef9963372ef786adc9e47b162981788e383c362d171026bc"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "自定义到期时间输入已显示，未填日期；仅验证该分支排版。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-share-edit-permission.png",
+      "sha256": "f56ae94e31c5a2b1cd2918a089bbf2c9db5142ba57c80f42aebe47adfaebeb83",
+      "sourceIds": [
+        "WS-120"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D086",
+          "file": "design/images/WS-D086.png",
+          "sha256": "f6963f7e7b71547eef9963372ef786adc9e47b162981788e383c362d171026bc"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "显示允许编辑及附加说明。未保存或核验公开端编辑权限。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-share-private.png",
+      "sha256": "9e0d78318b35b06df8e7f7865bbdc217d7a6b5d8cabc4795fb62a3ad6135652c",
+      "sourceIds": [
+        "WS-099",
+        "WS-114"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D075",
+          "file": "design/images/WS-D075.png",
+          "sha256": "86e0969ab24235dd7e3dc959916a4c2a603548fad6f8cb3d5a2e965a99761d9c"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "可见私密状态、分享权限和有效期以及生成链接按钮。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-share-revoked.png",
+      "sha256": "52af71c331d93961a2fcc5b9f505f8161e672a269376a22883e0c40075f3ebf2",
+      "sourceIds": [
+        "WS-099",
+        "WS-117"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D075",
+          "file": "design/images/WS-D075.png",
+          "sha256": "86e0969ab24235dd7e3dc959916a4c2a603548fad6f8cb3d5a2e965a99761d9c"
+        },
+        {
+          "assetId": "WS-D086",
+          "file": "design/images/WS-D086.png",
+          "sha256": "f6963f7e7b71547eef9963372ef786adc9e47b162981788e383c362d171026bc"
+        }
+      ],
+      "verdict": "wrong-state",
+      "observation": "显示已开启徽标、已有链接、取消分享及保存分享设置。",
+      "issues": [
+        "当前仍有复制、取消分享和保存分享设置。期望已撤销状态及生成链接动作未出现。"
+      ],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-source-find.png",
+      "sha256": "2bcb39d0556c31cc8b685533a210d3415b1007c5a6c5893c24b40f51be68b335",
+      "sourceIds": [
+        "WS-045"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D035",
+          "file": "design/images/WS-D035.png",
+          "sha256": "c99b8fe2ba45e2614959f0972d1b8dac0218e4e10c05132aad93b14f7c08b7be"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "查找与替换条出现在源码区域顶部，未输入查询。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-source.png",
+      "sha256": "4fb51160c96d4ac97e2ce9980d70f4b69df3da3b8046064cef8f08cd68d33a37",
+      "sourceIds": [
+        "WS-025",
+        "WS-105"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D021",
+          "file": "design/images/WS-D021.png",
+          "sha256": "2ca96ea78c13c34c6a522621ca0ef06cb7c131aeb8dee390b9bd4636a77a29b6"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "源码与目录分栏、编辑模式选中态和字数页脚可见。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-split.png",
+      "sha256": "ba495b258b5035030c25f5bcaa7cd4869f06b6e22f9d64fbb279db8820ec140b",
+      "sourceIds": [
+        "WS-026"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D022",
+          "file": "design/images/WS-D022.png",
+          "sha256": "05238696904950316cd7e2e7ad1516fde5053e2812d91478074746b37e7997ad"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "左右源码、预览分栏及同步滚动已选，双栏内容可见。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-text-color.png",
+      "sha256": "618c5e8106e988a0a6ee15e4c751b0f9350e46ccd58d740a390a17cc8167310a",
+      "sourceIds": [
+        "WS-032"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D026",
+          "file": "design/images/WS-D026-v3.png",
+          "sha256": "f7608ebf79c28594fdb4c5330a795d9bf763d72c3a3e06efb2d5e033fc44926a"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "调色板显示预设色、当前选择与收起的自定义入口。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-trash-empty.png",
+      "sha256": "8ab61dc761f97cf0ab50245c8064e95d03860e81023eef904810000a989187b1",
+      "sourceIds": [
+        "WS-107",
+        "WS-110"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D081",
+          "file": "design/images/WS-D081.png",
+          "sha256": "ce659bf569a640dca0fec5a688e131ae162ad634b51698bbea5491564ca039af"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "筛选、批量操作、空态、分页与说明分区清楚；无条目，未审查删除/恢复流程。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-workspace-ready.png",
+      "sha256": "d293b83a934330948c919ce9e4f8413e6a1a589b6b725e57b2bce85e269e14ef",
+      "sourceIds": [
+        "WS-001"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D001",
+          "file": "design/images/PILOT-WS-001.png",
+          "sha256": "6e791e6140fe37230a34537fb61b28da915582640096f6cb51ceddce2623c37f"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "主栏、目录与空态标题/快速记录/导入动作可见。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-graph-list.png",
+      "sha256": "cc139a19fab4ad5fa03cd3ad13253970988a6d72bfd657a92b84b944f04e45bb",
+      "sourceIds": [
+        "WS-086"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D062",
+          "file": "design/images/WS-D062.png",
+          "sha256": "1ddb3041befb82563a2bba2ffc5f3973407c01da9c29e82e7c230a4af568588d"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "列表模式选中，条目标题、路径、类型和箭头对齐。已加载，不含设计图中的加载动画。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-graph-note-mode.png",
+      "sha256": "48b7bf65f46e7918d31670ce5ef055cb8360917fdf2ba5230dda34ed9995ccdf",
+      "sourceIds": [
+        "WS-106"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D080",
+          "file": "design/images/WS-D080.png",
+          "sha256": "847607888a5aa810304797c139615c5f1ed58e855aa5503aa3327a5f87411c4c"
+        }
+      ],
+      "verdict": "visual-revision",
+      "observation": "笔记画布模式已选。中心两枚同名节点的图形和标签叠压，且无法仅凭画布分辨两条记录；未审查搜索无结果态。",
+      "issues": [
+        "中央两份知识与行动节点在无关系画布上接近重合，标签互相遮挡，初始视图难以辨认两个对象。"
+      ],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-graph-tasks.png",
+      "sha256": "7b581b2d13261071928e2756231aa1dfedd3f2215ce26dfbeb1b0c95a3824bd0",
+      "sourceIds": [
+        "WS-088"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D064",
+          "file": "design/images/WS-D064.png",
+          "sha256": "dcad24aa7fa474bdf126827c5f51ecd942072eef6efad9b36ea221bb8b200681"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "后台分析对话框显示完成进度、状态、任务按钮与描述。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-graph.png",
+      "sha256": "03ee304b326657c11c6f8ddbd4b8eca28b70e08bd41f139ba124e8201ab7a2ee",
+      "sourceIds": [
+        "WS-085",
+        "WS-096"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D061",
+          "file": "design/images/WS-D061-v2.png",
+          "sha256": "f04f9d2d1e0224a0996ec961f29c6296e0e20277dab6174e2a9b400620837e7a"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "知识图画布、功能导航、顶部筛选与溢出提示可见。放大初始 y=1038，截图在画布中截断；探针显示滚动区可滚至该按钮。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-whiteboard.png",
+      "sha256": "0e21ce3d37affa99f9d94b4828eddbbd04debf628979125c32d00b6d31946247",
+      "sourceIds": [
+        "WS-068"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D048",
+          "file": "design/images/WS-D048.png",
+          "sha256": "ee7bffb990362d0d2cb1235bf3771d097cab0fb5871e975dd1ae07784ff94cf3"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "真实白板画布、浮动工具条、模式切换与缩放控件可见。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-diagram-more.png",
+      "sha256": "2c73bd9d471c7edcdb9fbb6e17d052eb2777513fa978cc2112a61494a97e5dd7",
+      "sourceIds": [
+        "WS-075"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D055",
+          "file": "design/images/WS-D055.png",
+          "sha256": "7a61a23532cc6a18eff886c3683c1f839737f536ab03f00b15c99bb298f6e4da"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "右上角菜单显示下载完整文档、Markdown 原文和原件。",
+      "issues": [],
+      "interactionLimitations": [
+        "控件测量异常需查看独立交互证据。",
+        "控件测量异常需查看独立交互证据。",
+        "控件测量异常需查看独立交互证据。",
+        "控件测量异常需查看独立交互证据。"
+      ]
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-diagram-png.png",
+      "sha256": "6cf4ec06e27f89db25fd26f7889559c3b1712178286f603338d5b444be1ae4bf",
+      "sourceIds": [
+        "WS-073"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D053",
+          "file": "design/images/WS-D053.png",
+          "sha256": "68f4ecd1dbaf7c68cde80e55124747b684030c170b0d4e72015f6b91e9fe44f6"
+        }
+      ],
+      "verdict": "partial-state-only",
+      "observation": "PNG 预览模式已选，空白新画布没有可识别的预览内容；无法验证非空 PNG 的呈现与缩放。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-diagram-read.png",
+      "sha256": "d86aac2eaebc1b14bab26e4461fffa013101066cc066c508ffaa3264a80bbbc8",
+      "sourceIds": [
+        "WS-074"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D054",
+          "file": "design/images/WS-D054.png",
+          "sha256": "2c374a4c5ae3878329e7e8ecad8d4720a36ff5644a18a79f9827250acd4fd33c"
+        }
+      ],
+      "verdict": "wrong-state",
+      "observation": "当前选中白板，状态保存未完成，画布仍在加载及恢复操作可见。",
+      "issues": [
+        "画布仍在加载，白板保持选中并出现错误恢复横幅；阅读页标题及阅读内容未出现。"
+      ],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-diagram-source.png",
+      "sha256": "98020e534027d74d0498c6ab5f8961c1942e1ad8fa5a367cd184d8bc7c34b613",
+      "sourceIds": [
+        "WS-072"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D052",
+          "file": "design/images/WS-D052.png",
+          "sha256": "3574a2aaea636ddcc23720db6526ef9147846e55f539464cd4bc22b6816751f3"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "源码模式带行号和绑定元数据；当前未出现设计中的不完整状态警示。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-flowchart.png",
+      "sha256": "218f8ff86a6661890b02d3ed265804f342542473eddf4eab1094b1b066b45bb9",
+      "sourceIds": [
+        "WS-070"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D050",
+          "file": "design/images/WS-D050.png",
+          "sha256": "064c3b03347ce8d1a541f929d3388757d92b4599d4058b3eb45d67c802b4126d"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "左侧 Mermaid 输入及模板入口与右侧真实流程图预览对齐。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-mindmap.png",
+      "sha256": "82506eda977fe0071414c9ce0a7c8389a708008660db7b111ca12e18f3803b84",
+      "sourceIds": [
+        "WS-069"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D049",
+          "file": "design/images/WS-D049.png",
+          "sha256": "d0e25a4067474bda3b4ac5bede8c6bfdf2e84f30953b802021af1610f617481d"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "脑图工具与实际中心节点/子节点可见，根标题使用隔离夹具的长名称。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-vendor-find.png",
+      "sha256": "09aa50d9070cc347a5c74b9a00b16bfdf72ce583a12ede1e3a4d362ba4a02446",
+      "sourceIds": [
+        "RTD-005",
+        "WS-068"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D048",
+          "file": "design/images/WS-D048.png",
+          "sha256": "ee7bffb990362d0d2cb1235bf3771d097cab0fb5871e975dd1ae07784ff94cf3"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "Excalidraw 右侧搜索面板及查找输入可见，仅核对第三方查找面板的出现与布局。",
+      "issues": [],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-export-reading-html.png",
+      "sha256": "fa986f1c582fbed4c043fd7c181c619314344c5e7a34d41cf985a80951762743",
+      "sourceIds": [
+        "WS-124"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D090",
+          "file": "design/images/WS-D090.png",
+          "sha256": "7236f7b0fa869cb2464a99e663493e7a12f7dc5186490efc3b9b0a9948f0e18d"
+        }
+      ],
+      "verdict": "wrong-state",
+      "observation": "当前渲染所有者导航、编辑工具和章节目录，展示内置阅读视图。",
+      "issues": [
+        "所有者阅读视图不能验证下载后的独立 HTML 样式。"
+      ],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-large-file.png",
+      "sha256": "1a1077350e011cc7a1e322e0271af5b9a68af01f2c9c4401ec0c10ab015e2d24",
+      "sourceIds": [
+        "WS-049"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D037",
+          "file": "design/images/WS-D037.png",
+          "sha256": "4a5ba23af3510c89f9ed53b2b866f3379e407655b6626d048fec488cdcd97e6e"
+        }
+      ],
+      "verdict": "wrong-state",
+      "observation": "只看到大文件模式、进行中状态及片段操作，正文和行号未出现。",
+      "issues": [
+        "截图早于片段正文加载完成，无法核验章节、行号及已保存片段。"
+      ],
+      "interactionLimitations": []
+    },
+    {
+      "file": "runtime/2026-11-05-68616ea-batch02/1440-light-vendor-menu.png",
+      "sha256": "fb7839f978a4e509eeae8bad4ecf87ffdd467eae349cdb096a04ce37cca4c2ab",
+      "sourceIds": [
+        "RTD-003",
+        "WS-068"
+      ],
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "designrefsActuallyViewed": [
+        {
+          "assetId": "WS-D048",
+          "file": "design/images/WS-D048.png",
+          "sha256": "ee7bffb990362d0d2cb1235bf3771d097cab0fb5871e975dd1ae07784ff94cf3"
+        }
+      ],
+      "verdict": "visible-composition-pass",
+      "observation": "Excalidraw 菜单可见查找、帮助、链接和背景选项，画布仍在后方。",
+      "issues": [],
+      "interactionLimitations": []
+    }
+  ]
+}

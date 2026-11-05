@@ -1,0 +1,1202 @@
+{
+  "policy": "Exact verified copies of author browser images; color/layout and interaction limits are recorded by the scoped independent reviews. Patch-bound targeted evidence, distinct from the capture harness matrix.",
+  "images": [
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/d729e7cfe65d-git-rejection.png",
+      "sha256": "d729e7cfe65de4a34a76dcc50f44e9637e84795b152ea68d5f60b9b8658175eb",
+      "bytes": 120450,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-desktop/git-rejection.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/8dfb28a305cc-git-rejection.png",
+      "sha256": "8dfb28a305ccea2da7c86c4da6ade68e3d149cd6cd5828cedcbd6b037249478a",
+      "bytes": 71319,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-phone320/git-rejection.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/b3c2e2f608a8-git-rejection.png",
+      "sha256": "b3c2e2f608a86aeb2de83f7226d6cfd3250aed75e9f7e71de8e8c17e6c444fe7",
+      "bytes": 80253,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-phone390/git-rejection.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/db706f7dcc80-unknown-receipt-action.png",
+      "sha256": "db706f7dcc8075a18f959e01edd29cdb577b320267414121ae1bcf3933636cd4",
+      "bytes": 102623,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-desktop/unknown-receipt-action.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/16a5885f9b30-unknown-receipt.png",
+      "sha256": "16a5885f9b309dece729914bb0ccdb355f8c1bc400be207d5d4da0d499b00e98",
+      "bytes": 124274,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-desktop/unknown-receipt.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/ee3b95bab201-unknown-receipt-action.png",
+      "sha256": "ee3b95bab201db072053cef174163300a9a206a5a35084c5321243a5fc88be69",
+      "bytes": 60067,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone320/unknown-receipt-action.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/1ae86e473e22-unknown-receipt.png",
+      "sha256": "1ae86e473e224afc0fdec8c585046fe34d4f66b66d12c6c3ed068e87c9515fc6",
+      "bytes": 78028,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone320/unknown-receipt.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/dbbe24f9e4be-unknown-receipt-action.png",
+      "sha256": "dbbe24f9e4be35d6f33ac2dd8ef2505a5a2d87c719dd6f9044cb17760dbee962",
+      "bytes": 68521,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone390/unknown-receipt-action.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/b7abd9c5e778-unknown-receipt.png",
+      "sha256": "b7abd9c5e7786e046c99af3b4638f863b17de3112976fbe6f80dd1645673915c",
+      "bytes": 82446,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone390/unknown-receipt.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/e93dbfaf17e2-resumed-clone.png",
+      "sha256": "e93dbfaf17e2e11167d9f0360e055c7bca293739d1c2050ef69ca309115656ea",
+      "bytes": 110584,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-desktop/resumed-clone.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/ff62ef1ab504-resumed-clone.png",
+      "sha256": "ff62ef1ab5047de25a9476c7c6f59e03565672ba9ce97bcf2b55092d3f382c8d",
+      "bytes": 71465,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-phone320/resumed-clone.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/343d56c95506-resumed-clone.png",
+      "sha256": "343d56c95506b18bb5e094debb3edd23717f4a3e97d57191f84725617f6a2372",
+      "bytes": 73726,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-phone390/resumed-clone.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/5eaeb2a3270d-import-locks-finish.png",
+      "sha256": "5eaeb2a3270d257e897bfc8fb5ce8e16873d140ee680e3c8c7d8fd922db4af57",
+      "bytes": 103652,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-an-accepted-cd46c-its-real-result-is-received-desktop/import-locks-finish.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/47e51b7ab015-import-locks-finish.png",
+      "sha256": "47e51b7ab015a424c73c49150264c34575304301647d06d6226efd869d93b32e",
+      "bytes": 61721,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-an-accepted-cd46c-its-real-result-is-received-phone320/import-locks-finish.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/102f9a2ea7ef-import-locks-finish.png",
+      "sha256": "102f9a2ea7ef0cb7d50a81ff299b449d16195d6f0bfb16c8bb70e7897a90e75f",
+      "bytes": 66349,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-an-accepted-cd46c-its-real-result-is-received-phone390/import-locks-finish.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/6cbfe98c14ae-background-error-active-modal.png",
+      "sha256": "6cbfe98c14ae5cc6980eb2b6bd59ce69c3e32271492bdb61b74c8878b49e6fce",
+      "bytes": 79946,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-delayed-bac-3291b-al-input-or-scroll-the-page-desktop/background-error-active-modal.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/d0391338f82c-background-error-active-modal.png",
+      "sha256": "d0391338f82cfda3e9bc57c7cb2caeb2db857cf30321ad53cff777175708262f",
+      "bytes": 49156,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-delayed-bac-3291b-al-input-or-scroll-the-page-phone320/background-error-active-modal.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/b58ee9b3f8f1-background-error-active-modal.png",
+      "sha256": "b58ee9b3f8f1b0f317ce55ccf6209bba42dccc59c120cc085833872efc7a9ab9",
+      "bytes": 49466,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-delayed-bac-3291b-al-input-or-scroll-the-page-phone390/background-error-active-modal.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/2e960ed39f82-registry-unavailable.png",
+      "sha256": "2e960ed39f82b9f0d4845f34e69091af1f14267f07c1a48a4c450bb2145fb1c7",
+      "bytes": 115209,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-failed-opti-5df89-ter-a-real-successful-retry-desktop/registry-unavailable.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/ff2167d4a894-registry-unavailable.png",
+      "sha256": "ff2167d4a894b7ec7f9f879259c07dc2463ea26f17aa031026b4af1f2d22184f",
+      "bytes": 70767,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-failed-opti-5df89-ter-a-real-successful-retry-phone320/registry-unavailable.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/d8188d224c3c-registry-unavailable.png",
+      "sha256": "d8188d224c3cb962cafea68f649985c958b86c1677aba40a92a41ff093e7ba4d",
+      "bytes": 75542,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-failed-opti-5df89-ter-a-real-successful-retry-phone390/registry-unavailable.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/e02c6569fb59-finish-and-file-size.png",
+      "sha256": "e02c6569fb59c89ac9d3a112fc12384997c19616df6d04cebaf28a8b098bbfce",
+      "bytes": 95203,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-desktop/finish-and-file-size.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/0d4e22cd1020-one-byte-over-limit.png",
+      "sha256": "0d4e22cd102018f46cdb1446ca91a89288693276ae85b0868b773f190e3fe139",
+      "bytes": 106971,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-desktop/one-byte-over-limit.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/25a546a79463-tiny-file.png",
+      "sha256": "25a546a794634570e38681c95ce77eda48e493961eab08d3d8079b10b129886b",
+      "bytes": 96225,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-desktop/tiny-file.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/4bd09bceb7cf-finish-and-file-size.png",
+      "sha256": "4bd09bceb7cf701006bd3b5952f54367643b1edd68f4ed4f8a4005f4d62c9c14",
+      "bytes": 59300,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone320/finish-and-file-size.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/c8e50cf20019-one-byte-over-limit.png",
+      "sha256": "c8e50cf200196a1f97a921ff8fcbc60c404435f14b0971c059fa12aeffb91354",
+      "bytes": 69559,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone320/one-byte-over-limit.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/7ff8d45d4983-tiny-file.png",
+      "sha256": "7ff8d45d4983bbf014ac3a7c779fef912f3c3ecc5b16b47cd2d8183529f755b0",
+      "bytes": 60371,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone320/tiny-file.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/6264f095e472-finish-and-file-size.png",
+      "sha256": "6264f095e4723133b54d762ac499a3c0618f99ec3426e33e90e7851a3d218c5b",
+      "bytes": 62919,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone390/finish-and-file-size.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/30dd252efbc3-one-byte-over-limit.png",
+      "sha256": "30dd252efbc3d87955da38a05133c38ab09bbf0f30ba82abbcccf2eb94700c80",
+      "bytes": 72812,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone390/one-byte-over-limit.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/65f491d31e18-tiny-file.png",
+      "sha256": "65f491d31e18c7917cb1e4c61407fbd701bf6ff427833b3e00fdfc852481bbac",
+      "bytes": 63958,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone390/tiny-file.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/961328c826d2-finish-locks-import.png",
+      "sha256": "961328c826d28b0918330b480778957e34ec2d9aba56dfae07070c1bf6b94e97",
+      "bytes": 102861,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-desktop/finish-locks-import.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/3db6d58de3eb-import-after-finish-failure.png",
+      "sha256": "3db6d58de3eb6887909d7389e9ff10ce658514669f04fdd0ca24932713c5c23b",
+      "bytes": 102631,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-desktop/import-after-finish-failure.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/fe49e7a34a81-finish-locks-import.png",
+      "sha256": "fe49e7a34a81404128e6dc50c95237d6547551011ebe64f7cf39ca0ef3e17d29",
+      "bytes": 60609,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone320/finish-locks-import.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/07ca9bf99022-import-after-finish-failure.png",
+      "sha256": "07ca9bf99022b0f825e08c7108a55905af1054f8e22aa8a143db73e9a70ca1b8",
+      "bytes": 64932,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone320/import-after-finish-failure.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/4ea35b0c30d9-finish-locks-import.png",
+      "sha256": "4ea35b0c30d90e615a4179ec20c4e3f2e5cd3aed2a401cc2bf15ea22561dda37",
+      "bytes": 63571,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone390/finish-locks-import.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/4cb6e1fe9ff8-import-after-finish-failure.png",
+      "sha256": "4cb6e1fe9ff8e0a812859eb13bf39d3d5eaecee03064986083a1e1bbf4cfb1be",
+      "bytes": 67599,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone390/import-after-finish-failure.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/6c5077caa4bf-credential-ssh-error.png",
+      "sha256": "6c5077caa4bf4f4a3ddf4c1c795783f887133637a2a1c01b29da8d04739ac050",
+      "bytes": 81487,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-afd66-ut-scrolling-its-background-desktop/credential-ssh-error.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/bc841838ad85-credential-ssh-error.png",
+      "sha256": "bc841838ad8561fff4a207f6c4b29b8378bfa68bcd3ed8ee5cbdb96af19bb894",
+      "bytes": 47638,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-afd66-ut-scrolling-its-background-phone320/credential-ssh-error.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/7ea28a10d518-credential-ssh-error.png",
+      "sha256": "7ea28a10d518461b85618d0a4e32d4ddba2304594de4b546a8c640b8e4af15eb",
+      "bytes": 48774,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-afd66-ut-scrolling-its-background-phone390/credential-ssh-error.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/9b3f5ab3aec4-credential-save-error.png",
+      "sha256": "9b3f5ab3aec422cf38915b2b3bf429ef3b49ae43d89387bb644ce2766329361a",
+      "bytes": 77438,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-e01d1-ut-scrolling-its-background-desktop/credential-save-error.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/260bdfbb9bbe-credential-save-error.png",
+      "sha256": "260bdfbb9bbe58743ee62878aef52cb51bacb9b34be0de064be9065edf20929f",
+      "bytes": 46919,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-e01d1-ut-scrolling-its-background-phone320/credential-save-error.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/0ff9c1101816-credential-save-error.png",
+      "sha256": "0ff9c1101816e58e38a3f8acd796a17bff5828e7a46904a9a1b0d3fd22984730",
+      "bytes": 47029,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-e01d1-ut-scrolling-its-background-phone390/credential-save-error.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/e7d7e06e45cf-global-auth-modal.png",
+      "sha256": "e7d7e06e45cfa315250d2c3697cda11f58ddda3b21fed2ea51e9a1e84d3ed60c",
+      "bytes": 132784,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-real-expire-f6f40-cused-above-import-feedback-desktop/global-auth-modal.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/ca0c2af10ebe-global-auth-modal.png",
+      "sha256": "ca0c2af10ebe882ef272345b17c3ebb79e381bce2d690ec948994a9487eb5bd8",
+      "bytes": 82813,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-real-expire-f6f40-cused-above-import-feedback-phone320/global-auth-modal.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/fa539731abbc-global-auth-modal.png",
+      "sha256": "fa539731abbce0b830c64b6bc990b2715af44f8f27fa41bec59945e96d5e2e3a",
+      "bytes": 89907,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-real-expire-f6f40-cused-above-import-feedback-phone390/global-auth-modal.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/a8a8524db3f5-unavailable-source-primary.png",
+      "sha256": "a8a8524db3f597e19d1f6a64d074673a11e3b218ad091c1723307df7d0f8055b",
+      "bytes": 38280,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-unavailable-2974e--its-primary-recheck-action-desktop/unavailable-source-primary.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/43f406d7c1d0-unavailable-source-primary.png",
+      "sha256": "43f406d7c1d0c5609c42fefeb78b053be22b6f111cbf130dc7de572b469906f6",
+      "bytes": 31051,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-unavailable-2974e--its-primary-recheck-action-phone320/unavailable-source-primary.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/95411928afe2-unavailable-source-primary.png",
+      "sha256": "95411928afe2aa6eef6b85823bc9724403bc33ef97adc4a6ca189da5a4f90dea",
+      "bytes": 31555,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-unavailable-2974e--its-primary-recheck-action-phone390/unavailable-source-primary.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/fb3a722fab07-finish-locks-import-controls.png",
+      "sha256": "fb3a722fab07a0a104fef3209c3b8ff9c315c075e307b046fd3e1c1c020a584b",
+      "bytes": 102384,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-desktop/finish-locks-import-controls.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/a0b7421c1791-finish-locks-import.png",
+      "sha256": "a0b7421c1791c434b69a81080bfb5207d26982b4d979ab2a285cfe23226773d8",
+      "bytes": 102832,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-desktop/finish-locks-import.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/f586395e18d1-import-after-finish-failure.png",
+      "sha256": "f586395e18d1cec547649c7d67cfd069e4800a95bc11fdbebeab7bdc1e6d3d6f",
+      "bytes": 102990,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-desktop/import-after-finish-failure.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/bd1c98e6badc-finish-locks-import-controls.png",
+      "sha256": "bd1c98e6badc78a549b030e585cb2809c784d10cf3bce5d72ec34bb4d19c2b07",
+      "bytes": 69087,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone320/finish-locks-import-controls.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/3b56fedf643d-finish-locks-import.png",
+      "sha256": "3b56fedf643d7042c7bce6e820f0fd28d47ebea5aec2e641c206b2cc48cdf56f",
+      "bytes": 60815,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone320/finish-locks-import.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/7173a4a0199d-import-after-finish-failure.png",
+      "sha256": "7173a4a0199dbee113f82d1487a5f8386cc2eb6e2788da556261d38a6f0b6e8d",
+      "bytes": 69743,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone320/import-after-finish-failure.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/cfb67b9068e6-finish-locks-import-controls.png",
+      "sha256": "cfb67b9068e6cc2db2ac64cdb1482458c4dfafa8cbc07a485ad55ca15e9b07f5",
+      "bytes": 73315,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone390/finish-locks-import-controls.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/05e1149e3011-finish-locks-import.png",
+      "sha256": "05e1149e3011bab7587a29064b9d373d46bf281077cbadf969ab047bd63f2b93",
+      "bytes": 63911,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone390/finish-locks-import.png"
+    },
+    {
+      "group": "setup-cas",
+      "boundToManifest": "task-4-setup-feedback-fix1-manifest.json",
+      "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "image": "targeted-regressions/setup-cas/6f7548eb55d5-import-after-finish-failure.png",
+      "sha256": "6f7548eb55d5de4a0598d9dd24f471fc4ed939869dca7c6f7f92bd113d4c5958",
+      "bytes": 74897,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone390/import-after-finish-failure.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/a0d7d3ca45bf-design-conflict.png",
+      "sha256": "a0d7d3ca45bfe90e7bed8aaae79727e12b7bc9deb74183317efc860f443c8bdb",
+      "bytes": 122074,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-design-confli-ddcef-ciles-without-another-write-desktop/design-conflict.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/c297b9ced363-design-conflict.png",
+      "sha256": "c297b9ced363a39d092f7a8e74c60e71c607a522711cea44e93d8b2537667fcf",
+      "bytes": 46920,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-design-confli-ddcef-ciles-without-another-write-phone320/design-conflict.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/489d78ea2b43-design-conflict.png",
+      "sha256": "489d78ea2b4327d6c6511bf113546efc0664a93a3fb01b2f25e3e53030020a8b",
+      "bytes": 51702,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-design-confli-ddcef-ciles-without-another-write-phone390/design-conflict.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/a24e6426ed11-design-unknown.png",
+      "sha256": "a24e6426ed1191cd551c316c53a18ce6a75c89b55606d4c1a85a2bcf9606a150",
+      "bytes": 126397,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-design-unknow-9a82a-ciles-without-another-write-desktop/design-unknown.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/4882b4563b5b-design-unknown.png",
+      "sha256": "4882b4563b5b91c0365767c277b47fb61de5714cb132257d3b48d3a754ec3028",
+      "bytes": 53199,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-design-unknow-9a82a-ciles-without-another-write-phone320/design-unknown.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/ad3d07d62b22-design-unknown.png",
+      "sha256": "ad3d07d62b22a02d2015a1f73380cda3fc0fe4e9318bcae917a86e3a11a57227",
+      "bytes": 55038,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-design-unknow-9a82a-ciles-without-another-write-phone390/design-unknown.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/5b7629fa8c3a-guest-document.png",
+      "sha256": "5b7629fa8c3a07645225909f4596117e7a18691bd3dda8ed183e9fe236966e5e",
+      "bytes": 44607,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-84d78-er-and-hittable-in-document-desktop/guest-document.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/20a1a4f2976a-guest-document.png",
+      "sha256": "20a1a4f2976a02fac29bc1b752be5e3abcb839be94518542410865cb215a4247",
+      "bytes": 37131,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-84d78-er-and-hittable-in-document-phone320/guest-document.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/57b03a5998a2-guest-document.png",
+      "sha256": "57b03a5998a2acc5ceffc623c756e1d2f4d619bddaf2ede79295c47e41c340d2",
+      "bytes": 37862,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-84d78-er-and-hittable-in-document-phone390/guest-document.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/be6e225e2050-guest-cas-conflict.png",
+      "sha256": "be6e225e2050d1ebe3afcc05ae42f9eaac7ff6bb879570542f5de7021167d961",
+      "bytes": 56203,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-8c630-nd-hittable-in-cas-conflict-desktop/guest-cas-conflict.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/62e43b0332dd-guest-cas-conflict.png",
+      "sha256": "62e43b0332dd394bfa2640098afdd8d2d08ebe9fc8fc7f26713221a051a66f98",
+      "bytes": 43399,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-8c630-nd-hittable-in-cas-conflict-phone320/guest-cas-conflict.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/78dea7c03a7f-guest-cas-conflict.png",
+      "sha256": "78dea7c03a7f779cabf057fe5f79db295d434dfc9c775973a84e3eaa68ab6849",
+      "bytes": 45328,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-8c630-nd-hittable-in-cas-conflict-phone390/guest-cas-conflict.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/217847788ecd-guest-source.png",
+      "sha256": "217847788ecd67e632501cab394928cfe6adfd131cb925ab9ec6108d1d5eaa12",
+      "bytes": 44998,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-ecdd7-ader-and-hittable-in-source-desktop/guest-source.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/51e982869827-guest-source.png",
+      "sha256": "51e982869827bb4c41d74f4601b7a4d5374cb4c4456825fccdd389ec5fb6b9da",
+      "bytes": 37895,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-ecdd7-ader-and-hittable-in-source-phone320/guest-source.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/80e0a7859454-guest-source.png",
+      "sha256": "80e0a7859454fb8e11b08791c525688ed959febb9b7f93c9d3e2e603815ff585",
+      "bytes": 38623,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-guest-permiss-ecdd7-ader-and-hittable-in-source-phone390/guest-source.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/9f7f23aaafd6-focus-navigation.png",
+      "sha256": "9f7f23aaafd6f262edf3dee72105c59259a244f63c7477b268f7fa143629b739",
+      "bytes": 109199,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-036c3-f-the-actual-sticky-savebar-desktop/focus-navigation.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/e3edb3ee0e75-focus-navigation.png",
+      "sha256": "e3edb3ee0e753783711d8119df2d92979b1e7c70f29e82416ef3dd5aeaeb3533",
+      "bytes": 40927,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-036c3-f-the-actual-sticky-savebar-phone320/focus-navigation.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/7981d2eef178-focus-navigation.png",
+      "sha256": "7981d2eef178bc24af071461467db133225974a75a0007bc623fe1302d0e6460",
+      "bytes": 44129,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-036c3-f-the-actual-sticky-savebar-phone390/focus-navigation.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/df050638e7b7-focus-collections.png",
+      "sha256": "df050638e7b7b0d84ebc99506eae57b2141b47972061fae416dfe8bb9470e972",
+      "bytes": 121621,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-0adad-f-the-actual-sticky-savebar-desktop/focus-collections.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/23a185103c07-focus-collections.png",
+      "sha256": "23a185103c078caa105e1d4d294cbaf1941ed1a208a020844feb1a024f801ca1",
+      "bytes": 45793,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-0adad-f-the-actual-sticky-savebar-phone320/focus-collections.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/9c4d249c4989-focus-collections.png",
+      "sha256": "9c4d249c4989172d4906c67b475ad1126386515657279467eb028a3ba5654160",
+      "bytes": 46850,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-0adad-f-the-actual-sticky-savebar-phone390/focus-collections.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/00a21b0e9d92-focus-appearance.png",
+      "sha256": "00a21b0e9d9221bd60744394b57719bc452e792d4b1c03c673bb5ffa076a51a1",
+      "bytes": 127254,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-1a92f-f-the-actual-sticky-savebar-desktop/focus-appearance.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/b4e1f9cae08e-focus-appearance.png",
+      "sha256": "b4e1f9cae08e0a48a50c31bb81bed56ae1b52e3a1400ff89f14a998be40dd25c",
+      "bytes": 47762,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-1a92f-f-the-actual-sticky-savebar-phone320/focus-appearance.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/666298542d0e-focus-appearance.png",
+      "sha256": "666298542d0e0523ac6dddde0a6f33d4c924ed781fc65ceb427b0cdf5ba91b25",
+      "bytes": 48941,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-1a92f-f-the-actual-sticky-savebar-phone390/focus-appearance.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/25ae733bdb39-focus-settings.png",
+      "sha256": "25ae733bdb39f3978ac7d523a8c42e78b059754e613598bd33e731aa2b50032b",
+      "bytes": 99896,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-6c810-f-the-actual-sticky-savebar-desktop/focus-settings.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/b4cc67238d94-focus-settings.png",
+      "sha256": "b4cc67238d94ddf46b9d3aff68f20b82412e75451e4a8455e1803d0846ed7490",
+      "bytes": 38006,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-6c810-f-the-actual-sticky-savebar-phone320/focus-settings.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/b3d5ea5ba4d0-focus-settings.png",
+      "sha256": "b3d5ea5ba4d01e3a3d37a452c72c5e2a9f7882a4cf2b52a67abd4c62a911d57e",
+      "bytes": 40987,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-6c810-f-the-actual-sticky-savebar-phone390/focus-settings.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/3efd628bac6f-focus-modules.png",
+      "sha256": "3efd628bac6f5a33233f62bca0a5571c76890cedb609b5b120333d09f24a3a82",
+      "bytes": 110423,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-e9605-f-the-actual-sticky-savebar-desktop/focus-modules.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/e086091fee24-focus-modules.png",
+      "sha256": "e086091fee24d7fe3d00bff6faaca54030778972610150fd093ebdb379dae06e",
+      "bytes": 42144,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-e9605-f-the-actual-sticky-savebar-phone320/focus-modules.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/66fdabb65bc0-focus-modules.png",
+      "sha256": "66fdabb65bc05b4dbcfc5d475491bc1e7f665b045ff1bc04063f9aec823e97aa",
+      "bytes": 43399,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-ordinary-focu-e9605-f-the-actual-sticky-savebar-phone390/focus-modules.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/488cccae9dbb-settings-conflict.png",
+      "sha256": "488cccae9dbbe75739c777dbbc877bfe9e82146c3e481e9141703f893648f4d7",
+      "bytes": 111906,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-settings-conf-96e3d-ciles-without-another-write-desktop/settings-conflict.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/8ea42242d74e-settings-conflict.png",
+      "sha256": "8ea42242d74efbf13d74997a3f0098eea879a53ee8587b1c98fd75c944bc7250",
+      "bytes": 57899,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-settings-conf-96e3d-ciles-without-another-write-phone320/settings-conflict.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/d01274d19105-settings-conflict.png",
+      "sha256": "d01274d19105df7b10cd91d3d8973705f28e424db717037593be2ad40d033d2c",
+      "bytes": 60802,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-settings-conf-96e3d-ciles-without-another-write-phone390/settings-conflict.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/9f1cc992b657-settings-unknown.png",
+      "sha256": "9f1cc992b657f1237826d022d4e06028fa923930f0784cb9d939d79c902a411c",
+      "bytes": 122051,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-settings-unkn-014da-ciles-without-another-write-desktop/settings-unknown.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/d006390eb52d-settings-unknown.png",
+      "sha256": "d006390eb52db5f6d677e1c77eed29b4188b9f1b3db3e5a9ecd045dfb8141e29",
+      "bytes": 63612,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-settings-unkn-014da-ciles-without-another-write-phone320/settings-unknown.png"
+    },
+    {
+      "group": "public-final",
+      "boundToManifest": "task-4-final-visual-fix-manifest.json",
+      "base": "0a890634f37fdc56037426ca01f1a0b2a27ca82c",
+      "image": "targeted-regressions/public-final/cb0fe1b85bb0-settings-unknown.png",
+      "sha256": "cb0fe1b85bb01c187b3090824ca6d2fc468ab7e0cb3979468a3fb1f3e55f0931",
+      "bytes": 70816,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/final-public-visual/browser-final/public-final-settings-unkn-014da-ciles-without-another-write-phone390/settings-unknown.png"
+    },
+    {
+      "group": "plugin-alert",
+      "boundToManifest": "task-3-alert-visual-fix-evidence.json",
+      "base": "6b9376998bc5f683b34158106ef992fc9220957d",
+      "image": "targeted-regressions/plugin-alert/6f05bab8185b-long-credential-320.png",
+      "sha256": "6f05bab8185b38dabfb07b2082f61ffb89989e9d0dfb9a5b08e9d7a40119be39",
+      "bytes": 57903,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-lon-acc8a--the-plugin-conflict-layout-desktop/long-credential-320.png"
+    },
+    {
+      "group": "plugin-alert",
+      "boundToManifest": "task-3-alert-visual-fix-evidence.json",
+      "base": "6b9376998bc5f683b34158106ef992fc9220957d",
+      "image": "targeted-regressions/plugin-alert/f963e5d070f7-long-credential-390.png",
+      "sha256": "f963e5d070f76a8bebbc0ca11a14000c120dd6fa64a6826d5b71f7db0e4792ac",
+      "bytes": 67728,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-lon-acc8a--the-plugin-conflict-layout-desktop/long-credential-390.png"
+    },
+    {
+      "group": "plugin-alert",
+      "boundToManifest": "task-3-alert-visual-fix-evidence.json",
+      "base": "6b9376998bc5f683b34158106ef992fc9220957d",
+      "image": "targeted-regressions/plugin-alert/bd1cfea384b2-conflict-copy.png",
+      "sha256": "bd1cfea384b2c3491a7ca854f12d3ff59df4a0d2311cff3e5f31e83bf063d0b5",
+      "bytes": 89049,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-6677b-tion-stay-readable-at-390px-desktop/conflict-copy.png"
+    },
+    {
+      "group": "plugin-alert",
+      "boundToManifest": "task-3-alert-visual-fix-evidence.json",
+      "base": "6b9376998bc5f683b34158106ef992fc9220957d",
+      "image": "targeted-regressions/plugin-alert/71cfe30f3cd3-conflict-reload.png",
+      "sha256": "71cfe30f3cd32c0b0e0afb43d8df85f6cf9e890f2711717877850047f057c4f6",
+      "bytes": 95243,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-6677b-tion-stay-readable-at-390px-desktop/conflict-reload.png"
+    },
+    {
+      "group": "plugin-alert",
+      "boundToManifest": "task-3-alert-visual-fix-evidence.json",
+      "base": "6b9376998bc5f683b34158106ef992fc9220957d",
+      "image": "targeted-regressions/plugin-alert/c2348e6c53c6-conflict-copy.png",
+      "sha256": "c2348e6c53c620d838e2b763da3d97359dd940210fe7692d6c364097be43b8b4",
+      "bytes": 165202,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-86ec0-ion-stay-readable-at-1440px-desktop/conflict-copy.png"
+    },
+    {
+      "group": "plugin-alert",
+      "boundToManifest": "task-3-alert-visual-fix-evidence.json",
+      "base": "6b9376998bc5f683b34158106ef992fc9220957d",
+      "image": "targeted-regressions/plugin-alert/e3141fcf6f3e-conflict-reload.png",
+      "sha256": "e3141fcf6f3e54acd972835c5740a8f2e11409e07f61abf40b1ee1fc9a025f46",
+      "bytes": 179764,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-86ec0-ion-stay-readable-at-1440px-desktop/conflict-reload.png"
+    },
+    {
+      "group": "plugin-alert",
+      "boundToManifest": "task-3-alert-visual-fix-evidence.json",
+      "base": "6b9376998bc5f683b34158106ef992fc9220957d",
+      "image": "targeted-regressions/plugin-alert/f049d38a640d-conflict-copy.png",
+      "sha256": "f049d38a640d25fed27a8a7aa989524aebbc7e0cb783aad58bb84ec043b6b658",
+      "bytes": 76250,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-db02c-tion-stay-readable-at-320px-desktop/conflict-copy.png"
+    },
+    {
+      "group": "plugin-alert",
+      "boundToManifest": "task-3-alert-visual-fix-evidence.json",
+      "base": "6b9376998bc5f683b34158106ef992fc9220957d",
+      "image": "targeted-regressions/plugin-alert/9781bc50b64d-conflict-reload.png",
+      "sha256": "9781bc50b64defd869b6541e1c5c3822412fb8ac8f0c82fbbe1a7ed4d1adfe43",
+      "bytes": 78364,
+      "sourceImage": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-db02c-tion-stay-readable-at-320px-desktop/conflict-reload.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/285d0795d6d3-color-applied-canvas.png",
+      "sha256": "285d0795d6d3d26dae1915fabf214040109d035413bfef7bbc4ace49cd0e9af5",
+      "bytes": 31184,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-native-visual-reg-0a192-e-app-navigation-at-844x390-desktop/color-applied-canvas.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/aaaac7ab5090-color-popover-open.png",
+      "sha256": "aaaac7ab50901ca46fabd56d8366a4f8dcb6e9f1e9a90879464f696f2c1e54cd",
+      "bytes": 35229,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-native-visual-reg-0a192-e-app-navigation-at-844x390-desktop/color-popover-open.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/5391ae658505-mindmap-initial.png",
+      "sha256": "5391ae6585050d237d164cc5821c49d82261574850f5e4f344f54eed2e4f136d",
+      "bytes": 50319,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-native-visual-reg-0ee4d-de-the-live-canvas-at-390px-desktop/mindmap-initial.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/ddb26c78b707-deep-map-initial.png",
+      "sha256": "ddb26c78b70732e6d69abf72c685f0191bf941e6dd02a649eacee20fb5c2d4aa",
+      "bytes": 32446,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-native-visual-reg-7e08e-ts-the-user-pan-to-level-24-desktop/deep-map-initial.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/6f33ad7dc3f0-deep-node-after-user-pan.png",
+      "sha256": "6f33ad7dc3f097255d53b090b801df302e085cb4bddece4bb3dd2fcbd5d0f26f",
+      "bytes": 31042,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-native-visual-reg-7e08e-ts-the-user-pan-to-level-24-desktop/deep-node-after-user-pan.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/0762e5a27eb8-mindmap-initial.png",
+      "sha256": "0762e5a27eb8f8732d4874751a236f6f039a51552af395f2dfef6e8f6bdaca03",
+      "bytes": 81089,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-native-visual-reg-81ab8-e-the-live-canvas-at-1440px-desktop/mindmap-initial.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/d9ed4aac4406-color-applied-canvas.png",
+      "sha256": "d9ed4aac44062b43a518608508f1e6503d1047fa995cf87dab732ef22dacb2a8",
+      "bytes": 31505,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-native-visual-reg-a6825-e-app-navigation-at-390x844-desktop/color-applied-canvas.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/3b9aaa23cbcc-color-popover-open.png",
+      "sha256": "3b9aaa23cbcc01a5dbdc5782be7ccf42cf032504121ea362ef56a18c17a52d93",
+      "bytes": 43303,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-native-visual-reg-a6825-e-app-navigation-at-390x844-desktop/color-popover-open.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/b0f5fd13f044-color-applied-canvas.png",
+      "sha256": "b0f5fd13f0444e0be33945b07e189c1c9e94fc554a6baf4c2c1e90acd8a7217c",
+      "bytes": 29985,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-native-visual-reg-eb6ab-e-app-navigation-at-320x844-desktop/color-applied-canvas.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/7f0a44647732-color-popover-open.png",
+      "sha256": "7f0a446477324537d1adc1c7b38be121d26f5242cbdf099f6ee4eec0a89217d9",
+      "bytes": 41124,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-native-visual-reg-eb6ab-e-app-navigation-at-320x844-desktop/color-popover-open.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/43a8c696262b-mindmap-initial.png",
+      "sha256": "43a8c696262b638c0cbfe2c5be0fee65bab3a063a811d7d92c0c183778c9d563",
+      "bytes": 45065,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-native-visual-reg-fed64-de-the-live-canvas-at-320px-desktop/mindmap-initial.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/145566a9b7d2-canvas-find-320.png",
+      "sha256": "145566a9b7d2fb178a8bb1ba7a250157457f0a22555f4233fae9b647d2d764be",
+      "bytes": 28035,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-find-320.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/1ee6572073ec-canvas-find-390.png",
+      "sha256": "1ee6572073ec406497d244f9fb9fbf3850a6e4bb8ce467ce3efcd357587ec402",
+      "bytes": 30250,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-find-390.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/028d63eb5ffa-canvas-find-844.png",
+      "sha256": "028d63eb5ffa293c5070257b39ac1b317a93b879ff60c747fae1131f23b08bff",
+      "bytes": 34357,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-find-844.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/5745e29f23cb-canvas-library-320.png",
+      "sha256": "5745e29f23cb54169533dfc2abf58a5d2910f5803f006423407c5d539a46dd91",
+      "bytes": 36091,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-library-320.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/a9046d6a7cc8-canvas-library-390.png",
+      "sha256": "a9046d6a7cc8a3585f98fd4c05f2b9a3f0866423fca7f7f83522edcf95b121ca",
+      "bytes": 39127,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-library-390.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-fix-1-verified",
+      "boundToManifest": "task-2-final-visual-fix-1-full-manifest.json",
+      "base": "ec86b32",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-fix-1-verified/816ec51cdcdf-canvas-library-844.png",
+      "sha256": "816ec51cdcdfa5e165c3847f3c84dbb20f396cbd38f4864d4307053fec32312f",
+      "bytes": 33798,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-fix-1-verified/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-library-844.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/1a6a0be206d5-color-applied-canvas.png",
+      "sha256": "1a6a0be206d5a2fc1396064edf20bfe87423f442b36a3842745df29dd4f28cdc",
+      "bytes": 30883,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-native-visual-reg-0a192-e-app-navigation-at-844x390-desktop/color-applied-canvas.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/f54fe63373a1-color-popover-open.png",
+      "sha256": "f54fe63373a13eebfb7f7c90dbdb2e89d4648ca00dd1d0271c75fa4fd57ee8db",
+      "bytes": 34926,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-native-visual-reg-0a192-e-app-navigation-at-844x390-desktop/color-popover-open.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/cda133c2a71c-mindmap-initial.png",
+      "sha256": "cda133c2a71cbfacad3e711461ec97a947d99a88ecf177f862ed104ab2798bff",
+      "bytes": 48489,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-native-visual-reg-0ee4d-de-the-live-canvas-at-390px-desktop/mindmap-initial.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/9d41fdf672d6-mindmap-initial.png",
+      "sha256": "9d41fdf672d6a9ff368ba7399e8ee0d8410bffffc84319ca510c98a6c0d1a9e7",
+      "bytes": 81717,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-native-visual-reg-81ab8-e-the-live-canvas-at-1440px-desktop/mindmap-initial.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/c383e239f649-color-applied-canvas.png",
+      "sha256": "c383e239f64993411c3f8c7dc0bed71b568c732ad23f8c9dc44bd0359565c1a1",
+      "bytes": 32055,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-native-visual-reg-a6825-e-app-navigation-at-390x844-desktop/color-applied-canvas.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/ca08d09cf6ef-color-popover-open.png",
+      "sha256": "ca08d09cf6ef1c6656493176c9542c067b44f959bae85b96a1edd5f25c780e8c",
+      "bytes": 43847,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-native-visual-reg-a6825-e-app-navigation-at-390x844-desktop/color-popover-open.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/008de48e2691-color-applied-canvas.png",
+      "sha256": "008de48e26915b76fc2fba1f4430f282a3283870d08223fe57d2934fd4425ecb",
+      "bytes": 30201,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-native-visual-reg-eb6ab-e-app-navigation-at-320x844-desktop/color-applied-canvas.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/e9d44dd5ed46-color-popover-open.png",
+      "sha256": "e9d44dd5ed46b639b49c8543efec414d50138112ed7e130dbbb904fb58c63a39",
+      "bytes": 41351,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-native-visual-reg-eb6ab-e-app-navigation-at-320x844-desktop/color-popover-open.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/00e2726a80ce-mindmap-initial.png",
+      "sha256": "00e2726a80ce96e5f868c17325198ea847e6c15856232be4afa61bab030ff6b0",
+      "bytes": 42231,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-native-visual-reg-fed64-de-the-live-canvas-at-320px-desktop/mindmap-initial.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/242fd21c3ed2-canvas-find-320.png",
+      "sha256": "242fd21c3ed2b4db462f25e395358d23c9fe7025337870695f4fe940e22f2949",
+      "bytes": 27923,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-find-320.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/b61d63e2a496-canvas-find-390.png",
+      "sha256": "b61d63e2a496fd7c652895a5e531344b0be01d8b42ae5a7e4ff5849c8e20fcce",
+      "bytes": 30369,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-find-390.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/1a7989025fec-canvas-find-844.png",
+      "sha256": "1a7989025fecf558d88d9e58c13d5c1fdc0c0ebf525ccdf02d5baedabfa68023",
+      "bytes": 34366,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-find-844.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/5c9b63076e10-canvas-library-320.png",
+      "sha256": "5c9b63076e10ef526d8412ada45ccad0058eb656bae0393ec772b4775501b612",
+      "bytes": 35981,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-library-320.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/abfce5b457ad-canvas-library-390.png",
+      "sha256": "abfce5b457adb8a5607e3b4128e11de0f1c842b1fb66983b94ea1ff2ab0849c0",
+      "bytes": 39246,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-library-390.png"
+    },
+    {
+      "group": "workspace-platform-ui-final-visual-acceptance",
+      "boundToManifest": "task-2-final-visual-fix-manifest.json",
+      "base": "6b93769",
+      "image": "targeted-regressions/workspace-platform-ui-final-visual-acceptance/711e989b8417-canvas-library-844.png",
+      "sha256": "711e989b8417c99b351ac46e7a6ef49eb41c538060c3390b57613ff66b8c1a62",
+      "bytes": 33804,
+      "sourceImage": "/home/bandoo/.codex/worktrees/60c5/doo-know/.local/platform-ui-final-visual-acceptance/platform-shared-ui-native--f1bd7-nside-390-and-320-viewports-desktop/canvas-library-844.png"
+    }
+  ]
+}

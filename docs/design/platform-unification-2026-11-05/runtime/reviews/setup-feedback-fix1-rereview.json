@@ -1,0 +1,764 @@
+{
+  "schema": 1,
+  "at": "2026-11-05T16:31:22.353463+00:00",
+  "provenance": "Uncommitted author working-tree captures (modal-focus) on base 55174d4 plus complete patch. This independent reviewer viewed scoped original PNG content, checked PNG SHA256 and IHDR, read fixture/test and component source, and read existing run results. No browser, test, service or repository mutation by reviewer.",
+  "source": {
+    "base": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+    "workingTree": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know",
+    "fullPatch": {
+      "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/task-4-setup-feedback-fix1-full-patch",
+      "sha256": "d4029c0812bda07ceda10defa2d471f57180b7e96e6350de52453a4fd0ba0540",
+      "bytes": 66799,
+      "baseCommit": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+      "reverseCheck": "passed"
+    },
+    "incrementalPatch": {
+      "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/task-4-setup-feedback-fix1-incremental-patch",
+      "sha256": "042f85180e7125b9407117ef51ae0889deb60555ca4fb9cca46c7f8f4f544ceb",
+      "bytes": 21759,
+      "appliesAfterParent633": true,
+      "reverseCheck": "passed",
+      "filesChanged": [
+        "apps/web/components/GitRemotePanel.vue",
+        "apps/web/components/SetupImport.vue",
+        "apps/web/components/SetupWizard.vue",
+        "tests/git-remote-ui.test.ts",
+        "tests/setup-feedback/setup-feedback.spec.ts"
+      ]
+    },
+    "parentPatchSha256": "633d46de9051e09e3cdb2e4647058605d90f38ed2f41ea171bbb256043eea30d",
+    "previousRereview": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/setup-feedback-rereview.json",
+    "previousRereviewSha256": "15bdc48a867fcfda76237f603bfa7fcce5cf9b2513c6da86a6d2964485a514e6",
+    "manifest": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/task-4-setup-feedback-fix1-manifest.json",
+    "manifestSha256": "2ea26c718302b98d11d178d705f955529bc155745e04cea91facf23ace1b48f5"
+  },
+  "scope": {
+    "actuallyViewed": 33,
+    "hashAndDimensionsChecked": 57,
+    "hashOnly": 24,
+    "viewportWidths": [
+      1440,
+      390,
+      320
+    ],
+    "original27HashesUnchanged": true,
+    "earlier132ReviewSuperseded": false
+  },
+  "findings": [
+    {
+      "id": "FINISH-IMPORT-RACE",
+      "priority": "P2",
+      "status": "addressed",
+      "pixels": "三宽滚动至子组件的截图中，完成挂起时文件名仍在，文件选择和确认导入禁用；失败后保留的选择成功导入。反方向的导入挂起图显示两种离开操作被锁。",
+      "source": [
+        "apps/web/components/SetupWizard.vue:443",
+        "apps/web/components/SetupImport.vue:25-36,107,116"
+      ],
+      "authorAssertions": "初始化均为测试隔离库。完成 POST 使用明确的 503 挂起注入。挂起时作者检查 finish POST=1、notes/folders POST=0；失败释放后文件仍在、两控件解锁，然后导入实际发出一次 notes POST 并读回 40-Resources 文件内容。反方向导入挂起时 notes POST=1、finish POST=0。静态图没有单独展示解锁后提交前瞬间。"
+    },
+    {
+      "id": "MODAL-FEEDBACK-FOCUS",
+      "scope": "fix1 code-review follow-up",
+      "status": "addressed-for-tested-focus-boundary",
+      "pixels": "保存凭据/读取 SSH 指纹失败时，错误出现在当前窗内。后台 status 失败时用户名输入焦点和草稿保留。",
+      "authorAssertions": "同步/延迟的 503 为定向测试注入。作者检查当前窗的 alert/输入获得或保留焦点、页面 scrollY 不动；真实失效会话用例显式调用 password.focus() 后验证仍聚焦，不能由此证明初始自动聚焦或稳定态绘制。"
+    }
+  ],
+  "visualLimitsAndAdvisories": [
+    {
+      "id": "AUTH-TRANSITION-FRAME",
+      "severity": "evidence-limit",
+      "files": [
+        "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-real-expire-f6f40-cused-above-import-feedback-desktop/global-auth-modal.png",
+        "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-real-expire-f6f40-cused-above-import-feedback-phone320/global-auth-modal.png",
+        "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-real-expire-f6f40-cused-above-import-feedback-phone390/global-auth-modal.png"
+      ],
+      "observation": "三宽粘连叠字，背景文本清楚透过前景，画面与进入过渡中截图一致。只有稳定态的可读性尚待视觉证明，未推断持久样式故障。"
+    },
+    {
+      "id": "CREDENTIAL-NETWORK-COPY",
+      "severity": "P3 advisory; preexisting wording now visible in modal",
+      "source": "apps/web/git-sync.ts:34",
+      "files": [
+        "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-afd66-ut-scrolling-its-background-desktop/credential-ssh-error.png",
+        "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-afd66-ut-scrolling-its-background-phone320/credential-ssh-error.png",
+        "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-afd66-ut-scrolling-its-background-phone390/credential-ssh-error.png",
+        "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-e01d1-ut-scrolling-its-background-desktop/credential-save-error.png",
+        "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-e01d1-ut-scrolling-its-background-phone320/credential-save-error.png",
+        "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-e01d1-ut-scrolling-its-background-phone390/credential-save-error.png"
+      ],
+      "observation": "保存凭据/读取 SSH 指纹的网络失败提示称可稍后仅推送。此窗没有相应推送动作，不影响焦点/草稿保存及本轮父子锁关闭。"
+    }
+  ],
+  "unchangedScopeLimits": [
+    "没有新建、已有资料两种来源选中态及 initializing 的独立修后图片；不把代码核对升级为视觉证明。",
+    "未检查全量旧 132 窗口、硬件/第三方网络、最终集成版或发布版本。对凭据位图的遮盖不作产品样式判断。"
+  ],
+  "authorRunReferences": [
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls.log",
+      "sha256": "7ef4c3391b7aac3c127fe5353075be8da44b08e251dde159b4bdbe558f9a52cc"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final.log",
+      "sha256": "921c501b92abcb8e1bcabc494f430f276ad6e871ef51a98b83ecd5bd719f1339"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/typecheck-controls.log",
+      "sha256": "1ac9c1a571d12a40f9e6010fe2d5751efa7f87a37f4ed863e3205b8fa4d9ea2f"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/typecheck-final.log",
+      "sha256": "1ac9c1a571d12a40f9e6010fe2d5751efa7f87a37f4ed863e3205b8fa4d9ea2f"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/unit-final.log",
+      "sha256": "0e482d2568b50e9bef335f09e191a1fdc7c337e0ef219dee13e6a5ffbe17c38a"
+    }
+  ],
+  "authorCounts": {
+    "unitFiles": 4,
+    "unitTestsPassed": 68,
+    "focusedBrowserTestsPassed": 36,
+    "childControlsTestsPassed": 3,
+    "typecheckExit": 0,
+    "postControlsTypecheckExit": 0,
+    "fullSuiteRan": false,
+    "diffCheck": "passed",
+    "ownFixturePortsClosed": [
+      4178,
+      4181,
+      4591,
+      4592
+    ]
+  },
+  "rows": [
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-desktop/git-rejection.png",
+      "sha256": "d729e7cfe65de4a34a76dcc50f44e9637e84795b152ea68d5f60b9b8658175eb",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-phone320/git-rejection.png",
+      "sha256": "8dfb28a305ccea2da7c86c4da6ade68e3d149cd6cd5828cedcbd6b037249478a",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-phone390/git-rejection.png",
+      "sha256": "b3c2e2f608a86aeb2de83f7226d6cfd3250aed75e9f7e71de8e8c17e6c444fe7",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-desktop/unknown-receipt-action.png",
+      "sha256": "db706f7dcc8075a18f959e01edd29cdb577b320267414121ae1bcf3933636cd4",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-desktop/unknown-receipt.png",
+      "sha256": "16a5885f9b309dece729914bb0ccdb355f8c1bc400be207d5d4da0d499b00e98",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone320/unknown-receipt-action.png",
+      "sha256": "ee3b95bab201db072053cef174163300a9a206a5a35084c5321243a5fc88be69",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone320/unknown-receipt.png",
+      "sha256": "1ae86e473e224afc0fdec8c585046fe34d4f66b66d12c6c3ed068e87c9515fc6",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone390/unknown-receipt-action.png",
+      "sha256": "dbbe24f9e4be35d6f33ac2dd8ef2505a5a2d87c719dd6f9044cb17760dbee962",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone390/unknown-receipt.png",
+      "sha256": "b7abd9c5e7786e046c99af3b4638f863b17de3112976fbe6f80dd1645673915c",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-desktop/resumed-clone.png",
+      "sha256": "e93dbfaf17e2e11167d9f0360e055c7bca293739d1c2050ef69ca309115656ea",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-phone320/resumed-clone.png",
+      "sha256": "ff62ef1ab5047de25a9476c7c6f59e03565672ba9ce97bcf2b55092d3f382c8d",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-phone390/resumed-clone.png",
+      "sha256": "343d56c95506b18bb5e094debb3edd23717f4a3e97d57191f84725617f6a2372",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-an-accepted-cd46c-its-real-result-is-received-desktop/import-locks-finish.png",
+      "sha256": "5eaeb2a3270d257e897bfc8fb5ce8e16873d140ee680e3c8c7d8fd922db4af57",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "反方向的导入请求等待时，离开、上一步、选择文件和确认导入受锁。非空 34 字节回执保留。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-an-accepted-cd46c-its-real-result-is-received-phone320/import-locks-finish.png",
+      "sha256": "47e51b7ab015a424c73c49150264c34575304301647d06d6226efd869d93b32e",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "反方向的导入请求等待时，离开、上一步、选择文件和确认导入受锁。非空 34 字节回执保留。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-an-accepted-cd46c-its-real-result-is-received-phone390/import-locks-finish.png",
+      "sha256": "102f9a2ea7ef0cb7d50a81ff299b449d16195d6f0bfb16c8bb70e7897a90e75f",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "反方向的导入请求等待时，离开、上一步、选择文件和确认导入受锁。非空 34 字节回执保留。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-delayed-bac-3291b-al-input-or-scroll-the-page-desktop/background-error-active-modal.png",
+      "sha256": "6cbfe98c14ae5cc6980eb2b6bd59ce69c3e32271492bdb61b74c8878b49e6fce",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "凭据窗出现来源不可用提示。已编辑的仓库用户名仍在输入框并显示焦点描边，关闭和表单均可达。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-delayed-bac-3291b-al-input-or-scroll-the-page-phone320/background-error-active-modal.png",
+      "sha256": "d0391338f82cfda3e9bc57c7cb2caeb2db857cf30321ad53cff777175708262f",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "凭据窗出现来源不可用提示。已编辑的仓库用户名仍在输入框并显示焦点描边，关闭和表单均可达。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-delayed-bac-3291b-al-input-or-scroll-the-page-phone390/background-error-active-modal.png",
+      "sha256": "b58ee9b3f8f1b0f317ce55ccf6209bba42dccc59c120cc085833872efc7a9ab9",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "凭据窗出现来源不可用提示。已编辑的仓库用户名仍在输入框并显示焦点描边，关闭和表单均可达。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-failed-opti-5df89-ter-a-real-successful-retry-desktop/registry-unavailable.png",
+      "sha256": "2e960ed39f82b9f0d4845f34e69091af1f14267f07c1a48a4c450bb2145fb1c7",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-failed-opti-5df89-ter-a-real-successful-retry-phone320/registry-unavailable.png",
+      "sha256": "ff2167d4a894b7ec7f9f879259c07dc2463ea26f17aa031026b4af1f2d22184f",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-failed-opti-5df89-ter-a-real-successful-retry-phone390/registry-unavailable.png",
+      "sha256": "d8188d224c3cb962cafea68f649985c958b86c1677aba40a92a41ff093e7ba4d",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-desktop/finish-and-file-size.png",
+      "sha256": "e02c6569fb59c89ac9d3a112fc12384997c19616df6d04cebaf28a8b098bbfce",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "已选 tiny.md 仍显示 5 字节。完成请求锁住两种离开操作、文件选择和确认导入。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-desktop/one-byte-over-limit.png",
+      "sha256": "0d4e22cd102018f46cdb1446ca91a89288693276ae85b0868b773f190e3fe139",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-desktop/tiny-file.png",
+      "sha256": "25a546a794634570e38681c95ce77eda48e493961eab08d3d8079b10b129886b",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone320/finish-and-file-size.png",
+      "sha256": "4bd09bceb7cf701006bd3b5952f54367643b1edd68f4ed4f8a4005f4d62c9c14",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "已选 tiny.md 仍显示 5 字节。完成请求锁住两种离开操作、文件选择和确认导入。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone320/one-byte-over-limit.png",
+      "sha256": "c8e50cf200196a1f97a921ff8fcbc60c404435f14b0971c059fa12aeffb91354",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone320/tiny-file.png",
+      "sha256": "7ff8d45d4983bbf014ac3a7c779fef912f3c3ecc5b16b47cd2d8183529f755b0",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone390/finish-and-file-size.png",
+      "sha256": "6264f095e4723133b54d762ac499a3c0618f99ec3426e33e90e7851a3d218c5b",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "已选 tiny.md 仍显示 5 字节。完成请求锁住两种离开操作、文件选择和确认导入。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone390/one-byte-over-limit.png",
+      "sha256": "30dd252efbc3d87955da38a05133c38ab09bbf0f30ba82abbcccf2eb94700c80",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone390/tiny-file.png",
+      "sha256": "65f491d31e18c7917cb1e4c61407fbd701bf6ff427833b3e00fdfc852481bbac",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-desktop/finish-locks-import.png",
+      "sha256": "961328c826d28b0918330b480778957e34ec2d9aba56dfae07070c1bf6b94e97",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "两种离开操作均锁。桌面可见已选文件和导入动作；窄屏本帧处于页面较上方，另见控件滚动截图。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-desktop/import-after-finish-failure.png",
+      "sha256": "3db6d58de3eb6887909d7389e9ff10ce658514669f04fdd0ca24932713c5c23b",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "完成请求失败后，保留的文件成功导入。选择框随成功清空，回执标出文件名。主批次窄屏还显示先前完成请求的错误。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone320/finish-locks-import.png",
+      "sha256": "fe49e7a34a81404128e6dc50c95237d6547551011ebe64f7cf39ca0ef3e17d29",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "两种离开操作均锁。桌面可见已选文件和导入动作；窄屏本帧处于页面较上方，另见控件滚动截图。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone320/import-after-finish-failure.png",
+      "sha256": "07ca9bf99022b0f825e08c7108a55905af1054f8e22aa8a143db73e9a70ca1b8",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "完成请求失败后，保留的文件成功导入。选择框随成功清空，回执标出文件名。主批次窄屏还显示先前完成请求的错误。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone390/finish-locks-import.png",
+      "sha256": "4ea35b0c30d90e615a4179ec20c4e3f2e5cd3aed2a401cc2bf15ea22561dda37",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "两种离开操作均锁。桌面可见已选文件和导入动作；窄屏本帧处于页面较上方，另见控件滚动截图。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone390/import-after-finish-failure.png",
+      "sha256": "4cb6e1fe9ff8e0a812859eb13bf39d3d5eaecee03064986083a1e1bbf4cfb1be",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "完成请求失败后，保留的文件成功导入。选择框随成功清空，回执标出文件名。主批次窄屏还显示先前完成请求的错误。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-afd66-ut-scrolling-its-background-desktop/credential-ssh-error.png",
+      "sha256": "6c5077caa4bf4f4a3ddf4c1c795783f887133637a2a1c01b29da8d04739ac050",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "pass-with-copy-advisory",
+      "evidence": "SSH 指纹失败后窗内红色提示可读，抓图遮盖了私钥与口令。窄屏长窗需要内部滚动。错误正文同样误谈推送。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-afd66-ut-scrolling-its-background-phone320/credential-ssh-error.png",
+      "sha256": "bc841838ad8561fff4a207f6c4b29b8378bfa68bcd3ed8ee5cbdb96af19bb894",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "pass-with-copy-advisory",
+      "evidence": "SSH 指纹失败后窗内红色提示可读，抓图遮盖了私钥与口令。窄屏长窗需要内部滚动。错误正文同样误谈推送。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-afd66-ut-scrolling-its-background-phone390/credential-ssh-error.png",
+      "sha256": "7ea28a10d518461b85618d0a4e32d4ddba2304594de4b546a8c640b8e4af15eb",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "pass-with-copy-advisory",
+      "evidence": "SSH 指纹失败后窗内红色提示可读，抓图遮盖了私钥与口令。窄屏长窗需要内部滚动。错误正文同样误谈推送。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-e01d1-ut-scrolling-its-background-desktop/credential-save-error.png",
+      "sha256": "9b3f5ab3aec422cf38915b2b3bf429ef3b49ae43d89387bb644ce2766329361a",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "pass-with-copy-advisory",
+      "evidence": "网络错误显示在保存凭据窗内顶部，草稿留下。访问令牌区域按采集规则遮盖。错误正文含与当前操作无关的推送建议。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-e01d1-ut-scrolling-its-background-phone320/credential-save-error.png",
+      "sha256": "260bdfbb9bbe58743ee62878aef52cb51bacb9b34be0de064be9065edf20929f",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "pass-with-copy-advisory",
+      "evidence": "网络错误显示在保存凭据窗内顶部，草稿留下。访问令牌区域按采集规则遮盖。错误正文含与当前操作无关的推送建议。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-import-cred-e01d1-ut-scrolling-its-background-phone390/credential-save-error.png",
+      "sha256": "0ff9c1101816e58e38a3f8acd796a17bff5828e7a46904a9a1b0d3fd22984730",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "pass-with-copy-advisory",
+      "evidence": "网络错误显示在保存凭据窗内顶部，草稿留下。访问令牌区域按采集规则遮盖。错误正文含与当前操作无关的推送建议。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-real-expire-f6f40-cused-above-import-feedback-desktop/global-auth-modal.png",
+      "sha256": "e7d7e06e45cfa315250d2c3697cda11f58ddda3b21fed2ea51e9a1e84d3ed60c",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "focus-evidence-only; settled-frame-missing",
+      "evidence": "前景重新认证窗出现，密码已按采集规则遮盖。三宽抓图均有半透明叠字，无法验证稳定状态的文案可读性。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-real-expire-f6f40-cused-above-import-feedback-phone320/global-auth-modal.png",
+      "sha256": "ca0c2af10ebe882ef272345b17c3ebb79e381bce2d690ec948994a9487eb5bd8",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "focus-evidence-only; settled-frame-missing",
+      "evidence": "前景重新认证窗出现，密码已按采集规则遮盖。三宽抓图均有半透明叠字，无法验证稳定状态的文案可读性。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-real-expire-f6f40-cused-above-import-feedback-phone390/global-auth-modal.png",
+      "sha256": "fa539731abbce0b830c64b6bc990b2715af44f8f27fa41bec59945e96d5e2e3a",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "focus-evidence-only; settled-frame-missing",
+      "evidence": "前景重新认证窗出现，密码已按采集规则遮盖。三宽抓图均有半透明叠字，无法验证稳定状态的文案可读性。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-unavailable-2974e--its-primary-recheck-action-desktop/unavailable-source-primary.png",
+      "sha256": "a8a8524db3f597e19d1f6a64d074673a11e3b218ad091c1723307df7d0f8055b",
+      "width": 1440,
+      "height": 1000,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-unavailable-2974e--its-primary-recheck-action-phone320/unavailable-source-primary.png",
+      "sha256": "43f406d7c1d0c5609c42fefeb78b053be22b6f111cbf130dc7de572b469906f6",
+      "width": 320,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-final/setup-feedback-unavailable-2974e--its-primary-recheck-action-phone390/unavailable-source-primary.png",
+      "sha256": "95411928afe2aa6eef6b85823bc9724403bc33ef97adc4a6ca189da5a4f90dea",
+      "width": 390,
+      "height": 844,
+      "group": "runtime36CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": false,
+      "verdict": "hash-only; outside-fix1-scoped-rereview",
+      "evidence": null
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-desktop/finish-locks-import-controls.png",
+      "sha256": "fb3a722fab07a0a104fef3209c3b8ff9c315c075e307b046fd3e1c1c020a584b",
+      "width": 1440,
+      "height": 1000,
+      "group": "childControls3CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "父完成请求挂起。滚动到展开的 31 字节文件后，选择按钮与确认导入都为禁用；窄屏仍可读完整文件回执。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-desktop/finish-locks-import.png",
+      "sha256": "a0b7421c1791c434b69a81080bfb5207d26982b4d979ab2a285cfe23226773d8",
+      "width": 1440,
+      "height": 1000,
+      "group": "childControls3CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "两种离开操作均锁。桌面可见已选文件和导入动作；窄屏本帧处于页面较上方，另见控件滚动截图。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-desktop/import-after-finish-failure.png",
+      "sha256": "f586395e18d1cec547649c7d67cfd069e4800a95bc11fdbebeab7bdc1e6d3d6f",
+      "width": 1440,
+      "height": 1000,
+      "group": "childControls3CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "完成请求失败后，保留的文件成功导入。选择框随成功清空，回执标出文件名。主批次窄屏还显示先前完成请求的错误。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone320/finish-locks-import-controls.png",
+      "sha256": "bd1c98e6badc78a549b030e585cb2809c784d10cf3bce5d72ec34bb4d19c2b07",
+      "width": 320,
+      "height": 844,
+      "group": "childControls3CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "父完成请求挂起。滚动到展开的 31 字节文件后，选择按钮与确认导入都为禁用；窄屏仍可读完整文件回执。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone320/finish-locks-import.png",
+      "sha256": "3b56fedf643d7042c7bce6e820f0fd28d47ebea5aec2e641c206b2cc48cdf56f",
+      "width": 320,
+      "height": 844,
+      "group": "childControls3CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "两种离开操作均锁。桌面可见已选文件和导入动作；窄屏本帧处于页面较上方，另见控件滚动截图。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone320/import-after-finish-failure.png",
+      "sha256": "7173a4a0199dbee113f82d1487a5f8386cc2eb6e2788da556261d38a6f0b6e8d",
+      "width": 320,
+      "height": 844,
+      "group": "childControls3CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "完成请求失败后，保留的文件成功导入。选择框随成功清空，回执标出文件名。主批次窄屏还显示先前完成请求的错误。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone390/finish-locks-import-controls.png",
+      "sha256": "cfb67b9068e6cc2db2ac64cdb1482458c4dfafa8cbc07a485ad55ca15e9b07f5",
+      "width": 390,
+      "height": 844,
+      "group": "childControls3CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "父完成请求挂起。滚动到展开的 31 字节文件后，选择按钮与确认导入都为禁用；窄屏仍可读完整文件回执。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone390/finish-locks-import.png",
+      "sha256": "05e1149e3011bab7587a29064b9d373d46bf281077cbadf969ab047bd63f2b93",
+      "width": 390,
+      "height": 844,
+      "group": "childControls3CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "两种离开操作均锁。桌面可见已选文件和导入动作；窄屏本帧处于页面较上方，另见控件滚动截图。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/round1/browser-child-controls/setup-feedback-finish-lock-98c26-s-the-file-for-later-import-phone390/import-after-finish-failure.png",
+      "sha256": "6f7548eb55d5de4a0598d9dd24f471fc4ed939869dca7c6f7f92bd113d4c5958",
+      "width": 390,
+      "height": 844,
+      "group": "childControls3CaseScreenshots",
+      "sha256AndDimensionsVerified": true,
+      "actuallyViewedThisPass": true,
+      "verdict": "scoped-pass",
+      "evidence": "完成请求失败后，保留的文件成功导入。选择框随成功清空，回执标出文件名。主批次窄屏还显示先前完成请求的错误。"
+    }
+  ]
+}

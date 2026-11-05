@@ -1,0 +1,101 @@
+{
+  "patch": "193ba6ce204c2d1278efa7bcecc2e1310253671673fe16fdd6fe94c8d46a2271",
+  "files": [
+    {
+      "file": "targeted-regressions/public-short-focus/b95ccf49ce17-feedback-844.png",
+      "sha256": "b95ccf49ce17ff8183377fb5fa3eba50371e1a5159d519bfae3a09ffc24f29dc"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/b95ccf49ce17-feedback-before-reveal.png",
+      "sha256": "b95ccf49ce17ff8183377fb5fa3eba50371e1a5159d519bfae3a09ffc24f29dc"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/1e5c15963634-short-844-1.png",
+      "sha256": "1e5c15963634e97c36b14873216aaa94c507d33cdd018b944e8f6a31186ff8d7"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/b7cee7585829-short-844-2.png",
+      "sha256": "b7cee75858292b3470b780720e8ac0428d84c7e85c0241b435c505260e1b18ab"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/53d61cb24693-short-844-3.png",
+      "sha256": "53d61cb246932311b16b3c8547c5792795e81ec30521939c08826b1f60a9fadf"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/26a5b8eb467c-short-844-4.png",
+      "sha256": "26a5b8eb467caeb951a9908418a2b222dcdc30b13a2f467dce88822b80255a52"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/e99c7d1eb752-short-844-5.png",
+      "sha256": "e99c7d1eb752df55f31060469dae60094a5cb63caa2d3d6d94820bbdf384f9ce"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/fff57eb28a57-short-844-6.png",
+      "sha256": "fff57eb28a5711fa546417601ac4d2688fd82f04098a549eb01ba0a579c905de"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/6c140c15dfd4-short-844-7.png",
+      "sha256": "6c140c15dfd415e460611020cd41524898c216bbdf1edabf662a6f528ceaba26"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/82377c1bf541-feedback-360.png",
+      "sha256": "82377c1bf541477b36672869da3a714cb17a7f16f5d06360290e384e2d3cd33b"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/f6d25c7ab1e8-feedback-before-reveal.png",
+      "sha256": "f6d25c7ab1e8c7e71d371a3748dc839dd5aaac7c96600169dc43f4aab249c9d8"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/fc7b64352126-short-360-1.png",
+      "sha256": "fc7b6435212636b9b05b87e0ac81ad8b670790debc98a2a26f7cc1568394ac4e"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/6717cabf2893-short-360-2.png",
+      "sha256": "6717cabf289397b2513e7883440eeb46a9e07532f627fa3e4748c3bd0660e2d4"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/82de351fdbe7-short-360-3.png",
+      "sha256": "82de351fdbe788bdc9492b3e169aa3cb105c21fb81b028735b7571ef13f5fba0"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/2de0fdb9a04b-short-360-4.png",
+      "sha256": "2de0fdb9a04ba8da1154b9f7b713cfb4533bbffc163b96d7bcfa399eafb08c0d"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/27af80a1b62d-short-360-5.png",
+      "sha256": "27af80a1b62de4f9ecea885e3db2b5483263b2ee64ba3b9a8be7c5ec21ef4438"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/811ced44187a-short-360-6.png",
+      "sha256": "811ced44187a634bb99127ae50b994c2249e02b22b43f9205ea8169d45cee37e"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/b0fed4118b12-short-360-7.png",
+      "sha256": "b0fed4118b12a7fe4a1dc64e7813396e480a8db22625f993fc55b0cf7e982bc1"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/71a4a276dc06-feedback-before-reveal.json",
+      "sha256": "71a4a276dc0653a56b4848afda2d55363932a3a05652025b0f5fb9353676b7c2"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/90b9dddffc8e-feedback-surface.json",
+      "sha256": "90b9dddffc8e551846b25bac5b120e443b684efef7c04db1c294b3a2e3a4ffb8"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/c8b3719f22f2-short-probes.json",
+      "sha256": "c8b3719f22f2cf828ab5f29db61c68bf2d01aed9e1a5c4b0c7a96b8bb96b29c7"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/855e73a277d4-feedback-before-reveal.json",
+      "sha256": "855e73a277d41eaf065faeae77ca4a43dc87bd63e8490434918dc250da0f85ce"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/d090a2c80e5f-feedback-surface.json",
+      "sha256": "d090a2c80e5f6b495ee16fd1521aef627b0575b2e59329c31b0ecbef6bfe5cad"
+    },
+    {
+      "file": "targeted-regressions/public-short-focus/d215a132e0e1-short-probes.json",
+      "sha256": "d215a132e0e1e11bff28e718f63e6bfe013bcae58cbcfa04e7cc7845ce74ff71"
+    }
+  ]
+}

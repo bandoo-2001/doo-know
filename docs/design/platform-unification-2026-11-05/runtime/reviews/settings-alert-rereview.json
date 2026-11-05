@@ -1,0 +1,357 @@
+{
+  "schema": 1,
+  "reviewer": "same independent settings reviewer",
+  "reviewedAt": "2026-11-05T17:23:46.868721+00:00",
+  "scope": "ST-VIS-P2-001 only; PluginManager local conflict class/narrow grid and real after Alert/popconfirm evidence",
+  "baseCommit": "6b9376998bc5f683b34158106ef992fc9220957d",
+  "patchSha256": "7416f36368d00ae43aa51a160cfacc82b923e0469e1b0b4f419fc684ac45eb2b",
+  "patchHashMatches": true,
+  "artifactHashChecks": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/task-3-alert-visual-fix.patch",
+      "expectedSha256": "7416f36368d00ae43aa51a160cfacc82b923e0469e1b0b4f419fc684ac45eb2b",
+      "actualSha256": "7416f36368d00ae43aa51a160cfacc82b923e0469e1b0b4f419fc684ac45eb2b",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/apps/web/components/PluginManager.vue",
+      "expectedSha256": "4246b8e3d19c54d7850f0afa97a3139f4d3b98b8a904163f4746352d80b2c21a",
+      "actualSha256": "4246b8e3d19c54d7850f0afa97a3139f4d3b98b8a904163f4746352d80b2c21a",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/tests/e2e/plugin-conflict-layout.spec.ts",
+      "expectedSha256": "a405db839a4454d1b61f1ff6adfca64a510c8e81da2aaecd96574ec9a59f0dd2",
+      "actualSha256": "a405db839a4454d1b61f1ff6adfca64a510c8e81da2aaecd96574ec9a59f0dd2",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-red.log",
+      "expectedSha256": "cbab827ed73297f97555f7c97363b6b270e5de071281e4bef2ae86f3aa023023",
+      "actualSha256": "cbab827ed73297f97555f7c97363b6b270e5de071281e4bef2ae86f3aa023023",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-green.log",
+      "expectedSha256": "c1274ea7642e85e1db7068a9e69bb080cc11dac0a56cfcea651bc4aa0b0d108b",
+      "actualSha256": "c1274ea7642e85e1db7068a9e69bb080cc11dac0a56cfcea651bc4aa0b0d108b",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final.log",
+      "expectedSha256": "270d3249c1182faa9b7d0298569caca433ac374b112c43d8631df03a224cc456",
+      "actualSha256": "270d3249c1182faa9b7d0298569caca433ac374b112c43d8631df03a224cc456",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-unit.log",
+      "expectedSha256": "3c0e995f27709d57ec324ba893ab0e47c1bc98591915838da173fe0950c833f2",
+      "actualSha256": "3c0e995f27709d57ec324ba893ab0e47c1bc98591915838da173fe0950c833f2",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-cas-regression.log",
+      "expectedSha256": "3241ed546343ed839c945036c21c96bf1f18d42c58ab88c0383c865082e9d329",
+      "actualSha256": "3241ed546343ed839c945036c21c96bf1f18d42c58ab88c0383c865082e9d329",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-lon-acc8a--the-plugin-conflict-layout-desktop/long-credential-320.png",
+      "expectedSha256": "6f05bab8185b38dabfb07b2082f61ffb89989e9d0dfb9a5b08e9d7a40119be39",
+      "actualSha256": "6f05bab8185b38dabfb07b2082f61ffb89989e9d0dfb9a5b08e9d7a40119be39",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-lon-acc8a--the-plugin-conflict-layout-desktop/long-credential-390.png",
+      "expectedSha256": "f963e5d070f76a8bebbc0ca11a14000c120dd6fa64a6826d5b71f7db0e4792ac",
+      "actualSha256": "f963e5d070f76a8bebbc0ca11a14000c120dd6fa64a6826d5b71f7db0e4792ac",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-6677b-tion-stay-readable-at-390px-desktop/conflict-copy.png",
+      "expectedSha256": "bd1cfea384b2c3491a7ca854f12d3ff59df4a0d2311cff3e5f31e83bf063d0b5",
+      "actualSha256": "bd1cfea384b2c3491a7ca854f12d3ff59df4a0d2311cff3e5f31e83bf063d0b5",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-6677b-tion-stay-readable-at-390px-desktop/conflict-layout.json",
+      "expectedSha256": "cb166e40864756145a5a01754dea3be86fddd746a8c25a51e28afe7a917929d6",
+      "actualSha256": "cb166e40864756145a5a01754dea3be86fddd746a8c25a51e28afe7a917929d6",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-6677b-tion-stay-readable-at-390px-desktop/conflict-reload.png",
+      "expectedSha256": "71cfe30f3cd32c0b0e0afb43d8df85f6cf9e890f2711717877850047f057c4f6",
+      "actualSha256": "71cfe30f3cd32c0b0e0afb43d8df85f6cf9e890f2711717877850047f057c4f6",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-86ec0-ion-stay-readable-at-1440px-desktop/conflict-copy.png",
+      "expectedSha256": "c2348e6c53c620d838e2b763da3d97359dd940210fe7692d6c364097be43b8b4",
+      "actualSha256": "c2348e6c53c620d838e2b763da3d97359dd940210fe7692d6c364097be43b8b4",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-86ec0-ion-stay-readable-at-1440px-desktop/conflict-layout.json",
+      "expectedSha256": "272692ea4b44f1e1e20b141f95826be5f8e9e759cd8b228df367e7ffdbcb7eb5",
+      "actualSha256": "272692ea4b44f1e1e20b141f95826be5f8e9e759cd8b228df367e7ffdbcb7eb5",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-86ec0-ion-stay-readable-at-1440px-desktop/conflict-reload.png",
+      "expectedSha256": "e3141fcf6f3e54acd972835c5740a8f2e11409e07f61abf40b1ee1fc9a025f46",
+      "actualSha256": "e3141fcf6f3e54acd972835c5740a8f2e11409e07f61abf40b1ee1fc9a025f46",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-db02c-tion-stay-readable-at-320px-desktop/conflict-copy.png",
+      "expectedSha256": "f049d38a640d25fed27a8a7aa989524aebbc7e0cb783aad58bb84ec043b6b658",
+      "actualSha256": "f049d38a640d25fed27a8a7aa989524aebbc7e0cb783aad58bb84ec043b6b658",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-db02c-tion-stay-readable-at-320px-desktop/conflict-layout.json",
+      "expectedSha256": "f2b1fc29c5213d78a05ba596b2e9411a4d206e725d9b614f027d7098ad0a43bf",
+      "actualSha256": "f2b1fc29c5213d78a05ba596b2e9411a4d206e725d9b614f027d7098ad0a43bf",
+      "matches": true
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-db02c-tion-stay-readable-at-320px-desktop/conflict-reload.png",
+      "expectedSha256": "9781bc50b64defd869b6541e1c5c3822412fb8ac8f0c82fbbe1a7ed4d1adfe43",
+      "actualSha256": "9781bc50b64defd869b6541e1c5c3822412fb8ac8f0c82fbbe1a7ed4d1adfe43",
+      "matches": true
+    }
+  ],
+  "sourceDisposition": {
+    "issueId": "ST-VIS-P2-001",
+    "priority": "P2",
+    "sourceIds": [
+      "ST-051",
+      "ST-052"
+    ],
+    "code": "addressed",
+    "actualAfterVisual": "addressed at 320/390/1440 light local fixture",
+    "newIssues": []
+  },
+  "codeReferences": [
+    "apps/web/components/PluginManager.vue:611",
+    "apps/web/components/PluginManager.vue:1110",
+    "tests/e2e/plugin-conflict-layout.spec.ts:49"
+  ],
+  "actualAfterImages": [
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-6677b-tion-stay-readable-at-390px-desktop/conflict-copy.png",
+      "sha256": "bd1cfea384b2c3491a7ca854f12d3ff59df4a0d2311cff3e5f31e83bf063d0b5",
+      "sha256Matches": true,
+      "viewport": {
+        "width": 390,
+        "height": 1000
+      },
+      "theme": "light",
+      "sourceIds": [
+        "ST-051",
+        "ST-052"
+      ],
+      "viewedByIndependentReviewer": true,
+      "status": "pass-scoped-after-frame",
+      "observed": "Unobscured full conflict Alert: readable message and description; reload action below copy at phone widths, original right-side action at desktop.",
+      "limits": [
+        "Visual frame review only; no reviewer browser rerun.",
+        "Local patch on base 6b937; not a latest combined-main capture."
+      ]
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-6677b-tion-stay-readable-at-390px-desktop/conflict-reload.png",
+      "sha256": "71cfe30f3cd32c0b0e0afb43d8df85f6cf9e890f2711717877850047f057c4f6",
+      "sha256Matches": true,
+      "viewport": {
+        "width": 390,
+        "height": 1000
+      },
+      "theme": "light",
+      "sourceIds": [
+        "ST-051",
+        "ST-052"
+      ],
+      "viewedByIndependentReviewer": true,
+      "status": "pass-scoped-after-frame",
+      "observed": "Actual reload popconfirm shown; both keep/discard labels and buttons fully visible; focused reload trigger remains contained.",
+      "limits": [
+        "Visual frame review only; no reviewer browser rerun.",
+        "Local patch on base 6b937; not a latest combined-main capture."
+      ]
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-86ec0-ion-stay-readable-at-1440px-desktop/conflict-copy.png",
+      "sha256": "c2348e6c53c620d838e2b763da3d97359dd940210fe7692d6c364097be43b8b4",
+      "sha256Matches": true,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "sourceIds": [
+        "ST-051",
+        "ST-052"
+      ],
+      "viewedByIndependentReviewer": true,
+      "status": "pass-scoped-after-frame",
+      "observed": "Unobscured full conflict Alert: readable message and description; reload action below copy at phone widths, original right-side action at desktop.",
+      "limits": [
+        "Visual frame review only; no reviewer browser rerun.",
+        "Local patch on base 6b937; not a latest combined-main capture."
+      ]
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-86ec0-ion-stay-readable-at-1440px-desktop/conflict-reload.png",
+      "sha256": "e3141fcf6f3e54acd972835c5740a8f2e11409e07f61abf40b1ee1fc9a025f46",
+      "sha256Matches": true,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "sourceIds": [
+        "ST-051",
+        "ST-052"
+      ],
+      "viewedByIndependentReviewer": true,
+      "status": "pass-scoped-after-frame",
+      "observed": "Actual reload popconfirm shown; both keep/discard labels and buttons fully visible; focused reload trigger remains contained.",
+      "limits": [
+        "Visual frame review only; no reviewer browser rerun.",
+        "Local patch on base 6b937; not a latest combined-main capture."
+      ]
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-db02c-tion-stay-readable-at-320px-desktop/conflict-copy.png",
+      "sha256": "f049d38a640d25fed27a8a7aa989524aebbc7e0cb783aad58bb84ec043b6b658",
+      "sha256Matches": true,
+      "viewport": {
+        "width": 320,
+        "height": 1000
+      },
+      "theme": "light",
+      "sourceIds": [
+        "ST-051",
+        "ST-052"
+      ],
+      "viewedByIndependentReviewer": true,
+      "status": "pass-scoped-after-frame",
+      "observed": "Unobscured full conflict Alert: readable message and description; reload action below copy at phone widths, original right-side action at desktop.",
+      "limits": [
+        "Visual frame review only; no reviewer browser rerun.",
+        "Local patch on base 6b937; not a latest combined-main capture."
+      ]
+    },
+    {
+      "path": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-db02c-tion-stay-readable-at-320px-desktop/conflict-reload.png",
+      "sha256": "9781bc50b64defd869b6541e1c5c3822412fb8ac8f0c82fbbe1a7ed4d1adfe43",
+      "sha256Matches": true,
+      "viewport": {
+        "width": 320,
+        "height": 1000
+      },
+      "theme": "light",
+      "sourceIds": [
+        "ST-051",
+        "ST-052"
+      ],
+      "viewedByIndependentReviewer": true,
+      "status": "pass-scoped-after-frame",
+      "observed": "Actual reload popconfirm shown; both keep/discard labels and buttons fully visible; focused reload trigger remains contained.",
+      "limits": [
+        "Visual frame review only; no reviewer browser rerun.",
+        "Local patch on base 6b937; not a latest combined-main capture."
+      ]
+    }
+  ],
+  "observedMetricsFromAuthorArtifacts": [
+    {
+      "viewportWidth": 390,
+      "artifact": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-6677b-tion-stay-readable-at-390px-desktop/conflict-layout.json",
+      "contentWidth": 230,
+      "maxDescriptionCharactersPerLine": 17,
+      "alert": {
+        "x": 33,
+        "y": 349.5,
+        "width": 314,
+        "height": 183.609375,
+        "right": 347,
+        "bottom": 533.109375
+      },
+      "action": {
+        "x": 92,
+        "y": 476.109375,
+        "width": 230,
+        "height": 36,
+        "right": 322,
+        "bottom": 512.109375
+      }
+    },
+    {
+      "viewportWidth": 1440,
+      "artifact": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-86ec0-ion-stay-readable-at-1440px-desktop/conflict-layout.json",
+      "contentWidth": 618,
+      "maxDescriptionCharactersPerLine": 35,
+      "alert": {
+        "x": 438,
+        "y": 488.984375,
+        "width": 878,
+        "height": 93.609375,
+        "right": 1316,
+        "bottom": 582.59375
+      },
+      "action": {
+        "x": 1115,
+        "y": 509.984375,
+        "width": 176,
+        "height": 36,
+        "right": 1291,
+        "bottom": 545.984375
+      }
+    },
+    {
+      "viewportWidth": 320,
+      "artifact": "/home/bandoo/.codex/worktrees/platform-settings-alert/doo-know/.local/settings-alert-final/plugin-conflict-layout-plu-db02c-tion-stay-readable-at-320px-desktop/conflict-layout.json",
+      "contentWidth": 160,
+      "maxDescriptionCharactersPerLine": 12,
+      "alert": {
+        "x": 33,
+        "y": 316.234375,
+        "width": 244,
+        "height": 227.21875,
+        "right": 277,
+        "bottom": 543.453125
+      },
+      "action": {
+        "x": 92,
+        "y": 465.453125,
+        "width": 160,
+        "height": 57,
+        "right": 252,
+        "bottom": 522.453125
+      }
+    }
+  ],
+  "testEvidenceReadOnly": {
+    "dedicated": "4/4 pass, final log 22.8s",
+    "existingCAS": "1/1 pass",
+    "units": "2 files / 46/46 pass",
+    "reviewerReranTests": false,
+    "redLogRetained": true,
+    "originalNonzeroPlatformResultsRemainUnchanged": true
+  },
+  "priorEvidenceRetained": {
+    "mainReview": "docs/design/platform-unification-2026-11-05/runtime/reviews/settings-main-review.json",
+    "originalP2BeforeFrames": "390-light-settings-extra-plugin-reload-confirm.png; 320-light-settings-extra-plugin-reload-confirm.png",
+    "mutationOfPriorReview": false
+  },
+  "remainingPending": [
+    "Original 18 incomplete-state frames, 6 latest-affected recaptures, 44 failed-capture sidecars retain their original status; no blanket update.",
+    "ST-VIS-P3-001 resource tree inherited-label legibility deferred.",
+    "Original distinct controls not viewed remain pending.",
+    "Dark, physical-device/browser matrix, all-platform acceptance and final combined-source captures not covered."
+  ],
+  "assessment": "approved scoped local patch and six actual after frames; full platform gate remains pending"
+}

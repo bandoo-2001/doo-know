@@ -1,0 +1,271 @@
+{
+  "originalFullUnit": {
+    "source": "12b7798",
+    "files": {
+      "passed": 430,
+      "failed": 25,
+      "skipped": 3
+    },
+    "tests": {
+      "passed": 3621,
+      "failed": 86,
+      "skipped": 22
+    },
+    "exitCode": 1
+  },
+  "unitFailedFilesRerun": [
+    {
+      "files": 4,
+      "testsPassed": 57,
+      "exitCode": 0,
+      "scope": "real shared renderer dependencies"
+    },
+    {
+      "files": 21,
+      "testsPassed": 84,
+      "exitCode": 0,
+      "scope": "existing Python/models restored in isolated worktree"
+    }
+  ],
+  "originalFullE2E": {
+    "source": "12b7798",
+    "exitCode": 1,
+    "desktop": {
+      "passed": 580,
+      "failed": 51,
+      "skipped": 5
+    },
+    "mobile": {
+      "passed": 592,
+      "failed": 35,
+      "skipped": 9
+    },
+    "failedIdentifiers": {
+      "desktop": [
+        "tests/e2e/app-main-menu.spec.ts:12:1 › app rail owns main functions and settings while only contextual pages have a secondary directory",
+        "tests/e2e/apps-layout.spec.ts:47:3 › 应用首页 uses the application area without a notebook column, including after reload",
+        "tests/e2e/apps-layout.spec.ts:47:3 › 博客概览 uses the application area without a notebook column, including after reload",
+        "tests/e2e/apps-layout.spec.ts:47:3 › 博客文章 uses the application area without a notebook column, including after reload",
+        "tests/e2e/apps-layout.spec.ts:68:1 › application navigation retains the mounted note, expanded directories and search context",
+        "tests/e2e/create-readiness.spec.ts:7:1 › new-note creation waits for the initial folder list before choosing its destination",
+        "tests/e2e/diagram-portability.spec.ts:103:1 › 独立白板生成普通Markdown预览副本，原白板内容和保存状态不被改写 ──",
+        "tests/e2e/diagram-portability.spec.ts:145:1 › 白板在PNG上传期间更新时保留父笔记草稿，重新生成后绑定新版本 ──────",
+        "tests/e2e/document-breadcrumb.spec.ts:6:1 › short paths stay direct on wide screens and remain reachable on narrow screens",
+        "tests/e2e/document-breadcrumb.spec.ts:43:1 › deep paths collapse into an accessible menu while preserving folder navigation and drafts",
+        "tests/e2e/document-copy.spec.ts:9:3 › 桌面创建旧白板的 Markdown副本，保留原件并分配新身份 ───────────────",
+        "tests/e2e/document-organization.spec.ts:25:1 › 批量整理为关联原生白板准备预览，刷新记录后可撤销并保留原身份 ──────",
+        "tests/e2e/editor-selection.spec.ts:31:1 › text selections remain visibly blue on the active line and after focusing the toolbar",
+        "tests/e2e/folder-native-restore.spec.ts:4:1 › renamed trash folder renders all archived and live native final snapshots before activation",
+        "tests/e2e/management-features.spec.ts:190:1 › saved display preferences change the actual editor and survive reload without changing source",
+        "tests/e2e/note-native-restore.spec.ts:7:1 › 回收站单篇原生笔记恢复前准备最终链接与PNG并保留原身份 ───────────",
+        "tests/e2e/platform-pagination.spec.ts:6:1 › search and history expose their remaining pages",
+        "tests/e2e/portable-native-preview.spec.ts:18:1 › owner resumes a persisted native portable preview, reads it offline without DooKnow, and reimports the complete directory",
+        "tests/e2e/responsive-tabbar.spec.ts:166:1 › tablet rotation switches between bottom tabs and the left rail and closes overflow",
+        "tests/e2e/responsive-tabbar.spec.ts:240:1 › blog labels fit the phone tabbar and site settings remain reachable",
+        "tests/e2e/scroll-containment.spec.ts:46:3 › normal windows keep long directory scrolling below the sidebar controls",
+        "tests/e2e/settings-overlays.spec.ts:319:1 › 窄且低的深色视窗保留弹窗边界、可滚动内容与清晰文字 ──────────────",
+        "tests/e2e/to-doo-antdv.spec.ts:85:1 › period statistics and progress follow real seven-day, thirty-day and custom date requests",
+        "tests/e2e/to-doo-antdv.spec.ts:172:1 › Ant review modal preserves a canceled discard and saves a fresh local-date review once",
+        "tests/e2e/to-doo-antdv.spec.ts:237:1 › focus and habit quantity modals cancel without writes and persist explicit numeric receipts",
+        "tests/e2e/to-doo-focus-space.spec.ts:86:1 › compact focus overview leaves the first history record above the timer",
+        "tests/e2e/to-doo-focus-trend.spec.ts:88:1 › project duration curves support week, month and year without changing the history range",
+        "tests/e2e/to-doo-mobile-lists.spec.ts:100:1 › closing mobile new-list creation keeps the current list selected",
+        "tests/e2e/to-doo-notification-statistics-audit.spec.ts:146:1 › notification snooze offers 5/15/30/60 minutes and stores the selected 30-minute delay",
+        "tests/e2e/to-doo-outcome-preview.spec.ts:9:1 › outcome preview renders Markdown safely and keeps the editable draft after closing",
+        "tests/e2e/to-doo-reminders.spec.ts:193:1 › older reminder summaries use the app badge and live cards stay below edit dialogs",
+        "tests/e2e/to-doo-reminders.spec.ts:336:1 › closing a cold notification card prevents that generation from reopening on refresh",
+        "tests/e2e/to-doo-task-audit.spec.ts:24:1 › board scope remains visible and column creation saves initial status and creation fields together",
+        "tests/e2e/to-doo-task-simplification.spec.ts:182:1 › group creation and view switching preserve the group, list and selected task",
+        "tests/e2e/to-doo-task-simplification.spec.ts:241:1 › switching a new task to another list clears its original group",
+        "tests/e2e/to-doo-two-level-windows.spec.ts:69:1 › review creation displays actual metrics and saves a server-captured snapshot",
+        "tests/e2e/to-doo-two-level-windows.spec.ts:98:3 › long import preview keeps navigation and confirmation reachable at 320px",
+        "tests/e2e/to-doo-unified-shell.spec.ts:32:1 › the shared header keeps save visible while a long settings form scrolls",
+        "tests/e2e/to-doo-ux.spec.ts:81:1 › quick add inherits the selected list and clearing filters restores tasks across views",
+        "tests/e2e/to-doo-ux.spec.ts:194:1 › wide task details continue the quick draft and submit exactly one real task",
+        "tests/e2e/to-doo-ux.spec.ts:276:1 › quick entry stays usable in a 320px dark workspace",
+        "tests/e2e/to-doo-visible-workspace.spec.ts:29:1 › primary tools and contextual task directories are discoverable without expanding hidden groups",
+        "tests/e2e/to-doo-visible-workspace.spec.ts:66:1 › matrix uses four distinguishable surfaces and explains each action without wasting the viewport",
+        "tests/e2e/to-doo.spec.ts:24:1 › To Doo creates a real goal and task, preserves edits, completes and survives refresh",
+        "tests/e2e/to-doo.spec.ts:103:1 › all To Doo sections are reachable on narrow and dark workspaces without overflow",
+        "tests/e2e/to-doo.spec.ts:176:1 › focus, habit check-ins, anniversary and real CSV import/export use durable server data",
+        "tests/e2e/whiteboards.spec.ts:81:1 › 笔记图块进入设计页后返回，保留未保存正文并更新白板预览 ───────────────────",
+        "tests/e2e/whiteboards.spec.ts:118:1 › 保存已落盘但响应中断时保留草稿，重试使用相同请求编号且不产生重复版本 ───────────",
+        "tests/e2e/whiteboards.spec.ts:148:1 › 外部修改与自动保存冲突时保留磁盘版本，下载草稿后可重新读取 ────────────────",
+        "tests/e2e/whiteboards.spec.ts:195:1 › 分享白板和笔记内引用只读展示且取消分享后无法再读取 ────────────────────",
+        "tests/e2e/whiteboards.spec.ts:239:1 › 浏览器返回先退出嵌入设计页，保留原笔记与未保存正文 ────────────────────"
+      ],
+      "mobile": [
+        "tests/e2e/diagram-portability.spec.ts:103:1 › 独立白板生成普通Markdown预览副本，原白板内容和保存状态不被改写 ───",
+        "tests/e2e/diagram-portability.spec.ts:145:1 › 白板在PNG上传期间更新时保留父笔记草稿，重新生成后绑定新版本 ───────",
+        "tests/e2e/document-copy.spec.ts:9:3 › 桌面创建旧白板的 Markdown副本，保留原件并分配新身份 ────────────────",
+        "tests/e2e/document-organization.spec.ts:25:1 › 批量整理为关联原生白板准备预览，刷新记录后可撤销并保留原身份 ───────",
+        "tests/e2e/folder-native-restore.spec.ts:4:1 › renamed trash folder renders all archived and live native final snapshots before activation",
+        "tests/e2e/format-toolbar.spec.ts:6:1 › the document formatting toolbar preserves selections, undo history, and explicit saving",
+        "tests/e2e/management-features.spec.ts:190:1 › saved display preferences change the actual editor and survive reload without changing source",
+        "tests/e2e/note-native-restore.spec.ts:7:1 › 回收站单篇原生笔记恢复前准备最终链接与PNG并保留原身份 ────────────",
+        "tests/e2e/portable-native-preview.spec.ts:18:1 › owner resumes a persisted native portable preview, reads it offline without DooKnow, and reimports the complete directory",
+        "tests/e2e/responsive-layout.spec.ts:10:1 › keeps navigation reachable and content scrolling inside the window with a long directory",
+        "tests/e2e/responsive-tabbar.spec.ts:166:1 › tablet rotation switches between bottom tabs and the left rail and closes overflow",
+        "tests/e2e/responsive-tabbar.spec.ts:240:1 › blog labels fit the phone tabbar and site settings remain reachable",
+        "tests/e2e/settings-overlays.spec.ts:319:1 › 窄且低的深色视窗保留弹窗边界、可滚动内容与清晰文字 ───────────────",
+        "tests/e2e/to-doo-antdv-values.spec.ts:61:1 › real Ant Select saves null, false, two tag identifiers and numeric zero",
+        "tests/e2e/to-doo-antdv.spec.ts:237:1 › focus and habit quantity modals cancel without writes and persist explicit numeric receipts",
+        "tests/e2e/to-doo-habit-cards.spec.ts:51:1 › habit cards distinguish today from weekly achievement and include all pages before recording, skipping and pausing",
+        "tests/e2e/to-doo-habit-simplification.spec.ts:13:1 › ordinary habits create without quantities and complete with one click",
+        "tests/e2e/to-doo-life-cohesion.spec.ts:26:1 › focus settings retain their action and note while history secondary controls support the keyboard",
+        "tests/e2e/to-doo-mobile-lists.spec.ts:100:1 › closing mobile new-list creation keeps the current list selected",
+        "tests/e2e/to-doo-task-simplification.spec.ts:182:1 › group creation and view switching preserve the group, list and selected task",
+        "tests/e2e/to-doo-two-level-windows.spec.ts:69:1 › review creation displays actual metrics and saves a server-captured snapshot",
+        "tests/e2e/to-doo-ux.spec.ts:21:1 › quick add today persists its plan without opening details and keeps completed tasks folded",
+        "tests/e2e/to-doo-ux.spec.ts:81:1 › quick add inherits the selected list and clearing filters restores tasks across views",
+        "tests/e2e/to-doo-ux.spec.ts:168:1 › today and inbox quick navigation survive reload and browser history",
+        "tests/e2e/to-doo-ux.spec.ts:276:1 › quick entry stays usable in a 320px dark workspace",
+        "tests/e2e/to-doo-visible-workspace.spec.ts:29:1 › primary tools and contextual task directories are discoverable without expanding hidden groups",
+        "tests/e2e/to-doo-visible-workspace.spec.ts:66:1 › matrix uses four distinguishable surfaces and explains each action without wasting the viewport",
+        "tests/e2e/to-doo.spec.ts:103:1 › all To Doo sections are reachable on narrow and dark workspaces without overflow",
+        "tests/e2e/to-doo.spec.ts:176:1 › focus, habit check-ins, anniversary and real CSV import/export use durable server data",
+        "tests/e2e/to-doo.spec.ts:421:1 › bulk and cascade completion freeze execution membership and persist their actual states",
+        "tests/e2e/whiteboards.spec.ts:81:1 › 笔记图块进入设计页后返回，保留未保存正文并更新白板预览 ────────────────────",
+        "tests/e2e/whiteboards.spec.ts:118:1 › 保存已落盘但响应中断时保留草稿，重试使用相同请求编号且不产生重复版本 ────────────",
+        "tests/e2e/whiteboards.spec.ts:148:1 › 外部修改与自动保存冲突时保留磁盘版本，下载草稿后可重新读取 ─────────────────",
+        "tests/e2e/whiteboards.spec.ts:195:1 › 分享白板和笔记内引用只读展示且取消分享后无法再读取 ─────────────────────",
+        "tests/e2e/whiteboards.spec.ts:239:1 › 浏览器返回先退出嵌入设计页，保留原笔记与未保存正文 ─────────────────────"
+      ]
+    }
+  },
+  "dedicatedDiagramSuite": {
+    "originalPassed": 11,
+    "source": "12b7798"
+  },
+  "focusedResults": {
+    "integratedSource": {
+      "desktopPassed": 27,
+      "mobilePassed": 27
+    },
+    "layoutContract": {
+      "desktopPassed": 30,
+      "desktopFailed": 1,
+      "mobilePassed": 31
+    },
+    "selectedTextContrastFix": {
+      "desktopPassed": 1,
+      "mobilePassed": 1
+    },
+    "setupCorrection": {
+      "unitPassed": 68,
+      "browserCasesPassed": 36,
+      "childControlCasesPassed": 3
+    },
+    "publicFinal": {
+      "unitPassed": 57,
+      "browserCasesPassed": 36,
+      "existingPreviewCasesPassed": 2
+    },
+    "workspaceFix1": {
+      "browserCasesPassed": 14,
+      "adapterCasesPassed": 2,
+      "unitPassed": 110
+    }
+  },
+  "preservedOriginalLogSHA256": {
+    "closeout-final-diagrams.log": "d445852de9aef7054de73fe87cf483f643e06b98b0a23094cfb83eb38183c158",
+    "closeout-final-production-build.log": "681082a767ab4a876f19719d2b9dea6aa498e4681a2a23f857a4adfe104d3020",
+    "closeout-final-typecheck.log": "1ac9c1a571d12a40f9e6010fe2d5751efa7f87a37f4ed863e3205b8fa4d9ea2f",
+    "final-diagrams-1.log": "c8c73918e04fa32df5bec3ab35e3e9aabe3c8f90591e8345634b6f6f99f88d75",
+    "final-e2e-1.log": "f7b2240bc6c46064332c7b48c3e6c168544d382b1059a8ef83389126ff49f12e",
+    "final-unit-1.log": "a9cdfdaf45ac74e120ead7497f99bfbaf51ffeb9cc3f0b2ffa17ceffc301b613",
+    "final-unit-environment-rerun.log": "979e2f8624a02ea2302d643c93fcf5c032b6953c159291047afe106ea9444b3e",
+    "final-unit-renderer-rerun.log": "2061365072d7565d34949bea5379fc515aba54546990043c5e65aecb3c2acff4",
+    "integrated-final-source-e2e.log": "18dffad220c65468a6f09aa364f6cba3dff0578a5b1ae5fa62be03bda0e0a44d",
+    "task-2-final-visual-fix-1-unit.log": "5691a6e9eef2503619ec2e4507137972db3cd53309c56e6caaef038f7a365653",
+    "task-2-final-visual-fix-1-verified.log": "9bb7112986a843908158f186b47ffdcc1ecfb15581a78ab3f363f84c778b8880",
+    "task-2-final-visual-fix-2-green.log": "f76dbfdfe8778733fc8e9c6a5a0c5f4fee57433157228fb4039a045846460f3a",
+    "task-2-final-visual-fix-2-red.log": "3589a9d5f9b66b1c17f3b8ed0123c1d6bf113f52dab443d201c24db5014ebbb9",
+    "task-2-final-visual-fix-2-unit.log": "dd05c6deaab069d6632133c2dd1225b2a1525e0b961be57c9fccdbbbdc428843",
+    "task-2-selection-fix-e2e.log": "628b8e0555112c4a6e233a388dd96cfed74c7e541ad45c6e58eb80ba2ffc8e58",
+    "updated-layout-contract-e2e.log": "5ec4f0c48d62c83cf58c7799c630629b3c1936ee5cc58fde40b2909b358176fd"
+  },
+  "scope": "Original whole-suite nonzero results are retained separately from targeted reruns. See desktop-original-failures.md for classified desktop failures. Failure provenance and unverified actions remain explicit.",
+  "finalApplication": {
+    "sourceCommit": "a14936d225c5c5aa8b252b3571df93489607287e",
+    "applicationFingerprint": "9bde3f787b55ea0f8c10d82fcff428b9dfb6a006cb0a5c55803a2700a33df5d8",
+    "typecheckExit": 0,
+    "productionBuildExit": 0,
+    "buildEnvironment": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "dedicatedDiagrams": {
+      "source": "efe5d152290975e4f84b985be31ce607832d0682",
+      "passed": 11,
+      "exitCode": 0,
+      "changedSinceRun": "Blog savebar, plugin release metadata/version display and evidence helpers; native diagram application sources unchanged."
+    },
+    "shortFocusPatch": {
+      "testsPassed": 2,
+      "originalThreeWidthPreservationPassed": 36,
+      "unitPassed": 57,
+      "screenshotsViewedIndependently": 18,
+      "source": "a14936d",
+      "combinedTargetsMeasured": {
+        "360x460": {
+          "failures": 0
+        },
+        "844x390": {
+          "failures": 0
+        }
+      }
+    }
+  },
+  "distSnapshot": {
+    "algorithm": "sha256(sorted-path-NUL-file-sha256-newline)",
+    "sha256": "ef4bcaf5e0d59edadb8049a3215c56b0bfcccb46aa043c7680b575f0ccb48a69",
+    "fileCount": 1148,
+    "sourceCommit": "a14936d225c5c5aa8b252b3571df93489607287e"
+  },
+  "pluginReleaseReachability": {
+    "sourceCommit": "72cfd74",
+    "originalPackagedTestFailures": 1,
+    "greenUnitFiles": 3,
+    "greenUnitTests": 11,
+    "previousPublicRelease": "1.1.0-rc.61",
+    "oldInstalled": {
+      "mcp": "2.0.0",
+      "git": "1.1.3"
+    },
+    "newInstalledAfterUserClicks": {
+      "mcp": "2.0.1",
+      "git": "1.1.4"
+    },
+    "manualUpgradeActions": 2,
+    "preservedGitConfig": true,
+    "firstBrowserAttempt": "after first actual upgrade, application navigated to configuration. Second upgrade locator timed out. Original screenshots/log retained.",
+    "verifiedBrowserReceipt": "../targeted-regressions/plugin-upgrade-verified/receipt.json",
+    "labelRegression": {
+      "original": "Expected v2.0.0, received MCP 服务 v2.0.1",
+      "final": "Before: installed old version and available target; after: installed current version; captions checked in browser.",
+      "upgradeFixtureState": "Installed but disabled before upgrade. This check does not establish the active version of an already enabled backend.",
+      "threeWidthBeforeAndAfterReceipt": "../targeted-regressions/plugin-upgrade-labels-three-width/receipt.json"
+    }
+  },
+  "preFinalWorkspaceApplication": {
+    "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+    "applicationFingerprint": "8095f916d8eaf10cb89940200bb6e1ca3b3f2e460f6e52adee8285710cf5087f",
+    "filesInBrowserFingerprint": 624,
+    "typecheckExit": 0,
+    "productionBuildExit": 0,
+    "buildEnvironment": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "dedicatedDiagramBrowserSuite": {
+      "project": "desktop",
+      "passed": 11,
+      "exitCode": 0
+    },
+    "workspaceFix2": {
+      "browserCasesPassed": 8,
+      "unitTestsPassed": 82,
+      "files": 5,
+      "typecheckExit": 0
+    }
+  }
+}

@@ -1,0 +1,138 @@
+[
+  {
+    "index": 0,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-controls-00.png",
+    "rows": [
+      14,
+      15
+    ],
+    "labels": [
+      "2f55818-failed-only-rerun1/1440-light-settings-extra-plugin-config-conflict",
+      "2f55818-failed-only-rerun1/1440-light-settings-extra-plugin-ui-load-failed"
+    ]
+  },
+  {
+    "index": 1,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-controls-01.png",
+    "rows": [
+      16,
+      81
+    ],
+    "labels": [
+      "2f55818-failed-only-rerun1/1440-light-settings-extra-retention-read-error",
+      "d3cfe8d-compact/844-short-git-credentials"
+    ]
+  },
+  {
+    "index": 2,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-controls-02.png",
+    "rows": [
+      82,
+      83
+    ],
+    "labels": [
+      "d3cfe8d-compact/844-short-git-long-credential",
+      "d3cfe8d-compact/844-short-settings-account"
+    ]
+  },
+  {
+    "index": 3,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-controls-03.png",
+    "rows": [
+      86,
+      88
+    ],
+    "labels": [
+      "d3cfe8d-compact/844-short-settings-status",
+      "d3cfe8d-compact-retry/844-short-settings-plugins"
+    ]
+  },
+  {
+    "index": 4,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-controls-04.png",
+    "rows": [
+      100,
+      127
+    ],
+    "labels": [
+      "d3cfe8d-frames/1440-light-settings-extra-plugin-restart-warning-state-frame",
+      "d3cfe8d-state-retry/1440-light-settings-extra-git-import-owner"
+    ]
+  },
+  {
+    "index": 5,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-controls-05.png",
+    "rows": [
+      144,
+      146
+    ],
+    "labels": [
+      "ec86b32-settings-final/1440-light-settings-extra-mcp-resource-read-error",
+      "ec86b32-settings-final/1440-light-settings-extra-plugin-config-conflict"
+    ]
+  },
+  {
+    "index": 6,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-controls-06.png",
+    "rows": [
+      34,
+      35,
+      52,
+      53
+    ],
+    "labels": [
+      "2f55818-failed-only-rerun1/320-light-settings-extra-plugin-ui-load-failed",
+      "2f55818-failed-only-rerun1/320-light-settings-extra-retention-read-error",
+      "2f55818-failed-only-rerun1/390-light-settings-extra-plugin-config-conflict",
+      "2f55818-failed-only-rerun1/390-light-settings-extra-plugin-ui-load-failed"
+    ]
+  },
+  {
+    "index": 7,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-controls-07.png",
+    "rows": [
+      54,
+      63,
+      64,
+      65
+    ],
+    "labels": [
+      "2f55818-failed-only-rerun1/390-light-settings-extra-retention-read-error",
+      "d3cfe8d-compact/360-short-dark-git-credentials",
+      "d3cfe8d-compact/360-short-dark-git-long-credential",
+      "d3cfe8d-compact/360-short-dark-settings-account"
+    ]
+  },
+  {
+    "index": 8,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-controls-08.png",
+    "rows": [
+      67,
+      68,
+      130,
+      133
+    ],
+    "labels": [
+      "d3cfe8d-compact/360-short-dark-settings-plugins",
+      "d3cfe8d-compact/360-short-dark-settings-status",
+      "d3cfe8d-state-retry/320-light-settings-extra-git-import-owner",
+      "d3cfe8d-state-retry/390-light-settings-extra-git-import-owner"
+    ]
+  },
+  {
+    "index": 9,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-controls-09.png",
+    "rows": [
+      159,
+      161,
+      174,
+      176
+    ],
+    "labels": [
+      "ec86b32-settings-final/320-light-settings-extra-mcp-resource-read-error",
+      "ec86b32-settings-final/320-light-settings-extra-plugin-config-conflict",
+      "ec86b32-settings-final/390-light-settings-extra-mcp-resource-read-error",
+      "ec86b32-settings-final/390-light-settings-extra-plugin-config-conflict"
+    ]
+  }
+]

@@ -1,0 +1,94 @@
+{
+  "files": {
+    "tests/app-logout-session.test.ts": [
+      "Error: Unexpected App dependency: ./platform-theme"
+    ],
+    "tests/domain-permissions.test.ts": [
+      "Error: \u7d22\u5f15\u5c1a\u672a\u5c31\u7eea"
+    ],
+    "tests/mcp-agent-workflows.test.ts": [
+      "AssertionError: expected null to be '61662fd8705a95bb2945542bc557974bb09c4\u2026' // Object.is equality",
+      "AssertionError: expected 0 to be greater than 0"
+    ],
+    "tests/mcp-plugin-operations.test.ts": [
+      "Error: INTERNAL_ERROR"
+    ],
+    "tests/search-assets.test.ts": [
+      "Error: watcher did not publish searchable content"
+    ],
+    "tests/session-bootstrap-retry.test.ts": [
+      " FAIL  tests/session-bootstrap-retry.test.ts > overlaps initial safety reads but keeps the workspace closed until platform finishes last",
+      "Error: Unexpected App dependency: ./platform-theme",
+      " FAIL  tests/session-bootstrap-retry.test.ts > keeps session uncertainty recoverable after Error 503",
+      " FAIL  tests/session-bootstrap-retry.test.ts > offers login after the server confirms a session is unauthorized"
+    ],
+    "tests/to-doo-hosted-navigation.test.ts": [
+      "Error: Unexpected component dependency: ../workspace-layout"
+    ],
+    "tests/workspace-markdown-navigation.test.ts": [
+      "Error: Unexpected Workspace dependency: ../workspace-layout",
+      " FAIL  tests/workspace-markdown-navigation.test.ts > a pending note open respects a newer sidebar action: reopen"
+    ],
+    "tests/agent/research.test.ts": [
+      "AssertionError: expected 503 to be 200 // Object.is equality"
+    ],
+    "tests/indexing/chunks-large.test.ts": [
+      " FAIL  tests/indexing/chunks.test.ts > streams complete UTF-8 coverage with exact original line/byte ranges and model token limits"
+    ],
+    "tests/indexing/chunks.test.ts": [
+      " FAIL  tests/search/recall-diversity.test.ts > traverses every hybrid result once when notes have multiple matching chunks",
+      " FAIL  tests/search/recall-diversity.test.ts > reports bounded recall exhaustion instead of presenting a partial final page as complete"
+    ],
+    "tests/search/text.test.ts": [
+      "Error: \u672c\u5730\u5206\u8bcd\u8fdb\u7a0b\u4e0d\u53ef\u7528"
+    ],
+    "tests/indexing/reactivation.test.ts": [
+      " FAIL  tests/indexing/reactivation.test.ts > rebuilds identical original bytes after git-conflict and strict search cannot report empty-ready"
+    ],
+    "tests/indexing/vector-files.test.ts": [
+      " FAIL  tests/indexing/vector-files.test.ts > compacts invalid rows into a new generation and subsequent edits preserve other notes",
+      " FAIL  tests/indexing/vector-files.test.ts > refuses a delayed publication after the desired embedding space changes"
+    ],
+    "tests/indexing/worker.test.ts": [
+      " FAIL  tests/search/hybrid.test.ts > serves text, real semantic and hybrid search with ACL filtering and explicit degradation",
+      "AssertionError: expected 503 to be 200 // Object.is equality"
+    ],
+    "tests/knowledge/invalid-source.test.ts": [
+      "AssertionError: expected { status: 'pending', error: null } to deeply equal { status: 'retry_wait', \u2026(1) }"
+    ],
+    "tests/knowledge/restore-index.test.ts": [
+      "TypeError: Cannot read properties of undefined (reading 'results')"
+    ],
+    "tests/search/filename.test.ts": [
+      " FAIL  tests/search/filename.test.ts > finds \u6c34\u6587\u89c2\u6d4b\u8bb0\u5f55 without unrelated extension or partial-word matches",
+      " FAIL  tests/search/filename.test.ts > finds \u6d4b\u8bb0\u5f55 without unrelated extension or partial-word matches",
+      " FAIL  tests/search/filename.test.ts > finds DEPLOY.md without unrelated extension or partial-word matches",
+      " FAIL  tests/search/filename.test.ts > finds EPLOY without unrelated extension or partial-word matches",
+      " FAIL  tests/search/filename.test.ts > finds \"\u6c34\u6587\u89c2\u6d4b\u8bb0\u5f55.md\" without unrelated extension or partial-word matches",
+      " FAIL  tests/search/filename.test.ts > finds \u00e9tude.md without unrelated extension or partial-word matches",
+      "AssertionError: {\"error\":{\"code\":\"INDEX_NOT_READY\",\"message\":\"\u7d22\u5f15\u5c1a\u672a\u5c31\u7eea\",\"retryable\":true}}: expected 503 to be 200 // Object.is equality"
+    ],
+    "tests/search/filters.test.ts": [
+      "TypeError: Cannot read properties of undefined (reading 'results')"
+    ],
+    "tests/search/freshness.test.ts": [
+      "TypeError: Cannot read properties of undefined (reading 'results')"
+    ],
+    "tests/search/mcp-location.test.ts": [
+      "Error: INDEX_NOT_READY"
+    ],
+    "tests/search/pagination.test.ts": [
+      "AssertionError: expected 503 to be 200 // Object.is equality",
+      "AssertionError: {\"error\":{\"code\":\"INDEX_NOT_READY\",\"message\":\"\u7d22\u5f15\u5c1a\u672a\u5c31\u7eea\",\"retryable\":true}}: expected 503 to be 200 // Object.is equality"
+    ],
+    "tests/search/recall-diversity.test.ts": [
+      "AssertionError: {\"error\":{\"code\":\"INDEX_NOT_READY\",\"message\":\"\u7d22\u5f15\u5c1a\u672a\u5c31\u7eea\",\"retryable\":true}}: expected 503 to be 200 // Object.is equality"
+    ]
+  },
+  "reportedTestsFailed": 86,
+  "reportedTestsPassed": 3621,
+  "reportedTestsSkipped": 22,
+  "reportedFilesFailed": 25,
+  "reportedFilesPassed": 430,
+  "reportedFilesSkipped": 3
+}

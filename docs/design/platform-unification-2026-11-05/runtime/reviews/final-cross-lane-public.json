@@ -1,0 +1,619 @@
+{
+  "rows": [
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/1440-light-blog-article-editor.png",
+      "sourceIds": [
+        "PB-032"
+      ],
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "sha256": "5d24722fc8a70e82a6ce68d942a15759040344603547285292a916acf0822fdd",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "actuallyViewed": true,
+      "verdict": "pass-visible-composition",
+      "observation": "The owner article list has the selected published note, then its detail and source note below. Desktop also shows saved status, preview, manual publish and editable metadata; the short view is limited to the visible detail starts.",
+      "designReferences": [
+        {
+          "sourceId": "PB-032",
+          "assetId": "MP-D098",
+          "current": {
+            "file": "design/images/MP-D098.png",
+            "metadata": "design/images/MP-D098.json",
+            "review": "design/reviews/MP-D098-review.json",
+            "sha256": "f09a229f4601bf547bebabd6d436f9447cfe3a024c3644882a0b4104e3398e6e",
+            "metadataSha256": "de976c05f79780caee85ca1d5531e1f29013309673670bce7671253cef8f55a0",
+            "reviewSha256": "1bbaf8fff5e3c513203e6bab4ad0bea2e0a6d3ff7c2f7a5bc163662c7d003372",
+            "width": 948,
+            "height": 1660,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-032",
+          "assetId": "MP-R061",
+          "current": {
+            "file": "design/images/MP-R061-v4.png",
+            "metadata": "design/images/MP-R061-v4.json",
+            "review": "design/reviews/MP-R061-v4-review.json",
+            "sha256": "33baaf29a04e31d59b94deedd7f37a3c18b3b30d32de912954ae6aee54d5f059",
+            "metadataSha256": "4e0651cc1b7b4a785a4f4bdada7d2af73e9b9bdc94354bac02a664d5e71d085c",
+            "reviewSha256": "bded0f35c1173ba5a6606ff83e9ddd89eaf4b850b814763a46b59031fe02aad5",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-032",
+          "assetId": "MP-S054",
+          "current": {
+            "file": "design/images/MP-S054.png",
+            "metadata": "design/images/MP-S054.json",
+            "review": "design/reviews/MP-S054-review.json",
+            "sha256": "a74aaf4467919ab4eaf2d73172b0ec6acd89a7e9a8968b48925a116db3b19d10",
+            "metadataSha256": "191caf9ed1d44d157a3227cc008c4448db0da5772435fe07c3f8f99a3c4c5c0c",
+            "reviewSha256": "b7fb67ba20f60e7421a8cfce8da08588876704d0223747ff310c54728cacd321",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-032",
+          "assetId": "MP-S055",
+          "current": {
+            "file": "design/images/MP-S055-v2.png",
+            "metadata": "design/images/MP-S055-v2.json",
+            "review": "design/reviews/MP-S055-v2-review.json",
+            "sha256": "f3ac457605e5fbe12320aa142a19bc8f2bc9db8c6aacb650a3f301b9c3ef94df",
+            "metadataSha256": "b1bb34be3e2900e2a70ce25f0d5b57b4e1c772dd549bed224b9fcf626a8be05d",
+            "reviewSha256": "88421f963144f13575b6feb6c30eaf9db8b2adb686ed03b518e18119947c3800",
+            "width": 1024,
+            "height": 1536,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/1440-light-private-blog-preview.png",
+      "sourceIds": [
+        "PB-046"
+      ],
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "sha256": "06300b6dc4f1b6f002b37bce63f3642ac48034b11631e662d621d60ba34e8cd1",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "actuallyViewed": true,
+      "verdict": "pass-visible-composition",
+      "observation": "The SSR preview starts with the owner-only draft preview notice. The rendered profile, featured note and article links are vertically readable on mobile without owner editing controls.",
+      "designReferences": [
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-D111",
+          "current": {
+            "file": "design/images/MP-D111.png",
+            "metadata": "design/images/MP-D111.json",
+            "review": "design/reviews/MP-D111-review.json",
+            "sha256": "a139ff4a0f837b31dc9b9ef6c599a7f4b3d1bb99ad1547d086b84ccffb64aaf8",
+            "metadataSha256": "b7726b6aa94f2411601e03afed2240fe133c21afc077b073ae515c643a5d6446",
+            "reviewSha256": "2e1d036be1f87b846613c434a04f0f6ce8944019be443a46dd83dcf22e1b0c1d",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-D126",
+          "current": {
+            "file": "design/images/MP-D126.png",
+            "metadata": "design/images/MP-D126.json",
+            "review": "design/reviews/MP-D126-review.json",
+            "sha256": "967ca49f271c4c91c646db1f71cc278be2cee179682cf0d07b37ac04c9029f9f",
+            "metadataSha256": "7fc044726e943668c9786c58258b01e30f53052a3ae8276a3e6b459dd1dd47e4",
+            "reviewSha256": "09bfb35e6813164f9844eb4933c3ad1eb79fdac76adfac07fc69cb26f781540b",
+            "width": 1086,
+            "height": 1448,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-R073",
+          "current": {
+            "file": "design/images/MP-R073-v2.png",
+            "metadata": "design/images/MP-R073-v2.json",
+            "review": "design/reviews/MP-R073-v2-review.json",
+            "sha256": "d65ccce3a875506ea1f3206dce8b1c6b8a21c4832b78a5d98fdc511cdd001aa1",
+            "metadataSha256": "64762c86c25542cac3176fec1818808e500ee86ec504ffdb2051e498ff7cf148",
+            "reviewSha256": "522758396896258dd8b6935aa49431d2ceef8fbf43e6742b2fa3741dfd4bce8b",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-R-GET046",
+          "current": {
+            "file": "design/images/MP-R-GET046.png",
+            "metadata": "design/images/MP-R-GET046.json",
+            "review": "design/reviews/MP-R-GET046-review.json",
+            "sha256": "900a9f6a22d265ee403e4419501deee6eaa092e9af3cfbb1b93f0f65e67c31ce",
+            "metadataSha256": "7eaf652e4c0d75e7c7dc9e4877e6f362cdeaaea37893e2eba846aa8aa6c95042",
+            "reviewSha256": "027823036f22f2e2b7979b395f29eb6688e46aced5a8b0ec7cbd955040b18c9e",
+            "width": 1482,
+            "height": 1062,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-S066",
+          "current": {
+            "file": "design/images/MP-S066.png",
+            "metadata": "design/images/MP-S066.json",
+            "review": "design/reviews/MP-S066-review.json",
+            "sha256": "655a4b6283ab04aca90ba036f5975b0a7e846e1cddde590909234a68a4653d79",
+            "metadataSha256": "5ce291716969322d75feb91fa4f92dd2e3f0f6f0afccf59d8ba27d7f3335ad10",
+            "reviewSha256": "8e35c04fd73093f68d2fc59887eb3a488d55a9c6e2127b3f5f9417bf915fab29",
+            "width": 1024,
+            "height": 1536,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-blog-article-editor.png",
+      "sourceIds": [
+        "PB-032"
+      ],
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "sha256": "dd402d3463ae564e34d88e244eba2b57c5cc1af0bc55fd86e62f619cb88ab9de",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "actuallyViewed": true,
+      "verdict": "pass-visible-composition",
+      "observation": "The owner article list has the selected published note, then its detail and source note below. Desktop also shows saved status, preview, manual publish and editable metadata; the short view is limited to the visible detail starts.",
+      "designReferences": [
+        {
+          "sourceId": "PB-032",
+          "assetId": "MP-D098",
+          "current": {
+            "file": "design/images/MP-D098.png",
+            "metadata": "design/images/MP-D098.json",
+            "review": "design/reviews/MP-D098-review.json",
+            "sha256": "f09a229f4601bf547bebabd6d436f9447cfe3a024c3644882a0b4104e3398e6e",
+            "metadataSha256": "de976c05f79780caee85ca1d5531e1f29013309673670bce7671253cef8f55a0",
+            "reviewSha256": "1bbaf8fff5e3c513203e6bab4ad0bea2e0a6d3ff7c2f7a5bc163662c7d003372",
+            "width": 948,
+            "height": 1660,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-032",
+          "assetId": "MP-R061",
+          "current": {
+            "file": "design/images/MP-R061-v4.png",
+            "metadata": "design/images/MP-R061-v4.json",
+            "review": "design/reviews/MP-R061-v4-review.json",
+            "sha256": "33baaf29a04e31d59b94deedd7f37a3c18b3b30d32de912954ae6aee54d5f059",
+            "metadataSha256": "4e0651cc1b7b4a785a4f4bdada7d2af73e9b9bdc94354bac02a664d5e71d085c",
+            "reviewSha256": "bded0f35c1173ba5a6606ff83e9ddd89eaf4b850b814763a46b59031fe02aad5",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-032",
+          "assetId": "MP-S054",
+          "current": {
+            "file": "design/images/MP-S054.png",
+            "metadata": "design/images/MP-S054.json",
+            "review": "design/reviews/MP-S054-review.json",
+            "sha256": "a74aaf4467919ab4eaf2d73172b0ec6acd89a7e9a8968b48925a116db3b19d10",
+            "metadataSha256": "191caf9ed1d44d157a3227cc008c4448db0da5772435fe07c3f8f99a3c4c5c0c",
+            "reviewSha256": "b7fb67ba20f60e7421a8cfce8da08588876704d0223747ff310c54728cacd321",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-032",
+          "assetId": "MP-S055",
+          "current": {
+            "file": "design/images/MP-S055-v2.png",
+            "metadata": "design/images/MP-S055-v2.json",
+            "review": "design/reviews/MP-S055-v2-review.json",
+            "sha256": "f3ac457605e5fbe12320aa142a19bc8f2bc9db8c6aacb650a3f301b9c3ef94df",
+            "metadataSha256": "b1bb34be3e2900e2a70ce25f0d5b57b4e1c772dd549bed224b9fcf626a8be05d",
+            "reviewSha256": "88421f963144f13575b6feb6c30eaf9db8b2adb686ed03b518e18119947c3800",
+            "width": 1024,
+            "height": 1536,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/320-light-private-blog-preview.png",
+      "sourceIds": [
+        "PB-046"
+      ],
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "sha256": "90feae9ba575bb54323e9e60a1b235f450385a966f7e3b483bb0f7ee5160c35d",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "actuallyViewed": true,
+      "verdict": "pass-visible-composition",
+      "observation": "The SSR preview starts with the owner-only draft preview notice. The rendered profile, featured note and article links are vertically readable on mobile without owner editing controls.",
+      "designReferences": [
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-D111",
+          "current": {
+            "file": "design/images/MP-D111.png",
+            "metadata": "design/images/MP-D111.json",
+            "review": "design/reviews/MP-D111-review.json",
+            "sha256": "a139ff4a0f837b31dc9b9ef6c599a7f4b3d1bb99ad1547d086b84ccffb64aaf8",
+            "metadataSha256": "b7726b6aa94f2411601e03afed2240fe133c21afc077b073ae515c643a5d6446",
+            "reviewSha256": "2e1d036be1f87b846613c434a04f0f6ce8944019be443a46dd83dcf22e1b0c1d",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-D126",
+          "current": {
+            "file": "design/images/MP-D126.png",
+            "metadata": "design/images/MP-D126.json",
+            "review": "design/reviews/MP-D126-review.json",
+            "sha256": "967ca49f271c4c91c646db1f71cc278be2cee179682cf0d07b37ac04c9029f9f",
+            "metadataSha256": "7fc044726e943668c9786c58258b01e30f53052a3ae8276a3e6b459dd1dd47e4",
+            "reviewSha256": "09bfb35e6813164f9844eb4933c3ad1eb79fdac76adfac07fc69cb26f781540b",
+            "width": 1086,
+            "height": 1448,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-R073",
+          "current": {
+            "file": "design/images/MP-R073-v2.png",
+            "metadata": "design/images/MP-R073-v2.json",
+            "review": "design/reviews/MP-R073-v2-review.json",
+            "sha256": "d65ccce3a875506ea1f3206dce8b1c6b8a21c4832b78a5d98fdc511cdd001aa1",
+            "metadataSha256": "64762c86c25542cac3176fec1818808e500ee86ec504ffdb2051e498ff7cf148",
+            "reviewSha256": "522758396896258dd8b6935aa49431d2ceef8fbf43e6742b2fa3741dfd4bce8b",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-R-GET046",
+          "current": {
+            "file": "design/images/MP-R-GET046.png",
+            "metadata": "design/images/MP-R-GET046.json",
+            "review": "design/reviews/MP-R-GET046-review.json",
+            "sha256": "900a9f6a22d265ee403e4419501deee6eaa092e9af3cfbb1b93f0f65e67c31ce",
+            "metadataSha256": "7eaf652e4c0d75e7c7dc9e4877e6f362cdeaaea37893e2eba846aa8aa6c95042",
+            "reviewSha256": "027823036f22f2e2b7979b395f29eb6688e46aced5a8b0ec7cbd955040b18c9e",
+            "width": 1482,
+            "height": 1062,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-S066",
+          "current": {
+            "file": "design/images/MP-S066.png",
+            "metadata": "design/images/MP-S066.json",
+            "review": "design/reviews/MP-S066-review.json",
+            "sha256": "655a4b6283ab04aca90ba036f5975b0a7e846e1cddde590909234a68a4653d79",
+            "metadataSha256": "5ce291716969322d75feb91fa4f92dd2e3f0f6f0afccf59d8ba27d7f3335ad10",
+            "reviewSha256": "8e35c04fd73093f68d2fc59887eb3a488d55a9c6e2127b3f5f9417bf915fab29",
+            "width": 1024,
+            "height": 1536,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-blog-article-editor.png",
+      "sourceIds": [
+        "PB-032"
+      ],
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "sha256": "3663993f135ad061c8b127afc0f85b7198c621225286c68fe550c8f825d32a76",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actuallyViewed": true,
+      "verdict": "pass-visible-composition",
+      "observation": "The owner article list has the selected published note, then its detail and source note below. Desktop also shows saved status, preview, manual publish and editable metadata; the short view is limited to the visible detail starts.",
+      "designReferences": [
+        {
+          "sourceId": "PB-032",
+          "assetId": "MP-D098",
+          "current": {
+            "file": "design/images/MP-D098.png",
+            "metadata": "design/images/MP-D098.json",
+            "review": "design/reviews/MP-D098-review.json",
+            "sha256": "f09a229f4601bf547bebabd6d436f9447cfe3a024c3644882a0b4104e3398e6e",
+            "metadataSha256": "de976c05f79780caee85ca1d5531e1f29013309673670bce7671253cef8f55a0",
+            "reviewSha256": "1bbaf8fff5e3c513203e6bab4ad0bea2e0a6d3ff7c2f7a5bc163662c7d003372",
+            "width": 948,
+            "height": 1660,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-032",
+          "assetId": "MP-R061",
+          "current": {
+            "file": "design/images/MP-R061-v4.png",
+            "metadata": "design/images/MP-R061-v4.json",
+            "review": "design/reviews/MP-R061-v4-review.json",
+            "sha256": "33baaf29a04e31d59b94deedd7f37a3c18b3b30d32de912954ae6aee54d5f059",
+            "metadataSha256": "4e0651cc1b7b4a785a4f4bdada7d2af73e9b9bdc94354bac02a664d5e71d085c",
+            "reviewSha256": "bded0f35c1173ba5a6606ff83e9ddd89eaf4b850b814763a46b59031fe02aad5",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-032",
+          "assetId": "MP-S054",
+          "current": {
+            "file": "design/images/MP-S054.png",
+            "metadata": "design/images/MP-S054.json",
+            "review": "design/reviews/MP-S054-review.json",
+            "sha256": "a74aaf4467919ab4eaf2d73172b0ec6acd89a7e9a8968b48925a116db3b19d10",
+            "metadataSha256": "191caf9ed1d44d157a3227cc008c4448db0da5772435fe07c3f8f99a3c4c5c0c",
+            "reviewSha256": "b7fb67ba20f60e7421a8cfce8da08588876704d0223747ff310c54728cacd321",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-032",
+          "assetId": "MP-S055",
+          "current": {
+            "file": "design/images/MP-S055-v2.png",
+            "metadata": "design/images/MP-S055-v2.json",
+            "review": "design/reviews/MP-S055-v2-review.json",
+            "sha256": "f3ac457605e5fbe12320aa142a19bc8f2bc9db8c6aacb650a3f301b9c3ef94df",
+            "metadataSha256": "b1bb34be3e2900e2a70ce25f0d5b57b4e1c772dd549bed224b9fcf626a8be05d",
+            "reviewSha256": "88421f963144f13575b6feb6c30eaf9db8b2adb686ed03b518e18119947c3800",
+            "width": 1024,
+            "height": 1536,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-efe5d15-workspace-final/390-light-private-blog-preview.png",
+      "sourceIds": [
+        "PB-046"
+      ],
+      "sourceCommit": "efe5d152290975e4f84b985be31ce607832d0682",
+      "sha256": "ff275c4ebd01e9c3bd980a06b1f66889bee150e9665aaf05131e9a5bcff41aae",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actuallyViewed": true,
+      "verdict": "pass-visible-composition",
+      "observation": "The SSR preview starts with the owner-only draft preview notice. The rendered profile, featured note and article links are vertically readable on mobile without owner editing controls.",
+      "designReferences": [
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-D111",
+          "current": {
+            "file": "design/images/MP-D111.png",
+            "metadata": "design/images/MP-D111.json",
+            "review": "design/reviews/MP-D111-review.json",
+            "sha256": "a139ff4a0f837b31dc9b9ef6c599a7f4b3d1bb99ad1547d086b84ccffb64aaf8",
+            "metadataSha256": "b7726b6aa94f2411601e03afed2240fe133c21afc077b073ae515c643a5d6446",
+            "reviewSha256": "2e1d036be1f87b846613c434a04f0f6ce8944019be443a46dd83dcf22e1b0c1d",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-D126",
+          "current": {
+            "file": "design/images/MP-D126.png",
+            "metadata": "design/images/MP-D126.json",
+            "review": "design/reviews/MP-D126-review.json",
+            "sha256": "967ca49f271c4c91c646db1f71cc278be2cee179682cf0d07b37ac04c9029f9f",
+            "metadataSha256": "7fc044726e943668c9786c58258b01e30f53052a3ae8276a3e6b459dd1dd47e4",
+            "reviewSha256": "09bfb35e6813164f9844eb4933c3ad1eb79fdac76adfac07fc69cb26f781540b",
+            "width": 1086,
+            "height": 1448,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-R073",
+          "current": {
+            "file": "design/images/MP-R073-v2.png",
+            "metadata": "design/images/MP-R073-v2.json",
+            "review": "design/reviews/MP-R073-v2-review.json",
+            "sha256": "d65ccce3a875506ea1f3206dce8b1c6b8a21c4832b78a5d98fdc511cdd001aa1",
+            "metadataSha256": "64762c86c25542cac3176fec1818808e500ee86ec504ffdb2051e498ff7cf148",
+            "reviewSha256": "522758396896258dd8b6935aa49431d2ceef8fbf43e6742b2fa3741dfd4bce8b",
+            "width": 1536,
+            "height": 1024,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-R-GET046",
+          "current": {
+            "file": "design/images/MP-R-GET046.png",
+            "metadata": "design/images/MP-R-GET046.json",
+            "review": "design/reviews/MP-R-GET046-review.json",
+            "sha256": "900a9f6a22d265ee403e4419501deee6eaa092e9af3cfbb1b93f0f65e67c31ce",
+            "metadataSha256": "7eaf652e4c0d75e7c7dc9e4877e6f362cdeaaea37893e2eba846aa8aa6c95042",
+            "reviewSha256": "027823036f22f2e2b7979b395f29eb6688e46aced5a8b0ec7cbd955040b18c9e",
+            "width": 1482,
+            "height": 1062,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        },
+        {
+          "sourceId": "PB-046",
+          "assetId": "MP-S066",
+          "current": {
+            "file": "design/images/MP-S066.png",
+            "metadata": "design/images/MP-S066.json",
+            "review": "design/reviews/MP-S066-review.json",
+            "sha256": "655a4b6283ab04aca90ba036f5975b0a7e846e1cddde590909234a68a4653d79",
+            "metadataSha256": "5ce291716969322d75feb91fa4f92dd2e3f0f6f0afccf59d8ba27d7f3335ad10",
+            "reviewSha256": "8e35c04fd73093f68d2fc59887eb3a488d55a9c6e2127b3f5f9417bf915fab29",
+            "width": 1024,
+            "height": 1536,
+            "accepted": true,
+            "contentAccepted": true,
+            "provenanceUnresolved": false,
+            "provenanceStatus": "recorded-no-open-interruption-gap",
+            "status": "passed"
+          }
+        }
+      ]
+    }
+  ]
+}

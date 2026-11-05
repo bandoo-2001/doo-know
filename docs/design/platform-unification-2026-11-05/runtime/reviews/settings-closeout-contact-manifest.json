@@ -1,0 +1,662 @@
+[
+  {
+    "index": 0,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-00.png",
+    "rows": [
+      0,
+      1
+    ],
+    "labels": [
+      "1440-light-import-preview",
+      "1440-light-import-review"
+    ]
+  },
+  {
+    "index": 1,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-01.png",
+    "rows": [
+      2,
+      3
+    ],
+    "labels": [
+      "1440-light-plugin-uninstall",
+      "1440-light-settings-extra-disk-confirm"
+    ]
+  },
+  {
+    "index": 2,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-02.png",
+    "rows": [
+      4,
+      5
+    ],
+    "labels": [
+      "1440-light-settings-extra-disk-conflict-409",
+      "1440-light-settings-extra-disk-resolve-busy"
+    ]
+  },
+  {
+    "index": 3,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-03.png",
+    "rows": [
+      6,
+      7
+    ],
+    "labels": [
+      "1440-light-settings-extra-git-native-review",
+      "1440-light-settings-extra-git-native-unknown"
+    ]
+  },
+  {
+    "index": 4,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-04.png",
+    "rows": [
+      8,
+      9
+    ],
+    "labels": [
+      "1440-light-settings-extra-git-plugin-preview",
+      "1440-light-settings-extra-library-read-error"
+    ]
+  },
+  {
+    "index": 5,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-05.png",
+    "rows": [
+      10,
+      11
+    ],
+    "labels": [
+      "1440-light-settings-extra-library-reading",
+      "1440-light-settings-extra-library-unbound-model"
+    ]
+  },
+  {
+    "index": 6,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-06.png",
+    "rows": [
+      12,
+      13
+    ],
+    "labels": [
+      "1440-light-settings-extra-management-503",
+      "1440-light-settings-extra-password-api-error"
+    ]
+  },
+  {
+    "index": 7,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-07.png",
+    "rows": [
+      14,
+      15
+    ],
+    "labels": [
+      "1440-light-settings-extra-plugin-config-conflict",
+      "1440-light-settings-extra-plugin-ui-load-failed"
+    ]
+  },
+  {
+    "index": 8,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-08.png",
+    "rows": [
+      16,
+      17
+    ],
+    "labels": [
+      "1440-light-settings-extra-retention-read-error",
+      "1440-light-settings-extra-task-failed-items"
+    ]
+  },
+  {
+    "index": 9,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-09.png",
+    "rows": [
+      18
+    ],
+    "labels": [
+      "1440-light-settings-status"
+    ]
+  },
+  {
+    "index": 10,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-10.png",
+    "rows": [
+      19,
+      20,
+      21,
+      22
+    ],
+    "labels": [
+      "320-light-import-preview",
+      "320-light-import-review",
+      "320-light-plugin-uninstall",
+      "320-light-settings-extra-disk-confirm"
+    ]
+  },
+  {
+    "index": 11,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-11.png",
+    "rows": [
+      23,
+      24,
+      25,
+      26
+    ],
+    "labels": [
+      "320-light-settings-extra-disk-conflict-409",
+      "320-light-settings-extra-disk-resolve-busy",
+      "320-light-settings-extra-git-native-review",
+      "320-light-settings-extra-git-native-unknown"
+    ]
+  },
+  {
+    "index": 12,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-12.png",
+    "rows": [
+      27,
+      29,
+      31,
+      32
+    ],
+    "labels": [
+      "320-light-settings-extra-git-plugin-preview",
+      "320-light-settings-extra-library-reading",
+      "320-light-settings-extra-management-503",
+      "320-light-settings-extra-password-api-error"
+    ]
+  },
+  {
+    "index": 13,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-13.png",
+    "rows": [
+      34,
+      35,
+      36,
+      37
+    ],
+    "labels": [
+      "320-light-settings-extra-plugin-ui-load-failed",
+      "320-light-settings-extra-retention-read-error",
+      "320-light-settings-extra-task-failed-items",
+      "320-light-settings-status"
+    ]
+  },
+  {
+    "index": 14,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-14.png",
+    "rows": [
+      38,
+      39,
+      40,
+      41
+    ],
+    "labels": [
+      "390-light-import-preview",
+      "390-light-import-review",
+      "390-light-plugin-uninstall",
+      "390-light-settings-extra-disk-confirm"
+    ]
+  },
+  {
+    "index": 15,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-15.png",
+    "rows": [
+      42,
+      43,
+      44,
+      45
+    ],
+    "labels": [
+      "390-light-settings-extra-disk-conflict-409",
+      "390-light-settings-extra-disk-resolve-busy",
+      "390-light-settings-extra-git-native-review",
+      "390-light-settings-extra-git-native-unknown"
+    ]
+  },
+  {
+    "index": 16,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-16.png",
+    "rows": [
+      46,
+      48,
+      49,
+      51
+    ],
+    "labels": [
+      "390-light-settings-extra-git-plugin-preview",
+      "390-light-settings-extra-library-reading",
+      "390-light-settings-extra-library-unbound-model",
+      "390-light-settings-extra-password-api-error"
+    ]
+  },
+  {
+    "index": 17,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-17.png",
+    "rows": [
+      53,
+      54,
+      55,
+      56
+    ],
+    "labels": [
+      "390-light-settings-extra-plugin-ui-load-failed",
+      "390-light-settings-extra-retention-read-error",
+      "390-light-settings-extra-task-failed-items",
+      "390-light-settings-status"
+    ]
+  },
+  {
+    "index": 18,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-18.png",
+    "rows": [
+      57,
+      58
+    ],
+    "labels": [
+      "1440-dark-git-credentials",
+      "1440-dark-git-long-credential"
+    ]
+  },
+  {
+    "index": 19,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-19.png",
+    "rows": [
+      59,
+      60
+    ],
+    "labels": [
+      "1440-dark-settings-account",
+      "1440-dark-settings-extra-mcp-resource-tree"
+    ]
+  },
+  {
+    "index": 20,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-20.png",
+    "rows": [
+      62,
+      75
+    ],
+    "labels": [
+      "1440-dark-settings-status",
+      "820-portrait-git-credentials"
+    ]
+  },
+  {
+    "index": 21,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-21.png",
+    "rows": [
+      76,
+      77
+    ],
+    "labels": [
+      "820-portrait-git-long-credential",
+      "820-portrait-settings-account"
+    ]
+  },
+  {
+    "index": 22,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-22.png",
+    "rows": [
+      78,
+      79
+    ],
+    "labels": [
+      "820-portrait-settings-extra-mcp-resource-tree",
+      "820-portrait-settings-plugins"
+    ]
+  },
+  {
+    "index": 23,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-23.png",
+    "rows": [
+      80,
+      81
+    ],
+    "labels": [
+      "820-portrait-settings-status",
+      "844-short-git-credentials"
+    ]
+  },
+  {
+    "index": 24,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-24.png",
+    "rows": [
+      82,
+      83
+    ],
+    "labels": [
+      "844-short-git-long-credential",
+      "844-short-settings-account"
+    ]
+  },
+  {
+    "index": 25,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-25.png",
+    "rows": [
+      84,
+      86
+    ],
+    "labels": [
+      "844-short-settings-extra-mcp-resource-tree",
+      "844-short-settings-status"
+    ]
+  },
+  {
+    "index": 26,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-26.png",
+    "rows": [
+      63,
+      64,
+      65,
+      66
+    ],
+    "labels": [
+      "360-short-dark-git-credentials",
+      "360-short-dark-git-long-credential",
+      "360-short-dark-settings-account",
+      "360-short-dark-settings-extra-mcp-resource-tree"
+    ]
+  },
+  {
+    "index": 27,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-27.png",
+    "rows": [
+      67,
+      68,
+      69,
+      70
+    ],
+    "labels": [
+      "360-short-dark-settings-plugins",
+      "360-short-dark-settings-status",
+      "390-dark-git-credentials",
+      "390-dark-git-long-credential"
+    ]
+  },
+  {
+    "index": 28,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-28.png",
+    "rows": [
+      71,
+      72,
+      73,
+      74
+    ],
+    "labels": [
+      "390-dark-settings-account",
+      "390-dark-settings-extra-mcp-resource-tree",
+      "390-dark-settings-plugins",
+      "390-dark-settings-status"
+    ]
+  },
+  {
+    "index": 29,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-29.png",
+    "rows": [
+      87,
+      88
+    ],
+    "labels": [
+      "1440-dark-settings-plugins",
+      "844-short-settings-plugins"
+    ]
+  },
+  {
+    "index": 30,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-30.png",
+    "rows": [
+      107,
+      109,
+      110,
+      111
+    ],
+    "labels": [
+      "320-light-settings-extra-import-preview-error-state-frame",
+      "320-light-settings-extra-oauth-narrow-error-state-frame",
+      "320-light-settings-extra-oauth-revoke-error-state-frame",
+      "320-light-settings-extra-plugin-config-conflict-state-frame"
+    ]
+  },
+  {
+    "index": 31,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-31.png",
+    "rows": [
+      112,
+      113,
+      114,
+      115
+    ],
+    "labels": [
+      "320-light-settings-extra-plugin-restart-warning-state-frame",
+      "390-light-library-git-state-frame",
+      "390-light-library-organization-state-frame",
+      "390-light-library-storage-state-frame"
+    ]
+  },
+  {
+    "index": 32,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-32.png",
+    "rows": [
+      116,
+      117,
+      118,
+      119
+    ],
+    "labels": [
+      "390-light-preferences-preview-state-frame",
+      "390-light-settings-extra-client-cas-conflict-state-frame",
+      "390-light-settings-extra-client-permission-conflict-state-frame",
+      "390-light-settings-extra-import-preview-error-state-frame"
+    ]
+  },
+  {
+    "index": 33,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-33.png",
+    "rows": [
+      121,
+      122,
+      123,
+      124
+    ],
+    "labels": [
+      "390-light-settings-extra-oauth-narrow-error-state-frame",
+      "390-light-settings-extra-oauth-revoke-error-state-frame",
+      "390-light-settings-extra-plugin-config-conflict-state-frame",
+      "390-light-settings-extra-plugin-restart-warning-state-frame"
+    ]
+  },
+  {
+    "index": 34,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-34.png",
+    "rows": [
+      125,
+      126
+    ],
+    "labels": [
+      "1440-light-mcp-create-client-state-frame",
+      "1440-light-settings-extra-git-auth-failed-task"
+    ]
+  },
+  {
+    "index": 35,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-35.png",
+    "rows": [
+      127
+    ],
+    "labels": [
+      "1440-light-settings-extra-git-import-owner"
+    ]
+  },
+  {
+    "index": 36,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-36.png",
+    "rows": [
+      129,
+      130,
+      131,
+      132
+    ],
+    "labels": [
+      "320-light-settings-extra-git-auth-failed-task",
+      "320-light-settings-extra-git-import-owner",
+      "390-light-mcp-create-client-state-frame",
+      "390-light-settings-extra-git-auth-failed-task"
+    ]
+  },
+  {
+    "index": 37,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-37.png",
+    "rows": [
+      133
+    ],
+    "labels": [
+      "390-light-settings-extra-git-import-owner"
+    ]
+  },
+  {
+    "index": 38,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-38.png",
+    "rows": [
+      134,
+      135
+    ],
+    "labels": [
+      "1440-light-git-connection",
+      "1440-light-git-credentials"
+    ]
+  },
+  {
+    "index": 39,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-39.png",
+    "rows": [
+      136,
+      138
+    ],
+    "labels": [
+      "1440-light-git-long-credential",
+      "1440-light-mcp-config"
+    ]
+  },
+  {
+    "index": 40,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-40.png",
+    "rows": [
+      139,
+      140
+    ],
+    "labels": [
+      "1440-light-settings-editor",
+      "1440-light-settings-extra-git-connection-discard"
+    ]
+  },
+  {
+    "index": 41,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-41.png",
+    "rows": [
+      141,
+      142
+    ],
+    "labels": [
+      "1440-light-settings-extra-git-long-credential-ascii",
+      "1440-light-settings-extra-git-long-credential-chinese"
+    ]
+  },
+  {
+    "index": 42,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-42.png",
+    "rows": [
+      144,
+      145
+    ],
+    "labels": [
+      "1440-light-settings-extra-mcp-resource-read-error",
+      "1440-light-settings-extra-mcp-resource-tree"
+    ]
+  },
+  {
+    "index": 43,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-43.png",
+    "rows": [
+      146,
+      147
+    ],
+    "labels": [
+      "1440-light-settings-extra-plugin-config-conflict",
+      "1440-light-settings-extra-portable-source-resume"
+    ]
+  },
+  {
+    "index": 44,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-44.png",
+    "rows": [
+      148
+    ],
+    "labels": [
+      "1440-light-settings-plugins"
+    ]
+  },
+  {
+    "index": 45,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-45.png",
+    "rows": [
+      149,
+      153,
+      155,
+      159
+    ],
+    "labels": [
+      "320-light-git-connection",
+      "320-light-mcp-config",
+      "320-light-settings-extra-git-connection-discard",
+      "320-light-settings-extra-mcp-resource-read-error"
+    ]
+  },
+  {
+    "index": 46,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-46.png",
+    "rows": [
+      160,
+      161,
+      162,
+      163
+    ],
+    "labels": [
+      "320-light-settings-extra-mcp-resource-tree",
+      "320-light-settings-extra-plugin-config-conflict",
+      "320-light-settings-extra-portable-source-resume",
+      "320-light-settings-plugins"
+    ]
+  },
+  {
+    "index": 47,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-47.png",
+    "rows": [
+      164,
+      165,
+      167,
+      168
+    ],
+    "labels": [
+      "390-light-git-connection",
+      "390-light-git-credentials",
+      "390-light-git-plugin-config",
+      "390-light-mcp-config"
+    ]
+  },
+  {
+    "index": 48,
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/settings-closeout-contact-48.png",
+    "rows": [
+      170,
+      174,
+      175,
+      177
+    ],
+    "labels": [
+      "390-light-settings-extra-git-connection-discard",
+      "390-light-settings-extra-mcp-resource-read-error",
+      "390-light-settings-extra-mcp-resource-tree",
+      "390-light-settings-extra-portable-source-resume"
+    ]
+  }
+]

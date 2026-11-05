@@ -1,0 +1,2368 @@
+{
+  "schema": 1,
+  "reviewedAt": "2026-11-05T18:00:23.400701+00:00",
+  "scope": "Only completed, summarized supplemental runs containing PB-owned sources. SourceCommit is taken from each sidecar. No uncommitted author fix, setup-final, future or release build substituted here.",
+  "inspectedBatchSummaries": [
+    "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/summary.json",
+    "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-trash-empty/summary.json",
+    "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/summary.json",
+    "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact-retry/summary.json",
+    "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-cover-move/summary.json",
+    "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-frames/summary.json",
+    "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-oauth-modern/summary.json",
+    "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-published-system-theme/summary.json",
+    "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/summary.json",
+    "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-workspace-frames/summary.json"
+  ],
+  "counts": {
+    "capturedReviewed": 56,
+    "distinctMainImageHashes": 56,
+    "auxiliaryControlPNGsViewed": 32,
+    "priorFailedRowsExcluded": 3,
+    "requestedDarkButVisuallyLight": 12,
+    "actualDarkPublishedReader": 3
+  },
+  "limits": [
+    "The compact series requests browser color preference. Light public rendering is valid for a published explicitly light site. Those files do not certify a dark UI. The separate published-system-theme SSR reader run has rootColorScheme=dark and observed dark surfaces; its after state does not establish dark login/share-magazine rendering.",
+    "PB-018 modern capabilities and the legacy checkbox branch are distinct. Direct grant decisions, physical OS sheet/file chooser and external services are not inferred from still images.",
+    "The old failed cover-picker attempts remain excluded. Only subsequent actual open nonempty picker checks receive a verdict. The separate author patch and integrated setup-final are not assessed as this supplemental source."
+  ],
+  "failures": [
+    {
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/1440-light-blog-article-cover-picker-frame.json",
+      "sha256": "c577c590743968a7b8a065fb02a3fd29e7cf7aec4dd4e500c7f7229627f7c49f",
+      "sceneId": "blog-article-cover-picker-frame",
+      "status": "selector-or-flow-failure",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "eligibleForPass": false
+    },
+    {
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/320-light-blog-article-cover-picker-frame.json",
+      "sha256": "7c56a70d5508b733650e10104df637d60ddf1dd9411ce8eb91f455ddc1da2adf",
+      "sceneId": "blog-article-cover-picker-frame",
+      "status": "selector-or-flow-failure",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "eligibleForPass": false
+    },
+    {
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/390-light-blog-article-cover-picker-frame.json",
+      "sha256": "1a9abe6f0195170b72cf430f1d4399aa3842f148e8a7b51307f953142a91a69b",
+      "sceneId": "blog-article-cover-picker-frame",
+      "status": "selector-or-flow-failure",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "eligibleForPass": false
+    }
+  ],
+  "rows": [
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/1440-light-blog-note-picker.png",
+      "sha256": "98e4117f9727874cbd1e5ad8a25573bb91a451232d0a2979a51525e9c8f10499",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-033"
+      ],
+      "sceneId": "blog-note-picker",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/1440-light-blog-note-picker.json",
+      "sidecarSha256": "1d4b74d33af504fa69778b41f45f5c04d295b6c110c243089930f870dd9cb0f8",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "选稿对话框带非空列表、真实名称/路径、添加选择和关闭按钮；长标题窄屏自然换行，底部说明手动发布才对外。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D099.png",
+          "sha256": "e7cc6d455ed5f6147cf1e144eea9be7b7dee6f15f6e7f1ec113ba0383974438b",
+          "assetId": "MP-D099"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R062.png",
+          "sha256": "1a8aad86d5abc259897c491471644db4e2e66464e0327ba3a449b9d62887cf90",
+          "assetId": "MP-R062"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S055-v2.png",
+          "sha256": "f3ac457605e5fbe12320aa142a19bc8f2bc9db8c6aacb650a3f301b9c3ef94df",
+          "assetId": "MP-S055"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/1440-light-public-blog-history-restore.png",
+      "sha256": "6861c46f754e2fabbc2324e3e2297983eedee947b7d450149d519aa8f20fb830",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-048"
+      ],
+      "sceneId": "public-blog-history-restore",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/1440-light-public-blog-history-restore.json",
+      "sidecarSha256": "655ef77c560088a134f265025222b5e88cdb6fb8caf0337bdac9d777d77d08ce",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "初始帧在作者字段；已看同次滚动控件图，发布历史有实际版本、时间与“恢复到草稿”按钮。发布与恢复语义依已有 recipe/回执，截面不是公开发布证明。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D113.png",
+          "sha256": "05e659182408ab03350bf98cc5b6d640b6e2cc2d2683a45661acdaa9aa4420ab",
+          "assetId": "MP-D113"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R074.png",
+          "sha256": "e0491286d614c7f2ebadc16749e2d0025ef81839ccb46f8530f87665ad843578",
+          "assetId": "MP-R074"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S067-v2.png",
+          "sha256": "06563d58b82f9c02095d0dd5186ef2d1a60c731de60991c64261095aadc347f6",
+          "assetId": "MP-S067"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/1440-light-public-blog-history-restore-controls.png",
+        "sha256": "50ffa18b218b1d37f52a4d3e17cf754b55f3296e1ec107e69936a96a74e78b04"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/1440-light-public-platform-logout-failure.png",
+      "sha256": "02ca551ae13af2c592246e1a087eaa84566d9863a64f051a8bd2b3552a765050",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-006"
+      ],
+      "sceneId": "public-platform-logout-failure",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/1440-light-public-platform-logout-failure.json",
+      "sidecarSha256": "400366fd55625b1d9224f50130ffb262450cc017d25e22a804c6bacb050580ab",
+      "role": "owner",
+      "faultInjection": "Platform and sign-out503 only; never actually signs out the shared owner session.",
+      "verdict": "pass",
+      "observation": "平台状态失败且退出失败，第二层警告“暂时无法退出”与重试/退出操作同屏。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S039.png",
+          "sha256": "de33ff22c087960c7476c5c69e7a058458a19d4f160443da818a680045206a65",
+          "assetId": "MP-S039"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/1440-light-public-reader-feedback-copy-failure.png",
+      "sha256": "813e82347745dd21cb70cc0c876fb51241581de048a392937b4632b768b76a3d",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-055"
+      ],
+      "sceneId": "public-reader-feedback-copy-failure",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/1440-light-public-reader-feedback-copy-failure.json",
+      "sidecarSha256": "0c54ed468c33f3dea7530fdedc269686699e9dfef257f3bf04b44b27bb9e434b",
+      "role": "public-reader",
+      "faultInjection": "Only browser clipboard/share capability is unavailable or rejects as named; actual reader.js and native execCommand fallback run unmodified, never synthesize successful copy.",
+      "verdict": "pass",
+      "observation": "代码复制失败，并在复制链接后明确提示复制地址栏；没有虚报已复制。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S071.png",
+          "sha256": "f544978a2dcd048f076d899424a2e5e52144b57bc5d98ad72b3e561fdd56c6c2",
+          "assetId": "MP-S071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/1440-light-public-reader-feedback-share-error.png",
+      "sha256": "e8d95a767a5722bbb0ef6d57b9daaf97d44cc7048861305c59e9d850ac378401",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-055"
+      ],
+      "sceneId": "public-reader-feedback-share-error",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/1440-light-public-reader-feedback-share-error.json",
+      "sidecarSha256": "40c31a2c0668546ddd1b4f2cb9dc63fa424029842e0fa2f477f8098ba957ac19",
+      "role": "public-reader",
+      "faultInjection": "Only browser clipboard/share capability is unavailable or rejects as named; actual reader.js and native execCommand fallback run unmodified, never synthesize successful copy.",
+      "verdict": "pass",
+      "observation": "原生分享错误分支显示“暂时无法分享，请复制链接”，保持原文和复制链接可用。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S071.png",
+          "sha256": "f544978a2dcd048f076d899424a2e5e52144b57bc5d98ad72b3e561fdd56c6c2",
+          "assetId": "MP-S071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/1440-light-session-unavailable.png",
+      "sha256": "f61105acc8eb834745f501963db7e5d6fa7bebaf5598e18276166eccd7aac7f7",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-005"
+      ],
+      "sceneId": "session-unavailable",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/1440-light-session-unavailable.json",
+      "sidecarSha256": "440f865b2707604dbf77915207c3078990fd6cef2d774e5f5ac9987c82667aca",
+      "role": "anonymous",
+      "faultInjection": "Only first auth session network transport aborted; retry continues to the actual anonymous session API and login renderer.",
+      "verdict": "pass",
+      "observation": "显示暂时无法确认登录状态和重试连接，没有私人工作区、虚假登录成功或失效信息。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D075.png",
+          "sha256": "e5ed7afee32e4d5a2b79cd24d1140b062ca08f35c7d9dc121c47aa1eda68f9c5",
+          "assetId": "MP-D075"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S038.png",
+          "sha256": "116d7d0ba756477ed5da4b80a7cac90545a2611bc9d61fc40b3d9c76b1468bc6",
+          "assetId": "MP-S038"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R044.png",
+          "sha256": "79cccf21cb2196504d1ba19de5cd16cdd302dcf66176beb513d473fd58e89546",
+          "assetId": "MP-R044"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/320-light-blog-note-picker.png",
+      "sha256": "ee2f5270fac3ce40fdaa2116fb3839e166fc467fecc1ef10eb4f95d5936a73eb",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-033"
+      ],
+      "sceneId": "blog-note-picker",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/320-light-blog-note-picker.json",
+      "sidecarSha256": "9991dea5a118d476b2010a473509228e0cff778e034fca28495836cdf2e18609",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "选稿对话框带非空列表、真实名称/路径、添加选择和关闭按钮；长标题窄屏自然换行，底部说明手动发布才对外。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D099.png",
+          "sha256": "e7cc6d455ed5f6147cf1e144eea9be7b7dee6f15f6e7f1ec113ba0383974438b",
+          "assetId": "MP-D099"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R062.png",
+          "sha256": "1a8aad86d5abc259897c491471644db4e2e66464e0327ba3a449b9d62887cf90",
+          "assetId": "MP-R062"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S055-v2.png",
+          "sha256": "f3ac457605e5fbe12320aa142a19bc8f2bc9db8c6aacb650a3f301b9c3ef94df",
+          "assetId": "MP-S055"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/320-light-public-blog-history-restore.png",
+      "sha256": "35566b9fa7b9bb967dc2d4c5c001398e1b0f5da2b204bd84be079e748a26a5e0",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-048"
+      ],
+      "sceneId": "public-blog-history-restore",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/320-light-public-blog-history-restore.json",
+      "sidecarSha256": "c5f60e889e2a5758ef132673b81911dcd5b06d77f542bb829c9b844337855533",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "初始帧在作者字段；已看同次滚动控件图，发布历史有实际版本、时间与“恢复到草稿”按钮。发布与恢复语义依已有 recipe/回执，截面不是公开发布证明。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D113.png",
+          "sha256": "05e659182408ab03350bf98cc5b6d640b6e2cc2d2683a45661acdaa9aa4420ab",
+          "assetId": "MP-D113"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R074.png",
+          "sha256": "e0491286d614c7f2ebadc16749e2d0025ef81839ccb46f8530f87665ad843578",
+          "assetId": "MP-R074"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S067-v2.png",
+          "sha256": "06563d58b82f9c02095d0dd5186ef2d1a60c731de60991c64261095aadc347f6",
+          "assetId": "MP-S067"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/320-light-public-blog-history-restore-controls.png",
+        "sha256": "f34d6e2f1a5a7ca485eeb10d56c6ba11c9ca9af88a273494b45cae30e6e3f4b0"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/320-light-public-platform-logout-failure.png",
+      "sha256": "12adc6305fc67beecdf4adbb1d1d1a4f929d196bcff92f7f316d7b203a94dc0e",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-006"
+      ],
+      "sceneId": "public-platform-logout-failure",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/320-light-public-platform-logout-failure.json",
+      "sidecarSha256": "fd7038e547192379ab52e2a49986f4c157ba31b1c6babc6cbb3b57af4c0f0a4d",
+      "role": "owner",
+      "faultInjection": "Platform and sign-out503 only; never actually signs out the shared owner session.",
+      "verdict": "pass",
+      "observation": "平台状态失败且退出失败，第二层警告“暂时无法退出”与重试/退出操作同屏。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S039.png",
+          "sha256": "de33ff22c087960c7476c5c69e7a058458a19d4f160443da818a680045206a65",
+          "assetId": "MP-S039"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/320-light-public-reader-feedback-copy-failure.png",
+      "sha256": "d40f1f66e68db427b630692c50a77e554b741e9c0ce3b7cea184c8b7892f333b",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-055"
+      ],
+      "sceneId": "public-reader-feedback-copy-failure",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/320-light-public-reader-feedback-copy-failure.json",
+      "sidecarSha256": "a1ea5b4dd6c5baf2b741c6cd0c70bca0ce26ce4be57da89e362e25d5603a49c2",
+      "role": "public-reader",
+      "faultInjection": "Only browser clipboard/share capability is unavailable or rejects as named; actual reader.js and native execCommand fallback run unmodified, never synthesize successful copy.",
+      "verdict": "pass",
+      "observation": "代码复制失败，并在复制链接后明确提示复制地址栏；没有虚报已复制。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S071.png",
+          "sha256": "f544978a2dcd048f076d899424a2e5e52144b57bc5d98ad72b3e561fdd56c6c2",
+          "assetId": "MP-S071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/320-light-public-reader-feedback-share-error.png",
+      "sha256": "42f16e06d14a1672c525dcc298f60b6dc9ba81f3c2fc206b04d403a8b0f3bcad",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-055"
+      ],
+      "sceneId": "public-reader-feedback-share-error",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/320-light-public-reader-feedback-share-error.json",
+      "sidecarSha256": "c19fad57346eaee8cdb676e79a9c910dec5b67a6514f38d59aca28eb261f7afd",
+      "role": "public-reader",
+      "faultInjection": "Only browser clipboard/share capability is unavailable or rejects as named; actual reader.js and native execCommand fallback run unmodified, never synthesize successful copy.",
+      "verdict": "pass",
+      "observation": "原生分享错误分支显示“暂时无法分享，请复制链接”，保持原文和复制链接可用。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S071.png",
+          "sha256": "f544978a2dcd048f076d899424a2e5e52144b57bc5d98ad72b3e561fdd56c6c2",
+          "assetId": "MP-S071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/320-light-session-unavailable.png",
+      "sha256": "9c2ef925b7ec7489bcf6559e825cd56c14550022a1fe26792ac8fe50e2881fae",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-005"
+      ],
+      "sceneId": "session-unavailable",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/320-light-session-unavailable.json",
+      "sidecarSha256": "b023c98960fa0ecc0cdf8b761ee93228b3732f62a2a3a079a8877d7020d07d0f",
+      "role": "anonymous",
+      "faultInjection": "Only first auth session network transport aborted; retry continues to the actual anonymous session API and login renderer.",
+      "verdict": "pass",
+      "observation": "显示暂时无法确认登录状态和重试连接，没有私人工作区、虚假登录成功或失效信息。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D075.png",
+          "sha256": "e5ed7afee32e4d5a2b79cd24d1140b062ca08f35c7d9dc121c47aa1eda68f9c5",
+          "assetId": "MP-D075"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S038.png",
+          "sha256": "116d7d0ba756477ed5da4b80a7cac90545a2611bc9d61fc40b3d9c76b1468bc6",
+          "assetId": "MP-S038"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R044.png",
+          "sha256": "79cccf21cb2196504d1ba19de5cd16cdd302dcf66176beb513d473fd58e89546",
+          "assetId": "MP-R044"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/390-light-blog-note-picker.png",
+      "sha256": "06a0333e3defaa197ace22e20c8b17497af3c743f7e59250027c3a03d618c654",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-033"
+      ],
+      "sceneId": "blog-note-picker",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/390-light-blog-note-picker.json",
+      "sidecarSha256": "4e6787d79b4f109780a705d6d5adc13bb6fed0a2e6b7ac3cdff0edf55aba2364",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "选稿对话框带非空列表、真实名称/路径、添加选择和关闭按钮；长标题窄屏自然换行，底部说明手动发布才对外。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D099.png",
+          "sha256": "e7cc6d455ed5f6147cf1e144eea9be7b7dee6f15f6e7f1ec113ba0383974438b",
+          "assetId": "MP-D099"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R062.png",
+          "sha256": "1a8aad86d5abc259897c491471644db4e2e66464e0327ba3a449b9d62887cf90",
+          "assetId": "MP-R062"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S055-v2.png",
+          "sha256": "f3ac457605e5fbe12320aa142a19bc8f2bc9db8c6aacb650a3f301b9c3ef94df",
+          "assetId": "MP-S055"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/390-light-public-blog-history-restore.png",
+      "sha256": "9abf694497c075d2d1b8fb81b0fd11a8ce42418566e8944b01fe7c1997fe5d69",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-048"
+      ],
+      "sceneId": "public-blog-history-restore",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/390-light-public-blog-history-restore.json",
+      "sidecarSha256": "334d758b62a9ff13dcb2ec568355339b4fa87f4d72a78b9950f7396d4227a3b7",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "初始帧在作者字段；已看同次滚动控件图，发布历史有实际版本、时间与“恢复到草稿”按钮。发布与恢复语义依已有 recipe/回执，截面不是公开发布证明。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D113.png",
+          "sha256": "05e659182408ab03350bf98cc5b6d640b6e2cc2d2683a45661acdaa9aa4420ab",
+          "assetId": "MP-D113"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R074.png",
+          "sha256": "e0491286d614c7f2ebadc16749e2d0025ef81839ccb46f8530f87665ad843578",
+          "assetId": "MP-R074"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S067-v2.png",
+          "sha256": "06563d58b82f9c02095d0dd5186ef2d1a60c731de60991c64261095aadc347f6",
+          "assetId": "MP-S067"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/390-light-public-blog-history-restore-controls.png",
+        "sha256": "cbe43e62d0e6251298915bc33b822f80924b0bf8864a131f52cd3f3c72b4adaa"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/390-light-public-platform-logout-failure.png",
+      "sha256": "0f315f7685664d97195e6aeac7ebed041edac9e98e9830b66e74c5687a40ea39",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-006"
+      ],
+      "sceneId": "public-platform-logout-failure",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/390-light-public-platform-logout-failure.json",
+      "sidecarSha256": "513e76ff8a3739911d0b5824b7f573c08468f74035afd924da9663437deca948",
+      "role": "owner",
+      "faultInjection": "Platform and sign-out503 only; never actually signs out the shared owner session.",
+      "verdict": "pass",
+      "observation": "平台状态失败且退出失败，第二层警告“暂时无法退出”与重试/退出操作同屏。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S039.png",
+          "sha256": "de33ff22c087960c7476c5c69e7a058458a19d4f160443da818a680045206a65",
+          "assetId": "MP-S039"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/390-light-public-reader-feedback-copy-failure.png",
+      "sha256": "518853d6640964233acdf0b4260395e38a46aeac86b2551d4c0c9b6d50d94d3c",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-055"
+      ],
+      "sceneId": "public-reader-feedback-copy-failure",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/390-light-public-reader-feedback-copy-failure.json",
+      "sidecarSha256": "e9860feacae9de76410d3233653e876e2dd52f5be4d9b06eb80b2c52c29db5e2",
+      "role": "public-reader",
+      "faultInjection": "Only browser clipboard/share capability is unavailable or rejects as named; actual reader.js and native execCommand fallback run unmodified, never synthesize successful copy.",
+      "verdict": "pass",
+      "observation": "代码复制失败，并在复制链接后明确提示复制地址栏；没有虚报已复制。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S071.png",
+          "sha256": "f544978a2dcd048f076d899424a2e5e52144b57bc5d98ad72b3e561fdd56c6c2",
+          "assetId": "MP-S071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/390-light-public-reader-feedback-share-error.png",
+      "sha256": "f8d54ea6a6729e7ff571ab63f1e932b474b9f63696fc6791dc8492a0ea535e8b",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-055"
+      ],
+      "sceneId": "public-reader-feedback-share-error",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/390-light-public-reader-feedback-share-error.json",
+      "sidecarSha256": "d7d3bcaaf81226e5968200dbe662c6279add980d1daab5964331a4fe5a3fec72",
+      "role": "public-reader",
+      "faultInjection": "Only browser clipboard/share capability is unavailable or rejects as named; actual reader.js and native execCommand fallback run unmodified, never synthesize successful copy.",
+      "verdict": "pass",
+      "observation": "原生分享错误分支显示“暂时无法分享，请复制链接”，保持原文和复制链接可用。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S071.png",
+          "sha256": "f544978a2dcd048f076d899424a2e5e52144b57bc5d98ad72b3e561fdd56c6c2",
+          "assetId": "MP-S071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/390-light-session-unavailable.png",
+      "sha256": "97e5d78ff1edc7cb072b4c9de5cc7060594a7bb761c606571077949e18604046",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-005"
+      ],
+      "sceneId": "session-unavailable",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "2f558189f668dc3ad4c3a1355984f325d1d8ec47",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-2f55818-failed-only-rerun1/390-light-session-unavailable.json",
+      "sidecarSha256": "6327f8422d28a027940a68c159f9de8db05b25bad95f21d1b6bf1ac16da35803",
+      "role": "anonymous",
+      "faultInjection": "Only first auth session network transport aborted; retry continues to the actual anonymous session API and login renderer.",
+      "verdict": "pass",
+      "observation": "显示暂时无法确认登录状态和重试连接，没有私人工作区、虚假登录成功或失效信息。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D075.png",
+          "sha256": "e5ed7afee32e4d5a2b79cd24d1140b062ca08f35c7d9dc121c47aa1eda68f9c5",
+          "assetId": "MP-D075"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S038.png",
+          "sha256": "116d7d0ba756477ed5da4b80a7cac90545a2611bc9d61fc40b3d9c76b1468bc6",
+          "assetId": "MP-S038"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R044.png",
+          "sha256": "79cccf21cb2196504d1ba19de5cd16cdd302dcf66176beb513d473fd58e89546",
+          "assetId": "MP-R044"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/1440-dark-login.png",
+      "sha256": "2f472a377e1ba2760688f089b96f640fdd0ac5accc2e5b3a571a65d24fba4cc1",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-001"
+      ],
+      "sceneId": "login",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "visibleAppearance": "light",
+        "proofOfDarkPixels": false
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/1440-dark-login.json",
+      "sidecarSha256": "aff8bd414ac0e303b41ceef87ebc3e2a6183d2cc8f4ba2e036bba58ffe7d0da5",
+      "role": "anonymous",
+      "faultInjection": null,
+      "verdict": "pass-layout-only-requested-dark-rendered-light",
+      "observation": "品牌和登录表单清楚可见，密码依采集规则遮盖。短高度首图有下折线，控件图中可滚至提交及账户帮助。 请求 dark 的该截图实际为浅色，仅作该尺寸的布局证据。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D071.png",
+          "sha256": "77bf20e1e822efa2641ab91ccd4408df4e49462a3408e9e3ec853a27f1a98dae",
+          "assetId": "MP-D071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R042-v2.png",
+          "sha256": "9266d4dab673ec98597f30363e76f56b858d7786a0061f6a6cf92d2a16f8ca35",
+          "assetId": "MP-R042"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S036.png",
+          "sha256": "72d0b066d5376cd243cf57703a89ce4899714a5286361d7b050126f44ab88170",
+          "assetId": "MP-S036"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/1440-dark-login-controls.png",
+        "sha256": "200b434dcd4b9d431c689692d820adf43fed1763bfbc2cc3242fdb2712f4794f"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/1440-dark-public-magazine.png",
+      "sha256": "a7ae2bdf62117b7c84e9ed3452ac28296e8a800c21956f2d32cb2dbe2360c368",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-051"
+      ],
+      "sceneId": "public-magazine",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "visibleAppearance": "light",
+        "proofOfDarkPixels": false
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/1440-dark-public-magazine.json",
+      "sidecarSha256": "7be940fd8a99e72007fe3b5b2caea7001ade8611f692284cfad48ba4c6dafc8d",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass-layout-only-requested-dark-rendered-light",
+      "observation": "访客站点独立刊头、深浅分明的主体与面包屑以外的站点导航。短屏首图重点刊头，控件视图可滚至项目、友情链接及 RSS。 请求 dark 的该截图实际为浅色，仅作该尺寸的布局证据。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D116.png",
+          "sha256": "c381fe49a61a4cf5fed10424e1c1801a5adcac75244b2f1f71b857faf2f4ba92",
+          "assetId": "MP-D116"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R077-v2.png",
+          "sha256": "7ebb7b36546da545fb06677f7c9c03f9acbd14a18798bc5b19af257f69c14025",
+          "assetId": "MP-R077"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S068.png",
+          "sha256": "369c2d2b62a62b2869c0d7a4ea53b4e3d43413ae1d6df27fa4e2980d5979f0cc",
+          "assetId": "MP-S068"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/1440-dark-public-magazine-controls.png",
+        "sha256": "77cfd67ca8b96e0cb01a5a1caeabc8762533420681ead83d3827fa5d47f66c6d"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/1440-dark-public-reader.png",
+      "sha256": "ab79b738b577ea9ec6cb6b383de9985191e0ee819ececb016a0be6b16515dbeb",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-054"
+      ],
+      "sceneId": "public-reader",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "visibleAppearance": "light",
+        "proofOfDarkPixels": false
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/1440-dark-public-reader.json",
+      "sidecarSha256": "b754cb8fae09402b34fd348fd894768537be65c2677cc1af2453efe3b8c52f4e",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass-layout-only-requested-dark-rendered-light",
+      "observation": "公开文章标题、作者、阅读时间和导航可见；控件图可达文后文章与 RSS。 请求 dark 的该截图实际为浅色，仅作该尺寸的布局证据。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D119.png",
+          "sha256": "510dfdebaa9e268d4a4cbb3012b557cf4d90fd04ff960358e9393fcc6e7668b3",
+          "assetId": "MP-D119"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S069.png",
+          "sha256": "07dd2e17fb22de52ff69e0ebe149d7796fdc550c7892bd122afdb3a7a11a0e0f",
+          "assetId": "MP-S069"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/1440-dark-public-reader-controls.png",
+        "sha256": "f43ff45045a6111eb1699522c36afc2dc917c02c652104f09094a9c227bbaff2"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/1440-dark-share-reader.png",
+      "sha256": "a72cc75913fbdc1ca866fd3e9089077d863210e57b400dea3bba3d0c48549498",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-022"
+      ],
+      "sceneId": "share-reader",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "visibleAppearance": "light",
+        "proofOfDarkPixels": false
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/1440-dark-share-reader.json",
+      "sidecarSha256": "673ec9a9df0302e23039cc7194670257b44b74de9a9dbe8b61d79847daa412f0",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass-layout-only-requested-dark-rendered-light",
+      "observation": "分享笔记标题、只读标识和响应式目录；控件图可达正文、表格、代码/参考链接。 请求 dark 的该截图实际为浅色，仅作该尺寸的布局证据。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D089.png",
+          "sha256": "039fe9407eb83cedc59cb0626bcc007269cca96fafffaa1131f2d02d30e67d4f",
+          "assetId": "MP-D089"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R054.png",
+          "sha256": "0e82fa7e9f0ca1fcfa7e09ab3d1aa2aac64e2fd3ee24786287db2b3a1dc4a6c2",
+          "assetId": "MP-R054"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S047-v2.png",
+          "sha256": "e4be6cf0b8b79ec9b2cb67171558513b0e64310b51ff18729754b241965ac891",
+          "assetId": "MP-S047"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S048.png",
+          "sha256": "c64c66877bf7d0523475e53b9599b00ecc4c539ccdedb8eb44768f66bc793c4b",
+          "assetId": "MP-S048"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/1440-dark-share-reader-controls.png",
+        "sha256": "8d50c6ed2a07b38c992f311022fcf31893022b9ad483f0b8d30881cefe687b52"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/360-short-dark-login.png",
+      "sha256": "93f4955bb9f5a77ad34b176390b29c1ea46ec9ab6f856ec8b781626e0dc5c4d1",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-001"
+      ],
+      "sceneId": "login",
+      "viewport": {
+        "width": 360,
+        "height": 460
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "visibleAppearance": "light",
+        "proofOfDarkPixels": false
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/360-short-dark-login.json",
+      "sidecarSha256": "d2ff68931c663b7649ca8e10d6ed3d24ba6f34036e0e1127e9136cedfe4beb63",
+      "role": "anonymous",
+      "faultInjection": null,
+      "verdict": "pass-layout-only-requested-dark-rendered-light",
+      "observation": "品牌和登录表单清楚可见，密码依采集规则遮盖。短高度首图有下折线，控件图中可滚至提交及账户帮助。 请求 dark 的该截图实际为浅色，仅作该尺寸的布局证据。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D071.png",
+          "sha256": "77bf20e1e822efa2641ab91ccd4408df4e49462a3408e9e3ec853a27f1a98dae",
+          "assetId": "MP-D071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R042-v2.png",
+          "sha256": "9266d4dab673ec98597f30363e76f56b858d7786a0061f6a6cf92d2a16f8ca35",
+          "assetId": "MP-R042"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S036.png",
+          "sha256": "72d0b066d5376cd243cf57703a89ce4899714a5286361d7b050126f44ab88170",
+          "assetId": "MP-S036"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/360-short-dark-login-controls.png",
+        "sha256": "7e540998f763d6e1f99310d3c535058da1a38adfbfc799c4cef8c9a1655fa924"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/360-short-dark-public-magazine.png",
+      "sha256": "a6509eec4b3349c69d96f60f4d2b1373c60f832f272a89f1057e30b1debd384d",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-051"
+      ],
+      "sceneId": "public-magazine",
+      "viewport": {
+        "width": 360,
+        "height": 460
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "visibleAppearance": "light",
+        "proofOfDarkPixels": false
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/360-short-dark-public-magazine.json",
+      "sidecarSha256": "05eca901fb6f12e82ef49ff90f8eb8d4b4917a94543cdb3e3f448e585549428a",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass-layout-only-requested-dark-rendered-light",
+      "observation": "访客站点独立刊头、深浅分明的主体与面包屑以外的站点导航。短屏首图重点刊头，控件视图可滚至项目、友情链接及 RSS。 请求 dark 的该截图实际为浅色，仅作该尺寸的布局证据。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D116.png",
+          "sha256": "c381fe49a61a4cf5fed10424e1c1801a5adcac75244b2f1f71b857faf2f4ba92",
+          "assetId": "MP-D116"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R077-v2.png",
+          "sha256": "7ebb7b36546da545fb06677f7c9c03f9acbd14a18798bc5b19af257f69c14025",
+          "assetId": "MP-R077"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S068.png",
+          "sha256": "369c2d2b62a62b2869c0d7a4ea53b4e3d43413ae1d6df27fa4e2980d5979f0cc",
+          "assetId": "MP-S068"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/360-short-dark-public-magazine-controls.png",
+        "sha256": "df5cd2a4e220758ec7917dd80dd1192b52270e7c9526e09c59a9dd3d321ac892"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/360-short-dark-public-reader.png",
+      "sha256": "a272b2eca64f2d20e2010a587735ff2005a7ec2b1f6646aabb77c4160f9e4354",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-054"
+      ],
+      "sceneId": "public-reader",
+      "viewport": {
+        "width": 360,
+        "height": 460
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "visibleAppearance": "light",
+        "proofOfDarkPixels": false
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/360-short-dark-public-reader.json",
+      "sidecarSha256": "b7c1dffd5cf691ba39906cb399c7507ec6b30f39e6cdbb79116d422ec240e311",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass-layout-only-requested-dark-rendered-light",
+      "observation": "公开文章标题、作者、阅读时间和导航可见；控件图可达文后文章与 RSS。 请求 dark 的该截图实际为浅色，仅作该尺寸的布局证据。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D119.png",
+          "sha256": "510dfdebaa9e268d4a4cbb3012b557cf4d90fd04ff960358e9393fcc6e7668b3",
+          "assetId": "MP-D119"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S069.png",
+          "sha256": "07dd2e17fb22de52ff69e0ebe149d7796fdc550c7892bd122afdb3a7a11a0e0f",
+          "assetId": "MP-S069"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/360-short-dark-public-reader-controls.png",
+        "sha256": "c8d5e9190ecd1fc2168fa4246d6ca7b9770d778213f57ecaecad8ea97ebac5fa"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/360-short-dark-share-reader.png",
+      "sha256": "4a1619d1cdc6aced3833dad29fe2c97beefdf34d5d80b0073c04506b6742a66c",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-022"
+      ],
+      "sceneId": "share-reader",
+      "viewport": {
+        "width": 360,
+        "height": 460
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "visibleAppearance": "light",
+        "proofOfDarkPixels": false
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/360-short-dark-share-reader.json",
+      "sidecarSha256": "9329cf47ac3b4117ce1f43aa1882ee6947dd850c1615d2d08f51d4df37c6c616",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass-layout-only-requested-dark-rendered-light",
+      "observation": "分享笔记标题、只读标识和响应式目录；控件图可达正文、表格、代码/参考链接。 请求 dark 的该截图实际为浅色，仅作该尺寸的布局证据。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D089.png",
+          "sha256": "039fe9407eb83cedc59cb0626bcc007269cca96fafffaa1131f2d02d30e67d4f",
+          "assetId": "MP-D089"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R054.png",
+          "sha256": "0e82fa7e9f0ca1fcfa7e09ab3d1aa2aac64e2fd3ee24786287db2b3a1dc4a6c2",
+          "assetId": "MP-R054"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S047-v2.png",
+          "sha256": "e4be6cf0b8b79ec9b2cb67171558513b0e64310b51ff18729754b241965ac891",
+          "assetId": "MP-S047"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S048.png",
+          "sha256": "c64c66877bf7d0523475e53b9599b00ecc4c539ccdedb8eb44768f66bc793c4b",
+          "assetId": "MP-S048"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/360-short-dark-share-reader-controls.png",
+        "sha256": "30aa7b8ac12da859451c3f48998cc79892d0248aea88e374f128bd3e17029790"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/390-dark-login.png",
+      "sha256": "7e670477aad5c9a78a0af10be5a251571ad01ea9c1eaf8d4b60dbaefb6d9b5b4",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-001"
+      ],
+      "sceneId": "login",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "visibleAppearance": "light",
+        "proofOfDarkPixels": false
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/390-dark-login.json",
+      "sidecarSha256": "2de4b1c15725670c249b2d2339e00203d4bb7ab5b7d8f413c501945bfee9d421",
+      "role": "anonymous",
+      "faultInjection": null,
+      "verdict": "pass-layout-only-requested-dark-rendered-light",
+      "observation": "品牌和登录表单清楚可见，密码依采集规则遮盖。短高度首图有下折线，控件图中可滚至提交及账户帮助。 请求 dark 的该截图实际为浅色，仅作该尺寸的布局证据。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D071.png",
+          "sha256": "77bf20e1e822efa2641ab91ccd4408df4e49462a3408e9e3ec853a27f1a98dae",
+          "assetId": "MP-D071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R042-v2.png",
+          "sha256": "9266d4dab673ec98597f30363e76f56b858d7786a0061f6a6cf92d2a16f8ca35",
+          "assetId": "MP-R042"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S036.png",
+          "sha256": "72d0b066d5376cd243cf57703a89ce4899714a5286361d7b050126f44ab88170",
+          "assetId": "MP-S036"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/390-dark-login-controls.png",
+        "sha256": "df9adde9e48a3ef32a4e7c15e6ffff98d3eb7284e2e3d29cf02cface9fa4b200"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/390-dark-public-magazine.png",
+      "sha256": "626eadc57a35a20e3b9da12c414d85b04e9ef4bbadc005a09029416b5c6e2021",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-051"
+      ],
+      "sceneId": "public-magazine",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "visibleAppearance": "light",
+        "proofOfDarkPixels": false
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/390-dark-public-magazine.json",
+      "sidecarSha256": "802226ede654f37827810ffee5993bbeefa9338c81ee36e8413a4ae1590c5986",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass-layout-only-requested-dark-rendered-light",
+      "observation": "访客站点独立刊头、深浅分明的主体与面包屑以外的站点导航。短屏首图重点刊头，控件视图可滚至项目、友情链接及 RSS。 请求 dark 的该截图实际为浅色，仅作该尺寸的布局证据。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D116.png",
+          "sha256": "c381fe49a61a4cf5fed10424e1c1801a5adcac75244b2f1f71b857faf2f4ba92",
+          "assetId": "MP-D116"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R077-v2.png",
+          "sha256": "7ebb7b36546da545fb06677f7c9c03f9acbd14a18798bc5b19af257f69c14025",
+          "assetId": "MP-R077"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S068.png",
+          "sha256": "369c2d2b62a62b2869c0d7a4ea53b4e3d43413ae1d6df27fa4e2980d5979f0cc",
+          "assetId": "MP-S068"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/390-dark-public-magazine-controls.png",
+        "sha256": "7ec5a91f01b8daf8d9a16cc88ac0775da3b45b9ce2d636d1b9d25296b835ed3e"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/390-dark-public-reader.png",
+      "sha256": "736ec528ec832300111e7d874340f6c7dfb1952ffd0b9e2a88894fa75cfbf85d",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-054"
+      ],
+      "sceneId": "public-reader",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "visibleAppearance": "light",
+        "proofOfDarkPixels": false
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/390-dark-public-reader.json",
+      "sidecarSha256": "c87d9a1f195a8b2e561cbcd9b51d87829d5e609c8964194a70e4adc9280cff6d",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass-layout-only-requested-dark-rendered-light",
+      "observation": "公开文章标题、作者、阅读时间和导航可见；控件图可达文后文章与 RSS。 请求 dark 的该截图实际为浅色，仅作该尺寸的布局证据。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D119.png",
+          "sha256": "510dfdebaa9e268d4a4cbb3012b557cf4d90fd04ff960358e9393fcc6e7668b3",
+          "assetId": "MP-D119"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S069.png",
+          "sha256": "07dd2e17fb22de52ff69e0ebe149d7796fdc550c7892bd122afdb3a7a11a0e0f",
+          "assetId": "MP-S069"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/390-dark-public-reader-controls.png",
+        "sha256": "bf5c2e9e275edae39d85b620200f7fd9d7709f6cd2369aa4a352f8ead57b6611"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/390-dark-share-reader.png",
+      "sha256": "b3a85ca513f7576140e652cd7e3f092ae690a26d2099c4334f634dedaf21c08d",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-022"
+      ],
+      "sceneId": "share-reader",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "visibleAppearance": "light",
+        "proofOfDarkPixels": false
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/390-dark-share-reader.json",
+      "sidecarSha256": "5d9cff1004b03d4bcc50ee276afdeeca35e82c2dd40f558c98708c963b504418",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass-layout-only-requested-dark-rendered-light",
+      "observation": "分享笔记标题、只读标识和响应式目录；控件图可达正文、表格、代码/参考链接。 请求 dark 的该截图实际为浅色，仅作该尺寸的布局证据。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D089.png",
+          "sha256": "039fe9407eb83cedc59cb0626bcc007269cca96fafffaa1131f2d02d30e67d4f",
+          "assetId": "MP-D089"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R054.png",
+          "sha256": "0e82fa7e9f0ca1fcfa7e09ab3d1aa2aac64e2fd3ee24786287db2b3a1dc4a6c2",
+          "assetId": "MP-R054"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S047-v2.png",
+          "sha256": "e4be6cf0b8b79ec9b2cb67171558513b0e64310b51ff18729754b241965ac891",
+          "assetId": "MP-S047"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S048.png",
+          "sha256": "c64c66877bf7d0523475e53b9599b00ecc4c539ccdedb8eb44768f66bc793c4b",
+          "assetId": "MP-S048"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/390-dark-share-reader-controls.png",
+        "sha256": "6174e3a8598bb135260907fabd8cb03bb058d2b2311e9f4e74b478c8a17cb308"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/820-portrait-login.png",
+      "sha256": "8a4bc50cf3db3b523a75c6705ae3488f24119204877d55a7a921411c3dcd03dd",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-001"
+      ],
+      "sceneId": "login",
+      "viewport": {
+        "width": 820,
+        "height": 1180
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/820-portrait-login.json",
+      "sidecarSha256": "0c28185ebb3e37dfcd43f54f61e36cea18a059337147421931591a00e5b80b63",
+      "role": "anonymous",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "品牌和登录表单清楚可见，密码依采集规则遮盖。短高度首图有下折线，控件图中可滚至提交及账户帮助。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D071.png",
+          "sha256": "77bf20e1e822efa2641ab91ccd4408df4e49462a3408e9e3ec853a27f1a98dae",
+          "assetId": "MP-D071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R042-v2.png",
+          "sha256": "9266d4dab673ec98597f30363e76f56b858d7786a0061f6a6cf92d2a16f8ca35",
+          "assetId": "MP-R042"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S036.png",
+          "sha256": "72d0b066d5376cd243cf57703a89ce4899714a5286361d7b050126f44ab88170",
+          "assetId": "MP-S036"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/820-portrait-login-controls.png",
+        "sha256": "2e631b9006a68387b758ca109841861adc87378e9f210cef919cc46e5edec772"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/820-portrait-public-magazine.png",
+      "sha256": "b95f359e312faf385f8ca11ec35e8097609f3c5fd97031ef9425c01290827cf3",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-051"
+      ],
+      "sceneId": "public-magazine",
+      "viewport": {
+        "width": 820,
+        "height": 1180
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/820-portrait-public-magazine.json",
+      "sidecarSha256": "82dfd862e2fa32c063a04c5aec8e1d621bf0d9293b0a2d074ad73ce9f1e9823e",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "访客站点独立刊头、深浅分明的主体与面包屑以外的站点导航。短屏首图重点刊头，控件视图可滚至项目、友情链接及 RSS。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D116.png",
+          "sha256": "c381fe49a61a4cf5fed10424e1c1801a5adcac75244b2f1f71b857faf2f4ba92",
+          "assetId": "MP-D116"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R077-v2.png",
+          "sha256": "7ebb7b36546da545fb06677f7c9c03f9acbd14a18798bc5b19af257f69c14025",
+          "assetId": "MP-R077"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S068.png",
+          "sha256": "369c2d2b62a62b2869c0d7a4ea53b4e3d43413ae1d6df27fa4e2980d5979f0cc",
+          "assetId": "MP-S068"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/820-portrait-public-magazine-controls.png",
+        "sha256": "bc0a7e191363dac27db8c1b7b0a586d4c1a507513339a9104722b31e18354ef3"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/820-portrait-public-reader.png",
+      "sha256": "1c542b4fcb97c75734f04061793776c9fc25fc844d80235330012564b4da83d5",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-054"
+      ],
+      "sceneId": "public-reader",
+      "viewport": {
+        "width": 820,
+        "height": 1180
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/820-portrait-public-reader.json",
+      "sidecarSha256": "b12dd44b828e5ccc2a084b44b4c86ee069e123e45f82f754414f2779505f0648",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "公开文章标题、作者、阅读时间和导航可见；控件图可达文后文章与 RSS。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D119.png",
+          "sha256": "510dfdebaa9e268d4a4cbb3012b557cf4d90fd04ff960358e9393fcc6e7668b3",
+          "assetId": "MP-D119"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S069.png",
+          "sha256": "07dd2e17fb22de52ff69e0ebe149d7796fdc550c7892bd122afdb3a7a11a0e0f",
+          "assetId": "MP-S069"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/820-portrait-public-reader-controls.png",
+        "sha256": "39afc1e81749a071dc9262f421821da3586a61e36000917034e55339d31a6c04"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/820-portrait-share-reader.png",
+      "sha256": "afca2d021479f5e7652475245d3c22339e40e8e02743307dadac53fc4185611b",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-022"
+      ],
+      "sceneId": "share-reader",
+      "viewport": {
+        "width": 820,
+        "height": 1180
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/820-portrait-share-reader.json",
+      "sidecarSha256": "19d6a11672221a43760ca3a78724701f2e48fd1c2afcd775e3cf0d23790b393e",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "分享笔记标题、只读标识和响应式目录；控件图可达正文、表格、代码/参考链接。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D089.png",
+          "sha256": "039fe9407eb83cedc59cb0626bcc007269cca96fafffaa1131f2d02d30e67d4f",
+          "assetId": "MP-D089"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R054.png",
+          "sha256": "0e82fa7e9f0ca1fcfa7e09ab3d1aa2aac64e2fd3ee24786287db2b3a1dc4a6c2",
+          "assetId": "MP-R054"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S047-v2.png",
+          "sha256": "e4be6cf0b8b79ec9b2cb67171558513b0e64310b51ff18729754b241965ac891",
+          "assetId": "MP-S047"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S048.png",
+          "sha256": "c64c66877bf7d0523475e53b9599b00ecc4c539ccdedb8eb44768f66bc793c4b",
+          "assetId": "MP-S048"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/820-portrait-share-reader-controls.png",
+        "sha256": "bd28d299f7e0ece2c408cfc3d7416910785a48fda2a896cbf2a2342a8129938b"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/844-short-login.png",
+      "sha256": "e9989a7afeede82bd588cf6d17000d7617bbbe14dcfbc1c382e14abf109b6842",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-001"
+      ],
+      "sceneId": "login",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/844-short-login.json",
+      "sidecarSha256": "3fd3d5c1aa55718a25ab41ba1ab710c9b6dd53f29236dcb7e44450bcf576e4ff",
+      "role": "anonymous",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "品牌和登录表单清楚可见，密码依采集规则遮盖。短高度首图有下折线，控件图中可滚至提交及账户帮助。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D071.png",
+          "sha256": "77bf20e1e822efa2641ab91ccd4408df4e49462a3408e9e3ec853a27f1a98dae",
+          "assetId": "MP-D071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R042-v2.png",
+          "sha256": "9266d4dab673ec98597f30363e76f56b858d7786a0061f6a6cf92d2a16f8ca35",
+          "assetId": "MP-R042"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S036.png",
+          "sha256": "72d0b066d5376cd243cf57703a89ce4899714a5286361d7b050126f44ab88170",
+          "assetId": "MP-S036"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/844-short-login-controls.png",
+        "sha256": "700d6d7c48a1d3e6bbcd1cb630e916e977b9bb02482ebe843363e4b021623b17"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/844-short-public-magazine.png",
+      "sha256": "621307d5dd45626646068c0160c90af780ccbe9e0310e0ce708cdb3e7de34854",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-051"
+      ],
+      "sceneId": "public-magazine",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/844-short-public-magazine.json",
+      "sidecarSha256": "5cac01d93be602ca6a3889922247111a8b0c18c8b8f9a46427f20fd723681053",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "访客站点独立刊头、深浅分明的主体与面包屑以外的站点导航。短屏首图重点刊头，控件视图可滚至项目、友情链接及 RSS。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D116.png",
+          "sha256": "c381fe49a61a4cf5fed10424e1c1801a5adcac75244b2f1f71b857faf2f4ba92",
+          "assetId": "MP-D116"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R077-v2.png",
+          "sha256": "7ebb7b36546da545fb06677f7c9c03f9acbd14a18798bc5b19af257f69c14025",
+          "assetId": "MP-R077"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S068.png",
+          "sha256": "369c2d2b62a62b2869c0d7a4ea53b4e3d43413ae1d6df27fa4e2980d5979f0cc",
+          "assetId": "MP-S068"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/844-short-public-magazine-controls.png",
+        "sha256": "17dea4da8a5a7601767c45086f0228b14422001485519b5abcbc987dd3ab4d7f"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/844-short-public-reader.png",
+      "sha256": "718e7d2489dcfb3e6fcac992b5ec2d2591e68e66cbf7ad7c07bec3795d836477",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-054"
+      ],
+      "sceneId": "public-reader",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/844-short-public-reader.json",
+      "sidecarSha256": "be782635f015941c28a9639bc01aba3495864383bea426ff36a3914ab8a26eee",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "公开文章标题、作者、阅读时间和导航可见；控件图可达文后文章与 RSS。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D119.png",
+          "sha256": "510dfdebaa9e268d4a4cbb3012b557cf4d90fd04ff960358e9393fcc6e7668b3",
+          "assetId": "MP-D119"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S069.png",
+          "sha256": "07dd2e17fb22de52ff69e0ebe149d7796fdc550c7892bd122afdb3a7a11a0e0f",
+          "assetId": "MP-S069"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/844-short-public-reader-controls.png",
+        "sha256": "183ec1e91bfe84ee9993c2a357f8b74ff2fec6672440779f2fa3bb9b283ab155"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/844-short-share-reader.png",
+      "sha256": "92cf86c2ab79ee0dcef7aba16468e7be6e9c16b82717be6b6c3e7ae0ecdb511a",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-022"
+      ],
+      "sceneId": "share-reader",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/844-short-share-reader.json",
+      "sidecarSha256": "f572937aa618d28dd8657d3449e2e8e0d2186ec9d25cb310575feaaadb6ebb42",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "分享笔记标题、只读标识和响应式目录；控件图可达正文、表格、代码/参考链接。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D089.png",
+          "sha256": "039fe9407eb83cedc59cb0626bcc007269cca96fafffaa1131f2d02d30e67d4f",
+          "assetId": "MP-D089"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R054.png",
+          "sha256": "0e82fa7e9f0ca1fcfa7e09ab3d1aa2aac64e2fd3ee24786287db2b3a1dc4a6c2",
+          "assetId": "MP-R054"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S047-v2.png",
+          "sha256": "e4be6cf0b8b79ec9b2cb67171558513b0e64310b51ff18729754b241965ac891",
+          "assetId": "MP-S047"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S048.png",
+          "sha256": "c64c66877bf7d0523475e53b9599b00ecc4c539ccdedb8eb44768f66bc793c4b",
+          "assetId": "MP-S048"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-compact/844-short-share-reader-controls.png",
+        "sha256": "7974efc32484c7a224da9ec60d892740904c936c0e6765a02b634899d2ed5fb6"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-cover-move/1440-light-blog-article-cover-picker-frame.png",
+      "sha256": "e6436250182983b7ae38f6b87b455ee3f4c102f6e4425a68fed8198430d72903",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-034"
+      ],
+      "sceneId": "blog-article-cover-picker-frame",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-cover-move/1440-light-blog-article-cover-picker-frame.json",
+      "sidecarSha256": "de03c1bb6d8d8b75c42b8019dd97c3b7d7b9efa855373eae0de678413bf11e2c",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "从原稿附件选择封面的区域已展开。可见非空候选图及文件名，桌面多列、390 两列、320 单列。图像内容包含测试绘图白底，未宣称全类别图片或最终上传。 控件图补足候选项；不据透明文件 input 的中心命中认证系统选择器。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D100.png",
+          "sha256": "3e61219c502bdd99da369a75227e7bd754603a30819d32d55b18fc0fae0be025",
+          "assetId": "MP-D100"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R063.png",
+          "sha256": "af8f7dd31bf4aa28f43da6db4a42a3d80b81107aadfa0cff92a3840b84b07c84",
+          "assetId": "MP-R063"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S058-v2.png",
+          "sha256": "88aede9da38ecfda46db95f6269dc8c38d0c3769827ac8f9573ff819a0954b68",
+          "assetId": "MP-S058"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-cover-move/1440-light-blog-article-cover-picker-frame-controls.png",
+        "sha256": "1c91566954fc4e2891c1e67855c7b1de27ac8bee4b3587cf6db995950a679a1d"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-cover-move/320-light-blog-article-cover-picker-frame.png",
+      "sha256": "91d5bd129e724cf9dee6269fe6203b0a44bad7d0dff1f0e2ba05d075c62d37af",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-034"
+      ],
+      "sceneId": "blog-article-cover-picker-frame",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-cover-move/320-light-blog-article-cover-picker-frame.json",
+      "sidecarSha256": "3b1a0b52f6ecc9df7c2edb72bb948e242a7237e2523ef2fb426e0b0cc4be9ad2",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "从原稿附件选择封面的区域已展开。可见非空候选图及文件名，桌面多列、390 两列、320 单列。图像内容包含测试绘图白底，未宣称全类别图片或最终上传。 控件图补足候选项；不据透明文件 input 的中心命中认证系统选择器。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D100.png",
+          "sha256": "3e61219c502bdd99da369a75227e7bd754603a30819d32d55b18fc0fae0be025",
+          "assetId": "MP-D100"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R063.png",
+          "sha256": "af8f7dd31bf4aa28f43da6db4a42a3d80b81107aadfa0cff92a3840b84b07c84",
+          "assetId": "MP-R063"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S058-v2.png",
+          "sha256": "88aede9da38ecfda46db95f6269dc8c38d0c3769827ac8f9573ff819a0954b68",
+          "assetId": "MP-S058"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-cover-move/320-light-blog-article-cover-picker-frame-controls.png",
+        "sha256": "2bee71c9e5280d42a7ecee3143e83c8d93ec93a21f646050e55bdee4a3bd66e7"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-cover-move/390-light-blog-article-cover-picker-frame.png",
+      "sha256": "e622b509152d669900f9ec8a812a88095bf3d42f5f979a447d981dca8ce692b5",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-034"
+      ],
+      "sceneId": "blog-article-cover-picker-frame",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-cover-move/390-light-blog-article-cover-picker-frame.json",
+      "sidecarSha256": "d97d5659dd519b118559e58ca47b99d205ef183f036c340feda012067831ee53",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "从原稿附件选择封面的区域已展开。可见非空候选图及文件名，桌面多列、390 两列、320 单列。图像内容包含测试绘图白底，未宣称全类别图片或最终上传。 控件图补足候选项；不据透明文件 input 的中心命中认证系统选择器。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D100.png",
+          "sha256": "3e61219c502bdd99da369a75227e7bd754603a30819d32d55b18fc0fae0be025",
+          "assetId": "MP-D100"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R063.png",
+          "sha256": "af8f7dd31bf4aa28f43da6db4a42a3d80b81107aadfa0cff92a3840b84b07c84",
+          "assetId": "MP-R063"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S058-v2.png",
+          "sha256": "88aede9da38ecfda46db95f6269dc8c38d0c3769827ac8f9573ff819a0954b68",
+          "assetId": "MP-S058"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-cover-move/390-light-blog-article-cover-picker-frame-controls.png",
+        "sha256": "6413d5064583daa55bce5e47f9e33e67eb3015954e99b8297b9b0098fc8eda06"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-oauth-modern/1440-light-public-oauth-modern.png",
+      "sha256": "379e99ede6babc3ce810d6d4e1d953a2e116368d503df8d6bc0e8d11f5b5055f",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-018"
+      ],
+      "sceneId": "public-oauth-modern",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-oauth-modern/1440-light-public-oauth-modern.json",
+      "sidecarSha256": "2d0f914affee7ca143dc08f3b8257ef51ceceebb43a79ad862e74af11148a625",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "现代能力卡实际显示知识库开关、只读预设、整个知识库范围、独立权限及刷新令牌选择。320 首图控制卡可见，页尾动作部分落在下折线；未把探针中透明 Ant 内层 input 的 centerHit=false 认作已测真实指针选择。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D086.png",
+          "sha256": "6780ea39624c7c374a76ac3c2f0c79bb9147d61744c4fcd2150f59a75740ed25",
+          "assetId": "MP-D086"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R051.png",
+          "sha256": "324926f3e817376a4b3189c620d84702d8a205cf012085b16f635875be36d220",
+          "assetId": "MP-R051"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S045.png",
+          "sha256": "638e7310c0a1da989b64aca9c0a8385e51dc7be1b1a395e8073c00da852bfd31",
+          "assetId": "MP-S045"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-oauth-modern/1440-light-public-oauth-modern-controls.png",
+        "sha256": "2e64c5a63f2e95b547ebb79cd71bdb98a5344a986cc045c9dd4225d13f950059"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-oauth-modern/320-light-public-oauth-modern.png",
+      "sha256": "edf694659364688c8b06fb1d77e88145a1ab334629fcef24921aa348a89490d0",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-018"
+      ],
+      "sceneId": "public-oauth-modern",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-oauth-modern/320-light-public-oauth-modern.json",
+      "sidecarSha256": "b9ea38b930a0b8a6cfc57217f04ab9677496345985b9cf7d8a3b8043dc1b94ad",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "现代能力卡实际显示知识库开关、只读预设、整个知识库范围、独立权限及刷新令牌选择。320 首图控制卡可见，页尾动作部分落在下折线；未把探针中透明 Ant 内层 input 的 centerHit=false 认作已测真实指针选择。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D086.png",
+          "sha256": "6780ea39624c7c374a76ac3c2f0c79bb9147d61744c4fcd2150f59a75740ed25",
+          "assetId": "MP-D086"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R051.png",
+          "sha256": "324926f3e817376a4b3189c620d84702d8a205cf012085b16f635875be36d220",
+          "assetId": "MP-R051"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S045.png",
+          "sha256": "638e7310c0a1da989b64aca9c0a8385e51dc7be1b1a395e8073c00da852bfd31",
+          "assetId": "MP-S045"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-oauth-modern/320-light-public-oauth-modern-controls.png",
+        "sha256": "1ea0db556b5a7c6fcff6d66a6632c94a4f6583b51b854a4cc836a78bdc0c148a"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-oauth-modern/390-light-public-oauth-modern.png",
+      "sha256": "7f67a870bd4c397087c8b1e2515905f574c75719da8357486d85d11a3560a2f8",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-018"
+      ],
+      "sceneId": "public-oauth-modern",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-oauth-modern/390-light-public-oauth-modern.json",
+      "sidecarSha256": "dbe6d2d898ecc96e270f6e17fb7fce3709da36f7a1f4c4bae41f6e3c36ace4a3",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "现代能力卡实际显示知识库开关、只读预设、整个知识库范围、独立权限及刷新令牌选择。320 首图控制卡可见，页尾动作部分落在下折线；未把探针中透明 Ant 内层 input 的 centerHit=false 认作已测真实指针选择。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D086.png",
+          "sha256": "6780ea39624c7c374a76ac3c2f0c79bb9147d61744c4fcd2150f59a75740ed25",
+          "assetId": "MP-D086"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R051.png",
+          "sha256": "324926f3e817376a4b3189c620d84702d8a205cf012085b16f635875be36d220",
+          "assetId": "MP-R051"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S045.png",
+          "sha256": "638e7310c0a1da989b64aca9c0a8385e51dc7be1b1a395e8073c00da852bfd31",
+          "assetId": "MP-S045"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-oauth-modern/390-light-public-oauth-modern-controls.png",
+        "sha256": "4a38b86fa57a5d08b95cfae26ff21eb5d79c8c229a9050f9e1701fadede19a4c"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-published-system-theme/1440-dark-public-reader-system-theme.png",
+      "sha256": "0dd79fc811321aa9da80d9dcc194f152c7be8ea3cc2857ece15866a55d1377fd",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-054"
+      ],
+      "sceneId": "public-reader-system-theme",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "documentTheme": "system",
+        "rootColorScheme": "dark",
+        "browserPrefersDark": true,
+        "bodyBackground": "rgb(19, 21, 30)",
+        "targetBackground": "rgb(19, 21, 30)"
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-published-system-theme/1440-dark-public-reader-system-theme.json",
+      "sidecarSha256": "7e618cf2e3dcfaeaeb422f390463d6e2a7f43e5632d7c5b664f12b2940741a8b",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "已发布文章真实深底（已设置 system，浏览器偏好 dark）、亮色正文及适配的品牌绿链接；保留独立导航。360 短屏首图标题/元信息可读，正文随滚动。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D119.png",
+          "sha256": "510dfdebaa9e268d4a4cbb3012b557cf4d90fd04ff960358e9393fcc6e7668b3",
+          "assetId": "MP-D119"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S069.png",
+          "sha256": "07dd2e17fb22de52ff69e0ebe149d7796fdc550c7892bd122afdb3a7a11a0e0f",
+          "assetId": "MP-S069"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-published-system-theme/360-short-dark-public-reader-system-theme.png",
+      "sha256": "4536b1a4316d8054aae812599d3ffdcb7ebdb6b6c75f7987a8e26c2986140493",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-054"
+      ],
+      "sceneId": "public-reader-system-theme",
+      "viewport": {
+        "width": 360,
+        "height": 460
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "documentTheme": "system",
+        "rootColorScheme": "dark",
+        "browserPrefersDark": true,
+        "bodyBackground": "rgb(19, 21, 30)",
+        "targetBackground": "rgb(19, 21, 30)"
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-published-system-theme/360-short-dark-public-reader-system-theme.json",
+      "sidecarSha256": "6360b2d68769e938b72389ef53014033bf7d9ccf4ed86bc8768f756a93e7e975",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "已发布文章真实深底（已设置 system，浏览器偏好 dark）、亮色正文及适配的品牌绿链接；保留独立导航。360 短屏首图标题/元信息可读，正文随滚动。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D119.png",
+          "sha256": "510dfdebaa9e268d4a4cbb3012b557cf4d90fd04ff960358e9393fcc6e7668b3",
+          "assetId": "MP-D119"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S069.png",
+          "sha256": "07dd2e17fb22de52ff69e0ebe149d7796fdc550c7892bd122afdb3a7a11a0e0f",
+          "assetId": "MP-S069"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-published-system-theme/390-dark-public-reader-system-theme.png",
+      "sha256": "e060b2521a1a0e4a8c25387b310a85ec82d92f7732c7a26da2d9528e274c078e",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-054"
+      ],
+      "sceneId": "public-reader-system-theme",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "dark",
+      "renderedThemeEvidence": {
+        "documentTheme": "system",
+        "rootColorScheme": "dark",
+        "browserPrefersDark": true,
+        "bodyBackground": "rgb(19, 21, 30)",
+        "targetBackground": "rgb(19, 21, 30)"
+      },
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-published-system-theme/390-dark-public-reader-system-theme.json",
+      "sidecarSha256": "615ee8526ade3c7bd1a43763b6a560c3518110b0bb49dfa398acb93a5dc2a342",
+      "role": "public-reader",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "已发布文章真实深底（已设置 system，浏览器偏好 dark）、亮色正文及适配的品牌绿链接；保留独立导航。360 短屏首图标题/元信息可读，正文随滚动。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D119.png",
+          "sha256": "510dfdebaa9e268d4a4cbb3012b557cf4d90fd04ff960358e9393fcc6e7668b3",
+          "assetId": "MP-D119"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S069.png",
+          "sha256": "07dd2e17fb22de52ff69e0ebe149d7796fdc550c7892bd122afdb3a7a11a0e0f",
+          "assetId": "MP-S069"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/1440-light-oauth-consent.png",
+      "sha256": "138251fd11e69adb60b02ebb27edaeed9fd56dcf1115be8fcbded74d363a3bbe",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-019"
+      ],
+      "sceneId": "oauth-consent",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/1440-light-oauth-consent.json",
+      "sidecarSha256": "38add99a061b4e31e5dfe017663b321dd16c23e2a364e77cc95c15212655bbed",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "实际已选操作与允许的资料目录，滚动可见拒绝及允许访问，作为旧式 OAuth 分支。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D087-v2.png",
+          "sha256": "4e893ecff18e81c2fa200e2dfd685aa58eee8b2d9dcf102cf6fc3181857beef6",
+          "assetId": "MP-D087"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R052.png",
+          "sha256": "fb8217d16a4c4e29c028e9871f5c994dde51080e35fe808f43b29815b732ea37",
+          "assetId": "MP-R052"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S045.png",
+          "sha256": "638e7310c0a1da989b64aca9c0a8385e51dc7be1b1a395e8073c00da852bfd31",
+          "assetId": "MP-S045"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/1440-light-oauth-consent-controls.png",
+        "sha256": "15f5953ebfc36d439c9a93f331733fca6501fad59d6453ceb8f72a20e1e1b086"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/1440-light-public-reader-feedback-share-abort.png",
+      "sha256": "d21dca4217bcb72fc52bba08eb7173e027e1e3d0bcad15e6388d5da2168d391f",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-055"
+      ],
+      "sceneId": "public-reader-feedback-share-abort",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/1440-light-public-reader-feedback-share-abort.json",
+      "sidecarSha256": "2d7356d8b0f7743de689ce7bf710e84c7315e18b8ed01bbcb4245848b2771329",
+      "role": "public-reader",
+      "faultInjection": "Standard Web Share API rejection injected on the page before SSR reader.js; calls and absence of clipboard fallback asserted. Simulated API availability is declared; no native OS dialog or successful share is claimed.",
+      "verdict": "pass",
+      "observation": "原生分享取消后复制/分享操作仍在，状态区留空，没有显示复制后备或异常提示。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S071.png",
+          "sha256": "f544978a2dcd048f076d899424a2e5e52144b57bc5d98ad72b3e561fdd56c6c2",
+          "assetId": "MP-S071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/1440-light-public-reader-feedback-share-error.png",
+      "sha256": "3a809da4d65e066c63f21b2ae175f7fa63725c9d3d47a826ce7ed1417814f8a6",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-055"
+      ],
+      "sceneId": "public-reader-feedback-share-error",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/1440-light-public-reader-feedback-share-error.json",
+      "sidecarSha256": "85bb476b3a9b4789edb1ef80439340cd289650461348885ee081946ab244ae10",
+      "role": "public-reader",
+      "faultInjection": "Standard Web Share API rejection injected on the page before SSR reader.js; calls and absence of clipboard fallback asserted. Simulated API availability is declared; no native OS dialog or successful share is claimed.",
+      "verdict": "pass",
+      "observation": "原生分享错误分支显示“暂时无法分享，请复制链接”，保持原文和复制链接可用。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S071.png",
+          "sha256": "f544978a2dcd048f076d899424a2e5e52144b57bc5d98ad72b3e561fdd56c6c2",
+          "assetId": "MP-S071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/320-light-oauth-consent.png",
+      "sha256": "a3eb3c7ae5b3293e289f33b52cfc36bc6bbd03ebc2e945605f8a2654a2e614bf",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-019"
+      ],
+      "sceneId": "oauth-consent",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/320-light-oauth-consent.json",
+      "sidecarSha256": "e8e4ff89fec0d624cce8c9ec8db28ffdee93337bd6010cf4225d4088f35a1f5b",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "实际已选操作与允许的资料目录，滚动可见拒绝及允许访问，作为旧式 OAuth 分支。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D087-v2.png",
+          "sha256": "4e893ecff18e81c2fa200e2dfd685aa58eee8b2d9dcf102cf6fc3181857beef6",
+          "assetId": "MP-D087"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R052.png",
+          "sha256": "fb8217d16a4c4e29c028e9871f5c994dde51080e35fe808f43b29815b732ea37",
+          "assetId": "MP-R052"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S045.png",
+          "sha256": "638e7310c0a1da989b64aca9c0a8385e51dc7be1b1a395e8073c00da852bfd31",
+          "assetId": "MP-S045"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/320-light-oauth-consent-controls.png",
+        "sha256": "bac4ea16ce2fa464659a7c27c3dee8f285b0dd4a880f61d67098146ac60bf293"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/320-light-public-reader-feedback-share-abort.png",
+      "sha256": "655062146233e38b44225e68a767729506a1028b39a34021aa6380d4a3c939ee",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-055"
+      ],
+      "sceneId": "public-reader-feedback-share-abort",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/320-light-public-reader-feedback-share-abort.json",
+      "sidecarSha256": "d8752a43b0ba0f51890aa9087c49d9d0ec24ae91f0252a970f9aec78f24d29d8",
+      "role": "public-reader",
+      "faultInjection": "Standard Web Share API rejection injected on the page before SSR reader.js; calls and absence of clipboard fallback asserted. Simulated API availability is declared; no native OS dialog or successful share is claimed.",
+      "verdict": "pass",
+      "observation": "原生分享取消后复制/分享操作仍在，状态区留空，没有显示复制后备或异常提示。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S071.png",
+          "sha256": "f544978a2dcd048f076d899424a2e5e52144b57bc5d98ad72b3e561fdd56c6c2",
+          "assetId": "MP-S071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/320-light-public-reader-feedback-share-error.png",
+      "sha256": "6ee7a725839ac020bed9a1f4622dce21b96265c622680684509b9d691f4dc059",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-055"
+      ],
+      "sceneId": "public-reader-feedback-share-error",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/320-light-public-reader-feedback-share-error.json",
+      "sidecarSha256": "7bbdd22561a48e7eb4801209c0e9062ca7c9f6a1a77a927990f3cb3f0c296c16",
+      "role": "public-reader",
+      "faultInjection": "Standard Web Share API rejection injected on the page before SSR reader.js; calls and absence of clipboard fallback asserted. Simulated API availability is declared; no native OS dialog or successful share is claimed.",
+      "verdict": "pass",
+      "observation": "原生分享错误分支显示“暂时无法分享，请复制链接”，保持原文和复制链接可用。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S071.png",
+          "sha256": "f544978a2dcd048f076d899424a2e5e52144b57bc5d98ad72b3e561fdd56c6c2",
+          "assetId": "MP-S071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/390-light-oauth-consent.png",
+      "sha256": "fc4bf1f4c92c6231e7706f872dda8b084ab6363078024e190450c64cbcc1402e",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-019"
+      ],
+      "sceneId": "oauth-consent",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/390-light-oauth-consent.json",
+      "sidecarSha256": "4f107d625533fef1d1145d5276d792b370c9397e8cc9fcfb60624d02acf425dc",
+      "role": "owner",
+      "faultInjection": null,
+      "verdict": "pass",
+      "observation": "实际已选操作与允许的资料目录，滚动可见拒绝及允许访问，作为旧式 OAuth 分支。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-D087-v2.png",
+          "sha256": "4e893ecff18e81c2fa200e2dfd685aa58eee8b2d9dcf102cf6fc3181857beef6",
+          "assetId": "MP-D087"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R052.png",
+          "sha256": "fb8217d16a4c4e29c028e9871f5c994dde51080e35fe808f43b29815b732ea37",
+          "assetId": "MP-R052"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S045.png",
+          "sha256": "638e7310c0a1da989b64aca9c0a8385e51dc7be1b1a395e8073c00da852bfd31",
+          "assetId": "MP-S045"
+        }
+      ],
+      "viewedControlsScreenshot": {
+        "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/390-light-oauth-consent-controls.png",
+        "sha256": "8bd5ac8366a129cc914782db7f055667c6038675eeb76f6bf2ee6f3b8356767a"
+      }
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/390-light-public-reader-feedback-share-abort.png",
+      "sha256": "7ef955ee14ad6827581bcb4b23af57a7cf86dfe0463719a91999dcb2a0356beb",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-055"
+      ],
+      "sceneId": "public-reader-feedback-share-abort",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/390-light-public-reader-feedback-share-abort.json",
+      "sidecarSha256": "4ffb686badcf7767a295a4b835a147bdb35734a53a9bba28e43be908df138a15",
+      "role": "public-reader",
+      "faultInjection": "Standard Web Share API rejection injected on the page before SSR reader.js; calls and absence of clipboard fallback asserted. Simulated API availability is declared; no native OS dialog or successful share is claimed.",
+      "verdict": "pass",
+      "observation": "原生分享取消后复制/分享操作仍在，状态区留空，没有显示复制后备或异常提示。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S071.png",
+          "sha256": "f544978a2dcd048f076d899424a2e5e52144b57bc5d98ad72b3e561fdd56c6c2",
+          "assetId": "MP-S071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        }
+      ]
+    },
+    {
+      "file": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/390-light-public-reader-feedback-share-error.png",
+      "sha256": "f77f126e28d40c1d63ce06be0ec9002f2c287548e9b556b9189cbe0a76844bbd",
+      "actuallyViewed": true,
+      "sourceIds": [
+        "PB-055"
+      ],
+      "sceneId": "public-reader-feedback-share-error",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "requestedTheme": "light",
+      "renderedThemeEvidence": null,
+      "sourceCommit": "d3cfe8da21e8692975150555d82113f9264625f2",
+      "sidecar": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-d3cfe8d-state-retry/390-light-public-reader-feedback-share-error.json",
+      "sidecarSha256": "0dbd94786840417b329aa4fe1077f7e4c3a6efd0e4fb93930886aba009d33d2f",
+      "role": "public-reader",
+      "faultInjection": "Standard Web Share API rejection injected on the page before SSR reader.js; calls and absence of clipboard fallback asserted. Simulated API availability is declared; no native OS dialog or successful share is claimed.",
+      "verdict": "pass",
+      "observation": "原生分享错误分支显示“暂时无法分享，请复制链接”，保持原文和复制链接可用。",
+      "designRefs": [
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-S071.png",
+          "sha256": "f544978a2dcd048f076d899424a2e5e52144b57bc5d98ad72b3e561fdd56c6c2",
+          "assetId": "MP-S071"
+        },
+        {
+          "file": "docs/design/platform-unification-2026-11-05/design/images/MP-R080.png",
+          "sha256": "bfc6e5d236e3e33d6b6df0acd42e5aacbefef946191d9a030fd2a9838c74bcb2",
+          "assetId": "MP-R080"
+        }
+      ]
+    }
+  ]
+}

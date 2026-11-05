@@ -1,0 +1,36 @@
+{
+  "fixture": "isolated browser, real rc61 packages, real API, same temporary DB across application restart",
+  "before": {
+    "git": "1.1.3",
+    "mcp": "2.0.0"
+  },
+  "newCatalog": {
+    "mcp": "2.0.1",
+    "git": "1.1.4"
+  },
+  "after": {
+    "git": "1.1.4",
+    "mcp": "2.0.1"
+  },
+  "setupDidNotAutoUpgrade": true,
+  "manualUpgradeActions": 2,
+  "preservedExistingGitConfig": true,
+  "screenshots": [
+    {
+      "file": "1440-before.png",
+      "sha256": "8320b18545718b4a74ca0b10862e4461333efc48c66decf3fb587de3920d241e"
+    },
+    {
+      "file": "390-before.png",
+      "sha256": "673214b2a53ca695e119a9fb395f94376c3ef15f678198eafc3e9a479e1cf798"
+    },
+    {
+      "file": "320-before.png",
+      "sha256": "57290fa32688d3ae6ef243e0293d04a80fa36c4412bbff78a2f7637d09548ba4"
+    },
+    {
+      "file": "1440-after.png",
+      "sha256": "ee01743d52602c7f30f0d7c89694e40d94aa98ae568921e2c26806726ba80cf5"
+    }
+  ]
+}

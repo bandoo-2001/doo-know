@@ -1,0 +1,736 @@
+{
+  "schema": 1,
+  "reviewedAt": "2026-11-05T15:57:53.193830+00:00",
+  "evidenceKind": "uncommitted patched working-tree author captures, independently viewed; no release or integrated-build verdict",
+  "baseCommit": "55174d48cd4dc6c315d7595d982749994ad1cdbe",
+  "patch": {
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/task-4-setup-feedback-fix-patch",
+    "sha256": "633d46de9051e09e3cdb2e4647058605d90f38ed2f41ea171bbb256043eea30d",
+    "bytes": 48329,
+    "reverseApplyCheck": "passed against exact current working files"
+  },
+  "authorManifest": {
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/.superpowers/sdd/2026-11-05-platform-ui-implementation/task-4-setup-feedback-fix-manifest.json",
+    "sha256": "ea10a0cc939c38f52750d176f5e926e61aa2a7ce7ee7e35aebb77df3016f8564"
+  },
+  "originalReview": {
+    "file": "/home/bandoo/.codex/worktrees/60c5/doo-know/docs/design/platform-unification-2026-11-05/runtime/reviews/setup-public-review.json",
+    "sha256": "3acdcae0fa1038c9046563e3bac0f54d4c7dcf975b59eb7256939a8d7f991b4a"
+  },
+  "reviewScope": "9 before issue IDs (FILE-PRECISION and SMALL-FILE cover one family), 9 after capture positions × 3 widths. Each PNG decoded/viewed in width panels with original 390/320 images, plus full desktop overview and magnified central content. Per file SHA256 and IHDR verified.",
+  "widths": [
+    1440,
+    390,
+    320
+  ],
+  "rows": [
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-desktop/git-rejection.png",
+      "sha256": "d729e7cfe65de4a34a76dcc50f44e9637e84795b152ea68d5f60b9b8658175eb",
+      "width": 1440,
+      "height": 1000,
+      "sourceIds": [
+        "PB-011"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "GIT-FEEDBACK",
+        "SOURCE-CUE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "同名错误的完整两行文字和下方重试操作进入视口，Git 来源卡有勾。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-phone320/git-rejection.png",
+      "sha256": "8dfb28a305ccea2da7c86c4da6ade68e3d149cd6cd5828cedcbd6b037249478a",
+      "width": 320,
+      "height": 844,
+      "sourceIds": [
+        "PB-011"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "GIT-FEEDBACK",
+        "SOURCE-CUE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "同名错误的完整两行文字和下方重试操作进入视口，Git 来源卡有勾。 320px 下按钮上下排列，错误或任务及操作均完整在视口。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-phone390/git-rejection.png",
+      "sha256": "b3c2e2f608a86aeb2de83f7226d6cfd3250aed75e9f7e71de8e8c17e6c444fe7",
+      "width": 390,
+      "height": 844,
+      "sourceIds": [
+        "PB-011"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "GIT-FEEDBACK",
+        "SOURCE-CUE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "同名错误的完整两行文字和下方重试操作进入视口，Git 来源卡有勾。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-desktop/unknown-receipt-action.png",
+      "sha256": "cc8c1b2ce57d154713da84baa0dcc2ac45b5850b8304f4a9753f726fcd505527",
+      "width": 1440,
+      "height": 1000,
+      "sourceIds": [
+        "PB-011"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "RECEIPT-ACTION"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "另一个滚动位置的表单主按钮现在写“核对导入结果”。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-desktop/unknown-receipt.png",
+      "sha256": "810db4c8e8e80bf9ae4e5bbf613b40eb5bc8710b537c128b13345f1b2039500a",
+      "width": 1440,
+      "height": 1000,
+      "sourceIds": [
+        "PB-011"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "GIT-FEEDBACK",
+        "RECEIPT-ACTION",
+        "SOURCE-CUE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "红色提示、未确认回执卡和卡内核对按钮整块可见。来源勾位于右上。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone320/unknown-receipt-action.png",
+      "sha256": "bf968f54518c553759018a2581e7f426e4282f0aa400a1f0eab464933568122e",
+      "width": 320,
+      "height": 844,
+      "sourceIds": [
+        "PB-011"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "RECEIPT-ACTION"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "另一个滚动位置的表单主按钮现在写“核对导入结果”。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone320/unknown-receipt.png",
+      "sha256": "9082a9be92398e4bd4635e57186a4c4d97424e7f12d10e1590c9d3b800fcbbf5",
+      "width": 320,
+      "height": 844,
+      "sourceIds": [
+        "PB-011"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "GIT-FEEDBACK",
+        "RECEIPT-ACTION",
+        "SOURCE-CUE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "红色提示、未确认回执卡和卡内核对按钮整块可见。来源勾位于右上。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone390/unknown-receipt-action.png",
+      "sha256": "9226651018101417e4b1d8fd5b169e50948cdb46dad5154d8219e064fb82ee2b",
+      "width": 390,
+      "height": 844,
+      "sourceIds": [
+        "PB-011"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "RECEIPT-ACTION"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "另一个滚动位置的表单主按钮现在写“核对导入结果”。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone390/unknown-receipt.png",
+      "sha256": "3053a350d16adca27acabb61217c526565e4edc40e7f413ee8f9400f4e9d684e",
+      "width": 390,
+      "height": 844,
+      "sourceIds": [
+        "PB-011"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "GIT-FEEDBACK",
+        "RECEIPT-ACTION",
+        "SOURCE-CUE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "红色提示、未确认回执卡和卡内核对按钮整块可见。来源勾位于右上。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-desktop/resumed-clone.png",
+      "sha256": "a0f7dfd637c4c9e3eae463811d3b2e379b4002b40425f1a3029945cd2d2f1574",
+      "width": 1440,
+      "height": 1000,
+      "sourceIds": [
+        "PB-011"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "RESUMED-JOB",
+        "SOURCE-CUE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "下载任务编号、运行进度、回执缺少仓库地址及知识库名称的说明、刷新、取消都在卡中。没有默认名称假冒已提交的值。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-phone320/resumed-clone.png",
+      "sha256": "b634f3d327e43c5ecfd48636710ef3cee4fa42a095cb46044c5249972a51a325",
+      "width": 320,
+      "height": 844,
+      "sourceIds": [
+        "PB-011"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "RESUMED-JOB",
+        "SOURCE-CUE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "下载任务编号、运行进度、回执缺少仓库地址及知识库名称的说明、刷新、取消都在卡中。没有默认名称假冒已提交的值。 320px 下按钮上下排列，错误或任务及操作均完整在视口。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-phone390/resumed-clone.png",
+      "sha256": "0e355cd4141de0d663834025623517ff7abb86043b901a3a816e82bbffb2f752",
+      "width": 390,
+      "height": 844,
+      "sourceIds": [
+        "PB-011"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "RESUMED-JOB",
+        "SOURCE-CUE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "下载任务编号、运行进度、回执缺少仓库地址及知识库名称的说明、刷新、取消都在卡中。没有默认名称假冒已提交的值。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-failed-opti-5df89-ter-a-real-successful-retry-desktop/registry-unavailable.png",
+      "sha256": "ec05047fa707e7dcedf0c41e6b3bb85d777ad15857d40b148239467b2e4477c6",
+      "width": 1440,
+      "height": 1000,
+      "sourceIds": [
+        "PB-012"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "UNAVAILABLE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "警告及可重读操作相邻。功能卡明确“尚未确认可用性”，添加动作禁用。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-failed-opti-5df89-ter-a-real-successful-retry-phone320/registry-unavailable.png",
+      "sha256": "4df2ddd31c37d311cd796f564ebf2c06fa400164788f5bb9ce4f258a2249b60c",
+      "width": 320,
+      "height": 844,
+      "sourceIds": [
+        "PB-012"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "UNAVAILABLE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "警告及可重读操作相邻。功能卡明确“尚未确认可用性”，添加动作禁用。 长卡片正常纵向滚动，页尾跳过在本视口之外。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-failed-opti-5df89-ter-a-real-successful-retry-phone390/registry-unavailable.png",
+      "sha256": "90ce654d09d5fbc2919bea8084bee22bc28b789ed68698681289136a709347de",
+      "width": 390,
+      "height": 844,
+      "sourceIds": [
+        "PB-012"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "UNAVAILABLE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "警告及可重读操作相邻。功能卡明确“尚未确认可用性”，添加动作禁用。 长卡片正常纵向滚动，页尾跳过在本视口之外。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-desktop/finish-and-file-size.png",
+      "sha256": "d5bef0e5f66619be14f37566edd3668317f49128100dbbff79d9122044c9be9a",
+      "width": 1440,
+      "height": 1000,
+      "sourceIds": [
+        "PB-013",
+        "PB-014"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "FINISH-SPINNERS",
+        "SMALL-FILE"
+      ],
+      "verdict": "original-scoped-finding-addressed; new-P2",
+      "visibleEvidence": "发起进入工作区后两个离开按钮均锁；作者断言只有触发按钮带加载图标，静态图中图标非常浅。下方导入仍启用。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-desktop/one-byte-over-limit.png",
+      "sha256": "328e453e51912be392ad6cd65623dd2a1d4cef8e4885d1ee96d2b2fda4a94a35",
+      "width": 1440,
+      "height": 1000,
+      "sourceIds": [
+        "PB-014"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "FILE-PRECISION"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "选中 one-over.md 大小 262145 字节。上限 262144 字节和超限错误一起可读。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-desktop/tiny-file.png",
+      "sha256": "0d0eb0e70b43d1db4fbf1d36b6e85c87050e88eb725c1dc71ede1b2403e7346c",
+      "width": 1440,
+      "height": 1000,
+      "sourceIds": [
+        "PB-014"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "SMALL-FILE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "tiny.md 回执准确显示为 5 字节；原生文件控件与导入动作可见。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone320/finish-and-file-size.png",
+      "sha256": "f766ccf61d904c3e0ffd4d0841f47bf401d1dd3d4f48ef050324f0d693e797a8",
+      "width": 320,
+      "height": 844,
+      "sourceIds": [
+        "PB-013",
+        "PB-014"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "FINISH-SPINNERS",
+        "SMALL-FILE"
+      ],
+      "verdict": "original-scoped-finding-addressed; new-P2",
+      "visibleEvidence": "发起进入工作区后两个离开按钮均锁；作者断言只有触发按钮带加载图标，静态图中图标非常浅。下方导入仍启用。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone320/one-byte-over-limit.png",
+      "sha256": "0088864a3ff5004ddf9db035c989c21011554cce1a3487e2f16295c53c36f817",
+      "width": 320,
+      "height": 844,
+      "sourceIds": [
+        "PB-014"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "FILE-PRECISION"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "选中 one-over.md 大小 262145 字节。上限 262144 字节和超限错误一起可读。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone320/tiny-file.png",
+      "sha256": "c5ae7ae149765195fff6dc126c0b17866e53b401e6c60319b737c64cba0aa2b8",
+      "width": 320,
+      "height": 844,
+      "sourceIds": [
+        "PB-014"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "SMALL-FILE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "tiny.md 回执准确显示为 5 字节；原生文件控件与导入动作可见。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone390/finish-and-file-size.png",
+      "sha256": "03f26dc5cbb49ff7964049b41a66a2322c170f6f72cc70b7d0ac84eb6b95f01d",
+      "width": 390,
+      "height": 844,
+      "sourceIds": [
+        "PB-013",
+        "PB-014"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "FINISH-SPINNERS",
+        "SMALL-FILE"
+      ],
+      "verdict": "original-scoped-finding-addressed; new-P2",
+      "visibleEvidence": "发起进入工作区后两个离开按钮均锁；作者断言只有触发按钮带加载图标，静态图中图标非常浅。下方导入仍启用。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone390/one-byte-over-limit.png",
+      "sha256": "c192b3f8b3f1b400fcd77e4ef247f0632013bd9c38cac9ea1cf3f6e534f55f4b",
+      "width": 390,
+      "height": 844,
+      "sourceIds": [
+        "PB-014"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "FILE-PRECISION"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "选中 one-over.md 大小 262145 字节。上限 262144 字节和超限错误一起可读。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone390/tiny-file.png",
+      "sha256": "eebed5250aff734ad6cc775953636486d05586a8cde28718943f9fdb5ebc67bb",
+      "width": 390,
+      "height": 844,
+      "sourceIds": [
+        "PB-014"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "SMALL-FILE"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "tiny.md 回执准确显示为 5 字节；原生文件控件与导入动作可见。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-unavailable-2974e--its-primary-recheck-action-desktop/unavailable-source-primary.png",
+      "sha256": "a8a8524db3f597e19d1f6a64d074673a11e3b218ad091c1723307df7d0f8055b",
+      "width": 1440,
+      "height": 1000,
+      "sourceIds": [
+        "PB-017"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "STATUS-CTA"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "状态标题、保留资料说明、主色“重新检查”及详情披露明确可辨。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-unavailable-2974e--its-primary-recheck-action-phone320/unavailable-source-primary.png",
+      "sha256": "43f406d7c1d0c5609c42fefeb78b053be22b6f111cbf130dc7de572b469906f6",
+      "width": 320,
+      "height": 844,
+      "sourceIds": [
+        "PB-017"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "STATUS-CTA"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "状态标题、保留资料说明、主色“重新检查”及详情披露明确可辨。"
+    },
+    {
+      "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-unavailable-2974e--its-primary-recheck-action-phone390/unavailable-source-primary.png",
+      "sha256": "95411928afe2aa6eef6b85823bc9724403bc33ef97adc4a6ca189da5a4f90dea",
+      "width": 390,
+      "height": 844,
+      "sourceIds": [
+        "PB-017"
+      ],
+      "actuallyViewed": true,
+      "appliesTo": [
+        "STATUS-CTA"
+      ],
+      "verdict": "original-scoped-finding-addressed",
+      "visibleEvidence": "状态标题、保留资料说明、主色“重新检查”及详情披露明确可辨。"
+    }
+  ],
+  "originalFindings": [
+    {
+      "issueId": "GIT-FEEDBACK",
+      "priority": "P2",
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-setup01/320-light-setup-extra-git-same-name.png",
+      "beforeSha256": "b4ab8dc358c9bc0a451381185f271dfca17781580952a364470fca1dfd801426",
+      "status": "addressed",
+      "evidenceScope": "针对同名失败和丢回执的反馈区域；焦点与无重复 POST 由作者已有浏览器断言提供。",
+      "afterFiles": [
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-desktop/git-rejection.png",
+          "sha256": "d729e7cfe65de4a34a76dcc50f44e9637e84795b152ea68d5f60b9b8658175eb"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-phone320/git-rejection.png",
+          "sha256": "8dfb28a305ccea2da7c86c4da6ade68e3d149cd6cd5828cedcbd6b037249478a"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-phone390/git-rejection.png",
+          "sha256": "b3c2e2f608a86aeb2de83f7226d6cfd3250aed75e9f7e71de8e8c17e6c444fe7"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-desktop/unknown-receipt.png",
+          "sha256": "810db4c8e8e80bf9ae4e5bbf613b40eb5bc8710b537c128b13345f1b2039500a"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone320/unknown-receipt.png",
+          "sha256": "9082a9be92398e4bd4635e57186a4c4d97424e7f12d10e1590c9d3b800fcbbf5"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone390/unknown-receipt.png",
+          "sha256": "3053a350d16adca27acabb61217c526565e4edc40e7f413ee8f9400f4e9d684e"
+        }
+      ]
+    },
+    {
+      "issueId": "RECEIPT-ACTION",
+      "priority": "P2",
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-setup01/390-light-setup-extra-git-clone-lost-receipt.png",
+      "beforeSha256": "288fc628858384791368e5cb3ed93a7f8aecbe4e3d33d1a2e33cfd5bccc5e7a7",
+      "status": "addressed",
+      "evidenceScope": "卡内与表单底部是同一次未确认分支的两个滚动位置。",
+      "afterFiles": [
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-desktop/unknown-receipt-action.png",
+          "sha256": "cc8c1b2ce57d154713da84baa0dcc2ac45b5850b8304f4a9753f726fcd505527"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-desktop/unknown-receipt.png",
+          "sha256": "810db4c8e8e80bf9ae4e5bbf613b40eb5bc8710b537c128b13345f1b2039500a"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone320/unknown-receipt-action.png",
+          "sha256": "bf968f54518c553759018a2581e7f426e4282f0aa400a1f0eab464933568122e"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone320/unknown-receipt.png",
+          "sha256": "9082a9be92398e4bd4635e57186a4c4d97424e7f12d10e1590c9d3b800fcbbf5"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone390/unknown-receipt-action.png",
+          "sha256": "9226651018101417e4b1d8fd5b169e50948cdb46dad5154d8219e064fb82ee2b"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone390/unknown-receipt.png",
+          "sha256": "3053a350d16adca27acabb61217c526565e4edc40e7f413ee8f9400f4e9d684e"
+        }
+      ]
+    },
+    {
+      "issueId": "RESUMED-JOB",
+      "priority": "P2",
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-setup-failed-rerun/1440-light-setup-extra-git-clone-running.png",
+      "beforeSha256": "bc0aa2d7b89a8d456abb6d072f492d8ce3d4e2cb3b4c7d9c2ab2da4280e7bb98",
+      "status": "addressed",
+      "evidenceScope": "依据当前真实服务回执。该契约缺少实际 URL 与知识库名，采用 ID 和缺失说明；本评审接受此替代。",
+      "afterFiles": [
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-desktop/resumed-clone.png",
+          "sha256": "a0f7dfd637c4c9e3eae463811d3b2e379b4002b40425f1a3029945cd2d2f1574"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-phone320/resumed-clone.png",
+          "sha256": "b634f3d327e43c5ecfd48636710ef3cee4fa42a095cb46044c5249972a51a325"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-phone390/resumed-clone.png",
+          "sha256": "0e355cd4141de0d663834025623517ff7abb86043b901a3a816e82bbffb2f752"
+        }
+      ]
+    },
+    {
+      "issueId": "UNAVAILABLE",
+      "priority": "P2",
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-setup01/390-light-setup-extra-features-read-error.png",
+      "beforeSha256": "cc689a4690b9a38797fae0bf6d3d4f2f26033d601a4a54d13706b6ac0610f191",
+      "status": "addressed",
+      "evidenceScope": "手机图展示警告、重试、禁用卡；跳过在折叠线以下。已读作者的可用断言。读取恢复后的独立截图未提供。",
+      "afterFiles": [
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-failed-opti-5df89-ter-a-real-successful-retry-desktop/registry-unavailable.png",
+          "sha256": "ec05047fa707e7dcedf0c41e6b3bb85d777ad15857d40b148239467b2e4477c6"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-failed-opti-5df89-ter-a-real-successful-retry-phone320/registry-unavailable.png",
+          "sha256": "4df2ddd31c37d311cd796f564ebf2c06fa400164788f5bb9ce4f258a2249b60c"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-failed-opti-5df89-ter-a-real-successful-retry-phone390/registry-unavailable.png",
+          "sha256": "90ce654d09d5fbc2919bea8084bee22bc28b789ed68698681289136a709347de"
+        }
+      ]
+    },
+    {
+      "issueId": "FILE-PRECISION",
+      "priority": "P2",
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-setup01/320-light-setup-extra-import-invalid-size.png",
+      "beforeSha256": "97f1042f9af51412d8dd6bb5c26dcafd745e81e7a7391f721b1524a1ae18964b",
+      "status": "addressed",
+      "evidenceScope": "精准复核超限 1 字节的回执；不扩展到所有文件选择器。",
+      "afterFiles": [
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-desktop/one-byte-over-limit.png",
+          "sha256": "328e453e51912be392ad6cd65623dd2a1d4cef8e4885d1ee96d2b2fda4a94a35"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone320/one-byte-over-limit.png",
+          "sha256": "0088864a3ff5004ddf9db035c989c21011554cce1a3487e2f16295c53c36f817"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone390/one-byte-over-limit.png",
+          "sha256": "c192b3f8b3f1b400fcd77e4ef247f0632013bd9c38cac9ea1cf3f6e534f55f4b"
+        }
+      ]
+    },
+    {
+      "issueId": "SMALL-FILE",
+      "priority": "P3",
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-setup01/390-light-setup-extra-import-selected.png",
+      "beforeSha256": "bce6c06f99480846e75bdd887c073ab2f1afb0be45999f2f188fad2a107e3a70",
+      "status": "addressed",
+      "evidenceScope": "复核 5 字节的非空 .md；旧 UTF-8、网络、同名等各状态未另行采集。",
+      "afterFiles": [
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-desktop/finish-and-file-size.png",
+          "sha256": "d5bef0e5f66619be14f37566edd3668317f49128100dbbff79d9122044c9be9a"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-desktop/tiny-file.png",
+          "sha256": "0d0eb0e70b43d1db4fbf1d36b6e85c87050e88eb725c1dc71ede1b2403e7346c"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone320/finish-and-file-size.png",
+          "sha256": "f766ccf61d904c3e0ffd4d0841f47bf401d1dd3d4f48ef050324f0d693e797a8"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone320/tiny-file.png",
+          "sha256": "c5ae7ae149765195fff6dc126c0b17866e53b401e6c60319b737c64cba0aa2b8"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone390/finish-and-file-size.png",
+          "sha256": "03f26dc5cbb49ff7964049b41a66a2322c170f6f72cc70b7d0ac84eb6b95f01d"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone390/tiny-file.png",
+          "sha256": "eebed5250aff734ad6cc775953636486d05586a8cde28718943f9fdb5ebc67bb"
+        }
+      ]
+    },
+    {
+      "issueId": "FINISH-SPINNERS",
+      "priority": "P3",
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-setup-failed-rerun/390-light-setup-extra-finish-busy.png",
+      "beforeSha256": "ca37526b616db1b4e7fa785bbd15c532ca424180a66cb504e902ccf1303617bc",
+      "status": "addressed",
+      "evidenceScope": "截图/作者断言覆盖点击进入工作区。另一个点击方向来自源码条件，缺独立修后截图。下方导入并发另列新问题。",
+      "afterFiles": [
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-desktop/finish-and-file-size.png",
+          "sha256": "d5bef0e5f66619be14f37566edd3668317f49128100dbbff79d9122044c9be9a"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone320/finish-and-file-size.png",
+          "sha256": "f766ccf61d904c3e0ffd4d0841f47bf401d1dd3d4f48ef050324f0d693e797a8"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone390/finish-and-file-size.png",
+          "sha256": "03f26dc5cbb49ff7964049b41a66a2322c170f6f72cc70b7d0ac84eb6b95f01d"
+        }
+      ]
+    },
+    {
+      "issueId": "SOURCE-CUE",
+      "priority": "P3",
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-setup01/390-light-setup-extra-new.png",
+      "beforeSha256": "42cf031d7d5496d9cb109a1b804388398f683ac744dc3e1982bd4306a56444e2",
+      "status": "addressed",
+      "evidenceScope": "三宽实际看见 Git 选中勾。新建、已有资料两种条件在组件源码亦显示勾，但这 27 张中没有这两种选中态的独立修后图。",
+      "afterFiles": [
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-desktop/git-rejection.png",
+          "sha256": "d729e7cfe65de4a34a76dcc50f44e9637e84795b152ea68d5f60b9b8658175eb"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-phone320/git-rejection.png",
+          "sha256": "8dfb28a305ccea2da7c86c4da6ade68e3d149cd6cd5828cedcbd6b037249478a"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-Git-rejecti-9a534-the-actual-long-import-form-phone390/git-rejection.png",
+          "sha256": "b3c2e2f608a86aeb2de83f7226d6cfd3250aed75e9f7e71de8e8c17e6c444fe7"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-desktop/unknown-receipt.png",
+          "sha256": "810db4c8e8e80bf9ae4e5bbf613b40eb5bc8710b537c128b13345f1b2039500a"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone320/unknown-receipt.png",
+          "sha256": "9082a9be92398e4bd4635e57186a4c4d97424e7f12d10e1590c9d3b800fcbbf5"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-7a5ab-thout-issuing-another-clone-phone390/unknown-receipt.png",
+          "sha256": "3053a350d16adca27acabb61217c526565e4edc40e7f413ee8f9400f4e9d684e"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-desktop/resumed-clone.png",
+          "sha256": "a0f7dfd637c4c9e3eae463811d3b2e379b4002b40425f1a3029945cd2d2f1574"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-phone320/resumed-clone.png",
+          "sha256": "b634f3d327e43c5ecfd48636710ef3cee4fa42a095cb46044c5249972a51a325"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-accepted-cl-fd549-ing-source-details-explicit-phone390/resumed-clone.png",
+          "sha256": "0e355cd4141de0d663834025623517ff7abb86043b901a3a816e82bbffb2f752"
+        }
+      ]
+    },
+    {
+      "issueId": "STATUS-CTA",
+      "priority": "P3 design variance",
+      "beforeFile": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-55174d4-setup01/1440-light-setup-extra-source-unavailable.png",
+      "beforeSha256": "c6cbc7242e8e1124a36f355ac6171fa8d1e04920001c863b5d77ca41c3050449",
+      "status": "addressed",
+      "evidenceScope": "源不可用的重新检查已有三宽截图；初始化检查进度的 type=primary 源码已改，缺独立修后截图。",
+      "afterFiles": [
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-unavailable-2974e--its-primary-recheck-action-desktop/unavailable-source-primary.png",
+          "sha256": "a8a8524db3f597e19d1f6a64d074673a11e3b218ad091c1723307df7d0f8055b"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-unavailable-2974e--its-primary-recheck-action-phone320/unavailable-source-primary.png",
+          "sha256": "43f406d7c1d0c5609c42fefeb78b053be22b6f111cbf130dc7de572b469906f6"
+        },
+        {
+          "file": "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-unavailable-2974e--its-primary-recheck-action-phone390/unavailable-source-primary.png",
+          "sha256": "95411928afe2aa6eef6b85823bc9724403bc33ef97adc4a6ca189da5a4f90dea"
+        }
+      ]
+    }
+  ],
+  "newFindings": [
+    {
+      "id": "FINISH-IMPORT-RACE",
+      "priority": "P2",
+      "status": "unresolved-on-reviewed-patch",
+      "evidence": [
+        "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-desktop/finish-and-file-size.png",
+        "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone320/finish-and-file-size.png",
+        "/home/bandoo/.codex/worktrees/platform-modal-focus/doo-know/.local/public-feedback-fix/browser-final/setup-feedback-file-receip-7f901-elected-finish-action-spins-phone390/finish-and-file-size.png"
+      ],
+      "source": [
+        "apps/web/components/SetupWizard.vue:164-175,427-447",
+        "apps/web/components/SetupImport.vue:30-32,105-115"
+      ],
+      "observation": "完成请求尚未释放且旧页面可以点击。两个离开按钮和上一步已禁用，但导入组件的文件输入和已选择 tiny.md 的确认导入仍启用。",
+      "impact": "父组件只接收 importBusy，子组件仅检查自己的 busy。因此用户在离开过程中仍可启动另一个导入请求；如果先完成离开，导入结果可能无法在原向导读取。截图和源码确认可达入口；没有重跑并发时序或观测数据丢失。",
+      "relationToPatch": "旧 finish-busy 证据折叠了导入区。新组合截图显露此前已有的反向并发问题。"
+    }
+  ],
+  "overall": "Original reported feedback addressed in scoped patch. Hold finish/import combination pending new P2.",
+  "outsideScope": [
+    "Original INNER-INPUT / CLIPPED-PROBE are untouched evidence limits. This is not a replacement review of 132 original windows.",
+    "No independent server/test/browser execution in this review. Focus and enabled/disabled assertions are taken from the existing author recipe/run; OS, assistive technology, physical keyboard and external Git service were not exercised.",
+    "No inference about later integration, other commit versions, unpictured source choices, other initializing state screenshots or the unpublished release."
+  ]
+}

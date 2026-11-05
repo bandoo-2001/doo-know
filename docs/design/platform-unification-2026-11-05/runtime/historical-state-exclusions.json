@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "policy": "Do not rewrite historical PNG/JSON; exclude these indexed business-state claims from later accepted runtime coverage. New separately captured evidence remains eligible.",
+  "entries": [
+    {
+      "runId": "2026-11-05T13-22-49-526Z",
+      "evidenceId": "1440-light-workspace-ready",
+      "originalStatus": "captured",
+      "sourceIds": [
+        "WS-001"
+      ],
+      "originalRecord": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-12b7798-attempt03/1440-light-workspace-ready.json",
+      "originalPNG": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-12b7798-attempt03/1440-light-workspace-ready.png",
+      "reason": "Loading shell was captured before the actual ready heading; not Ready evidence.",
+      "reviewOrigin": "root independent actual screenshot review; historical files preserved",
+      "status": "historical-state-not-accepted-needs-recapture"
+    },
+    {
+      "runId": "2026-11-05T14-01-48-318Z",
+      "evidenceId": "1440-light-share-revoked",
+      "originalStatus": "captured",
+      "sourceIds": [
+        "WS-099",
+        "WS-117"
+      ],
+      "originalRecord": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-68616ea-batch02/1440-light-share-revoked.json",
+      "originalPNG": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-68616ea-batch02/1440-light-share-revoked.png",
+      "reason": "Independent root review observed active-sharing badge; required revoked setup had used a wrong swallowed endpoint.",
+      "reviewOrigin": "root independent actual screenshot review; historical files preserved",
+      "status": "historical-state-not-accepted-needs-recapture"
+    },
+    {
+      "runId": "2026-11-05T14-01-48-318Z",
+      "evidenceId": "1440-light-diagram-read",
+      "originalStatus": "captured",
+      "sourceIds": [
+        "WS-074"
+      ],
+      "originalRecord": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-68616ea-batch02/1440-light-diagram-read.json",
+      "originalPNG": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-68616ea-batch02/1440-light-diagram-read.png",
+      "reason": "Independent root review observed whiteboard selected/save incomplete/loading; actual reading DOM was not established.",
+      "reviewOrigin": "root independent actual screenshot review; historical files preserved",
+      "status": "historical-state-not-accepted-needs-recapture"
+    },
+    {
+      "runId": "2026-11-05T14-01-48-318Z",
+      "evidenceId": "1440-light-diagram-png",
+      "originalStatus": "captured",
+      "sourceIds": [
+        "WS-073"
+      ],
+      "originalRecord": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-68616ea-batch02/1440-light-diagram-png.json",
+      "originalPNG": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-68616ea-batch02/1440-light-diagram-png.png",
+      "reason": "Only an empty new whiteboard was shown; retain as historical empty variant, not evidence of nonempty saved PNG.",
+      "reviewOrigin": "root independent actual screenshot review; historical files preserved",
+      "status": "historical-state-not-accepted-needs-recapture"
+    },
+    {
+      "runId": "2026-11-05T14-01-48-318Z",
+      "evidenceId": "1440-light-export-reading-html",
+      "originalStatus": "captured",
+      "sourceIds": [
+        "WS-124"
+      ],
+      "originalRecord": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-68616ea-batch02/1440-light-export-reading-html.json",
+      "originalPNG": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-68616ea-batch02/1440-light-export-reading-html.png",
+      "reason": "Owner reading shell was primary screenshot; independent downloaded HTML was not the indexed runtime surface.",
+      "reviewOrigin": "root independent actual screenshot review; historical files preserved",
+      "status": "historical-state-not-accepted-needs-recapture"
+    },
+    {
+      "runId": "2026-11-05T14-01-48-318Z",
+      "evidenceId": "1440-light-large-file",
+      "originalStatus": "captured",
+      "sourceIds": [
+        "WS-049"
+      ],
+      "originalRecord": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-68616ea-batch02/1440-light-large-file.json",
+      "originalPNG": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-68616ea-batch02/1440-light-large-file.png",
+      "reason": "Queued/loading file operation was shown before a loaded editable fragment and line range.",
+      "reviewOrigin": "root independent actual screenshot review; historical files preserved",
+      "status": "historical-state-not-accepted-needs-recapture"
+    },
+    {
+      "runId": "2026-11-05T14-01-48-318Z",
+      "evidenceId": "1440-light-graph-note-mode",
+      "originalStatus": "captured",
+      "sourceIds": [
+        "WS-106"
+      ],
+      "originalRecord": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-68616ea-batch02/1440-light-graph-note-mode.json",
+      "originalPNG": "docs/design/platform-unification-2026-11-05/runtime/2026-11-05-68616ea-batch02/1440-light-graph-note-mode.png",
+      "reason": "Duplicate fixture titles/overlapping nodes and unstated actual layout readiness; needs unique data and stable layout recapture.",
+      "reviewOrigin": "root independent actual screenshot review; historical files preserved",
+      "status": "historical-state-not-accepted-needs-recapture"
+    }
+  ]
+}
