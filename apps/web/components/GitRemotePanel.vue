@@ -79,6 +79,18 @@ const running = computed(() => busy.value || jobPending(job.value));
 const repositoryPending = computed(() => state.value?.code === 'WORKSPACE_BUSY');
 const connection = computed(() => (repositoryPending.value ? null : state.value?.connection));
 const unresolved = ref<GitJobInput>();
+const submittedCloneRequest = ref('');
+const resumedClone = computed(
+  () =>
+    props.mode === 'import' &&
+    job.value?.kind === 'clone' &&
+    jobPending(job.value) &&
+    submittedCloneRequest.value !== job.value.requestId,
+);
+const feedbackAlert = ref<{ $el?: HTMLElement }>();
+const credentialFeedback = ref<{ $el?: HTMLElement }>();
+const receiptFeedback = ref<HTMLElement>();
+const jobFeedback = ref<HTMLElement>();
 const importedJobs = new Set<string>();
 let active = true,
   timer: ReturnType<typeof setTimeout> | undefined,
@@ -111,6 +123,72 @@ const returnToConnection = ref(false),
   reviewBaseline = ref(''),
   credentialBaseline = ref('');
 let returningToSave = false;
+const modalSelector = '.n-modal, [role="dialog"][aria-modal="true"], dialog[open]';
+function visibleFeedback(target?: HTMLElement): target is HTMLElement {
+  return !!target?.isConnected && target.getClientRects().length > 0;
+}
+function visibleModals() {
+  return [...document.querySelectorAll<HTMLElement>(modalSelector)].filter(
+    (target) => visibleFeedback(target) && !target.closest('[aria-hidden="true"], [inert]'),
+  );
+}
+function pageFeedbackAllowed() {
+  return (
+    active && props.mode === 'import' && !overlay.value && !busy.value && !visibleModals().length
+  );
+}
+watch([error, unresolved, busy, resumedClone], () => {
+  if (!pageFeedbackAllowed() || (!error.value && !unresolved.value && !resumedClone.value)) return;
+  const message = error.value,
+    receipt = unresolved.value;
+  const resumedId = resumedClone.value ? job.value?.id : undefined;
+  void nextTick(() => {
+    if (
+      !pageFeedbackAllowed() ||
+      error.value !== message ||
+      unresolved.value !== receipt ||
+      (resumedClone.value ? job.value?.id : undefined) !== resumedId
+    )
+      return;
+    const target = receipt
+      ? receiptFeedback.value
+      : message
+        ? feedbackAlert.value?.$el
+        : jobFeedback.value;
+    if (!visibleFeedback(target)) return;
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ block: 'center', inline: 'nearest' });
+  });
+});
+function revealCredentialError(message: string) {
+  if (props.mode !== 'import' || overlay.value !== 'credential') return;
+  void nextTick(() => {
+    if (!active || busy.value || overlay.value !== 'credential' || error.value !== message) return;
+    const target = credentialFeedback.value?.$el;
+    if (!visibleFeedback(target)) return;
+    const surface = target.closest<HTMLElement>('.settings-overlay');
+    const focusedSurface = document.activeElement?.closest(modalSelector);
+    if (
+      !surface ||
+      (focusedSurface && !surface.contains(focusedSurface) && !focusedSurface.contains(surface)) ||
+      visibleModals().some(
+        (modal) => modal !== surface && !surface.contains(modal) && !modal.contains(surface),
+      )
+    )
+      return;
+    target.focus({ preventScroll: true });
+    // Scroll only the current overlay body; never scroll its page or other modal.
+    const body = target.closest<HTMLElement>('.settings-overlay-body');
+    if (body) {
+      const box = target.getBoundingClientRect(),
+        bounds = body.getBoundingClientRect();
+      body.scrollTop = Math.max(
+        0,
+        body.scrollTop + box.top - bounds.top - (body.clientHeight - box.height) / 2,
+      );
+    }
+  });
+}
 const connectionDraft = () => ({
   url: url.value,
   branch: branch.value,
@@ -500,6 +578,7 @@ async function startJob(kind: GitJobKind) {
       ...(kind === 'disconnect' ? { confirm: true } : {}),
       ...(kind === 'ssh-host' ? { host: credentialHost.value } : {}),
     };
+    if (kind === 'clone') submittedCloneRequest.value = input.requestId;
     unresolved.value = input;
     const next = await api<GitJob>(endpoint + '/jobs', 'POST', input);
     if (!ownsJob(owner) || unresolved.value?.requestId !== input.requestId) return;
@@ -516,6 +595,7 @@ async function startJob(kind: GitJobKind) {
     // A definite rejection cannot have created a job. Transport loss must be reconciled.
     if (e instanceof ApiError && e.status > 0) unresolved.value = undefined;
     error.value = gitError(e);
+    if (kind === 'ssh-host') revealCredentialError(error.value);
   } finally {
     if (ownsJob(owner)) busy.value = false;
   }
@@ -586,6 +666,7 @@ async function saveCredential() {
   if (running.value || !active) return;
   if (credentialKind.value === 'ssh' && (!knownHosts.value.trim() || !trustHost.value)) {
     error.value = gitError('GIT_HOST_TRUST_REQUIRED');
+    revealCredentialError(error.value);
     return;
   }
   busy.value = true;
@@ -617,7 +698,10 @@ async function saveCredential() {
     discardOpen.value = false;
     notice.value = '凭据已保存，秘密内容不会回显。';
   } catch (e) {
-    if (active) error.value = gitError(e);
+    if (active) {
+      error.value = gitError(e);
+      revealCredentialError(error.value);
+    }
   } finally {
     if (active) busy.value = false;
   }
@@ -799,7 +883,15 @@ onMounted(() => {
         >刷新同步状态</AButton
       >
     </header>
-    <AAlert v-if="error" type="error" show-icon :message="error" role="alert" />
+    <AAlert
+      ref="feedbackAlert"
+      v-if="error"
+      type="error"
+      show-icon
+      :message="error"
+      role="alert"
+      :tabindex="mode === 'import' ? -1 : undefined"
+    />
     <AAlert
       v-if="state?.code"
       :type="repositoryPending ? 'info' : 'warning'"
@@ -893,10 +985,20 @@ onMounted(() => {
         本地提交 {{ committedHead }} 已保留；推送失败时可仅推送重试。
       </p>
     </div>
-    <div v-if="job && (!inline || !overlay)" class="remote-job" role="status">
+    <div
+      ref="jobFeedback"
+      v-if="job && (!inline || !overlay)"
+      class="remote-job"
+      role="status"
+      :tabindex="resumedClone ? -1 : undefined"
+    >
       <strong>{{
         job.status === 'cancelled' ? '任务已取消' : jobPhases[job.phase] || '正在处理任务'
       }}</strong>
+      <template v-if="resumedClone">
+        <p class="remote-code">任务编号：{{ job.id }}</p>
+        <p>仓库地址和知识库名称未包含在任务回执中。请核对下方进度；不会重新发起导入。</p>
+      </template>
       <p>
         {{
           job.status === 'cancelled'
@@ -926,7 +1028,12 @@ onMounted(() => {
         >
       </div>
     </div>
-    <div v-if="unresolved && (!inline || !overlay)" class="remote-job">
+    <div
+      ref="receiptFeedback"
+      v-if="unresolved && (!inline || !overlay)"
+      class="remote-job"
+      :tabindex="mode === 'import' ? -1 : undefined"
+    >
       <p>请求结果尚未确认，请先读取服务器任务回执，避免重复操作。</p>
       <AButton :disabled="running" @click="reconcile"
         ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
@@ -949,7 +1056,15 @@ onMounted(() => {
             }}</AButton
           >
         </header>
-        <AAlert v-if="error && !frameInline" type="error" show-icon :message="error" role="alert" />
+        <AAlert
+          ref="credentialFeedback"
+          v-if="error && !frameInline"
+          type="error"
+          show-icon
+          :message="error"
+          role="alert"
+          :tabindex="mode === 'import' && overlay === 'credential' ? -1 : undefined"
+        />
         <AAlert
           v-if="notice && !frameInline"
           :type="job?.status === 'cancelled' ? 'info' : 'success'"
@@ -984,7 +1099,7 @@ onMounted(() => {
           >
         </AAlert>
         <template v-if="overlay === 'connection' || (mode === 'import' && !overlay)">
-          <section aria-label="云端仓库配置">
+          <section v-if="!resumedClone" aria-label="云端仓库配置">
             <p>
               此操作会安装并启用 Git
               插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。
@@ -1047,12 +1162,22 @@ onMounted(() => {
               <AButton
                 type="primary"
                 :disabled="
-                  running || repositoryPending || !url.trim() || (mode === 'import' && !name.trim())
+                  running ||
+                  repositoryPending ||
+                  (!unresolved && (!url.trim() || (mode === 'import' && !name.trim())))
                 "
                 @click="startJob(mode === 'import' ? 'clone' : 'connect')"
                 ><template #icon
                   ><Icon class="settings-button-icon" name="link" :size="15" /></template
-                >{{ mode === 'import' ? '导入并继续' : '关联云端仓库' }}</AButton
+                >{{
+                  unresolved
+                    ? unresolved.kind === 'clone'
+                      ? '核对导入结果'
+                      : '核对请求结果'
+                    : mode === 'import'
+                      ? '导入并继续'
+                      : '关联云端仓库'
+                }}</AButton
               >
             </div>
           </section>

@@ -23,6 +23,7 @@ const error = ref(''),
   busy = ref(false),
   browserBusy = ref(false),
   errorDetail = ref('');
+const finishAction = ref<'note' | 'workspace'>();
 const heading = ref<HTMLElement>(),
   step = ref(props.status.phase === 'ready' ? 2 : 1);
 const browser = ref<{
@@ -162,6 +163,7 @@ async function go(value: number) {
 }
 async function finish(createNote = false) {
   if (busy.value || importBusy.value) return;
+  finishAction.value = createNote ? 'note' : 'workspace';
   busy.value = true;
   error.value = '';
   try {
@@ -178,6 +180,7 @@ async function finish(createNote = false) {
     error.value = describe(e);
   } finally {
     busy.value = false;
+    finishAction.value = undefined;
   }
 }
 watch(
@@ -227,6 +230,7 @@ onBeforeUnmount(() => clearInterval(timer));
               :disabled="busy"
               @click="selectMode('new')"
             >
+              <span v-if="mode === 'new'" class="mode-selected" aria-hidden="true">✓</span>
               <strong>创建新知识库</strong><span>只需起个名字，保存位置由我们准备。</span>
             </button>
             <button
@@ -237,6 +241,7 @@ onBeforeUnmount(() => clearInterval(timer));
               :disabled="busy"
               @click="selectMode('existing')"
             >
+              <span v-if="mode === 'existing'" class="mode-selected" aria-hidden="true">✓</span>
               <strong>使用已有资料</strong><span>选择部署设备上的文件夹，保留原有文件。</span>
             </button>
             <button
@@ -247,6 +252,7 @@ onBeforeUnmount(() => clearInterval(timer));
               :disabled="busy"
               @click="selectMode('remote')"
             >
+              <span v-if="mode === 'remote'" class="mode-selected" aria-hidden="true">✓</span>
               <strong>从 GitHub／Gitee 导入</strong><span>下载云端仓库到新的知识库文件夹。</span>
             </button>
           </div>
@@ -421,17 +427,20 @@ onBeforeUnmount(() => clearInterval(timer));
           <div class="start-actions">
             <AButton
               type="primary"
-              :loading="busy"
+              :loading="busy && finishAction === 'note'"
               :disabled="busy || importBusy"
               @click="finish(true)"
               >创建第一篇笔记</AButton
-            ><AButton :loading="busy" :disabled="busy || importBusy" @click="finish()"
+            ><AButton
+              :loading="busy && finishAction === 'workspace'"
+              :disabled="busy || importBusy"
+              @click="finish()"
               >进入工作区</AButton
             >
           </div>
           <details class="advanced">
             <summary>导入已有资料</summary>
-            <SetupImport @busy="importBusy = $event" />
+            <SetupImport :disabled="busy" @busy="importBusy = $event" />
             <p class="hint">请保留原始资料的备份。版本记录不能代替独立备份。</p>
           </details>
           <footer class="setup-footer">
@@ -443,7 +452,7 @@ onBeforeUnmount(() => clearInterval(timer));
       <div v-else-if="status.phase === 'initializing'" class="preparing" role="status">
         <h1>正在准备你的知识库</h1>
         <p>正在读取资料，请稍候。已有文件会保留。</p>
-        <AButton :loading="busy" @click="emit('refresh')">检查进度</AButton>
+        <AButton type="primary" :loading="busy" @click="emit('refresh')">检查进度</AButton>
       </div>
       <div v-else-if="status.phase === 'owner_required'" class="setup-state">
         <h1>还差一个登录账号</h1>
@@ -452,7 +461,7 @@ onBeforeUnmount(() => clearInterval(timer));
       <div v-else class="setup-state">
         <h1>暂时无法打开知识库</h1>
         <p>原有资料和设置已保留。请检查保存位置是否可用，再重试。</p>
-        <AButton @click="emit('refresh')">重新检查</AButton>
+        <AButton type="primary" @click="emit('refresh')">重新检查</AButton>
         <details class="advanced">
           <summary>查看详细信息</summary>
           {{ status.code || status.phase }}
@@ -625,6 +634,15 @@ h1:focus {
   display: block;
   margin-bottom: 7px;
   font-size: 14px;
+  font-weight: 600;
+  padding-right: 20px;
+}
+.mode-options .mode-selected {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: var(--blue);
+  font-size: 16px;
   font-weight: 600;
 }
 .mode-options .selected strong {
@@ -853,7 +871,7 @@ button:disabled {
     padding-bottom: 20px;
   }
   .setup-steps li {
-  min-width: 0;
+    min-width: 0;
     gap: 5px;
     font-size: 11px;
   }

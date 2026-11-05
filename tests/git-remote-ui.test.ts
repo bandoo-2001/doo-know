@@ -115,6 +115,11 @@ async function mount(file = 'GitRemotePanel.vue', props = {}) {
       children: [],
       props: {},
       options: [],
+      isConnected: true,
+      getClientRects: () => [{}],
+      closest: () => null,
+      focus: vi.fn(),
+      scrollIntoView: vi.fn(),
       getRootNode: () => ({ activeElement: null }),
       addEventListener() {},
       removeEventListener() {},
@@ -170,7 +175,7 @@ async function flush() {
 beforeEach(() => {
   vi.stubGlobal('Document', class {});
   vi.stubGlobal('ShadowRoot', class {});
-  vi.stubGlobal('document', { activeElement: null });
+  vi.stubGlobal('document', { activeElement: null, querySelectorAll: () => [] });
   vi.stubGlobal('window', {
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
@@ -1025,7 +1030,9 @@ it('reconciles a lost installation response before polling its accepted receipt'
 });
 
 it('keeps the onboarding skip guidance after a plugin installation failure', async () => {
+  registry.value = { ...registry.value, catalog: [{ id: 'mcp' }] };
   const view = await mount('SetupFeatures.vue');
+  await flush();
   vi.stubGlobal(
     'fetch',
     vi.fn(async (url: string, init?: RequestInit) => {
@@ -1414,4 +1421,168 @@ it('discards nested credential and connection drafts before returning to the not
   expect(view.panelDirty).toBe(false);
   expect(returned).toHaveBeenCalledTimes(1);
   expect(window.dispatchEvent).not.toHaveBeenCalled();
+});
+
+it('labels import receipt reconciliation without posting another clone', async () => {
+  const view = await mount('GitRemotePanel.vue', { mode: 'import' });
+  view.url = 'https://github.com/fixture/new-library.git';
+  view.name = 'accepted-library';
+  let original: any;
+  api.mockImplementation(async (url: string, method: string, body: any) => {
+    if (url.endsWith('/status')) return status();
+    if (url.endsWith('/jobs') && method === 'POST') {
+      original = body;
+      throw new ApiError(0, {});
+    }
+    if (url.endsWith('/jobs'))
+      return {
+        items: [
+          {
+            id: 'accepted-clone',
+            requestId: original.requestId,
+            kind: 'clone',
+            status: 'running',
+            phase: 'cloning',
+          },
+        ],
+      };
+    return { items: [] };
+  });
+  await view.startJob('clone');
+  await flush();
+  const action = renderedButton('核对导入结果');
+  expect(action, 'primary import action must describe receipt reconciliation').toBeTruthy();
+  await action.props.onClick();
+  expect(api.mock.calls.filter(([, method]) => method === 'POST')).toHaveLength(1);
+  expect(view.job.id).toBe('accepted-clone');
+});
+
+it('presents a resumed clone receipt without inventing a default repository or library name', async () => {
+  vi.useFakeTimers();
+  api.mockImplementation(async (url: string) =>
+    url.endsWith('/status')
+      ? {
+          ...status(),
+          repository: 'unbound',
+          connection: null,
+          jobs: [
+            {
+              id: 'persisted-clone-id',
+              requestId: 'accepted-request',
+              kind: 'clone',
+              status: 'running',
+              phase: 'cloning',
+            },
+          ],
+        }
+      : { items: [] },
+  );
+  await mount('GitRemotePanel.vue', { mode: 'import' });
+  await flush();
+  expect(renderedText()).toContain('persisted-clone-id');
+  expect(renderedText()).toContain('仓库地址和知识库名称未包含在任务回执中');
+  expect(
+    renderedNodes().filter((node) => node.props?.['aria-label'] === '导入后的知识库名称'),
+  ).toHaveLength(0);
+  expect(localStorage.setItem).not.toHaveBeenCalled();
+  expect(sessionStorage.setItem).not.toHaveBeenCalled();
+});
+
+it('blocks optional-feature installs while registry availability is unknown and offers a real retry', async () => {
+  refreshPlugins.mockRejectedValue(new Error('fixture registry unavailable'));
+  const writes: string[] = [];
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (url: string, options?: RequestInit) => {
+      if (options?.method === 'POST') {
+        writes.push(url);
+        return new Response(JSON.stringify({ error: 'fixture install refused' }), { status: 503 });
+      }
+      return new Response(
+        JSON.stringify(url.endsWith('/csrf') ? { token: 'fixture' } : { items: [] }),
+      );
+    }),
+  );
+  const view = await mount('SetupFeatures.vue');
+  await flush();
+  await view.configure('mcp');
+  expect(writes).toEqual([]);
+  expect(renderedButton('添加连接设置').props.disabled).toBe(true);
+  expect(renderedText()).toContain('尚未确认可用性');
+  const retry = renderedButton('重新读取可选功能');
+  expect(retry).toBeTruthy();
+  refreshPlugins.mockImplementation(async () => {
+    registry.value = { ...registry.value, catalog: [{ id: 'mcp' }] };
+  });
+  await retry.props.onClick();
+  await flush();
+  expect(renderedButton('添加连接设置').props.disabled).toBe(false);
+  expect(renderedText()).not.toContain('尚未确认可用性');
+});
+
+it('distinguishes a confirmed missing optional feature from a failed registry read and disables its install', async () => {
+  await mount('SetupFeatures.vue');
+  await flush();
+  expect(renderedText()).toContain('暂未提供此功能');
+  expect(renderedText()).not.toContain('尚未确认可用性');
+  expect(renderedButton('添加连接设置').props.disabled).toBe(true);
+});
+
+it('rejects a new single-file import while its parent is leaving without consuming the selected file', async () => {
+  const view = await mount('SetupImport.vue', { disabled: true });
+  const source = new File(['# Parent lock retains this selection\n'], 'retained.md', {
+    type: 'text/markdown',
+  });
+  view.file = source;
+  api.mockImplementation(async (url: string) =>
+    url === '/api/tree' ? [] : { id: 'must-not-be-created' },
+  );
+  await view.upload();
+  expect(api.mock.calls).toEqual([]);
+  expect(view.file).toBe(source);
+  expect(view.imported).toBe('');
+});
+
+it('does not reveal queued page receipt feedback after a credential overlay opens', async () => {
+  const view = await mount('GitRemotePanel.vue', { mode: 'import' });
+  await flush();
+  view.unresolved = {
+    kind: 'clone',
+    requestId: 'queued-before-modal',
+    url: 'https://github.com/fixture/notes.git',
+    name: 'fixture',
+  };
+  await Promise.resolve();
+  view.editCredential();
+  await flush();
+  const receipt = renderedNodes().find(
+    (node) => node.props?.class === 'remote-job' && renderedText(node).includes('请求结果尚未确认'),
+  );
+  expect(receipt).toBeTruthy();
+  expect(receipt.focus).not.toHaveBeenCalled();
+  expect(receipt.scrollIntoView).not.toHaveBeenCalled();
+});
+
+it('does not retarget an obsolete queued receipt reveal onto the latest message', async () => {
+  const view = await mount('GitRemotePanel.vue', { mode: 'import' });
+  await flush();
+  view.unresolved = {
+    kind: 'clone',
+    requestId: 'earlier-receipt',
+    url: 'https://github.com/fixture/old.git',
+    name: 'old',
+  };
+  await Promise.resolve();
+  view.unresolved = {
+    kind: 'clone',
+    requestId: 'latest-receipt',
+    url: 'https://github.com/fixture/latest.git',
+    name: 'latest',
+  };
+  await flush();
+  const receipt = renderedNodes().find(
+    (node) => node.props?.class === 'remote-job' && renderedText(node).includes('请求结果尚未确认'),
+  );
+  expect(receipt.focus).toHaveBeenCalledTimes(1);
+  expect(receipt.scrollIntoView).toHaveBeenCalledTimes(1);
 });
