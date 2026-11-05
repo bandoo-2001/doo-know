@@ -1,6 +1,6 @@
 import { test as base, expect } from '../support/browser-test';
 import type { Page, Locator } from '@playwright/test';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { createHash, randomUUID } from 'node:crypto';
 import { defaultBlogDesign } from '../../shared/blog-design';
 import { closeSidebar } from '../support/settings-navigation';
@@ -327,6 +327,159 @@ for (const section of ['appearance', 'navigation', 'modules', 'collections', 'se
         expect((await frame.getAttribute('sandbox'))?.split(/\s+/)).not.toContain('allow-scripts');
       }
       await page.screenshot({ path: info.outputPath('focus-' + section + '.png') });
+    },
+  );
+}
+
+for (const viewport of [
+  { width: 360, height: 460 },
+  { width: 844, height: 390 },
+]) {
+  test(
+    'short viewport expanded feedback keeps native focus hittable ' + viewport.width,
+    async ({ page, api }, info) => {
+      await page.setViewportSize(viewport);
+      const session = await api('/api/auth/get-session');
+      const theme = viewport.width === 360 ? 'dark' : 'light';
+      await page.addInitScript(
+        ({ id, theme }) =>
+          localStorage.setItem(
+            'dooknow.preferences.v1:' + encodeURIComponent(id),
+            JSON.stringify({ theme }),
+          ),
+        { id: session.user.id, theme },
+      );
+      await designSeed(api);
+      await openBlog(page, 'design');
+      const frame = await page.locator('iframe[title="博客主页草稿预览"]').elementHandle();
+      const name = page.getByLabel('姓名', { exact: true });
+      await name.fill('短屏保留草稿 ' + randomUUID().slice(0, 8));
+      const draft = await name.inputValue();
+      let writes = 0;
+      await page.route('**/api/blog/design', async (route) => {
+        if (route.request().method() !== 'PATCH') return route.continue();
+        writes++;
+        await route.fetch();
+        await route.abort('failed');
+      });
+      await button(page, '保存装修草稿').click();
+      const bar = page.locator('.blog-studio-savebar');
+      await expect(bar.getByRole('alert')).toContainText(/结果尚未确认/);
+      await frames(page);
+      await writeFile(
+        info.outputPath('feedback-before-reveal.json'),
+        JSON.stringify(
+          await bar.evaluate((element) => ({
+            active: document.activeElement?.outerHTML.slice(0, 300),
+            top: element.getBoundingClientRect().top,
+            bottom: element.getBoundingClientRect().bottom,
+            alertTop: element.querySelector('[role=alert]')!.getBoundingClientRect().top,
+            alertBottom: element.querySelector('[role=alert]')!.getBoundingClientRect().bottom,
+            position: getComputedStyle(element).position,
+          })),
+          null,
+          2,
+        ),
+      );
+      await page.screenshot({ path: info.outputPath('feedback-before-reveal.png') });
+      await saveFeedback(page, bar, /结果尚未确认/);
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+      const surface = await bar.evaluate((element) => {
+        const bounds = element.getBoundingClientRect();
+        return {
+          position: getComputedStyle(element).position,
+          top: bounds.top,
+          bottom: bounds.bottom,
+          height: bounds.height,
+          viewport: { width: innerWidth, height: innerHeight },
+          theme: document.documentElement.dataset.theme,
+        };
+      });
+      await writeFile(info.outputPath('feedback-surface.json'), JSON.stringify(surface, null, 2));
+      await page.screenshot({ path: info.outputPath('feedback-' + viewport.width + '.png') });
+      const targets = page
+        .locator('.blog-studio-editor .blog-form')
+        .locator('.blog-template-choice,select,textarea');
+      const probes = [];
+      for (const target of await targets.all()) {
+        await target.evaluate((element) =>
+          element.scrollIntoView({ block: 'nearest', inline: 'nearest' }),
+        );
+        await target.focus();
+        await frames(page);
+        const metrics = await target.evaluate((element) => {
+          const box = element.getBoundingClientRect(),
+            hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
+          return {
+            ancestors: Array.from(
+              (function* () {
+                let node = element.parentElement;
+                while (node) {
+                  yield node;
+                  node = node.parentElement;
+                }
+              })(),
+            ).map((node) => ({
+              class: node.className,
+              overflow: getComputedStyle(node).overflowY,
+              top: node.getBoundingClientRect().top,
+              bottom: node.getBoundingClientRect().bottom,
+              height: node.clientHeight,
+              scrollHeight: node.scrollHeight,
+            })),
+            tag: element.tagName,
+            text: (element.getAttribute('aria-label') || element.textContent || '').slice(0, 70),
+            top: box.top,
+            bottom: box.bottom,
+            height: box.height,
+            focused: document.activeElement === element,
+            centerHit: hit === element || (!!hit && element.contains(hit)),
+            hit: hit?.className,
+          };
+        });
+        probes.push(metrics);
+        await writeFile(info.outputPath('short-probes.json'), JSON.stringify(probes, null, 2));
+        await page.screenshot({
+          path: info.outputPath('short-' + viewport.width + '-' + probes.length + '.png'),
+        });
+        await info.attach('short-probe.json', {
+          body: JSON.stringify(probes, null, 2),
+          contentType: 'application/json',
+        });
+        expect(metrics.focused).toBe(true);
+        expect(metrics.centerHit).toBe(true);
+        expect(metrics.top).toBeGreaterThanOrEqual(0);
+        expect(metrics.bottom).toBeLessThanOrEqual(viewport.height);
+      }
+      // Native keyboard traversal after the first real template tile, without pointer auto-scroll.
+      const first = targets.first();
+      await first.evaluate((element) => element.scrollIntoView({ block: 'nearest' }));
+      await first.focus();
+      for (let i = 0; i < 8; i++) {
+        await page.keyboard.press('Tab');
+        await frames(page);
+        const hit = await page.evaluate(() => {
+          const active = document.activeElement!;
+          const box = active.getBoundingClientRect(),
+            target = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
+          return target === active || (!!target && active.contains(target));
+        });
+        expect(hit).toBe(true);
+      }
+      await expect(name).toHaveValue(draft);
+      expect(writes).toBe(1);
+      // Live viewport changes must remeasure without replacing the preview or draft.
+      await page.setViewportSize({ width: viewport.width, height: 844 });
+      await frames(page);
+      await expect(bar).toHaveCSS('position', 'sticky');
+      await page.setViewportSize(viewport);
+      await frames(page);
+      await expect(bar).toHaveCSS('position', 'static');
+      expect(await frame!.evaluate((element) => element.isConnected)).toBe(true);
+      await bar.getByRole('button', { name: '重新核对版本', exact: true }).click();
+      await expect(bar.getByRole('alert')).toHaveCount(0);
+      expect(writes).toBe(1);
+      await expect(name).toHaveValue(draft);
     },
   );
 }
