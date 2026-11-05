@@ -608,6 +608,7 @@ onMounted(() => {
       />
       <AAlert
         v-if="remoteChanged"
+        class="plugin-config-conflict"
         type="warning"
         show-icon
         message="已保存配置在其他位置发生变化"
@@ -1107,6 +1108,35 @@ onMounted(() => {
   color: var(--muted);
 }
 @media (max-width: 600px) {
+  .plugin-config-conflict {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+  }
+  .plugin-config-conflict :deep(.ant-alert-icon) {
+    margin-inline-end: 0;
+  }
+  .plugin-config-conflict :deep(.ant-alert-action) {
+    grid-column: 2;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+  }
+  .plugin-config-conflict :deep(.ant-alert-action > .ant-btn) {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 100%;
+    height: auto;
+    min-height: 36px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: start;
+  }
+  .plugin-config-conflict :deep(.ant-alert-action > .ant-btn > span) {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
   .section-heading {
     gap: 8px;
   }
