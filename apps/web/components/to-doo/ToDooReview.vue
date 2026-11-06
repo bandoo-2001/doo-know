@@ -395,13 +395,179 @@ function createReview() {
 defineExpose({ createReview, markAll, markingAll, actingReminder });
 </script>
 <template>
-  <div class="todo-review" :class="{ 'todo-review-contextual': contextualNavigation }">
-    <template v-if="section === 'stats'"
-      ><ToDooPageToolbar
-        tag="form"
-        class="todo-calendar-toolbar"
-        aria-label="统计区间"
-        @submit.prevent="range"
+  <template v-if="section === 'stats'"
+    ><ToDooPageToolbar
+      tag="form"
+      class="todo-calendar-toolbar"
+      aria-label="统计区间"
+      @submit.prevent="range"
+    >
+      <div class="todo-actions">
+        <ASegmented
+          :value="periodPreset"
+          :options="[
+            { label: '近 7 天', value: 'week' },
+            { label: '近 30 天', value: 'month' },
+            { label: '自定义', value: 'custom' },
+          ]"
+          :disabled="state.busy"
+          @change="selectPeriod"
+        />
+        <div v-show="customRange" class="todo-actions">
+          <label class="todo-inline-label"
+            >从<ToDooDateField
+              v-model="from"
+              type="date"
+              required
+              aria-label="统计开始日期"
+              :disabled="!customRange || state.busy"
+              :max="to || undefined" /></label
+          ><label class="todo-inline-label"
+            >到<ToDooDateField
+              v-model="to"
+              type="date"
+              required
+              aria-label="统计结束日期"
+              :disabled="!customRange || state.busy"
+              :min="from || undefined" /></label
+          ><AButton type="default" html-type="submit" class="todo-button">查看区间</AButton>
+        </div>
+      </div>
+    </ToDooPageToolbar>
+    <div class="todo-review-statistics" role="group" aria-label="区间统计">
+      <AStatistic title="完成行动" :value="state.snapshot?.statistics.completed || 0" suffix="项" />
+      <AStatistic
+        title="专注时长"
+        :value="Math.round(state.snapshot?.statistics.focusMinutes || 0)"
+        suffix="分钟"
+      />
+      <AStatistic title="沉淀成果" :value="state.snapshot?.statistics.outcomes || 0" suffix="份" />
+    </div>
+    <ToDooHint :model="model" hint-id="review-statistics-policy">
+      {{ appliedFrom }} — {{ appliedTo }} ·
+      {{ bucketDays > 1 ? '每 ' + bucketDays + ' 天汇总' : '按天统计' }}
+      · 历史完成保留归档行动的已完成记录；目标进展为当前未归档行动的累计执行次数，
+      不含父行动、取消和跳过的执行。已保存复盘保留保存时的指标。
+    </ToDooHint>
+    <div class="todo-review-grid">
+      <section class="todo-panel todo-review-trend">
+        <ToDooSectionHeader title="完成趋势"><small>单位：项</small></ToDooSectionHeader>
+        <div class="todo-completion-chart" role="img" :aria-label="trendDescription">
+          <div
+            v-for="(d, index) in daily"
+            :key="d.date"
+            :title="d.date + (d.end === d.date ? '' : ' — ' + d.end) + '：' + d.total + '项'"
+          >
+            <span>{{ d.total }}</span
+            ><i
+              :style="{
+                height:
+                  (d.total
+                    ? Math.max(6, (d.total / Math.max(1, ...daily.map((v) => v.total))) * 100)
+                    : 0) + 'px',
+              }"
+            ></i
+            ><small>{{
+              index % Math.max(1, Math.ceil(daily.length / 6)) === 0 || index === daily.length - 1
+                ? d.date.slice(5)
+                : ' '
+            }}</small>
+          </div>
+        </div>
+      </section>
+      <section class="todo-panel todo-review-goals">
+        <ToDooSectionHeader title="目标进展"><small>累计</small></ToDooSectionHeader>
+        <div v-for="l in lists" :key="l.id" class="todo-progress-row">
+          <div class="todo-between">
+            <span>{{ l.name }}</span
+            ><span
+              >{{ state.snapshot?.statistics.byList[l.id]?.completed || 0 }}/{{
+                state.snapshot?.statistics.byList[l.id]?.total || 0
+              }}</span
+            >
+          </div>
+          <AProgress
+            :percent="listProgress(l.id)"
+            :show-info="false"
+            :aria-label="l.name + '完成进度'"
+          />
+        </div>
+        <AEmpty
+          v-if="!lists.length"
+          class="todo-empty"
+          description="创建目标后，在这里回顾进展。"
+        />
+      </section>
+      <section class="todo-panel todo-review-records">
+        <ToDooSectionHeader title="复盘与成果" />
+        <AButton
+          type="text"
+          v-for="r in reviews"
+          :key="r.id"
+          class="todo-saved-row todo-text-button"
+          @click="emit('edit', 'review', r)"
+        >
+          <span
+            ><strong>{{ r.name }}</strong
+            ><small>{{ r.from }} — {{ r.to }}</small>
+            <p>{{ r.content.slice(0, 160) }}</p></span
+          ><span>↗</span>
+        </AButton>
+        <AEmpty
+          v-if="!reviews.length && !outcomes.length"
+          class="todo-empty"
+          description="写下做对的事与下一次调整，让记录成为下一步的依据。"
+        />
+        <AButton
+          type="text"
+          v-for="o in outcomes"
+          :key="o.id"
+          class="todo-saved-row todo-text-button"
+          @click="emit('edit', 'outcome', o)"
+        >
+          <span
+            >{{ o.summary
+            }}<small
+              >{{
+                {
+                  self_assessed: '自评',
+                  practice: '练习验证',
+                  reviewed: '经过评审',
+                  delivered: '已交付',
+                }[o.verification]
+              }}
+              <template v-if="o.evidenceRefs.length">
+                · {{ o.evidenceRefs.length }} 份证据</template
+              ></small
+            ></span
+          ></AButton
+        ><AButton type="link" class="todo-link todo-pad" @click="emit('edit', 'record')">
+          ＋ 新增推进记录
+        </AButton>
+      </section>
+    </div></template
+  >
+  <template v-else
+    ><ToDooPageToolbar class="todo-calendar-toolbar" aria-label="通知筛选">
+      <ATabs
+        class="todo-notification-tabs"
+        :active-key="notificationFilter"
+        @change="notificationFilterChanged"
+        ><ATabPane
+          v-for="tab in notificationTabs"
+          :key="tab.value"
+          :tab="tab.label"
+          :disabled="markingAll || state.loading || !!actingReminder"
+      /></ATabs>
+    </ToDooPageToolbar>
+    <ToDooHint :model="model" hint-id="notification-actions">
+      确认提醒只更新通知状态，不会自动完成任务或习惯；完成事项请查看来源。误操作可在更多提醒操作中恢复未读。
+    </ToDooHint>
+    <section class="todo-panel">
+      <section
+        v-for="group in notificationGroups"
+        :key="group.date"
+        class="todo-notification-group"
       >
         <div class="todo-actions">
           <ASegmented

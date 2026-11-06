@@ -166,19 +166,3 @@
     padding: 20px;
   }
 }
-
-.todo-anniversary-group {
-  min-width: 0;
-}
-.todo-anniversary[data-card-style] .todo-days {
-  overflow-wrap: anywhere;
-}
-@container (max-width: 400px) {
-  .todo-anniversary[data-card-style] {
-    padding: 18px;
-    gap: 12px;
-  }
-  .todo-anniversary[data-card-style] .todo-days {
-    font-size: clamp(34px, 12cqi, 48px);
-  }
-}

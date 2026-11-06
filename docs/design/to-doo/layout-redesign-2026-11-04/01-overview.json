@@ -1,0 +1,15 @@
+{
+  "id": "01-overview",
+  "title": "目标总览",
+  "file": "01-overview.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list.png",
+  "prompt": "Create ONE high-fidelity flat desktop web UI concept for DooKnow / To Doo, using the provided image as the canonical STYLE and navigation reference. Same full-screen framing, same restrained blue-gray palette, white main surface, pale-gray consolidated left sidebar, crisp Chinese typography, consistent readable control sizes, thin dividers, 6–8px radii, no browser/device chrome, no 3D/perspective, no marketing poster, no watermarks.\nPreserve the brand, workspace selector, list names and other navigation labels from the reference; move the active highlight to the correct destination for this screen and remove the old highlight. The To Doo brand/workspace menu provides the home/目标总览 and return-to-knowledge navigation. Use the whole main region with aligned title, controls and content. Do not keep the reference task detail pane unless this screen explicitly needs it. No floating filter bullet lists, duplicated scope dropdowns, tiny labels, random dashboard widgets or enormous decorative empty areas. Use Chinese UI text and sensible sample content. All date examples are in November 2026; Nov 4 is Wednesday. Controls and totals must agree with visible content. Reuse supported task, goal, focus, habit, anniversary, notification, settings and Markdown-note concepts; never claim global automatic saving, AI generation or fake collaboration. Render only the application UI.\n\nSCREEN REQUIREMENTS:\nDesign the home \"目标总览\". Close the right detail pane. At top show \"把目标拆成今天能做的事\" and restrained \"+ 新建目标\" and \"+ 新建任务\" actions. Prioritize a wide \"今日行动 · 3项待办\" section, with the three tasks \"整理项目的下一步\" (17:00, 工作与创造), \"回复合作伙伴的反馈\" (16:00, 工作与创造), \"阅读并整理一篇技术文章\" (20:00, 阅读与学习); outline completion circles, no completed checkmarks. Beside or below it show TWO bounded goal cards: \"完成产品方案\" progress \"3 / 6\" =50%, and \"建立阅读习惯\" progress \"4 / 8\" =50%, with short outcomes and small target dates. Explain the progress denominator briefly as \"已完成行动次数 / 目标行动次数\". A compact relevant strip can say \"今日习惯 3/4\" and \"本周专注 2小时\", not a wall of KPI cards or charts. Keep a clear goal overview/home breadcrumb. The sidebar retains the same modules and named lists; no incorrect active近七天. Make this a focused goal-to-action workspace, not a business dashboard.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-6528f758-7781-4fd1-a5f8-ebe179f1c4a3.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

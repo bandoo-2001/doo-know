@@ -1,0 +1,20 @@
+{
+  "name": "menu-empty-state-v1",
+  "title": "两级菜单 · 局部与空清单",
+  "prompt": "Use case: ui-mockup. Create a high-resolution PORTRAIT CLOSE-UP of the To Doo two-level navigation, using Image1 (the user's narrow screenshot) as the exact structural reference, and Image2 (the polished task concept) only for clean blue-gray styling and readable typography.\n\nShow ONLY the entire left navigation shell plus its small app header, not a task list or a full desktop. This is an enlarged sidebar design sample. Two adjacent columns, exactly: a narrow primary module rail about56–64 logical pixels, and a contextual panel about192–216 logical pixels. Preserve that relative width and full-height structure. No extra third column, no merging into a single menu, no browser/device frame or poster text.\n\nPrimary rail: top left-chevron \"返回\"; module buttons任务(selected),日历,四象限,专注,习惯,纪念日,复盘 as outline icons with short captions. Notifications通知 and设置 pinned to bottom. Context panel begins below a compact header with small blue checkmark, \"To Doo\" and quiet \"知识 · 行动 · 成果\". Context title任务; group我的待办 with收集箱/今天/近七天(selected)/所有任务; group目标 with目标总览; group我的清单 with plus at its right. In THIS menu-only example the personal list group is EMPTY, so show a quiet \"+ 创建第一张清单\" action and do not insert fake list names. Use group captions12px and menu text14px at native logical scale, rows36–40px and20–24px section gaps, enlarged crisply in the portrait output. Two blue selected states at separate levels任务 and近七天 are correct.\n\nRestrained white/cool-gray surfaces, cobalt/periwinkle selected tint, soft6px corners, thin vertical separator, consistent icons and careful baseline alignment. Exact readable Chinese text. Entire rail including bottom actions visible, no cropped menu labels, no gradients, no watermark.",
+  "refs": [
+    "/home/bandoo/.codex/attachments/594a5a7f-25ae-4618-92ca-fb92b940a62b/codex-clipboard-dab9fa3d-c788-4a98-8fe2-f6b32a5b545d.png",
+    "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list-v2.png"
+  ],
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/menu-structure-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-f744c280-89a1-49a7-bb87-e06ba882205b.png",
+  "tool": "image_gen.imagegen",
+  "dimensions": [
+    887,
+    1774
+  ],
+  "localReferences": [
+    "navigation-reference.png",
+    "../layout-redesign-2026-11-04/02-tasks-list-v2.png"
+  ]
+}

@@ -21,7 +21,7 @@
 }
 .todo-focus-panels {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
   gap: calc(var(--todo-space) * 3);
   align-items: start;
   flex: 1;
@@ -363,7 +363,7 @@
   display: grid;
   gap: 8px;
 }
-@container (max-width: 880px) {
+@container (max-width: 1050px) {
   .todo-focus-panels {
     grid-template-columns: minmax(0, 1fr);
   }

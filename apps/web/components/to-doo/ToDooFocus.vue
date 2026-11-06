@@ -779,9 +779,6 @@ async function resolveNoteConflict(merge: boolean) {
     />
     <div class="todo-focus-panels">
       <section
-        ref="projectsSection"
-        id="todo-focus-projects"
-        tabindex="-1"
         v-show="!narrowTimer || mobilePane === 'projects'"
         class="todo-focus-projects"
         aria-label="专注项目"
@@ -891,9 +888,6 @@ async function resolveNoteConflict(merge: boolean) {
         >
       </section>
       <aside
-        ref="recordsSection"
-        id="todo-focus-history"
-        tabindex="-1"
         v-show="!narrowTimer || mobilePane === 'history'"
         class="todo-focus-records"
         aria-label="专注概览和历史"

@@ -560,12 +560,7 @@ defineExpose({
           : '标题、日期、优先级、重复和提醒需点击“保存任务”；完成、执行状态和菜单操作立即生效。关闭保留当前页面输入，刷新前请保存。'
       }}
     </ToDooHint>
-    <form
-      v-if="creating"
-      :id="createFormId"
-      class="todo-form todo-detail-body"
-      @submit.prevent="create"
-    >
+    <form v-if="creating" class="todo-form todo-detail-body" @submit.prevent="create">
       <fieldset class="todo-create-fields" :disabled="state.busy">
         <label
           >任务标题<AInput

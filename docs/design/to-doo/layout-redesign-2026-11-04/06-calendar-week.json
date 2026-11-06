@@ -1,0 +1,15 @@
+{
+  "id": "06-calendar-week",
+  "title": "周日历",
+  "file": "06-calendar-week.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list.png",
+  "prompt": "Create ONE high-fidelity flat desktop web UI concept for DooKnow / To Doo, using the provided image as the canonical STYLE and navigation reference. Same full-screen framing, same restrained blue-gray palette, white main surface, pale-gray consolidated left sidebar, crisp Chinese typography, consistent readable control sizes, thin dividers, 6–8px radii, no browser/device chrome, no 3D/perspective, no marketing poster, no watermarks.\nPreserve the brand, workspace selector, list names and other navigation labels from the reference; move the active highlight to the correct destination for this screen and remove the old highlight. The To Doo brand/workspace menu provides the home/目标总览 and return-to-knowledge navigation. Use the whole main region with aligned title, controls and content. Do not keep the reference task detail pane unless this screen explicitly needs it. No floating filter bullet lists, duplicated scope dropdowns, tiny labels, random dashboard widgets or enormous decorative empty areas. Use Chinese UI text and sensible sample content. All date examples are in November 2026; Nov 4 is Wednesday. Controls and totals must agree with visible content. Reuse supported task, goal, focus, habit, anniversary, notification, settings and Markdown-note concepts; never claim global automatic saving, AI generation or fake collaboration. Render only the application UI.\n\nSCREEN REQUIREMENTS:\nDesign \"日历\" WEEK view, sidebar日历 active. Header \"11月2日 — 11月8日\", 今天 / previous-next, 周 active beside 月, primary \"+ 时间安排\", compact timezone \"北京时间 UTC+8\". Seven columns Monday Nov2 through Sunday Nov8, Nov4 Wednesday subtly highlighted. Time axis08:00–20:00 with honest time-block geometry. Nov4:09:00–09:45 整理项目下一步 (45min),15:30–16:00 回复反馈 (30min),19:00–20:00 技术阅读 (60min). Nov5:13:00–14:00 阅读计划,16:00–17:30 产品方案. Nov6:16:00–17:00 外部讲座,19:00–20:00 整理笔记. Event colored occupancy must end at the ACTUAL corresponding grid time; do not inflate all short events to a 90-minute block. Use readable compact one-line title/start labels, full time and duration on one selected event's small anchored popover if needed, not huge overlapping cards. A separate all-day lane for Nov4 结婚纪念日. Controls and grid aligned across the available width, no unnecessary right pane or blank toolbar gaps.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-e0603726-f9cb-4d2a-b504-c9c1b4796291.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

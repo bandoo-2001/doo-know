@@ -1,0 +1,15 @@
+{
+  "id": "25-goal-create",
+  "title": "新建目标（类型修订）",
+  "file": "25-goal-create-v2.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/25-goal-create.png",
+  "prompt": "Use case: ui-mockup, precise correction. Edit this provided generated goal-creation UI only. In the 类型 radio row, replace selected text \"类型目标\" with exact \"目标\"; replace the second option \"习惯目标\" with exact \"清单\". Keep 目标 selected, 清单 unselected. Those are the ONLY two supported types. Do not introduce a habit-goal type. Preserve every other field, date, outcome, criteria, notes, footer action, modal geometry, dim backdrop and sidebar exactly. High-fidelity crisp Chinese; no additional changes or annotations.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-d49e11bd-2d3c-4aa6-a4f0-f7a4ea45ed09.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

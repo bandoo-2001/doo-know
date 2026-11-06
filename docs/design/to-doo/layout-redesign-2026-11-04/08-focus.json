@@ -1,0 +1,15 @@
+{
+  "id": "08-focus",
+  "title": "专注",
+  "file": "08-focus.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list.png",
+  "prompt": "Create ONE high-fidelity flat desktop web UI concept for DooKnow / To Doo, using the provided image as the canonical STYLE and navigation reference. Same full-screen framing, same restrained blue-gray palette, white main surface, pale-gray consolidated left sidebar, crisp Chinese typography, consistent readable control sizes, thin dividers, 6–8px radii, no browser/device chrome, no 3D/perspective, no marketing poster, no watermarks.\nPreserve the brand, workspace selector, list names and other navigation labels from the reference; move the active highlight to the correct destination for this screen and remove the old highlight. The To Doo brand/workspace menu provides the home/目标总览 and return-to-knowledge navigation. Use the whole main region with aligned title, controls and content. Do not keep the reference task detail pane unless this screen explicitly needs it. No floating filter bullet lists, duplicated scope dropdowns, tiny labels, random dashboard widgets or enormous decorative empty areas. Use Chinese UI text and sensible sample content. All date examples are in November 2026; Nov 4 is Wednesday. Controls and totals must agree with visible content. Reuse supported task, goal, focus, habit, anniversary, notification, settings and Markdown-note concepts; never claim global automatic saving, AI generation or fake collaboration. Render only the application UI.\n\nSCREEN REQUIREMENTS:\nDesign the \"专注\" workspace, sidebar专注 active. Clear separation of timer project and history filter. Left/main section has a project selector \"阅读与学习\", a modest \"自由专注\" option, optional linked action \"阅读并整理一篇技术文章\", a timer25:00 in a contained readable panel with primary \"开始专注\" and settings. Show project rows 阅读与学习:今天25分钟/累计70分钟, 工作与创造:今天0分钟/累计50分钟. A distinct \"查看累计\" action, not hidden behind starting the timer. Right/history section has its OWN filter \"全部项目\" and \"本周 11月2日—11月8日\"; totals \"2小时 · 3次\". Three completed history records: Nov4 阅读与学习25分; Nov3 工作与创造50分; Nov2 阅读与学习45分, with one subtle \"已修正\" label. If showing a weekly trend, draw only measured Mon45/Tue50/Wed25; do not connect future zero buckets into a false decline. Keep history, timer and metric scope captions precise and uncluttered; no giant stopwatch dominating all content, no task-detail pane.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-8865dfec-0383-40e6-9b54-690512054043.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

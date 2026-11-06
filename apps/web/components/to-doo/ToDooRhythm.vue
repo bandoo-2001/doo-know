@@ -563,7 +563,7 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
       <ToDooHint :model="model" hint-id="habit-calendar-edit" class="todo-top-gap"
         >点击日期补记或调整记录。周／月累计请在“今天”查看。</ToDooHint
       >
-      <section class="todo-panel todo-habit-table" aria-label="习惯历史日历">
+      <section class="todo-panel todo-habit-table">
         <div class="todo-habit-row head">
           <span>习惯</span
           ><span v-for="d in days" :key="d"
@@ -826,7 +826,7 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
         :model="model"
         :hint-id="ordinaryDialog ? 'habit-checkin-save' : 'habit-quantity-save'"
         >{{
-          ordinaryDialog ? '点击打卡后保存本次记录' : '点击记录后保存本次新增'
+          ordinaryDialog ? '点击打卡后保存本次记录' : '点击保存后记录本次新增'
         }}；关闭会放弃本次输入，已保存记录保留。</ToDooHint
       >
       <ul

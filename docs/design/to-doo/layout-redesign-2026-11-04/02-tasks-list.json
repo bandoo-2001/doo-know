@@ -1,0 +1,15 @@
+{
+  "id": "02-tasks-list",
+  "title": "任务列表与详情（筛选一致性修订）",
+  "file": "02-tasks-list-v2.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list.png",
+  "prompt": "Use case: ui-mockup, precise correction. Edit the provided To Doo task-list concept. The active condition is 未完成 and SIX pending task rows are shown. Remove the ENTIRE bottom \"已完成 2\" result-group bar and its chevron, because completed results do not belong to this filter. Leave calm blank space below the last pending row. Keep the title,6项待办, date groups, all SIX tasks, selected first task, matching right detail pane, all filters, sort dropdown按优先级排序, buttons, sidebar, typography and exact overall layout otherwise unchanged. Do not add tasks, filters, new widgets or explanatory annotations. Maintain crisp Chinese and the same full-screen canvas.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-9e0d4810-6f2b-41e2-b9f0-5012d8781df9.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

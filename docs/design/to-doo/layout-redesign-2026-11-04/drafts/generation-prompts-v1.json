@@ -1,0 +1,32 @@
+{
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "tool": "image_gen.imagegen",
+  "assets": [
+    {
+      "id": "tasks-list",
+      "file": "02-tasks-list.png",
+      "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-498f6888-6b80-46a5-9db3-a7696644e29f.png",
+      "title": "任务列表与详情",
+      "prompt": "Use case: ui-mockup, precise final polish of a generated To Doo desktop interface concept.\nEdit the provided generated UI image. Keep the entire layout, task list, typography, colors, sidebar, title, dates, selected task and matching right detail panel unchanged. Make exactly one targeted change: replace the sorting dropdown text \"按截止时间排序\" with the exact Chinese text \"按优先级排序\". The high-priority selected task should remain first; this wording must match the visible ordering. Do not reorder tasks or change times. Preserve every other Chinese label, all counts, all icons, the six pending task rows, the selected task, and the full-screen flat framing. Maintain high-resolution crisp readable Chinese. No annotations, no watermark.",
+      "dimensions": [
+        1568,
+        1003
+      ]
+    },
+    {
+      "id": "tasks-empty",
+      "file": "17-tasks-filtered-empty.png",
+      "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-104e65fe-c376-44f0-b4b4-f488453018b7.png",
+      "title": "筛选无结果",
+      "prompt": "Use case: ui-mockup. Create the filtered-empty state of the SAME To Doo interface in the provided generated reference image.\nPreserve the exact visual language, sidebar width, blue-gray palette, typography, icon style and main top-header geometry. This is one coherent full-screen desktop app state, not a poster, not a dashboard, no device/browser chrome.\n\nChange the state and layout as follows:\n- The title stays \"近七天\", sidebar \"近七天\" stays the only selected scope, and the date range stays \"11月4日 — 11月10日\". The contextual count is now \"0项符合条件\".\n- Close the entire right task-details pane, since NO task is selected. Do not leave an empty detail sidebar. Let the main content use ALL available width from the single left sidebar to the right edge with consistent 32px padding. There must be no detached controls or unusable empty column at the right.\n- Keep the unified top toolbar: view tabs \"列表\" (active), \"看板\", \"四象限\", \"时间线\" on the left; search and filter on the right, aligned to the same baseline. The filter button should read \"筛选 2\".\n- Replace the prior \"未完成\" chip with exactly TWO readable removable user-filter chips: \"高优先级 ×\" and \"工作与创造 ×\", displayed together directly beneath the toolbar. Show no additional duplicated range dropdown, no floating filter bullet list. The sorting dropdown text is \"按优先级排序\".\n- Keep one quiet, full-width quick-entry line \"+ 添加任务，按 Enter 创建\", with the SAME left and right alignment as the toolbar and the content below it. Keep the single top-right primary \"+ 新建任务\" control; do not add another create button in the empty state.\n- Remove every task row, date group and completed-task section. Instead place a well-proportioned subtle bordered empty-results region below the quick entry, approximately 340px tall and spanning the main content width. Put a small neutral filter/search icon above the exact headline \"没有符合当前筛选的任务\". Supporting text: \"试试清除筛选，或查看其他任务范围。\"\n- In that empty-results region, use the main blue action \"清除筛选\" and a quiet secondary action \"查看所有任务\". These actions should be near the explanation, easy to recognize. This is FILTERED EMPTY, not a new account with no tasks, so do not say \"从一件小事开始\", \"你还没有任务\" or \"全部完成\".\n- Leave calm clean whitespace below that purposeful region; do not fill it with charts, calendars, made-up metrics, fake tasks or decorative artwork.\n- Sidebar retains product identity, workspace, task scopes, three named lists and the existing other modules and bottom settings/notifications exactly as in the reference.\n\nHigh-fidelity, genuinely implementable, orderly modern desktop UI. Normal 14-16px Chinese body text at native screen scale, clear 28px page heading, consistent approximately 36px controls. No fake autosave claims, no placeholder lorem ipsum, no explanatory captions outside the application.",
+      "dimensions": [
+        1568,
+        1003
+      ]
+    }
+  ],
+  "reference": {
+    "file": "reference-draft.png",
+    "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-9f583d64-e9a9-42d7-9a24-abb6923018b3.png"
+  }
+}

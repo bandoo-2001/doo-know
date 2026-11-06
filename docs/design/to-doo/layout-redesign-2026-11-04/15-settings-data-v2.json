@@ -1,0 +1,15 @@
+{
+  "id": "15-settings-data",
+  "title": "数据与恢复（统一修订）",
+  "file": "15-settings-data-v2.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/13-settings-preferences.png",
+  "prompt": "Use case: ui-mockup. Use the provided SETTINGS image as the exact style/navigation/frame reference and create its 数据与恢复 tab. Keep the same single left sidebar and header geometry, same readable Chinese, blue-gray palette, full desktop canvas, no browser chrome.\nThe settings tabs MUST be exactly these four in this exact order: \"偏好\" / \"提醒与连接\" / \"数据与恢复\" / \"清单管理\". Select ONLY 数据与恢复, third tab. Do not invent 通用/通知/专注 tabs. No 保存偏好 button. Header is 设置, with secondary 导出JSON and导出ICS actions.\nMain section \"导入数据\", subtitle \"导入导出任务、目标、习惯与关联记录\" — do NOT claim exporting Markdown document bodies.\nOne aligned file/target toolbar: 选择文件, tasks.csv, 文件类型CSV, 导入到工作与创造, 预览导入. A READ-ONLY preview table labeled \"23项 · 第1页/共3页\", columns类型/标题/日期/归属, TEN readable task rows, all assigned工作与创造 because that target was chosen. Use plausible dates Nov4–Nov10,2026. Row8 title优化项目首页文案 has date badge \"未安排\" in amber. There are NO selectable-row checkboxes or completion controls in this preview table.\nOne warning \"第8项日期无法解析，将按未安排任务导入；如需保留日期，请修改源文件后重新预览。\" This is nonfatal: ALL23 tasks can be imported, including the one with no date. Never say only22 can import or that correction is mandatory while enabling import. Pagination1/2/3 under table.\nFooter helper \"修改文件或目标清单后需重新预览\" and primary \"确认导入23项\". A compact collapsed 历史导入作业 area, truthful note \"停止不会撤销已完成批次\". Keep the whole screen tidy and readable, all primary actions inside viewport; no task detail pane, no secrets, no JSON, no watermark.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-c60b1eba-e3d3-4f2a-873b-cf0c3a48b086.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

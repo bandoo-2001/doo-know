@@ -1,0 +1,15 @@
+{
+  "id": "09-habits",
+  "title": "习惯",
+  "file": "09-habits.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list.png",
+  "prompt": "Create ONE high-fidelity flat desktop web UI concept for DooKnow / To Doo, using the provided image as the canonical STYLE and navigation reference. Same full-screen framing, same restrained blue-gray palette, white main surface, pale-gray consolidated left sidebar, crisp Chinese typography, consistent readable control sizes, thin dividers, 6–8px radii, no browser/device chrome, no 3D/perspective, no marketing poster, no watermarks.\nPreserve the brand, workspace selector, list names and other navigation labels from the reference; move the active highlight to the correct destination for this screen and remove the old highlight. The To Doo brand/workspace menu provides the home/目标总览 and return-to-knowledge navigation. Use the whole main region with aligned title, controls and content. Do not keep the reference task detail pane unless this screen explicitly needs it. No floating filter bullet lists, duplicated scope dropdowns, tiny labels, random dashboard widgets or enormous decorative empty areas. Use Chinese UI text and sensible sample content. All date examples are in November 2026; Nov 4 is Wednesday. Controls and totals must agree with visible content. Reuse supported task, goal, focus, habit, anniversary, notification, settings and Markdown-note concepts; never claim global automatic saving, AI generation or fake collaboration. Render only the application UI.\n\nSCREEN REQUIREMENTS:\nDesign \"习惯\", sidebar习惯 active. Header \"11月4日 周三\", date controls and \"+ 新建习惯\". A compact relevant summary \"今日达标 3/4\" and a clear card/list grid of FOUR habits at readable bounded widths. 阅读:45/20分钟, 已达标, a small7-day real-value history, \"+ 记录\" and \"查看记录\"; 喝水:4/8杯, 未达标 with inline numeric addition and记录; 运动:30/30分钟 已达标; 练习英语:15/15分钟 已达标. Never cap reading display to20: actual45 must remain visible. Quantity entry is compact, do not make each card enormous. Small local-day context \"北京时间\" and optional reminder20:00. Rows/actions align, title/purpose clear, no right task detail pane. A small selected reading-history preview can be an inline expansion showing15+10+20=45 if needed, but do not open a modal in this main-page image.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-ed122b03-063d-4d4e-bb6f-7dcb687f7665.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

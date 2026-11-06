@@ -1,0 +1,15 @@
+{
+  "id": "13-settings-preferences",
+  "title": "偏好设置",
+  "file": "13-settings-preferences.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list.png",
+  "prompt": "Create ONE high-fidelity flat desktop web UI concept for DooKnow / To Doo, using the provided image as the canonical STYLE and navigation reference. Same full-screen framing, same restrained blue-gray palette, white main surface, pale-gray consolidated left sidebar, crisp Chinese typography, consistent readable control sizes, thin dividers, 6–8px radii, no browser/device chrome, no 3D/perspective, no marketing poster, no watermarks.\nPreserve the brand, workspace selector, list names and other navigation labels from the reference; move the active highlight to the correct destination for this screen and remove the old highlight. The To Doo brand/workspace menu provides the home/目标总览 and return-to-knowledge navigation. Use the whole main region with aligned title, controls and content. Do not keep the reference task detail pane unless this screen explicitly needs it. No floating filter bullet lists, duplicated scope dropdowns, tiny labels, random dashboard widgets or enormous decorative empty areas. Use Chinese UI text and sensible sample content. All date examples are in November 2026; Nov 4 is Wednesday. Controls and totals must agree with visible content. Reuse supported task, goal, focus, habit, anniversary, notification, settings and Markdown-note concepts; never claim global automatic saving, AI generation or fake collaboration. Render only the application UI.\n\nSCREEN REQUIREMENTS:\nDesign settings \"偏好\", bottom sidebar设置 active. Canonical four tabs偏好/提醒与连接/数据与恢复/清单管理, 偏好 active. Top-right primary \"保存偏好\" exists ONLY on this tab. Readable aligned form groups: 常用偏好(default view列表,默认任务时长45分钟); 日期与提醒(显示时区北京时间 Asia/Shanghai with searchable selector,周起始日周一,免打扰23:00–08:00 and explicit免打扰时区北京时间); 专注(番茄25分钟,短休息5分钟,长休息15分钟); 外观(浅色 selected,深色,跟随系统). Keep secondary settings in sensible disclosures, no long wall of expanded technical fields. Use a restrained two-column form layout and clear labels, not fullwidth oversized inputs. No task-detail pane or duplicate floating save buttons.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-c501cea9-7b4f-402e-bfef-546ca888d091.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

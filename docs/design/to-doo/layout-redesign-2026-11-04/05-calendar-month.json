@@ -1,0 +1,15 @@
+{
+  "id": "05-calendar-month",
+  "title": "月日历",
+  "file": "05-calendar-month.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list.png",
+  "prompt": "Create ONE high-fidelity flat desktop web UI concept for DooKnow / To Doo, using the provided image as the canonical STYLE and navigation reference. Same full-screen framing, same restrained blue-gray palette, white main surface, pale-gray consolidated left sidebar, crisp Chinese typography, consistent readable control sizes, thin dividers, 6–8px radii, no browser/device chrome, no 3D/perspective, no marketing poster, no watermarks.\nPreserve the brand, workspace selector, list names and other navigation labels from the reference; move the active highlight to the correct destination for this screen and remove the old highlight. The To Doo brand/workspace menu provides the home/目标总览 and return-to-knowledge navigation. Use the whole main region with aligned title, controls and content. Do not keep the reference task detail pane unless this screen explicitly needs it. No floating filter bullet lists, duplicated scope dropdowns, tiny labels, random dashboard widgets or enormous decorative empty areas. Use Chinese UI text and sensible sample content. All date examples are in November 2026; Nov 4 is Wednesday. Controls and totals must agree with visible content. Reuse supported task, goal, focus, habit, anniversary, notification, settings and Markdown-note concepts; never claim global automatic saving, AI generation or fake collaboration. Render only the application UI.\n\nSCREEN REQUIREMENTS:\nDesign \"日历\" MONTH view, sidebar日历 active, other scope highlights removed. Header date navigation \"2026年11月\", previous/next, \"今天\", compact 月/周 switch with 月 active, and primary \"+ 时间安排\". A full-width calendar grid Monday through Sunday, six weeks. Exact date structure: first row Oct26,27,28,29,30,31, Nov1; second Nov2,3,4,5,6,7,8; then9–15,16–22,23–29; final Nov30 and Dec1–6. Outside-month dates are muted and month marked; Nov4 Wednesday highlighted. Show compact events on Nov4 09:00 整理项目下一步,15:30 回复反馈,19:00 技术阅读; Nov5 13:00 阅读计划,16:00 产品方案; Nov6 19:00 整理读书笔记; Nov11 团队纪念日. Small distinct deadline diamonds on appropriate days, legend for安排/截止/纪念日 and a restrained \"北京时间 UTC+8\" selector. No giant calendar cards, no separate narrow side calendar, no right detail pane. Exact readable date grid and aligned event chips.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-c3921538-de14-4f0e-aa26-d8d5b4bc2ab4.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

@@ -30,7 +30,7 @@ test('closing task creation guidance survives reopening and reload without hidin
   const creation = hint(page, 'task-create-save');
   await expect(creation).toBeVisible();
   await expect(creation).toHaveClass(/ant-alert/);
-  const screenshots = 'docs/design/to-doo/two-level-implementation-2026-11-04/regression-screenshots/card-polish';
+  const screenshots = 'docs/design/to-doo/card-polish-2026-11-04';
   await mkdir(screenshots, { recursive: true });
   await page.screenshot({
     path: screenshots + '/' + info.project.name + '-task-hint.png',

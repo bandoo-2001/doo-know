@@ -1,0 +1,15 @@
+{
+  "id": "04-matrix",
+  "title": "四象限",
+  "file": "04-matrix.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list.png",
+  "prompt": "Create ONE high-fidelity flat desktop web UI concept for DooKnow / To Doo, using the provided image as the canonical STYLE and navigation reference. Same full-screen framing, same restrained blue-gray palette, white main surface, pale-gray consolidated left sidebar, crisp Chinese typography, consistent readable control sizes, thin dividers, 6–8px radii, no browser/device chrome, no 3D/perspective, no marketing poster, no watermarks.\nPreserve the brand, workspace selector, list names and other navigation labels from the reference; move the active highlight to the correct destination for this screen and remove the old highlight. The To Doo brand/workspace menu provides the home/目标总览 and return-to-knowledge navigation. Use the whole main region with aligned title, controls and content. Do not keep the reference task detail pane unless this screen explicitly needs it. No floating filter bullet lists, duplicated scope dropdowns, tiny labels, random dashboard widgets or enormous decorative empty areas. Use Chinese UI text and sensible sample content. All date examples are in November 2026; Nov 4 is Wednesday. Controls and totals must agree with visible content. Reuse supported task, goal, focus, habit, anniversary, notification, settings and Markdown-note concepts; never claim global automatic saving, AI generation or fake collaboration. Render only the application UI.\n\nSCREEN REQUIREMENTS:\nDesign the task FOUR-QUADRANT matrix, sidebar近七天 selected, matching date range and \"6项未完成\". Tabs列表/看板/四象限/时间线, 四象限 active. Full-width 2x2 matrix with clear balanced quadrant headings and subdued semantic accent lines, not large red/green background blocks. \"重要且紧急 · 1\": 整理项目的下一步 (今天17:00). \"重要不紧急 · 3\": 完成产品方案初稿, 梳理本周的阅读计划, 整理一份读书笔记. \"紧急不重要 · 1\": 回复合作伙伴的反馈 (今天16:00). \"不紧急不重要 · 1\": 阅读并整理一篇技术文章, with small \"手动\" override badge. Each item has a completion circle, readable title, quiet project/date and a direct quadrant dropdown/overflow. A compact explanation \"象限分类与优先级独立\" and a small \"恢复自动判断\" action near the manual item. Counts 1+3+1+1=6. Keep task entry/search/filter in one toolbar. No selected-task detail pane or unrelated charts.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-a2929830-92f0-483f-b5ed-135f73dce255.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}
