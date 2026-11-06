@@ -1,0 +1,15 @@
+{
+  "id": "11-stats",
+  "title": "统计与复盘",
+  "file": "11-stats.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list.png",
+  "prompt": "Create ONE high-fidelity flat desktop web UI concept for DooKnow / To Doo, using the provided image as the canonical STYLE and navigation reference. Same full-screen framing, same restrained blue-gray palette, white main surface, pale-gray consolidated left sidebar, crisp Chinese typography, consistent readable control sizes, thin dividers, 6–8px radii, no browser/device chrome, no 3D/perspective, no marketing poster, no watermarks.\nPreserve the brand, workspace selector, list names and other navigation labels from the reference; move the active highlight to the correct destination for this screen and remove the old highlight. The To Doo brand/workspace menu provides the home/目标总览 and return-to-knowledge navigation. Use the whole main region with aligned title, controls and content. Do not keep the reference task detail pane unless this screen explicitly needs it. No floating filter bullet lists, duplicated scope dropdowns, tiny labels, random dashboard widgets or enormous decorative empty areas. Use Chinese UI text and sensible sample content. All date examples are in November 2026; Nov 4 is Wednesday. Controls and totals must agree with visible content. Reuse supported task, goal, focus, habit, anniversary, notification, settings and Markdown-note concepts; never claim global automatic saving, AI generation or fake collaboration. Render only the application UI.\n\nSCREEN REQUIREMENTS:\nDesign \"统计与复盘\", sidebar统计与复盘 active. Period control 本周, date11月2日—11月8日, primary \"写复盘\". Four compact meaningful metrics: 已完成8, 待办6, 完成率57%, 专注2小时. A clear weekly completion bar chart Mon3/Tue3/Wed2 then future days empty/zero without positive-height fake bars. Label numbers and scope, no decorative graphs. Beside/below show two goal progress rows 完成产品方案3/6 and建立阅读习惯4/8. Historical review list has \"上周复盘 · 10月26日—11月1日\", concise saved-note excerpt and 查看/编辑. Explain historical completed counts retain archived records while current pending uses active actions, in a small readable note. Use a balanced data workspace with one toolbar and honest zero states, not many random KPI cards, no task-detail pane.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-c39a4044-304b-4ed5-bd2a-52e889c5b07b.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

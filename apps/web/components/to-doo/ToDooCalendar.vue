@@ -10,6 +10,7 @@ import {
 } from 'ant-design-vue';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooDisclosure from './ToDooDisclosure.vue';
+import ToDooHint from './ToDooHint.vue';
 import { groupTaskItems } from '../../to-doo-task-groups';
 import { useToDooClock } from '../../to-doo-time';
 import {
@@ -783,9 +784,9 @@ watch(
         />
       </div>
     </div>
-    <p class="todo-muted todo-small">
+    <ToDooHint :model="model" hint-id="timeline-editing">
       紫色区段代表计划；◆ 代表截止。点击区段调整时间，任务详情可设置前置依赖。
-    </p></template
+    </ToDooHint></template
   >
   <template v-else>
     <div class="todo-mobile-calendar-choice">
@@ -1020,9 +1021,9 @@ watch(
         </div>
       </div>
     </div>
-    <p v-if="view === 'week'" class="todo-week-geometry-help todo-muted todo-small">
+    <ToDooHint v-if="view === 'week'" :model="model" hint-id="calendar-week-legend">
       色线表示实际占用；旁侧为事件说明
-    </p>
+    </ToDooHint>
     <p v-if="readableEvent" class="todo-calendar-event-detail" role="status">
       {{ readableEvent.title }} · {{ readableEvent.time }}—{{ readableEvent.endTime }} ·
       {{ readableEvent.duration }} 分钟

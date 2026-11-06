@@ -20,8 +20,10 @@ import { useToDooConfirm } from '../../to-doo-controls';
 import ToDooReminders from './ToDooReminders.vue';
 import ToDooFilterGroup from './ToDooFilterGroup.vue';
 import ToDooDisclosure from './ToDooDisclosure.vue';
+import ToDooHint from './ToDooHint.vue';
 import ToDooFormLayout from './ToDooFormLayout.vue';
 import ToDooHabitFields from './ToDooHabitFields.vue';
+import ToDooAnniversaryAppearance from './ToDooAnniversaryAppearance.vue';
 import { saveTaskSection } from '../../to-doo-task-groups';
 const props = defineProps<{
   model: ToDooWorkbench;
@@ -64,6 +66,7 @@ const defaults: Record<string, any> = {
     leapPolicy: 'previous_day',
     description: '',
     category: '',
+    appearance: { style: 'bloom', palette: 'rose' },
     noteRefs: [],
     reminders: [],
   },
@@ -337,9 +340,9 @@ defineExpose({
       @click="close"
       >×</AButton
     >
-    <p class="todo-muted todo-small">
+    <ToDooHint :model="model" hint-id="entity-save-policy">
       点击保存后生效；关闭有未保存输入时会询问是否放弃。刷新页面不保留这些输入。
-    </p>
+    </ToDooHint>
     <ToDooFormLayout
       ref="formLayout"
       class="todo-entity-form"
@@ -460,6 +463,7 @@ defineExpose({
             >农历闰月</ACheckbox
           >
         </div>
+        <ToDooAnniversaryAppearance v-model="form.appearance" :entity="form" :today="today" />
       </template>
       <template v-if="kind === 'review'">
         <div class="todo-form-grid">
@@ -538,7 +542,9 @@ defineExpose({
             </option>
           </ToDooSelect></label
         >
-        <p class="todo-muted todo-small">当前已选清单、标签与状态条件将一并保存。</p>
+        <ToDooHint :model="model" hint-id="view-filter-save">
+          当前已选清单、标签与状态条件将一并保存。
+        </ToDooHint>
         <ToDooFilterGroup v-if="form.filter.group" v-model="form.filter.group" :model="model"
       /></template>
       <label v-if="kind === 'template'"

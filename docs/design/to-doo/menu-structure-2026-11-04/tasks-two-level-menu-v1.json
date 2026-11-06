@@ -1,0 +1,20 @@
+{
+  "name": "tasks-two-level-menu-v1",
+  "title": "两级菜单 · 完整任务页",
+  "prompt": "Use case: ui-mockup. Edit Image 1 (the polished full To Doo task workspace). Image 2 is the USER'S AUTHORITATIVE NAVIGATION-STRUCTURE REFERENCE. Redesign ONLY the application navigation shell to use that TWO-LEVEL sidebar structure, while preserving the polished main task list and corresponding right detail pane from Image 1.\n\nExactly TWO navigation columns on the left:\nA. A narrow full-height primary module rail, logical width56–64px. Very pale cool-gray background. Top return button with left chevron and label \"返回\". Vertically stacked outline icons with short labels: \"任务\" SELECTED, \"日历\", \"四象限\", \"专注\", \"习惯\", \"纪念日\", \"复盘\". At the bottom pin \"通知\" and \"设置\". Each module uses an icon plus a small short caption; do NOT expand this rail into a wide text menu.\nB. Immediately beside it a contextual task-navigation panel, logical width192–216px, separated by a light border. It starts BELOW the app top bar. Title \"任务\". Three correctly separated groups:\n\"我的待办\": 收集箱 / 今天 / 近七天 SELECTED / 所有任务.\n\"目标\": 目标总览.\n\"我的清单\" with a plus action aligned at the right of this GROUP heading; show existing sample lists 工作与创造 / 阅读与学习 / 个人生活 and a quiet \"+ 新建清单\". Do NOT say 创建第一张清单 here because this FULL-PAGE example already has three lists.\nRows36–40px high, labels14–15px, group captions12px, clear20px group gaps. The module任务 and contextual近七天 each have their own restrained blue selected state because they are different navigation levels.\n\nA compact white application top bar about56px tall spans from the right of the narrow rail across the screen. Put the small To Doo checkmark identity and \"To Doo\", quiet \"知识 · 行动 · 成果\", and a modest breadcrumb \"我的工作空间 / 近七天\". Tiny refresh/notification controls can sit at far right. No huge logo/marketing block inside the contextual sidebar and no duplicate workspace selector occupying extra rows.\n\nUse the available width efficiently: the TWO left columns together about272px; right task detail pane about336px; the central task content flexes in the remaining space. Normal readable Chinese type and consistent36px controls. Compact the vertical task-toolbar spacing enough to fit all six tasks and footer controls in the desktop viewport. Do not recreate the tiny compressed scale of Image 2; retain its hierarchy while improving spacing.\n\nMain content invariant: 近七天,11月4日—11月10日,6项待办; view tabs列表(active)/看板/四象限/时间线, search and筛选 aligned, chip未完成, sort按优先级排序, one quick add input. Keep exactly the six pending tasks and date groups from Image1. The first task整理项目的下一步 remains selected with高优先级, and the right task details match it:进行中,工作与创造,计划今天09:00,截止今天17:00,优先级高,description,添加子任务,关联成果笔记,保存更改/取消. No completed result group under未完成. Do not change task names, dates, values or functional meanings.\n\nPalette white/pale blue-gray, refined cobalt accents, thin dividers, crisp Chinese. Flat high-fidelity desktop application concept, same wide framing as Image1, no browser/device chrome, no perspective, no explanatory poster annotations. Do NOT merge both navigation levels, do NOT retain the previous single wide all-in-one sidebar, do NOT create three left sidebars.",
+  "refs": [
+    "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list-v2.png",
+    "/home/bandoo/.codex/attachments/594a5a7f-25ae-4618-92ca-fb92b940a62b/codex-clipboard-dab9fa3d-c788-4a98-8fe2-f6b32a5b545d.png"
+  ],
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/menu-structure-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-a64e051d-5b35-4e93-817b-67ce98cb2241.png",
+  "tool": "image_gen.imagegen",
+  "dimensions": [
+    1568,
+    1003
+  ],
+  "localReferences": [
+    "../layout-redesign-2026-11-04/02-tasks-list-v2.png",
+    "navigation-reference.png"
+  ]
+}

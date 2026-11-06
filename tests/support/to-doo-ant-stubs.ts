@@ -344,6 +344,22 @@ const Collapse = Vue.defineComponent({
       Vue.h('div', attrs, slots.default?.()),
 });
 Object.assign(Collapse, { Panel: CollapsePanel });
+const Card = Vue.defineComponent({
+  inheritAttrs: false,
+  props: ['title', 'extra', 'bordered', 'bodyStyle', 'headStyle', 'size', 'hoverable', 'loading'],
+  setup:
+    (props, { attrs, slots }) =>
+    () =>
+      Vue.h('div', attrs, [
+        props.title || slots.title || props.extra || slots.extra
+          ? Vue.h('div', { style: props.headStyle }, [
+              slots.title?.() || props.title,
+              slots.extra?.() || props.extra,
+            ])
+          : null,
+        Vue.h('div', { class: 'ant-card-body', style: props.bodyStyle }, slots.default?.()),
+      ]),
+});
 const Tag = Vue.defineComponent({
   setup:
     (_, { attrs, slots }) =>
@@ -382,18 +398,16 @@ const Statistic = Vue.defineComponent({
       ]),
 });
 const Progress = Vue.defineComponent({
-  props: ['percent'],
+  inheritAttrs: false,
+  props: ['percent', 'showInfo'],
   setup:
-    (props, { attrs, slots }) =>
+    (_, { attrs, slots }) =>
     () =>
       Vue.h(
         'div',
         {
-          ...attrs,
           role: 'progressbar',
-          'aria-valuemin': 0,
-          'aria-valuemax': 100,
-          'aria-valuenow': props.percent,
+          ...attrs,
         },
         slots.default?.(),
       ),
@@ -483,6 +497,7 @@ export const toDooAntStubs = {
   Segmented,
   Modal,
   Drawer,
+  Card,
   Tag,
   Alert,
   Empty,

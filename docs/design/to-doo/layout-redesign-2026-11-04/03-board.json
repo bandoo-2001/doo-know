@@ -1,0 +1,15 @@
+{
+  "id": "03-board",
+  "title": "看板",
+  "file": "03-board.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list.png",
+  "prompt": "Create ONE high-fidelity flat desktop web UI concept for DooKnow / To Doo, using the provided image as the canonical STYLE and navigation reference. Same full-screen framing, same restrained blue-gray palette, white main surface, pale-gray consolidated left sidebar, crisp Chinese typography, consistent readable control sizes, thin dividers, 6–8px radii, no browser/device chrome, no 3D/perspective, no marketing poster, no watermarks.\nPreserve the brand, workspace selector, list names and other navigation labels from the reference; move the active highlight to the correct destination for this screen and remove the old highlight. The To Doo brand/workspace menu provides the home/目标总览 and return-to-knowledge navigation. Use the whole main region with aligned title, controls and content. Do not keep the reference task detail pane unless this screen explicitly needs it. No floating filter bullet lists, duplicated scope dropdowns, tiny labels, random dashboard widgets or enormous decorative empty areas. Use Chinese UI text and sensible sample content. All date examples are in November 2026; Nov 4 is Wednesday. Controls and totals must agree with visible content. Reuse supported task, goal, focus, habit, anniversary, notification, settings and Markdown-note concepts; never claim global automatic saving, AI generation or fake collaboration. Render only the application UI.\n\nSCREEN REQUIREMENTS:\nDesign the task BOARD. Sidebar近七天 selected. Header \"近七天\", date \"11月4日 — 11月10日\", total \"8项任务 · 6项未完成\". Main view tabs列表/看板/四象限/时间线, 看板 active. One aligned toolbar with search, 筛选, grouping \"按状态分组\", state \"全部状态\" and \"+ 新建任务\"; do not show an active未完成 filter because completed cards are visible. Four aligned columns \"待办 4\", \"进行中 1\", \"受阻 1\", \"已完成 2\". 待办 contains 回复合作伙伴的反馈, 阅读并整理一篇技术文章, 梳理本周的阅读计划, 整理一份读书笔记. 进行中 contains 整理项目的下一步 with 高优先级. 受阻 contains 完成产品方案初稿, small \"等待反馈\" note. 已完成 has two subdued checked cards 整理资料结构, 确认需求清单. Total counts must match. Each card shows readable project/date, overflow control and a completion control, not excessive metadata. Each column has a contextual \"+ 添加任务\". No right detail pane; use the full main width. Preserve legible card widths and compact columns.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-5db8ad9e-1155-4dd1-b3c1-55108d4e4f9d.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

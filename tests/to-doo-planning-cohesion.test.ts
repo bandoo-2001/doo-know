@@ -70,6 +70,7 @@ function component(name: string): Vue.Component {
         };
       if (id.endsWith('ToDooTaskRow.vue')) return { default: component('ToDooTaskRow') };
       if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
+      if (id.endsWith('ToDooHint.vue')) return { default: component('ToDooHint') };
       if (id.endsWith('.vue')) return { default: Vue.defineComponent({ render: () => null }) };
       throw Error('Unexpected planning dependency: ' + id);
     },
@@ -267,7 +268,9 @@ test('overview leads with today and gives goal progress only to populated goals'
   expect(overview.byClass('todo-overview-list').map(overview.text)).toEqual([
     expect.stringContaining('工作清单'),
   ]);
-  expect(overview.all().filter((n) => n.tag === 'progress')).toHaveLength(1);
+  const progress = overview.all().filter((n) => n.props.role === 'progressbar');
+  expect(progress).toHaveLength(1);
+  expect(progress[0].props['aria-label']).toBe('阅读目标完成进度');
   expect(overview.text(overview.root)).not.toMatch(/0 份资料|持续推进|把下一步行动放在这里|0\/0/);
   expect(overview.text(overview.root)).toContain('2026-12-31');
   expect(overview.text(overview.root)).toContain('1 份资料');

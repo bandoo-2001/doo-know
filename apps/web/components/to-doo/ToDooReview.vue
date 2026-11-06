@@ -16,6 +16,7 @@ import ToDooIcon from './ToDooIcon.vue';
 import { createToDooReminderController } from '../../to-doo-reminders';
 import ToDooPageToolbar from './ToDooPageToolbar.vue';
 import ToDooSectionHeader from './ToDooSectionHeader.vue';
+import ToDooHint from './ToDooHint.vue';
 import { useToDooClock } from '../../to-doo-time';
 import type { ToDooEntityKind, ToDooEntityMap } from '../../../../shared/to-doo-contracts';
 import type { ToDooReminderSource } from '../../../../shared/to-doo-contracts';
@@ -340,12 +341,12 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
       />
       <AStatistic title="沉淀成果" :value="state.snapshot?.statistics.outcomes || 0" suffix="份" />
     </div>
-    <p class="todo-form-help">
+    <ToDooHint :model="model" hint-id="review-statistics-policy">
       {{ appliedFrom }} — {{ appliedTo }} ·
       {{ bucketDays > 1 ? '每 ' + bucketDays + ' 天汇总' : '按天统计' }}
       · 历史完成保留归档行动的已完成记录；目标进展为当前未归档行动的累计执行次数，
       不含父行动、取消和跳过的执行。已保存复盘保留保存时的指标。
-    </p>
+    </ToDooHint>
     <div class="todo-review-grid">
       <section class="todo-panel todo-review-trend">
         <ToDooSectionHeader title="完成趋势"><small>单位：项</small></ToDooSectionHeader>
@@ -457,9 +458,9 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
           :disabled="markingAll || state.loading || !!actingReminder"
       /></ATabs>
     </ToDooPageToolbar>
-    <p class="todo-form-help">
+    <ToDooHint :model="model" hint-id="notification-actions">
       确认提醒只更新通知状态，不会自动完成任务或习惯；完成事项请查看来源。误操作可在更多提醒操作中恢复未读。
-    </p>
+    </ToDooHint>
     <section class="todo-panel">
       <section
         v-for="group in notificationGroups"

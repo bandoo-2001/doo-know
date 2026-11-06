@@ -1,0 +1,15 @@
+{
+  "id": "16-settings-lists",
+  "title": "清单管理",
+  "file": "16-settings-lists.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list.png",
+  "prompt": "Create ONE high-fidelity flat desktop web UI concept for DooKnow / To Doo, using the provided image as the canonical STYLE and navigation reference. Same full-screen framing, same restrained blue-gray palette, white main surface, pale-gray consolidated left sidebar, crisp Chinese typography, consistent readable control sizes, thin dividers, 6–8px radii, no browser/device chrome, no 3D/perspective, no marketing poster, no watermarks.\nPreserve the brand, workspace selector, list names and other navigation labels from the reference; move the active highlight to the correct destination for this screen and remove the old highlight. The To Doo brand/workspace menu provides the home/目标总览 and return-to-knowledge navigation. Use the whole main region with aligned title, controls and content. Do not keep the reference task detail pane unless this screen explicitly needs it. No floating filter bullet lists, duplicated scope dropdowns, tiny labels, random dashboard widgets or enormous decorative empty areas. Use Chinese UI text and sensible sample content. All date examples are in November 2026; Nov 4 is Wednesday. Controls and totals must agree with visible content. Reuse supported task, goal, focus, habit, anniversary, notification, settings and Markdown-note concepts; never claim global automatic saving, AI generation or fake collaboration. Render only the application UI.\n\nSCREEN REQUIREMENTS:\nDesign settings \"清单管理\", bottom设置 active, canonical tabs偏好/提醒与连接/数据与恢复/清单管理 with清单管理 active; NO保存偏好. A useful management table of lists 工作与创造/阅读与学习/个人生活, columns名称/类型/行动数量/状态/操作. Modest actions \"+ 新建清单\" and \"+ 新建目标\", and row-level编辑/归档. A separate small 标签 section shows 工作(blue),学习(green),生活(orange), and \"+ 新建标签\". Link to 已归档 and 回收站. Explain \"归档保留历史记录\" briefly; no destructive immediate-delete primary actions. Tables and toolbars align, usable widths, no giant stacked card padding, no task-details pane.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-36552f0d-d5aa-4906-9258-fcecdc7f3b44.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { toDooFilterSummary } from '../../to-doo-presentation';
 import ToDooDisclosure from './ToDooDisclosure.vue';
+import ToDooHint from './ToDooHint.vue';
+import ToDooTaskOverviewSummary from './ToDooTaskOverviewSummary.vue';
 import { useToDooConfirm } from '../../to-doo-controls';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
@@ -8,6 +10,9 @@ import ToDooSelect from './ToDooSelect.vue';
 import { computed, ref } from 'vue';
 import {
   Button as AButton,
+  Card as ACard,
+  Empty as AEmpty,
+  Progress as AProgress,
   Checkbox as ACheckbox,
   Dropdown as ADropdown,
   Menu as AMenu,
@@ -528,8 +533,9 @@ function saveView() {
 }
 </script>
 <template>
-  <template v-if="section === 'overview'"
-    ><div
+  <div v-if="section === 'overview'" class="todo-goal-overview">
+    <ToDooTaskOverviewSummary :model="model" />
+    <div
       v-if="
         state.filter.query ||
         state.filter.group ||
@@ -538,35 +544,31 @@ function saveView() {
       "
       class="todo-panel-footer todo-top-gap"
     >
-      <span>当前行动按已选条件显示</span
-      ><AButton
-        html-type="button"
-        class="todo-link"
+      <span>当前行动按已选条件显示</span>
+      <AButton
+        type="link"
         @click="
           state.filter = {};
           model.load({ ...state.query, filter: {}, cursor: undefined });
         "
-        type="link"
+        >清除筛选</AButton
       >
-        清除筛选
-      </AButton>
     </div>
-    <div class="todo-overview-grid todo-overview-cohesion">
-      <section class="todo-panel todo-overview-today">
-        <div class="todo-panel-header">
-          <h2>
-            今天的行动 <small>{{ todayItems.length }} 项</small>
-          </h2>
-          <AButton
-            class="todo-icon-button"
-            html-type="button"
-            aria-label="新建今日行动"
-            @click="emit('create', undefined, undefined, { ...createContext, planDate: today })"
-            type="text"
-          >
-            ＋
-          </AButton>
-        </div>
+    <section class="todo-panel todo-overview-today" aria-label="今日行动">
+      <div class="todo-panel-header">
+        <h2>
+          今天的行动 <small>· {{ todayItems.length }} 项待办</small>
+        </h2>
+        <AButton
+          class="todo-icon-button"
+          html-type="button"
+          aria-label="新建今日行动"
+          @click="emit('create', undefined, undefined, { ...createContext, planDate: today })"
+          type="text"
+          ><ToDooIcon name="plus" :size="18"
+        /></AButton>
+      </div>
+      <div class="todo-overview-action-list">
         <ToDooTaskRow
           v-for="item in todayItems.slice(0, 12)"
           :key="item.key"
@@ -574,6 +576,7 @@ function saveView() {
           :active="active(item)"
           :today="today"
           :time-zone="state.snapshot?.settings.timeZone"
+          :style="{ '--task-list-color': item.list?.color || 'var(--todo-accent)' }"
           @open="emit('open', $event)"
           @complete="complete"
           @child="emit('create', $event)"
@@ -585,81 +588,157 @@ function saveView() {
               @child="emit('create', $event)"
               @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)" /></template
         ></ToDooTaskRow>
-        <div v-if="!todayItems.length" class="todo-empty">
-          <p>今天还没有安排，留一点时间给重要的事。</p>
-          <AButton
-            class="todo-button"
-            html-type="button"
-            @click="emit('create', undefined, undefined, { ...createContext, planDate: today })"
-            type="default"
-            >添加一个行动</AButton
-          >
-        </div>
-        <div class="todo-panel-footer">
-          <AButton
-            class="todo-link"
-            html-type="button"
-            @click="emit('navigate', 'tasks')"
-            type="link"
-          >
-            全部任务 →
-          </AButton>
-        </div>
-      </section>
-      <aside class="todo-overview-context">
-        <section v-if="goals.length" class="todo-overview-goals">
-          <div class="todo-section-title"><h2>正在推进的目标</h2></div>
-          <div class="todo-goals">
-            <article v-for="goal in goals" :key="goal.id" class="todo-goal">
-              <div class="todo-between">
-                <AButton
-                  class="todo-goal-name"
-                  html-type="button"
-                  @click="emit('list', goal.id)"
-                  type="text"
-                >
-                  {{ goal.name }}
-                </AButton>
-                <AButton
-                  class="todo-icon-button"
-                  html-type="button"
-                  :aria-label="'编辑 ' + goal.name"
-                  @click="emit('edit', 'list', goal)"
-                  type="text"
-                  >⋯</AButton
-                >
-              </div>
+      </div>
+      <AEmpty v-if="!todayItems.length" class="todo-empty todo-overview-empty">
+        <template #image
+          ><span class="todo-overview-empty-icon"><ToDooIcon name="today" :size="28" /></span
+        ></template>
+        <template #description><p>今天还没有安排，留一点时间给重要的事。</p></template>
+        <AButton
+          type="default"
+          @click="emit('create', undefined, undefined, { ...createContext, planDate: today })"
+          >添加一个行动</AButton
+        >
+      </AEmpty>
+      <div v-if="todayItems.length > 12" class="todo-panel-footer">
+        <AButton type="link" @click="emit('quick-filter', 'today')"
+          >查看全部 {{ todayItems.length }} 项今日行动 →</AButton
+        >
+      </div>
+    </section>
+    <section class="todo-overview-goals" aria-label="我的目标">
+      <div class="todo-section-title todo-goals-heading">
+        <h2>我的目标</h2>
+        <span
+          class="todo-goals-caption"
+          title="按未归档叶子行动的执行次数计算；重复行动每次分别计数，取消和跳过不计。"
+          >进度 = 已完成行动次数 / 目标行动次数</span
+        >
+      </div>
+      <div class="todo-goals">
+        <ACard v-for="goal in goals" :key="goal.id" class="todo-goal" role="article">
+          <header class="todo-goal-header">
+            <span class="todo-goal-icon"><ToDooIcon name="overview" :size="34" /></span>
+            <div class="todo-goal-copy">
+              <AButton
+                class="todo-goal-name"
+                html-type="button"
+                type="text"
+                @click="emit('list', goal.id)"
+                >{{ goal.name }}</AButton
+              >
               <p v-if="goal.description || goal.criteria">
                 {{ goal.description || goal.criteria }}
               </p>
-              <div
-                v-if="state.snapshot?.statistics.byList[goal.id]?.total"
-                class="todo-goal-progress"
-              >
-                <progress
-                  :aria-label="goal.name + '完成进度'"
-                  :value="state.snapshot?.statistics.byList[goal.id]?.completed || 0"
-                  :max="state.snapshot?.statistics.byList[goal.id]?.total"
-                ></progress>
-                <span
-                  >{{ state.snapshot?.statistics.byList[goal.id]?.completed || 0 }}/{{
-                    state.snapshot?.statistics.byList[goal.id]?.total
-                  }}</span
-                >
-              </div>
-              <small class="todo-muted"
-                >进度按未归档叶子行动的执行次数计算；重复行动每次分别计数，取消和跳过不计。</small
-              >
-              <div
-                v-if="goal.goalDate || goal.noteRefs.length"
-                class="todo-between todo-muted todo-small todo-goal-details"
-              >
-                <span v-if="goal.goalDate">目标 {{ goal.goalDate }}</span>
-                <span v-if="goal.noteRefs.length">{{ goal.noteRefs.length }} 份资料</span>
-              </div>
-            </article>
+            </div>
+            <ATag
+              :bordered="false"
+              class="todo-goal-state"
+              :class="{
+                'is-complete':
+                  !!state.snapshot?.statistics.byList[goal.id]?.total &&
+                  state.snapshot.statistics.byList[goal.id].completed >=
+                    state.snapshot.statistics.byList[goal.id].total,
+              }"
+            >
+              {{
+                !state.snapshot?.statistics.byList[goal.id]?.total
+                  ? '未开始'
+                  : state.snapshot.statistics.byList[goal.id].completed >=
+                      state.snapshot.statistics.byList[goal.id].total
+                    ? '已完成'
+                    : '进行中'
+              }}
+            </ATag>
+            <AButton
+              class="todo-icon-button todo-goal-edit"
+              html-type="button"
+              :aria-label="'编辑 ' + goal.name"
+              type="text"
+              @click="emit('edit', 'list', goal)"
+              ><ToDooIcon name="more" :size="16"
+            /></AButton>
+          </header>
+          <div v-if="state.snapshot?.statistics.byList[goal.id]?.total" class="todo-goal-progress">
+            <span class="todo-goal-fraction"
+              >{{ state.snapshot.statistics.byList[goal.id].completed }} /
+              {{ state.snapshot.statistics.byList[goal.id].total }}</span
+            >
+            <AProgress
+              :aria-label="goal.name + '完成进度'"
+              :aria-valuenow="
+                Math.round(
+                  (state.snapshot.statistics.byList[goal.id].completed /
+                    state.snapshot.statistics.byList[goal.id].total) *
+                    100,
+                )
+              "
+              :aria-valuemin="0"
+              :aria-valuemax="100"
+              :percent="
+                Math.round(
+                  (state.snapshot.statistics.byList[goal.id].completed /
+                    state.snapshot.statistics.byList[goal.id].total) *
+                    100,
+                )
+              "
+              :show-info="false"
+              :stroke-width="12"
+              stroke-color="var(--todo-accent)"
+              trail-color="var(--todo-soft)"
+              status="normal"
+            />
+            <span class="todo-goal-percentage"
+              >{{
+                Math.round(
+                  (state.snapshot.statistics.byList[goal.id].completed /
+                    state.snapshot.statistics.byList[goal.id].total) *
+                    100,
+                )
+              }}%</span
+            >
           </div>
-        </section>
+          <div v-else class="todo-goal-start">
+            <span>还没有行动，先为目标迈出一步。</span>
+            <AButton type="link" @click="emit('create', undefined, undefined, { listId: goal.id })"
+              >＋ 添加行动</AButton
+            >
+          </div>
+          <footer class="todo-goal-details">
+            <span v-if="goal.goalDate"
+              ><ToDooIcon name="calendar" :size="17" />目标日期：<time :datetime="goal.goalDate">{{
+                goal.goalDate
+              }}</time></span
+            >
+            <span v-else class="todo-muted"
+              ><ToDooIcon name="calendar" :size="17" />未设置目标日期</span
+            >
+            <span v-if="goal.noteRefs.length">{{ goal.noteRefs.length }} 份资料</span>
+          </footer>
+        </ACard>
+      </div>
+      <AEmpty v-if="!goals.length" class="todo-panel todo-empty todo-overview-empty">
+        <template #image
+          ><span class="todo-overview-empty-icon"><ToDooIcon name="overview" :size="32" /></span
+        ></template>
+        <template #description
+          ><h3>从一个想实现的目标开始</h3>
+          <p>把目标拆成具体行动，让每一次完成都看得见。</p></template
+        >
+        <AButton
+          class="todo-button todo-primary"
+          type="primary"
+          @click="emit('edit', 'list', undefined, { kind: 'goal' })"
+          >创建第一个目标</AButton
+        >
+      </AEmpty>
+    </section>
+    <details
+      v-if="ordinaryLists.length || materials.length || recentOutcomes.length"
+      class="todo-overview-resources"
+    >
+      <summary>清单、资料与成果 <ToDooIcon name="chevron" :size="15" /></summary>
+      <div class="todo-overview-context">
         <section class="todo-panel todo-overview-lists">
           <div class="todo-panel-header">
             <h2>清单</h2>
@@ -744,19 +823,19 @@ function saveView() {
             {{ o.summary }}
           </AButton>
         </section>
-      </aside>
-    </div>
-  </template>
+      </div>
+    </details>
+  </div>
   <template v-else>
     <ToDooQuickAdd
-      v-if="!creating"
+      v-if="!creating && section !== 'tasks'"
       :model="model"
       :list-id="state.filter.listIds?.[0]"
       :default-date="builtin === 'today' || builtin === 'upcoming' ? today : undefined"
       :seed="createContext"
       @expand="emit('create')"
     />
-    <div class="todo-task-toolbar">
+    <div class="todo-task-toolbar" :class="{ 'todo-task-list-toolbar': section === 'tasks' }">
       <ASegmented
         class="todo-view-switch todo-view-segmented"
         aria-label="任务展示方式"
@@ -1098,7 +1177,16 @@ function saveView() {
         </ToDooDisclosure></template
       >
     </div>
-    <div v-if="section === 'tasks'" class="todo-panel todo-tree">
+    <div v-if="section === 'tasks' && !creating" class="todo-task-list-capture">
+      <ToDooQuickAdd
+        :model="model"
+        :list-id="state.filter.listIds?.[0]"
+        :default-date="builtin === 'today' || builtin === 'upcoming' ? today : undefined"
+        :seed="createContext"
+        @expand="emit('create')"
+      />
+    </div>
+    <div v-if="section === 'tasks'" class="todo-panel todo-tree todo-task-list-panel">
       <div class="todo-panel-header todo-task-list-heading">
         <h2>
           {{ state.filter.query ? '搜索结果' : '待办任务' }}
@@ -1184,6 +1272,7 @@ function saveView() {
               <ToDooTaskRow
                 :item="item"
                 :hide-list="!!state.filter.listIds?.length"
+                :style="{ '--task-list-color': item.list?.color || 'var(--todo-accent)' }"
                 :today="today"
                 :time-zone="state.snapshot?.settings.timeZone"
                 :active="active(item)"
@@ -1448,9 +1537,9 @@ function saveView() {
           <small>{{ items.filter((item) => item.status === 'done').length }}</small>
         </AButton>
       </div>
-      <p class="todo-muted todo-small">
+      <ToDooHint :model="model" hint-id="matrix-placement">
         象限按重要程度与截止时间判断紧急性，和优先级分别设置；拖动或选择象限会手动覆盖紧急判断。
-      </p>
+      </ToDooHint>
       <nav class="todo-task-jumps" aria-label="象限概览">
         <AButton
           v-for="(zone, index) in quadrants"
@@ -1552,45 +1641,317 @@ function saveView() {
   </template>
 </template>
 <style scoped>
-.todo-overview-cohesion {
-  margin-top: 0;
-  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr);
-}
-.todo-overview-context {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* These surfaces belong only to the task module; shared row styles stay intact. */
+.todo-goal-overview {
+  display: grid;
+  gap: 20px;
   min-width: 0;
 }
-.todo-overview-goals .todo-section-title {
-  margin: 0 0 10px;
+.todo-overview-today {
+  padding: 4px 16px 12px;
+  border-radius: 12px;
+}
+.todo-overview-today > .todo-panel-header {
+  padding: 10px 4px 12px;
+  border: 0;
+}
+.todo-overview-today h2,
+.todo-goals-heading h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+}
+.todo-overview-goals {
+  margin-top: 12px;
+}
+.todo-overview-today h2 small {
+  color: var(--todo-muted);
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.todo-overview-action-list :deep(.todo-task-row),
+.todo-task-list-panel :deep(.todo-task-row) {
+  min-height: 72px;
+  padding-block: 10px;
+  gap: 14px;
+}
+.todo-overview-action-list :deep(.todo-task-name),
+.todo-task-list-panel :deep(.todo-task-name) {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+}
+.todo-overview-action-list :deep(.todo-check),
+.todo-task-list-panel :deep(.todo-check) {
+  width: 26px;
+  min-width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border-color: color-mix(in srgb, var(--todo-muted) 65%, var(--todo-line));
+}
+.todo-overview-action-list :deep(.todo-task-meta),
+.todo-task-list-panel :deep(.todo-task-meta) {
+  font-size: 16px;
+  line-height: 22px;
+}
+.todo-overview-action-list :deep(.todo-row-list),
+.todo-task-list-panel :deep(.todo-row-list) {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: inherit;
+}
+.todo-overview-action-list :deep(.todo-task-date),
+.todo-task-list-panel :deep(.todo-task-date) {
+  max-width: 160px;
+}
+.todo-overview-action-list :deep(.todo-task-date-kind),
+.todo-task-list-panel :deep(.todo-task-date-kind) {
+  font-size: 12px;
+}
+.todo-overview-action-list :deep(.todo-task-date-value),
+.todo-task-list-panel :deep(.todo-task-date-value) {
+  font-size: 14px;
+}
+.todo-overview-action-list :deep(.todo-task-date-value small),
+.todo-task-list-panel :deep(.todo-task-date-value small) {
+  font-size: 18px;
+}
+.todo-overview-action-list :deep(.todo-row-list)::before,
+.todo-task-list-panel :deep(.todo-row-list)::before {
+  content: '';
+  width: 11px;
+  height: 11px;
+  flex: 0 0 11px;
+  border-radius: 50%;
+  background: var(--task-list-color, var(--todo-accent));
+}
+.todo-overview-action-list :deep(.todo-task-row.is-active),
+.todo-task-list-panel :deep(.todo-task-row.is-active) {
+  background: var(--todo-tint);
+}
+.todo-overview-action-list :deep(.todo-task-row.is-active)::before,
+.todo-task-list-panel :deep(.todo-task-row.is-active)::before {
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 4px 0 0 4px;
+}
+.todo-overview-action-list :deep(.todo-task-menu-trigger),
+.todo-task-list-panel :deep(.todo-task-menu-trigger) {
+  opacity: 1;
+  color: var(--todo-muted);
+}
+.todo-goals-heading {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: 0 0 16px;
+}
+.todo-goals-caption {
+  background: var(--todo-soft);
+  color: var(--todo-muted);
+  padding: 5px 12px;
+  border-radius: 7px;
+  font-size: 14px;
 }
 .todo-overview-goals .todo-goals {
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
 }
 .todo-overview-goals .todo-goal {
+  min-width: 0;
+  border-color: var(--todo-line);
+  border-radius: 12px;
+  box-shadow: none;
+  background: var(--todo-paper);
+  padding: 0;
+  font: inherit;
+}
+.todo-overview-goals .todo-goal :deep(.ant-card-body) {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 14px 16px;
+  height: 100%;
+  min-height: 236px;
+  gap: 26px;
+  padding: 22px;
+}
+.todo-overview-goals .todo-goal :deep(.ant-card-body)::before,
+.todo-overview-goals .todo-goal :deep(.ant-card-body)::after {
+  display: none;
+}
+.todo-goal-header {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 6px 16px;
+  min-width: 0;
+  position: relative;
+}
+.todo-goal-icon {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  grid-column: 1;
+  grid-row: 1 / 3;
+  border-radius: 12px;
+  color: var(--todo-accent);
+  background: var(--todo-tint);
+}
+.todo-goal-copy {
+  display: contents;
 }
 .todo-overview-goals .todo-goal-name {
+  display: block;
+  width: 100%;
   height: auto;
-  flex: 1;
+  padding: 0;
   white-space: normal;
   text-align: left;
-  padding: 0;
+  font-size: 24px !important;
+  font-weight: 700;
+  line-height: 32px;
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--todo-ink);
+  overflow-wrap: anywhere;
 }
-.todo-overview-goals .todo-goal > p {
+.todo-goal-copy p {
+  margin: 0;
+  grid-column: 2 / -1;
+  grid-row: 2;
+  color: var(--todo-muted);
+  font-size: 16px;
+  line-height: 26px;
+  overflow-wrap: anywhere;
+}
+.todo-goal-state {
+  grid-column: 3;
+  grid-row: 1;
+  margin: 0;
+  font-size: 14px;
+  line-height: 26px;
+  color: var(--todo-accent);
+  background: var(--todo-tint);
+  border-radius: 6px;
+  padding: 0 8px;
+}
+.todo-goal-state.is-complete {
+  color: var(--todo-green);
+  background: color-mix(in srgb, var(--todo-green) 12%, var(--todo-paper));
+}
+.todo-goal-edit {
+  position: absolute;
+  right: -8px;
+  top: 30px;
+}
+.todo-goal-progress {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: auto;
+  font-size: 20px;
+}
+.todo-goal-progress :deep(.ant-progress) {
+  flex: 1;
+  width: 100%;
+  min-width: 30px;
+  margin: 0;
+  line-height: 1;
+}
+.todo-goal-fraction,
+.todo-goal-percentage {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.todo-goal-details {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--todo-line);
+  color: var(--todo-muted);
+  font-size: 16px;
+}
+.todo-goal-details > span {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.todo-goal-start {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--todo-muted);
+  font-size: 12px;
+  margin-top: auto;
+}
+.todo-overview-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
   min-height: 0;
   margin: 0;
+  padding: 28px 16px;
+  border-radius: 12px;
 }
-.todo-overview-goals .todo-goal > .todo-between:first-child {
-  border: 0;
-  padding-top: 0;
+.todo-overview-empty :deep(.ant-empty-image) {
+  height: auto;
+  margin: 0;
 }
-.todo-overview-goals .todo-goal-details {
-  padding-top: 8px;
+.todo-overview-empty :deep(.ant-empty-description),
+.todo-overview-empty :deep(.ant-empty-footer) {
+  margin: 0;
+}
+.todo-overview-empty :deep(.ant-empty-description) {
+  color: var(--todo-muted);
+  line-height: 24px;
+}
+.todo-overview-empty p,
+.todo-overview-empty h3 {
+  margin: 0;
+}
+.todo-overview-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  background: var(--todo-tint);
+  color: var(--todo-accent);
+  border-radius: 14px;
+}
+.todo-overview-resources {
+  border-top: 1px solid var(--todo-line);
+  padding-top: 16px;
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+.todo-overview-resources > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  cursor: pointer;
+  list-style: none;
+}
+.todo-overview-resources[open] > summary svg {
+  transform: rotate(90deg);
+}
+.todo-overview-context {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 16px;
+  margin-top: 16px;
+  min-width: 0;
 }
 .todo-overview-list {
   display: flex;
@@ -1606,12 +1967,147 @@ function saveView() {
   min-width: 0;
   border: 0;
 }
-.todo-overview-list small {
-  flex-shrink: 0;
-  color: var(--todo-muted);
+.todo-task-list-toolbar {
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--todo-line);
+  margin-bottom: 4px;
 }
-.todo-overview-today .todo-panel-footer {
-  justify-content: flex-end;
+.todo-task-list-toolbar :deep(.ant-segmented) {
+  background: transparent;
+  padding: 0;
+}
+.todo-task-list-toolbar :deep(.ant-segmented-item) {
+  padding: 5px 6px;
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+}
+.todo-task-list-toolbar :deep(.ant-segmented-item-selected) {
+  color: var(--todo-accent);
+  background: transparent;
+  border-bottom-color: var(--todo-accent);
+  box-shadow: none;
+}
+.todo-task-list-toolbar :deep(.ant-segmented-thumb) {
+  background: transparent;
+  box-shadow: none;
+}
+.todo-task-list-capture :deep(.todo-quick-add) {
+  background: var(--todo-soft);
+  border-radius: 8px;
+  margin: 12px 0 18px;
+}
+.todo-task-list-panel > .todo-task-list-heading {
+  padding: 0 10px;
+  min-height: 34px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--todo-soft);
+}
+.todo-task-list-panel > .todo-task-list-heading h2 {
+  color: var(--todo-ink);
+  font-weight: 550;
+}
+.todo-task-list-panel .todo-task-group-heading {
+  background: var(--todo-soft);
+  border-radius: 6px;
+  margin-top: 14px;
+  border-bottom: 0;
+}
+@container (max-width: 850px) {
+  .todo-overview-goals .todo-goals {
+    grid-template-columns: 1fr;
+  }
+}
+@container (max-width: 520px) {
+  .todo-overview-goals {
+    margin-top: 0;
+  }
+  .todo-goal-overview {
+    gap: 20px;
+  }
+  .todo-overview-today {
+    padding: 2px 8px 8px;
+  }
+  .todo-overview-today h2,
+  .todo-goals-heading h2 {
+    font-size: 19px;
+  }
+  .todo-overview-today h2 small {
+    font-size: 12px;
+  }
+  .todo-overview-goals .todo-goal {
+    padding: 0;
+  }
+  .todo-overview-goals .todo-goal :deep(.ant-card-body) {
+    padding: 16px;
+    min-height: 212px;
+    gap: 20px;
+  }
+  .todo-goal-header {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 4px 10px;
+  }
+  .todo-goal-icon {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+  .todo-overview-goals .todo-goal-name {
+    font-size: 18px !important;
+    line-height: 26px;
+  }
+  .todo-goal-state {
+    font-size: 11px;
+    padding: 0 6px;
+  }
+  .todo-goal-copy p {
+    font-size: 14px;
+    line-height: 22px;
+  }
+  .todo-goal-progress {
+    font-size: 16px;
+    gap: 10px;
+  }
+  .todo-goal-details {
+    font-size: 12px;
+  }
+  .todo-goals-caption {
+    font-size: 11px;
+  }
+  .todo-overview-action-list :deep(.todo-task-row),
+  .todo-task-list-panel :deep(.todo-task-row) {
+    grid-template-columns: 22px minmax(0, 1fr) 28px;
+    gap: 4px 10px;
+    padding-inline-start: calc(8px + var(--depth, 0) * 15px);
+    padding-inline-end: 8px;
+    min-height: 64px;
+  }
+  .todo-overview-action-list :deep(.todo-task-name),
+  .todo-task-list-panel :deep(.todo-task-name) {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .todo-overview-action-list :deep(.todo-task-meta),
+  .todo-task-list-panel :deep(.todo-task-meta) {
+    font-size: 12px;
+    line-height: 18px;
+  }
+  .todo-overview-action-list :deep(.todo-task-date-kind),
+  .todo-task-list-panel :deep(.todo-task-date-kind) {
+    font-size: 10px;
+  }
+  .todo-overview-action-list :deep(.todo-task-date-value),
+  .todo-task-list-panel :deep(.todo-task-date-value),
+  .todo-overview-action-list :deep(.todo-task-date-value small),
+  .todo-task-list-panel :deep(.todo-task-date-value small) {
+    font-size: 12px;
+  }
+  .todo-overview-action-list :deep(.todo-check),
+  .todo-task-list-panel :deep(.todo-check) {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+  }
 }
 .todo-matrix-completed {
   display: flex;
@@ -1622,10 +2118,5 @@ function saveView() {
 .todo-matrix-completed .ant-btn {
   font-size: 11px;
   color: var(--todo-muted);
-}
-@container (max-width: 650px) {
-  .todo-overview-cohesion {
-    grid-template-columns: 1fr;
-  }
 }
 </style>

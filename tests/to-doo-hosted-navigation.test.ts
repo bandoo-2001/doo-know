@@ -102,7 +102,7 @@ function component(path: string): Vue.Component {
             throw Error('Unexpected request: ' + url);
           },
         };
-      if (/ToDoo(Navigation|Settings|Icon|PageHeader|FormLayout)\.vue$/.test(id))
+      if (/ToDoo(Hint|Navigation|Settings|Icon|PageHeader|FormLayout)\.vue$/.test(id))
         return {
           __esModule: true,
           default: component('to-doo/' + id.split('/').at(-1)!.replace('.vue', '')),

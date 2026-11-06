@@ -1,0 +1,18 @@
+{
+  "id": "23-review-create",
+  "title": "新建复盘",
+  "file": "23-review-create.png",
+  "originalReference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/23-review-create.png",
+  "navigationReference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-two-level-2026-11-04/11-stats.png",
+  "primary": "复盘",
+  "secondary": "统计概览",
+  "prompt": "Use case: ui-mockup. Re-render Image1 using the USER-APPROVED TWO-LEVEL NAVIGATION in Image2. Image1 is the authority for this screen's main content, task/data values, form/window and state. Image2 is ONLY the authority for navigation geometry, top bar, blue-gray styling, and hierarchy. Do not copy Image2's task contents or detail panel into other screens.\n\nReplace the old all-in-one sidebar with EXACTLY TWO adjacent left columns: a narrow full-height module rail and a contextual sidebar. Match the approved Image2 proportions and icon/label style consistently across the set. Rail: top返回; then任务/日历/四象限/专注/习惯/纪念日/复盘; bottom通知/设置. Only the specified primary destination is blue-selected. The contextual sidebar begins below the compact white app top bar, has its own module title and provided grouped links; only the specified secondary destination is selected. One primary plus one secondary selected state is correct. Do NOT keep the old sidebar as a third column and do NOT merge the two columns.\n\nCompact full-width app top bar starts after the module rail, with small blue checkmark,To Doo,quiet知识·行动·成果,and我的工作空间 breadcrumb matching this screen, tiny refresh/notification controls. No huge brand block inside the contextual sidebar. White/pale blue-gray surfaces,cobalt accents,thin dividers,crisp readable Chinese,normal controls,not a poster or device mockup.\n\nPreserve Image1's contents and functional meanings, counts,dates,titles,field values,selection,forms,action labels,links and main visual hierarchy except navigation controls specifically moved into the contextual sidebar. Keep a right detail pane ONLY if Image1 contains it. Use the full remaining main width with aligned edges; reflow gently for the two-column shell but do NOT shrink all text, crop content, cover footer buttons or invent fields/types/AI/autosave. Modals must remain complete, on top of a dim backdrop, with their footer actions entirely in the desktop viewport. Keep the same wide canvas, approximately1568x1003. No captions outside the app, watermark or browser chrome.\n\nSCREEN: 23 新建复盘\nPRIMARY RAIL SELECTED: 复盘\nCONTEXTUAL SELECTED: 统计概览\nCONTEXTUAL STRUCTURE AND SCREEN-SPECIFIC CONSTRAINTS:\nHeading统计与复盘; 本页内容:统计概览、目标进度、历史复盘 as section anchors; quiet本周11月2日—11月8日. Preserve复盘 modal,8/6/2小时 snapshot and saved-snapshot explanation. No invented AI action.\nSTRICT SIDEBAR RULE: Image2 now shows this SAME MODULE's correct new navigation. Copy its TWO navigation columns, not Image1's obsolete all-in-one sidebar. Global module links appear ONLY in the narrow rail. Do not put the old workspace selector/task scopes/goals/lists/other module links into a non-task contextual sidebar. Do not leave moved horizontal tabs behind a modal.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-two-level-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-fc3060e9-1d8f-49f4-ae66-427075505615.png",
+  "tool": "image_gen.imagegen",
+  "kind": "two-level-navigation-concept",
+  "dimensions": [
+    1552,
+    1013
+  ]
+}

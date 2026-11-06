@@ -1,0 +1,18 @@
+{
+  "id": "10-anniversaries-v2",
+  "title": "纪念日（去除重复横向筛选）",
+  "file": "10-anniversaries-v2.png",
+  "originalReference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-two-level-2026-11-04/10-anniversaries.png",
+  "navigationReference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-two-level-2026-11-04/10-anniversaries.png",
+  "primary": "纪念日",
+  "secondary": "全部",
+  "prompt": "Use case: ui-mockup, precise correction. In this ALREADY TWO-LEVEL To Doo anniversary screen, remove ONLY the old horizontal filter row 全部4 / 即将到来2 / 今天1 / 已过去1 from the MAIN CONTENT below the page date. Those filters must remain ONLY in the contextual left sidebar. Preserve the whole narrow rail, selected纪念日, context查看/全部4 selection and other sidebar links, page heading/date/new-anniversary button, all FOUR cards with their exact names/countdowns/dates,colors,spacing and full-screen style. Do not remove or change the contextual filters. Leave clean space or move cards slightly upward in the main region. No other changes, no new data or controls.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-two-level-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-fdfa31f7-6864-4b04-8a9f-4765ac95f244.png",
+  "tool": "image_gen.imagegen",
+  "kind": "two-level-navigation-concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

@@ -47,6 +47,7 @@ function component(name: string): Vue.Component {
       if (id === 'ant-design-vue') return toDooAntStubs;
       if (id.endsWith('/to-doo-controls')) return controls;
       if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
+      if (id.endsWith('ToDooHint.vue')) return { default: component('ToDooHint') };
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };
       if (id.endsWith('ToDooTaskRow.vue')) return { default: component('ToDooTaskRow') };

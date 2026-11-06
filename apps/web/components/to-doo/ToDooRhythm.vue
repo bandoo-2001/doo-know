@@ -10,6 +10,8 @@ import {
 } from 'ant-design-vue';
 import ToDooFocus from './ToDooFocus.vue';
 import ToDooHabitCard from './ToDooHabitCard.vue';
+import ToDooHint from './ToDooHint.vue';
+import '../../to-doo-anniversary.css';
 import { formatHabitSchedule } from '../../to-doo-habit-presentation';
 import ToDooPageToolbar from './ToDooPageToolbar.vue';
 import ToDooSectionHeader from './ToDooSectionHeader.vue';
@@ -512,12 +514,9 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
       <AEmpty v-if="!habits.length" description="从一件小事开始，记录每一次积累。" />
     </div>
     <template v-else>
-      <AAlert
-        class="todo-top-gap"
-        type="info"
-        show-icon
-        message="点击日期补记或调整记录。周／月累计请在“今天”查看。"
-      />
+      <ToDooHint :model="model" hint-id="habit-calendar-edit" class="todo-top-gap"
+        >点击日期补记或调整记录。周／月累计请在“今天”查看。</ToDooHint
+      >
       <section class="todo-panel todo-habit-table">
         <div class="todo-habit-row head">
           <span>习惯</span
@@ -612,7 +611,14 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
     <section v-for="group in anniversaryGroups" :key="group.id" class="todo-anniversary-group">
       <ToDooSectionHeader :title="group.label" />
       <div class="todo-anniversaries">
-        <article v-for="a in group.items" :key="a.entity.id" class="todo-anniversary todo-panel">
+        <article
+          v-for="a in group.items"
+          :key="a.entity.id"
+          class="todo-anniversary todo-panel"
+          :data-card-style="a.entity.appearance?.style || 'bloom'"
+          :data-card-palette="a.entity.appearance?.palette || 'rose'"
+          :aria-label="'纪念日 ' + a.entity.name"
+        >
           <div class="todo-between todo-anniversary-heading">
             <span v-if="a.entity.category" class="todo-badge">{{ a.entity.category }}</span
             ><AButton
@@ -701,9 +707,9 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
         当前连续 {{ habitStatistics.streak.current }} 期 · 最长连续
         {{ habitStatistics.streak.longest }} 期
       </p>
-      <p class="todo-muted todo-small">
-        按记录当天的规则和日／周／月周期计算；暂停与跳过使用当期规则。
-      </p>
+      <ToDooHint :model="model" hint-id="habit-statistics-rules"
+        >按记录当天的规则和日／周／月周期计算；暂停与跳过使用当期规则。</ToDooHint
+      >
       <AAlert
         v-if="habitStatistics.streak.estimated"
         type="info"
@@ -751,11 +757,13 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
         当期累计 {{ dialogSummary?.amount }} / {{ dialogRule.target }}
         {{ ordinaryDialog ? '天' : dialogRule.unit }}
       </p>
-      <p class="todo-muted todo-small">
-        {{
+      <ToDooHint
+        :model="model"
+        :hint-id="ordinaryDialog ? 'habit-checkin-save' : 'habit-quantity-save'"
+        >{{
           ordinaryDialog ? '点击打卡后保存本次记录' : '点击保存后记录本次新增'
-        }}；关闭会放弃本次输入，已保存记录保留。
-      </p>
+        }}；关闭会放弃本次输入，已保存记录保留。</ToDooHint
+      >
       <ul
         v-if="numericDialog && dialogEntries.length"
         class="todo-habit-entries"

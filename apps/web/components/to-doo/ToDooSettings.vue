@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ToDooDisclosure from './ToDooDisclosure.vue';
+import ToDooHint from './ToDooHint.vue';
 import ToDooFormLayout from './ToDooFormLayout.vue';
 import {
   Alert as AAlert,
@@ -827,9 +828,9 @@ defineExpose({
             >刷新</AButton
           >
         </div>
-        <p class="todo-pad todo-muted todo-small">
+        <ToDooHint :model="model" hint-id="outcome-recovery" class="todo-pad">
           已经保存的正文与操作进度会保留，可核对当前任务版本后继续关联。
-        </p>
+        </ToDooHint>
         <div
           v-for="operation in state.pendingOperations"
           :key="operation.id"
@@ -1122,7 +1123,9 @@ defineExpose({
       </div>
       <div class="todo-pad todo-form">
         <h3>从文件导入</h3>
-        <p class="todo-form-help">选择文件或粘贴内容，预览核对后再确认导入。</p>
+        <ToDooHint :model="model" hint-id="data-import-preview">
+          选择文件或粘贴内容，预览核对后再确认导入。
+        </ToDooHint>
         <div class="todo-actions">
           <AButton
             html-type="button"
@@ -1382,14 +1385,14 @@ defineExpose({
         </div>
         <ToDooDisclosure :open="!!push?.lastError">
           <template #header><span>主机与设备管理</span></template>
-          <p class="todo-form-help">
+          <ToDooHint :model="model" hint-id="push-background-delivery">
             启用后，关闭网页仍可收到桌面提醒；网页打开时也会显示可操作的提醒卡片。
-          </p>
+          </ToDooHint>
           <p>当前浏览器通知权限：{{ pushPermission }}</p>
           <p class="todo-muted todo-small">{{ pushReason }}</p>
-          <p class="todo-muted todo-small">
+          <ToDooHint :model="model" hint-id="push-browser-requirements">
             需要允许本站通知和浏览器后台运行。浏览器被系统彻底终止、系统通知关闭或设备关机时，提醒可能延迟或无法送达。通知外观由操作系统决定。
-          </p>
+          </ToDooHint>
           <AButton
             html-type="button"
             class="todo-button"

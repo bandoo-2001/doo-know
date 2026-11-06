@@ -946,6 +946,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       'todo-has-detail': detailOpen,
       'todo-no-sidebar': !hasSecondaryNavigation,
       'todo-hosted-navigation': hostedNavigation,
+      'todo-task-page': section === 'tasks' || section === 'overview',
+      'todo-task-overview-page': section === 'overview',
     }"
     aria-label="To Doo 行动工作空间"
   >
@@ -1135,7 +1137,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       <div class="todo-page" :class="{ 'todo-page-matrix': section === 'matrix' }">
         <ToDooPageHeader
           :title="title"
-          :description="pageDescription"
+          :description="section === 'overview' ? '把目标拆成今天能做的事' : pageDescription"
           :daily-caption="section === 'tasks'"
         >
           <template
@@ -1165,8 +1167,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
             >
             <AButton
               v-if="section === 'overview'"
-              type="primary"
-              class="todo-button todo-primary"
+              type="default"
+              class="todo-button"
               aria-label="新建目标"
               @click="edit('list', undefined, { kind: 'goal' })"
               >＋ 新建目标</AButton
@@ -1181,10 +1183,9 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
             >
             <AButton
               v-if="taskSections.includes(section) || ['calendar', 'timeline'].includes(section)"
-              :type="section !== 'overview' ? 'primary' : 'default'"
-              class="todo-button"
+              type="primary"
+              class="todo-button todo-primary"
               aria-label="新建任务"
-              :class="{ 'todo-primary': section !== 'overview' }"
               @click="create()"
               >＋ 新建任务</AButton
             >
@@ -1502,3 +1503,91 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
     </AModal>
   </section>
 </template>
+
+<style scoped>
+.todo-task-page {
+  --todo-accent: #1555ff;
+  --todo-tint: #edf2ff;
+  --todo-ink: #101828;
+  --todo-muted: #4c5870;
+  font-synthesis: weight;
+}
+:global(:root[data-theme='dark'] .todo-task-page) {
+  --todo-accent: #8ba4ff;
+  --todo-tint: #25334d;
+  --todo-ink: #e5e8f0;
+  --todo-muted: #a1a9bb;
+}
+.todo-task-page :deep(.todo-page-heading h1) {
+  font-size: 34px;
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+}
+.todo-task-overview-page :deep(.todo-page-heading h1) {
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 500;
+  color: var(--todo-ink);
+  letter-spacing: 0;
+}
+.todo-task-overview-page :deep(.todo-page-heading p) {
+  display: block;
+  margin-top: 36px;
+  color: var(--todo-ink);
+  font-size: 36px;
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+}
+.todo-task-overview-page :deep(.todo-page-heading) { margin-bottom: 22px; }
+.todo-task-overview-page :deep(.todo-page-heading h1)::before {
+  content: '';
+  display: inline-block;
+  width: 38px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: -3px;
+  background: var(--todo-muted);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 24'%3E%3Cg fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m2 11 9-8 9 8M5 9v11h5v-6h4v6h4V9m15 0 4 4-4 4'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+}
+.todo-task-overview-page :deep(.todo-page-heading > .todo-actions) {
+  align-self: flex-end;
+}
+.todo-task-page :deep(.todo-page-heading > .todo-actions > .ant-btn) {
+  min-height: 46px;
+  min-width: 140px;
+  padding: 8px 20px;
+  font-size: 17px !important;
+  line-height: 26px;
+  border-radius: 9px;
+}
+.todo-task-page :deep(.todo-directory-title) { font-size: 24px; font-weight: 700; }
+.todo-task-page :deep(.todo-navigation-group .todo-nav-label) { font-size: 14px; }
+.todo-task-page :deep(.todo-navigation-content nav .ant-btn) { font-size: 17px; min-height: 44px; }
+.todo-task-page :deep(.ant-btn-primary) {
+  background: var(--todo-accent);
+  border-color: var(--todo-accent);
+}
+.todo-task-page :deep(.ant-btn-primary:hover) {
+  background: color-mix(in srgb, var(--todo-accent) 88%, var(--todo-paper));
+  border-color: transparent;
+}
+.todo-task-page :deep(.todo-navigation-content .ant-btn.active) {
+  color: var(--todo-accent);
+  background: var(--todo-tint);
+}
+@container (max-width: 650px) {
+  .todo-task-page :deep(.todo-page-heading h1) { font-size: 23px; }
+  .todo-task-overview-page :deep(.todo-page-heading h1) { font-size: 13px; }
+  .todo-task-overview-page :deep(.todo-page-heading p) { font-size: 24px; margin-top: 12px; }
+  .todo-task-overview-page :deep(.todo-page-heading) { margin-bottom: 16px; }
+  .todo-task-page :deep(.todo-page-heading > .todo-actions > .ant-btn) {
+    min-height: 36px;
+    min-width: 0;
+    padding: 6px 12px;
+    font-size: 13px !important;
+    line-height: 22px;
+  }
+}
+</style>

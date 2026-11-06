@@ -1,0 +1,15 @@
+{
+  "id": "15-settings-data",
+  "title": "数据与恢复",
+  "file": "15-settings-data.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list.png",
+  "prompt": "Create ONE high-fidelity flat desktop web UI concept for DooKnow / To Doo, using the provided image as the canonical STYLE and navigation reference. Same full-screen framing, same restrained blue-gray palette, white main surface, pale-gray consolidated left sidebar, crisp Chinese typography, consistent readable control sizes, thin dividers, 6–8px radii, no browser/device chrome, no 3D/perspective, no marketing poster, no watermarks.\nPreserve the brand, workspace selector, list names and other navigation labels from the reference; move the active highlight to the correct destination for this screen and remove the old highlight. The To Doo brand/workspace menu provides the home/目标总览 and return-to-knowledge navigation. Use the whole main region with aligned title, controls and content. Do not keep the reference task detail pane unless this screen explicitly needs it. No floating filter bullet lists, duplicated scope dropdowns, tiny labels, random dashboard widgets or enormous decorative empty areas. Use Chinese UI text and sensible sample content. All date examples are in November 2026; Nov 4 is Wednesday. Controls and totals must agree with visible content. Reuse supported task, goal, focus, habit, anniversary, notification, settings and Markdown-note concepts; never claim global automatic saving, AI generation or fake collaboration. Render only the application UI.\n\nSCREEN REQUIREMENTS:\nDesign settings \"数据与恢复\", bottom设置 active, canonical four settings tabs with数据与恢复 active. No保存偏好. Top compact actions 导出JSON and导出ICS. Import section: Chinese \"选择文件\", selected sample tasks.csv, typeCSV, destination工作与创造, 预览导入. Preview summary \"23项 · 第1页/共3页\", a legible table with columns 类型/标题/日期/归属 and ten modest task rows, properpagination1 2 3. Show one understandable nonfatal warning \"1项日期需核对\" with affected row context; no untranslated backend jargon. Clear primary \"确认导入\" tied to the shown snapshot and helper \"修改文件或目标清单后需重新预览\". A collapsed 历史导入作业 section may explain停止不会撤销已完成批次. Do not invent an all-or-nothing rollback or expose profile/secret/database technical settings. Controls align inside the full main region, no selected task-detail pane.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-c5451cef-4eb5-454f-8d1a-baa2cab9a7a3.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

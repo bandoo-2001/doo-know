@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ToDooDisclosure from './ToDooDisclosure.vue';
+import ToDooHint from './ToDooHint.vue';
 import { useToDooConfirm } from '../../to-doo-controls';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
@@ -547,13 +548,17 @@ defineExpose({
     <p v-if="creating && creationNotice" class="todo-detail-save-help todo-warning" role="status">
       {{ creationNotice }}
     </p>
-    <p class="todo-detail-save-help todo-muted todo-small">
+    <ToDooHint
+      :model="model"
+      :hint-id="creating ? 'task-create-save' : 'task-edit-save'"
+      class="todo-detail-save-help"
+    >
       {{
         creating
           ? '点击“创建任务”后生效。关闭会保留新建草稿，保存范围为当前浏览器。'
           : '标题、日期、优先级、重复和提醒需点击“保存任务”；完成、执行状态和菜单操作立即生效。关闭保留当前页面输入，刷新前请保存。'
       }}
-    </p>
+    </ToDooHint>
     <form v-if="creating" class="todo-form todo-detail-body" @submit.prevent="create">
       <fieldset class="todo-create-fields" :disabled="state.busy">
         <label
@@ -676,9 +681,9 @@ defineExpose({
             </div>
             <ToDooReminders v-model="local.reminders" :date-based="false" />
             <label>完成标准<ATextarea v-model:value="local.criteria" :rows="3"></ATextarea></label>
-            <p class="todo-muted todo-small">
+            <ToDooHint :model="model" hint-id="task-create-resources">
               创建任务后，可以在详情中上传附件、关联资料和记录成果。
-            </p>
+            </ToDooHint>
           </div>
         </ToDooDisclosure>
         <AButton

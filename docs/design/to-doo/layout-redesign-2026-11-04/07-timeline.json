@@ -1,0 +1,15 @@
+{
+  "id": "07-timeline",
+  "title": "时间线",
+  "file": "07-timeline.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/02-tasks-list.png",
+  "prompt": "Create ONE high-fidelity flat desktop web UI concept for DooKnow / To Doo, using the provided image as the canonical STYLE and navigation reference. Same full-screen framing, same restrained blue-gray palette, white main surface, pale-gray consolidated left sidebar, crisp Chinese typography, consistent readable control sizes, thin dividers, 6–8px radii, no browser/device chrome, no 3D/perspective, no marketing poster, no watermarks.\nPreserve the brand, workspace selector, list names and other navigation labels from the reference; move the active highlight to the correct destination for this screen and remove the old highlight. The To Doo brand/workspace menu provides the home/目标总览 and return-to-knowledge navigation. Use the whole main region with aligned title, controls and content. Do not keep the reference task detail pane unless this screen explicitly needs it. No floating filter bullet lists, duplicated scope dropdowns, tiny labels, random dashboard widgets or enormous decorative empty areas. Use Chinese UI text and sensible sample content. All date examples are in November 2026; Nov 4 is Wednesday. Controls and totals must agree with visible content. Reuse supported task, goal, focus, habit, anniversary, notification, settings and Markdown-note concepts; never claim global automatic saving, AI generation or fake collaboration. Render only the application UI.\n\nSCREEN REQUIREMENTS:\nDesign the task \"时间线\", sidebar所有任务 active, tabs列表/看板/四象限/时间线 with时间线 active. Header \"任务时间线\", scope \"所有任务\", range \"11月4日 — 12月1日 · 4周\", primary \"+ 时间安排\". A horizontally scrollable timeline with a sticky left task-name/project column approximately240px, useful readable day columns64–76px; show Nov4–Nov17 in the viewport with the continuation and scrollbar implying the full28-day range. Do not compress28 dates into tiny cells. Rows: 整理项目的下一步, 回复合作伙伴的反馈, 阅读并整理一篇技术文章, 梳理本周的阅读计划, 完成产品方案初稿, 整理一份读书笔记, 发布产品版本. First three have Nov4 plans09:00/45分,15:30/30分,19:00/60分 and due diamonds17:00,16:00,20:00. Next two Nov5 plans14:00/60分 and16:00/90分 withdue14:00 and18:00 (schedule reading plan should finish before its14:00 deadline: use13:00/60分 instead if displaying that deadline). Notes Nov6 19:00/60分 due20:00. 发布产品版本 is an all-day span Nov12–Nov14 with deadline Nov15. Short plan labels use HH:mm and minutes, never fragmented full ISO dates. Show a clear plan/deadline legend and full selected block tooltip only if helpful; no disconnected filters or task-details pane.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-64d0ae72-21ea-4b7f-bd9b-e706b328e301.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "21-schedule-create",
+  "title": "新建时间安排",
+  "file": "21-schedule-create.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/06-calendar-week.png",
+  "prompt": "Create ONE high-fidelity flat desktop web UI concept for DooKnow / To Doo, using the provided image as the canonical STYLE and navigation reference. Same full-screen framing, same restrained blue-gray palette, white main surface, pale-gray consolidated left sidebar, crisp Chinese typography, consistent readable control sizes, thin dividers, 6–8px radii, no browser/device chrome, no 3D/perspective, no marketing poster, no watermarks.\nPreserve the brand, workspace selector, list names and other navigation labels from the reference; move the active highlight to the correct destination for this screen and remove the old highlight. The To Doo brand/workspace menu provides the home/目标总览 and return-to-knowledge navigation. Use the whole main region with aligned title, controls and content. Do not keep the reference task detail pane unless this screen explicitly needs it. No floating filter bullet lists, duplicated scope dropdowns, tiny labels, random dashboard widgets or enormous decorative empty areas. Use Chinese UI text and sensible sample content. All date examples are in November 2026; Nov 4 is Wednesday. Controls and totals must agree with visible content. Reuse supported task, goal, focus, habit, anniversary, notification, settings and Markdown-note concepts; never claim global automatic saving, AI generation or fake collaboration. Render only the application UI.\nThis screen is an operation-window concept. Preserve the provided matching workspace as recognizable context. Use one calm modal or task side-pane as specified, with a normal close control, legible labels, short useful helper copy, and footer actions fully inside the screen. Do not show internal IDs, request hashes, raw JSON, server secrets or fake auto-save promises. Required vs optional fields clear. State what is saved only where meaningful; no unrelated background tasks or decorative dashboards.\n\nOPERATION REQUIREMENTS:\nCentered modal \"新建时间安排\". 安排标题 \"梳理本周的阅读计划\", optional关联任务same title. 全天 toggleOFF. Date2026年11月5日, 开始13:00, 时长60分钟, 结束14:00, timezone北京时间. Clear summary \"11月5日 13:00—14:00 · 60分钟\". Small secondary description optional. Footer取消/保存. Timed controls grouped; do not show nonsensical1440分钟, no conflicting all-day fields. Week calendar context behind the modal.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-b8384d71-f5bc-4254-b004-a9298487d74a.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

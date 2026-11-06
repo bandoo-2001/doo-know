@@ -1,0 +1,15 @@
+{
+  "id": "18-task-create",
+  "title": "新建任务（筛选一致性修订）",
+  "file": "18-task-create-v2.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/18-task-create.png",
+  "prompt": "Use case: ui-mockup, precise correction. Edit the provided new-task side-pane concept only in two small places. First remove the entire bottom-left \"已完成 2\" result-group bar and chevron from the task list, since 未完成 is the active filter. Keep all SIX pending rows and all main/task-creation layout unchanged. Second remove the arbitrary \"0 / 300\" text counter inside the optional description area; do not invent a new description length restriction. Preserve every form label/value, Nov6 date, 未指定时刻,45分钟,due17:00,提醒,草稿说明,创建任务/收起并保留草稿 footer, sidebar and framing. No other changes.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-d368c34e-0196-44f6-82d6-fd0a82d8ea73.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

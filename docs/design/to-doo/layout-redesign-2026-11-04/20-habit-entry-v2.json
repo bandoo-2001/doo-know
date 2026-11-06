@@ -1,0 +1,15 @@
+{
+  "id": "20-habit-entry",
+  "title": "习惯记录与更正（按钮修订）",
+  "file": "20-habit-entry-v2.png",
+  "reference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04/20-habit-entry.png",
+  "prompt": "Use case: ui-mockup, precise correction. Edit the provided reading-record dialog. Remove the extra BLUE bottom-right button whose malformed text looks like \"关成\"/完成. Keep only ONE ordinary footer closing action, labeled exactly \"关闭\", aligned at the far right of the footer. The blue \"记录\" button inside 本次增加 remains the sole action that saves the new quantity; leave it intact. Preserve the red整天撤销 action and its confirmation explanation. Keep ALL numbers45/20,本周120,three saved rows15+10+20,未保存 addition15, dates, labels, background, modal geometry and all other pixels/content unchanged. Do not add an autosave promise or another footer save action. Crisp Chinese, same full-screen framing.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-375be91a-a8f6-4b96-b86b-e438e4c39cfe.png",
+  "tool": "image_gen.imagegen",
+  "kind": "concept",
+  "dimensions": [
+    1568,
+    1003
+  ]
+}

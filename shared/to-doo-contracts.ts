@@ -586,6 +586,13 @@ const schemas = {
       repeatYearly: z.boolean().default(true),
       leapPolicy: z.enum(['previous_day', 'next_day', 'skip']).default('previous_day'),
       countMode: z.enum(['exclude_today', 'include_today']).default('exclude_today'),
+      appearance: z
+        .object({
+          style: z.enum(['bloom', 'landscape', 'orbit', 'minimal']),
+          palette: z.enum(['rose', 'sage', 'lavender', 'amber', 'ocean']),
+        })
+        .strict()
+        .optional(),
       category: text(100).default(''),
       description: text().default(''),
       noteRefs: z.array(ref).default([]),
