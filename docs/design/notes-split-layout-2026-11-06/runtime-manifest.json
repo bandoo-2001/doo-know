@@ -1,0 +1,92 @@
+{
+  "baseCommit": "8b57c38a8a9062e199ec89c22673bdac0c4efec4",
+  "branch": "txj/notes-split-layout",
+  "applicationFiles": {
+    "apps/web/components/DocumentNavigation.vue": "765c5d8bd42917861f1feba76e46493b7bfc5ddfc9b40312e2af35bcecde5132",
+    "apps/web/components/Workspace.vue": "893c9b4108a723c3f1b7a847c6d9d7c56261b8eb90b42b940ab6ec17c9adbf6c",
+    "apps/web/components/WorkspaceFooter.vue": "dd6a3e956b9b0721aad0fc444cda8479aceac733fa473194fbfe16e3bc588ebf",
+    "apps/web/components/WorkspaceHeader.vue": "3979753499f9089d97fb37987deb6ac41470dc9ba5aab1141c4cbe709b8090de",
+    "apps/web/document.css": "ee2bc8df95ff83adf76aaf1a9e8cd2a0055f545c9fe9dec894d87aec012aa6d4",
+    "apps/web/platform-ui.css": "ca192fd91853ff6e118866dd0cec150d6875e7f5d4802d3de3bfc4fdbf78da57"
+  },
+  "screenshots": [
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-split-layout-2026-11-06/desktop-1440.png",
+      "sha256": "5eb7e55d6f8a38514cfb430d6b20628cf79b96fcd65f0de8c46905b673e2c2ad",
+      "width": 1440,
+      "height": 1000,
+      "actualRuntimeScreenshot": true,
+      "isolatedFixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-split-layout-2026-11-06/phone-320.png",
+      "sha256": "8342aa06aee46b5396ce988d2aba9b0961d7dfe2178a449d8bc3947343eca442",
+      "width": 320,
+      "height": 844,
+      "actualRuntimeScreenshot": true,
+      "isolatedFixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-split-layout-2026-11-06/phone-390.png",
+      "sha256": "233497de315920bb956d9f41beeffeefcf002b9f0ce880bf8fef422a7cedeab1",
+      "width": 390,
+      "height": 844,
+      "actualRuntimeScreenshot": true,
+      "isolatedFixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-split-layout-2026-11-06/shared-note-320.png",
+      "sha256": "814d3a25c36e6a8aefe7dbd0c67fbf136314d8121916699e88a9c5b66af6c8dc",
+      "width": 320,
+      "height": 844,
+      "actualRuntimeScreenshot": true,
+      "isolatedFixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-split-layout-2026-11-06/shared-native-320.png",
+      "sha256": "4bf9975011ac30f82b636e4d6404f15853d856aadfc3c4d278bfcbb572e43cb4",
+      "width": 320,
+      "height": 844,
+      "actualRuntimeScreenshot": true,
+      "isolatedFixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-split-layout-2026-11-06/split-light.png",
+      "sha256": "29991a8600f7e567d03ac027be4eadcdb741625f60511c6d594ba0f631a8d6c5",
+      "width": 1440,
+      "height": 900,
+      "actualRuntimeScreenshot": true,
+      "isolatedFixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-split-layout-2026-11-06/split-dark.png",
+      "sha256": "b16587f2fd998e9861ad8899851f16e979cd07271cbeeaeab77fd9cdd93f799b",
+      "width": 1440,
+      "height": 900,
+      "actualRuntimeScreenshot": true,
+      "isolatedFixtureOnly": true
+    }
+  ],
+  "validation": {
+    "scopedDesktopE2E": 26,
+    "scopedMobileE2E": 26,
+    "relatedUnitFiles": 6,
+    "relatedUnitTests": 83,
+    "settledPhoneRecaptureCases": 2,
+    "typecheck": "exit0",
+    "productionBuild": "exit0",
+    "finalReview": "No Critical or Important findings"
+  },
+  "history": [
+    "Initial run: 4 structural failures, 3 passes on prior header implementation.",
+    "First and second implementation runs: 4 passes, 3 failures each; original narrow container and phone wrapper CSS hid the new drawer button.",
+    "After both CSS fixes: 3 focused compact cases passed, followed by final 26 desktop and 26 mobile cases passing.",
+    "Reviewer noticed screenshot taken during drawer fade-out; capture now waits for scrim removal, 2 phone cases rerun passed. No product change after final regression."
+  ],
+  "limits": [
+    "Scoped client-layout regression; no new full repository or native release-candidate suite claimed.",
+    "Empty-state drawer exercised; folder/collection branches inspected in code, not separately exercised by E2E.",
+    "Physical soft keyboard and operating-system window behavior not tested.",
+    "Preview delivery/preservation and actual-login outcome recorded separately after deployment."
+  ]
+}

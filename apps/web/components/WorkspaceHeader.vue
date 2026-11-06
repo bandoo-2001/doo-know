@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import Icon from './Icon.vue';
-defineProps<{ context: string; app?: boolean; status?: string; drawerOpen?: boolean; functional?: boolean }>();
+defineProps<{ context: string; app?: boolean; status?: string; drawerOpen?: boolean }>();
 const emit = defineEmits<{ 'open-sidebar': []; 'return-app': [] }>();
 </script>
 <template>
-  <header :class="['workspace-header', {'workspace-header-functional': functional}]" aria-label="DooKnow 工作区">
+  <header class="workspace-header" aria-label="DooKnow 工作区">
     <button
       v-if="app"
       type="button"
@@ -23,11 +23,8 @@ const emit = defineEmits<{ 'open-sidebar': []; 'return-app': [] }>();
       @click="emit('open-sidebar')"
     ><Icon name="menu" :size="20" /></button>
     <div class="workspace-header-brand"><Icon name="book" :size="25" /><strong>DooKnow</strong></div>
-    <span v-if="!functional" class="workspace-header-divider" aria-hidden="true"></span>
-    <span v-if="!functional" class="workspace-header-context" :title="context">{{ context }}</span>
-    <div id="workspace-header-actions" v-show="functional" class="workspace-header-actions"></div>
-    <div v-if="functional" class="workspace-header-compact-actions"><slot name="compact-actions" /></div>
-    <div id="workspace-header-account" v-show="functional" class="workspace-header-account"></div>
+    <span class="workspace-header-divider" aria-hidden="true"></span>
+    <span class="workspace-header-context" :title="context">{{ context }}</span>
     <span v-if="status" class="workspace-header-status">{{ status }}</span>
   </header>
 </template>

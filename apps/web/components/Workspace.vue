@@ -2765,16 +2765,7 @@ onBeforeUnmount(() => {
 });
 const sidebarRef = ref<HTMLElement>();
 const compactSidebar = ref(false);
-const notesHeader = computed(() => !['settings', 'trash', 'apps'].includes(panel.value));
-watch(query, value => {
-  if (!notesHeader.value || !value.trim()) return;
-  if (compactSidebar.value) drawer.value = true;
-  else sidebarCollapsed.value = false;
-});
-async function focusNotebookSearch() {
-  await openNotebookDrawer();
-  sidebarRef.value?.querySelector<HTMLInputElement>('input[aria-label="搜索笔记与目录"]')?.focus({ preventScroll: true });
-}
+const notesMode = computed(() => !['settings', 'trash', 'apps'].includes(panel.value));
 let sidebarMedia: MediaQueryList | undefined;
 function updateSidebarCompact() { compactSidebar.value = !!sidebarMedia?.matches; }
 onMounted(() => {
@@ -2803,30 +2794,25 @@ function createTriggerEscape(event: KeyboardEvent) {
 async function closeNotebookDrawer() {
   drawer.value = false;
   await nextTick();
-  document.getElementById('workspace-sidebar-toggle')?.focus({ preventScroll: true });
+  const target = document.getElementById(notesMode.value ? 'workspace-note-sidebar-toggle' : 'workspace-sidebar-toggle');
+  target?.focus({ preventScroll: true });
 }
 
 </script>
 <template>
   <div
-    :class="['workspace', { 'workspace-platform-shell': activeAppMenu?.id !== 'to-doo', 'sidebar-collapsed': panel === 'apps' || (sidebarCollapsed && panel === 'note') }]"
+    :class="['workspace', { 'workspace-platform-shell': activeAppMenu?.id !== 'to-doo', 'workspace-notes-layout': notesMode, 'sidebar-collapsed': panel === 'apps' || (sidebarCollapsed && panel === 'note') }]"
     :style="{ '--sidebar-width': sidebarWidth + 'px', '--outline-width': outlineWidth + 'px' }"
   >
     <WorkspaceHeader
-      v-show="activeAppMenu?.id !== 'to-doo'"
-      :context="panel === 'settings' ? '设置' : panel === 'trash' ? '回收站' : panel === 'apps' ? activeAppMenu?.label || '应用' : '笔记'"
+      v-if="!notesMode && activeAppMenu?.id !== 'to-doo'"
+      :context="panel === 'settings' ? '设置' : panel === 'trash' ? '回收站' : activeAppMenu?.label || '应用'"
       :app="!!activeAppMenu"
-      :functional="notesHeader"
-      :status="notesHeader ? undefined : activeAppMenu ? '应用工作空间' : dirty ? '未保存' : '私人笔记'"
+      :status="activeAppMenu ? '应用工作空间' : undefined"
       :drawer-open="drawer"
       @open-sidebar="openNotebookDrawer"
       @return-app="returnFromApp"
-    >
-      <template #compact-actions>
-        <button type="button" class="icon-button" aria-label="搜索笔记" title="搜索笔记" @click="focusNotebookSearch"><Icon name="search" :size="19" /></button>
-        <button type="button" class="icon-button" aria-label="新建笔记" title="新建笔记" :disabled="!treeLoaded" @click="create('note')"><Icon name="plus" :size="20" /></button>
-      </template>
-    </WorkspaceHeader>
+    />
     <Transition name="scrim">
       <div v-if="drawer" class="drawer-scrim" @click="closeNotebookDrawer"></div>
     </Transition>
@@ -2851,7 +2837,6 @@ async function closeNotebookDrawer() {
         </button>
       </nav>
       <div v-show="panel !== 'settings' && panel !== 'apps'" class="notebook-sidebar-content">
-        <Teleport defer to="#workspace-header-actions" :disabled="!notesHeader || compactSidebar">
         <div class="sidebar-actions">
           <AInput
             v-model:value="query"
@@ -2867,7 +2852,7 @@ async function closeNotebookDrawer() {
               aria-label="新建笔记"
               title="新建笔记"
               @click="create('note')"
-              ><template #icon><Icon name="plus" :size="16" /></template><span>新建</span></AButton
+              ><template #icon><Icon name="plus" :size="16" /></template><span class="sidebar-create-label">新建</span></AButton
             ><APopover v-model:open="createMenuOpen" trigger="click" placement="bottomRight">
               <template #content
                 ><div
@@ -2913,7 +2898,6 @@ async function closeNotebookDrawer() {
             </APopover>
           </div>
         </div>
-        </Teleport>
         <div class="tree-heading">
           <span>{{
             query
@@ -3069,7 +3053,6 @@ async function closeNotebookDrawer() {
       </div>
     </aside>
     <WorkspaceFooter
-      :header-account="notesHeader"
       :username="props.username"
       :active="panel"
       :collection="collection"
@@ -3120,6 +3103,9 @@ async function closeNotebookDrawer() {
       :tabindex="['settings', 'trash', 'apps'].includes(panel) ? 0 : undefined"
     >
 
+      <div v-if="notesMode && compactSidebar && !(note && panel === 'note')" class="notes-directory-entry">
+        <button id="workspace-note-sidebar-toggle" type="button" class="icon-button" aria-label="打开侧栏" aria-controls="notebook-navigation" :aria-expanded="drawer" @click="openNotebookDrawer"><Icon name="sidebar" :size="18" /><span>目录</span></button>
+      </div>
       <div v-if="noteOpening || (!treeLoaded && treeRefreshing)" class="workspace-load-progress">
         <LoadingState variant="inline" :label="noteOpening ? '正在打开笔记…' : '正在读取目录…'" />
       </div>
@@ -3156,6 +3142,9 @@ async function closeNotebookDrawer() {
       <DiagramDocumentWorkspace v-if="note && primaryDiagram" v-show="panel==='note'" ref="diagramRef" :key="'primary-'+note.id" :note-id="note.id" :relative-path="note.relativePath" :draft-scope="draftScope" :shared="note.shared" :share-busy="shareBusy" :autosave-paused="revisionsOpen || leaveOpen" @share="manageShare" @dirty="boardDirty=$event" @saved="onBoardSaved" @history="history()" @root="browseRoot" @folder="select" @close="select({type:'folder',name:folder,path:folder})">
         <template #navigation>
           <DocumentNavigation
+            :compact="compactSidebar"
+            :drawer-open="drawer"
+            @open-sidebar="openNotebookDrawer"
             :sidebar-collapsed="sidebarCollapsed"
             :can-back="navigationState.canBack"
             :can-forward="navigationState.canForward"
@@ -3169,7 +3158,10 @@ async function closeNotebookDrawer() {
         <header class="note-header">
           <div class="note-topline">
             <DocumentNavigation
-              :sidebar-collapsed="sidebarCollapsed"
+              :compact="compactSidebar"
+            :drawer-open="drawer"
+            @open-sidebar="openNotebookDrawer"
+            :sidebar-collapsed="sidebarCollapsed"
               :can-back="navigationState.canBack"
               :can-forward="navigationState.canForward"
               @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"

@@ -462,7 +462,7 @@
     padding-inline: 14px;
     gap: 10px;
   }
-  .document-navigation > button:not(.desktop-sidebar-toggle) {
+  .document-navigation > button:not(.desktop-sidebar-toggle):not(.compact-sidebar-toggle) {
     display: none;
   }
   .document-breadcrumb > .breadcrumb-folder,

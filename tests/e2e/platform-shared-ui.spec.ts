@@ -37,15 +37,12 @@ test('owner chrome keeps context and content aligned while navigation and resize
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
   const header = page.getByRole('banner', { name: 'DooKnow 工作区', exact: true });
-  await expect(header).toBeVisible();
-  const headerBox = (await header.boundingBox())!;
+  await expect(header).toHaveCount(0);
   const railBox = (await page.locator('.workspace-footer').boundingBox())!;
-  expect(Math.abs(headerBox.height - 56)).toBeLessThanOrEqual(1);
   expect(Math.abs(railBox.width - 64)).toBeLessThanOrEqual(1);
-  expect(Math.abs(headerBox.x - (railBox.x + railBox.width))).toBeLessThanOrEqual(1);
   for (const area of ['#notebook-navigation', '.main-content']) {
     const box = (await page.locator(area).boundingBox())!;
-    expect(box.y).toBeGreaterThanOrEqual(headerBox.y + headerBox.height - 1);
+    expect(box.y).toBeCloseTo(0, 0);
     await insideWindow(page, page.locator(area));
   }
   const resize = page.getByRole('separator', { name: '调整侧栏宽度', exact: true });
@@ -71,7 +68,7 @@ test('owner chrome keeps context and content aligned while navigation and resize
     // The existing owner workspace may keep its desktop directory open when
     // resizing. Close that legitimate state before testing the open trigger.
     await closeSidebar(page);
-    await insideWindow(page, header);
+    await expect(header).toHaveCount(0);
     await insideWindow(page, page.locator('.main-content'));
     await insideWindow(page, page.locator('.workspace-tabbar'));
     const trigger = page.getByRole('button', { name: '打开侧栏', exact: true });
