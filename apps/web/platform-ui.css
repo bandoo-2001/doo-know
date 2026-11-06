@@ -178,23 +178,20 @@ h1, h2, h3 { color: var(--text); }
 .note-header .toolbar .share-button.is-shared .ant-btn-icon { margin-inline-end: 4px; }
 
 /* Notes have two fullheight content panes beside the persistent module rail. */
-.workspace.workspace-notes-layout { --workspace-topbar-height: 0px; grid-template-rows: minmax(0, 1fr); }
+.workspace.workspace-notes-layout { --workspace-topbar-height: 0px; --workspace-rail-width: 60px; --workbench-rail: color-mix(in srgb, var(--border) 40%, var(--surface)); grid-template-rows: minmax(0, 1fr); }
 .workspace.workspace-notes-layout > #notebook-navigation,
 .workspace.workspace-notes-layout > .main-content { grid-row: 1; }
+.workspace.workspace-notes-layout:not(.sidebar-collapsed) > #notebook-navigation > .brand { display: flex; }
+@media (min-width: 961px) {
+  .workspace.workspace-notes-layout > #notebook-navigation { padding-top: 20px; }
+}
 .workspace.workspace-notes-layout > .sidebar-resizer { top: 0; }
-.workspace-notes-layout .sidebar-actions { flex-direction: row; gap: 8px; }
-.workspace-notes-layout .sidebar-actions > .ant-input-affix-wrapper { flex: 1; min-width: 0; width: auto; }
-.workspace-notes-layout .sidebar-create { flex: 0 0 56px; width: 56px; }
-.workspace-notes-layout .sidebar-create > .ant-btn { flex: 0 0 32px; min-width: 32px; width: 32px; padding: 0; }
-.workspace-notes-layout .sidebar-create-label { display: none; }
-.workspace-notes-layout .sidebar-create .create-more { width: 24px; }
 .workspace-notes-layout .workspace-menu-identity .account-row { color: var(--text); }
-.workspace-notes-layout .workspace-menu-identity .avatar { background: var(--surface); color: var(--muted); }
 .notes-directory-entry { flex: 0 0 auto; padding: 6px 14px; border-bottom: 1px solid var(--border); }
 .notes-directory-entry .icon-button { display: flex; align-items: center; gap: 6px; width: auto; min-height: 32px; color: var(--muted); }
 .workspace-notes-layout .workspace-empty { flex: 1; min-height: 0; }
 
-.workspace-notes-layout .workspace-menu-identity .avatar { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 50%; background: var(--blue-soft); color: var(--blue); font-weight: 600; }
+.workspace-notes-layout .workspace-menu-identity .avatar { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--border); color: var(--text); font-weight: 500; }
 
 /* The old phone header owned this trigger; keep it in the document row now. */
 .workspace-notes-layout .document-navigation-compact { display: flex; }

@@ -390,7 +390,7 @@ function storedSidebarWidth() {
     const width = Number(localStorage.getItem('dooknow.sidebarWidth'));
     if (Number.isFinite(width) && width >= 240 && width <= 400) return width;
   } catch {}
-  return 260;
+  return 240;
 }
 const sidebarCollapsed = ref(false);
 const editorState = ref(emptyToolbarState());
@@ -3095,7 +3095,7 @@ async function closeNotebookDrawer() {
     <NoteBacklinks v-if="backlinksOpen && note" :note-id="note.id" @open="openBacklink" @close="backlinksOpen=false" />
     <DiagramSaveDialog v-if="diagramSaveContext" :needs="diagramSaveContext.needs" :busy="diagramSaveBusy" :error="diagramSaveError" @generate="finishDiagramSave(true)" @source-only="finishDiagramSave(false)" @close="diagramSaveContext=undefined" />
     <EditorInsertMenu v-if="insertMenuOpen" :open="insertMenuOpen" :read-only="formatDisabled" @insert="insertSnippet" @close="insertMenuOpen=false" />
-    <SidebarResizer v-model="sidebarWidth" @commit="saveSidebarWidth" />
+    <SidebarResizer v-model="sidebarWidth" :default-width="240" @commit="saveSidebarWidth" />
     <main
       ref="mainRef"
       :class="['main-content', { 'utility-scroll': ['settings', 'trash', 'apps'].includes(panel) }]"

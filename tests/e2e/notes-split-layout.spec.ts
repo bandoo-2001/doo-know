@@ -38,7 +38,7 @@ for(const width of [320,390])test('document-local directory control and fullheig
  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);await page.screenshot({path:info.outputPath('phone-split-'+width+'.png'),animations:'disabled'});
 });
 test('empty compact workspace has a local directory entry without a global header',async({page})=>{
- await page.setViewportSize({width:320,height:844});await page.goto('/');await closeSidebar(page);
+ await page.setViewportSize({width:320,height:844});await page.goto('/');await expect(page.locator('.workspace')).toBeVisible();await closeSidebar(page);
  await expect(page.getByRole('banner',{name:'DooKnow 工作区',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'打开侧栏',exact:true}).click();await expect(page.getByRole('textbox',{name:'搜索笔记与目录',exact:true})).toBeVisible();
 });
 test('search and dirty editor identities survive resize and a ToDoo roundtrip',async({page})=>{

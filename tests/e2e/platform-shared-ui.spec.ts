@@ -39,7 +39,7 @@ test('owner chrome keeps context and content aligned while navigation and resize
   const header = page.getByRole('banner', { name: 'DooKnow 工作区', exact: true });
   await expect(header).toHaveCount(0);
   const railBox = (await page.locator('.workspace-footer').boundingBox())!;
-  expect(Math.abs(railBox.width - 64)).toBeLessThanOrEqual(1);
+  expect(Math.abs(railBox.width - 60)).toBeLessThanOrEqual(1);
   for (const area of ['#notebook-navigation', '.main-content']) {
     const box = (await page.locator(area).boundingBox())!;
     expect(box.y).toBeCloseTo(0, 0);

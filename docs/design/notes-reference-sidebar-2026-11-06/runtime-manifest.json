@@ -1,0 +1,123 @@
+{
+  "baseCommit": "d5e6e3662d6bf71a08a2fb0c8c1bdf724341fe49",
+  "branch": "txj/notes-reference-sidebar",
+  "applicationFiles": {
+    "apps/web/components/Workspace.vue": "63f02efb0cff31a3cb47feec303bbf0d7064642fd1e930a86a27050a35b70a7f",
+    "apps/web/platform-ui.css": "bf743573aa89c0a9da6f179e7e4ce8809a209d0717273497d3d45b208d452537"
+  },
+  "screenshots": [
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-reference-sidebar-2026-11-06/desktop-1440.png",
+      "sha256": "500792baff1a8107ec01387d42cbc45f1c813cf5e99998f2876635a42ee634ed",
+      "width": 1440,
+      "height": 1000,
+      "actualRuntimeScreenshot": true,
+      "isolatedFixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-reference-sidebar-2026-11-06/phone-320.png",
+      "sha256": "ff8161be9c25c814349d0d128161d0fe44b062575e18bcd6acacd3721b712c3b",
+      "width": 320,
+      "height": 844,
+      "actualRuntimeScreenshot": true,
+      "isolatedFixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-reference-sidebar-2026-11-06/phone-390.png",
+      "sha256": "7ab8f07ab5b41f00daafbdcde4f302b7d0b9adc2afb269383ed459310c5ac8e3",
+      "width": 390,
+      "height": 844,
+      "actualRuntimeScreenshot": true,
+      "isolatedFixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-reference-sidebar-2026-11-06/split-light.png",
+      "sha256": "b67f63d4779ccc0c48b81d45ae4ad1238ba75d20fc606c6452d276ed99cbf4cd",
+      "width": 1440,
+      "height": 900,
+      "actualRuntimeScreenshot": true,
+      "isolatedFixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-reference-sidebar-2026-11-06/split-dark.png",
+      "sha256": "431053a90f36af948a854832c7a5213488bbf5eaa6a57f199e8ad0171b355214",
+      "width": 1440,
+      "height": 900,
+      "actualRuntimeScreenshot": true,
+      "isolatedFixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-reference-sidebar-2026-11-06/folder.png",
+      "sha256": "dbfe35703afb01fa88c57729853d4a6683393fbb30ccc37f4fc8fcde5f2ffe8e",
+      "width": 1280,
+      "height": 720,
+      "actualRuntimeScreenshot": true,
+      "isolatedFixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-reference-sidebar-2026-11-06/focus-and-editor.png",
+      "sha256": "7397e33a07517f85db2f133b2be83f40ab0b8b3c052bcc838eeb74e56e197ba0",
+      "width": 1440,
+      "height": 900,
+      "actualRuntimeScreenshot": true,
+      "isolatedFixtureOnly": true
+    }
+  ],
+  "validation": {
+    "desktopE2E": {
+      "passed": 29,
+      "failed": 0,
+      "skipped": 0
+    },
+    "mobileE2E": {
+      "passed": 27,
+      "failed": 0,
+      "skipped": 2,
+      "skipReason": "Existing desktop-only focus rail/custom directory width cases"
+    },
+    "typecheck": "exit0",
+    "productionBuild": "exit0",
+    "productionBuildEnvironment": {
+      "VITE_DOCUMENT_EDITOR_ENABLED": "1"
+    },
+    "unitTestsRerun": false,
+    "fullRepositoryOrNativeReleaseSuiteRerun": false,
+    "finalReview": "Original short-window padding finding resolved; no remaining Critical or Important blockers"
+  },
+  "initialRun": {
+    "desktop": {
+      "passed": 26,
+      "failed": 3
+    },
+    "mobile": {
+      "passed": 24,
+      "failed": 3,
+      "skipped": 2
+    },
+    "historyPreserved": true
+  },
+  "verificationLogs": {
+    "e2e-initial.log": {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-reference-sidebar-2026-11-06/verification/e2e-initial.log",
+      "sha256": "3e6fd10c902370cfde79f5c9430a31203421fdba605b88888b6c15e05eaed8da"
+    },
+    "e2e-final.log": {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-reference-sidebar-2026-11-06/verification/e2e-final.log",
+      "sha256": "4272c8459575cf31322455be1f5ca2a312afccfdefcbec999449ca9393fa3d5d"
+    },
+    "typecheck.log": {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-reference-sidebar-2026-11-06/verification/typecheck.log",
+      "sha256": "1ac9c1a571d12a40f9e6010fe2d5751efa7f87a37f4ed863e3205b8fa4d9ea2f"
+    },
+    "build.log": {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-reference-sidebar-2026-11-06/verification/build.log",
+      "sha256": "7e96bda2edd4bcef1955b97c4ba8fee27871bc8170567c8e86ec10970f327ce0"
+    }
+  },
+  "webIndexSha256": "9495596f2edfac9290948d29cc16370d41d0121a28f5c482702e54024e256c53",
+  "limits": [
+    "Authenticated runtime screenshots use isolated fixtures, not the current preview account.",
+    "Actual preview login, assets, health and data preservation recorded separately in delivery-receipt.json after deployment.",
+    "Physical soft keyboard and OS window behavior not tested."
+  ]
+}
