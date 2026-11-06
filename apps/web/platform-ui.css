@@ -172,3 +172,34 @@ h1, h2, h3 { color: var(--text); }
   color: var(--muted);
   cursor: not-allowed;
 }
+
+/* Notes use the existing header as a working toolbar, with one live set of
+   controls moving into the contextual drawer on compact layouts. */
+.workspace-header-functional .workspace-header-brand { font-size: 18px; }
+.workspace-header-actions { flex: 1; min-width: 0; max-width: 760px; margin-inline: auto; }
+#workspace-header-actions > .sidebar-actions { display: flex; flex-direction: row; align-items: center; gap: 12px; padding: 0; margin: 0; }
+#workspace-header-actions .ant-input-affix-wrapper { flex: 1; width: auto; min-width: 120px; min-height: 36px; }
+#workspace-header-actions .sidebar-create { flex: 0 0 auto; width: auto; }
+#workspace-header-actions .sidebar-create > .ant-btn { flex: none; min-width: 86px; height: 36px; }
+#workspace-header-actions .create-more { height: 36px; }
+.workspace-header-account { flex: 0 0 auto; max-width: 190px; }
+.workspace-header-account .account-row { display: flex; align-items: center; gap: 8px; width: auto; max-width: 100%; padding: 4px 8px; }
+.workspace-header-account .account-name { display: block; min-width: 0; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.workspace-header-account .avatar { flex: 0 0 30px; width: 30px; height: 30px; }
+.workspace-header-compact-actions { display: none; }
+@media (max-width: 720px), (max-width: 960px) and (max-height: 500px), (max-width: 1100px) and (orientation: portrait), (max-width: 1366px) and (orientation: portrait) and (pointer: coarse) {
+  .workspace-header-functional .workspace-header-actions,
+  .workspace-header-functional .workspace-header-account { display: none !important; }
+  .workspace-header-compact-actions { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+  .workspace-header-compact-actions .icon-button { width: 36px; min-height: 36px; }
+}
+
+.workspace-header-account .account-row > svg { transform: rotate(90deg); }
+
+/* A public note keeps a readable state cue even in icon-only document bars. */
+.note-header .toolbar .share-button.is-shared { width: auto; min-width: 64px; padding-inline: 7px; font-size: 12px; }
+.note-header .toolbar .share-button.is-shared .ant-btn-icon { margin-inline-end: 4px; }
+.workspace-header-account .account-row { color: var(--text); }
+.workspace-header-account .account-row > svg { color: var(--muted); }
+.workspace-header-account .account-row:hover { background: var(--surface); }
+.workspace-header-account .avatar { background: var(--surface); color: var(--muted); }

@@ -2765,6 +2765,16 @@ onBeforeUnmount(() => {
 });
 const sidebarRef = ref<HTMLElement>();
 const compactSidebar = ref(false);
+const notesHeader = computed(() => !['settings', 'trash', 'apps'].includes(panel.value));
+watch(query, value => {
+  if (!notesHeader.value || !value.trim()) return;
+  if (compactSidebar.value) drawer.value = true;
+  else sidebarCollapsed.value = false;
+});
+async function focusNotebookSearch() {
+  await openNotebookDrawer();
+  sidebarRef.value?.querySelector<HTMLInputElement>('input[aria-label="搜索笔记与目录"]')?.focus({ preventScroll: true });
+}
 let sidebarMedia: MediaQueryList | undefined;
 function updateSidebarCompact() { compactSidebar.value = !!sidebarMedia?.matches; }
 onMounted(() => {
@@ -2803,14 +2813,20 @@ async function closeNotebookDrawer() {
     :style="{ '--sidebar-width': sidebarWidth + 'px', '--outline-width': outlineWidth + 'px' }"
   >
     <WorkspaceHeader
-      v-if="activeAppMenu?.id !== 'to-doo'"
+      v-show="activeAppMenu?.id !== 'to-doo'"
       :context="panel === 'settings' ? '设置' : panel === 'trash' ? '回收站' : panel === 'apps' ? activeAppMenu?.label || '应用' : '笔记'"
       :app="!!activeAppMenu"
-      :status="activeAppMenu ? '应用工作空间' : dirty ? '未保存' : '私人笔记'"
+      :functional="notesHeader"
+      :status="notesHeader ? undefined : activeAppMenu ? '应用工作空间' : dirty ? '未保存' : '私人笔记'"
       :drawer-open="drawer"
       @open-sidebar="openNotebookDrawer"
       @return-app="returnFromApp"
-    />
+    >
+      <template #compact-actions>
+        <button type="button" class="icon-button" aria-label="搜索笔记" title="搜索笔记" @click="focusNotebookSearch"><Icon name="search" :size="19" /></button>
+        <button type="button" class="icon-button" aria-label="新建笔记" title="新建笔记" :disabled="!treeLoaded" @click="create('note')"><Icon name="plus" :size="20" /></button>
+      </template>
+    </WorkspaceHeader>
     <Transition name="scrim">
       <div v-if="drawer" class="drawer-scrim" @click="closeNotebookDrawer"></div>
     </Transition>
@@ -2835,6 +2851,7 @@ async function closeNotebookDrawer() {
         </button>
       </nav>
       <div v-show="panel !== 'settings' && panel !== 'apps'" class="notebook-sidebar-content">
+        <Teleport defer to="#workspace-header-actions" :disabled="!notesHeader || compactSidebar">
         <div class="sidebar-actions">
           <AInput
             v-model:value="query"
@@ -2896,6 +2913,7 @@ async function closeNotebookDrawer() {
             </APopover>
           </div>
         </div>
+        </Teleport>
         <div class="tree-heading">
           <span>{{
             query
@@ -3051,6 +3069,7 @@ async function closeNotebookDrawer() {
       </div>
     </aside>
     <WorkspaceFooter
+      :header-account="notesHeader"
       :username="props.username"
       :active="panel"
       :collection="collection"
@@ -3221,12 +3240,14 @@ async function closeNotebookDrawer() {
               ></AButton>
               <AButton
                 class="share-button"
-                title="分享"
+                :class="{ 'is-shared': note.shared }"
+                :title="note.shared ? '已分享，保存后的修改将同步公开；点击管理分享' : '分享'"
+                :aria-describedby="note.shared ? 'note-sharing-state' : undefined"
                 aria-label="分享"
                 :loading="shareBusy"
                 :disabled="shareBusy"
                 @click="manageShare"
-                ><template #icon><Icon name="share" /></template>分享</AButton
+                ><template #icon><Icon name="share" /></template>{{ note.shared ? '已分享' : '分享' }}</AButton
               ><AButton
                 v-if="noteInfo?.editorMode === 'full'"
                 class="save-button"
@@ -3262,9 +3283,7 @@ async function closeNotebookDrawer() {
               /></NoteActions>
             </div>
           </div>
-          <div v-if="note.shared" class="shared-status">
-            <Icon name="share" :size="14" />已分享，保存后的修改将同步公开
-          </div>
+          <span v-if="note.shared" id="note-sharing-state" class="sr-only">已分享，保存后的修改将同步公开。点击分享可管理公开状态。</span>
           <div v-if="noteInfo?.editorMode === 'full'" class="document-format-row">
             <EditorToolbar
               :label="documentEditingEnabled ? '正文格式' : 'Markdown 格式'"

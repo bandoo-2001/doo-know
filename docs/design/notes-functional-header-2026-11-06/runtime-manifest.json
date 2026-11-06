@@ -1,0 +1,88 @@
+{
+  "baseCommit": "22f880b8a9baf7c8694a2f1b57b1ab4c882da5b5",
+  "branch": "txj/notes-functional-header",
+  "applicationFiles": {
+    "apps/web/components/Workspace.vue": "9297df3f9e6e32eaaa50a51041b0b876242e62589448a5ce31a4165074d0a429",
+    "apps/web/components/WorkspaceHeader.vue": "e7615ea4ced948798c961ea3e25b473b7ddc3ecb7c03c27639dad2b8a1b472df",
+    "apps/web/components/WorkspaceFooter.vue": "88871e8b30e9c34db1365828b8224bef0e74341451eff32e88825c85b2cf9322",
+    "apps/web/components/DiagramDocumentWorkspace.vue": "ebf4469a60a418334c9a057332e7be0cdc16a9de4cba12eefaf4f35739e3476a",
+    "apps/web/platform-ui.css": "0ba8ce6e28184ced8f4c33e8244915ec66fc94accd5b78d608674818cb387fff"
+  },
+  "screenshots": [
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-functional-header-2026-11-06/desktop-1440.png",
+      "sha256": "e31a2f399e0e21a037f5bae535e557717247c025aa5810204dfa6294032cf7b0",
+      "width": 1440,
+      "height": 1000,
+      "actualRuntimeScreenshot": true,
+      "fixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-functional-header-2026-11-06/phone-320.png",
+      "sha256": "a2191dced35ddb342b06d49ee657a85b0d2190da440b1dab634f8f1324172db3",
+      "width": 320,
+      "height": 844,
+      "actualRuntimeScreenshot": true,
+      "fixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-functional-header-2026-11-06/phone-390.png",
+      "sha256": "32707c2d0827e756160b9d0f12ca7565d7e5e5ee86f28da39aa1d19a7710e2f8",
+      "width": 390,
+      "height": 844,
+      "actualRuntimeScreenshot": true,
+      "fixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-functional-header-2026-11-06/shared-note-320.png",
+      "sha256": "00c0ccbfb61dbb9995263ff6f2380fafc6aadafbc0702e5f5323587e6aeaf068",
+      "width": 320,
+      "height": 844,
+      "actualRuntimeScreenshot": true,
+      "fixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-functional-header-2026-11-06/shared-note-390.png",
+      "sha256": "a0755bf6a8687fd240c1f34c448824e1c60198ca0fd4f616f99e92e557eb8c66",
+      "width": 390,
+      "height": 844,
+      "actualRuntimeScreenshot": true,
+      "fixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-functional-header-2026-11-06/shared-diagram-320.png",
+      "sha256": "789c7ded01e15d0a09770b581232ea2555102ab4c53276a5f032e59d1e5b1440",
+      "width": 320,
+      "height": 844,
+      "actualRuntimeScreenshot": true,
+      "fixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-functional-header-2026-11-06/header-light.png",
+      "sha256": "463bdf4fbb21965dae312df9909179b2b44c5c9c6bc39fa177b2e5af6e9bac46",
+      "width": 1440,
+      "height": 900,
+      "actualRuntimeScreenshot": true,
+      "fixtureOnly": true
+    },
+    {
+      "file": "/home/bandoo/documents/doo-know/design-artifacts/notes-functional-header-2026-11-06/header-dark.png",
+      "sha256": "e13809bc6150239385855454d3937672f02d4a4ecf464fe694437492ae651d6b",
+      "width": 1440,
+      "height": 900,
+      "actualRuntimeScreenshot": true,
+      "fixtureOnly": true
+    }
+  ],
+  "validation": {
+    "focusedDesktop": 25,
+    "focusedMobile": 25,
+    "relatedUnitFiles": 6,
+    "relatedUnitTests": 83,
+    "additionalFinalThemeDesktop": 1,
+    "additionalFinalThemeMobile": 1,
+    "typecheck": "exit0",
+    "productionBuild": "exit0"
+  },
+  "history": "Initial5 RED, native sharing1 RED, review regressions3 RED, dark account1 RED retained. accepted run8desktop/7mobile+1 failed an immediate CSS-transition contrast sample; polling actual settled contrast retained4.5 threshold and final theme1+1passed. No original run rewritten; no new full repository suite or native release verification claimed."
+}

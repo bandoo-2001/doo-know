@@ -663,13 +663,15 @@ defineExpose({ save, discard, settleSave: () => saveJob, reload:load, requestClo
           <AButton
             v-if="!embedded"
             class="share-button"
-            title="分享"
+            :class="{ 'is-shared': shared }"
+            :title="shared ? '已分享，保存后的修改将同步公开；点击管理分享' : '分享'"
+            :aria-describedby="shared ? 'diagram-sharing-state' : undefined"
             aria-label="分享"
             :loading="shareBusy"
             :disabled="loading || shareBusy"
             @click="emit('share')"
           >
-            <template #icon><Icon name="share" /></template>分享
+            <template #icon><Icon name="share" /></template>{{ shared ? '已分享' : '分享' }}
           </AButton>
           <AButton
             class="save-button"
@@ -743,9 +745,7 @@ defineExpose({ save, discard, settleSave: () => saveJob, reload:load, requestClo
           </NPopover>
         </div>
       </div>
-      <div v-if="shared && !embedded" class="shared-status">
-        <Icon name="share" :size="14" />已分享，保存后的修改将同步公开
-      </div>
+      <span v-if="shared && !embedded" id="diagram-sharing-state" class="sr-only">已分享，保存后的修改将同步公开。点击分享可管理公开状态。</span>
       <div class="document-format-row diagram-document-controls">
         <div class="format-toolbar" role="toolbar" aria-label="图形工具">
           <span class="diagram-document-kind"

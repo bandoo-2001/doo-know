@@ -11,6 +11,7 @@ import { workspaceApps, type WorkspaceAppId } from '../app-shortcuts';
 import type { SettingsSection } from '../../../shared/settings-contracts';
 const props = defineProps<{
   username: string;
+  headerAccount?: boolean;
   active?: string;
   collection?: 'notes' | 'recent' | 'favorites';
   pinnedApps: readonly WorkspaceAppId[];
@@ -112,11 +113,11 @@ function settings(section: SettingsSection) {
       >
         <Icon name="back" :size="22" /><span>返回</span>
       </button>
+      <Teleport v-else defer to="#workspace-header-account" :disabled="!headerAccount || compact">
       <NPopover
-        v-else
         v-model:show="open"
         trigger="click"
-        :placement="compact ? 'bottom-start' : 'top-start'"
+        :placement="headerAccount && !compact ? 'bottom-end' : compact ? 'bottom-start' : 'top-start'"
         :to="compact ? false : undefined"
         :show-arrow="false"
       >
@@ -159,6 +160,7 @@ function settings(section: SettingsSection) {
           </button>
         </div>
       </NPopover>
+      </Teleport>
     </template>
   </WorkspaceMainMenu>
 </template>
