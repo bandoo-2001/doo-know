@@ -1,3 +1,4 @@
+import { installSummary } from './install-summary.js';
 import { withEnvironmentProxy } from './environment-proxy.js';
 import { managementError } from './management-error.js';
 import { collectAccount } from './account-prompt.js';
@@ -308,9 +309,7 @@ async function install() {
     if (linger !== 'yes') console.log('用户服务已启用；无人登录时常驻需管理员启用 linger。');
   }
   if (config.installRoot) bindInstallationProfile(config.installRoot, profileFile);
-  console.log(
-    `DooKnow：${config.origin}\n登录后选择服务器知识库目录。\n管理：dooknow status / start / stop / restart / doctor`,
-  );
+  console.log(installSummary(config));
 }
 function effectiveConfig() {
   return loadHostConfig({

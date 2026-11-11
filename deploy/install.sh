@@ -4,6 +4,7 @@ main() {
   set -euo pipefail
   umask 077
   # __DOOKNOW_GITHUB_FETCH_FUNCTION__
+  printf '\nDooKnow 安装向导\n────────────────────────────────────────\n\n' >&2
   echo '[1/6] 检查安装环境…' >&2
   local source="${DOOKNOW_SOURCE:-__DOOKNOW_RELEASE_SOURCE__}" node_sha='__DOOKNOW_NODE_BINARY_SHA__'
   source="${source%/}"
@@ -55,6 +56,7 @@ main() {
     if command -v curl >/dev/null; then curl -fL --progress-bar --proto '=https,http' --proto-redir '=https' --connect-timeout 20 --max-time 600 "$1" -o "$2"
     else wget -q --show-progress --progress=bar:force:noscroll --max-redirect=0 --timeout=600 -O "$2" "$1"; fi
   }
+  printf '\n' >&2
   echo '[2/6] 下载发行清单…' >&2
   fetch "$source/release.txt" "$work/release.txt"
   local version filename checksum extra
@@ -64,19 +66,23 @@ main() {
   local archive="$cache/$checksum.tar.gz"
   if [ -f "$archive" ] && ! printf '%s  %s\n' "$checksum" "$archive" | sha256sum -c - >/dev/null 2>&1; then rm -- "$archive"; fi
   if [ ! -f "$archive" ]; then
-    echo '[3/6] 下载应用安装包…' >&2
+    printf '\n' >&2
+  echo '[3/6] 下载应用安装包…' >&2
     fetch "$source/$filename" "$work/package.tar.gz"
-    echo '[4/6] 校验应用安装包…' >&2
+    printf '\n' >&2
+  echo '[4/6] 校验应用安装包…' >&2
     printf '%s  %s\n' "$checksum" "$work/package.tar.gz" | sha256sum -c - >/dev/null || { echo '发行包校验失败' >&2; return 1; }
     mv "$work/package.tar.gz" "$archive"
   fi
+  printf '\n' >&2
   echo '[5/6] 解包应用并校验运行时…' >&2
   # Only execute the pinned Node and checksum-verified standalone validator before extraction.
   tar -xOzf "$archive" ./runtime/node/bin/node > "$work/node"
   printf '%s  %s\n' "$node_sha" "$work/node" | sha256sum -c - >/dev/null || { echo '运行时校验失败' >&2; return 1; }
   chmod 700 "$work/node"
   tar -xOzf "$archive" ./deploy/check-archive.mjs > "$work/check-archive.mjs"
-  "$work/node" "$work/check-archive.mjs" "$archive"
+  "$work/node" "$work/check-archive.mjs" "$archive" > "$work/archive-check.json"
+  echo '归档安全校验通过。' >&2
   local release="$base/releases/$version"
   if [ -e "$release" ]; then
     [ -f "$release/package.sha256" ] && [ "$(cat "$release/package.sha256")" = "$checksum" ] || { echo '同版本发行内容不同，拒绝覆盖' >&2; return 1; }
@@ -86,6 +92,7 @@ main() {
     printf '%s\n' "$checksum" > "$work/application/package.sha256"
     mv "$work/application" "$release"
   fi
+  printf '\n' >&2
   echo '[6/6] 初始化账号与服务…' >&2
   local args=(install --install-root "$base" --profile "$profile")
   local github_repository=''
@@ -139,6 +146,6 @@ main() {
   } > "$work/dooknow"
   chmod 700 "$work/dooknow"
   mv "$work/dooknow" "$bindir/dooknow"
-  echo "管理命令：$bindir/dooknow"
+  printf '管理命令路径：%s\n\n' "$bindir/dooknow"
 }
 main "$@"
