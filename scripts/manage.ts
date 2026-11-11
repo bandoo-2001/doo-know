@@ -1,3 +1,4 @@
+import { installNetwork } from './install-network.js';
 import { installSummary } from './install-summary.js';
 import { withEnvironmentProxy } from './environment-proxy.js';
 import { managementError } from './management-error.js';
@@ -235,9 +236,7 @@ async function install() {
     ...(requestedInstallRoot ? { installRoot: resolve(requestedInstallRoot) } : {}),
     serviceName: values['service-name'] || 'doo-know.service',
     serviceManaged: !values['no-service'],
-    origin: values.origin || `http://127.0.0.1:${values.port || 5173}`,
-    port: Number(values.port || 5173),
-    host: values.host || '127.0.0.1',
+    ...installNetwork(values),
     allowedKnowledgeBases: values['allow-root'] || [homedir()],
   };
   if (

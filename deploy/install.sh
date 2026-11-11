@@ -101,6 +101,7 @@ main() {
     args+=(--github-repository "$github_repository")
     [ -z "${DOOKNOW_GITHUB_TOKEN_FILE:-}" ] || args+=(--github-token-file "$DOOKNOW_GITHUB_TOKEN_FILE")
   fi
+  [ -z "${DOOKNOW_HOST:-}" ] || args+=(--host "$DOOKNOW_HOST")
   [ -z "${DOOKNOW_PORT:-}" ] || args+=(--port "$DOOKNOW_PORT")
   [ -z "${DOOKNOW_APP_ORIGIN:-}" ] || args+=(--origin "$DOOKNOW_APP_ORIGIN")
   [ -z "${DOOKNOW_ALLOW_ROOT:-}" ] || args+=(--allow-root "$DOOKNOW_ALLOW_ROOT")

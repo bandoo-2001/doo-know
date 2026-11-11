@@ -61,7 +61,7 @@ wget -qO- 'https://raw.githubusercontent.com/bandoo-2001/doo-know/txj/doo-know-p
 | 下载工具 | curl 或 wget                                             |
 | Git 插件 | 另外需要系统 Git ≥ 2.39                                  |
 
-默认监听 `127.0.0.1:5173`，端口占用时停止安装。远程访问需要显式配置监听地址、访问来源或反向代理；标准 OAuth 还需要浏览器可达的 HTTPS 地址。用户服务未启用 linger 时，安装器会说明登录会话限制。
+新安装默认监听 `0.0.0.0:5173`（所有 IPv4 网卡），自动优先选用局域网地址作为登录地址，安装完成后打印访问链接与网卡地址；端口占用时停止安装。已有安装保留原监听及访问地址。可通过 `DOOKNOW_HOST` 和 `DOOKNOW_APP_ORIGIN` 指定监听与登录地址；标准 OAuth 还需要浏览器可达的 HTTPS 地址。用户服务未启用 linger 时，安装器会说明登录会话限制。
 
 ### 首次使用
 
