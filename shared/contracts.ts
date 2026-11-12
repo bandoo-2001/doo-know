@@ -4,6 +4,7 @@ export interface AppConfig {
   dataRoot: string;
   secret: string;
   origin: string;
+  allowedOrigins?: string[];
   port?: number;
   host?: string;
   staticRoot?: string;

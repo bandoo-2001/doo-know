@@ -1,3 +1,5 @@
+import { installNetwork } from '../../../scripts/install-network.js';
+import { normalizeAllowedOrigins } from '../../../packages/core/auth/allowed-origins.js';
 import { readFileSync, lstatSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { homedir } from 'node:os';
@@ -47,6 +49,15 @@ export function loadHostConfig(overrides: Partial<HostConfig> = {}, env: NodeJS.
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('端口必须在1–65535之间');
   const url = new URL(origin);
   if (!['http:', 'https:'].includes(url.protocol) || url.origin !== origin) throw new Error('访问地址必须为完整来源，不含路径');
+  // Refresh exact local aliases on restart; explicit allowlists stay restricted.
+  const host = options.host || '127.0.0.1';
+  const autoAllowedOrigins = options.autoAllowedOrigins === true ||
+    (options.autoAllowedOrigins !== false && options.allowedOrigins === undefined &&
+      (host === '0.0.0.0' || host === '::'));
+  const access = autoAllowedOrigins
+    ? installNetwork({ host, port: String(port), origin }).allowedOrigins
+    : options.allowedOrigins;
+  const allowedOrigins = normalizeAllowedOrigins(origin, access);
   const secretFile = resolve(options.secretFile || join(configRoot, 'secrets', 'auth.key'));
   const info = lstatSync(secretFile);
   if (!info.isFile() || info.isSymbolicLink() || info.nlink !== 1 || (info.mode & 0o077)) throw new Error('认证密钥必须为私有普通文件，权限600');
@@ -58,7 +69,7 @@ export function loadHostConfig(overrides: Partial<HostConfig> = {}, env: NodeJS.
     ...options, profileFile, secretFile, secret, applicationRoot: root,
     dataRoot: resolve(options.dataRoot || join(env.XDG_DATA_HOME || join(home, '.local/share'), 'doo-know/data')),
     ...(options.knowledgeRoot ? { knowledgeRoot: resolve(options.knowledgeRoot) } : {}),
-    origin, port, host: options.host || '127.0.0.1', staticRoot: options.staticRoot || join(root, 'dist/web'),
+    origin, port, host, allowedOrigins, autoAllowedOrigins, staticRoot: options.staticRoot || join(root, 'dist/web'),
     allowedKnowledgeBases: options.allowedKnowledgeBases || [home],
     vectorRuntimeRoot: options.vectorRuntimeRoot || join(root, 'runtime/vector-service'),
     ...(vectorServiceTokenFile ? { vectorServiceToken: privateFile(vectorServiceTokenFile, 8192).trim() } : {}),

@@ -1,3 +1,4 @@
+import { allowedOrigins } from '../../packages/core/auth/allowed-origins.js';
 import { betterAuth } from 'better-auth';
 import { username } from 'better-auth/plugins';
 import { getMigrations } from 'better-auth/db/migration';
@@ -15,7 +16,7 @@ export async function createAuth(config: HostConfig, db: AppDatabase) {
     database: db,
     baseURL: config.origin,
     secret: config.secret,
-    trustedOrigins: [config.origin],
+    trustedOrigins: allowedOrigins(config),
     disabledPaths: ['/token'],
     emailAndPassword: { enabled: true, disableSignUp: true, minPasswordLength: MIN_PASSWORD_LENGTH },
     session: { expiresIn: 86400, cookieCache: { enabled: false } },

@@ -12,6 +12,7 @@ export interface SearchDistribution {
 }
 export interface HostConfig extends Omit<AppConfig, 'knowledgeRoot'> {
   environment?: 'development' | 'production';
+  autoAllowedOrigins?: boolean;
   knowledgeRoot?: string;
   allowedKnowledgeBases?: string[];
   secretFile?: string;

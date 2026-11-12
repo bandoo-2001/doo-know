@@ -1,3 +1,4 @@
+import { isAllowedOrigin } from '../../packages/core/auth/allowed-origins.js';
 import { portableResourceLimits } from '../../shared/portable-resource-limits.js';
 import { mediaMime } from '../../shared/media.js';
 import type { AssetDescriptor } from '../../packages/core/assets.js';
@@ -159,7 +160,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     )
       return reply.code(503).send({ error: '维护中，请稍后重试' });
     if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-      if (req.headers.origin !== config.origin)
+      if (!isAllowedOrigin(config, req.headers.origin))
         return reply.code(403).send({ error: '请求来源不被允许' });
       await new Promise<void>((resolve, reject) => {
         app.csrfProtection(req, reply, () => resolve());
@@ -198,7 +199,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
       if (
         req.method === 'POST' &&
         !path.startsWith('/api/auth/oauth2/') &&
-        req.headers.origin !== config.origin
+        !isAllowedOrigin(config, req.headers.origin)
       )
         return reply.code(403).send({ error: '请求来源不被允许' });
       if (path.endsWith('change-password') && req.body && typeof req.body === 'object')

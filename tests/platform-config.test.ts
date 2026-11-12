@@ -85,3 +85,22 @@ it.each(['explicit', 'environment', 'bound'] as const)(
     }
   },
 );
+
+it('discovers exact local aliases for legacy wildcard installs and respects explicit restrictions', () => {
+  const root = mkdtempSync(join(tmpdir(), 'dooknow-config-origins-'));
+  try {
+    const profileFile = join(root, 'profile.json'), secretFile = join(root, 'auth.key');
+    writeFileSync(secretFile, 'test-only-at-least-thirty-two-characters-secret', { mode: 0o600 });
+    const base = { dataRoot: join(root, 'data'), secretFile, host: '0.0.0.0', port: 5173, origin: 'http://192.168.1.233:5173' };
+    writeFileSync(profileFile, JSON.stringify(base));
+    const config = loadHostConfig({ profileFile }, {});
+    expect(config.allowedOrigins).toContain(base.origin);
+    expect(config.allowedOrigins).toContain('http://127.0.0.1:5173');
+    writeFileSync(profileFile, JSON.stringify({ ...base, allowedOrigins: [] }));
+    expect(loadHostConfig({ profileFile }, {}).allowedOrigins).toEqual([base.origin]);
+    writeFileSync(profileFile, JSON.stringify({ ...base, allowedOrigins: ['*'] }));
+    expect(() => loadHostConfig({ profileFile }, {})).toThrow('允许访问地址');
+    writeFileSync(profileFile, JSON.stringify({ ...base, origin: 'https://know.example.com' }));
+    expect(loadHostConfig({ profileFile }, {}).allowedOrigins).toEqual(['https://know.example.com']);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
