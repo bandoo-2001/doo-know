@@ -119,6 +119,16 @@ const connectionDraft = () => ({
   authorEmail: authorEmail.value,
 });
 const connectionBaseline = ref(connectionDraft());
+// Initialize once, and never let an async status refresh overwrite an edited draft.
+let connectionDraftInitialized = false;
+watch(
+  [url, branch, credentialId],
+  () => {
+    connectionDraftInitialized = true;
+  },
+  { flush: 'sync' },
+);
+
 const reviewAuthorBaseline = ref({ name: '', email: '' });
 const credentialDraft = () =>
   JSON.stringify([
@@ -328,7 +338,8 @@ async function load() {
     if (!ownsJob(owner) || epoch !== loadEpoch) return;
     state.value = next;
     credentials.value = saved.items;
-    if (!repositoryPending.value && !url.value) {
+    if (!repositoryPending.value && !connectionDraftInitialized) {
+      connectionDraftInitialized = true;
       url.value =
         next.connection?.url ||
         next.discoveredRemotes.find((entry) => entry.name === 'origin')?.url ||
@@ -522,6 +533,9 @@ async function startJob(kind: GitJobKind) {
 }
 async function retryJob() {
   if (!job.value || running.value || !active || (job.value.kind === 'pull' && unsaved())) return;
+  // A connection test is read-only: start a fresh receipt from the visible form.
+  // Mutating jobs keep their original parameters and reconciliation guarantees.
+  if (job.value.kind === 'test') return startJob('test');
   const id = job.value.id;
   const owner = nextJobIntent();
   busy.value = true;
@@ -919,10 +933,14 @@ onMounted(() => {
           >取消当前任务</AButton
         ><AButton
           v-if="['failed', 'needs_reconciliation'].includes(job.status)"
-          :disabled="running || (job.kind === 'pull' && gitUnsaved)"
+          :disabled="
+            running ||
+            (job.kind === 'pull' && gitUnsaved) ||
+            (job.kind === 'test' && (repositoryPending || !url.trim()))
+          "
           @click="retryJob"
           ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
-          >核对并重试任务</AButton
+          >{{ job.kind === 'test' ? '按当前配置重新测试' : '核对并重试任务' }}</AButton
         >
       </div>
     </div>
