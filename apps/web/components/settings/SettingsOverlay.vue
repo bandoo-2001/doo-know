@@ -99,7 +99,8 @@ defineExpose({ close });
     @after-enter="entered"
     @after-leave="left"
   >
-    <section
+    <!-- The focus trap locates the modal body by its root DIV. Keep dialog semantics via role. -->
+    <div
       ref="surface"
       :class="['settings-overlay', `settings-overlay-${kind}`]"
       :style="kind === 'modal' ? { width } : undefined"
@@ -141,7 +142,7 @@ defineExpose({ close });
         </div>
         <slot v-else name="footer" :close="close" />
       </footer>
-    </section>
+    </div>
   </component>
 </template>
 
