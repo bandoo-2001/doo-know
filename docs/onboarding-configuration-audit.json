@@ -4,7 +4,7 @@
   "testedSource": "1.1.0-rc.66 plus local fixes listed below",
   "generatedAt": "2026-11-13T01:01:13.855198+00:00",
   "productionDataChanged": false,
-  "published": false,
+  "published": true,
   "browser": {
     "finalPassed": 90,
     "finalFailed": 0,
@@ -124,5 +124,10 @@
     "Optional-feature browser failure/progress cases use controlled responses; separate backend and workspace tests cover real plugin artifacts and actual local search installation/download.",
     "A real ChatGPT client connection and public HTTPS/OAuth callback reachability require the user deployment and were not performed."
   ],
-  "failureHistory": "Early fixture failures were diagnosed and corrected; final results combine the unchanged passing cases with the latest successful targeted rechecks."
+  "failureHistory": "Early fixture failures were diagnosed and corrected; final results combine the unchanged passing cases with the latest successful targeted rechecks.",
+  "release": {
+    "version": "1.1.0-rc.67",
+    "url": "https://github.com/bandoo-2001/doo-know/releases/tag/v1.1.0-rc.67",
+    "currentInstanceVerified": true
+  }
 }
