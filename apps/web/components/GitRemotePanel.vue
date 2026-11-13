@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Icon from './Icon.vue';
-import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { Button as AButton, Alert as AAlert } from 'ant-design-vue';
 import type {
   GitCredentialSummary,
@@ -50,6 +50,7 @@ const error = ref(''),
   busy = ref(false),
   loading = ref(false),
   editorOpen = ref(false);
+const credentialHelpId = useId();
 const credentialName = ref(''),
   credentialKind = ref<'https' | 'ssh'>('https'),
   credentialHost = ref<GitRemoteHost>('github.com');
@@ -71,6 +72,13 @@ const authorName = ref(''),
   authorEmail = ref('');
 const gitPlugin = computed(() =>
   pluginRegistry.value.installed.find((entry) => entry.id === 'git'),
+);
+const editingCredentialBinding = ref<Pick<GitCredentialSummary, 'host' | 'kind'>>();
+const reuseCredentialSecret = computed(
+  () =>
+    !!editingCredential.value &&
+    editingCredentialBinding.value?.host === credentialHost.value &&
+    editingCredentialBinding.value?.kind === credentialKind.value,
 );
 const authorReady = computed(
   () => !!gitPlugin.value?.config.authorName && !!gitPlugin.value?.config.authorEmail,
@@ -585,6 +593,7 @@ function editCredential(entry?: GitCredentialSummary) {
   overlay.value = 'credential';
   editorOpen.value = true;
   editingCredential.value = entry?.id || '';
+  editingCredentialBinding.value = entry ? { host: entry.host, kind: entry.kind } : undefined;
   credentialName.value = entry?.name || '';
   credentialKind.value = entry?.kind || 'https';
   credentialHost.value =
@@ -1003,6 +1012,21 @@ onMounted(() => {
         </AAlert>
         <template v-if="overlay === 'connection' || (mode === 'import' && !overlay)">
           <section aria-label="云端仓库配置">
+            <aside class="remote-start-guide" aria-label="云端仓库入门">
+              <strong>第一次连接云端仓库？</strong>
+              <ol>
+                <li>
+                  先在 GitHub 或 Gitee 准备一个仓库，从仓库页的“Code／克隆”入口复制 HTTPS 地址。
+                </li>
+                <li>私有仓库需要添加下方的“凭据”；公开仓库只读取时，可选择“不使用凭据”。</li>
+                <li>
+                  选择凭据并测试读取连接，成功后{{
+                    mode === 'import' ? '导入知识库' : '关联仓库'
+                  }}。后续修改需要手动提交和推送才会上传。
+                </li>
+              </ol>
+              <p>只在本机记笔记或保留版本，不需要注册云端账号，可以先跳过云端同步。</p>
+            </aside>
             <p>
               此操作会安装并启用 Git
               插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。
@@ -1141,8 +1165,11 @@ onMounted(() => {
                 aria-label="凭据名称"
                 required
                 :disabled="running"
-                autocomplete="off" /></label
-            ><label
+                autocomplete="off"
+                placeholder="例如：我的知识库同步"
+            /></label>
+            <p class="credential-hint">凭据名称是你自己起的备注，方便在列表中选择。</p>
+            <label
               >服务平台<select
                 v-model="credentialHost"
                 aria-label="凭据服务平台"
@@ -1162,25 +1189,109 @@ onMounted(() => {
                 <option value="ssh">SSH 私钥（高级）</option>
               </select></label
             >
+            <p v-if="editingCredential && !reuseCredentialSecret" role="status">
+              服务平台或认证方式已变更，请重新填写认证内容。
+            </p>
             <template v-if="credentialKind === 'https'"
               ><label
                 >仓库用户名<input
                   v-model="username"
                   aria-label="仓库用户名"
+                  :aria-describedby="credentialHelpId + '-username'"
+                  :placeholder="
+                    credentialHost === 'github.com' ? '例如：octocat' : '你的 Gitee 登录用户名'
+                  "
                   autocomplete="off"
-                  :disabled="running" /></label
-              ><label
+                  :disabled="running"
+              /></label>
+              <p :id="credentialHelpId + '-username'" class="credential-hint">
+                {{
+                  credentialHost === 'github.com'
+                    ? '填写 GitHub 个人主页 github.com/ 后面的用户名，例如 octocat；不是邮箱，也不是 DooKnow 登录名。'
+                    : '填写 Gitee 个人空间网址 gitee.com/ 后面的用户名，不要填写昵称或 DooKnow 登录名。'
+                }}
+              </p>
+              <label
                 >访问令牌<input
                   v-model="token"
                   type="password"
                   aria-label="访问令牌"
+                  :aria-describedby="credentialHelpId + '-token'"
                   autocomplete="new-password"
-                  :required="!editingCredential"
+                  :required="!reuseCredentialSecret"
                   :disabled="running"
                   :placeholder="
-                    editingCredential ? '留空保留原令牌' : '填写具有仓库读写权限的访问令牌'
-                  " /></label
-            ></template>
+                    reuseCredentialSecret ? '留空保留原令牌' : '填写具有仓库读写权限的访问令牌'
+                  "
+              /></label>
+              <aside
+                :id="credentialHelpId + '-token'"
+                class="credential-guide"
+                aria-label="访问令牌申请指南"
+              >
+                <strong>访问令牌从哪里获取？</strong>
+                <p>这是 GitHub／Gitee 为仓库访问生成的凭据，用来代替账号密码。只粘贴令牌本身。</p>
+                <template v-if="credentialHost === 'github.com'">
+                  <a
+                    href="https://github.com/settings/personal-access-tokens/new?name=DooKnow&amp;contents=write&amp;expires_in=90"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >前往 GitHub 创建令牌（已预填仓库读写权限）</a
+                  >
+                  <details>
+                    <summary>按步骤选择仓库和权限</summary>
+                    <ol>
+                      <li>登录有权访问目标仓库的 GitHub 账号，按需设置令牌名称和有效期。</li>
+                      <li>
+                        Resource owner 选择仓库所属的个人或组织；Repository access 选择 Only select
+                        repositories，再勾选你的知识库仓库。
+                      </li>
+                      <li>
+                        在 Permissions 中添加 Contents，设为 Read and write；Metadata
+                        保持默认只读。只需拉取时可改为 Read-only。
+                      </li>
+                      <li>
+                        点击 Generate token，复制新令牌回到此处。组织仓库可能还需要管理员批准。
+                      </li>
+                    </ol>
+                    <a
+                      href="https://docs.github.com/zh/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      >查看 GitHub 官方说明</a
+                    >
+                  </details>
+                </template>
+                <template v-else>
+                  <a
+                    href="https://gitee.com/profile/personal_access_tokens"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >前往 Gitee 创建私人令牌</a
+                  >
+                  <ol>
+                    <li>登录有权访问目标仓库的 Gitee 账号，在个人设置的“私人令牌”中新建令牌。</li>
+                    <li>
+                      按 Gitee
+                      页面说明选择所需的仓库访问权限；需要推送时，账号也必须有该仓库的写入权限。
+                    </li>
+                    <li>生成后复制令牌，返回这里填写并保存。</li>
+                  </ol>
+                  <a
+                    href="https://help.gitee.com/account/two-factor-authentication#推拉代码认证"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >查看 Gitee 官方认证说明</a
+                  >
+                </template>
+                <p>
+                  令牌通常只在生成时完整显示。请保存在可信的位置，不要放进仓库地址、截图或聊天。
+                </p>
+                <p>
+                  保存后，在“仓库认证”中选择这条凭据，再点击“测试读取连接”；读取成功只验证下载，推送还需要仓库写入权限。
+                </p>
+              </aside>
+            </template>
             <template v-else
               ><p>
                 SSH 高级设置：私钥只会发给当前 DooKnow
@@ -1192,8 +1303,8 @@ onMounted(() => {
                   aria-label="SSH 私钥"
                   autocomplete="off"
                   :disabled="running"
-                  :required="!editingCredential"
-                  :placeholder="editingCredential ? '留空保留原私钥' : '粘贴专用 SSH 私钥'"
+                  :required="!reuseCredentialSecret"
+                  :placeholder="reuseCredentialSecret ? '留空保留原私钥' : '粘贴专用 SSH 私钥'"
                   rows="4"
                 /></label
               ><label
@@ -1381,6 +1492,27 @@ li {
 }
 p {
   color: var(--muted, #727b8b);
+}
+.remote-start-guide,
+.credential-guide {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border, #e3e6ec);
+  border-radius: 8px;
+  background: var(--surface-soft, #f7f9fc);
+}
+.remote-start-guide ol,
+.credential-guide ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+.credential-guide a {
+  color: var(--blue, #4566c6);
+  overflow-wrap: anywhere;
+}
+.credential-hint {
+  margin-top: -6px;
+  font-size: 12px;
 }
 .remote-section {
   min-width: 0;

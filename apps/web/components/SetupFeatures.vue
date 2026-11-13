@@ -29,17 +29,29 @@ const features = [
     icon: 'share',
     title: '让 ChatGPT 使用你的资料',
     description: '连接后，可在你授权的范围内查找和阅读资料。',
-    detail: '需要完成 ChatGPT 连接设置。只有你同意后，它才能访问资料。',
-    technical: 'MCP',
+    detail:
+      '准备支持 MCP 的客户端；使用 OAuth 远程连接时，还需客户端能访问的 HTTPS 地址。暂时没有也可以先跳过。',
+    guideTitle: '如何开始连接',
+    steps: [
+      '点击“添加连接设置”，选择允许访问的业务、资料范围和读写权限，保存配置。',
+      '启用插件，在“MCP 连接指南”中选择 OAuth 或 API Key，复制对应的服务地址。',
+      '在支持 MCP 的客户端填写服务地址并完成授权，再按连接指南检查实际工具调用。',
+    ],
+    note: '这里的 API Key 由 DooKnow 创建，用于访问你的资料；无需填写 OpenAI API 密钥。',
   },
   {
     id: 'git',
     icon: 'clock',
     title: '记录文件版本',
     description: '查看修改记录，在需要时恢复以前的内容。',
-    detail:
-      '版本记录保存在本机，不能代替独立备份。添加后可设置署名，也可关联 GitHub／Gitee 手动同步。',
-    technical: 'Git',
+    detail: '只在本机记录版本，无需 GitHub／Gitee 账号；同步云端才需要自己的仓库和访问凭据。',
+    guideTitle: '如何开始记录与同步',
+    steps: [
+      '点击“添加版本记录”，设置提交署名和邮箱，用来标记每次修改的作者。',
+      '启用后在工作区手动提交，保存一个可以回看的本地版本。',
+      '需要云端同步时，再关联自己的 GitHub／Gitee 仓库、添加凭据，先测试读取连接，再手动推送。',
+    ],
+    note: '提交署名不是仓库登录账号。版本记录和云端同步都不能代替独立备份。',
   },
 ];
 function installed(id: string) {
@@ -141,9 +153,12 @@ onMounted(async () => {
         class="unavailable"
         >暂未提供此功能，可以稍后再设置</span
       >
-      <details class="technical">
-        <summary>了解更多</summary>
-        此功能由官方 {{ feature.technical }} 插件提供。
+      <details class="feature-help">
+        <summary>{{ feature.guideTitle }}</summary>
+        <ol>
+          <li v-for="step in feature.steps" :key="step">{{ step }}</li>
+        </ol>
+        <p>{{ feature.note }}</p>
       </details>
       <div
         v-if="expanded === feature.id"
@@ -162,13 +177,25 @@ onMounted(async () => {
           <span class="feature-state">可选 · 需要下载搜索组件</span>
         </div>
       </div>
-      <p class="feature-detail">下载和准备期间仍可写笔记。可以查看进度，也可以稍后再准备。</p>
+      <p class="feature-detail">
+        在部署 DooKnow 的设备上下载本地搜索组件，无需外部 API
+        密钥。准备期间仍可写笔记，也可以先跳过。
+      </p>
       <AButton
         :aria-expanded="expanded === 'search'"
         aria-controls="setup-feature-search"
         @click="expanded = expanded === 'search' ? '' : 'search'"
         >设置内容搜索</AButton
       >
+      <details class="feature-help">
+        <summary>如何开始搜索</summary>
+        <ol>
+          <li>点击“设置内容搜索”，先查看组件状态和下载说明。</li>
+          <li>点击下载准备按钮，等待组件准备完成；可以查看进度、取消，之后再继续。</li>
+          <li>显示“内容搜索已就绪”后，在工作区搜索资料；后续可在搜索设置中检查状态。</li>
+        </ol>
+        <p>打开说明不会开始下载，只有确认准备后才会下载组件。</p>
+      </details>
       <div v-if="expanded === 'search'" id="setup-feature-search" class="feature-config">
         <SearchRuntimeSettings onboarding />
       </div>
@@ -197,7 +224,7 @@ onMounted(async () => {
   align-self: center;
 }
 .feature-detail,
-.technical,
+.feature-help,
 .unavailable,
 .feature-config {
   grid-column: 1 / -1;
@@ -254,11 +281,23 @@ p {
   border-top: 1px solid var(--border, #e3e6ec);
   overflow-wrap: anywhere;
 }
-.technical {
+.feature-help {
   margin-top: 12px;
   color: var(--muted, #7a8190);
   font-size: 12px;
   line-height: 1.8;
+}
+.feature-help ol {
+  margin: 8px 0;
+  padding-left: 22px;
+}
+.feature-help li {
+  margin: 5px 0;
+  overflow-wrap: anywhere;
+}
+.feature-help p {
+  margin: 8px 0 0;
+  font-size: 12px;
 }
 summary {
   width: fit-content;
@@ -268,7 +307,7 @@ summary:focus-visible {
   outline: 2px solid var(--focus, #4566c6);
   outline-offset: 3px;
 }
-.technical[open] summary {
+.feature-help[open] summary {
   margin-bottom: 7px;
 }
 .unavailable {

@@ -216,6 +216,7 @@ onBeforeUnmount(() => clearInterval(timer));
         <p class="eyebrow">让资料有个自己的家</p>
         <h1 ref="heading" tabindex="-1">准备你的知识库</h1>
         <p class="intro">从一个新空间开始，或接入你已经整理好的资料。</p>
+        <p class="hint">第一次使用可直接选择“创建新知识库”，无需云端账号或访问令牌。从 GitHub／Gitee 导入时，入口内有仓库和认证的申请说明。</p>
         <component :is="mode === 'remote' ? 'div' : 'form'" @submit.prevent="complete">
           <p class="field-title">资料来源</p>
           <div class="mode-options" aria-label="知识库来源">

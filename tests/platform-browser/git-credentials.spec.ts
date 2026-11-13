@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { testPassword } from '../support/credentials.js';
 
+test.beforeEach(async ({ request }) => { expect((await request.post('/__test/setup/reset')).ok()).toBe(true); });
+
 test('first-install Git credentials accept real keyboard input and preserve the draft', async ({ page }) => {
   await page.route('**/api/platform/git/status', route => route.fulfill({ json: {
     branch: 'main', changes: 0, head: null, connection: null, discoveredRemotes: [], jobs: [],

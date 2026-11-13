@@ -4,6 +4,7 @@ import { testPassword } from '../support/credentials.js';
 let cookies: Awaited<ReturnType<BrowserContext['cookies']>>;
 test.beforeAll(async ({ browser }) => {
   const context = await browser.newContext();
+  expect((await context.request.post('http://127.0.0.1:4178/__test/setup/reset')).ok()).toBe(true);
   const response = await context.request.post('http://127.0.0.1:4178/api/auth/sign-in/username', {
     headers: { origin: 'http://127.0.0.1:4178' },
     data: { username: 'owner', password: testPassword },

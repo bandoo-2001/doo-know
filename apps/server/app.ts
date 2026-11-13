@@ -260,7 +260,12 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     const ready = platform.status().components.knowledge;
     return reply.code(ready ? 200 : 503).send({ status: ready ? 'ready' : 'not_ready' });
   });
-  app.get('/api/platform/status', async () => platform.status());
+  app.get('/api/platform/status', async () => {
+    // Rechecking after storage is restored must retry a failed startup. Activation
+    // coalesces concurrent checks and never replaces an already running library.
+    await platform.activate();
+    return platform.status();
+  });
   registerManagementRoutes(app, config, db, auth, platform);
   registerTransferRoutes(app, config, db, platform);
   registerStorageRoutes(app, config, () => platform.settings.configured()?.knowledgeRoot);

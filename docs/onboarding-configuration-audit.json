@@ -1,0 +1,128 @@
+{
+  "scope": "Initial native install and all subsequent first-login and configuration workflows",
+  "sourceBase": "1620e4d730b2f3bde8651e86ea96b33356ec5ce1",
+  "testedSource": "1.1.0-rc.66 plus local fixes listed below",
+  "generatedAt": "2026-11-13T01:01:13.855198+00:00",
+  "productionDataChanged": false,
+  "published": false,
+  "browser": {
+    "finalPassed": 90,
+    "finalFailed": 0,
+    "groups": [
+      {
+        "name": "Fresh setup, Git import, credential selection, HTTP context, recovery, optional features",
+        "passed": 44,
+        "evidence": ".local/onboarding-audit/onboarding-browser-latest.json"
+      },
+      {
+        "name": "Real Git sync and MCP configuration in workspace",
+        "passed": 6,
+        "evidence": ".local/onboarding-audit/workspace-browser.log"
+      },
+      {
+        "name": "Real bounded search download and cancellation",
+        "passed": 2,
+        "evidence": ".local/onboarding-audit/search-browser.log"
+      },
+      {
+        "name": "Account, backup/restore, transfer, preferences, status settings",
+        "passed": 38,
+        "evidence": ".local/onboarding-audit/settings-browser.log"
+      }
+    ]
+  },
+  "otherChecks": [
+    {
+      "name": "Packaged installer smoke (TTY account/password, curl/wget, repeat install, alternate-origin login and binding)",
+      "passed": true,
+      "evidence": ".local/onboarding-audit/install-smoke.log"
+    },
+    {
+      "name": "Platform/auth/config/CLI",
+      "testsPassed": 30,
+      "evidence": ".local/onboarding-audit/platform-tests.log"
+    },
+    {
+      "name": "Git credentials/remote/safety/UI",
+      "testsPassed": 90,
+      "evidence": ".local/onboarding-git-audit.log"
+    },
+    {
+      "name": "Credential binding new regression",
+      "testsPassed": 1,
+      "evidence": ".local/onboarding-git-binding.log"
+    },
+    {
+      "name": "Plugin/search/MCP targeted",
+      "testsPassed": 13,
+      "evidence": ".local/optional-features-unit-audit.log"
+    },
+    {
+      "name": "Plugin drafts/config UI",
+      "testsPassed": 48,
+      "evidence": ".local/optional-plugin-drafts-audit.log"
+    },
+    {
+      "name": "Actual offline CPython/CPU/model package installation and restart",
+      "testsPassed": 1,
+      "evidence": ".local/optional-search-real-artifact-audit.log"
+    },
+    {
+      "name": "MCP keys/OAuth grants/provider/routes",
+      "testsPassed": 17,
+      "evidence": ".local/optional-mcp-oauth-audit.log"
+    },
+    {
+      "name": "Restored storage retry regression plus existing platform setup",
+      "testsPassed": 6,
+      "evidence": ".local/setup-recovery-retry.log"
+    },
+    {
+      "name": "Backup/restore/settings backend",
+      "testsPassed": 30,
+      "evidence": ".local/onboarding-audit/settings-backend.log"
+    },
+    {
+      "name": "TypeScript",
+      "passed": true,
+      "evidence": ".local/onboarding-audit/typecheck.log"
+    },
+    {
+      "name": "Production build",
+      "passed": true,
+      "evidence": ".local/onboarding-audit/build.log"
+    }
+  ],
+  "findings": [
+    {
+      "title": "Changing a saved Git credential platform or authentication type incorrectly offered to retain the old secret",
+      "status": "fixed locally",
+      "fix": "Only allow blank secret for unchanged platform and authentication type; otherwise require new secret and show correct help.",
+      "files": [
+        "apps/web/components/GitRemotePanel.vue",
+        "tests/git-remote-ui.test.ts",
+        "tests/platform-browser/git-import-audit.spec.ts"
+      ]
+    },
+    {
+      "title": "A saved knowledge root unavailable at service startup could not recover through the webpage after the directory returned",
+      "status": "fixed locally",
+      "fix": "Authenticated status checks retry the existing serialized activation; do not create a missing directory or replace an active runtime.",
+      "files": [
+        "apps/server/app.ts",
+        "tests/platform-recovery-retry.test.ts"
+      ]
+    },
+    {
+      "title": "Onboarding browser tests shared one database across independent cases and projects",
+      "status": "test infrastructure fixed",
+      "fix": "Test-only reset creates a fresh owner/database/library for independent scenarios; update legacy assertions for current permission settings and rich editor."
+    }
+  ],
+  "limits": [
+    "Git browser tests execute actual Git against isolated local bare repositories; GitHub/Gitee remote authentication is not re-tested using user credentials.",
+    "Optional-feature browser failure/progress cases use controlled responses; separate backend and workspace tests cover real plugin artifacts and actual local search installation/download.",
+    "A real ChatGPT client connection and public HTTPS/OAuth callback reachability require the user deployment and were not performed."
+  ],
+  "failureHistory": "Early fixture failures were diagnosed and corrected; final results combine the unchanged passing cases with the latest successful targeted rechecks."
+}

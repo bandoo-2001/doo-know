@@ -913,6 +913,31 @@ it('requires explicit SSH host trust and sends secrets only to the credential en
   expect(view.privateKey).toBe('');
   expect(localStorage.setItem).not.toHaveBeenCalled();
 });
+it('only offers blank-secret retention while editing the same credential host and authentication kind', async () => {
+  const view = await mount('GitRemotePanel.vue', { inline: true });
+  const field = (label: string) =>
+    renderedNodes().find((node) => node.props?.['aria-label'] === label);
+  view.editCredential({ id: 'existing', name: 'Existing', host: 'github.com', kind: 'https' });
+  await Vue.nextTick();
+  expect(field('访问令牌').props.required).toBe(false);
+  expect(field('访问令牌').props.placeholder).toBe('留空保留原令牌');
+  view.credentialHost = 'gitee.com';
+  await Vue.nextTick();
+  expect(field('访问令牌').props.required).toBe(true);
+  expect(field('访问令牌').props.placeholder).not.toBe('留空保留原令牌');
+  view.credentialKind = 'ssh';
+  await Vue.nextTick();
+  expect(field('SSH 私钥').props.required).toBe(true);
+  expect(field('SSH 私钥').props.placeholder).not.toBe('留空保留原私钥');
+  view.credentialHost = 'github.com';
+  view.credentialKind = 'https';
+  await Vue.nextTick();
+  expect(field('访问令牌').props.required).toBe(false);
+  view.editCredential();
+  await Vue.nextTick();
+  expect(field('访问令牌').props.required).toBe(true);
+});
+
 it('posts import location and branch without putting secrets into its clone job', async () => {
   const view = await mount('GitRemotePanel.vue', { mode: 'import', timeZone: 'UTC' });
   view.url = ' https://gitee.com/fixture/notes.git ';
