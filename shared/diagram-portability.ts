@@ -1,3 +1,4 @@
+import { sha256Hex } from './sha256.js';
 import MarkdownIt from 'markdown-it';
 import { diagramKinds, isDiagramKind } from './diagram-fences.js';
 import { knowledgeMarkdown } from './knowledge-markdown.js';
@@ -36,9 +37,7 @@ export function normalizeDiagramCode(code: string) {
   return code.replace(/\r\n?/g, '\n').replace(/\n+$/, '');
 }
 export async function hashDiagramCode(code: string) {
-  const bytes = new TextEncoder().encode(normalizeDiagramCode(code));
-  const hash = await crypto.subtle.digest('SHA-256', bytes);
-  return [...new Uint8Array(hash)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  return sha256Hex(normalizeDiagramCode(code));
 }
 
 function lineOffsets(markdown: string) {

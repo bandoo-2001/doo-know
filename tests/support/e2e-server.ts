@@ -196,6 +196,7 @@ async function initialize() {
       : {}),
     secret: 'e2e-only-at-least-thirty-two-character-secret',
     origin: 'http://127.0.0.1:' + frontendPort,
+    ...(process.env.DOOKNOW_E2E_HTTP_ALIAS ? { allowedOrigins: [process.env.DOOKNOW_E2E_HTTP_ALIAS] } : {}),
     pluginCatalog: [
       await pluginFixture(root),
       ...(await buildPlugins({
@@ -291,6 +292,7 @@ async function initialize() {
       fs: { allow: [realpathSync(new URL('../../node_modules', import.meta.url))] },
       port: frontendPort,
       host: '127.0.0.1',
+      ...(process.env.DOOKNOW_E2E_HTTP_ALIAS ? { allowedHosts: [new URL(process.env.DOOKNOW_E2E_HTTP_ALIAS).hostname] } : {}),
       ws: { server: frontend },
       proxy: {
         '/api/': backendOrigin,
