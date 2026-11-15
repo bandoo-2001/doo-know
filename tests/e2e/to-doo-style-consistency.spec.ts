@@ -101,13 +101,14 @@ for (const viewport of [
           };
         });
         if (!reference) {
-          const directory = app.locator('.todo-navigation-content').first();
+          const directory = await openToDooDirectory(page);
           const directoryMetrics = await directory.evaluate((element) => ({
-            directoryFont: getComputedStyle(element.querySelector('nav .ant-btn')!).fontSize,
+            directoryFont: getComputedStyle(element.querySelector('.ant-btn')!).fontSize,
             directoryTitleFont: getComputedStyle(element.querySelector('.todo-nav-label')!)
               .fontSize,
           }));
           reference = { ...metrics, ...directoryMetrics };
+          await closeToDooDirectory(page);
         }
         expect.soft(metrics.titleFont, section + ': title font').toBe(reference.titleFont);
         expect.soft(metrics.titleWeight, section + ': title weight').toBe(reference.titleWeight);
@@ -131,15 +132,21 @@ for (const viewport of [
           const directory = await openToDooDirectory(page);
           const directoryMetrics = await directory.evaluate((element) => ({
             directoryFont: getComputedStyle(element.querySelector('.ant-btn')!).fontSize,
-            directoryTitleFont: getComputedStyle(element.querySelector('.todo-nav-label')!)
-              .fontSize,
+            directoryTitleFont: element.querySelector('.todo-nav-label')
+              ? getComputedStyle(element.querySelector('.todo-nav-label')!).fontSize : null,
           }));
           expect
             .soft(directoryMetrics.directoryFont, 'calendar: directory font')
             .toBe(reference.directoryFont);
-          expect
-            .soft(directoryMetrics.directoryTitleFont, 'calendar: directory title')
-            .toBe(reference.directoryTitleFont);
+          if (await directory.getByRole('navigation', { name: 'To Doo 主菜单', exact: true }).isVisible()) {
+            // Calendar owns the global rail, while task/list captions belong to
+            // the task directory. Do not require an irrelevant second sidebar.
+            await expect(directory.getByRole('navigation', { name: 'To Doo 任务导航', exact: true })).toHaveCount(0);
+            expect.soft(directoryMetrics.directoryTitleFont, 'calendar: no task directory caption').toBeNull();
+          } else {
+            expect.soft(directoryMetrics.directoryTitleFont, 'calendar: combined drawer caption')
+              .toBe(reference.directoryTitleFont);
+          }
           await closeToDooDirectory(page);
         }
 

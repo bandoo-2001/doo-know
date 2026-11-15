@@ -58,13 +58,24 @@ function readPins(): string[] {
 const pins = ref(readPins());
 const pinOpen = ref(false), pinTrigger = ref<any>();
 const moduleMoreOpen = ref(false), scopeMoreOpen = ref(false);
+const moduleMoreTrigger = ref<any>(), scopeMoreTrigger = ref<any>();
 const split = computed(() => props.layout === 'split');
-watch(() => [props.section, props.quickView, props.listId], () => {
+function closeTransientMenus() {
   moduleMoreOpen.value = false;
   scopeMoreOpen.value = false;
   pinOpen.value = false;
-});
+}
+watch(() => [props.section, props.quickView, props.listId, props.layout], closeTransientMenus);
+watch(() => props.directoryCollapsed, () => { scopeMoreOpen.value = false; });
 watch(moduleMoreOpen, open => { if (!open && split.value) pinOpen.value = false; });
+function closeModuleMore() {
+  closeTransientMenus();
+  nextTick(() => moduleMoreTrigger.value?.$el?.focus?.());
+}
+function closeScopeMore() {
+  scopeMoreOpen.value = false;
+  nextTick(() => scopeMoreTrigger.value?.$el?.focus?.());
+}
 function chooseModule(section: ToDooAppSection) {
   moduleMoreOpen.value = false;
   emit('navigate', section);
@@ -89,10 +100,12 @@ function syncPins() { pins.value = readPins(); }
 onMounted(() => {
   window.addEventListener('storage', syncPins);
   window.addEventListener('to-doo-navigation-pins', syncPins);
+  window.addEventListener('resize', closeTransientMenus);
 });
 onBeforeUnmount(() => {
   window.removeEventListener('storage', syncPins);
   window.removeEventListener('to-doo-navigation-pins', syncPins);
+  window.removeEventListener('resize', closeTransientMenus);
 });
 const tools = computed(() =>
   availableTools.filter((section) => pins.value.includes(section)).flatMap((section) =>
@@ -121,7 +134,7 @@ const moreActive = computed(
       <div class="todo-module-primary">
         <AButton type="text" aria-label="任务" title="任务"
           :class="{ active: taskSection }" :aria-current="taskSection ? 'page' : undefined"
-          @click="chooseModule('tasks')"><ToDooIcon name="tasks" :size="20" /></AButton>
+          @click="!taskSection && chooseModule('tasks')"><ToDooIcon name="tasks" :size="20" /></AButton>
         <AButton v-if="taskSection && directoryCollapsed" type="text" class="todo-directory-toggle"
           aria-label="展开清单导航" title="展开清单导航" :aria-expanded="false"
           @click="emit('toggle-directory', $event)"><ToDooIcon name="menu" :size="18" /></AButton>
@@ -130,10 +143,11 @@ const moreActive = computed(
           :aria-current="section === item[0] ? 'page' : undefined"
           @click="chooseModule(item[0])"><ToDooIcon :name="item[0]" :size="20" /></AButton>
         <APopover v-model:open="moduleMoreOpen" trigger="click" placement="rightTop" overlay-class-name="todo-ant-popup">
-          <AButton type="text" aria-label="更多模块" title="更多模块" :aria-expanded="moduleMoreOpen"
+          <AButton ref="moduleMoreTrigger" type="text" aria-label="更多模块" title="更多模块" :aria-expanded="moduleMoreOpen"
+            @keydown.esc.stop.prevent="closeModuleMore"
             :class="{ active: more.some(([id]) => id === section) }"><ToDooIcon name="more" :size="20" /></AButton>
           <template #content>
-            <div class="todo-module-more-options" role="group" aria-label="更多模块">
+            <div class="todo-module-more-options" role="group" aria-label="更多模块" @keydown.esc.stop.prevent="closeModuleMore">
               <AButton v-for="item in more" :key="item[0]" type="text" :aria-label="item[1]"
                 :class="{ active: section === item[0] }" :aria-current="section === item[0] ? 'page' : undefined"
                 @click="chooseModule(item[0])"><ToDooIcon :name="item[0]" :size="18" />{{ item[1] }}</AButton>
@@ -297,11 +311,12 @@ const moreActive = computed(
       </details>
       <div v-if="split" class="todo-task-directory-footer">
         <APopover v-model:open="scopeMoreOpen" trigger="click" placement="rightBottom" overlay-class-name="todo-ant-popup">
-          <AButton type="text" block aria-label="更多任务范围" :aria-expanded="scopeMoreOpen"
+          <AButton ref="scopeMoreTrigger" type="text" block aria-label="更多任务范围" :aria-expanded="scopeMoreOpen"
+            @keydown.esc.stop.prevent="closeScopeMore"
             :class="{ active: !listId && (moreTaskScopes.some(scope => scope.id === quickView) || ['archived', 'trash'].includes(quickView)) }">
             <ToDooIcon name="more" :size="18" /><span>更多任务范围</span>
           </AButton>
-          <template #content><div class="todo-module-more-options" role="group" aria-label="更多任务范围">
+          <template #content><div class="todo-module-more-options" role="group" aria-label="更多任务范围" @keydown.esc.stop.prevent="closeScopeMore">
             <AButton v-for="view in moreTaskScopes" :key="view.id" type="text" :aria-label="view.name"
               :aria-current="!listId && quickView === view.id ? 'page' : undefined" @click="chooseScope(view.id)"><ToDooIcon :name="view.icon" :size="18" />{{ view.name }}</AButton>
             <AButton v-for="view in [{ id: 'archived' as const, name: '已归档', icon: 'archive' }, { id: 'trash' as const, name: '回收站', icon: 'trash' }]"

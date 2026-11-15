@@ -155,7 +155,7 @@ for (const width of [1440, 320])
     if (width > 1000)
       await expect(
         app
-          .getByRole('navigation', { name: 'To Doo 导航', exact: true })
+          .getByRole('navigation', { name: 'To Doo 主菜单', exact: true })
           .getByRole('button', { name: '设置', exact: true }),
       ).toBeInViewport();
     await expect(preview.getByRole('button', { name: '下一页预览', exact: true })).toBeInViewport();

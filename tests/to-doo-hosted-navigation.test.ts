@@ -12,6 +12,7 @@ import * as controls from '../apps/web/to-doo-controls';
 import * as actionGuards from '../apps/web/to-doo-action-guard';
 import * as draftValidation from '../apps/web/to-doo-draft-validation';
 import * as antDesign from '../apps/web/ant-design';
+import * as platformTheme from '../apps/web/platform-theme';
 import * as push from '../apps/web/to-doo-push';
 import * as calendarLayout from '../apps/web/to-doo-calendar-layout';
 import * as clock from '../apps/web/to-doo-time';
@@ -30,15 +31,23 @@ type Node = {
 };
 const cleanups: (() => void)[] = [];
 let settingsTimeZone: string | undefined;
+let invalidTaskInput = false;
+let taskValidationCalls = 0;
 beforeEach(() => {
   settingsTimeZone = undefined;
+  invalidTaskInput = false;
+  taskValidationCalls = 0;
   vi.stubGlobal('document', {
     querySelector: () => null,
     querySelectorAll: () => [],
     addEventListener() {},
     removeEventListener() {},
   });
-  vi.stubGlobal('window', { addEventListener() {}, removeEventListener() {} });
+  vi.stubGlobal('window', {
+    innerWidth: 1440, innerHeight: 900,
+    matchMedia: () => ({ matches: false, addEventListener() {}, removeEventListener() {} }),
+    addEventListener() {}, removeEventListener() {}, dispatchEvent() {},
+  });
   vi.stubGlobal('navigator', {});
   vi.stubGlobal('localStorage', { getItem: () => null, setItem() {}, removeItem() {} });
 });
@@ -118,6 +127,7 @@ function component(path: string): Vue.Component {
       };
       if (id === '../preferences') return { resolvedTheme: Vue.ref('light') };
       if (id === '../ant-design') return antDesign;
+      if (id === '../platform-theme') return platformTheme;
       if (id === '@vueuse/core') return vueuse;
       if (id === '../workspace-layout') return workspaceLayout;
       if (id.endsWith('/to-doo-controls')) return controls;
@@ -161,13 +171,19 @@ function component(path: string): Vue.Component {
           __esModule: true,
           default: Vue.defineComponent({
             props: ['kind', 'seed', 'creating'],
-            setup: (props) => () =>
-              Vue.h('div', {
+            setup: (props, { expose }) => {
+              if (id.endsWith('ToDooTaskDetail.vue')) expose({
+                hasUnsavedChanges: () => false,
+                hasInvalidInput: () => invalidTaskInput,
+                validate: () => { taskValidationCalls++; return !invalidTaskInput; },
+              });
+              return () => Vue.h('div', {
                 'data-editor-boundary': id.endsWith('ToDooEntityEditor.vue') ? 'entity' : 'task',
                 'data-kind': props.kind,
                 'data-seed': props.seed,
                 'data-creating': props.creating,
-              }),
+              });
+            },
           }),
         };
       if (id.endsWith('.vue'))
@@ -259,7 +275,7 @@ function mount(
         .includes(value),
     );
   const button = (value: string) =>
-    all().find((n) => n.tag === 'button' && text(n).trim() === value)!;
+    all().find((n) => n.tag === 'button' && (text(n).trim() === value || n.props['aria-label'] === value))!;
   return { all, text, root, byClass, button, events, props, ref };
 }
 async function settled() {
@@ -325,18 +341,22 @@ describe('To Doo unified application navigation', () => {
     },
   );
 
-  it.each(['tasks', 'board', 'overview'] as const)(
-    '%s exposes stable task destinations and lists in the same navigation',
+  it.each(['tasks', 'board'] as const)(
+    '%s separates module destinations from its stable task ranges and lists',
     async (section) => {
       const view = mount(section, true);
       await settled();
       const sidebar = view.byClass('todo-sidebar')[0];
       expect(sidebar).toBeDefined();
-      expect(view.text(sidebar)).toContain('今天');
-      expect(view.text(sidebar)).toContain('目标总览');
-      expect(view.text(sidebar)).toContain('工作清单');
+      const rail = view.byClass('todo-module-rail')[0];
+      const directory = view.byClass('todo-task-directory')[0];
+      expect(rail).toBeDefined(); expect(directory).toBeDefined();
+      expect(view.text(directory)).toContain('今天');
+      expect(view.text(directory)).toContain('工作清单');
+      expect(view.text(directory)).not.toContain('目标总览');
+      expect(view.text(directory)).not.toContain('设置');
+      expect(view.all(rail).filter(node => node.props['aria-label'] === '设置')).toHaveLength(1);
       expect(view.text(sidebar)).not.toContain('四象限');
-      expect(view.text(sidebar)).toContain('设置');
       view.button('工作清单').props.onClick();
       expect(view.events.at(-1)).toEqual(['tasks', { list: 'work', taskFilter: 'all' }]);
     },
@@ -345,8 +365,9 @@ describe('To Doo unified application navigation', () => {
   it('calendar date and view controls remain local while its navigation stays stable', async () => {
     const view = mount('calendar', true);
     await settled();
-    const sidebar = view.byClass('todo-sidebar')[0];
-    expect(view.text(sidebar)).toContain('工作清单');
+    expect(view.byClass('todo-module-rail')).toHaveLength(1);
+    expect(view.byClass('todo-task-directory')).toHaveLength(0);
+    expect(view.button('日历').props['aria-current']).toBe('page');
     await vi.waitFor(() => expect(view.button('月')).toBeDefined());
     view.button('月').props.onClick();
     expect(view.events.at(-1)).toEqual(['calendar', { date: '2026-10-29', calendarView: 'month' }]);
@@ -452,14 +473,18 @@ describe('To Doo unified application navigation', () => {
   it('standalone navigation keeps complete feature access', async () => {
     const view = mount('focus');
     await settled();
-    expect(view.text(view.byClass('todo-sidebar')[0])).toContain('今天');
-    expect(view.text(view.byClass('todo-sidebar')[0])).toContain('设置');
+    expect(view.byClass('todo-module-rail')).toHaveLength(1);
+    expect(view.byClass('todo-task-directory')).toHaveLength(0);
+    expect(view.button('任务')).toBeDefined();
+    expect(view.button('设置')).toBeDefined();
+    view.button('更多模块').props.onClick(); await settled();
+    for (const label of ['目标总览', '统计与复盘', '纪念日']) expect(view.button(label)).toBeDefined();
   });
 
   it('timeline uses the same navigation to reach the calendar', async () => {
     const view = mount('timeline', true);
     await settled();
-    expect(view.text(view.byClass('todo-sidebar')[0])).toContain('所有任务');
+    expect(view.text(view.byClass('todo-task-directory')[0])).toContain('所有任务');
     view.button('日历').props.onClick();
     expect(view.events.at(-1)?.[0]).toBe('calendar');
   });
@@ -691,4 +716,168 @@ it('denied pin storage preserves the original defaults and lets task scopes rema
   expect(quick).toHaveBeenCalledOnce();
   expect(quick).toHaveBeenCalledWith('blocked');
   expect(write).toHaveBeenCalledOnce();
+});
+
+function namedNavigationButton(view: ReturnType<typeof mount>, parent: Node, name: string) {
+  const buttons = view.all(parent).filter(node => node.tag === 'button' &&
+    (node.props['aria-label'] === name || view.text(node).trim() === name));
+  expect(buttons, name + ' must be one real navigation entry').toHaveLength(1);
+  return buttons[0];
+}
+
+function splitNavigation(section: ToDooAppSection = 'tasks', extra: Record<string, any> = {}) {
+  return mount(section, false, component('to-doo/ToDooNavigation'), {
+    layout: 'split', quickView: 'all', lists: snapshot().lists,
+    items: pinnableNavigationItems, listLoading: false, listError: false, hasMoreLists: false,
+    ...extra,
+  });
+}
+
+describe('desktop module rail and task directory', () => {
+  it.each(['tasks', 'board', 'matrix', 'timeline'] as const)(
+    '%s has one selected task module and a separate list/range directory', async section => {
+      const quick = vi.fn(), list = vi.fn();
+      const view = splitNavigation(section, { listId: 'work', onQuick: quick, onList: list });
+      await settled();
+      expect(view.byClass('todo-module-rail')).toHaveLength(1);
+      expect(view.byClass('todo-task-directory')).toHaveLength(1);
+      const rail = view.byClass('todo-module-rail')[0], directory = view.byClass('todo-task-directory')[0];
+      expect(rail.props['aria-label']).toBe('To Doo 主菜单');
+      expect(directory.props['aria-label']).toBe('To Doo 任务导航');
+      expect(namedNavigationButton(view, rail, '任务').props['aria-current']).toBe('page');
+      expect(namedNavigationButton(view, directory, '工作清单').props['aria-current']).toBe('page');
+      namedNavigationButton(view, rail, '任务').props.onClick();
+      expect(view.events, 'the active task module must keep its current view and list').toEqual([]);
+      expect(view.all(directory).filter(node => node.tag === 'button' && ['日历', '习惯', '专注', '设置', '通知'].includes(node.props['aria-label']))).toHaveLength(0);
+      expect(view.all(rail).filter(node => node.tag === 'button' && ['今天', '工作清单'].includes(node.props['aria-label']))).toHaveLength(0);
+      namedNavigationButton(view, directory, '今天').props.onClick();
+      namedNavigationButton(view, directory, '工作清单').props.onClick();
+      expect(quick).toHaveBeenCalledExactlyOnceWith('today');
+      expect(list).toHaveBeenCalledExactlyOnceWith('work');
+    },
+  );
+
+  it.each([
+    ['calendar', '日历'], ['focus', '专注'], ['overview', '目标总览'],
+    ['stats', '统计与复盘'], ['settings', '设置'],
+  ] as const)('%s retains module access without rendering the unrelated task directory', async (section, label) => {
+    const view = splitNavigation(section); await settled();
+    expect(view.byClass('todo-module-rail')).toHaveLength(1);
+    expect(view.byClass('todo-task-directory')).toHaveLength(0);
+    expect(view.all().filter(node => node.props['aria-label'] === '我的清单')).toHaveLength(0);
+    const rail = view.byClass('todo-module-rail')[0];
+    expect(namedNavigationButton(view, rail, '任务').props['aria-current']).toBeUndefined();
+    namedNavigationButton(view, rail, '更多模块').props.onClick(); await settled();
+    expect(namedNavigationButton(view, rail, label).props['aria-current']).toBe('page');
+    for (const destination of ['任务', ...pinnableNavigationLabels.slice(0, 6), '通知', '设置'])
+      namedNavigationButton(view, rail, destination);
+  });
+
+  it('legacy mixed pins stay in their own navigation level and all unpinned destinations remain unique', async () => {
+    const saved = new Map([['to-doo.navigation-pins.v1', '["focus","stats","overdue","unknown","overdue"]']]);
+    const writes = vi.fn((key: string, value: string) => { saved.set(key, value); });
+    vi.stubGlobal('localStorage', { getItem: (key: string) => saved.get(key) || null, setItem: writes });
+    const quick = vi.fn();
+    const view = splitNavigation('tasks', { quickView: 'overdue', onQuick: quick });
+    const rail = view.byClass('todo-module-rail')[0], directory = view.byClass('todo-task-directory')[0];
+    expect(writes).not.toHaveBeenCalled();
+    expect(namedNavigationButton(view, directory, '逾期').props['aria-current']).toBe('page');
+    expect(view.all(rail).filter(node => node.tag === 'button' && node.props['aria-label'] === '逾期')).toHaveLength(0);
+    namedNavigationButton(view, rail, '更多模块').props.onClick(); await settled();
+    namedNavigationButton(view, rail, '自定义常用入口').props.onClick(); await settled();
+    expect(view.all(rail).filter(node => node.tag === 'input' && node.props.type === 'checkbox')).toHaveLength(9);
+    navigationPin(view, '目标总览').props.onChange({ target: { checked: true } });
+    navigationPin(view, '受阻').props.onChange({ target: { checked: true } });
+    await settled();
+    expect(JSON.parse(saved.get('to-doo.navigation-pins.v1')!)).toEqual(['focus', 'stats', 'overdue', 'overview', 'blocked']);
+    namedNavigationButton(view, rail, '目标总览');
+    namedNavigationButton(view, directory, '受阻').props.onClick();
+    expect(quick).toHaveBeenCalledExactlyOnceWith('blocked');
+    namedNavigationButton(view, rail, '更多模块').props.onClick(); await settled();
+    namedNavigationButton(view, directory, '更多任务范围').props.onClick(); await settled();
+    for (const label of ['逾期', '未安排', '受阻', '已归档', '回收站']) namedNavigationButton(view, directory, label);
+    const restored = splitNavigation('tasks', { quickView: 'overdue' }); await settled();
+    expect(namedNavigationButton(restored, restored.byClass('todo-task-directory')[0], '逾期').props['aria-current']).toBe('page');
+    namedNavigationButton(restored, restored.byClass('todo-module-rail')[0], '目标总览');
+  });
+
+  it('an empty split directory has one explicit creation entry and keeps module controls outside its lists', async () => {
+    const create = vi.fn();
+    const view = splitNavigation('tasks', { lists: [], onNewList: create }); await settled();
+    const directory = view.byClass('todo-task-directory')[0];
+    expect(view.text(directory)).toContain('暂无清单');
+    expect(view.byClass('todo-nav-empty')).toHaveLength(0);
+    namedNavigationButton(view, directory, '新建清单').props.onClick();
+    expect(create).toHaveBeenCalledOnce();
+    namedNavigationButton(view, directory, '更多任务范围');
+    const rail = view.byClass('todo-module-rail')[0];
+    namedNavigationButton(view, rail, '通知'); namedNavigationButton(view, rail, '设置');
+  });
+
+  it('list loading and retry still invoke the real catalogue continuation event', async () => {
+    const load = vi.fn();
+    const next = splitNavigation('tasks', { hasMoreLists: true, onLoadLists: load });
+    namedNavigationButton(next, next.byClass('todo-task-directory')[0], '更多清单').props.onClick();
+    expect(load).toHaveBeenCalledTimes(1);
+    const retry = splitNavigation('tasks', { lists: [], listError: true, onLoadLists: load });
+    namedNavigationButton(retry, retry.byClass('todo-task-directory')[0], '重试载入清单').props.onClick();
+    expect(load).toHaveBeenCalledTimes(2);
+    expect(retry.text(retry.byClass('todo-task-directory')[0])).not.toContain('暂无清单');
+  });
+
+  it('the overview module returns through Tasks before selecting a real list', async () => {
+    const view = mount('overview', true); await settled();
+    expect(view.byClass('todo-task-directory')).toHaveLength(0);
+    namedNavigationButton(view, view.byClass('todo-module-rail')[0], '任务').props.onClick();
+    expect(view.events.at(-1)).toEqual(['tasks', {}]);
+    view.props.section = 'tasks'; await settled();
+    namedNavigationButton(view, view.byClass('todo-task-directory')[0], '工作清单').props.onClick();
+    expect(view.events.at(-1)).toEqual(['tasks', { list: 'work', taskFilter: 'all' }]);
+  });
+
+  it('folding and unfolding the task directory preserves its selected list and emits no navigation', async () => {
+    const view = mount('tasks', true, Workspace, { selection: { list: 'work', taskFilter: 'all' } });
+    await settled();
+    const selected = () => namedNavigationButton(view, view.byClass('todo-task-directory')[0], '工作清单');
+    expect(selected().props['aria-current']).toBe('page');
+    namedNavigationButton(view, view.byClass('todo-task-directory')[0], '折叠清单导航').props.onClick({ currentTarget: {} });
+    await settled();
+    expect(view.byClass('todo-navigation-condensed')).toHaveLength(1);
+    namedNavigationButton(view, view.byClass('todo-module-rail')[0], '展开清单导航').props.onClick({ currentTarget: {} });
+    await settled();
+    expect(view.byClass('todo-navigation-condensed')).toHaveLength(0);
+    expect(selected().props['aria-current']).toBe('page');
+    expect(view.events).toEqual([]);
+  });
+
+  it('a module rail action cannot bypass validation of the open task detail', async () => {
+    const view = mount('tasks', true); await settled();
+    view.button('新建任务').props.onClick(); await settled();
+    expect(view.all().filter(node => node.props['data-editor-boundary'] === 'task')).toHaveLength(1);
+    invalidTaskInput = true;
+    namedNavigationButton(view, view.byClass('todo-module-rail')[0], '日历').props.onClick();
+    await settled();
+    expect(taskValidationCalls).toBe(1);
+    expect(view.events).toEqual([]);
+    expect(view.all().filter(node => node.props['data-editor-boundary'] === 'task')).toHaveLength(1);
+    invalidTaskInput = false;
+    namedNavigationButton(view, view.byClass('todo-module-rail')[0], '日历').props.onClick();
+    await settled();
+    expect(view.events.at(-1)).toEqual(['calendar', {}]);
+  });
+
+  it('module rail navigation keeps the edited settings on cancel and proceeds only after explicit discard', async () => {
+    const view = mount('settings', true); await settled();
+    await vi.waitFor(() => expect(view.all().some(node => node.tag === 'input' && node.props.placeholder === 'Asia/Shanghai')).toBe(true));
+    const zone = () => view.all().find(node => node.tag === 'input' && node.props.placeholder === 'Asia/Shanghai')!;
+    zone().props.onInput({ target: { value: 'Asia/Tokyo' } }); await settled();
+    namedNavigationButton(view, view.byClass('todo-module-rail')[0], '日历').props.onClick(); await settled();
+    expect(view.events).toEqual([]);
+    expect(view.all().some(node => node.props['aria-label'] === '尚有未保存内容')).toBe(true);
+    view.button('继续编辑').props.onClick(); await settled();
+    expect(zone().props.value).toBe('Asia/Tokyo'); expect(view.ref.value.hasUnsavedChanges()).toBe(true);
+    namedNavigationButton(view, view.byClass('todo-module-rail')[0], '专注').props.onClick(); await settled();
+    view.button('放弃更改并离开').props.onClick(); await settled();
+    expect(view.events.at(-1)).toEqual(['focus', {}]);
+  });
 });
