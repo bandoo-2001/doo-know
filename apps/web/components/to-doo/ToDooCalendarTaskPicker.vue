@@ -192,6 +192,7 @@ async function schedule() {
   <AModal
     :open="true"
     title="安排已有任务"
+    :width="480"
     :footer="null"
     :mask-closable="false"
     :closable="false"
@@ -250,12 +251,12 @@ async function schedule() {
 .todo-calendar-pick-fields {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--todo-space-16);
 }
 .todo-calendar-pick-fields > label {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: var(--todo-space-8);
   min-width: 0;
 }
 </style>

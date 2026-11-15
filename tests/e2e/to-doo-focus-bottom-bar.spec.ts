@@ -21,7 +21,9 @@ test('focus opens with a visible timer before project management on large and sh
   page,
 }) => {
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
-  await page.locator('.todo-focus-projects').getByText('已归档', { exact: true }).click();
+  await expect(page.getByRole('complementary', { name: '专注概览和历史', exact: true })).not.toBeVisible();
+  await page.getByRole('button', { name: '专注项目更多', exact: true }).click();
+  await page.getByRole('menuitem', { name: '已归档项目', exact: true }).click();
   await expectEntryTimer(page);
   await page.setViewportSize({ width: 390, height: 664 });
   await expectEntryTimer(page);

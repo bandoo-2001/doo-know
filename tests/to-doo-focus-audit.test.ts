@@ -277,6 +277,35 @@ test('clearing the timer project starts free focus without changing the history 
   );
 });
 
+test('focus and history panes share one tab state while the live timer remains mounted', async () => {
+  const value = model(); value.data.sessions[0].status = 'running';
+  const view = mount('ToDooFocus', { model: value }); await settle();
+  const section = (label: string) => view.all().find((node) => node.props['aria-label'] === label) as Node & { style: Record<string, string> };
+  expect(section('专注概览和历史').style.display).toBe('none');
+  expect(section('专注项目').style.display).not.toBe('none');
+  expect(button(view, '暂停')).toBeDefined();
+  button(view, '历史')!.props.onClick(); await settle();
+  expect(section('专注概览和历史').style.display).not.toBe('none');
+  expect(section('专注项目').style.display).toBe('none');
+  expect(button(view, '暂停')).toBeDefined();
+  button(view, '专注')!.props.onClick(); await settle();
+  expect(section('专注概览和历史').style.display).toBe('none');
+  expect(button(view, '暂停')).toBeDefined();
+  expect(value.execute).not.toHaveBeenCalled();
+});
+
+test('project creation and archive browsing remain reachable from project actions', async () => {
+  const value = model(), edit = vi.fn(), view = mount('ToDooFocus', { model: value, onEdit: edit });
+  await settle();
+  const menuItem = (text: string) => view.all().find((node) => node.tag === 'MenuItem' && view.text(node) === text)!;
+  expect(button(view, '专注项目更多')).toBeDefined();
+  menuItem('新建项目').props.onClick();
+  expect(edit).toHaveBeenCalledWith('focusTopic');
+  menuItem('已归档项目').props.onClick(); await settle();
+  expect(menuItem('进行中项目')).toBeDefined();
+  expect(menuItem('查看全部记录')).toBeDefined();
+});
+
 test('corrected history marks the displayed duration including a zero-minute correction', async () => {
   const value = model();
   value.data.sessions[0].correctedMinutes = 0;

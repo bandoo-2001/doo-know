@@ -6,11 +6,14 @@ import {
   Checkbox as ACheckbox,
   Empty as AEmpty,
   Modal as AModal,
+  Popover as APopover,
+  Dropdown as ADropdown,
+  Menu as AMenu,
+  MenuItem as AMenuItem,
   Segmented as ASegmented,
 } from 'ant-design-vue';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
-import ToDooDisclosure from './ToDooDisclosure.vue';
 import ToDooPageToolbar from './ToDooPageToolbar.vue';
 import ToDooCalendarTaskPicker from './ToDooCalendarTaskPicker.vue';
 import { groupTaskItems } from '../../to-doo-task-groups';
@@ -53,6 +56,7 @@ const state = props.model.state,
   taskPicker = ref(false),
   taskPickerAnchor = ref(''),
   displayOpen = ref(false),
+  planOpen = ref(false),
   mobilePresentation = ref('agenda'),
   showEmptyDates = ref(false),
   showExternal = ref(true),
@@ -60,6 +64,11 @@ const state = props.model.state,
   showAnniversaries = ref(true),
   planTime = ref('09:00'),
   includeDependents = ref(false);
+const displayTrigger = ref<any>();
+function closeDisplay() {
+  displayOpen.value = false;
+  nextTick(() => displayTrigger.value?.$el?.focus?.());
+}
 const { now } = useToDooClock();
 const today = computed(() =>
   toDooLocalDate(new Date(now.value), state.snapshot?.settings.timeZone),
@@ -441,7 +450,7 @@ async function preview() {
     state.error = '当前没有可安排的未完成任务';
     return;
   }
-  await props.model.execute(
+  const result = await props.model.execute(
     {
       action: 'preview_plan',
       payload: {
@@ -453,6 +462,7 @@ async function preview() {
     },
     '安排预览已生成，尚未修改日历',
   );
+  if (result?.preview || state.pendingMutation) planOpen.value = false;
 }
 const timelineDays = computed(() =>
   Array.from({ length: 28 }, (_, i) => shiftToDooDate(anchor.value, i)),
@@ -657,41 +667,9 @@ watch(
         ]"
         @change="calendarViewChanged"
       />
-      <AButton
-        html-type="button"
-        type="default"
-        class="todo-button"
-        :aria-expanded="displayOpen"
-        @click="displayOpen = !displayOpen"
-        >显示内容</AButton
-      >
-      <AButton
-        v-if="!timeline"
-        class="todo-button"
-        html-type="button"
-        type="default"
-        @click="showTaskPicker"
-        >安排已有任务</AButton
-      >
-      <AButton
-        class="todo-button"
-        html-type="button"
-        @click="
-          emit('edit', 'timeBlock', undefined, {
-            start: {
-              date: anchor,
-              time: '09:00',
-              timeZone: state.snapshot?.settings.timeZone || 'UTC',
-            },
-          })
-        "
-        type="default"
-      >
-        ＋ 预留时间
-      </AButton>
-    </div>
-  </ToDooPageToolbar>
-  <div v-if="displayOpen" class="todo-calendar-options todo-calendar-display-panel">
+      <APopover v-model:open="displayOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-calendar-display-popup">
+        <AButton ref="displayTrigger" html-type="button" @keydown.esc.stop.prevent="closeDisplay" type="default" class="todo-button" :aria-expanded="displayOpen">显示内容</AButton>
+        <template #content>  <div class="todo-calendar-options todo-calendar-display-panel" @keydown.esc.stop.prevent="closeDisplay">
     <label class="todo-calendar-jump"
       >跳转日期<ToDooDateField
         type="date"
@@ -710,7 +688,26 @@ watch(
       >
     </div>
     <span>显示时区：{{ state.snapshot?.settings.timeZone }}</span>
-  </div>
+    <AButton type="text" @click="closeDisplay">关闭</AButton></div></template>
+      </APopover>
+      <AButton
+        v-if="!timeline"
+        class="todo-button"
+        html-type="button"
+        type="default"
+        @click="showTaskPicker"
+        >安排已有任务</AButton
+      >
+      <AButton class="todo-button" html-type="button" type="default" @click="emit('edit', 'timeBlock', undefined, { start: { date: anchor, time: '09:00', timeZone: state.snapshot?.settings.timeZone || 'UTC' } })">＋ 预留时间</AButton>
+      <ADropdown :trigger="['click']" placement="bottomRight" overlay-class-name="todo-ant-popup">
+        <AButton html-type="button" type="text" aria-label="日历工具">更多</AButton>
+        <template #overlay><AMenu :selectable="false">
+          <AMenuItem key="continuous" @click="planOpen = true">连续安排</AMenuItem>
+        </AMenu></template>
+      </ADropdown>
+    </div>
+  </ToDooPageToolbar>
+
   <div v-if="state.preview" class="todo-plan-preview todo-panel">
     <div class="todo-panel-header">
       <h2>{{ state.preview.name }}</h2>
@@ -901,6 +898,8 @@ watch(
           v-for="day in days"
           :key="day"
           class="todo-month-day"
+          role="group"
+          :aria-label="day + ' 日程'"
           :class="{ 'is-today': day === today, outside: day.slice(0, 7) !== anchor.slice(0, 7) }"
           @dragover.prevent
           @drop="drop($event, day)"
@@ -913,14 +912,14 @@ watch(
           >
             {{ day.slice(0, 7) !== anchor.slice(0, 7) ? Number(day.slice(5, 7)) + '/' : ''
             }}{{ Number(day.slice(-2)) }}</button
-          ><button
+          ><div class="todo-month-day-events"><button
             v-for="b in blocks(day)"
             :key="b.id"
             type="button"
             draggable="true"
             class="todo-calendar-event"
             :class="{ 'is-done': itemFor(b.occurrenceId)?.status === 'done' }"
-            :title="b.occurrenceId ? '打开任务详情' : '编辑预留时间'"
+            :title="(blockSegment(b, day)?.time || (b.allDay ? '全天' : '未指定时刻')) + ' · ' + (itemFor(b.occurrenceId)?.title || b.title || '时间安排')"
             @dragstart="drag($event, b.id)"
             @click="openBlock(b)"
           >
@@ -932,6 +931,7 @@ watch(
             :key="item.key"
             class="todo-calendar-event deadline"
             :class="{ 'is-done': item.status === 'done' }"
+            :title="'截止 ' + deadlineLabel(item) + ' · ' + item.title"
             type="button"
             @click="emit('open', item)"
           >
@@ -941,6 +941,7 @@ watch(
             :key="e.id"
             type="button"
             class="todo-calendar-event external"
+            :title="e.title + (e.readOnly ? ' · 只读' : '')"
             @click="inspectExternal(e)"
           >
             {{ externalSegment(e, day)?.time || '全天' }} {{ e.title }} ·
@@ -953,6 +954,7 @@ watch(
             :data-date="day"
             >◇ {{ a.name }}</span
           >
+          </div>
         </div>
       </div>
       <div v-else class="todo-week" :style="{ minWidth: weekLayout.minimumWidth + 'px' }">
@@ -1248,11 +1250,9 @@ watch(
       </div>
     </template>
   </AModal>
-  <ToDooDisclosure class="todo-plan-disclosure">
-    <template #header
-      ><span>安排任务</span><small class="todo-muted">连续安排与联动调整</small></template
-    >
+  <AModal v-model:open="planOpen" title="连续安排" :width="480" :footer="null" :mask-closable="!state.busy && !state.pendingMutation" :keyboard="!state.busy && !state.pendingMutation" :closable="!state.busy && !state.pendingMutation" wrap-class-name="todo-ant-modal">
     <div class="todo-plan-tools">
+      <AAlert v-if="state.error" type="error" :message="state.error" show-icon />
       <ACheckbox v-model:checked="includeDependents" class="todo-checkbox"
         >联动调整后续安排</ACheckbox
       ><span class="todo-muted todo-small"
@@ -1267,17 +1267,21 @@ watch(
       >
         预览连续安排
       </AButton>
+      <AButton :disabled="state.busy || !!state.pendingMutation" @click="planOpen = false">取消</AButton>
     </div>
-  </ToDooDisclosure>
+  </AModal>
 </template>
 <style src="../../to-doo-planning-layout.css"></style>
 <style scoped>
 .todo-calendar-display-panel {
-  gap: 16px 24px;
-  padding: 12px 14px;
-  border: 1px solid var(--todo-line);
-  border-radius: 8px;
-  background: var(--todo-paper);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: min(320px, calc(100vw - 48px));
+  gap: var(--todo-space-12);
+  margin: 0;
+  color: var(--todo-ink);
+  font-size: var(--todo-font-size);
 }
 .todo-calendar-jump {
   display: flex;
@@ -1293,7 +1297,8 @@ watch(
   gap: 10px;
 }
 .todo-week-viewport {
-  max-height: min(65dvh, 620px);
+  height: 100%;
+  max-height: none;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;

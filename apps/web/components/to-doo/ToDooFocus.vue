@@ -97,7 +97,7 @@ watch(
   () => props.context,
   async (_context, previous) => {
     const leaving = previous === 'history' ? recordsSection.value : projectsSection.value;
-    const moveFocus = narrowTimer.value && leaving?.contains?.(document.activeElement);
+    const moveFocus = leaving?.contains?.(document.activeElement);
     await nextTick();
     if (moveFocus) {
       const target = mobilePane.value === 'history' ? recordsSection.value : projectsSection.value;
@@ -549,7 +549,7 @@ function loadNearHistoryEnd() {
     !visible.value ||
     !element ||
     !element.clientHeight ||
-    (narrowTimer.value && mobilePane.value !== 'history') ||
+    mobilePane.value !== 'history' ||
     loading.value ||
     loadingMore.value ||
     pageError.value ||
@@ -988,7 +988,7 @@ async function resolveNoteConflict(merge: boolean) {
       </div>
     </section>
     <ASegmented
-      v-if="narrowTimer && !contextualNavigation"
+      v-if="!contextualNavigation"
       v-model:value="mobilePane"
       class="todo-focus-mobile-panes"
       aria-label="专注页面"
@@ -1000,31 +1000,27 @@ async function resolveNoteConflict(merge: boolean) {
     <div class="todo-focus-panels">
       <section
         ref="projectsSection"
-        v-show="!narrowTimer || mobilePane === 'projects'"
+        v-show="mobilePane === 'projects'"
         class="todo-focus-projects"
         aria-label="专注项目"
       >
         <ToDooPageToolbar>
-          <ASegmented
-            v-model:value="archived"
-            aria-label="专注项目状态"
-            :options="[
-              { label: '进行中', value: 'active' },
-              { label: '已归档', value: 'archived' },
-            ]"
-          />
-          <AButton
-            type="text"
-            :class="{ active: !topicFilter }"
-            @click="
-              topicFilter = '';
-              mobilePane = 'history';
-            "
-            >查看全部记录</AButton
-          >
-          <AButton :disabled="!!active" :aria-pressed="!selectedTopic && !chosen" @click="freeFocus"
+          <span class="todo-focus-project-label">{{ archived === 'archived' ? '已归档项目' : '选择项目' }}</span>
+          <AButton type="text" :disabled="!!active" :aria-pressed="!selectedTopic && !chosen" @click="freeFocus"
             >自由专注</AButton
           >
+          <ADropdown :trigger="['click']" overlay-class-name="todo-ant-popup">
+            <AButton type="text" aria-label="专注项目更多"><ToDooIcon name="more" :size="16" /></AButton>
+            <template #overlay>
+              <AMenu :selectable="false">
+                <AMenuItem :disabled="state.busy" @click="emit('edit', 'focusTopic')">新建项目</AMenuItem>
+                <AMenuItem @click="archived = archived === 'archived' ? 'active' : 'archived'">
+                  {{ archived === 'archived' ? '进行中项目' : '已归档项目' }}
+                </AMenuItem>
+                <AMenuItem @click="topicFilter = ''; mobilePane = 'history'">查看全部记录</AMenuItem>
+              </AMenu>
+            </template>
+          </ADropdown>
         </ToDooPageToolbar>
 
         <AAlert v-if="topicError" type="error" :message="topicError"
@@ -1032,9 +1028,6 @@ async function resolveNoteConflict(merge: boolean) {
             ><AButton type="link" @click="loadTopics()">重试</AButton></template
           ></AAlert
         >
-        <div class="todo-focus-project-head" aria-hidden="true">
-          <span>计时项目</span><span>今日</span><span>累计 / 记录</span><span></span>
-        </div>
         <article
           v-for="topic in topics"
           :key="topic.id"
@@ -1045,14 +1038,13 @@ async function resolveNoteConflict(merge: boolean) {
             type="text"
             class="todo-focus-topic-select"
             :aria-label="'选择专注项目 ' + topic.name"
+            :aria-pressed="selectedTopic === topic.id"
+            :disabled="!!active || state.busy || focusBusy"
             @click="chooseTopic(topic)"
             ><span class="todo-focus-topic-icon" :style="{ color: topic.color }"
               ><ToDooIcon name="focus" :size="22" /></span
             ><span>{{ topic.name }}</span></AButton
           >
-          <span class="todo-focus-topic-duration">{{
-            duration(totals?.byTopic[topic.id]?.today.minutes)
-          }}</span>
           <AButton
             type="text"
             class="todo-focus-topic-total"
@@ -1063,16 +1055,7 @@ async function resolveNoteConflict(merge: boolean) {
             ><small>查看累计</small>
           </AButton>
           <div class="todo-focus-topic-actions">
-            <AButton
-              v-if="!topic.archivedAt"
-              type="text"
-              shape="circle"
-              :aria-label="'开始专注 ' + topic.name"
-              :disabled="!!active || state.busy"
-              @click="start(topic)"
-              ><ToDooIcon name="play" :size="16"
-            /></AButton>
-            <ADropdown :trigger="['click']"
+            <ADropdown :trigger="['click']" overlay-class-name="todo-ant-popup"
               ><AButton type="text" :aria-label="'专注项目操作 ' + topic.name"
                 ><ToDooIcon name="more" :size="17" /></AButton
               ><template #overlay
@@ -1104,7 +1087,7 @@ async function resolveNoteConflict(merge: boolean) {
       </section>
       <aside
         ref="recordsSection"
-        v-show="!narrowTimer || mobilePane === 'history'"
+        v-show="mobilePane === 'history'"
         class="todo-focus-records"
         aria-label="专注概览和历史"
       >
