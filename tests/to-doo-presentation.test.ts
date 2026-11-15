@@ -3,6 +3,7 @@ import { createToDooWorkbench } from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
 import {
   toDooQuickFilter,
+  toDooAdditionalFilters,
   prepareToDooQuickDraft,
   toDooDraftPayload,
   toDooDateLabel,
@@ -23,6 +24,25 @@ test.each([
 );
 
 describe('daily task navigation', () => {
+  test('the scope does not count as an extra filter and additional conditions stay inspectable', () => {
+    const today = '2026-10-29';
+    const filter = { ...toDooQuickFilter({}, 'today', today), query: '方案', tagIds: ['work'] };
+    expect(toDooAdditionalFilters(filter, 'today', today)).toEqual({
+      query: '方案',
+      tagIds: ['work'],
+    });
+    expect(filter.from).toBe(today);
+    expect(
+      toDooAdditionalFilters({ listIds: ['work'], priorities: ['high'] }, 'all', today, 'work'),
+    ).toEqual({ priorities: ['high'] });
+    expect(toDooAdditionalFilters({ statuses: ['done'] }, 'today', today)).toEqual({
+      statuses: ['done'],
+    });
+    const listToday = { ...toDooQuickFilter({}, 'today', today), listIds: ['work'] };
+    expect(toDooAdditionalFilters(listToday, 'today', today, 'work')).toEqual(
+      toDooQuickFilter({}, 'today', today),
+    );
+  });
   test('leaving trash for today resets incompatible filters while retaining search and tags', () => {
     expect(
       toDooQuickFilter(
@@ -213,4 +233,23 @@ test('empty saved-view arrays follow the workbench request normalization and do 
       { lists: [{ id: 'work', name: '工作' }], tags: [{ id: 'red', name: '紧急' }] },
     ),
   ).toEqual(['清单：工作', '标签：紧急']);
+});
+
+test('a pristine task placeholder accepts review context while real draft input stays intact', () => {
+  const model = createToDooWorkbench(async () => undefined);
+  const empty = model.newTaskDraft();
+  const source = '来自复盘「阅读回顾」';
+  const next = model.newTaskDraft(undefined, null, { description: source });
+  expect(next.description).toBe(source);
+  expect(next.recurrenceId).toBe(empty.recurrenceId);
+  next.title = '保留已输入的下一步';
+  expect(
+    model.newTaskDraft(undefined, null, { title: '另一个任务', description: '另一篇复盘' }),
+  ).toBe(next);
+  expect(next.title).toBe('保留已输入的下一步');
+  expect(next.description).toBe(source);
+  const scheduled = model.newTaskDraft(undefined, 'work', { planDate: '2030-05-17' });
+  scheduled.planDate = '2030-05-18';
+  expect(model.newTaskDraft(undefined, 'work', { description: '不覆盖已改日期' })).toBe(scheduled);
+  expect(scheduled.planDate).toBe('2030-05-18');
 });

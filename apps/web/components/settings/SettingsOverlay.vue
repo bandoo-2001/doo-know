@@ -99,7 +99,7 @@ defineExpose({ close });
     @after-enter="entered"
     @after-leave="left"
   >
-    <!-- Naive UI's focus trap requires a div as the custom modal root. -->
+    <!-- Naive UI's focus trap requires a div root; role keeps the dialog semantics. -->
     <div
       ref="surface"
       :class="['settings-overlay', `settings-overlay-${kind}`]"

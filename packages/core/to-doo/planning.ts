@@ -60,6 +60,7 @@ type Block = ToDooEntityMap['timeBlock'];
 type Interval = {
   start: number;
   end: number;
+  occupiesTime: boolean;
   occurrenceId: string | null;
   blockId: string | null;
   changeIndex: number | null;
@@ -270,6 +271,7 @@ function context(
       }
       candidateIntervals.push({
         ...interval(change.start, change.durationMinutes, allDay, change.dateEndExclusive),
+        occupiesTime: allDay || change.start.time !== null,
         occurrenceId: item.id,
         blockId: change.blockId ?? null,
         changeIndex: changes.length,
@@ -296,6 +298,7 @@ function context(
     try {
       existingIntervals.push({
         ...interval(block.start, block.durationMinutes, block.allDay, block.dateEndExclusive),
+        occupiesTime: block.allDay || block.start.time !== null,
         occurrenceId: block.occurrenceId,
         blockId: block.id,
         changeIndex: null,
@@ -510,9 +513,11 @@ function context(
 function validateContext(ctx: ReturnType<typeof context>) {
   for (let index = 0; index < ctx.candidateIntervals.length; index++) {
     const candidate = ctx.candidateIntervals[index];
+    // A date-only plan retains its date for dependency checks without reserving midnight.
+    if (!candidate.occupiesTime) continue;
     for (let otherIndex = index + 1; otherIndex < ctx.candidateIntervals.length; otherIndex++) {
       const other = ctx.candidateIntervals[otherIndex];
-      if (candidate.start < other.end && other.start < candidate.end)
+      if (other.occupiesTime && candidate.start < other.end && other.start < candidate.end)
         ctx.issue({
           code: 'overlap',
           message: `候选安排 ${(candidate.changeIndex ?? 0) + 1} 与 ${(other.changeIndex ?? 0) + 1} 的时间重叠`,
@@ -523,7 +528,7 @@ function validateContext(ctx: ReturnType<typeof context>) {
         });
     }
     for (const other of ctx.existingIntervals)
-      if (candidate.start < other.end && other.start < candidate.end) {
+      if (other.occupiesTime && candidate.start < other.end && other.start < candidate.end) {
         const visible = ctx.canRevealInterval(other);
         if (visible && other.blockId) {
           const block = ctx.blocks.get(other.blockId);

@@ -34,7 +34,11 @@ const control = (tag: string) =>
     setup:
       (_, { attrs, slots }) =>
       () =>
-        Vue.h(tag, attrs, tag === 'Alert' ? slots.message?.() || slots.default?.() : slots.default?.()),
+        Vue.h(
+          tag,
+          attrs,
+          tag === 'Alert' ? slots.message?.() || slots.default?.() : slots.default?.(),
+        ),
   });
 const controls = Object.fromEntries(
   [
@@ -155,6 +159,7 @@ function model() {
     snapshot: {
       ...Object.fromEntries(Object.values(TO_DOO_COLLECTIONS).map((name) => [name, []])),
       settings: toDooEntitySchemas.settings.parse({ ...stamp, id: 'settings' }),
+      lists: [] as ReturnType<typeof toDooEntitySchemas.list.parse>[],
       habitEntries: [] as ReturnType<typeof toDooEntitySchemas.habitEntry.parse>[],
       focusSessions: [
         toDooEntitySchemas.focusSession.parse({
@@ -175,6 +180,9 @@ function model() {
   });
   return {
     state,
+    ensureListCatalog: vi.fn(async () => {}),
+    taskLists: () =>
+      state.snapshot.lists.filter((list: { deletedAt?: string | null }) => !list.deletedAt),
     execute: vi.fn(async () => ({})),
     removeEntity: vi.fn(),
     request: async (url: string) =>
@@ -408,6 +416,8 @@ test('opening a task notification resolves its exact recurring execution through
 });
 
 test('empty habit quantities remain empty and cannot become zero or create a record', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-11-02T12:00:00Z'));
   const value = model(),
     now = new Date().toISOString();
   Object.assign(value.state.snapshot, {
@@ -456,9 +466,14 @@ test('empty habit quantities remain empty and cannot become zero or create a rec
   expect(value.execute).toHaveBeenLastCalledWith(
     expect.objectContaining({
       action: 'checkin_habit',
-      payload: expect.objectContaining({ habitId: 'habit', amount: 2.5, skipped: false }),
+      payload: expect.objectContaining({
+        habitId: 'habit',
+        localDate: '2026-11-02',
+        amount: 2.5,
+        skipped: false,
+      }),
     }),
-    '习惯记录已保存',
+    '已记录「读书」',
   );
 });
 

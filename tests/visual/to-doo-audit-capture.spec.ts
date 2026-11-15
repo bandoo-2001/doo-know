@@ -118,7 +118,7 @@ for (const device of devices) {
       const actions: Record<string, string> = {
         'task-dialog': '新建任务',
         'habit-dialog': '＋ 新建习惯',
-        'schedule-dialog': '＋ 时间安排',
+        'schedule-dialog': '＋ 预留时间',
         'anniversary-dialog': '＋ 新建纪念日',
         'review-dialog': '＋ 写一篇复盘',
       };

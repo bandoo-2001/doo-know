@@ -51,9 +51,21 @@ try {
   }
   assert.equal(online, true);
   assert.equal((await fetch('http://127.0.0.1:15178/readyz')).status, 503);
-  const origin = 'http://127.0.0.1:15178';
+  const origin = JSON.parse(before).origin;
+  assert.equal(JSON.parse(before).host, '0.0.0.0');
+  assert.match(repeated, new RegExp(origin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   const login = await fetch(origin + '/api/auth/sign-in/username', { method: 'POST', headers: { origin, 'content-type': 'application/json' }, body: JSON.stringify({ username: 'owner', password: 'release-fixture-password-2026' }) });
   assert.equal(login.status, 200);
+  const aliases = JSON.parse(before).allowedOrigins;
+  assert.ok(aliases.includes(origin));
+  assert.ok(aliases.includes('http://127.0.0.1:15178'));
+  const alias = 'http://127.0.0.1:15178';
+  const aliasLogin = await fetch(alias + '/api/auth/sign-in/username', { method: 'POST', headers: { origin: alias, 'content-type': 'application/json' }, body: JSON.stringify({ username: 'owner', password: 'release-fixture-password-2026' }) });
+  assert.equal(aliasLogin.status, 200);
+  const aliasCookie = aliasLogin.headers.getSetCookie().map(v => v.split(';')[0]).join('; ');
+  const aliasSession = await fetch(alias + '/api/auth/get-session', { headers: { cookie: aliasCookie } });
+  assert.ok((await aliasSession.json())?.user);
+
   let cookie = login.headers.getSetCookie().map(v => v.split(';')[0]).join('; ');
   const csrf = await fetch(origin + '/api/security/csrf', { headers: { cookie } });
   cookie += '; ' + csrf.headers.getSetCookie().map(v => v.split(';')[0]).join('; ');

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { provideToDooConfirm } from '../to-doo-controls';
 import '../to-doo-ant.css';
-import ToDooSelect from './to-doo/ToDooSelect.vue';
+import { useToDooClock } from '../to-doo-time';
+import { resolveToDooContext, toDooContextEntries } from '../to-doo-context-navigation';
 
 import {
   computed,
@@ -19,6 +20,9 @@ import {
 import {
   Button as AButton,
   Drawer as ADrawer,
+  Dropdown as ADropdown,
+  Menu as AMenu,
+  MenuItem as AMenuItem,
   Modal as AModal,
   Popover as APopover,
   Segmented as ASegmented,
@@ -37,6 +41,8 @@ import {
   createToDooWorkbench,
   shiftToDooDate,
   toDooLocalDate,
+  toDooDisplayTime,
+  toDooItemMatchesDateRange,
   type ToDooItem,
   type ToDooCreateSeed,
   type ToDooSelection,
@@ -56,15 +62,16 @@ import {
   toDooQuickFilter,
   toDooQuickViews,
   toDooFilterSummary,
+  toDooAdditionalFilters,
+  toDooDateLabel,
   toDooCalendarRange,
   type ToDooQuickFilter,
+  type ToDooTaskPlacement,
 } from '../to-doo-presentation';
 import '../to-doo.css';
 import '../to-doo-tokens.css';
 import '../to-doo-priority.css';
 import '../to-doo-task-detail.css';
-import '../to-doo-layout.css';
-import { resolveToDooContext, toDooContextEntries } from '../to-doo-context-navigation';
 const props = withDefaults(
   defineProps<{
     section: ToDooAppSection;
@@ -106,10 +113,26 @@ const model = createToDooWorkbench(api),
   creating = ref(false),
   parentId = ref<string>(),
   creatingListId = ref<string>(),
-  creationNotice = ref(''),
   detailOpen = ref(false),
   focusOccurrence = ref(''),
   density = ref('comfortable');
+const focusHistoryRequest = ref(0),
+  habitHistoryRequest = ref(0);
+const focusHistoryRange = ref<{ from: string; to: string }>();
+const habitHistoryDate = ref<string>();
+const reviewRange = ref<{ from: string; to: string }>();
+watch(
+  () => state.snapshot?.statistics,
+  (statistics) => {
+    if (
+      props.section === 'stats' &&
+      statistics?.scope === 'period' &&
+      statistics.from &&
+      statistics.to
+    )
+      reviewRange.value = { from: statistics.from, to: statistics.to };
+  },
+);
 const reviewRef = ref<InstanceType<typeof ToDooReview>>();
 const detailRef = ref<InstanceType<typeof ToDooTaskDetail>>(),
   editorRef = ref<InstanceType<typeof ToDooEntityEditor>>(),
@@ -129,29 +152,61 @@ const outcomeRef = ref<InstanceType<typeof ToDooOutcomeNote>>();
 const createdNoteId = ref(''),
   createdNoteTaskId = ref('');
 const bulkOpen = ref(false);
+const taskDraftsOpen = ref(false);
+const retainedTaskDrafts = computed(() => model.retainedNewTaskDrafts());
+const taskDestination = ref<{
+  message: string;
+  label: string;
+  section: ToDooAppSection;
+  selection: ToDooSelection;
+}>();
+watch(
+  () => state.busy,
+  (busy) => {
+    if (busy) taskDestination.value = undefined;
+  },
+);
+watch([() => props.section, () => props.selection.list, () => props.selection.taskFilter], () => {
+  taskDestination.value = undefined;
+  taskDraftsOpen.value = false;
+});
 const confirmation = provideToDooConfirm();
 const confirmRequest = confirmation.current;
 const navigationOpen = ref(false);
 const settingsVersion = ref(0);
-const hasSecondaryNavigation = computed(() => true);
-const context = computed(() =>
-  props.hostedNavigation ? resolveToDooContext(props.section, props.selection.appPage) : undefined,
+const { now: calendarNow } = useToDooClock();
+const calendarToday = computed(() =>
+  toDooLocalDate(new Date(calendarNow.value), state.snapshot?.settings.timeZone),
 );
-function changeContext(value: string) {
-  if (!toDooContextEntries(props.section).some((entry) => entry.id === value)) return;
-  navigate(props.section, { ...props.selection, appPage: value });
-}
-const calendarToday = computed(() => toDooLocalDate(new Date(), state.snapshot?.settings.timeZone));
 const calendarDate = computed(() => props.selection.date || calendarToday.value);
-watch(hasSecondaryNavigation, (visible) => {
-  if (!visible) navigationOpen.value = false;
-});
+const pageContext = computed(() =>
+  props.selection.appPage ? resolveToDooContext(props.section, props.selection.appPage) : undefined,
+);
+function changePageContext(value: string) {
+  if (toDooContextEntries(props.section).some((entry) => entry.id === value))
+    navigate(props.section, { ...props.selection, appPage: value });
+}
 const workspaceRef = ref<HTMLElement>();
 const detailLayer = ref<HTMLElement>();
 const detailOverlay = ref(window.innerWidth < 1280);
 let detailOpener: HTMLElement | undefined;
 function resizeDetail() {
   detailOverlay.value = window.innerWidth < 1280;
+  const compactNavigation = window.matchMedia?.(
+    '(max-width: 1000px), (max-width: 1100px) and (orientation: portrait), (max-width: 1366px) and (orientation: portrait) and (pointer: coarse)',
+  ).matches;
+  if (compactNavigation === false && navigationOpen.value) {
+    const restoreNavigationFocus = navigationDialog.value?.contains(document.activeElement);
+    navigationOpen.value = false;
+    if (restoreNavigationFocus)
+      void nextTick(() =>
+        workspaceRef.value
+          ?.querySelector<HTMLElement>(
+            '.todo-sidebar nav [aria-current="page"], .todo-sidebar nav button',
+          )
+          ?.focus({ preventScroll: true }),
+      );
+  }
 }
 window.addEventListener('resize', resizeDetail);
 onBeforeUnmount(() => window.removeEventListener('resize', resizeDetail));
@@ -400,103 +455,132 @@ const title = computed(() =>
       ? lists.value.find((l) => l.id === props.selection.list)?.name ||
         toDooQuickViews.find((v) => v.id === quickView.value)?.name ||
         '所有任务'
-      : props.section === 'settings'
-        ? (context.value || settingsRef.value?.activeTab || 'preferences') === 'preferences'
-          ? '偏好设置'
-          : toDooContextEntries('settings').find(
-              (entry) =>
-                entry.id === (context.value || settingsRef.value?.activeTab || 'preferences'),
-            )?.label || '设置'
-        : nav.find((n) => n[0] === props.section)?.[1] || '目标总览',
+      : nav.find((n) => n[0] === props.section)?.[1] || '目标总览',
 );
-const mobileTools = nav.filter(([section]) =>
-  ['calendar', 'matrix', 'focus', 'habits'].includes(section),
-);
-const mobileQuickViews = toDooQuickViews.filter((view) => view.id !== 'all');
-const mobileNavigation = computed(() => {
-  if (props.section !== 'tasks') return props.section;
-  if (props.selection.list) return 'list:' + props.selection.list;
-  return mobileQuickViews.some((view) => view.id === quickView.value)
-    ? 'quick:' + quickView.value
-    : 'tasks';
-});
-function changeMobileNavigation(value: string) {
-  if (value.startsWith('list:')) chooseList(value.slice(5));
-  else if (value.startsWith('quick:')) {
-    const view = mobileQuickViews.find((item) => 'quick:' + item.id === value);
-    if (view) void chooseQuickView(view.id);
-  } else if (value === 'new-list') edit('list', undefined, { kind: 'list' });
-  else if (value === 'more-lists') void loadLists(!!listCursor.value && !listError.value);
-  else if (nav.some(([section]) => section === value)) navigate(value as ToDooAppSection);
-}
 async function chooseQuickView(value: ToDooQuickFilter) {
   navigationOpen.value = false;
-  state.filter = toDooQuickFilter(
-    { ...state.filter, listIds: [] },
-    value,
-    toDooLocalDate(new Date(), state.snapshot?.settings.timeZone),
-  );
-  const section = ['tasks', 'board', 'matrix', 'timeline'].includes(props.section)
-    ? props.section
-    : 'tasks';
-  if (!props.selection.list && props.selection.taskFilter === value)
+  state.filter = toDooQuickFilter({}, value, calendarToday.value);
+  if (props.section === 'tasks' && !props.selection.list && props.selection.taskFilter === value)
     await model.load({
       ...state.query,
-      view: section,
+      view: 'tasks',
       listIds: value === 'inbox' ? ['inbox'] : undefined,
       filter: { ...state.filter },
       cursor: undefined,
     });
-  else
-    navigate(section, {
-      ...(section === 'timeline'
-        ? { date: props.selection.date, calendarView: props.selection.calendarView }
-        : {}),
-      taskFilter: value,
-    });
+  else navigate('tasks', { taskFilter: value });
 }
 function chooseList(id: string) {
   navigationOpen.value = false;
   state.filter = { listIds: [id] };
-  const section = ['tasks', 'board', 'matrix', 'timeline'].includes(props.section)
-    ? props.section
-    : 'tasks';
-  navigate(section, {
-    ...(section === 'timeline'
-      ? { date: props.selection.date, calendarView: props.selection.calendarView }
-      : {}),
-    list: id,
-    taskFilter: 'all',
-  });
+  navigate('tasks', { list: id, taskFilter: 'all' });
 }
 function changeTaskView(section: ToDooAppSection) {
   navigate(section, { ...props.selection });
 }
-const descriptions: Record<ToDooAppSection, string> = {
-  overview: '目标、资料、行动与成果，放在同一个工作流里',
-  tasks: '让目标清晰，让下一步具体',
-  board: '看见任务在流动，也看见下一步',
-  calendar: '把行动放进时间，为计划留出余地',
-  timeline: '安排阶段、识别依赖，为重要里程碑留出空间',
-  matrix: '先看重要性，再决定把时间放在哪里',
-  focus: '给一个行动，一段完整的时间',
-  habits: '让小行动重复发生，让变化慢慢积累',
-  anniversaries: '记得重要日子，也为它们做好准备',
-  stats: '看见真实投入与成果，给下一步一个清晰方向',
-  notifications: '重要提醒集中在这里',
-  settings: '把 To Doo 调整成适合自己的工作方式',
-};
-const pageDescription = computed(() =>
-  props.section !== 'tasks'
-    ? descriptions[props.section]
-    : props.selection.list
-      ? '把下一步，放进清单里'
-      : quickView.value === 'today'
-        ? '专注今天，一件一件来'
-        : quickView.value === 'inbox'
-          ? '先记下来，稍后再安排'
-          : '留出空间，专注手上的事',
-);
+function chooseDestination(section: ToDooAppSection) {
+  state.filter = {};
+  navigate(section);
+}
+function openListHabits(id: string) {
+  state.filter = {};
+  navigate('habits', { list: id });
+}
+function openActivityHistory(section: 'focus' | 'habits', range: { from: string; to: string }) {
+  if (section === 'focus') {
+    focusOccurrence.value = '';
+    focusHistoryRange.value = range;
+    focusHistoryRequest.value++;
+  } else {
+    habitHistoryDate.value = range.to;
+    habitHistoryRequest.value++;
+  }
+  chooseDestination(section);
+}
+async function searchAllTasks() {
+  const query = state.filter.query?.trim();
+  state.filter = query ? { query } : {};
+  if (props.section === 'tasks' && !props.selection.list && quickView.value === 'all')
+    await model.load({
+      ...state.query,
+      view: 'tasks',
+      listIds: undefined,
+      filter: { ...state.filter },
+      cursor: undefined,
+    });
+  else navigate('tasks', { taskFilter: 'all' });
+}
+function taskSaved(value: ToDooTaskPlacement) {
+  if (props.section === 'stats') {
+    taskDestination.value = {
+      message: `已保存「${value.title}」`,
+      label: '查看任务',
+      section: 'tasks',
+      selection: {
+        taskFilter: 'all',
+        task: value.taskId,
+        ...(value.listId ? { list: value.listId } : {}),
+      },
+    };
+    return;
+  }
+  if (!showTaskScope.value && props.section !== 'calendar') return;
+  const remainsVisible = model
+    .items()
+    .some(
+      (item) =>
+        item.task.id === value.taskId &&
+        (quickView.value !== 'inbox' || item.task.listId === null) &&
+        (props.section !== 'calendar' ||
+          toDooItemMatchesDateRange(
+            item,
+            state.query.from || calendarDate.value,
+            state.query.to || calendarDate.value,
+            state.snapshot?.settings.timeZone,
+          )),
+    );
+  if (remainsVisible) return;
+  if (
+    (props.selection.list || quickView.value === 'inbox') &&
+    value.listId !== (props.selection.list || null)
+  ) {
+    const name = value.listId
+      ? lists.value.find((list) => list.id === value.listId)?.name || '新清单'
+      : '收集箱';
+    taskDestination.value = {
+      message: `已将「${value.title}」移到「${name}」`,
+      label: value.listId ? '查看清单' : '查看收集箱',
+      section: 'tasks',
+      selection: value.listId ? { list: value.listId, taskFilter: 'all' } : { taskFilter: 'inbox' },
+    };
+  } else if (
+    value.planDates.length &&
+    !scopeFilters.value.length &&
+    (props.section === 'calendar' || ['today', 'upcoming'].includes(quickView.value))
+  ) {
+    const date = [...value.planDates].sort()[0];
+    taskDestination.value = {
+      message: `「${value.title}」已安排到${toDooDateLabel(date, calendarToday.value)}`,
+      label: '查看安排',
+      section: 'calendar',
+      selection: { date, calendarView: 'month' },
+    };
+  } else {
+    taskDestination.value = {
+      message: `「${value.title}」已保存，当前范围不包含这项任务`,
+      label: '查看任务',
+      section: 'tasks',
+      selection: { taskFilter: 'all', task: value.taskId },
+    };
+  }
+}
+function openTaskDestination() {
+  const target = taskDestination.value;
+  if (!target) return;
+  state.filter = {};
+  detailOpen.value = false;
+  navigate(target.section, target.selection);
+}
 const unread = computed(
   () =>
     state.snapshot?.reminderUnreadCount ??
@@ -512,53 +596,47 @@ const taskSections = ['overview', 'tasks', 'board', 'matrix'];
 const showTaskScope = computed(() =>
   ['tasks', 'board', 'matrix', 'timeline'].includes(props.section),
 );
-const scopeSelection = computed(() =>
-  props.selection.list ? 'list:' + props.selection.list : 'quick:' + quickView.value,
+const scopeTitle = computed(() =>
+  props.selection.list
+    ? title.value
+    : toDooQuickViews.find((view) => view.id === quickView.value)?.name ||
+      {
+        overdue: '逾期',
+        unscheduled: '未安排',
+        blocked: '受阻',
+        done: '已完成',
+        archived: '已归档',
+        trash: '回收站',
+      }[quickView.value as 'overdue' | 'unscheduled' | 'blocked' | 'done' | 'archived' | 'trash'] ||
+      '所有任务',
 );
-const scopeSummary = computed(() => {
-  const label = props.selection.list
-    ? lists.value.find((l) => l.id === props.selection.list)?.name || '当前清单'
-    : toDooQuickViews.find((v) => v.id === quickView.value)?.name ||
-      (
-        {
-          done: '已完成',
-          overdue: '逾期',
-          blocked: '受阻',
-          unscheduled: '未安排',
-          archived: '已归档',
-          trash: '回收站',
-        } as Record<string, string>
-      )[quickView.value] ||
-      '所有任务';
-  return label;
-});
-const scopeFilters = computed(() => {
-  const filter = { ...state.filter };
-  // The selected list is already named by the scope picker.
-  if (
-    props.selection.list &&
-    filter.listIds?.length === 1 &&
-    filter.listIds[0] === props.selection.list
-  )
-    delete filter.listIds;
-  return toDooFilterSummary(filter, { lists: lists.value, tags: state.snapshot?.tags });
-});
+const scopeFilters = computed(() =>
+  toDooFilterSummary(
+    toDooAdditionalFilters(
+      state.filter,
+      quickView.value,
+      toDooLocalDate(new Date(), state.snapshot?.settings.timeZone),
+      props.selection.list,
+    ),
+    { lists: lists.value, tags: state.snapshot?.tags },
+  ),
+);
 async function clearScopeFilters() {
-  state.filter = props.selection.list ? { listIds: [props.selection.list] } : {};
-  if (props.selection.taskFilter && props.selection.taskFilter !== 'all') {
-    await chooseQuickView('all');
+  if (props.selection.list && quickView.value !== 'all') {
+    state.filter = { listIds: [props.selection.list] };
+    navigate(props.section, { ...props.selection, taskFilter: 'all' });
     return;
   }
+  state.filter = toDooQuickFilter(
+    props.selection.list ? { listIds: [props.selection.list] } : {},
+    quickView.value,
+    calendarToday.value,
+  );
   await model.load({
     ...state.query,
-    listIds: undefined,
     filter: { ...state.filter },
     cursor: undefined,
   });
-}
-function changeScope(value: string) {
-  if (value.startsWith('list:')) chooseList(value.slice(5));
-  else void chooseQuickView(value.slice(6) as ToDooQuickFilter);
 }
 const collectionLabels: Partial<Record<ToDooEntityKind, string>> = {
   task: '任务',
@@ -615,13 +693,14 @@ function navigate(section: ToDooAppSection, selection: ToDooSelection = {}) {
     });
   } else emit('navigate', section, selection);
 }
-function navigateDirectory(section: ToDooAppSection, selection: ToDooSelection = {}) {
-  if (
-    ['calendar', 'timeline'].includes(section) &&
+function createPageTask(seed?: ToDooCreateSeed) {
+  create(
+    undefined,
+    undefined,
     ['calendar', 'timeline'].includes(props.section)
-  )
-    navigate(section, { ...props.selection, ...selection });
-  else navigate(section, selection);
+      ? { planDate: calendarDate.value, ...seed }
+      : seed,
+  );
 }
 function create(parent?: string, sectionId?: string | null, seed?: ToDooCreateSeed) {
   const context: ToDooCreateSeed = {
@@ -629,7 +708,7 @@ function create(parent?: string, sectionId?: string | null, seed?: ToDooCreateSe
     priority: 'none',
     tagIds: [],
     planDate: '',
-    ...(quickView.value === 'today'
+    ...(['today', 'upcoming'].includes(quickView.value)
       ? { planDate: toDooLocalDate(new Date(), state.snapshot?.settings.timeZone) }
       : {}),
     ...(state.filter.tagIds?.length ? { tagIds: [...state.filter.tagIds] } : {}),
@@ -638,13 +717,8 @@ function create(parent?: string, sectionId?: string | null, seed?: ToDooCreateSe
     ...(sectionId !== undefined ? { sectionId } : {}),
   };
   const list = seed?.listId !== undefined ? seed.listId || undefined : props.selection.list;
-  const draft = model.newTaskDraft(parent, list, context);
-  creationNotice.value = Object.entries(context).some(
-    ([key, value]) => JSON.stringify(draft[key as keyof typeof draft]) !== JSON.stringify(value),
-  )
-    ? '已继续保留的新建草稿；当前列或日期的默认值未覆盖你的输入，请核对后创建。'
-    : '';
-  if (creationNotice.value) state.notice = creationNotice.value;
+  model.newTaskDraft(parent, list, context);
+  taskDraftsOpen.value = false;
   creating.value = true;
   parentId.value = parent;
   creatingListId.value = list;
@@ -671,24 +745,18 @@ async function selectTask(id: string, occurrence?: string) {
     occurrence: model.state.selectedOccurrenceId || undefined,
   });
 }
-function continueNewDraft() {
-  const retained = model.retainedNewTaskDraft();
-  if (!retained) return create();
+function continueNewDraft(key: string) {
+  const retained = retainedTaskDrafts.value.find((entry) => entry.key === key);
+  if (!retained) return;
+  taskDraftsOpen.value = false;
   creating.value = true;
   parentId.value = retained.parentTaskId || undefined;
   // Empty string explicitly identifies the original inbox draft, even if the
   // current route or the parent task now belongs to another list.
   creatingListId.value = retained.listId || '';
-  creationNotice.value = '已继续保留的新建草稿；标题、目标清单和其他输入保持原样。';
   detailOpen.value = true;
 }
 function closeDetail() {
-  if (creating.value && model.hasNewTaskDraft())
-    state.notice = state.localWarning
-      ? '新建草稿保留在当前页面，尚未创建任务；本浏览器的恢复信息暂不可用。'
-      : '新建草稿已保留在本浏览器，尚未创建任务。可点击“继续新建任务草稿”。';
-  else if (!creating.value && model.dirty())
-    state.notice = '更改保留在当前页面，重新打开任务可继续编辑；刷新或离开页面前请保存。';
   creating.value = false;
   detailOpen.value = false;
   navigate(props.section, { ...props.selection, task: undefined, occurrence: undefined });
@@ -709,7 +777,18 @@ function edit(kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record
   editor.value = { kind, entity, seed };
   state.error = '';
 }
-function closeEditor() {
+async function closeEditor() {
+  const closed = editor.value;
+  const section = props.section;
+  const taskId = state.selectedTaskId,
+    occurrenceId = state.selectedOccurrenceId;
+  const linkedOccurrence =
+    closed?.kind === 'timeBlock'
+      ? closed.entity?.occurrenceId || closed.seed?.occurrenceId
+      : undefined;
+  const calendarQuery = ['calendar', 'timeline'].includes(section)
+    ? { ...state.query, ...currentDateRange(), cursor: undefined }
+    : undefined;
   const refreshLists = editor.value?.kind === 'list';
   editor.value = undefined;
   if (refreshLists) void loadLists();
@@ -722,6 +801,41 @@ function closeEditor() {
     void model.load({ ...state.query, cursor: undefined });
   }
   reviewViewBeforeEditor = undefined;
+  // Mutation replies use a general working set. Restore the actual displayed calendar interval.
+  if (
+    calendarQuery &&
+    closed &&
+    ['timeBlock', 'calendarEvent', 'habit', 'anniversary'].includes(closed.kind)
+  )
+    await model.load(calendarQuery);
+  if (
+    linkedOccurrence &&
+    linkedOccurrence === occurrenceId &&
+    taskId &&
+    detailOpen.value &&
+    !creating.value
+  ) {
+    await model.ensureTask(taskId);
+    if (
+      props.section !== section ||
+      state.selectedTaskId !== taskId ||
+      state.selectedOccurrenceId !== occurrenceId
+    )
+      return;
+    const value = model.draft();
+    if (value && !model.dirty())
+      taskSaved({
+        taskId,
+        title: value.task.title,
+        listId: value.task.listId,
+        planDates: value.blocks
+          .filter((block) => !block.deletedAt)
+          .map(
+            (block) =>
+              toDooDisplayTime(block.start, state.snapshot?.settings.timeZone || 'UTC').date,
+          ),
+      });
+  }
 }
 async function retryOriginal() {
   const pending = state.pendingMutation;
@@ -736,6 +850,20 @@ async function retryOriginal() {
 function created(id: string) {
   creating.value = false;
   detailOpen.value = true;
+  const value = model.draft();
+  if (value?.task.id === id)
+    taskSaved({
+      taskId: id,
+      title: value.task.title,
+      listId: value.task.listId,
+      planDates: value.blocks
+        .filter((block) => !block.deletedAt)
+        .map(
+          (block) => toDooDisplayTime(block.start, state.snapshot?.settings.timeZone || 'UTC').date,
+        ),
+    });
+  if (props.section === 'stats' && taskDestination.value)
+    taskDestination.value.message = `已创建「${value?.task.title || '下一步任务'}」`;
   navigate(props.section, {
     ...props.selection,
     task: id,
@@ -850,7 +978,8 @@ async function resumeOutcome(operation: ToDooEntityMap['operation']) {
   }
 }
 async function back() {
-  if (await requestLeave()) emit('back');
+  // The workspace host guards the return, including its note navigation context.
+  if (props.hostedNavigation || (await requestLeave())) emit('back');
 }
 function beforeUnload(event: BeforeUnloadEvent) {
   if (hasUnsavedChanges()) {
@@ -878,7 +1007,9 @@ function currentDateRange(): Pick<ToDooQuery, 'from' | 'to'> {
       props.section === 'timeline' ? 'timeline' : props.selection.calendarView || 'month',
       state.snapshot?.settings.weekStartsOn ?? 1,
     );
-  return props.section === 'stats' ? { from: shiftToDooDate(today, -6), to: today } : {};
+  return props.section === 'stats'
+    ? reviewRange.value || { from: shiftToDooDate(today, -6), to: today }
+    : {};
 }
 watch(
   () => [
@@ -906,16 +1037,7 @@ watch(
       view: props.section,
       listIds: quickView.value === 'inbox' ? ['inbox'] : undefined,
       ...initialRange,
-      ...(props.section === 'notifications'
-        ? {
-            sort: 'recent' as const,
-            raisedOnly: true,
-            reminderStates:
-              context.value && context.value !== 'all'
-                ? [context.value as ToDooEntityMap['reminderEvent']['userState']]
-                : undefined,
-          }
-        : {}),
+      ...(props.section === 'notifications' ? { sort: 'recent' as const, raisedOnly: true } : {}),
       limit: 200,
       filter: [...taskSections, 'calendar', 'timeline'].includes(props.section)
         ? state.filter
@@ -973,7 +1095,6 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
     :class="{
       'todo-compact': density === 'compact',
       'todo-has-detail': detailOpen,
-      'todo-no-sidebar': !hasSecondaryNavigation,
       'todo-hosted-navigation': hostedNavigation,
       'todo-task-page': section === 'tasks' || section === 'overview',
       'todo-task-overview-page': section === 'overview',
@@ -983,46 +1104,21 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
     <div class="todo-topbar">
       <div class="todo-topbar-brand" aria-label="To Doo">
         <span class="todo-app-mark"><ToDooIcon name="check" :size="16" /></span><span>To Doo</span>
-        <small>知识 · 行动 · 成果</small>
       </div>
       <AButton
-        v-if="hasSecondaryNavigation"
         type="text"
         class="todo-navigation-trigger"
         aria-label="功能导航"
         aria-haspopup="dialog"
         :aria-expanded="navigationOpen"
         @click="openNavigation"
-        ><ToDooIcon name="board" :size="16" />{{ hostedNavigation ? '目录' : '功能导航' }}</AButton
+        ><ToDooIcon name="menu" :size="18" /><span>菜单</span
+        ><small v-if="unread">{{ unread }}</small></AButton
       >
-      <span class="todo-desktop-crumb">我的工作空间 / {{ title }}</span
-      ><ToDooSelect
-        v-if="!hostedNavigation"
-        class="todo-mobile-nav"
-        :value="mobileNavigation"
-        aria-label="切换 To Doo 页面"
-        @change="changeMobileNavigation"
-      >
-        <optgroup label="我的待办">
-          <option v-for="view in mobileQuickViews" :key="view.id" :value="'quick:' + view.id">
-            {{ view.name }}
-          </option>
-        </optgroup>
-        <optgroup label="我的清单">
-          <option v-for="list in lists" :key="list.id" :value="'list:' + list.id">
-            {{ list.name }}
-          </option>
-          <option v-if="listCursor || listError" value="more-lists" :disabled="listLoading">
-            {{ listError ? '重试载入清单' : '更多清单' }}
-          </option>
-          <option value="new-list">新建清单</option>
-        </optgroup>
-        <optgroup label="工作空间">
-          <option v-for="item in nav" :key="item[0]" :value="item[0]">
-            {{ item[1] }}
-          </option>
-        </optgroup></ToDooSelect
-      ><span class="todo-spacer"></span>
+      <span class="todo-spacer"></span>
+      <AButton type="text" class="todo-return" aria-label="返回 DooKnow" @click="back">
+        <ToDooIcon name="back" :size="17" /><span>返回笔记</span>
+      </AButton>
       <APopover trigger="click" placement="bottomRight">
         <template #content
           ><div class="todo-ant-density">
@@ -1034,34 +1130,17 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
                 { label: '舒展', value: 'comfortable' },
                 { label: '紧凑', value: 'compact' },
               ]"
-            /></div
-        ></template>
+            /><AButton type="text" :disabled="state.loading || state.busy" @click="model.load()"
+              >刷新内容</AButton
+            >
+          </div></template
+        >
         <AButton type="text" size="small" aria-label="显示选项"><ToDooIcon name="more" /></AButton>
       </APopover>
-      <AButton
-        html-type="button"
-        class="todo-icon-button"
-        aria-label="刷新 To Doo"
-        :disabled="state.loading || state.busy"
-        @click="model.load()"
-        type="text"
-      >
-        ↻</AButton
-      ><AButton
-        html-type="button"
-        class="todo-icon-button"
-        aria-label="打开通知中心"
-        @click="navigate('notifications')"
-        type="text"
-      >
-        <ToDooIcon name="notifications" /><small v-if="unread">{{ unread }}</small>
-      </AButton>
     </div>
-    <aside v-if="hasSecondaryNavigation" class="todo-sidebar">
+    <aside class="todo-sidebar" aria-label="To Doo 侧栏">
       <ToDooNavigation
         :hosted-navigation="hostedNavigation"
-        :context="context"
-        @context="changeContext"
         :date="calendarDate"
         :today="calendarToday"
         :calendar-view="selection.calendarView"
@@ -1073,7 +1152,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         :list-loading="listLoading"
         :list-error="listError"
         :has-more-lists="!!listCursor"
-        @navigate="navigateDirectory"
+        :unread="unread"
+        @navigate="chooseDestination"
         @quick="chooseQuickView"
         @list="chooseList"
         @new-list="
@@ -1088,12 +1168,12 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       />
     </aside>
     <ADrawer
-      v-if="hasSecondaryNavigation"
       v-model:open="navigationOpen"
       placement="left"
       :width="288"
       :get-container="false"
-      :root-style="{ position: 'fixed' }"
+      :root-style="{ position: 'fixed', inset: '0', zIndex: 1400 }"
+      :z-index="1400"
       class="todo-navigation-drawer"
       :destroy-on-close="true"
       :closable="false"
@@ -1115,8 +1195,6 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         </div>
         <ToDooNavigation
           :hosted-navigation="hostedNavigation"
-          :context="context"
-          @context="changeContext"
           :date="calendarDate"
           :today="calendarToday"
           :calendar-view="selection.calendarView"
@@ -1128,7 +1206,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
           :list-loading="listLoading"
           :list-error="listError"
           :has-more-lists="!!listCursor"
-          @navigate="navigateDirectory"
+          :unread="unread"
+          @navigate="chooseDestination"
           @quick="chooseQuickView"
           @list="chooseList"
           @new-list="
@@ -1153,26 +1232,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       >
         <span class="todo-loading-sr-only">正在载入…</span>
       </div>
-      <nav v-if="!hostedNavigation" class="todo-mobile-tools" aria-label="计划与执行入口">
-        <AButton
-          v-for="item in mobileTools"
-          :key="item[0]"
-          type="text"
-          :class="{ active: section === item[0] }"
-          :aria-current="section === item[0] ? 'page' : undefined"
-          @click="navigate(item[0])"
-          ><ToDooIcon :name="item[0]" :size="15" />{{ item[1] }}</AButton
-        >
-        <AButton type="text" aria-haspopup="dialog" @click="openNavigation"
-          ><ToDooIcon name="more" :size="15" />全部功能</AButton
-        >
-      </nav>
       <div class="todo-page" :class="{ 'todo-page-matrix': section === 'matrix' }">
-        <ToDooPageHeader
-          :title="title"
-          :description="section === 'overview' ? '把目标拆成今天能做的事' : pageDescription"
-          :daily-caption="section === 'tasks'"
-        >
+        <ToDooPageHeader :title="showTaskScope ? scopeTitle : title">
           <template
             v-if="
               taskSections.includes(section) ||
@@ -1200,33 +1261,84 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
             >
             <AButton
               v-if="section === 'overview'"
-              type="default"
-              class="todo-button"
+              type="primary"
+              class="todo-button todo-primary"
               aria-label="新建目标"
               @click="edit('list', undefined, { kind: 'goal' })"
               >＋ 新建目标</AButton
             >
             <AButton
               v-if="section === 'focus'"
-              type="primary"
-              class="todo-button todo-primary"
+              type="default"
+              class="todo-button"
               aria-label="新建专注项目"
               @click="edit('focusTopic')"
               >＋ 新建项目</AButton
             >
-            <AButton
-              v-if="taskSections.includes(section) || ['calendar', 'timeline'].includes(section)"
-              type="primary"
-              class="todo-button todo-primary"
-              aria-label="新建任务"
-              @click="create()"
-              >＋ 新建任务</AButton
+            <div
+              v-if="
+                ['tasks', 'board', 'matrix', 'calendar', 'timeline'].includes(section) &&
+                !['done', 'archived', 'trash'].includes(quickView)
+              "
+              class="todo-task-create-actions"
+              :class="{
+                'todo-has-drafts': showTaskScope && retainedTaskDrafts.length && !creating,
+              }"
             >
+              <AButton
+                type="primary"
+                class="todo-button todo-primary"
+                aria-label="新建任务"
+                @click="createPageTask()"
+                >＋ 新建任务</AButton
+              >
+              <ADropdown
+                v-if="showTaskScope && retainedTaskDrafts.length && !creating"
+                v-model:open="taskDraftsOpen"
+                :trigger="['click']"
+                placement="bottomRight"
+                overlay-class-name="todo-ant-popup todo-task-drafts-popup"
+              >
+                <AButton
+                  type="primary"
+                  class="todo-button todo-primary todo-task-drafts-trigger"
+                  aria-label="任务草稿"
+                  title="任务草稿"
+                  aria-haspopup="menu"
+                  :aria-expanded="taskDraftsOpen"
+                  ><ToDooIcon name="chevron" :size="14"
+                /></AButton>
+                <template #overlay>
+                  <AMenu :selectable="false" aria-label="任务草稿">
+                    <AMenuItem
+                      v-for="entry in retainedTaskDrafts"
+                      :key="entry.key"
+                      @click="continueNewDraft(entry.key)"
+                    >
+                      <span
+                        class="todo-task-draft-title"
+                        :title="entry.draft.title.trim() || '未命名任务'"
+                        >{{ entry.draft.title.trim() || '未命名任务' }}</span
+                      >
+                      <span class="todo-task-draft-context"
+                        >{{ entry.parentTaskId ? '子任务 · ' : ''
+                        }}{{
+                          entry.draft.listId
+                            ? lists.find((list) => list.id === entry.draft.listId)?.name ||
+                              '任务清单'
+                            : '收集箱'
+                        }}</span
+                      >
+                    </AMenuItem>
+                  </AMenu>
+                </template>
+              </ADropdown>
+            </div>
             <AButton
               v-if="section === 'habits'"
               type="primary"
               class="todo-button todo-primary"
-              @click="edit('habit')"
+              @click="edit('habit', undefined, { listId: selection.list || null })"
               >＋ 新建习惯</AButton
             >
             <AButton
@@ -1264,44 +1376,14 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
             >
           </template>
         </ToDooPageHeader>
-        <div
-          v-if="showTaskScope && section !== 'tasks'"
-          class="todo-task-scope"
-          aria-label="当前任务范围"
-        >
-          <span class="todo-scope-summary">任务范围：{{ scopeSummary }}</span>
-          <ToDooSelect
-            v-if="section === 'timeline'"
-            :value="scopeSelection"
-            aria-label="切换任务范围"
-            @change="changeScope"
-          >
-            <option v-for="view in toDooQuickViews" :key="view.id" :value="'quick:' + view.id">
-              {{ view.name }}
-            </option>
-            <option value="quick:overdue">逾期</option>
-            <option value="quick:unscheduled">未安排</option>
-            <option value="quick:blocked">受阻</option>
-            <option value="quick:done">已完成</option>
-            <option value="quick:archived">已归档</option>
-            <option value="quick:trash">回收站</option>
-            <option v-for="list in lists" :key="list.id" :value="'list:' + list.id">
-              {{ list.name }}
-            </option>
-          </ToDooSelect>
-          <details v-if="section === 'timeline' && scopeFilters.length" class="todo-scope-filters">
+        <div v-if="showTaskScope && scopeFilters.length" class="todo-task-scope">
+          <details v-if="scopeFilters.length" class="todo-scope-filters">
             <summary>筛选 {{ scopeFilters.length }} 项</summary>
             <ul>
               <li v-for="part in scopeFilters" :key="part">{{ part }}</li>
             </ul>
             <AButton type="link" @click="clearScopeFilters">清除筛选</AButton>
           </details>
-          <AButton
-            v-if="['matrix', 'timeline'].includes(section)"
-            type="link"
-            @click="changeTaskView('tasks')"
-            >返回任务列表</AButton
-          >
         </div>
 
         <div v-if="state.error" class="todo-error todo-alert" role="alert">
@@ -1310,7 +1392,27 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
             >关闭提示</AButton
           >
         </div>
-        <p v-if="state.notice" class="todo-notice" role="status">{{ state.notice }}</p>
+        <div v-if="taskDestination" class="todo-action-feedback" role="status">
+          <span>{{ taskDestination.message }}</span
+          ><AButton type="link" @click="openTaskDestination">{{ taskDestination.label }}</AButton>
+        </div>
+        <div v-else-if="state.completionFeedback" class="todo-action-feedback" role="status">
+          <span>已完成「{{ state.completionFeedback.title }}」</span>
+          <AButton
+            v-if="state.completionFeedback.undoable"
+            type="link"
+            :disabled="state.busy"
+            @click="model.undoCompletion()"
+            >撤销</AButton
+          >
+          <AButton
+            v-if="section !== 'tasks' || quickView !== 'done'"
+            type="link"
+            @click="chooseQuickView('done')"
+            >查看已完成</AButton
+          >
+        </div>
+        <p v-else-if="state.notice" class="todo-notice" role="status">{{ state.notice }}</p>
         <AButton
           v-if="createdNoteId && !detailOpen"
           class="todo-link todo-open-output"
@@ -1341,15 +1443,6 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
             重试原操作
           </AButton>
         </div>
-        <AButton
-          v-if="model.hasNewTaskDraft() && !creating"
-          html-type="button"
-          class="todo-link"
-          @click="continueNewDraft()"
-          type="link"
-        >
-          继续新建任务草稿
-        </AButton>
         <ToDooLoadingState v-if="state.loading && !state.snapshot" :section="section" embedded />
         <div v-if="!state.snapshot && !state.loading" class="todo-empty todo-panel">
           <p>暂时无法载入工作空间。</p>
@@ -1369,10 +1462,13 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               :tree="tree"
               :section="section"
               :quick-view="quickView"
-              :context-list-id="selection.list"
-              :contextual-navigation="hostedNavigation"
+              :scope-list-id="selection.list"
               :creating="creating"
               @quick-filter="chooseQuickView"
+              @clear-filters="clearScopeFilters"
+              @search-all="searchAllTasks"
+              @task-created="taskSaved"
+              @habits="openListHabits"
               @bulk="bulkOpen = true"
               @open="open"
               @create="create"
@@ -1385,40 +1481,49 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               :date="selection.date"
               :view="selection.calendarView || 'month'"
               :timeline="section === 'timeline'"
-              :contextual-navigation="hostedNavigation"
               @open="open"
               @navigate="navigate(section, { ...selection, ...$event })"
               @task-view="changeTaskView"
+              @create-task="createPageTask"
+              @habits="chooseDestination('habits')"
               @edit="edit" /><ToDooRhythm
               v-else-if="section === 'focus' || section === 'habits' || section === 'anniversaries'"
               :key="'rhythm:' + pageAttempts.rhythm"
               :model="model"
               :section="section"
               :occurrence-id="focusOccurrence"
-              :context="context"
-              :contextual-navigation="hostedNavigation"
-              @context-change="changeContext"
+              :list-id="selection.list"
+              :history-request="section === 'focus' ? focusHistoryRequest : habitHistoryRequest"
+              :history-date="habitHistoryDate"
+              :history-range="focusHistoryRange"
+              :context="pageContext"
+              @context-change="changePageContext"
               @edit="edit"
+              @list="chooseList"
+              @all-habits="chooseDestination('habits')"
+              @task-context-consumed="focusOccurrence = ''"
               @task="selectTask" /><ToDooReview
               v-else-if="section === 'stats' || section === 'notifications'"
               :key="'review:' + pageAttempts.review"
               ref="reviewRef"
-              :context="context"
-              :contextual-navigation="hostedNavigation"
-              @context-change="changeContext"
               :model="model"
               :section="section"
+              :context="pageContext"
+              @context-change="changePageContext"
               @edit="edit"
               @task="selectTask"
-              @source="openReminderSource" /><ToDooSettings
+              @source="openReminderSource"
+              @completed="chooseQuickView('done')"
+              @history="openActivityHistory"
+              @list="chooseList"
+              @create-task="createPageTask"
+              @navigate="chooseDestination" /><ToDooSettings
               v-else-if="section === 'settings'"
               :key="'settings-' + settingsVersion + ':' + pageAttempts.settings"
               ref="settingsRef"
-              :context="context"
-              :contextual-navigation="hostedNavigation"
-              @context-change="changeContext"
               :model="model"
-              @task-scope="chooseQuickView"
+              :context="pageContext"
+              @context-change="changePageContext"
               @resume-outcome="resumeOutcome"
               @open-note="emit('open-note', $event)"
               @edit="edit"
@@ -1444,6 +1549,42 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         </div>
       </div>
     </main>
+    <nav class="todo-bottom-navigation" aria-label="To Doo 快捷导航">
+      <AButton
+        type="text"
+        :aria-current="
+          section === 'tasks' && !selection.list && quickView === 'today' ? 'page' : undefined
+        "
+        @click="chooseQuickView('today')"
+      >
+        <ToDooIcon name="today" :size="21" /><span>今天</span>
+      </AButton>
+      <AButton
+        type="text"
+        :aria-current="
+          section === 'tasks' && !selection.list && quickView === 'inbox' ? 'page' : undefined
+        "
+        @click="chooseQuickView('inbox')"
+      >
+        <ToDooIcon name="inbox" :size="21" /><span>收集箱</span>
+      </AButton>
+      <AButton
+        type="text"
+        :aria-current="section === 'calendar' ? 'page' : undefined"
+        @click="chooseDestination('calendar')"
+      >
+        <ToDooIcon name="calendar" :size="21" /><span>日历</span>
+      </AButton>
+      <AButton
+        type="text"
+        aria-label="打开导航菜单"
+        aria-haspopup="dialog"
+        :aria-expanded="navigationOpen"
+        @click="openNavigation"
+      >
+        <ToDooIcon name="menu" :size="21" /><span>菜单</span>
+      </AButton>
+    </nav>
     <div
       v-if="detailOpen"
       ref="detailLayer"
@@ -1470,12 +1611,13 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         :model="model"
         :tree="tree"
         :creating="creating"
-        :creation-notice="creationNotice"
         :parent-task-id="parentId"
         :list-id="creating ? creatingListId : selection.list"
         :created-note-id="state.selectedTaskId === createdNoteTaskId ? createdNoteId : undefined"
         @close="closeDetail"
         @created="created"
+        @list-created="loadLists()"
+        @saved="taskSaved"
         @select="selectTask"
         @edit="edit"
         @open-note="emit('open-note', $event)"
@@ -1484,7 +1626,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         @focus="
           focusOccurrence = $event || '';
           detailOpen = false;
-          navigate('focus');
+          chooseDestination('focus');
         "
       />
     </div>
@@ -1558,91 +1700,3 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
     </AModal>
   </section>
 </template>
-
-<style scoped>
-.todo-task-page {
-  --todo-accent: #1555ff;
-  --todo-tint: #edf2ff;
-  --todo-ink: #101828;
-  --todo-muted: #4c5870;
-  font-synthesis: weight;
-}
-:global(:root[data-theme='dark'] .todo-task-page) {
-  --todo-accent: #8ba4ff;
-  --todo-tint: #25334d;
-  --todo-ink: #e5e8f0;
-  --todo-muted: #a1a9bb;
-}
-.todo-task-page :deep(.todo-page-heading h1) {
-  font-size: 34px;
-  line-height: 1.35;
-  font-weight: 700;
-  letter-spacing: -0.6px;
-}
-.todo-task-overview-page :deep(.todo-page-heading h1) {
-  font-size: 16px;
-  line-height: 22px;
-  font-weight: 500;
-  color: var(--todo-ink);
-  letter-spacing: 0;
-}
-.todo-task-overview-page :deep(.todo-page-heading p) {
-  display: block;
-  margin-top: 36px;
-  color: var(--todo-ink);
-  font-size: 36px;
-  line-height: 1.35;
-  font-weight: 700;
-  letter-spacing: -0.6px;
-}
-.todo-task-overview-page :deep(.todo-page-heading) { margin-bottom: 22px; }
-.todo-task-overview-page :deep(.todo-page-heading h1)::before {
-  content: '';
-  display: inline-block;
-  width: 38px;
-  height: 20px;
-  margin-right: 8px;
-  vertical-align: -3px;
-  background: var(--todo-muted);
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 24'%3E%3Cg fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m2 11 9-8 9 8M5 9v11h5v-6h4v6h4V9m15 0 4 4-4 4'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
-}
-.todo-task-overview-page :deep(.todo-page-heading > .todo-actions) {
-  align-self: flex-end;
-}
-.todo-task-page :deep(.todo-page-heading > .todo-actions > .ant-btn) {
-  min-height: 46px;
-  min-width: 140px;
-  padding: 8px 20px;
-  font-size: 17px !important;
-  line-height: 26px;
-  border-radius: 9px;
-}
-.todo-task-page :deep(.todo-directory-title) { font-size: 24px; font-weight: 700; }
-.todo-task-page :deep(.todo-navigation-group .todo-nav-label) { font-size: 14px; }
-.todo-task-page :deep(.todo-navigation-content nav .ant-btn) { font-size: 17px; min-height: 44px; }
-.todo-task-page :deep(.ant-btn-primary) {
-  background: var(--todo-accent);
-  border-color: var(--todo-accent);
-}
-.todo-task-page :deep(.ant-btn-primary:hover) {
-  background: color-mix(in srgb, var(--todo-accent) 88%, var(--todo-paper));
-  border-color: transparent;
-}
-.todo-task-page :deep(.todo-navigation-content .ant-btn.active) {
-  color: var(--todo-accent);
-  background: var(--todo-tint);
-}
-@container (max-width: 650px) {
-  .todo-task-page :deep(.todo-page-heading h1) { font-size: 23px; }
-  .todo-task-overview-page :deep(.todo-page-heading h1) { font-size: 13px; }
-  .todo-task-overview-page :deep(.todo-page-heading p) { font-size: 24px; margin-top: 12px; }
-  .todo-task-overview-page :deep(.todo-page-heading) { margin-bottom: 16px; }
-  .todo-task-page :deep(.todo-page-heading > .todo-actions > .ant-btn) {
-    min-height: 36px;
-    min-width: 0;
-    padding: 6px 12px;
-    font-size: 13px !important;
-    line-height: 22px;
-  }
-}
-</style>

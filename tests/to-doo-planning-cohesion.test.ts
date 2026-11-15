@@ -70,7 +70,8 @@ function component(name: string): Vue.Component {
         };
       if (id.endsWith('ToDooTaskRow.vue')) return { default: component('ToDooTaskRow') };
       if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
-      if (id.endsWith('ToDooHint.vue')) return { default: component('ToDooHint') };
+
+      if (id.endsWith('ToDooPageToolbar.vue')) return { default: component('ToDooPageToolbar') };
       if (id.endsWith('.vue')) return { default: Vue.defineComponent({ render: () => null }) };
       throw Error('Unexpected planning dependency: ' + id);
     },
@@ -353,7 +354,7 @@ test('mobile agenda keeps occupied dates, today and anchor while empty dates rem
     calendar
       .byClass('todo-agenda-day')
       .every((day) =>
-        calendar.all(day).some((n) => n.tag === 'button' && calendar.text(n).includes('添加安排')),
+        calendar.all(day).some((n) => n.tag === 'button' && calendar.text(n).includes('添加任务')),
       ),
   ).toBe(true);
   calendar.button('隐藏空白日期')!.props.onClick();
@@ -597,7 +598,7 @@ test('contextual calendars delegate view navigation while keeping period and sch
   expect(calendar.all().some((node) => node.props['aria-label'] === '日历视图')).toBe(false);
   calendar.button('下一周期')!.props.onClick();
   expect(navigate).toHaveBeenCalledWith({ date: '2026-11-09', calendarView: 'week' });
-  calendar.button('＋ 时间安排')!.props.onClick();
+  calendar.button('＋ 预留时间')!.props.onClick();
   expect(edit).toHaveBeenCalledWith('timeBlock', undefined, {
     start: { date: '2026-11-02', time: '09:00', timeZone: 'UTC' },
   });

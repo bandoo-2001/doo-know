@@ -82,27 +82,30 @@
   color: var(--todo-paper);
 }
 .to-doo-workspace .todo-document-meta {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px 10px;
-  margin: -12px 0 0 34px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  margin: 0;
 }
 .to-doo-workspace .todo-document-meta > label {
-  gap: 0;
-  min-width: 100px;
-  max-width: 210px;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
 }
 .to-doo-workspace .todo-document-meta .ant-select-selector,
 .to-doo-workspace
   .todo-document-meta
   .ant-select:not(.ant-select-customize-input)
   .ant-select-selector {
-  background: transparent;
-  border-color: transparent;
+  background: var(--todo-paper);
+  border-color: var(--todo-line);
   box-shadow: none;
+  color: var(--todo-ink);
+  padding-left: 10px;
+}
+.todo-document-field-label {
   color: var(--todo-muted);
-  padding-left: 4px;
+  font-size: 12px;
 }
 .to-doo-workspace .todo-document-meta .ant-select-arrow {
   color: var(--todo-muted);
@@ -232,14 +235,31 @@
   min-height: 64px;
   padding: 12px 22px;
   padding-bottom: max(12px, env(safe-area-inset-bottom));
-  gap: 10px;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
 }
 .to-doo-workspace .todo-detail-focus.ant-btn {
   padding: 5px 0;
   color: var(--todo-muted);
 }
 .to-doo-workspace .todo-detail-save {
+  margin-left: 0;
+}
+.to-doo-workspace .todo-detail-close {
   margin-left: auto;
+}
+.to-doo-workspace .todo-create-footer {
+  justify-content: flex-end;
+}
+.to-doo-workspace .todo-create-footer .todo-button {
+  min-width: 88px;
+}
+.to-doo-workspace .todo-quick-details.ant-btn {
+  height: 30px;
+  padding: 4px 6px;
+  color: var(--todo-muted);
+  flex-shrink: 0;
 }
 .to-doo-workspace .todo-detail-footer .todo-detail-menu {
   margin-left: auto;
@@ -248,7 +268,7 @@
   margin-left: 0;
 }
 .to-doo-workspace .todo-detail-footer > .todo-task-menu-trigger {
-  margin-left: auto;
+  margin-left: 0;
 }
 .to-doo-workspace .todo-detail-footer.has-unsaved > .todo-task-menu-trigger {
   margin-left: 0;

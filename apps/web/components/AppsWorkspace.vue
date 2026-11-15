@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch, ref, defineAsyncComponent } from 'vue';
+import { computed, watch, ref, defineAsyncComponent, defineComponent, h } from 'vue';
 import Icon from './Icon.vue';
 import BlogWorkspace from './BlogWorkspace.vue';
 import type { TreeEntry } from '../../../shared/contracts';
@@ -10,20 +10,30 @@ import '../to-doo-tokens.css';
 import { workspaceApps, type WorkspaceAppId } from '../app-shortcuts';
 import { useWorkspaceMainMenu, type WorkspaceMainMenuDefinition } from '../workspace-main-menu';
 import ToDooLoadingState from './to-doo/ToDooLoadingState.vue';
+import ToDooAppLoadError from './to-doo/ToDooAppLoadError.vue';
 const ToDooWorkspace = defineAsyncComponent({
   loader: () => import('./ToDooWorkspace.vue'),
   loadingComponent: ToDooLoadingState,
+  errorComponent: defineComponent({
+    inheritAttrs: false,
+    setup: () => () => h(ToDooAppLoadError, { onBack: () => emit('return-app') }),
+  }),
   delay: 150,
 });
 const GraphWorkspace = defineAsyncComponent(() => import('./GraphWorkspace.vue'));
-type Selection = Pick<WorkspaceRoute, 'task' | 'occurrence' | 'list' | 'date' | 'calendarView' | 'taskFilter' | 'appPage'>;
+type Selection = Pick<
+  WorkspaceRoute,
+  'task' | 'occurrence' | 'list' | 'date' | 'calendarView' | 'taskFilter' | 'appPage'
+>;
 const toDooRef = ref<{
   hasUnsavedChanges(): boolean;
   requestLeave(): Promise<boolean>;
   requestSectionLeave?(section: ToDooAppSection): Promise<boolean>;
 }>();
 const graphRef = ref<InstanceType<typeof GraphWorkspace>>();
-const currentApp = computed(() => props.app === 'to-doo' ? toDooRef.value : props.app === 'graph' ? graphRef.value : undefined);
+const currentApp = computed(() =>
+  props.app === 'to-doo' ? toDooRef.value : props.app === 'graph' ? graphRef.value : undefined,
+);
 const props = defineProps<{
   app?: 'blog' | 'to-doo' | 'graph';
   section: BlogSection | ToDooAppSection;
@@ -42,6 +52,7 @@ const emit = defineEmits<{
   'note-created': [id: string];
   'toggle-pin': [app: WorkspaceAppId];
   'menu-select': [];
+  'return-app': [];
 }>();
 defineExpose({
   // The async component ref can temporarily point to its loading placeholder.
@@ -64,6 +75,7 @@ const hostedNavigation = useWorkspaceMainMenu(
       return {
         id: 'to-doo',
         label: 'To Doo',
+        navigationMode: 'embedded',
         icon: 'task',
         activeId,
         items: [
@@ -133,7 +145,7 @@ watch(
     :tree="tree"
     @navigate="(next, value) => emit('navigate', 'to-doo', next, value)"
     @open-note="emit('open-note', $event)"
-    @back="emit('navigate', undefined)"
+    @back="emit('return-app')"
     @note-created="emit('note-created', $event)"
   />
   <GraphWorkspace

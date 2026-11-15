@@ -72,6 +72,106 @@ describe('candidate timetable and dependency validation', () => {
       ]).conflicts,
     ).toEqual([]);
   });
+  it('allows multiple date-only tasks without reserving the same midnight slot', () => {
+    const state = data();
+    state.timeBlocks = [block('floating', 'ob', time('2026-10-29', null), 60, { allDay: false })];
+    const floating = { ...change('oa', time('2026-10-29', null)), allDay: false };
+    const result = validateToDooPlan(state, [floating]);
+    expect(result.conflicts).toEqual([]);
+    expect(result.changes[0]).toEqual(floating);
+    expect(result.expectedRevisions['occurrence:oa']).toBe('rev_oa');
+    expect(result.expectedRevisions['task:a']).toBe('rev_a');
+
+    state.timeBlocks = [];
+    expect(
+      validateToDooPlan(state, [
+        floating,
+        { ...change('ob', time('2026-10-29', null)), allDay: false },
+      ]).conflicts,
+    ).toEqual([]);
+  });
+  it.each([false, true])(
+    'keeps date-only and timed candidate plans independent with floating first=%s',
+    (floatingFirst) => {
+      const floating = { ...change('oa', time('2026-10-29', null)), allDay: false };
+      const timed = change('ob', time('2026-10-29', '00:00'));
+      expect(
+        validateToDooPlan(data(), floatingFirst ? [floating, timed] : [timed, floating]).conflicts,
+      ).toEqual([]);
+    },
+  );
+  it('ignores untimed occupancy on either side while preserving explicit all-day reservations', () => {
+    const state = data();
+    state.timeBlocks = [block('timed', 'ob', time('2026-10-29', '00:00'))];
+    expect(
+      validateToDooPlan(state, [{ ...change('oa', time('2026-10-29', null)), allDay: false }])
+        .conflicts,
+    ).toEqual([]);
+
+    state.timeBlocks = [block('floating', 'ob', time('2026-10-29', null), 60, { allDay: false })];
+    expect(validateToDooPlan(state, [change('oa', time('2026-10-29', '00:00'))]).conflicts).toEqual(
+      [],
+    );
+
+    state.timeBlocks = [
+      block('day', 'ob', time('2026-10-29', null), 1440, {
+        allDay: true,
+        dateEndExclusive: '2026-10-30',
+      }),
+    ];
+    expect(
+      validateToDooPlan(state, [change('oa', time('2026-10-29', '12:00'))]).issues.some(
+        (issue) => issue.code === 'overlap',
+      ),
+    ).toBe(true);
+    expect(
+      validateToDooPlan(state, [{ ...change('oa', time('2026-10-29', null)), allDay: false }])
+        .conflicts,
+    ).toEqual([]);
+    state.timeBlocks = [block('timed', 'ob', time('2026-10-29', '12:00'))];
+    expect(
+      validateToDooPlan(state, [
+        { ...change('oa', time('2026-10-29', null)), allDay: true },
+      ]).issues.some((issue) => issue.code === 'overlap'),
+    ).toBe(true);
+    // Omitted allDay keeps the existing date-only-to-all-day default.
+    expect(
+      validateToDooPlan(state, [change('oa', time('2026-10-29', null))]).issues.some(
+        (issue) => issue.code === 'overlap',
+      ),
+    ).toBe(true);
+  });
+  it('still validates revisions and dependency timing for date-only plans', () => {
+    const state = data();
+    const floating = { ...change('ob', time('2026-10-29', null)), allDay: false };
+    expect(
+      validateToDooPlan(state, [{ ...floating, expectedRevision: 'stale' }]).issues.some(
+        (issue) => issue.code === 'stale_occurrence',
+      ),
+    ).toBe(true);
+    state.timeBlocks = [block('floating', 'ob', time('2026-10-29', null), 60, { allDay: false })];
+    expect(
+      validateToDooPlan(state, [
+        {
+          ...change('ob', time('2026-10-30', null), 60, 'floating'),
+          allDay: false,
+          expectedBlockRevision: 'stale',
+        },
+      ]).issues.some((issue) => issue.code === 'stale_block'),
+    ).toBe(true);
+    state.timeBlocks = [];
+    state.tasks[1].dependencies = [{ taskId: 'a', lagMinutes: 30 }];
+    state.occurrences[0].status = 'done';
+    state.occurrences[0].completedAt = '2026-10-29T09:00:00.000Z';
+    expect(
+      validateToDooPlan(state, [floating]).issues.some(
+        (issue) => issue.code === 'dependency_timing',
+      ),
+    ).toBe(true);
+    expect(
+      validateToDooPlan(state, [{ ...floating, start: time('2026-10-30', null) }]).conflicts,
+    ).toEqual([]);
+  });
   it('compares absolute instants across time zones, midnight, and the DST gap policy', () => {
     const state = data();
     expect(

@@ -84,7 +84,8 @@ test('saving a review retains the applied interval when the following refresh fa
     'aria-label',
     new RegExp(from + ' — ' + to),
   );
-  await app.getByRole('button', { name: '刷新 To Doo', exact: true }).click();
+  await app.getByRole('button', { name: '显示选项', exact: true }).click();
+  await page.getByRole('button', { name: '刷新内容', exact: true }).click();
   await expect(app.getByRole('alert')).not.toBeVisible();
   await expect(metric).toHaveText(String(expectedCompleted));
   await expect(app.getByRole('button').filter({ hasText: name })).toBeVisible();

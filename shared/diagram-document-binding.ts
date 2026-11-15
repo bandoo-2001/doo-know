@@ -1,3 +1,4 @@
+import { sha256Hex } from './sha256.js';
 import { z } from 'zod';
 
 const hash = z.string().regex(/^[a-f0-9]{64}$/);
@@ -30,9 +31,7 @@ export function parsePrimaryBinding(comment: string): PrimaryBinding | undefined
 }
 
 export async function hashDiagramBytes(value: string | Uint8Array) {
-  const bytes = typeof value === 'string' ? new TextEncoder().encode(value) : value;
-  const digest = await crypto.subtle.digest('SHA-256', new Uint8Array(bytes));
-  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  return sha256Hex(value);
 }
 
 export type DiagramRenderInput = {

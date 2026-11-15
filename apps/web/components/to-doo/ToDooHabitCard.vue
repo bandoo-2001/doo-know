@@ -27,6 +27,7 @@ const props = defineProps<{
   busy: boolean;
   quantity: number | '';
   error?: string;
+  list?: ToDooEntityMap['list'];
 }>();
 const emit = defineEmits<{
   'update:quantity': [value: number | ''];
@@ -37,6 +38,7 @@ const emit = defineEmits<{
   pause: [];
   statistics: [];
   entries: [];
+  list: [id: string];
 }>();
 const period = computed(
   () => ({ daily: '今日', weekly: '本周', monthly: '本月' })[props.summary.rule.frequency],
@@ -63,6 +65,18 @@ const checkedToday = computed(() => ordinary.value && props.amount > 0);
         <AButton type="text" class="todo-task-title" @click="emit('edit')">{{ habit.name }}</AButton
         ><small>{{ formatHabitSchedule(summary.rule) }}</small>
         <small v-if="showLocalDate">记录日期 {{ date }} · {{ habit.timeZone }}</small>
+        <AButton
+          v-if="list && !list.archivedAt"
+          type="text"
+          class="todo-habit-list-link"
+          :aria-label="'查看 ' + list.name + ' 的任务'"
+          @click="emit('list', list.id)"
+        >
+          <ToDooIcon name="tasks" :size="13" /><span>{{ list.name }}</span>
+        </AButton>
+        <small v-else-if="habit.listId">{{
+          list ? list.name + ' · 清单已归档' : '原关联清单不可用'
+        }}</small>
       </div>
       <ADropdown :trigger="['click']" placement="bottomRight">
         <template #overlay
@@ -134,6 +148,16 @@ const checkedToday = computed(() => ordinary.value && props.amount > 0);
           <small v-if="summary.estimated" class="todo-muted">历史规则估算</small>
         </div>
       </template>
+      <AButton
+        v-if="entryCount"
+        type="text"
+        class="todo-habit-undo"
+        :disabled="!ready || busy"
+        :aria-label="'撤销今天记录 ' + habit.name"
+        title="撤销今天的记录"
+        @click="emit('undo')"
+        >撤销</AButton
+      >
     </div>
     <div class="todo-habit-card-record">
       <AButton
@@ -171,6 +195,30 @@ const checkedToday = computed(() => ordinary.value && props.amount > 0);
 </template>
 
 <style scoped>
+.todo-habit-card-heading .todo-habit-list-link.ant-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0;
+  height: auto;
+  min-height: 24px;
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--todo-accent);
+}
+.todo-habit-list-link > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.todo-habit-undo.ant-btn {
+  padding-inline: 2px;
+  font-size: 12px;
+  color: var(--todo-muted);
+}
 @media (max-width: 600px) {
   .todo-habit-card,
   .todo-habit-card.is-checkin {

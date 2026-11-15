@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { toDooFilterSummary, toDooQuickFilter } from '../../to-doo-presentation';
+import { toDooAdditionalFilters, toDooFilterSummary } from '../../to-doo-presentation';
 import ToDooDisclosure from './ToDooDisclosure.vue';
-import ToDooHint from './ToDooHint.vue';
 import ToDooTaskOverviewSummary from './ToDooTaskOverviewSummary.vue';
 import { useToDooConfirm } from '../../to-doo-controls';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
+import ToDooPageToolbar from './ToDooPageToolbar.vue';
 
 import { computed, ref } from 'vue';
 import {
@@ -18,13 +18,12 @@ import {
   Menu as AMenu,
   MenuItem as AMenuItem,
   Input as AInput,
-  Segmented as ASegmented,
   Tag as ATag,
 } from 'ant-design-vue';
 import type { TreeEntry } from '../../../../shared/contracts';
 import ToDooFilterGroup from './ToDooFilterGroup.vue';
 import type { ToDooAppSection } from '../../navigation';
-import type { ToDooEntityKind, ToDooFilter } from '../../../../shared/to-doo-contracts';
+import type { ToDooEntityKind } from '../../../../shared/to-doo-contracts';
 import {
   toDooLocalDate,
   toDooDisplayTime,
@@ -43,7 +42,7 @@ import ToDooIcon from './ToDooIcon.vue';
 import ToDooTaskMenu from './ToDooTaskMenu.vue';
 import ToDooTaskGroupMenu from './ToDooTaskGroupMenu.vue';
 import { groupTaskItems, taskSectionIds, boardTaskCards } from '../../to-doo-task-groups';
-import type { ToDooQuickFilter } from '../../to-doo-presentation';
+import type { ToDooQuickFilter, ToDooTaskPlacement } from '../../to-doo-presentation';
 const confirmAction = useToDooConfirm();
 const props = withDefaults(
   defineProps<{
@@ -51,9 +50,8 @@ const props = withDefaults(
     section: ToDooAppSection;
     tree: TreeEntry[];
     quickView?: ToDooQuickFilter;
+    scopeListId?: string;
     creating?: boolean;
-    contextualNavigation?: boolean;
-    contextListId?: string;
   }>(),
   { quickView: 'all' },
 );
@@ -65,17 +63,17 @@ const emit = defineEmits<{
   navigate: [section: ToDooAppSection];
   bulk: [];
   'quick-filter': [value: ToDooQuickFilter];
+  'clear-filters': [];
+  'search-all': [];
+  'task-created': [value: ToDooTaskPlacement];
+  habits: [listId: string];
 }>();
-const viewOptions = computed(() => [
+const viewOptions = [
   { value: 'tasks', label: '列表' },
   { value: 'board', label: '看板' },
-  ...(!props.contextualNavigation
-    ? [
-        { value: 'matrix', label: '四象限' },
-        { value: 'timeline', label: '时间线' },
-      ]
-    : []),
-]);
+  { value: 'matrix', label: '四象限' },
+  { value: 'timeline', label: '时间线' },
+];
 function chooseView(value: string | number) {
   if (value === 'tasks' || value === 'board' || value === 'matrix' || value === 'timeline')
     emit('navigate', value);
@@ -140,59 +138,58 @@ const outlineItems = computed(() =>
     (i) =>
       i.status !== 'done' ||
       showCompleted.value ||
-      builtin.value === 'done' ||
+      ['done', 'trash', 'archived'].includes(builtin.value) ||
       !!state.filter.query,
   ),
 );
-// The current scope belongs to navigation. Clearing an extra condition must not
-// silently switch from a date range or a selected list to the entire library.
-const contextFilter = computed<ToDooFilter>(() => ({
-  ...toDooQuickFilter({}, builtin.value, today.value),
-  ...(props.contextListId ? { listIds: [props.contextListId] } : {}),
-}));
-const extraFilterChips = computed(() =>
-  (Object.keys(state.filter) as (keyof ToDooFilter)[]).flatMap((key) => {
-    const value = state.filter[key],
-      baseline = contextFilter.value[key];
-    const normalized = (item: unknown) =>
-      JSON.stringify(Array.isArray(item) ? [...item].sort() : item);
-    if (normalized(value) === normalized(baseline)) return [];
-    const labels = toDooFilterSummary(
-      { [key]: value },
+const filterCount = computed(
+  () =>
+    toDooFilterSummary(
+      toDooAdditionalFilters(state.filter, builtin.value, today.value, props.scopeListId),
+    ).length,
+);
+const canSearchAll = computed(
+  () =>
+    !!state.filter.query?.trim() &&
+    (builtin.value !== 'all' || !!props.scopeListId || filterCount.value > 1),
+);
+const searchPlaceholder = computed(() =>
+  props.scopeListId
+    ? '搜索当前清单'
+    : builtin.value === 'all'
+      ? '搜索所有任务'
+      : builtin.value === 'today'
+        ? '搜索今天的任务'
+        : builtin.value === 'done'
+          ? '搜索已完成任务'
+          : '搜索当前范围',
+);
+const taskListTitle = computed(() =>
+  state.filter.query
+    ? '搜索结果'
+    : builtin.value === 'done'
+      ? '已完成任务'
+      : builtin.value === 'trash'
+        ? '回收站'
+        : builtin.value === 'archived'
+          ? '已归档任务'
+          : '任务',
+);
+const emptyTitle = computed(() => {
+  if (filterCount.value) return '没有符合条件的任务';
+  return (
+    (
       {
-        lists: state.snapshot?.lists,
-        tags: state.snapshot?.tags,
-      },
-    );
-    return labels.map((label) => ({ key, label }));
-  }),
-);
-const filterCount = computed(() => extraFilterChips.value.length);
-const emptyKind = computed(() =>
-  filterCount.value
-    ? 'filtered'
-    : builtin.value !== 'all' || props.contextListId
-      ? 'range'
-      : 'global',
-);
-async function clearExtraFilters() {
-  state.filter = { ...contextFilter.value };
-  advancedFilters.value = false;
-  await filterChanged();
-}
-async function removeExtraFilter(key: keyof ToDooFilter) {
-  const baseline = contextFilter.value[key];
-  const next = { ...state.filter };
-  delete next[key];
-  state.filter = { ...next, ...(baseline !== undefined ? { [key]: baseline } : {}) };
-  if (key === 'group') advancedFilters.value = false;
-  await filterChanged();
-}
-function showAllTasks() {
-  state.filter = {};
-  advancedFilters.value = false;
-  emit('quick-filter', 'all');
-}
+        today: '今天暂无待办',
+        inbox: '收集箱为空',
+        upcoming: '近七天暂无安排',
+        done: '暂无已完成任务',
+        trash: '回收站为空',
+        archived: '暂无已归档任务',
+      } as Record<string, string>
+    )[builtin.value] || '暂无任务'
+  );
+});
 const lists = computed(
   () => state.snapshot?.lists.filter((l) => !l.deletedAt && !l.archivedAt) || [],
 );
@@ -336,7 +333,7 @@ const createContext = computed<ToDooCreateSeed>(() => ({
   tagIds: [],
   planDate: '',
   ...(activeListId.value ? { listId: activeListId.value } : {}),
-  ...(builtin.value === 'today' ? { planDate: today.value } : {}),
+  ...(['today', 'upcoming'].includes(builtin.value) ? { planDate: today.value } : {}),
   ...(state.filter.tagIds?.length ? { tagIds: [...state.filter.tagIds] } : {}),
   ...(state.filter.priorities?.length === 1 ? { priority: state.filter.priorities[0] } : {}),
 }));
@@ -663,16 +660,11 @@ function saveView() {
     <section class="todo-overview-goals" aria-label="我的目标">
       <div class="todo-section-title todo-goals-heading">
         <h2>我的目标</h2>
-        <span
-          class="todo-goals-caption"
-          title="按未归档叶子行动的执行次数计算；重复行动每次分别计数，取消和跳过不计。"
-          >进度 = 已完成行动次数 / 目标行动次数</span
-        >
       </div>
       <div class="todo-goals">
         <ACard v-for="goal in goals" :key="goal.id" class="todo-goal" role="article">
           <header class="todo-goal-header">
-            <span class="todo-goal-icon"><ToDooIcon name="overview" :size="34" /></span>
+            <span class="todo-goal-icon"><ToDooIcon name="overview" :size="24" /></span>
             <div class="todo-goal-copy">
               <AButton
                 class="todo-goal-name"
@@ -737,7 +729,7 @@ function saveView() {
                 )
               "
               :show-info="false"
-              :stroke-width="12"
+              :stroke-width="8"
               stroke-color="var(--todo-accent)"
               trail-color="var(--todo-soft)"
               status="normal"
@@ -881,25 +873,26 @@ function saveView() {
     </details>
   </div>
   <template v-else>
-    <div
+    <ToDooPageToolbar
       class="todo-task-toolbar"
-      :class="{ 'todo-contextual-task-toolbar': contextualNavigation, 'todo-task-list-toolbar': section === 'tasks' }"
+      :class="{ 'todo-task-list-toolbar': section === 'tasks' }"
+      aria-label="任务视图与筛选"
     >
-      <ASegmented
-        v-if="!contextualNavigation || section === 'tasks' || section === 'board'"
-        class="todo-view-switch todo-view-segmented"
+      <ToDooSelect
+        class="todo-view-picker"
         aria-label="任务展示方式"
         :value="section"
+        :show-search="false"
         :options="viewOptions"
         @change="chooseView"
       />
       <AButton
         type="text"
         class="todo-task-tools-toggle"
-        aria-label="搜索与管理"
+        aria-label="搜索任务"
         :aria-expanded="toolsOpen"
         @click="toolsOpen = !toolsOpen"
-        >搜索与管理</AButton
+        ><ToDooIcon name="search" :size="16" /><span>搜索</span></AButton
       >
       <form
         class="todo-toolbar-search todo-task-secondary-tools"
@@ -910,7 +903,7 @@ function saveView() {
         <label class="todo-search"
           ><AInput
             v-model:value="state.filter.query"
-            placeholder="搜索任务"
+            :placeholder="searchPlaceholder"
             aria-label="搜索任务" /><AButton html-type="submit" aria-label="执行搜索" type="text">
             <ToDooIcon name="search" :size="16" /></AButton
         ></label>
@@ -918,8 +911,7 @@ function saveView() {
       <ToDooSelect
         v-if="section === 'board'"
         v-model="boardBy"
-        class="todo-board-group-picker todo-task-secondary-tools"
-        :class="{ 'is-open': toolsOpen }"
+        class="todo-board-group-picker"
         aria-label="看板分组"
       >
         <option value="status">按状态</option>
@@ -936,18 +928,14 @@ function saveView() {
         @click="filterOpen = !filterOpen"
         type="default"
       >
-        <ToDooIcon name="filter" :size="16" />筛选与排序<small v-if="filterCount">{{
+        <ToDooIcon name="filter" :size="16" />筛选<small v-if="filterCount">{{
           filterCount
         }}</small>
       </AButton>
       <ADropdown :trigger="['click']" placement="bottomRight">
-        <AButton
-          type="text"
-          aria-label="任务管理"
-          class="todo-task-secondary-tools"
-          :class="{ 'is-open': toolsOpen }"
-          ><ToDooIcon name="more" :size="16" />任务管理</AButton
-        >
+        <AButton type="text" aria-label="任务管理" class="todo-task-more"
+          ><ToDooIcon name="more" :size="18"
+        /></AButton>
         <template #overlay
           ><AMenu>
             <AMenuItem
@@ -965,30 +953,21 @@ function saveView() {
           </AMenu></template
         >
       </ADropdown>
-    </div>
+    </ToDooPageToolbar>
     <form v-if="filterOpen" class="todo-filters todo-filter-panel" @submit.prevent="filterChanged">
-      <label v-if="!contextualNavigation"
-        >任务范围<ToDooSelect v-model="builtin" aria-label="内建筛选">
-          <option value="all">全部任务</option>
-          <option value="inbox">收集箱</option>
-          <option value="today">今天</option>
-          <option value="upcoming">近期 7 天</option>
-          <option value="overdue">逾期</option>
-          <option value="unscheduled">未安排</option>
-          <option value="done">已完成</option>
-          <option value="blocked">受阻</option>
-          <option value="archived">已归档</option>
-          <option value="trash">回收站</option>
-        </ToDooSelect></label
-      >
       <label
-        >清单<ToDooSelect
-          :value="state.filter.listIds?.[0] || ''"
-          aria-label="筛选目标清单"
-          @change="$event ? emit('list', $event) : emit('quick-filter', 'all')"
+        >优先级<ToDooSelect
+          :value="state.filter.priorities?.length === 1 ? state.filter.priorities[0] : ''"
+          aria-label="筛选优先级"
+          @change="
+            state.filter.priorities = $event ? [$event] : [];
+            filterChanged();
+          "
         >
-          <option value="">全部目标与清单</option>
-          <option v-for="l in lists" :key="l.id" :value="l.id">{{ l.name }}</option>
+          <option value="">全部优先级</option>
+          <option v-for="(label, value) in toDooPriorityLabels" :key="value" :value="value">
+            {{ label }}
+          </option>
         </ToDooSelect></label
       >
       <label
@@ -1029,9 +1008,17 @@ function saveView() {
         "
         type="default"
       >
-        条件组
+        更多筛选条件
       </AButton>
-      <AButton html-type="button" class="todo-link" @click="clearExtraFilters" type="link">
+      <AButton
+        html-type="button"
+        class="todo-link"
+        @click="
+          advancedFilters = false;
+          emit('clear-filters');
+        "
+        type="link"
+      >
         清除筛选
       </AButton>
     </form>
@@ -1059,37 +1046,6 @@ function saveView() {
         </AButton>
       </div>
     </div>
-    <div v-if="extraFilterChips.length" class="todo-task-filter-summary" aria-label="附加筛选">
-      <div class="todo-task-filter-chips">
-        <span v-for="chip in extraFilterChips" :key="chip.key" class="todo-task-filter-chip">
-          <span>{{ chip.label }}</span>
-          <AButton
-            type="text"
-            html-type="button"
-            :aria-label="'移除筛选 ' + chip.label"
-            :disabled="state.loading"
-            @click="removeExtraFilter(chip.key)"
-            >×</AButton
-          >
-        </span>
-      </div>
-      <AButton
-        html-type="button"
-        type="link"
-        class="todo-link"
-        :disabled="state.loading"
-        @click="clearExtraFilters"
-        >清除筛选</AButton
-      >
-    </div>
-    <ToDooQuickAdd
-      v-if="!creating && section !== 'tasks'"
-      :model="model"
-      :list-id="state.filter.listIds?.[0]"
-      :default-date="builtin === 'today' || builtin === 'upcoming' ? today : undefined"
-      :seed="createContext"
-      @expand="emit('create')"
-    />
     <div v-if="state.snapshot?.views.some((v) => !v.deletedAt)" class="todo-saved-views">
       <span>保存的视图</span>
       <div
@@ -1249,21 +1205,32 @@ function saveView() {
         </ToDooDisclosure></template
       >
     </div>
-    <div v-if="section === 'tasks' && !creating" class="todo-task-list-capture">
+    <div
+      v-if="!creating && !['done', 'archived', 'trash'].includes(builtin)"
+      class="todo-task-list-capture"
+    >
       <ToDooQuickAdd
         :model="model"
         :list-id="state.filter.listIds?.[0]"
         :default-date="builtin === 'today' || builtin === 'upcoming' ? today : undefined"
         :seed="createContext"
         @expand="emit('create')"
+        @created="emit('task-created', $event)"
       />
     </div>
     <div v-if="section === 'tasks'" class="todo-panel todo-tree todo-task-list-panel">
       <div class="todo-panel-header todo-task-list-heading">
         <h2>
-          {{ state.filter.query ? '搜索结果' : '待办任务' }}
-          <small>{{ items.filter((i) => toDooPending(i.status)).length }} 项</small>
+          {{ taskListTitle }}
+          <small>{{ outlineItems.length }} 项</small>
         </h2>
+        <AButton
+          v-if="scopeListId"
+          type="text"
+          aria-label="查看清单习惯"
+          @click="emit('habits', scopeListId)"
+          ><ToDooIcon name="habits" :size="16" />清单习惯</AButton
+        >
         <AButton
           v-if="state.filter.listIds?.[0]"
           html-type="button"
@@ -1349,6 +1316,7 @@ function saveView() {
                 :time-zone="state.snapshot?.settings.timeZone"
                 :active="active(item)"
                 :selecting="selecting"
+                :read-only="builtin === 'trash' || builtin === 'archived'"
                 :selected="state.selectedIds.includes(item.task.id)"
                 @open="emit('open', $event)"
                 @complete="complete"
@@ -1376,7 +1344,11 @@ function saveView() {
         </div>
       </section>
       <AButton
-        v-if="completedItems.length && builtin !== 'done' && !state.filter.query"
+        v-if="
+          completedItems.length &&
+          !['done', 'trash', 'archived'].includes(builtin) &&
+          !state.filter.query
+        "
         html-type="button"
         class="todo-completed-toggle"
         :aria-label="showCompleted ? '隐藏已完成任务' : '显示已完成任务'"
@@ -1387,59 +1359,23 @@ function saveView() {
         <span>{{ showCompleted ? '⌄' : '›' }}</span
         >已完成 <small>{{ completedItems.length }}</small>
       </AButton>
-      <div
-        v-if="!items.length && !state.loading"
-        class="todo-empty todo-task-empty"
-        :data-empty-kind="emptyKind"
-      >
+      <div v-if="!items.length" class="todo-empty">
         <span class="todo-empty-check" aria-hidden="true"
-          ><ToDooIcon :name="emptyKind === 'filtered' ? 'search' : 'check'" :size="28"
+          ><ToDooIcon name="check" :size="28"
         /></span>
-        <h2>
-          {{
-            emptyKind === 'filtered'
-              ? '没有符合当前筛选的任务'
-              : emptyKind === 'range'
-                ? '当前范围没有任务'
-                : '从一件小事开始'
-          }}
-        </h2>
-        <p>
-          {{
-            emptyKind === 'filtered'
-              ? '试试清除附加筛选，或查看其他任务范围。'
-              : emptyKind === 'range'
-                ? '这个范围暂时没有任务，可以安排下一步，或查看所有任务。'
-                : '在上方输入待办，按 Enter 就能记下来。'
-          }}
-        </p>
-        <div class="todo-actions">
-          <AButton
-            v-if="emptyKind === 'filtered'"
-            class="todo-button todo-primary"
-            html-type="button"
-            aria-label="清除附加筛选"
-            type="primary"
-            @click="clearExtraFilters"
-            >清除筛选</AButton
-          >
-          <AButton
-            v-else
-            class="todo-button todo-primary"
-            html-type="button"
-            type="primary"
-            @click="emit('create', undefined, undefined, createContext)"
-            >新建任务</AButton
-          >
-          <AButton
-            v-if="emptyKind !== 'global'"
-            class="todo-button"
-            html-type="button"
-            type="default"
-            @click="showAllTasks"
-            >查看所有任务</AButton
-          >
-        </div>
+        <h2>{{ emptyTitle }}</h2>
+        <AButton v-if="canSearchAll" type="default" @click="emit('search-all')"
+          >在所有任务中搜索</AButton
+        >
+        <AButton
+          v-if="filterCount"
+          class="todo-button"
+          html-type="button"
+          @click="emit('clear-filters')"
+          type="default"
+        >
+          清除筛选
+        </AButton>
       </div>
       <div v-if="state.snapshot?.templates.some((t) => !t.deletedAt)" class="todo-panel-footer">
         <span>从模板创建</span>
@@ -1634,9 +1570,7 @@ function saveView() {
           <small>{{ items.filter((item) => item.status === 'done').length }}</small>
         </AButton>
       </div>
-      <ToDooHint :model="model" hint-id="matrix-placement">
-        象限按重要程度与截止时间判断紧急性，和优先级分别设置；拖动或选择象限会手动覆盖紧急判断。
-      </ToDooHint>
+
       <nav class="todo-task-jumps" aria-label="象限概览">
         <AButton
           v-for="(zone, index) in quadrants"
@@ -1737,17 +1671,16 @@ function saveView() {
     </template>
   </template>
 </template>
-<style src="../../to-doo-planning-layout.css"></style>
 <style scoped>
-/* These surfaces belong only to the task module; shared row styles stay intact. */
+/* Task content uses the shared type scale while retaining its own layout. */
 .todo-goal-overview {
   display: grid;
-  gap: 20px;
+  gap: 16px;
   min-width: 0;
 }
 .todo-overview-today {
   padding: 4px 16px 12px;
-  border-radius: 12px;
+  border-radius: var(--todo-radius);
 }
 .todo-overview-today > .todo-panel-header {
   padding: 10px 4px 12px;
@@ -1756,50 +1689,38 @@ function saveView() {
 .todo-overview-today h2,
 .todo-goals-heading h2 {
   margin: 0;
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: -0.5px;
+  font-size: var(--todo-section-size);
+  font-weight: 600;
+  line-height: 1.5;
 }
 .todo-overview-goals {
   margin-top: 12px;
 }
 .todo-overview-today h2 small {
   color: var(--todo-muted);
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 400;
   letter-spacing: 0;
 }
 .todo-overview-action-list :deep(.todo-task-row),
 .todo-task-list-panel :deep(.todo-task-row) {
-  min-height: 72px;
-  padding-block: 10px;
-  gap: 14px;
-}
-.todo-overview-action-list :deep(.todo-task-name),
-.todo-task-list-panel :deep(.todo-task-name) {
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 28px;
+  min-height: var(--todo-row-min-height, 60px);
+  padding-block: var(--todo-row-padding-block, 8px);
+  gap: 10px;
 }
 .todo-overview-action-list :deep(.todo-check),
 .todo-task-list-panel :deep(.todo-check) {
-  width: 26px;
-  min-width: 26px;
-  height: 26px;
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
   border-radius: 50%;
   border-color: color-mix(in srgb, var(--todo-muted) 65%, var(--todo-line));
-}
-.todo-overview-action-list :deep(.todo-task-meta),
-.todo-task-list-panel :deep(.todo-task-meta) {
-  font-size: 16px;
-  line-height: 22px;
 }
 .todo-overview-action-list :deep(.todo-row-list),
 .todo-task-list-panel :deep(.todo-row-list) {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   font-size: inherit;
 }
 .todo-overview-action-list :deep(.todo-task-date),
@@ -1812,18 +1733,18 @@ function saveView() {
 }
 .todo-overview-action-list :deep(.todo-task-date-value),
 .todo-task-list-panel :deep(.todo-task-date-value) {
-  font-size: 14px;
+  font-size: 13px;
 }
 .todo-overview-action-list :deep(.todo-task-date-value small),
 .todo-task-list-panel :deep(.todo-task-date-value small) {
-  font-size: 18px;
+  font-size: 14px;
 }
 .todo-overview-action-list :deep(.todo-row-list)::before,
 .todo-task-list-panel :deep(.todo-row-list)::before {
   content: '';
-  width: 11px;
-  height: 11px;
-  flex: 0 0 11px;
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
   border-radius: 50%;
   background: var(--task-list-color, var(--todo-accent));
 }
@@ -1835,8 +1756,8 @@ function saveView() {
 .todo-task-list-panel :deep(.todo-task-row.is-active)::before {
   top: 0;
   bottom: 0;
-  width: 4px;
-  border-radius: 4px 0 0 4px;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
 }
 .todo-overview-action-list :deep(.todo-task-menu-trigger),
 .todo-task-list-panel :deep(.todo-task-menu-trigger) {
@@ -1849,21 +1770,14 @@ function saveView() {
   gap: 10px 16px;
   margin: 0 0 16px;
 }
-.todo-goals-caption {
-  background: var(--todo-soft);
-  color: var(--todo-muted);
-  padding: 5px 12px;
-  border-radius: 7px;
-  font-size: 14px;
-}
 .todo-overview-goals .todo-goals {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  gap: 16px;
 }
 .todo-overview-goals .todo-goal {
   min-width: 0;
   border-color: var(--todo-line);
-  border-radius: 12px;
+  border-radius: var(--todo-radius);
   box-shadow: none;
   background: var(--todo-paper);
   padding: 0;
@@ -1873,9 +1787,9 @@ function saveView() {
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 236px;
-  gap: 26px;
-  padding: 22px;
+  min-height: 180px;
+  gap: 16px;
+  padding: 16px;
 }
 .todo-overview-goals .todo-goal :deep(.ant-card-body)::before,
 .todo-overview-goals .todo-goal :deep(.ant-card-body)::after {
@@ -1883,20 +1797,20 @@ function saveView() {
 }
 .todo-goal-header {
   display: grid;
-  grid-template-columns: 60px minmax(0, 1fr) auto;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
   align-items: start;
-  gap: 6px 16px;
+  gap: 4px 12px;
   min-width: 0;
   position: relative;
 }
 .todo-goal-icon {
   display: grid;
   place-items: center;
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
   grid-column: 1;
   grid-row: 1 / 3;
-  border-radius: 12px;
+  border-radius: 8px;
   color: var(--todo-accent);
   background: var(--todo-tint);
 }
@@ -1910,9 +1824,9 @@ function saveView() {
   padding: 0;
   white-space: normal;
   text-align: left;
-  font-size: 24px !important;
-  font-weight: 700;
-  line-height: 32px;
+  font-size: 18px !important;
+  font-weight: 600;
+  line-height: 26px;
   grid-column: 2;
   grid-row: 1;
   color: var(--todo-ink);
@@ -1923,16 +1837,16 @@ function saveView() {
   grid-column: 2 / -1;
   grid-row: 2;
   color: var(--todo-muted);
-  font-size: 16px;
-  line-height: 26px;
+  font-size: 14px;
+  line-height: 22px;
   overflow-wrap: anywhere;
 }
 .todo-goal-state {
   grid-column: 3;
   grid-row: 1;
   margin: 0;
-  font-size: 14px;
-  line-height: 26px;
+  font-size: 12px;
+  line-height: 24px;
   color: var(--todo-accent);
   background: var(--todo-tint);
   border-radius: 6px;
@@ -1945,14 +1859,14 @@ function saveView() {
 .todo-goal-edit {
   position: absolute;
   right: -8px;
-  top: 30px;
+  top: 26px;
 }
 .todo-goal-progress {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   margin-top: auto;
-  font-size: 20px;
+  font-size: 14px;
 }
 .todo-goal-progress :deep(.ant-progress) {
   flex: 1;
@@ -1971,10 +1885,10 @@ function saveView() {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
-  padding-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid var(--todo-line);
   color: var(--todo-muted);
-  font-size: 16px;
+  font-size: 13px;
 }
 .todo-goal-details > span {
   display: inline-flex;
@@ -2000,7 +1914,7 @@ function saveView() {
   min-height: 0;
   margin: 0;
   padding: 28px 16px;
-  border-radius: 12px;
+  border-radius: var(--todo-radius);
 }
 .todo-overview-empty :deep(.ant-empty-image) {
   height: auto;
@@ -2025,7 +1939,7 @@ function saveView() {
   height: 52px;
   background: var(--todo-tint);
   color: var(--todo-accent);
-  border-radius: 14px;
+  border-radius: var(--todo-radius);
 }
 .todo-overview-resources {
   border-top: 1px solid var(--todo-line);
@@ -2066,28 +1980,7 @@ function saveView() {
   border: 0;
 }
 .todo-task-list-toolbar {
-  padding: 0 0 12px;
-  border-bottom: 1px solid var(--todo-line);
-  margin-bottom: 4px;
-}
-.todo-task-list-toolbar :deep(.ant-segmented) {
-  background: transparent;
-  padding: 0;
-}
-.todo-task-list-toolbar :deep(.ant-segmented-item) {
-  padding: 5px 6px;
-  border-radius: 0;
-  border-bottom: 2px solid transparent;
-}
-.todo-task-list-toolbar :deep(.ant-segmented-item-selected) {
-  color: var(--todo-accent);
-  background: transparent;
-  border-bottom-color: var(--todo-accent);
-  box-shadow: none;
-}
-.todo-task-list-toolbar :deep(.ant-segmented-thumb) {
-  background: transparent;
-  box-shadow: none;
+  margin-bottom: 0;
 }
 .todo-task-list-capture :deep(.todo-quick-add) {
   background: var(--todo-soft);
@@ -2121,14 +2014,14 @@ function saveView() {
     margin-top: 0;
   }
   .todo-goal-overview {
-    gap: 20px;
+    gap: 16px;
   }
   .todo-overview-today {
     padding: 2px 8px 8px;
   }
   .todo-overview-today h2,
   .todo-goals-heading h2 {
-    font-size: 19px;
+    font-size: var(--todo-section-size);
   }
   .todo-overview-today h2 small {
     font-size: 12px;
@@ -2138,8 +2031,8 @@ function saveView() {
   }
   .todo-overview-goals .todo-goal :deep(.ant-card-body) {
     padding: 16px;
-    min-height: 212px;
-    gap: 20px;
+    min-height: 180px;
+    gap: 16px;
   }
   .todo-goal-header {
     grid-template-columns: 40px minmax(0, 1fr) auto;
@@ -2155,7 +2048,7 @@ function saveView() {
     line-height: 26px;
   }
   .todo-goal-state {
-    font-size: 11px;
+    font-size: 12px;
     padding: 0 6px;
   }
   .todo-goal-copy p {
@@ -2163,14 +2056,11 @@ function saveView() {
     line-height: 22px;
   }
   .todo-goal-progress {
-    font-size: 16px;
+    font-size: 14px;
     gap: 10px;
   }
   .todo-goal-details {
     font-size: 12px;
-  }
-  .todo-goals-caption {
-    font-size: 11px;
   }
   .todo-overview-action-list :deep(.todo-task-row),
   .todo-task-list-panel :deep(.todo-task-row) {
@@ -2178,12 +2068,7 @@ function saveView() {
     gap: 4px 10px;
     padding-inline-start: calc(8px + var(--depth, 0) * 15px);
     padding-inline-end: 8px;
-    min-height: 64px;
-  }
-  .todo-overview-action-list :deep(.todo-task-name),
-  .todo-task-list-panel :deep(.todo-task-name) {
-    font-size: 16px;
-    line-height: 24px;
+    min-height: var(--todo-row-min-height, 60px);
   }
   .todo-overview-action-list :deep(.todo-task-meta),
   .todo-task-list-panel :deep(.todo-task-meta) {
@@ -2192,7 +2077,7 @@ function saveView() {
   }
   .todo-overview-action-list :deep(.todo-task-date-kind),
   .todo-task-list-panel :deep(.todo-task-date-kind) {
-    font-size: 10px;
+    font-size: 12px;
   }
   .todo-overview-action-list :deep(.todo-task-date-value),
   .todo-task-list-panel :deep(.todo-task-date-value),
@@ -2202,9 +2087,9 @@ function saveView() {
   }
   .todo-overview-action-list :deep(.todo-check),
   .todo-task-list-panel :deep(.todo-check) {
-    width: 22px;
-    height: 22px;
-    min-width: 22px;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
   }
 }
 .todo-matrix-completed {

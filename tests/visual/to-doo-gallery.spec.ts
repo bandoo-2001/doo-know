@@ -349,7 +349,7 @@ for (const job of jobs)
                 : editor === 'anniversary'
                   ? '＋ 新建纪念日'
                   : editor === 'schedule'
-                    ? '＋ 时间安排'
+                    ? '＋ 预留时间'
                     : '＋ 写一篇复盘';
             const create = app.getByRole('button', { name: label, exact: true });
             await expect(create).toBeEnabled();

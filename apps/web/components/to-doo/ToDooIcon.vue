@@ -27,6 +27,10 @@ const paths: Record<string, string> = {
   more: 'M5 12h.01 M12 12h.01 M19 12h.01',
   chevron: 'm9 5 7 7-7 7',
   check: 'm5 12 4 4L19 6',
+  menu: 'M4 6h16 M4 12h16 M4 18h16',
+  back: 'm14 5-7 7 7 7',
+  archive: 'M4 4h16v4H4z M6 8v12h12V8 M10 12h4',
+  trash: 'M4 6h16 M9 6V3h6v3 M6 6l1 15h10l1-15 M10 10v7 M14 10v7',
 };
 </script>
 <template>

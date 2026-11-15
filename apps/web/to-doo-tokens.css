@@ -1,12 +1,19 @@
-/* Geometry belongs to the shell; page components must consume these values. */
+/* Shared geometry and visual scale for every To Doo page. */
 :root {
   --todo-primary-nav-width: 64px;
   --todo-global-header-height: 56px;
-  --todo-context-nav-width: 208px;
+  --todo-context-nav-width: 232px;
   --todo-detail-width: 420px;
   --todo-page-padding: 24px;
   --todo-space: 8px;
-  --todo-radius: 8px;
+  --todo-radius: 10px;
+  --todo-font-size: 14px;
+  --todo-heading-size: 28px;
+  --todo-section-size: 18px;
+  --todo-item-size: 16px;
+  --todo-caption-size: 13px;
+  --todo-control-height: 36px;
+  --todo-nav-height: 40px;
   --todo-bg: #ffffff;
   --todo-paper: #fff;
   --todo-soft: #f7f8fa;
@@ -34,12 +41,19 @@
   --todo-warning: #dbb884;
 }
 
-/* Scope host changes to To Doo, retaining the notebook and blog rail geometry. */
-@media (min-width: 721px) {
-  .workspace.sidebar-collapsed:has(.workspace-main-menu[data-menu-id='to-doo']) {
-    grid-template-columns: var(--todo-primary-nav-width) 0 minmax(0, 1fr);
-  }
-  .workspace-footer.workspace-main-menu[data-menu-id='to-doo'] {
-    width: var(--todo-primary-nav-width);
+/* The application provides one complete navigation surface. */
+.workspace.app-navigation-embedded,
+.workspace.sidebar-collapsed.app-navigation-embedded {
+  grid-template-columns: minmax(0, 1fr);
+}
+.workspace.app-navigation-embedded > .main-content {
+  grid-column: 1;
+}
+
+@media (max-width: 600px) {
+  :root {
+    --todo-heading-size: 24px;
+    --todo-section-size: 16px;
+    --todo-item-size: 15px;
   }
 }

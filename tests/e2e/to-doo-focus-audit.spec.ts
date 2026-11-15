@@ -2,7 +2,6 @@ import { readFile, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
-import { selectToDooContext } from '../support/to-doo-navigation';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
 
 test.beforeEach(async ({ context }) => {
@@ -58,7 +57,8 @@ async function fixture(page: Page, count: number) {
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   const showProjects = async () => {
-    await selectToDooContext(page, '项目', '专注目录');
+    const panes = app.locator('.todo-focus-mobile-panes');
+    if (await panes.isVisible()) await panes.getByText('专注', { exact: true }).click();
   };
   return { app, id, name, otherName, command, entity, showProjects };
 }
@@ -76,7 +76,7 @@ test('cumulative action opens phone history independently of the timer and free 
     expect(
       (await cumulative.getByText('15 分钟', { exact: true }).boundingBox())!.height,
     ).toBeLessThanOrEqual(20);
-    const directory = resolve('docs/design/to-doo/two-level-implementation-2026-11-04/regression-screenshots/after');
+    const directory = resolve('docs/design/to-doo/audit-fixes-2026-11-03/after');
     await mkdir(directory, { recursive: true });
     await page.screenshot({ path: resolve(directory, 'phone-focus-projects.png'), scale: 'css' });
   }
@@ -87,7 +87,7 @@ test('cumulative action opens phone history independently of the timer and free 
   await expect(records).toContainText('已修正');
   await expect(timer).toContainText(otherName);
   if (info.project.name === 'mobile') {
-    const directory = resolve('docs/design/to-doo/two-level-implementation-2026-11-04/regression-screenshots/after');
+    const directory = resolve('docs/design/to-doo/audit-fixes-2026-11-03/after');
     await mkdir(directory, { recursive: true });
     await page.screenshot({ path: resolve(directory, 'phone-focus-history.png'), scale: 'css' });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(

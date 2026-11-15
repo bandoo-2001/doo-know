@@ -1,4 +1,4 @@
-import { openToDooTaskTools } from '../support/to-doo-navigation';
+import { openToDooTaskTools, selectToDooTaskView } from '../support/to-doo-navigation';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
@@ -60,7 +60,7 @@ test('lean board cards retain the list context and group children without defaul
   page,
 }, info) => {
   const f = await fixture(page);
-  await page.getByText('看板', { exact: true }).click();
+  await selectToDooTaskView(page, '看板');
   await expect(page.locator('.todo-page h1')).toHaveText('系统架构师 ' + f.suffix);
   const card = page.getByRole('article', { name: '任务 ' + f.title, exact: true });
   await expect(card).toBeVisible();
@@ -107,9 +107,7 @@ test('list groups collapse and insert adjacent groups while deleting a group pre
   await expect(page.getByRole('button', { name: f.childTitle, exact: true })).toBeVisible();
 });
 
-test('task details put existing subtasks first and expose empty settings on demand', async ({
-  page,
-}, info) => {
+test('task details retain subtasks and provide direct reminder editing', async ({ page }, info) => {
   const f = await fixture(page);
   await page.getByRole('button', { name: f.title, exact: true }).click();
   const detail = page.getByRole('complementary', { name: '任务详情', exact: true });
@@ -128,8 +126,7 @@ test('task details put existing subtasks first and expose empty settings on dema
       animations: 'disabled',
     });
   }
-  await detail.getByRole('button', { name: '添加属性', exact: true }).click();
-  await page.getByRole('button', { name: '编辑任务提醒', exact: true }).click();
+  await detail.getByRole('button', { name: '编辑任务提醒', exact: true }).click();
   await expect(detail.getByRole('button', { name: '＋ 添加提醒', exact: true })).toBeInViewport();
 });
 
@@ -193,8 +190,8 @@ test('group creation and view switching preserve the group, list and selected ta
     await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
     await expect(detail).not.toBeVisible();
   }
-  for (const view of ['看板', '时间线', '列表']) {
-    await page.getByText(view, { exact: true }).last().click();
+  for (const view of ['看板', '时间线', '列表'] as const) {
+    await selectToDooTaskView(page, view);
     await expect(page.locator('.todo-page h1')).toHaveText('系统架构师 ' + f.suffix);
     if (info.project.name === 'mobile') {
       await page.getByRole('button', { name: title, exact: true }).click();
@@ -223,7 +220,7 @@ test('a board child context menu opens that child rather than its parent', async
   page,
 }, info) => {
   const f = await fixture(page);
-  await page.getByText('看板', { exact: true }).click();
+  await selectToDooTaskView(page, '看板');
   const child = page
     .locator('.todo-board-subtask')
     .filter({ has: page.getByRole('button', { name: f.childTitle, exact: true }) });

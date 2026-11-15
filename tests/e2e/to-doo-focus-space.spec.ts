@@ -1,6 +1,4 @@
-import { readFile, mkdir } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
 import { dateTimeInstant, localDate } from '../../packages/core/to-doo/recurrence';
@@ -83,9 +81,7 @@ const bottom = (list: import('@playwright/test').Locator) =>
     element.dispatchEvent(new Event('scroll'));
   });
 
-test('compact focus overview leaves the first history record above the timer', async ({
-  page,
-}, info) => {
+test('focus starts with the timer and keeps compact history reachable', async ({ page }, info) => {
   const { app, chart, rows } = await seed(page, '');
   if (info.project.name === 'mobile')
     await page.evaluate(async () => {
@@ -106,17 +102,8 @@ test('compact focus overview leaves the first history record above the timer', a
         requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
       ),
   );
-  const phase = process.env.DOOKNOW_FOCUS_SPACE_PHASE || 'after';
-  const root = resolve(
-    dirname(fileURLToPath(import.meta.url)),
-    '../..',
-    'docs/design/to-doo/two-level-implementation-2026-11-04/regression-screenshots',
-    phase,
-    'focus-space',
-  );
-  await mkdir(root, { recursive: true });
   await page.screenshot({
-    path: resolve(root, info.project.name + '.png'),
+    path: info.outputPath('focus-space.png'),
     scale: 'css',
     animations: 'disabled',
   });
@@ -126,7 +113,9 @@ test('compact focus overview leaves the first history record above the timer', a
     timerBox = await app.getByRole('region', { name: '专注计时器', exact: true }).boundingBox();
   expect(curveBox!.height).toBeLessThanOrEqual(220);
   expect(statsBox!.height).toBeLessThanOrEqual(76);
-  expect(rowBox!.y + rowBox!.height).toBeLessThanOrEqual(timerBox!.y);
+  expect(timerBox!.y + timerBox!.height).toBeLessThanOrEqual(rowBox!.y);
+  await rows.first().scrollIntoViewIfNeeded();
+  await expect(rows.first()).toBeInViewport({ ratio: 1 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
     true,
   );
@@ -257,9 +246,6 @@ test('expanded statistics and manual paging stay reachable on shorter screens', 
   await details.locator('summary').focus();
   await details.locator('summary').press('Enter');
   await expect(details).not.toHaveAttribute('open');
-  const policy = app.locator('.todo-focus-policy');
-  await policy.locator('summary').click();
-  await expect(policy.locator('p')).toBeVisible();
   await app.getByRole('button', { name: '加载更早记录', exact: true }).click();
   await expect(rows).toHaveCount(84);
   await expect(chart.getByTestId('focus-trend-total')).toHaveText('1 小时 24 分钟');

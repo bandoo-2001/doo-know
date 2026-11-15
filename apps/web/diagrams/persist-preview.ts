@@ -1,3 +1,4 @@
+import { sha256Hex } from '../../../shared/sha256.js';
 import { api } from '../api';
 export type DiagramUploadInput = {
   noteId: string;
@@ -18,8 +19,7 @@ export type DiagramReceipt = {
   source?: DiagramArtifact;
 };
 async function digest(bytes: Uint8Array) {
-  const value = await crypto.subtle.digest('SHA-256', bytes as Uint8Array<ArrayBuffer>);
-  return [...new Uint8Array(value)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  return sha256Hex(bytes);
 }
 export async function prepareDiagramUpload(input: DiagramUploadInput) {
   if (input.png.type !== 'image/png' || input.png.size > 10 * 1024 * 1024)

@@ -17,6 +17,7 @@ import {
   toDooCommandSchema,
   type ToDooSnapshot,
   type ToDooCollections,
+  type ToDooCommandResult,
 } from '../shared/to-doo-contracts';
 
 test.each([
@@ -293,6 +294,186 @@ async function domainStatusFixture() {
     },
   };
 }
+describe('completion feedback and undo', () => {
+  test('undo restores the actual previous status and preserves unsaved detail fields', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('准备读书笔记', {
+        initialStatus: 'doing',
+        due: { date: '2030-05-17' },
+      });
+      const model = createToDooWorkbench(f.request);
+      await model.load();
+      model.selectTask(task.id);
+      const occurrenceId = model.draft()!.occurrence!.id;
+      model.draft()!.task.description = '这份说明还没有保存';
+      model.draft()!.occurrence!.due!.date = '2030-05-18';
+
+      await model.setStatus(occurrenceId, 'done');
+
+      expect(model.state.notice).toBe('已完成「准备读书笔记」');
+      expect(model.state.completionFeedback).toEqual({
+        title: task.title,
+        taskId: task.id,
+        occurrenceId,
+        undoable: true,
+      });
+      await model.undoCompletion();
+
+      expect(model.state.notice).toBe('已撤销「准备读书笔记」的完成');
+      expect(model.state.completionFeedback).toBeNull();
+      expect(f.service.snapshot({ taskIds: [task.id] }).occurrences[0]?.status).toBe('doing');
+      expect(model.draft()?.occurrence?.status).toBe('doing');
+      expect(model.draft()?.task.description).toBe('这份说明还没有保存');
+      expect(model.draft()?.occurrence?.due?.date).toBe('2030-05-18');
+      expect(model.dirty()).toBe(true);
+      await model.saveTask();
+      const saved = f.service.snapshot({ taskIds: [task.id] });
+      expect(saved.tasks[0]?.description).toBe('这份说明还没有保存');
+      expect(saved.occurrences[0]).toMatchObject({ status: 'doing', due: { date: '2030-05-18' } });
+    } finally {
+      await f.close();
+    }
+  });
+
+  test('consecutive completions only undo the last successfully completed task', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const first = f.create('第一项'),
+        second = f.create('第二项');
+      const model = createToDooWorkbench(f.request);
+      await model.load();
+      const occurrence = (taskId: string) =>
+        model.state.snapshot!.occurrences.find((row) => row.taskId === taskId)!;
+      await model.setStatus(occurrence(first.id).id, 'done');
+      await model.setStatus(occurrence(second.id).id, 'done');
+      expect(model.state.completionFeedback?.taskId).toBe(second.id);
+      await model.undoCompletion();
+      const data = f.service.snapshot();
+      expect(data.occurrences.find((row) => row.taskId === first.id)?.status).toBe('done');
+      expect(data.occurrences.find((row) => row.taskId === second.id)?.status).toBe('todo');
+      expect(await model.undoCompletion()).toBeUndefined();
+    } finally {
+      await f.close();
+    }
+  });
+
+  test('a reloaded newer version cannot be silently reopened by an old undo', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('存在更新的任务');
+      const model = createToDooWorkbench(f.request);
+      await model.load();
+      const occurrenceId = model.state.snapshot!.occurrences.find(
+        (row) => row.taskId === task.id,
+      )!.id;
+      await model.setStatus(occurrenceId, 'done');
+      const completed = f.service.snapshot({ taskIds: [task.id] }).occurrences[0]!;
+      f.service.command({
+        requestId: crypto.randomUUID(),
+        action: 'set_occurrence_status',
+        payload: { id: occurrenceId, expectedRevision: completed.revision, status: 'blocked' },
+      });
+      await model.load();
+      expect(model.state.completionFeedback?.undoable).toBe(true);
+      expect(await model.undoCompletion()).toBeUndefined();
+      expect(model.state.error).toContain('版本');
+      expect(model.state.completionFeedback).toBeNull();
+      expect(f.service.snapshot({ taskIds: [task.id] }).occurrences[0]?.status).toBe('blocked');
+    } finally {
+      await f.close();
+    }
+  });
+
+  test('a failed completion has no success feedback and another write invalidates undo', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('完成失败不能显示成功');
+      let fail = true;
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'POST' && fail) throw Object.assign(Error('提交被拒绝'), { status: 400 });
+        return f.request(url, method, body);
+      });
+      await model.load();
+      const occurrenceId = model.state.snapshot!.occurrences.find(
+        (row) => row.taskId === task.id,
+      )!.id;
+      expect(await model.setStatus(occurrenceId, 'done')).toBeUndefined();
+      expect(model.state.completionFeedback).toBeNull();
+      expect(model.state.notice).toBe('');
+      fail = false;
+      await model.setStatus(occurrenceId, 'done');
+      expect(model.state.completionFeedback?.undoable).toBe(true);
+      await model.saveEntity('list', { name: '新的清单' });
+      expect(model.state.completionFeedback).toBeNull();
+      expect(await model.undoCompletion()).toBeUndefined();
+      expect(f.service.snapshot({ taskIds: [task.id] }).occurrences[0]?.status).toBe('done');
+    } finally {
+      await f.close();
+    }
+  });
+
+  test('cascade and recurring completion feedback never reopens a family or cycle', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const parent = f.create('父任务'),
+        child = f.create('子任务', { parentTaskId: parent.id }),
+        recurring = f.create('重复行动', {
+          recurrence: {
+            id: 'completion-feedback-repeat',
+            frequency: 'after_completion',
+            anchorDate: new Date().toISOString().slice(0, 10),
+            timeZone: 'UTC',
+          },
+        });
+      const model = createToDooWorkbench(f.request);
+      await model.load();
+      const occurrence = (taskId: string) =>
+        model.state.snapshot!.occurrences.find((row) => row.taskId === taskId)!;
+      await model.setStatus(occurrence(parent.id).id, 'done', true);
+      expect(model.state.completionFeedback).toMatchObject({ taskId: parent.id, undoable: false });
+      expect(await model.undoCompletion()).toBeUndefined();
+      expect(
+        f.service
+          .snapshot({ taskIds: [parent.id], includeTree: true })
+          .occurrences.every((row) => row.status === 'done'),
+      ).toBe(true);
+
+      await model.setStatus(occurrence(recurring.id).id, 'done');
+      expect(model.state.completionFeedback).toMatchObject({
+        taskId: recurring.id,
+        undoable: false,
+      });
+      expect(await model.undoCompletion()).toBeUndefined();
+      const cycles = f.service.snapshot({ taskIds: [recurring.id] }).occurrences;
+      expect(cycles.filter((row) => row.status === 'done')).toHaveLength(1);
+      expect(cycles.filter((row) => row.status === 'todo')).toHaveLength(1);
+      expect(f.service.snapshot({ taskIds: [child.id] }).occurrences[0]?.status).toBe('done');
+    } finally {
+      await f.close();
+    }
+  });
+
+  test('changing datasets removes the temporary completion action', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('原资料库的任务');
+      const model = createToDooWorkbench(f.request);
+      await model.load();
+      const occurrenceId = model.state.snapshot!.occurrences.find(
+        (row) => row.taskId === task.id,
+      )!.id;
+      await model.setStatus(occurrenceId, 'done');
+      model.acceptSnapshot({ ...f.service.snapshot(), datasetId: 'different-dataset' });
+      expect(model.state.completionFeedback).toBeNull();
+      expect(model.state.notice).toBe('');
+      expect(await model.undoCompletion()).toBeUndefined();
+    } finally {
+      await f.close();
+    }
+  });
+});
+
 describe('To Doo workbench', () => {
   test.each(['done', 'todo'] as const)(
     'changing status to %s preserves dirty detail edits without undoing the status on save',
@@ -460,6 +641,309 @@ describe('To Doo workbench', () => {
       await f.close();
     }
   });
+  test('a new date-only plan outside the reply window checkpoints creation, moves and removal', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('只安排日期的任务');
+      const model = createToDooWorkbench(f.request);
+      await model.load();
+      model.selectTask(task.id);
+      const now = new Date().toISOString();
+      const blockId = 'plan-' + crypto.randomUUID();
+      model.draft()!.blocks.push({
+        id: blockId,
+        revision: '',
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: null,
+        occurrenceId: model.draft()!.occurrence!.id,
+        title: '',
+        start: { date: '2030-05-17', time: null, timeZone: 'UTC' },
+        durationMinutes: 30,
+        allDay: false,
+        dateEndExclusive: null,
+      });
+      await model.saveTask();
+      expect(model.state.error).toBe('');
+      expect(model.dirty()).toBe(false);
+      expect(model.draft()?.blocks[0]).toMatchObject({
+        id: blockId,
+        start: { date: '2030-05-17', time: null },
+      });
+      expect(model.draft()?.blocks[0]?.revision).not.toBe('');
+
+      model.draft()!.blocks[0]!.start.date = '2030-05-18';
+      await model.saveTask();
+      expect(model.state.error).toBe('');
+      expect(model.dirty()).toBe(false);
+      expect(f.service.getEntity('timeBlock', blockId)).toMatchObject({
+        start: { date: '2030-05-18', time: null },
+      });
+
+      model.draft()!.blocks[0]!.deletedAt = new Date().toISOString();
+      await model.saveTask();
+      expect(model.state.error).toBe('');
+      expect(model.dirty()).toBe(false);
+      expect(model.draft()?.blocks).toEqual([]);
+      expect(f.service.getEntity('timeBlock', blockId)?.deletedAt).not.toBeNull();
+      await model.load();
+      expect(model.draft()?.blocks).toEqual([]);
+    } finally {
+      await f.close();
+    }
+  });
+
+  test('checking a newly committed date preserves later plan and text edits for the next save', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('保存中仍可继续编辑');
+      let release!: () => void;
+      const waiting = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      let delayed = true;
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'POST' && delayed) {
+          delayed = false;
+          await waiting;
+        }
+        return f.request(url, method, body);
+      });
+      await model.load();
+      model.selectTask(task.id);
+      const now = new Date().toISOString();
+      const blockId = 'plan-' + crypto.randomUUID();
+      model.draft()!.blocks.push({
+        id: blockId,
+        revision: '',
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: null,
+        occurrenceId: model.draft()!.occurrence!.id,
+        title: '',
+        start: { date: '2030-05-17', time: null, timeZone: 'UTC' },
+        durationMinutes: 30,
+        allDay: false,
+        dateEndExclusive: null,
+      });
+      const saving = model.saveTask();
+      model.draft()!.blocks[0]!.start.date = '2030-05-19';
+      model.draft()!.task.description = '保存期间继续补充的说明';
+      release();
+      await saving;
+      expect(model.draft()?.blocks[0]?.start.date).toBe('2030-05-19');
+      expect(model.draft()?.blocks[0]?.revision).not.toBe('');
+      expect(model.dirty()).toBe(true);
+      expect(f.service.getEntity('timeBlock', blockId)).toMatchObject({
+        start: { date: '2030-05-17' },
+      });
+      await model.saveTask();
+      expect(model.state.error).toBe('');
+      expect(model.dirty()).toBe(false);
+      expect(f.service.getEntity('timeBlock', blockId)).toMatchObject({
+        start: { date: '2030-05-19', time: null },
+      });
+      expect(f.service.getEntity('task', task.id)).toMatchObject({
+        description: '保存期间继续补充的说明',
+      });
+    } finally {
+      await f.close();
+    }
+  });
+
+  test.each(['reply', 'verification'] as const)(
+    'a new far-date plan recovers a failed %s without creating another block',
+    async (failure) => {
+      const f = await domainStatusFixture();
+      try {
+        const task = f.create('计划提交后继续核对');
+        let once = true;
+        const blockWrites: any[] = [];
+        const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+          if (
+            method === 'GET' &&
+            url.includes('kinds=timeBlock') &&
+            failure === 'verification' &&
+            once
+          ) {
+            once = false;
+            throw Error('计划读取暂时失败');
+          }
+          const result = await f.request(url, method, body);
+          const command = body as { action?: string; payload?: { kind?: string } } | undefined;
+          if (
+            method === 'POST' &&
+            command?.action === 'save_entity' &&
+            command.payload?.kind === 'timeBlock'
+          ) {
+            blockWrites.push(body);
+            if (failure === 'reply' && once) {
+              once = false;
+              throw Error('提交成功但回复丢失');
+            }
+          }
+          return result;
+        });
+        await model.load();
+        model.selectTask(task.id);
+        const now = new Date().toISOString();
+        const blockId = 'plan-' + crypto.randomUUID();
+        model.draft()!.blocks.push({
+          id: blockId,
+          revision: '',
+          createdAt: now,
+          updatedAt: now,
+          deletedAt: null,
+          occurrenceId: model.draft()!.occurrence!.id,
+          title: '',
+          start: { date: '2030-05-17', time: null, timeZone: 'UTC' },
+          durationMinutes: 30,
+          allDay: false,
+          dateEndExclusive: null,
+        });
+        expect(await model.saveTask()).toBeUndefined();
+        expect(model.dirty()).toBe(true);
+        if (failure === 'reply') {
+          expect(model.state.pendingMutation?.action).toBe('save_entity');
+          await model.retryPending();
+          expect(blockWrites).toHaveLength(2);
+          expect(blockWrites[0].requestId).toBe(blockWrites[1].requestId);
+        } else {
+          expect(model.state.pendingMutation).toBeNull();
+          expect(model.state.error).toContain('请重试保存');
+          await model.saveTask();
+          expect(blockWrites).toHaveLength(1);
+        }
+        expect(model.state.error).toBe('');
+        expect(model.dirty()).toBe(false);
+        expect(f.service.snapshot({ taskIds: [task.id] }).timeBlocks).toHaveLength(1);
+        expect(f.service.getEntity('timeBlock', blockId)).toMatchObject({
+          start: { date: '2030-05-17', time: null },
+        });
+      } finally {
+        await f.close();
+      }
+    },
+  );
+
+  test('verifying a committed plan does not accept a different remote revision as this save', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('计划核对时发生外部修改');
+      const blockId = 'plan-' + crypto.randomUUID();
+      let changeDuringRead = true;
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'GET' && url.includes('kinds=timeBlock') && changeDuringRead) {
+          changeDuringRead = false;
+          const block = toDooEntitySchemas.timeBlock.parse(
+            f.service.getEntity('timeBlock', blockId),
+          );
+          f.service.command({
+            requestId: crypto.randomUUID(),
+            action: 'save_entity',
+            payload: {
+              kind: 'timeBlock',
+              entity: { ...block, start: { ...block.start, date: '2030-05-20' } },
+              expectedRevision: block.revision,
+            },
+          });
+        }
+        return f.request(url, method, body);
+      });
+      await model.load();
+      model.selectTask(task.id);
+      const now = new Date().toISOString();
+      model.draft()!.blocks.push({
+        id: blockId,
+        revision: '',
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: null,
+        occurrenceId: model.draft()!.occurrence!.id,
+        title: '',
+        start: { date: '2030-05-17', time: null, timeZone: 'UTC' },
+        durationMinutes: 30,
+        allDay: false,
+        dateEndExclusive: null,
+      });
+      expect(await model.saveTask()).toBeUndefined();
+      expect(model.state.conflict).toBe(true);
+      expect(model.state.error).toContain('版本');
+      expect(model.dirty()).toBe(true);
+      expect(model.draft()?.blocks[0]?.start.date).toBe('2030-05-17');
+      expect(f.service.getEntity('timeBlock', blockId)).toMatchObject({
+        start: { date: '2030-05-20' },
+      });
+      await model.rebaseDraft();
+      model.draft()!.blocks[0]!.start.date = '2030-05-21';
+      await model.saveTask();
+      expect(model.state.error).toBe('');
+      expect(model.dirty()).toBe(false);
+      expect(f.service.getEntity('timeBlock', blockId)).toMatchObject({
+        start: { date: '2030-05-21' },
+      });
+    } finally {
+      await f.close();
+    }
+  });
+
+  test('clearing a new plan during verification retains the removal for a follow-up save', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('核对期间清除安排');
+      const blockId = 'plan-' + crypto.randomUUID();
+      let release!: () => void;
+      const waiting = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      let reached!: () => void;
+      const verifying = new Promise<void>((resolve) => {
+        reached = resolve;
+      });
+      let pauseRead = true;
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'GET' && url.includes('kinds=timeBlock') && pauseRead) {
+          pauseRead = false;
+          reached();
+          await waiting;
+        }
+        return f.request(url, method, body);
+      });
+      await model.load();
+      model.selectTask(task.id);
+      const now = new Date().toISOString();
+      model.draft()!.blocks.push({
+        id: blockId,
+        revision: '',
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: null,
+        occurrenceId: model.draft()!.occurrence!.id,
+        title: '',
+        start: { date: '2030-05-17', time: null, timeZone: 'UTC' },
+        durationMinutes: 30,
+        allDay: false,
+        dateEndExclusive: null,
+      });
+      const saving = model.saveTask();
+      await verifying;
+      model.draft()!.blocks = [];
+      model.draft()!.task.description = '同时补充说明';
+      release();
+      await saving;
+      expect(model.dirty()).toBe(true);
+      expect(model.draft()?.blocks[0]?.deletedAt).not.toBeNull();
+      await model.saveTask();
+      expect(model.state.error).toBe('');
+      expect(model.dirty()).toBe(false);
+      expect(model.draft()?.blocks).toEqual([]);
+      expect(f.service.getEntity('timeBlock', blockId)?.deletedAt).not.toBeNull();
+      expect(f.service.getEntity('task', task.id)).toMatchObject({ description: '同时补充说明' });
+    } finally {
+      await f.close();
+    }
+  });
+
   test('retrying a partially saved detail uses the committed execution revision', async () => {
     const f = await domainStatusFixture();
     try {
@@ -1461,6 +1945,18 @@ test('resuming new task drafting identifies the retained parent and list rather 
     listId: 'work',
     draft: { title: child.title },
   });
+  const other = model.newTaskDraft(undefined, 'other');
+  other.title = '另一份任务草稿';
+  child.listId = 'destination';
+  expect(model.retainedNewTaskDrafts()).toMatchObject([
+    {
+      key: 'parent-a@work',
+      parentTaskId: 'parent-a',
+      listId: 'work',
+      draft: { listId: 'destination' },
+    },
+    { key: '@other', parentTaskId: null, listId: 'other', draft: { title: other.title } },
+  ]);
 });
 
 test('a plan-clearing choice made during creation survives the response even when the submitted plan was empty', async () => {
@@ -1570,3 +2066,253 @@ for (const recovered of [false, true]) {
     },
   );
 }
+
+describe('confirmed status records outside the reply window', () => {
+  function withoutStatusRecords(result: ToDooSnapshot | ToDooCommandResult, omitTasks = false) {
+    if (!('snapshot' in result)) throw Error('A status command must return a transaction receipt');
+    return {
+      ...result,
+      snapshot: {
+        ...result.snapshot,
+        ...(omitTasks ? { tasks: [] } : {}),
+        occurrences: [],
+        timeBlocks: [],
+      },
+    };
+  }
+  const future = { date: '2030-05-17', time: null, timeZone: 'UTC' };
+  const interval = { view: 'calendar' as const, from: '2030-05-01', to: '2030-05-31' };
+  test('completion reads the exact future execution and retains unrelated calendar plans and dirty input', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const first = f.create('Future task A', {
+        due: future,
+        plan: future,
+        initialStatus: 'doing',
+      });
+      const second = f.create('Future task B', { due: future, plan: { ...future, time: '15:00' } });
+      let writes = 0,
+        reads = 0;
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        const result = await f.request(url, method, body);
+        if (
+          method === 'POST' &&
+          toDooCommandSchema.parse(body).action === 'set_occurrence_status'
+        ) {
+          writes++;
+          return withoutStatusRecords(result, true);
+        }
+        if (method === 'GET' && url.includes('kinds=occurrence') && url.includes('ids=')) reads++;
+        return result;
+      });
+      await model.load(interval);
+      model.selectTask(first.id);
+      const occurrenceId = model.draft()!.occurrence!.id;
+      const secondOccurrence = model.state.snapshot!.occurrences.find(
+        (row) => row.taskId === second.id,
+      )!;
+      const secondPlan = model.state.snapshot!.timeBlocks.find(
+        (row) => row.occurrenceId === secondOccurrence.id,
+      )!;
+      model.draft()!.task.description = '尚未保存的说明';
+      model.draft()!.occurrence!.due!.date = '2030-05-18';
+      const result = await model.setStatus(occurrenceId, 'done');
+      expect(result?.snapshot.occurrences).toEqual([]);
+      const stored = toDooEntitySchemas.occurrence.parse(
+        f.service.getEntity('occurrence', occurrenceId),
+      );
+      expect(model.state.selectedOccurrenceId).toBe(occurrenceId);
+      expect(model.draft()?.occurrence).toMatchObject({
+        status: 'done',
+        revision: stored.revision,
+        due: { date: '2030-05-18' },
+      });
+      expect(model.draft()?.task.description).toBe('尚未保存的说明');
+      expect(model.dirty()).toBe(true);
+      expect(
+        model.state.snapshot?.occurrences.find((row) => row.id === secondOccurrence.id)?.revision,
+      ).toBe(secondOccurrence.revision);
+      expect(model.state.snapshot?.timeBlocks.find((row) => row.id === secondPlan.id)).toEqual(
+        secondPlan,
+      );
+      expect(model.items().map((row) => row.task.id)).toEqual(
+        expect.arrayContaining([first.id, second.id]),
+      );
+      expect(model.draft()?.blocks).toHaveLength(1);
+      expect(model.state.completionFeedback?.undoable).toBe(true);
+      await model.undoCompletion();
+      expect(model.draft()?.occurrence?.status).toBe('doing');
+      expect(model.draft()?.task.description).toBe('尚未保存的说明');
+      expect(model.draft()?.occurrence?.due?.date).toBe('2030-05-18');
+      expect(writes).toBe(2);
+      expect(reads).toBe(2);
+    } finally {
+      await f.close();
+    }
+  });
+
+  test('future parent and child completion checkpoints each receipt without inferring cascade states', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const parent = f.create('Future parent', { due: future, plan: future });
+      const child = f.create('Future child', {
+        parentTaskId: parent.id,
+        due: future,
+        plan: future,
+      });
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        const result = await f.request(url, method, body);
+        return method === 'POST' ? withoutStatusRecords(result) : result;
+      });
+      await model.load(interval);
+      model.selectTask(child.id);
+      const childId = model.draft()!.occurrence!.id;
+      model.draft()!.task.description = '子任务输入保留';
+      model.selectTask(parent.id);
+      const parentId = model.draft()!.occurrence!.id;
+      model.draft()!.task.description = '父任务输入保留';
+      await model.setStatus(parentId, 'done', true);
+      expect(model.state.selectedOccurrenceId).toBe(parentId);
+      expect(model.draft()?.occurrence?.status).toBe('done');
+      expect(model.draft()?.task.description).toBe('父任务输入保留');
+      model.selectTask(child.id, childId);
+      const actual = toDooEntitySchemas.occurrence.parse(
+        f.service.getEntity('occurrence', childId),
+      );
+      expect(model.draft()?.occurrence).toMatchObject({
+        status: 'done',
+        revision: actual.revision,
+      });
+      expect(model.draft()?.task.description).toBe('子任务输入保留');
+      expect(model.state.snapshot?.timeBlocks).toHaveLength(2);
+      expect(model.state.completionFeedback?.undoable).toBe(false);
+      expect(model.state.pendingMutation).toBeNull();
+    } finally {
+      await f.close();
+    }
+  });
+
+  test('a read failure never repeats a confirmed status write and a later refresh reconciles dirty fields', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('Retry reading a future status', { due: future, plan: future });
+      let committed = false,
+        fail = true,
+        writes = 0;
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'GET' && url.includes('kinds=occurrence') && fail)
+          throw Object.assign(Error('读取暂不可用'), { status: 503 });
+        const result = await f.request(url, method, body);
+        if (method === 'POST') {
+          writes++;
+          committed = true;
+          return withoutStatusRecords(result);
+        }
+        if (committed && !url.includes('ids=')) return { ...result, occurrences: [] };
+        return result;
+      });
+      await model.load(interval);
+      model.selectTask(task.id);
+      const id = model.draft()!.occurrence!.id;
+      model.draft()!.task.description = '读取失败仍保留';
+      model.draft()!.occurrence!.due!.date = '2030-05-18';
+      expect(await model.setStatus(id, 'done')).toBeDefined();
+      expect(model.state.pendingMutation).toBeNull();
+      expect(model.state.localWarning).toContain('任务状态已保存');
+      expect(model.draft()?.blocks).toHaveLength(1);
+      expect(model.draft()?.task.description).toBe('读取失败仍保留');
+      expect(f.service.getEntity('occurrence', id)).toMatchObject({ status: 'done' });
+      fail = false;
+      await model.load(interval);
+      expect(model.state.error).toBe('');
+      expect(model.state.localWarning).toBe('');
+      expect(model.draft()?.occurrence).toMatchObject({
+        status: 'done',
+        due: { date: '2030-05-18' },
+      });
+      expect(model.draft()?.task.description).toBe('读取失败仍保留');
+      expect(model.dirty()).toBe(true);
+      expect(writes).toBe(1);
+    } finally {
+      await f.close();
+    }
+  });
+
+  test('a newer execution from another writer is never treated as this completion receipt', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('Concurrent future status', { due: future });
+      let changed = false,
+        writes = 0;
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'GET' && url.includes('kinds=occurrence') && !changed) {
+          changed = true;
+          const current = f.service.snapshot({ taskIds: [task.id] }).occurrences[0]!;
+          f.service.command({
+            requestId: crypto.randomUUID(),
+            action: 'set_occurrence_status',
+            payload: { id: current.id, expectedRevision: current.revision, status: 'blocked' },
+          });
+        }
+        const result = await f.request(url, method, body);
+        if (method === 'POST') {
+          writes++;
+          return withoutStatusRecords(result);
+        }
+        return result;
+      });
+      await model.load(interval);
+      model.selectTask(task.id);
+      const id = model.draft()!.occurrence!.id;
+      const oldRevision = model.draft()!.occurrence!.revision;
+      model.draft()!.task.description = '并发时也不丢';
+      await model.setStatus(id, 'done');
+      expect(model.state.pendingMutation).toBeNull();
+      expect(model.state.conflict).toBe(true);
+      expect(model.state.error).toContain('记录版本已变化');
+      expect(model.draft()?.occurrence?.revision).toBe(oldRevision);
+      expect(model.draft()?.task.description).toBe('并发时也不丢');
+      expect(model.state.completionFeedback?.undoable).toBe(false);
+      expect(await model.undoCompletion()).toBeUndefined();
+      expect(f.service.getEntity('occurrence', id)).toMatchObject({ status: 'blocked' });
+      expect(writes).toBe(1);
+    } finally {
+      await f.close();
+    }
+  });
+
+  test('a late read cannot restore a previous dataset or its completion action', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('Dataset changes during a confirmed status read', { due: future });
+      let entered!: () => void, release!: () => void;
+      const started = new Promise<void>((resolve) => {
+        entered = resolve;
+      });
+      const wait = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'GET' && url.includes('kinds=occurrence')) {
+          entered();
+          await wait;
+        }
+        const result = await f.request(url, method, body);
+        return method === 'POST' ? withoutStatusRecords(result) : result;
+      });
+      await model.load(interval);
+      model.selectTask(task.id);
+      const completing = model.setStatus(model.draft()!.occurrence!.id, 'done');
+      await started;
+      model.acceptSnapshot({ ...snapshot(), datasetId: 'another-library' });
+      release();
+      await completing;
+      expect(model.state.snapshot?.datasetId).toBe('another-library');
+      expect(model.state.completionFeedback).toBeNull();
+      expect(model.state.drafts).toEqual({});
+      expect(model.state.pendingMutation).toBeNull();
+    } finally {
+      await f.close();
+    }
+  });
+});

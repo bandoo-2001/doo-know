@@ -159,7 +159,7 @@ test('overnight segments, short-event details, original editing and mobile grid 
   });
   await page.getByText('议程', { exact: true }).click();
   await expect(agenda).toBeVisible();
-  await page.getByRole('button', { name: '＋ 时间安排', exact: true }).click();
+  await page.getByRole('button', { name: '＋ 预留时间', exact: true }).click();
   const create = page.getByRole('dialog', { name: '新建时间安排', exact: true });
   await expect(create.getByLabel('时长（分钟）', { exact: true })).toHaveValue('45');
   await create.getByRole('button', { name: '取消', exact: true }).click();

@@ -3,6 +3,13 @@ import { readFile, readdir, rmdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { testPassword } from '../support/credentials.js';
 import { DOO_DATA_DIRECTORY } from '../../shared/storage-paths.js';
+import { showSource } from '../support/editor-navigation';
+import { showSidebar } from '../support/settings-navigation';
+
+test.beforeEach(async ({ request }) => {
+  expect((await request.post('/__test/setup/reset')).ok()).toBe(true);
+});
+
 test('first login binds an empty knowledge base and creates its first root note, category and nested note', async ({
   page,
 }, info) => {
@@ -109,7 +116,7 @@ test('first login binds an empty knowledge base and creates its first root note,
   expect(installedRequests).toEqual(['mcp']);
   expect(installationPolls).toContain('mcp');
   await page.getByRole('button', { name: '添加版本记录', exact: true }).click();
-  await expect(page.locator('.setup-features > [role="alert"]')).toContainText('可以先跳过');
+  await expect(page.getByRole('alert').filter({ hasText: '可以先跳过' })).toBeVisible();
   expect(installedRequests).toEqual(['mcp', 'git']);
   expect(installationPolls).toContain('git');
   await page.route('**/api/platform/search-runtime', (route) =>
@@ -177,6 +184,7 @@ test('first login binds an empty knowledge base and creates its first root note,
   await expect(page.locator('.sidebar .brand')).toContainText('DooKnow');
   await expect(page.getByPlaceholder('/home/your-name/knowledge-base')).toHaveCount(0);
 
+  await showSidebar(page);
   await page.locator('.sidebar').getByRole('button', { name: '新建笔记', exact: true }).click();
   const dialog = page.locator('.n-modal');
   await expect(dialog.getByRole('textbox', { name: '文件名', exact: true })).toHaveValue(
@@ -186,10 +194,11 @@ test('first login binds an empty knowledge base and creates its first root note,
   await expect(dialog.locator('.directory-select')).toContainText('知识库根目录');
   await expect(dialog).toContainText('根目录仅支持 README.md');
   await dialog.getByRole('button', { name: '创建', exact: true }).click();
+  await showSource(page);
   await expect(page.locator('.cm-content')).toContainText('# README');
   expect(await readFile(join(config.knowledgeRoot, 'README.md'), 'utf8')).toBe('# README\n\n');
 
-  if (info.project.name === 'mobile') await page.getByRole('button', { name: '打开侧栏' }).click();
+  await showSidebar(page);
   await page.locator('.sidebar').getByRole('button', { name: '新建文件夹', exact: true }).click();
   const directory = dialog.getByRole('combobox', { name: '所在目录', exact: true });
   await directory.focus();
@@ -217,6 +226,7 @@ test('first login binds an empty knowledge base and creates its first root note,
   await expect(dialog.locator('.directory-select')).toContainText('00-Inbox');
   await dialog.getByRole('textbox', { name: '文件名', exact: true }).fill('第一篇笔记');
   await dialog.getByRole('button', { name: '创建', exact: true }).click();
+  await showSource(page);
   await expect(page.locator('.cm-content')).toContainText('# 第一篇笔记');
   expect(await readFile(join(config.knowledgeRoot, '00-Inbox/第一篇笔记.md'), 'utf8')).toBe(
     '# 第一篇笔记\n\n',

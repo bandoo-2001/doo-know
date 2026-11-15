@@ -1,3 +1,4 @@
+import { isAllowedOrigin } from '../../../packages/core/auth/allowed-origins.js';
 import { registerOrganizationOperationRoutes } from './organization-operation-routes.js';
 import { Readable } from 'node:stream';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
@@ -202,7 +203,7 @@ export async function registerWebKnowledgeRoutes(
       config: { rateLimit: publicEditRate },
       onRequest: async (req, reply) => {
         editable(req.params.token);
-        if (req.headers.origin !== config.origin) fail(403, 'INVALID_ORIGIN', '请求来源不被允许');
+        if (!isAllowedOrigin(config, req.headers.origin)) fail(403, 'INVALID_ORIGIN', '请求来源不被允许');
         if (!/^application\/json(?:\s*;|$)/i.test(req.headers['content-type'] || ''))
           fail(415, 'INVALID_CONTENT_TYPE', '保存请求必须使用 JSON');
         await new Promise<void>((resolve) => {

@@ -53,9 +53,7 @@ test.beforeEach(async ({ context, page }) => {
 });
 
 // Detects per-page header movement, duplicated host navigation and conflicting layout widths.
-test('desktop pages share the global header and contextual layout boundaries', async ({
-  page,
-}, info) => {
+test('desktop pages keep one navigation and stable layout boundaries', async ({ page }, info) => {
   test.setTimeout(180000);
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all');
@@ -87,27 +85,22 @@ test('desktop pages share the global header and contextual layout boundaries', a
           .locator('.todo-page-heading')
           .getByRole('button', { name: createLabels[section], exact: true }),
       ).toBeVisible();
-    const rail = page.locator('.workspace-main-menu[data-menu-id="to-doo"]');
-    await expect(rail).toBeVisible();
+    await expect(page.locator('.workspace-main-menu[data-menu-id="to-doo"]')).toHaveCount(0);
     const header = await app.locator('.todo-topbar').boundingBox();
-    const menu = await rail.boundingBox();
     const title = await app.locator('.todo-page-heading h1').boundingBox();
-    expect.soft(menu!.width, section + ': primary menu').toBeCloseTo(64, 0);
-    expect.soft(header!.height, section + ': header height').toBeCloseTo(56, 0);
-    expect
-      .soft(header!.x, section + ': global header starts after primary menu')
-      .toBeCloseTo(64, 0);
-    expect
-      .soft(title!.y - (header!.y + header!.height), section + ': title baseline')
-      .toBeCloseTo(28, 0);
     const sidebar = app.locator(':scope > .todo-sidebar');
     await expect(sidebar).toHaveCount(1);
     const directory = await sidebar.boundingBox();
-    expect.soft(directory!.width, section + ': context menu').toBeCloseTo(208, 0);
+    expect.soft(header!.height, section + ': header height').toBeCloseTo(56, 0);
+    expect.soft(header!.x, section + ': full app header').toBeCloseTo(0, 0);
+    expect.soft(directory!.width, section + ': navigation width').toBeGreaterThanOrEqual(200);
+    expect.soft(directory!.y, section + ': navigation below header').toBeCloseTo(header!.y + 56, 0);
     expect
-      .soft(directory!.y, section + ': directory below global header')
-      .toBeCloseTo(header!.y + 56, 0);
-    expect.soft(title!.x, section + ': content start').toBeCloseTo(64 + 208 + 28, 0);
+      .soft(title!.x, section + ': content start')
+      .toBeCloseTo(directory!.x + directory!.width + 24, 0);
+    expect
+      .soft(title!.y - (header!.y + header!.height), section + ': title baseline')
+      .toBeCloseTo(24, 0);
     expect
       .soft(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
@@ -165,13 +158,10 @@ for (const theme of ['light', 'dark'] as const) {
       const header = (await app.locator('.todo-topbar').boundingBox())!;
       const panel = (await detail.boundingBox())!;
       expect(header.height).toBeCloseTo(56, 0);
-      expect(panel.width).toBeCloseTo(
-        width >= 1280 ? Math.min(440, Math.max(360, width * 0.29)) : Math.min(width, 420),
-        0,
-      );
+      expect(panel.width).toBeCloseTo(Math.min(width, 420), 0);
       expect(panel.x).toBeGreaterThanOrEqual(0);
       expect(panel.x + panel.width).toBeLessThanOrEqual(width + 1);
-      const tabbar = page.getByRole('navigation', { name: 'To Doo 标签导航', exact: true });
+      const tabbar = page.getByRole('navigation', { name: 'To Doo 快捷导航', exact: true });
       if (await tabbar.isVisible())
         expect(panel.y + panel.height).toBeLessThanOrEqual((await tabbar.boundingBox())!.y + 1);
       if (width >= 1280) expect(panel.y).toBeCloseTo(header.y + header.height, 0);

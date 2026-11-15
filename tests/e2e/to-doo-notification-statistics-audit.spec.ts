@@ -212,7 +212,8 @@ test('archiving preserves the displayed historical completion and zero days have
     entity: { ...task, archivedAt: state.now },
     expectedRevision: task.revision,
   });
-  await app.getByRole('button', { name: '刷新 To Doo', exact: true }).click();
+  await app.getByRole('button', { name: '显示选项', exact: true }).click();
+  await page.getByRole('button', { name: '刷新内容', exact: true }).click();
   await expect(metric).toHaveText(before);
   await expect(app).toContainText('归档');
   const zeros = app

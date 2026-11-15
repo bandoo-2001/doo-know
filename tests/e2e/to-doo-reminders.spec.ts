@@ -1,3 +1,4 @@
+import { openToDooDirectory, closeToDooDirectory } from '../support/to-doo-navigation';
 import { expandToDooGroup } from '../support/to-doo-ant-controls';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
@@ -144,17 +145,21 @@ async function showReminder(page: Page, reminder: { id: string; title: string })
   return region;
 }
 
-
 async function closeReminder(page: Page, reminder: { id: string; title: string }) {
   const region = await showReminder(page, reminder);
-  const closed = page.waitForResponse((response) =>
-    new URL(response.url()).pathname === '/api/to-doo/reminders/' + reminder.id + '/action' &&
-    response.request().method() === 'POST',
+  const closed = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === '/api/to-doo/reminders/' + reminder.id + '/action' &&
+      response.request().method() === 'POST',
   );
   await region.getByRole('button', { name: '关闭这条提醒', exact: true }).click();
   expect((await closed).ok()).toBe(true);
-  await expect(region.getByRole('heading', { name: reminder.title, exact: true })).not.toBeVisible();
-  expect((await (await page.request.get('/api/to-doo/reminders/' + reminder.id)).json()).event.userState).toBe('read');
+  await expect(
+    region.getByRole('heading', { name: reminder.title, exact: true }),
+  ).not.toBeVisible();
+  expect(
+    (await (await page.request.get('/api/to-doo/reminders/' + reminder.id)).json()).event.userState,
+  ).toBe('read');
 }
 
 test('older reminder summaries leave the phone document body available for editing', async ({
@@ -205,7 +210,11 @@ test('older reminder summaries use the app badge and live cards stay below edit 
   await expect(app.getByLabel('显示时区', { exact: true })).toBeVisible();
   const feed = await (await page.request.get('/api/to-doo/reminders/pending')).json();
   expect(feed.missedCount).toBeGreaterThan(0);
-  await expect(app.getByRole('button', { name: '打开通知中心', exact: true })).toContainText(/\d+/);
+  const directory = await openToDooDirectory(page);
+  await expect(
+    directory.getByRole('button', { name: '通知', exact: true }).locator('small'),
+  ).toContainText(/\d+/);
+  await closeToDooDirectory(page);
   await expect(page.locator('.reminder-missed')).not.toBeVisible();
   const stored = await (
     await page.request.get('/api/to-doo/state?kind=reminderEvent&ids=' + old.id)
@@ -251,7 +260,9 @@ test('workspace reminder card completes a real task and fits the viewport', asyn
     await page.request.get('/api/to-doo/state?taskIds=' + reminder.sourceId)
   ).json();
   expect(state.occurrences.find((o: any) => o.taskId === reminder.sourceId)?.status).toBe('done');
-  expect((await (await page.request.get('/api/to-doo/reminders/' + earlier.id)).json()).event.userState).toBe('unread');
+  expect(
+    (await (await page.request.get('/api/to-doo/reminders/' + earlier.id)).json()).event.userState,
+  ).toBe('unread');
   await page.reload();
   await expect(card.getByRole('heading', { name: reminder.title })).not.toBeVisible();
   await closeReminder(page, earlier);

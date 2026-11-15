@@ -1,12 +1,14 @@
 <script setup lang="ts">
-defineProps<{ title: string; description?: string; dailyCaption?: boolean }>();
+defineProps<{ title: string; description?: string }>();
 </script>
 
 <template>
   <header class="todo-page-heading">
     <div class="todo-page-heading-copy">
-      <h1 :title="title">{{ title }}</h1>
-      <p v-if="description" :class="{ 'todo-daily-caption': dailyCaption }">{{ description }}</p>
+      <h1 :title="title" :aria-label="title">
+        <slot name="title">{{ title }}</slot>
+      </h1>
+      <p v-if="description">{{ description }}</p>
     </div>
     <div v-if="$slots.actions" class="todo-actions"><slot name="actions" /></div>
   </header>

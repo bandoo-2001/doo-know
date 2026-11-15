@@ -1,14 +1,24 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { Button as AButton, Input as AInput, InputNumber as AInputNumber, Popover as APopover } from 'ant-design-vue';
+import {
+  Button as AButton,
+  Input as AInput,
+  InputNumber as AInputNumber,
+  Popover as APopover,
+} from 'ant-design-vue';
 import { getHabitGoalMode } from '../../../../shared/to-doo-habits';
 import { getHabitCheckinTargetLimit } from '../../../../shared/to-doo-contracts';
+import type { ToDooEntityMap } from '../../../../shared/to-doo-contracts';
 import { formatHabitSchedule, HABIT_ICONS } from '../../to-doo-habit-presentation';
 import ToDooSelect from './ToDooSelect.vue';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooHabitReminders from './ToDooHabitReminders.vue';
 import ToDooIcon from './ToDooIcon.vue';
-const props = defineProps<{ form: Record<string, any>; ruleChanged: boolean }>();
+const props = defineProps<{
+  form: Record<string, any>;
+  ruleChanged: boolean;
+  lists?: ToDooEntityMap['list'][];
+}>();
 const form = props.form;
 const iconOpen = ref(false);
 const mode = computed(() => getHabitGoalMode(form));
@@ -100,6 +110,18 @@ function toggleDay(day: number) {
         placeholder="例如：早睡、阅读"
     /></label>
   </div>
+  <label
+    >关联目标或清单<ToDooSelect v-model="form.listId" aria-label="关联目标或清单">
+      <option :value="null">不关联</option>
+      <option
+        v-for="list in lists?.filter((list) => !list.deletedAt && !list.archivedAt)"
+        :key="list.id"
+        :value="list.id"
+      >
+        {{ list.name }}
+      </option>
+    </ToDooSelect></label
+  >
   <label
     >目标<ToDooSelect :value="mode" aria-label="目标" :show-search="false" @change="changeGoal">
       <option value="checkin">完成后打卡</option>

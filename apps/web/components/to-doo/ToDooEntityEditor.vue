@@ -20,7 +20,6 @@ import { useToDooConfirm } from '../../to-doo-controls';
 import ToDooReminders from './ToDooReminders.vue';
 import ToDooFilterGroup from './ToDooFilterGroup.vue';
 import ToDooDisclosure from './ToDooDisclosure.vue';
-import ToDooHint from './ToDooHint.vue';
 import ToDooFormLayout from './ToDooFormLayout.vue';
 import ToDooHabitFields from './ToDooHabitFields.vue';
 import ToDooAnniversaryAppearance from './ToDooAnniversaryAppearance.vue';
@@ -371,9 +370,7 @@ defineExpose({
       @click="close"
       >×</AButton
     >
-    <ToDooHint :model="model" hint-id="entity-save-policy">
-      点击保存后生效；关闭有未保存输入时会询问是否放弃。刷新页面不保留这些输入。
-    </ToDooHint>
+
     <ToDooFormLayout
       ref="formLayout"
       class="todo-entity-form"
@@ -431,7 +428,12 @@ defineExpose({
           </option></ToDooSelect
         ></label
       >
-      <ToDooHabitFields v-if="kind === 'habit'" :form="form" :rule-changed="habitRuleChanged" />
+      <ToDooHabitFields
+        v-if="kind === 'habit'"
+        :form="form"
+        :rule-changed="habitRuleChanged"
+        :lists="model.taskLists()"
+      />
       <template v-if="kind === 'anniversary'">
         <div class="todo-form-grid">
           <div
@@ -604,9 +606,7 @@ defineExpose({
             </option>
           </ToDooSelect></label
         >
-        <ToDooHint :model="model" hint-id="view-filter-save">
-          当前已选清单、标签与状态条件将一并保存。
-        </ToDooHint>
+
         <ToDooFilterGroup v-if="form.filter.group" v-model="form.filter.group" :model="model"
       /></template>
       <label v-if="kind === 'template'"
@@ -719,7 +719,7 @@ defineExpose({
               >子项全完成后，自动完成父项</ACheckbox
             >
           </template>
-          <label v-if="['habit', 'focusTopic', 'record', 'review'].includes(kind)"
+          <label v-if="['focusTopic', 'record', 'review'].includes(kind)"
             >关联目标或清单<ToDooSelect v-model="form.listId"
               ><option :value="null">不关联</option>
               <option

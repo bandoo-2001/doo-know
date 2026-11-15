@@ -1,4 +1,3 @@
-import * as contextNavigation from '../apps/web/to-doo-context-navigation';
 import { readFileSync } from 'node:fs';
 import { compileScript, parse } from '@vue/compiler-sfc';
 import ts from 'typescript';
@@ -6,12 +5,19 @@ import * as Vue from 'vue';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
+import * as contextNavigation from '../apps/web/to-doo-context-navigation';
 import * as controls from '../apps/web/to-doo-controls';
+import * as clock from '../apps/web/to-doo-time';
 import { TO_DOO_COLLECTIONS, toDooEntitySchemas } from '../shared/to-doo-contracts';
 
 const cleanup: (() => void)[] = [];
 beforeEach(() => {
-  vi.stubGlobal('document', { querySelector: () => null, querySelectorAll: () => [] });
+  vi.stubGlobal('document', {
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    addEventListener() {},
+    removeEventListener() {},
+  });
   vi.stubGlobal('window', { addEventListener() {}, removeEventListener() {} });
   vi.stubGlobal('localStorage', { getItem: () => null, setItem() {}, removeItem() {} });
 });
@@ -89,8 +95,9 @@ function component(path: string, request: (...args: any[]) => Promise<any>) {
       if (id === 'vue') return Vue;
       if (id.endsWith('/to-doo-workbench')) return workbench;
       if (id.endsWith('/to-doo-presentation')) return presentation;
-      if (id.endsWith('/to-doo-controls')) return controls;
       if (id.endsWith('/to-doo-context-navigation')) return contextNavigation;
+      if (id.endsWith('/to-doo-controls')) return controls;
+      if (id.endsWith('/to-doo-time')) return clock;
       if (id === '../api') return { api: request };
       if (id === 'ant-design-vue' || id.endsWith('.vue') || id.endsWith('.css')) return {};
       throw Error('Unexpected component dependency: ' + id);

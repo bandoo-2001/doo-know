@@ -124,15 +124,14 @@ test('optional detail fields stay folded and remain editable when requested', as
   });
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all&task=' + result.ids[0]);
   const detail = page.getByRole('complementary', { name: '任务详情' });
-  await expect(detail.getByRole('button', { name: '编辑截止日期', exact: true })).not.toBeVisible();
+  await expect(detail.getByRole('button', { name: '编辑截止日期', exact: true })).toBeVisible();
   await expect(detail.getByLabel('截止日期', { exact: true })).not.toBeVisible();
   await expect(detail.getByRole('combobox', { name: '重要程度', exact: true })).not.toBeVisible();
   await expect(detail.getByRole('combobox', { name: '重复', exact: true })).not.toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: info.outputPath('detail-compact.png'), fullPage: true });
   await detail.screenshot({ path: info.outputPath('detail-reader.png'), animations: 'disabled' });
-  await detail.getByRole('button', { name: '添加属性', exact: true }).click();
-  await page.getByRole('button', { name: '设置日期', exact: true }).click();
+  await detail.getByRole('button', { name: '编辑截止日期', exact: true }).click();
   await expect(detail.getByLabel('截止日期', { exact: true })).toBeVisible();
   await expandToDooGroup(detail, '四象限归类');
   await expect(detail.getByRole('combobox', { name: '重要程度', exact: true })).toBeVisible();
@@ -152,7 +151,7 @@ test('320px dark detail keeps its fields and footer inside the screen', async ({
   await page.evaluate(() => (document.documentElement.dataset.theme = 'dark'));
   const detail = page.getByRole('complementary', { name: '任务详情' });
   await expect(detail.getByLabel('任务标题', { exact: true })).toBeVisible();
-  await expect(detail.getByRole('button', { name: '保存任务', exact: true })).not.toBeVisible();
+  await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
   const selectedContrast = await detail
     .locator('.ant-select-selection-item')
     .first()
@@ -205,7 +204,7 @@ test('narrow task detail contains keyboard focus and Escape keeps its draft', as
   const detail = dialog.getByRole('complementary', { name: '任务详情' });
   await expect(detail.getByLabel('任务标题', { exact: true })).toBeFocused();
   await detail.getByLabel('任务标题', { exact: true }).fill(title + ' 草稿');
-  const last = detail.getByRole('button', { name: '更多操作', exact: true });
+  const last = detail.getByRole('button', { name: '保存任务', exact: true });
   await last.focus();
   await page.keyboard.press('Tab');
   await expect(detail.getByRole('button', { name: '关闭任务详情', exact: true })).toBeFocused();

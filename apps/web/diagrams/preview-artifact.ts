@@ -1,3 +1,4 @@
+import { sha256Hex } from '../../../shared/sha256.js';
 import { SaxesParser } from 'saxes';
 import { SVG_NAMESPACE, SVG_POLICY, validateSvgSource } from '../../../shared/svg-policy';
 import { parseWhiteboard } from '../../../shared/whiteboard';
@@ -27,8 +28,7 @@ export function previewDimensions(width: number, height: number) {
 }
 
 export async function hashDiagramSource(source: string) {
-  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(source));
-  return [...new Uint8Array(hash)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  return sha256Hex(source);
 }
 
 /** Mermaid may measure image nodes while rendering, before an SVG exists to inspect.

@@ -1,5 +1,6 @@
 import { expect, type Page, type BrowserContext } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+import { showDocument } from './editor-navigation';
 export async function openDocumentNote(
   page: Page,
   context: BrowserContext,
@@ -15,7 +16,7 @@ export async function openDocumentNote(
   expect(response.status()).toBe(201);
   const note = await response.json();
   await page.goto('/?note=' + note.id);
-  await page.getByRole('button', { name: '文档编辑', exact: true }).click();
+  await showDocument(page);
   return note;
 }
 export async function saveDocument(page: Page) {

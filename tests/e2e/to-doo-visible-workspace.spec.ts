@@ -1,12 +1,12 @@
 import { readFile, mkdir } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
-import { showMainMenu, closeSidebar } from '../support/settings-navigation';
 import {
   closeToDooDirectory,
   goToToDooSection,
   openToDooDirectory,
+  returnFromToDoo,
 } from '../support/to-doo-navigation';
-import { expandToDooGroup } from '../support/to-doo-ant-controls';
+import { expandToDooGroup, expectToDooSelection } from '../support/to-doo-ant-controls';
 
 async function command(
   page: import('@playwright/test').Page,
@@ -26,41 +26,37 @@ test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
 });
 
-test('primary tools and contextual task directories are discoverable without expanding hidden groups', async ({
+test('one app navigation exposes task destinations, lists and tools consistently', async ({
   page,
 }, info) => {
-  const initialTree = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/tree');
-  await page.goto('/?view=apps&app=to-doo&appSection=tasks');
-  expect((await initialTree).ok()).toBe(true);
-  await expect(page.locator('.workspace-main-menu')).toHaveAttribute('data-menu-id', 'to-doo');
-  await showMainMenu(page);
-  const main = page.getByRole('navigation', { name: 'To Doo 主菜单', exact: true });
-  for (const label of ['任务', '日历', '四象限', '专注', '习惯', '纪念日', '复盘'])
-    await expect(main.getByRole('button', { name: label, exact: true })).toBeVisible();
-  const utilities = page.getByRole('navigation', { name: 'To Doo 工具', exact: true });
-  for (const label of ['通知', '设置'])
-    await expect(utilities.getByRole('button', { name: label, exact: true })).toBeVisible();
-  await closeSidebar(page);
+  await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all');
+  await expect(page.locator('.workspace-main-menu[data-menu-id="to-doo"]')).toHaveCount(0);
   const directory = await openToDooDirectory(page);
-  for (const label of ['收集箱', '今天', '近七天', '所有任务', '目标总览'])
+  for (const label of [
+    '今天',
+    '收集箱',
+    '近七天',
+    '所有任务',
+    '已完成',
+    '日历',
+    '习惯',
+    '专注',
+    '通知',
+    '设置',
+  ])
     await expect(directory.getByRole('button', { name: label, exact: true })).toBeVisible();
-  for (const label of ['四象限', '专注', '通知', '设置'])
-    await expect(directory.getByRole('button', { name: label, exact: true })).toHaveCount(0);
+  await expect(directory.getByRole('button', { name: '四象限', exact: true })).toHaveCount(0);
   await closeToDooDirectory(page);
-  await expect(page.locator('.todo-view-switch').getByText('看板', { exact: true })).toBeVisible();
+  await expectToDooSelection(page, '任务展示方式', '列表');
   await goToToDooSection(page, 'habits');
   await expect(page).toHaveURL(/appSection=habits/);
   await expect(page.getByRole('heading', { name: '习惯', exact: true })).toBeVisible();
   await expect(page.getByRole('dialog', { name: '功能导航', exact: true })).not.toBeVisible();
-  await expect(page.locator('aside.todo-sidebar')).toHaveCount(0);
+  await expect(page.locator('aside.todo-sidebar:not(.todo-drawer-sidebar)')).toHaveCount(1);
   await expect(page.locator('.todo-topbar').getByText('To Doo', { exact: true })).toBeVisible();
   await page.goBack();
   await expect(page.getByRole('heading', { name: '所有任务', exact: true })).toBeVisible();
-  await mkdir('.local/to-doo-visible-workspace', { recursive: true });
-  await page.screenshot({
-    path: `.local/to-doo-visible-workspace/${info.project.name}-tasks.png`,
-    animations: 'disabled',
-  });
+  await page.screenshot({ path: info.outputPath('tasks-navigation.png'), animations: 'disabled' });
 });
 
 test('matrix uses four distinguishable surfaces and explains each action without wasting the viewport', async ({
@@ -69,8 +65,7 @@ test('matrix uses four distinguishable surfaces and explains each action without
   await page.goto('/?view=apps&app=to-doo&appSection=matrix');
   const quadrants = page.locator('.todo-quadrant');
   await expect(quadrants).toHaveCount(4);
-  await expect(page.locator('aside.todo-sidebar')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: '功能导航', exact: true })).toHaveCount(0);
+  await expect(page.locator('aside.todo-sidebar:not(.todo-drawer-sidebar)')).toHaveCount(1);
   await expect(page.locator('.todo-topbar').getByText('To Doo', { exact: true })).toBeVisible();
   for (const action of ['立即行动', '安排计划', '协调处理', '留待以后'])
     await expect(page.getByText(action, { exact: true })).toBeVisible();
@@ -88,8 +83,11 @@ test('matrix uses four distinguishable surfaces and explains each action without
   if (page.viewportSize()!.width > 1000) {
     const workspace = await page.locator('.to-doo-workspace').boundingBox();
     const main = await page.locator('.todo-main').boundingBox();
-    expect(Math.abs(main!.x - workspace!.x)).toBeLessThanOrEqual(1);
-    expect(Math.abs(main!.width - workspace!.width)).toBeLessThanOrEqual(1);
+    const sidebar = await page
+      .locator('aside.todo-sidebar:not(.todo-drawer-sidebar)')
+      .boundingBox();
+    expect(main!.x).toBeCloseTo(workspace!.x + sidebar!.width, 0);
+    expect(main!.width).toBeCloseTo(workspace!.width - sidebar!.width, 0);
     const box = await page.locator('.todo-quadrants').boundingBox();
     expect(box!.y).toBeLessThan(300);
     expect(box!.width).toBeGreaterThan(650);
@@ -103,10 +101,9 @@ test('matrix uses four distinguishable surfaces and explains each action without
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);
-  await expect(page.getByRole('button', { name: '功能导航', exact: true })).toHaveCount(0);
-  await showMainMenu(page);
-  const nav = page.getByRole('navigation', { name: 'To Doo 主菜单', exact: true });
-  await expect(nav.getByRole('button', { name: '四象限', exact: true })).toHaveAttribute(
+  await expectToDooSelection(page, '任务展示方式', '四象限');
+  const nav = await openToDooDirectory(page);
+  await expect(nav.getByRole('button', { name: '所有任务', exact: true })).toHaveAttribute(
     'aria-current',
     'page',
   );
@@ -158,11 +155,7 @@ test('leaving from navigation keeps focus on the unsaved confirmation and retain
   const input = page.getByRole('textbox', { name: '快速添加任务', exact: true });
   await input.fill('保留这份尚未提交的行动');
   const original = page.url();
-  await showMainMenu(page);
-  await page
-    .locator('.workspace-footer')
-    .getByRole('button', { name: '返回 DooKnow', exact: true })
-    .click();
+  await returnFromToDoo(page);
   const confirmation = page.getByRole('dialog', { name: '尚有未保存内容', exact: true });
   await expect(confirmation).toBeVisible();
   const keepEditing = confirmation.getByRole('button', { name: '继续编辑', exact: true });

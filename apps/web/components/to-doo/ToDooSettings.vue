@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import ToDooDisclosure from './ToDooDisclosure.vue';
-import ToDooHint from './ToDooHint.vue';
 import ToDooFormLayout from './ToDooFormLayout.vue';
 import {
   Alert as AAlert,
@@ -48,14 +47,14 @@ const settingsContexts = ['preferences', 'connections', 'data', 'lists'];
 const localTab = ref('preferences');
 const activeTab = computed<string>({
   get: () =>
-    props.contextualNavigation
+    props.context !== undefined
       ? settingsContexts.includes(props.context || '')
         ? props.context!
         : 'preferences'
       : localTab.value,
   set: (value: string) => {
     if (!settingsContexts.includes(value)) return;
-    if (props.contextualNavigation) {
+    if (props.context !== undefined) {
       if (value !== activeTab.value) emit('context-change', value);
     } else localTab.value = value;
   },
@@ -854,9 +853,9 @@ defineExpose({
             >刷新</AButton
           >
         </div>
-        <ToDooHint :model="model" hint-id="outcome-recovery" class="todo-pad">
+        <p class="todo-pad todo-muted" role="status">
           已经保存的正文与操作进度会保留，可核对当前任务版本后继续关联。
-        </ToDooHint>
+        </p>
         <div
           v-for="operation in state.pendingOperations"
           :key="operation.id"
@@ -1161,9 +1160,7 @@ defineExpose({
       </div>
       <div class="todo-pad todo-form">
         <h3>从文件导入</h3>
-        <ToDooHint :model="model" hint-id="data-import-preview">
-          选择文件或粘贴内容，预览核对后再确认导入。
-        </ToDooHint>
+
         <div class="todo-actions">
           <AButton
             html-type="button"
@@ -1424,14 +1421,10 @@ defineExpose({
         </div>
         <ToDooDisclosure :open="!!push?.lastError">
           <template #header><span>主机与设备管理</span></template>
-          <ToDooHint :model="model" hint-id="push-background-delivery">
-            启用后，关闭网页仍可收到桌面提醒；网页打开时也会显示可操作的提醒卡片。
-          </ToDooHint>
+
           <p>当前浏览器通知权限：{{ pushPermission }}</p>
           <p class="todo-muted todo-small">{{ pushReason }}</p>
-          <ToDooHint :model="model" hint-id="push-browser-requirements">
-            需要允许本站通知和浏览器后台运行。浏览器被系统彻底终止、系统通知关闭或设备关机时，提醒可能延迟或无法送达。通知外观由操作系统决定。
-          </ToDooHint>
+
           <AButton
             html-type="button"
             class="todo-button"

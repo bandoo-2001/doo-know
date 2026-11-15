@@ -26,17 +26,17 @@
   isolation: isolate;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--card-pigment) 22%, var(--todo-line));
-  border-radius: 16px;
-  padding: 22px;
-  gap: 15px;
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--card-pigment) 5%, transparent);
+  border-radius: var(--todo-radius);
+  padding: 16px;
+  gap: 16px;
+  box-shadow: none;
 }
 .todo-anniversary[data-card-style] > * {
   position: relative;
   z-index: 1;
 }
 .todo-anniversary[data-card-style] h2 {
-  font-size: 18px;
+  font-size: var(--todo-section-size);
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
