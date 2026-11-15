@@ -1,3 +1,4 @@
+import { showSidebar } from '../support/settings-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
@@ -7,6 +8,7 @@ test.beforeEach(async ({ context }) =>
 );
 async function setup(page: Page) {
   await page.goto('/');
+  await showSidebar(page);
   await page.getByRole('button', { name: '创建与导入', exact: true }).click();
   await page.getByRole('button', { name: '新建流程图', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '新建流程图', exact: true });
@@ -18,7 +20,7 @@ async function setup(page: Page) {
   const initial = await (await page.request.get('/api/notes/' + id)).json();
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const later = await page.request.put('/api/notes/' + id, {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: String(test.info().project.use.baseURL), 'x-csrf-token': csrf.token },
     data: {
       content: initial.content + '\nLater history prose\n',
       expectedModifiedAt: initial.modifiedAt,
