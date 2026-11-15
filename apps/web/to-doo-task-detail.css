@@ -120,6 +120,9 @@
   box-shadow: none;
   resize: none;
 }
+.to-doo-workspace .todo-document-title-row .todo-title-input > textarea.ant-input:not(:focus) {
+  text-wrap: balance;
+}
 .to-doo-workspace .todo-detail-complete.ant-btn {
   display: grid;
   place-items: center;

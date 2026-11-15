@@ -3944,5 +3944,20 @@
   .to-doo-workspace .todo-task-toolbar .ant-btn { min-height: var(--todo-touch-target); }
 }
 
-.todo-task-display-form { max-height: min(70dvh, 640px); overflow-y: auto; }
+.todo-task-display-form { max-height: min(70dvh, 640px); }
+.todo-task-display-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--todo-space-12);
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-inline: var(--todo-space-4);
+}
+.todo-task-display-footer {
+  flex-shrink: 0;
+  justify-content: space-between;
+  padding-top: var(--todo-space-8);
+  border-top: 1px solid var(--todo-line);
+}
 .todo-task-management-options { border-top: 1px solid var(--todo-line); padding-top: var(--todo-space-8); }

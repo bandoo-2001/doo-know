@@ -1063,7 +1063,8 @@ function saveView() {
       </APopover>
       <APopover v-model:open="displayOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-display-popup">
         <AButton ref="displayTrigger" type="text" @keydown.esc.stop.prevent="closePopup('display')" class="todo-toolbar-tool todo-display-tool" :class="{ 'is-active': displayOpen }" aria-label="任务显示与管理" title="任务显示与管理" :aria-expanded="displayOpen"><ToDooIcon name="more" :size="19" /><span class="todo-tool-label">更多</span></AButton>
-        <template #content><div class="todo-task-display-form" @keydown.esc.stop.prevent="closePopup('display')"><label>展示方式      <ToDooSelect
+        <template #content><div class="todo-task-display-form" @keydown.esc.stop.prevent="closePopup('display')">
+          <div class="todo-task-display-options"><label>展示方式      <ToDooSelect
         class="todo-view-picker"
         aria-label="任务展示方式"
         :value="section"
@@ -1085,7 +1086,8 @@ function saveView() {
         <ASubMenu key="organize" title="组织清单"><AMenuItem v-if="scopeListId" key="edit-list" @click="emit('edit', 'list', lists.find((l) => l.id === scopeListId))">编辑当前清单</AMenuItem><AMenuItem v-if="scopeListId" key="list-habits" @click="emit('habits', scopeListId)">清单习惯</AMenuItem><AMenuItem key="section" @click="newSection">新建分组</AMenuItem><AMenuItem key="tag" @click="emit('edit', 'tag')">新建标签</AMenuItem></ASubMenu>
         <ASubMenu key="templates" title="模板"><AMenuItem v-if="state.snapshot?.templates.some((t) => !t.deletedAt)" key="apply-template" @click="templatesOpen = true">从模板新建</AMenuItem><AMenuItem key="new-template" @click="emit('edit', 'template')">新建模板</AMenuItem></ASubMenu>
       </AMenu></div>
-          <div class="todo-actions"><AButton @click="saveView(); displayOpen = false">保存当前视图</AButton><AButton type="text" @click="closePopup('display')">关闭</AButton></div>
+          </div>
+          <div class="todo-actions todo-task-display-footer"><AButton @click="saveView(); displayOpen = false">保存当前视图</AButton><AButton type="text" @click="closePopup('display')">关闭</AButton></div>
         </div></template>
       </APopover>
 
