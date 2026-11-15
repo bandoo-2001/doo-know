@@ -7,12 +7,13 @@
 .todo-property-footer { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; padding-top: 16px; border-top: 1px solid var(--todo-line); }
 .todo-property-footer > span { flex: 1; }
 .todo-plan-editor { padding-block: 12px; border-bottom: 1px solid var(--todo-line); }
-.todo-conflict-panel { flex-shrink: 0; max-height: 45%; overflow-y: auto; margin: 8px 16px; padding: 12px; border: 1px solid var(--todo-warning); border-radius: var(--todo-control-radius); }
+.to-doo-workspace .todo-conflict-panel { display: block; flex-shrink: 0; min-width: 0; max-height: 45%; overflow-y: auto; scroll-padding-block: var(--todo-space-8); margin: 8px 16px; padding: 12px; border: 1px solid var(--todo-warning); border-radius: var(--todo-control-radius); }
 .todo-conflict-panel p { margin: 8px 0; }
 .todo-conflict-field { display: grid; gap: 8px; margin-top: 12px; }
-.todo-conflict-values { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.todo-conflict-values section { min-width: 0; }
-.todo-conflict-values pre { max-height: 160px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-family: inherit; font-size: var(--todo-font-size); padding: 8px; background: var(--todo-soft); }
+.todo-conflict-values { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: var(--todo-space-8); }
+.todo-conflict-values section { display: flex; flex-direction: column; gap: var(--todo-space-8); min-width: 0; }
+.todo-conflict-values pre { margin: 0; max-height: 160px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-family: inherit; font-size: var(--todo-font-size); padding: var(--todo-space-8); background: var(--todo-soft); }
+.to-doo-workspace .todo-conflict-values .ant-btn { width: 100%; height: auto; min-height: var(--todo-control-height); margin-top: auto; padding-inline: var(--todo-space-8); white-space: normal; }
 .todo-detail .todo-add-property.ant-btn { align-self: flex-start; padding-inline: 0; color: var(--todo-muted); }
 .todo-detail-context { display: flex; align-items: center; gap: var(--todo-space-8); }
 .todo-detail-context .ant-btn { padding-inline: 0; color: var(--todo-muted); }
