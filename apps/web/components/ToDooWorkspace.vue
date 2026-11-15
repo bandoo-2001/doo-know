@@ -297,22 +297,37 @@ watch(() => [props.section, props.selection.list, props.selection.taskFilter, pr
   if (main) main.scrollTop = 0;
 }, { flush: 'post' });
 let detailOpener: HTMLElement | undefined;
+let lastSidebarControl: HTMLElement | undefined;
+function rememberSidebarFocus(event: FocusEvent) {
+  lastSidebarControl = event.target instanceof HTMLElement ? event.target : undefined;
+}
+function forgetVisibleSidebarFocus(event: FocusEvent) {
+  if (event.relatedTarget || lastSidebarControl?.getClientRects().length) lastSidebarControl = undefined;
+}
 function resizeDetail() {
   viewportWidth.value = window.innerWidth;
   const compactNavigation = window.matchMedia?.(
     '(max-width: 1000px), (max-width: 1100px) and (orientation: portrait), (max-width: 1366px) and (orientation: portrait) and (pointer: coarse)',
   ).matches;
-  if (compactNavigation === false && navigationOpen.value) {
+  const prior = lastSidebarControl;
+  if (prior) void nextTick(() => {
+    if (prior.getClientRects().length || (document.activeElement !== document.body && document.activeElement !== prior)) return;
+    const selector = compactNavigation ? '.todo-topbar .todo-navigation-trigger' : '.todo-sidebar button[aria-label="展开清单导航"]';
+    const opener = workspaceRef.value?.querySelector<HTMLElement>(selector);
+    if (opener?.getClientRects().length) opener.focus({ preventScroll: true });
+    lastSidebarControl = undefined;
+  });
+  if (compactNavigation === false && !automaticCondensedNavigation.value && navigationOpen.value) {
     const restoreNavigationFocus = navigationDialog.value?.contains(document.activeElement);
+    navigationCycleActive = false;
     navigationOpen.value = false;
     if (restoreNavigationFocus)
-      void nextTick(() =>
-        workspaceRef.value
-          ?.querySelector<HTMLElement>(
-            '.todo-sidebar nav [aria-current="page"], .todo-sidebar nav button',
-          )
-          ?.focus({ preventScroll: true }),
-      );
+      void nextTick(() => {
+        const sidebar = workspaceRef.value?.querySelector('.todo-sidebar');
+        const current = sidebar?.querySelector<HTMLElement>('.todo-task-directory [aria-current="page"]');
+        const fallback = sidebar?.querySelector<HTMLElement>('nav [aria-current="page"], nav button');
+        (current?.getClientRects().length ? current : fallback)?.focus({ preventScroll: true });
+      });
   }
 }
 window.addEventListener('resize', resizeDetail);
@@ -1340,7 +1355,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         <AButton type="text" size="small" aria-label="显示选项"><ToDooIcon name="more" /></AButton>
       </APopover>
     </div>
-    <aside class="todo-sidebar" aria-label="To Doo 侧栏">
+    <aside class="todo-sidebar" aria-label="To Doo 侧栏" @focusin="rememberSidebarFocus" @focusout="forgetVisibleSidebarFocus">
       <ToDooNavigation
         layout="split"
         :directory-collapsed="condensedNavigation"
@@ -1437,7 +1452,11 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       >
         <span class="todo-loading-sr-only">正在载入…</span>
       </div>
-      <div class="todo-page" :class="{ 'todo-page-matrix': section === 'matrix' }">
+      <div class="todo-page" :class="{
+        'todo-page-matrix': section === 'matrix',
+        'todo-page-tasks': section === 'tasks',
+        'todo-page-focus': section === 'focus',
+      }">
         <ToDooPageHeader :title="showTaskScope ? scopeTitle : title">
           <template v-if="section === 'tasks'" #title>
             <span class="todo-task-heading">

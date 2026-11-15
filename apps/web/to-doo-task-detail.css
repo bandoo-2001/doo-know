@@ -23,6 +23,12 @@
   --todo-reader-text-inset: calc(var(--todo-row-min-height) + var(--todo-space-4));
   width: min(var(--todo-detail-width), 100%);
 }
+@media (min-width: 1600px) {
+  /* The grid and its reader share this cap; the grid still reserves space for the task list. */
+  .to-doo-workspace.todo-detail-docked {
+    --todo-detail-width: min(25vw, 560px);
+  }
+}
 .to-doo-workspace .todo-detail > header {
   flex-shrink: 0;
   min-height: var(--todo-header-height);
@@ -367,6 +373,12 @@
   min-width: 0;
   white-space: normal;
   overflow-wrap: anywhere;
+}
+.todo-detail-property-chips .todo-detail-schedule {
+  padding-inline-end: var(--todo-space-4);
+}
+.todo-detail-schedule .todo-detail-property-value {
+  word-break: keep-all;
 }
 .todo-detail-context .todo-detail-property-value {
   overflow: hidden;

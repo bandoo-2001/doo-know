@@ -152,7 +152,7 @@ const dates = computed(() => {
       :aria-current="active ? 'true' : undefined"
       type="text"
     >
-      <span class="todo-task-name">{{ item.title }}</span>
+      <span class="todo-task-name" :title="item.title">{{ item.title }}</span>
       <small v-if="hasMetadata" :id="rowId + '-meta'" class="todo-task-meta">
         <ATag
           v-if="displayFields?.priority !== false && item.task.priority !== 'none'"

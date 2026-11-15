@@ -953,13 +953,13 @@ defineExpose({
             </AButton>
             <span v-if="form.occurrence && !['todo', 'done'].includes(form.occurrence.status)" class="todo-muted">{{ toDooStatusLabels[form.occurrence.status] }}</span>
           </div>
-          <AButton type="text" aria-label="编辑计划日期" :title="planSummary"
+          <AButton type="text" class="todo-detail-schedule" aria-label="编辑计划日期" :title="planSummary"
             :class="{ 'is-empty': !scheduledBlocks.length }"
             :disabled="state.busy || !form.occurrence" @click="revealDetail('plan')">
             <ToDooIcon name="calendar" :size="16" />
             <span class="todo-detail-property-value"><template v-if="scheduledBlocks.length">计划 </template>{{ planSummary }}</span>
           </AButton>
-          <AButton type="text" aria-label="编辑截止日期" :aria-describedby="deadlineSummaryId"
+          <AButton type="text" class="todo-detail-schedule" aria-label="编辑截止日期" :aria-describedby="deadlineSummaryId"
             :title="deadlineSummary" :class="{ 'is-empty': !form.occurrence?.due, 'is-overdue': deadlineOverdue }"
             :disabled="state.busy || !form.occurrence" @click="revealDetail('due')">
             <ToDooIcon name="calendar" :size="16" />

@@ -105,6 +105,25 @@ function closeTransientMenus() {
   scopeMoreOpen.value = false;
   pinOpen.value = false;
 }
+function resizeNavigation() {
+  hideRailHint();
+  // Ant realigns an open popover on resize. Keep its focused controls usable
+  // while its trigger is visible, including when the viewport height changes.
+  if (moduleMoreOpen.value && !moduleMoreTrigger.value?.$el?.getClientRects().length)
+    moduleMoreOpen.value = false;
+  if (scopeMoreOpen.value && !scopeMoreTrigger.value?.$el?.getClientRects().length)
+    scopeMoreOpen.value = false;
+  if (pinOpen.value && !pinTrigger.value?.$el?.getClientRects().length)
+    pinOpen.value = false;
+  const focused = document.activeElement;
+  if (split.value && focused instanceof HTMLElement && focused.matches('.todo-navigation-split :focus-visible')) {
+    const scrollArea = focused.closest<HTMLElement>('.todo-module-primary, .todo-task-scope-items, .todo-navigation-list-items');
+    if (!scrollArea || !scrollArea.clientHeight) return;
+    const item = focused.getBoundingClientRect(), area = scrollArea.getBoundingClientRect();
+    if (item.bottom > area.bottom) scrollArea.scrollTop += item.bottom - area.bottom;
+    else if (item.top < area.top) scrollArea.scrollTop += item.top - area.top;
+  }
+}
 watch(() => [props.section, props.quickView, props.listId, props.layout], closeTransientMenus);
 watch(() => props.directoryCollapsed, () => { scopeMoreOpen.value = false; });
 watch(moduleMoreOpen, open => { if (!open && split.value) pinOpen.value = false; });
@@ -141,14 +160,14 @@ onMounted(() => {
   window.addEventListener('keydown', dismissRailHint, true);
   window.addEventListener('storage', syncPins);
   window.addEventListener('to-doo-navigation-pins', syncPins);
-  window.addEventListener('resize', closeTransientMenus);
+  window.addEventListener('resize', resizeNavigation);
 });
 onBeforeUnmount(() => {
   hideRailHint();
   window.removeEventListener('keydown', dismissRailHint, true);
   window.removeEventListener('storage', syncPins);
   window.removeEventListener('to-doo-navigation-pins', syncPins);
-  window.removeEventListener('resize', closeTransientMenus);
+  window.removeEventListener('resize', resizeNavigation);
 });
 const tools = computed(() =>
   availableTools.filter((section) => pins.value.includes(section)).flatMap((section) =>
