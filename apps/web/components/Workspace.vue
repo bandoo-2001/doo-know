@@ -307,7 +307,7 @@ async function navigateApp(app: WorkspaceRoute['app'], section?: BlogSection | T
     selection = { taskFilter: 'today' };
   if (!currentIntent(intent)) return;
   if (panel.value === 'apps' && appsApp.value !== app && !await confirmAppLeave(intent)) return;
-  if (panel.value === 'apps' && appsApp.value === 'to-doo' && app === 'to-doo' && nextSection !== appsSection.value &&
+  if (panel.value === 'apps' && appsApp.value === 'to-doo' && app === 'to-doo' &&
       (await appsRef.value?.requestSectionLeave(nextSection as ToDooAppSection)) === false) return;
   if (!currentIntent(intent)) return;
   appNavigationMemory.remember(navigation.currentRoute());
@@ -731,7 +731,7 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
   if (panel.value === 'apps' && !(route.view === 'apps' && route.app === appsApp.value) && !await confirmAppLeave(intent)) return false;
   const nextAppSection = route.view === 'apps' ? await resolveAppSection(route.app, route.appSection, route) : 'overview';
   if (!currentIntent(intent)) return false;
-  if (panel.value === 'apps' && appsApp.value === 'to-doo' && route.view === 'apps' && route.app === 'to-doo' && nextAppSection !== appsSection.value &&
+  if (panel.value === 'apps' && appsApp.value === 'to-doo' && route.view === 'apps' && route.app === 'to-doo' &&
       (await appsRef.value?.requestSectionLeave(nextAppSection as ToDooAppSection)) === false) return false;
   if (!currentIntent(intent)) return false;
   if (route.note && ['settings', 'trash', 'apps', 'collection'].includes(panel.value) && note.value?.id === route.note) {

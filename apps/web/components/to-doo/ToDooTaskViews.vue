@@ -1281,7 +1281,7 @@ function saveView() {
           ><ToDooIcon name="check" :size="28"
         /></span>
         <h2>{{ emptyTitle }}</h2>
-        <AButton v-if="canSearchAll" type="default" @click="emit('search-all')"
+        <AButton v-if="canSearchAll && !toolsOpen" type="default" @click="emit('search-all')"
           >在所有任务中搜索</AButton
         >
         <AButton

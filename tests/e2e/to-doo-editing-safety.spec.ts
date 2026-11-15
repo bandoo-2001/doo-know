@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
 import { fillToDooDate, selectToDooOption } from '../support/to-doo-ant-controls';
+import { openToDooDirectory } from '../support/to-doo-navigation';
 import type { ToDooCommandResult, ToDooSnapshot } from '../../shared/to-doo-contracts';
 
 test.setTimeout(90000);
@@ -139,6 +140,65 @@ test('a real 409 requires comparison and honors explicit local and remote title 
       title: title + (choice === 'local' ? ' 我的' : ' 远端'), description: '保留本地独立说明', priority: 'high',
     });
   }
+});
+
+test('invalid input blocks list changes and browser Back without changing the quick-add destination', async ({ page }) => {
+  const suffix = crypto.randomUUID(), targetName = '未切换清单 ' + suffix;
+  const target = await command(page, 'save_entity', { kind: 'list', entity: { name: targetName } });
+  const first = await command(page, 'create_task', { title: '返回起点 ' + suffix });
+  const secondTitle = '保留输入 ' + suffix;
+  const second = await command(page, 'create_task', { title: secondTitle, due: { date: '2030-05-17' } });
+  await open(page, first.ids[0]);
+  await detail(page).getByRole('button', { name: '关闭任务详情', exact: true }).click();
+  await page.getByRole('button', { name: secondTitle, exact: true }).click();
+  await expect(detail(page).getByLabel('任务标题', { exact: true })).toHaveValue(secondTitle);
+  const beforeURL = page.url(), writes = recordWrites(page);
+  await detail(page).getByRole('button', { name: '编辑截止日期', exact: true }).click();
+  const property = page.getByRole('dialog', { name: '截止日期', exact: true });
+  const date = property.getByLabel('截止日期', { exact: true });
+  await date.fill('2030-99-99'); await date.press('Tab');
+  await property.locator('.ant-modal-close').click();
+  const directory = await openToDooDirectory(page);
+  await directory.getByRole('button', { name: targetName, exact: true }).click();
+  await expect(property).toBeVisible(); await expect(page).toHaveURL(beforeURL);
+  await expect(date).toHaveValue('2030-99-99'); expect(writes).toEqual([]);
+  await property.locator('.ant-modal-close').click();
+  await page.goBack();
+  await expect(property).toBeVisible(); await expect(page).toHaveURL(beforeURL);
+  await expect(date).toHaveValue('2030-99-99'); expect(writes).toEqual([]);
+  await property.getByRole('button', { name: '取消本次设置', exact: true }).click();
+  await detail(page).getByRole('button', { name: '关闭任务详情', exact: true }).click();
+  const title = '仍属于收集箱 ' + suffix;
+  const createdResponse = page.waitForResponse(response => response.url().endsWith('/api/to-doo/commands') && response.request().postDataJSON()?.action === 'create_task');
+  const capture = page.getByRole('textbox', { name: '快速添加任务', exact: true });
+  await capture.fill(title); await capture.press('Enter');
+  const created = await (await createdResponse).json();
+  const after = await snapshot(page, created.ids[0]);
+  expect(after.tasks.find(task => task.id === created.ids[0])).toMatchObject({ title, listId: null });
+  expect(after.tasks.find(task => task.id === created.ids[0])?.listId).not.toBe(target.ids[0]);
+});
+
+test('a timed task arrangement can become all-day and still participate in scheduling', async ({ page }) => {
+  const created = await command(page, 'create_task', { title: '全天归一 ' + crypto.randomUUID(), plan: { date: '2030-05-17', time: '09:00', timeZone: 'UTC' } });
+  await open(page, created.ids[0]);
+  await detail(page).getByRole('button', { name: '编辑计划日期', exact: true }).click();
+  const property = page.getByRole('dialog', { name: '时间安排', exact: true });
+  await property.getByRole('checkbox', { name: '全天安排', exact: true }).check();
+  await expect(property.getByLabel('时间', { exact: true })).not.toBeVisible();
+  await property.getByRole('button', { name: '完成设置', exact: true }).click(); await save(page);
+  const after = await snapshot(page, created.ids[0]);
+  const block = after.timeBlocks.find(value => !value.deletedAt)!;
+  const occurrence = after.occurrences.find(value => value.id === block.occurrenceId)!;
+  expect(block).toMatchObject({ allDay: true, start: { date: '2030-05-17', time: null } });
+  const preview = await command(page, 'preview_plan', { name: '再次排程', changes: [{
+    occurrenceId: occurrence.id, expectedRevision: occurrence.revision, blockId: block.id,
+    expectedBlockRevision: block.revision, start: { ...block.start, date: '2030-05-18' },
+    durationMinutes: block.durationMinutes, allDay: true, dateEndExclusive: null,
+  }] });
+  expect(preview.plan?.changes).toHaveLength(1);
+  await command(page, 'apply_plan', { plan: preview.plan });
+  const moved = await snapshot(page, created.ids[0]);
+  expect(moved.timeBlocks.find(value => value.id === block.id)).toMatchObject({ allDay: true, start: { date: '2030-05-18', time: null } });
 });
 
 test('plan comparison preserves independent edits and explicitly resolves same-field date conflicts', async ({ page }) => {

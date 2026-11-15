@@ -252,6 +252,7 @@ const pageContext = computed(() =>
   props.selection.appPage ? resolveToDooContext(props.section, props.selection.appPage) : undefined,
 );
 function changePageContext(value: string) {
+  if (!allowDetailTransition()) return;
   if (toDooContextEntries(props.section).some((entry) => entry.id === value))
     navigate(props.section, { ...props.selection, appPage: value });
 }
@@ -529,6 +530,7 @@ const title = computed(() =>
       : nav.find((n) => n[0] === props.section)?.[1] || '目标总览',
 );
 async function chooseQuickView(value: ToDooQuickFilter) {
+  if (!allowDetailTransition()) return;
   navigationOpen.value = false;
   state.filter = toDooQuickFilter({}, value, calendarToday.value);
   if (props.section === 'tasks' && !props.selection.list && props.selection.taskFilter === value)
@@ -542,6 +544,7 @@ async function chooseQuickView(value: ToDooQuickFilter) {
   else navigate('tasks', { taskFilter: value });
 }
 function chooseList(id: string) {
+  if (!allowDetailTransition()) return;
   navigationOpen.value = false;
   state.filter = { listIds: [id] };
   navigate('tasks', { list: id, taskFilter: 'all' });
@@ -550,14 +553,17 @@ function changeTaskView(section: ToDooAppSection) {
   navigate(section, { ...props.selection });
 }
 function chooseDestination(section: ToDooAppSection) {
+  if (!allowDetailTransition()) return;
   state.filter = {};
   navigate(section);
 }
 function openListHabits(id: string) {
+  if (!allowDetailTransition()) return;
   state.filter = {};
   navigate('habits', { list: id });
 }
 function openActivityHistory(section: 'focus' | 'habits', range: { from: string; to: string }) {
+  if (!allowDetailTransition()) return;
   if (section === 'focus') {
     focusOccurrence.value = '';
     focusHistoryRange.value = range;
@@ -569,6 +575,7 @@ function openActivityHistory(section: 'focus' | 'habits', range: { from: string;
   chooseDestination(section);
 }
 async function searchAllTasks() {
+  if (!allowDetailTransition()) return;
   const query = state.filter.query?.trim();
   state.filter = query ? { query } : {};
   if (props.section === 'tasks' && !props.selection.list && quickView.value === 'all')
@@ -646,6 +653,7 @@ function taskSaved(value: ToDooTaskPlacement) {
   }
 }
 function openTaskDestination() {
+  if (!allowDetailTransition()) return;
   const target = taskDestination.value;
   if (!target) return;
   state.filter = {};
@@ -693,6 +701,7 @@ const scopeFilters = computed(() =>
   ),
 );
 async function clearScopeFilters() {
+  if (!allowDetailTransition()) return;
   if (props.selection.list && quickView.value !== 'all') {
     state.filter = { listIds: [props.selection.list] };
     navigate(props.section, { ...props.selection, taskFilter: 'all' });
@@ -821,6 +830,11 @@ async function selectTask(id: string, occurrence?: string) {
   });
 }
 function continueNewDraft(key: string) {
+  if (!allowDetailTransition()) {
+    taskDraftsOpen.value = false;
+    draftManagerOpen.value = false;
+    return;
+  }
   const retained = retainedTaskDrafts.value.find((entry) => entry.key === key);
   if (!retained) return;
   taskDraftsOpen.value = false;
@@ -833,6 +847,9 @@ function continueNewDraft(key: string) {
 }
 function allowDetailTransition() {
   if (!detailOpen.value || !detailRef.value?.hasInvalidInput?.()) return true;
+  navigationOpen.value = false;
+  taskDraftsOpen.value = false;
+  draftManagerOpen.value = false;
   detailRef.value.validate?.();
   return false;
 }
@@ -975,6 +992,7 @@ function hasUnsavedChanges() {
     bulkOpen.value ||
     model.hasUnsavedChanges() ||
     !!detailRef.value?.hasUnsavedChanges() ||
+    !!detailRef.value?.hasInvalidInput?.() ||
     !!editorRef.value?.hasUnsavedChanges() ||
     !!settingsRef.value?.hasUnsavedChanges?.()
   );
@@ -993,6 +1011,7 @@ async function requestLeave(): Promise<boolean> {
   return new Promise((resolve) => (leaveResolver = resolve));
 }
 async function requestSectionLeave(nextSection: ToDooAppSection): Promise<boolean> {
+  if (!allowDetailTransition()) return false;
   if (props.section !== 'settings' || nextSection === 'settings') return true;
   if (!state.busy && !settingsRef.value?.hasUnsavedChanges?.()) return true;
   return requestLeave();

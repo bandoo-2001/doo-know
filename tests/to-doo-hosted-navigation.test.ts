@@ -562,7 +562,7 @@ it('custom common modules persist without removing any module or task-management
   const common = () => view.all().find((node) => node.tag === 'section' && node.props['aria-label'] === '计划与执行')!;
   const pinned = () => view.all(common()).filter((node) => node.tag === 'button' && node.props['aria-label'] === '目标总览');
   expect(pinned()).toHaveLength(0);
-  view.all().find((node) => node.tag === 'button' && node.props['aria-label'] === '自定义常用模块')!.props.onClick();
+  view.all().find((node) => node.tag === 'button' && node.props['aria-label'] === '自定义常用入口')!.props.onClick();
   await settled();
   view.all().find((node) => node.tag === 'input' && node.parent && view.text(node.parent) === '目标总览')!.props.onChange({ target: { checked: true } });
   await settled();
@@ -577,4 +577,116 @@ it('custom common modules persist without removing any module or task-management
   }
   expect(restored.text(restored.byClass('todo-navigation-more')[0])).toContain('任务范围');
   expect(restored.text(restored.byClass('todo-navigation-more')[0])).toContain('历史管理');
+});
+
+const pinnableNavigationItems = [
+  ['calendar', '日历', ''], ['habits', '习惯', ''], ['focus', '专注', ''],
+  ['overview', '目标总览', ''], ['stats', '统计与复盘', ''], ['anniversaries', '纪念日', ''],
+];
+const pinnableNavigationLabels = [
+  '日历', '习惯', '专注', '目标总览', '统计与复盘', '纪念日', '逾期', '未安排', '受阻',
+];
+function mountPinnableNavigation(extra: Record<string, any> = {}) {
+  return mount('tasks', false, component('to-doo/ToDooNavigation'), {
+    quickView: 'all', lists: [], items: pinnableNavigationItems,
+    listLoading: false, listError: false, hasMoreLists: false, ...extra,
+  });
+}
+function commonNavigation(view: ReturnType<typeof mount>) {
+  return view.all().find((node) => node.tag === 'section' && node.props['aria-label'] === '计划与执行')!;
+}
+function commonNavigationLabels(view: ReturnType<typeof mount>) {
+  return view.all(commonNavigation(view))
+    .filter((node) => node.tag === 'button' && pinnableNavigationLabels.includes(node.props['aria-label']))
+    .map((node) => node.props['aria-label']);
+}
+async function openNavigationPins(view: ReturnType<typeof mount>) {
+  view.all().find((node) => node.tag === 'button' && node.props['aria-label'] === '自定义常用入口')!.props.onClick();
+  await settled();
+}
+function navigationPin(view: ReturnType<typeof mount>, label: string) {
+  return view.all().find((node) => node.tag === 'input' && node.parent && view.text(node.parent).trim() === label)!;
+}
+
+it.each([
+  ['overdue', '逾期'], ['unscheduled', '未安排'], ['blocked', '受阻'],
+])('pinning the %s task scope moves one real quick-view entry and persists beside legacy module pins', async (scope, label) => {
+  const saved = new Map([['to-doo.navigation-pins.v1', '["focus","stats"]']]);
+  vi.stubGlobal('localStorage', {
+    getItem: (key: string) => saved.get(key) || null,
+    setItem: (key: string, value: string) => saved.set(key, value),
+  });
+  const quick = vi.fn();
+  const view = mountPinnableNavigation({ quickView: scope, onQuick: quick });
+  const more = () => view.byClass('todo-navigation-more')[0];
+  const scopeEntries = (parent: Node) => view.all(parent).filter((node) => node.tag === 'button' && node.props['aria-label'] === label);
+  expect(commonNavigationLabels(view)).toEqual(['专注', '统计与复盘']);
+  expect(scopeEntries(more())).toHaveLength(1);
+  expect(more().props.open).toBe(true);
+  await openNavigationPins(view);
+  expect(view.all(commonNavigation(view)).filter((node) => node.tag === 'input')).toHaveLength(9);
+  navigationPin(view, label).props.onChange({ target: { checked: true } });
+  await settled();
+  const pinned = scopeEntries(commonNavigation(view));
+  expect(pinned).toHaveLength(1);
+  expect(pinned[0].props['aria-current']).toBe('page');
+  expect(scopeEntries(more())).toHaveLength(0);
+  expect(more().props.open).toBeUndefined();
+  pinned[0].props.onClick();
+  expect(quick).toHaveBeenCalledOnce();
+  expect(quick).toHaveBeenCalledWith(scope);
+  expect(JSON.parse(saved.get('to-doo.navigation-pins.v1')!)).toEqual(['focus', 'stats', scope]);
+
+  const restored = mountPinnableNavigation({ quickView: scope });
+  await settled();
+  expect(commonNavigationLabels(restored)).toEqual(['专注', '统计与复盘', label]);
+  expect(restored.all().filter((node) => node.tag === 'button' && node.props['aria-label'] === label)).toHaveLength(1);
+  await openNavigationPins(restored);
+  navigationPin(restored, label).props.onChange({ target: { checked: false } });
+  await settled();
+  expect(commonNavigationLabels(restored)).toEqual(['专注', '统计与复盘']);
+  const unpinned = restored.all(restored.byClass('todo-navigation-more')[0])
+    .filter((node) => node.tag === 'button' && node.props['aria-label'] === label);
+  expect(unpinned).toHaveLength(1);
+  expect(unpinned[0].props['aria-current']).toBe('page');
+  expect(JSON.parse(saved.get('to-doo.navigation-pins.v1')!)).toEqual(['focus', 'stats']);
+});
+
+it.each([
+  ['legacy modules', '["overview","focus"]', ['专注', '目标总览']],
+  ['mixed known and malformed entries', '["focus",null,"overdue","overdue","unknown"]', ['专注', '逾期']],
+  ['intentional empty selection', '[]', []],
+  ['malformed JSON', '{broken', ['日历', '习惯', '专注']],
+  ['unexpected object', '{"pins":["overdue"]}', ['日历', '习惯', '专注']],
+  ['unsupported entries only', '[null,10,"unknown"]', ['日历', '习惯', '专注']],
+])('reading %s navigation preferences retains usable entries without rewriting browser storage', async (_name, stored, expected) => {
+  const write = vi.fn();
+  vi.stubGlobal('localStorage', { getItem: () => stored, setItem: write });
+  const view = mountPinnableNavigation();
+  await settled();
+  expect(commonNavigationLabels(view)).toEqual(expected);
+  expect(write).not.toHaveBeenCalled();
+  for (const label of pinnableNavigationLabels) {
+    expect(view.all().filter((node) => node.tag === 'button' && node.props['aria-label'] === label)).toHaveLength(1);
+  }
+});
+
+it('denied pin storage preserves the original defaults and lets task scopes remain usable for this session', async () => {
+  const write = vi.fn(() => { throw Error('storage denied'); });
+  vi.stubGlobal('localStorage', {
+    getItem() { throw Error('storage denied'); },
+    setItem: write,
+  });
+  const quick = vi.fn();
+  const view = mountPinnableNavigation({ onQuick: quick });
+  expect(commonNavigationLabels(view)).toEqual(['日历', '习惯', '专注']);
+  await openNavigationPins(view);
+  navigationPin(view, '受阻').props.onChange({ target: { checked: true } });
+  await settled();
+  expect(commonNavigationLabels(view)).toEqual(['日历', '习惯', '专注', '受阻']);
+  const entry = view.all(commonNavigation(view)).find((node) => node.tag === 'button' && node.props['aria-label'] === '受阻')!;
+  entry.props.onClick();
+  expect(quick).toHaveBeenCalledOnce();
+  expect(quick).toHaveBeenCalledWith('blocked');
+  expect(write).toHaveBeenCalledOnce();
 });

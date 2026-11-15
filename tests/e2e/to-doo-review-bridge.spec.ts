@@ -72,6 +72,7 @@ test('a review uses its applied dates and starts an explicit next task without l
   await selectToDooOption(editor, '关联目标或清单', listName);
   await editor.getByRole('button', { name: '保存', exact: true }).click();
   await expect(editor).not.toBeVisible();
+  await page.getByRole('tab', { name: '历史复盘', exact: true }).click();
   const review = page.getByRole('article', { name: '复盘 ' + name, exact: true });
   await expect(review).toContainText(from + ' — ' + to);
   let taskWrites = 0;
@@ -137,10 +138,12 @@ test('review goal progress and completion totals lead to real task destinations'
     status: 'done',
   });
   await page.goto('/?view=apps&app=to-doo&appSection=stats');
+  await page.getByRole('tab', { name: '目标进展', exact: true }).click();
   await page.getByRole('button', { name: '查看目标任务 ' + listName, exact: true }).click();
   await expect(page.locator('.todo-page h1')).toHaveText(listName);
   await expect(page.getByRole('button', { name: next, exact: true })).toBeVisible();
   await goToToDooSection(page, 'stats');
+  await page.getByRole('tab', { name: '概览', exact: true }).click();
   await page.getByRole('button', { name: '查看全部已完成任务', exact: true }).click();
   await expect(page.locator('.todo-page h1')).toHaveText('已完成');
   await expect(
@@ -203,6 +206,7 @@ test('opening an ordinary inbox task first does not discard the next review task
   await editor.getByLabel('复盘内容', { exact: true }).fill(content);
   await editor.getByRole('button', { name: '保存', exact: true }).click();
   await expect(editor).not.toBeVisible();
+  await page.getByRole('tab', { name: '历史复盘', exact: true }).click();
   const review = page.getByRole('article', { name: '复盘 ' + name, exact: true });
   let taskWrites = 0;
   page.on('request', (request) => {

@@ -33,13 +33,24 @@ const taskSection = computed(() =>
   ['tasks', 'board', 'matrix', 'timeline'].includes(props.section),
 );
 const availableTools = ['calendar', 'habits', 'focus', 'overview', 'stats', 'anniversaries'] as const;
+const taskScopeOptions = [
+  { id: 'overdue', name: '逾期', icon: 'calendar' },
+  { id: 'unscheduled', name: '未安排', icon: 'inbox' },
+  { id: 'blocked', name: '受阻', icon: 'tasks' },
+] as const;
+const availablePins = new Set<string>([...availableTools, ...taskScopeOptions.map((scope) => scope.id)]);
+const defaultPins = ['calendar', 'habits', 'focus'];
 const pinKey = 'to-doo.navigation-pins.v1';
 function readPins(): string[] {
   try {
     const saved = JSON.parse(localStorage.getItem(pinKey) || 'null');
-    if (Array.isArray(saved)) return saved.filter((id) => availableTools.includes(id));
+    if (Array.isArray(saved)) {
+      const valid = [...new Set(saved.filter((id): id is string => typeof id === 'string' && availablePins.has(id)))];
+      // An empty selection is intentional; malformed or obsolete-only data keeps the defaults.
+      if (!saved.length || valid.length) return valid;
+    }
   } catch { /* Browser storage may be unavailable; navigation remains usable. */ }
-  return ['calendar', 'habits', 'focus'];
+  return [...defaultPins];
 }
 const pins = ref(readPins());
 const pinOpen = ref(false), pinTrigger = ref<any>();
@@ -74,10 +85,14 @@ const more = computed(() =>
     props.items.filter(([id]) => id === section),
   ),
 );
+const pinnedTaskScopes = computed(() => taskScopeOptions.filter((scope) => pins.value.includes(scope.id)));
+const moreTaskScopes = computed(() => taskScopeOptions.filter((scope) => !pins.value.includes(scope.id)));
 const moreActive = computed(
   () =>
     more.value.some(([section]) => section === props.section) ||
-    ['overdue', 'unscheduled', 'blocked', 'archived', 'trash'].includes(props.quickView),
+    (taskSection.value && !props.listId &&
+      (moreTaskScopes.value.some((scope) => scope.id === props.quickView) ||
+        ['archived', 'trash'].includes(props.quickView))),
 );
 </script>
 
@@ -141,11 +156,14 @@ const moreActive = computed(
         </div>
       </section>
       <section class="todo-navigation-group" aria-label="计划与执行">
-        <div class="todo-nav-section-heading"><span class="todo-nav-label">常用模块</span>
-          <APopover v-model:open="pinOpen" trigger="click" title="固定常用模块" placement="rightTop" overlay-class-name="todo-ant-popup">
-            <AButton ref="pinTrigger" type="text" @keydown.esc.stop.prevent="closePins" size="small" aria-label="自定义常用模块" title="自定义常用模块" :aria-expanded="pinOpen">⋯</AButton>
+        <div class="todo-nav-section-heading"><span class="todo-nav-label">常用入口</span>
+          <APopover v-model:open="pinOpen" trigger="click" title="固定常用入口" placement="rightTop" overlay-class-name="todo-ant-popup">
+            <AButton ref="pinTrigger" type="text" @keydown.esc.stop.prevent="closePins" size="small" aria-label="自定义常用入口" title="自定义常用入口" :aria-expanded="pinOpen">⋯</AButton>
             <template #content><div class="todo-navigation-pin-options" @keydown.esc.stop.prevent="closePins">
+              <span class="todo-nav-label">模块</span>
               <ACheckbox v-for="item in pinOptions" :key="item[0]" :checked="pins.includes(item[0])" @change="togglePin(item[0])">{{ item[1] }}</ACheckbox>
+              <span class="todo-nav-label">任务范围</span>
+              <ACheckbox v-for="scope in taskScopeOptions" :key="scope.id" :checked="pins.includes(scope.id)" @change="togglePin(scope.id)">{{ scope.name }}</ACheckbox>
               <AButton type="text" @click="closePins">完成</AButton>
             </div></template>
           </APopover>
@@ -162,6 +180,11 @@ const moreActive = computed(
           @click="emit('navigate', item[0])"
           ><ToDooIcon :name="item[0]" :size="18" /><span>{{ item[1] }}</span></AButton
         >
+        <AButton v-for="view in pinnedTaskScopes" :key="view.id" type="text" block
+          :class="{ active: taskSection && !listId && quickView === view.id }"
+          :aria-label="view.name" :title="view.name"
+          :aria-current="taskSection && !listId && quickView === view.id ? 'page' : undefined"
+          @click="emit('quick', view.id)"><ToDooIcon :name="view.icon" :size="18" /><span>{{ view.name }}</span></AButton>
       </section>
       <details class="todo-navigation-more" :open="moreActive || undefined">
         <summary>更多</summary>
@@ -178,13 +201,9 @@ const moreActive = computed(
           @click="emit('navigate', item[0])"
           ><ToDooIcon :name="item[0]" :size="18" /><span>{{ item[1] }}</span></AButton
         >
-        <div class="todo-nav-label">任务范围</div>
+        <div v-if="moreTaskScopes.length" class="todo-nav-label">任务范围</div>
         <AButton
-          v-for="view in [
-            { id: 'overdue' as const, name: '逾期', icon: 'calendar' },
-            { id: 'unscheduled' as const, name: '未安排', icon: 'inbox' },
-            { id: 'blocked' as const, name: '受阻', icon: 'tasks' },
-          ]"
+          v-for="view in moreTaskScopes"
           :key="view.id"
           type="text"
           block
