@@ -18,6 +18,8 @@ import ToDooPageToolbar from './ToDooPageToolbar.vue';
 import ToDooCalendarTaskPicker from './ToDooCalendarTaskPicker.vue';
 import { groupTaskItems } from '../../to-doo-task-groups';
 import { useToDooClock } from '../../to-doo-time';
+import { useToDooConfirm } from '../../to-doo-controls';
+import { guardToDooTaskAction } from '../../to-doo-action-guard';
 import {
   toDooBlockSegment,
   toDooConflictLanes,
@@ -64,6 +66,8 @@ const state = props.model.state,
   showAnniversaries = ref(true),
   planTime = ref('09:00'),
   includeDependents = ref(false);
+const confirmAction = useToDooConfirm();
+const applyingPlan = ref(false);
 const displayTrigger = ref<any>();
 function closeDisplay() {
   displayOpen.value = false;
@@ -464,6 +468,55 @@ async function preview() {
   );
   if (result?.preview || state.pendingMutation) planOpen.value = false;
 }
+async function applyPlan() {
+  const source = state.preview;
+  if (!source || applyingPlan.value || state.busy || state.pendingMutation || source.conflicts.length) return;
+  const plan = JSON.parse(JSON.stringify(source)) as typeof source;
+  const fingerprint = JSON.stringify(source), datasetId = state.snapshot?.datasetId,
+    originalAnchor = anchor.value, originalView = props.view, originalTimeline = props.timeline;
+  const current = () => calendarActive && state.snapshot?.datasetId === datasetId &&
+    anchor.value === originalAnchor && props.view === originalView && props.timeline === originalTimeline &&
+    state.preview === source && JSON.stringify(state.preview) === fingerprint;
+  // The server's preview includes the task baselines for the entire verified
+  // dependency/conflict graph, including linked tasks outside this calendar page.
+  const taskIds = [...new Set([
+    ...Object.keys(plan.expectedRevisions).filter(key => key.startsWith('task:')).map(key => key.slice(5)),
+    ...plan.changes.flatMap(change => {
+      const occurrence = state.snapshot?.occurrences.find(value => value.id === change.occurrenceId);
+      return occurrence ? [occurrence.taskId] : [];
+    }),
+  ])];
+  if (!taskIds.length) {
+    state.error = '安排预览的任务范围不完整，请重新预览后再应用';
+    return;
+  }
+  applyingPlan.value = true;
+  let savedDraft = false;
+  try {
+    const allowed = await guardToDooTaskAction(props.model, taskIds, confirmAction, {
+      includeDescendants: false, current,
+      save: async () => {
+        const result = await props.model.saveTask();
+        savedDraft = !!result;
+        return result;
+      },
+    });
+    // Saving may change plan blocks, recurrence and the verified graph. Never
+    // reuse the old expected revisions, even when only one draft needed saving.
+    if (savedDraft) {
+      if (state.snapshot?.datasetId === datasetId && calendarActive) {
+        if (state.preview === source) state.preview = null;
+        state.notice = '任务草稿已保存，请重新生成并确认安排预览';
+      }
+      return;
+    }
+    if (!allowed || !current()) return;
+    const result = await props.model.execute({ action: 'apply_plan', payload: { plan } }, '安排已应用');
+    if (result && state.preview === source) state.preview = null;
+  } finally {
+    applyingPlan.value = false;
+  }
+}
 const timelineDays = computed(() =>
   Array.from({ length: 28 }, (_, i) => shiftToDooDate(anchor.value, i)),
 );
@@ -745,13 +798,9 @@ watch(
         <AButton
           class="todo-button todo-primary"
           html-type="button"
-          :disabled="state.busy || !!state.preview.conflicts.length"
-          :loading="state.busy"
-          @click="
-            model
-              .execute({ action: 'apply_plan', payload: { plan: state.preview! } }, '安排已应用')
-              .then((r) => r && (state.preview = null))
-          "
+          :disabled="state.busy || applyingPlan || !!state.pendingMutation || !!state.preview.conflicts.length"
+          :loading="state.busy || applyingPlan"
+          @click="applyPlan"
           type="primary"
         >
           确认应用安排</AButton

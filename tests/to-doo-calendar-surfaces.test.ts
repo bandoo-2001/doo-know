@@ -2,13 +2,14 @@ import { readFileSync } from 'node:fs';
 import { compileScript, parse } from '@vue/compiler-sfc';
 import ts from 'typescript';
 import * as Vue from 'vue';
-import { afterEach, expect, test } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
 import * as calendarLayout from '../apps/web/to-doo-calendar-layout';
 import * as time from '../apps/web/to-doo-time';
 import * as groups from '../apps/web/to-doo-task-groups';
 import * as anniversaries from '../shared/to-doo-anniversaries';
+import * as actionGuards from '../apps/web/to-doo-action-guard';
 import { toDooEntitySchemas, type ToDooEntityMap } from '../shared/to-doo-contracts';
 
 const cleanup: (() => void)[] = [];
@@ -18,6 +19,7 @@ function calendar(
   event: ToDooEntityMap['calendarEvent'] | null,
   timeZone = 'UTC',
   blocks: ToDooEntityMap['timeBlock'][] = [],
+  options: { model?: unknown; confirm?: (message: string) => Promise<boolean> } = {},
 ) {
   const { descriptor } = parse(
     readFileSync(
@@ -39,6 +41,8 @@ function calendar(
       if (id.endsWith('/to-doo-presentation')) return presentation;
       if (id.endsWith('/to-doo-task-groups')) return groups;
       if (id.endsWith('/to-doo-anniversaries')) return anniversaries;
+      if (id.endsWith('/to-doo-action-guard')) return actionGuards;
+      if (id.endsWith('/to-doo-controls')) return { useToDooConfirm: () => options.confirm || (async () => false) };
       if (id === 'ant-design-vue' || id.endsWith('.vue')) return {};
       throw Error('Unexpected calendar dependency: ' + id);
     },
@@ -59,7 +63,7 @@ function calendar(
   });
   const subject = { ...output.exports.default, render: () => null };
   const app = renderer.createApp(subject, {
-    model: {
+    model: options.model || {
       state: Vue.reactive({
         snapshot: {
           settings: { timeZone },
@@ -244,4 +248,91 @@ test('adjacent short blocks keep independent actual intervals and receive distin
   expect(entries.map((entry: any) => entry.lanes)).toEqual([1, 1]);
   expect(entries.map((entry: any) => entry.displayLanes)).toEqual([2, 2]);
   expect(entries[0].displayLane).not.toBe(entries[1].displayLane);
+});
+
+function planFixture() {
+  const plan = toDooEntitySchemas.plan.parse({
+    id: 'plan', revision: 'r1', createdAt: '2026-11-02T08:00:00Z', updatedAt: '2026-11-02T08:00:00Z',
+    name: '连续安排', includeDependents: true,
+    changes: [{ occurrenceId: 'occ', expectedRevision: 'o1', start: { date: '2026-11-02', time: '09:00', timeZone: 'UTC' }, durationMinutes: 30 }],
+    expectedRevisions: { 'task:task': 't1', 'task:linked': 't2', 'occurrence:occ': 'o1', 'occurrence:outside-calendar': 'o2' },
+  });
+  const model = {
+    state: Vue.reactive({
+      selectedTaskId: 'task', selectedOccurrenceId: 'occ', busy: false, pendingMutation: null,
+      preview: plan as ToDooEntityMap['plan'] | null, notice: '', error: '',
+      snapshot: { datasetId: 'calendar', settings: { timeZone: 'UTC' },
+        occurrences: [{ id: 'occ', taskId: 'task' }] },
+    }),
+    items: () => [],
+    taskDefinitions: () => [{ id: 'task', parentTaskId: null }, { id: 'linked', parentTaskId: null }],
+    validateTaskDraft: vi.fn().mockReturnValue(true),
+    prepareTaskAction: vi.fn().mockResolvedValue([]),
+    saveTask: vi.fn().mockResolvedValue(true),
+    dirty: vi.fn().mockReturnValue(false),
+    execute: vi.fn().mockResolvedValue({ ids: [] }),
+  };
+  const confirm = vi.fn().mockResolvedValue(true);
+  return { model, confirm, view: calendar(null, 'UTC', [], { model, confirm }) };
+}
+
+test('applying a clean plan checks all verified tasks, including linked tasks outside the calendar', async () => {
+  const f = planFixture();
+  const original = JSON.parse(JSON.stringify(f.model.state.preview));
+  await f.view.applyPlan();
+  expect(f.model.prepareTaskAction).toHaveBeenCalledWith(['task', 'linked'], false);
+  expect(f.model.execute).toHaveBeenCalledWith({ action: 'apply_plan', payload: { plan: original } }, '安排已应用');
+  expect(f.model.state.preview).toBeNull();
+  expect(f.confirm).not.toHaveBeenCalled();
+});
+
+test('an affected hidden task draft blocks a calendar plan without silently saving it', async () => {
+  const f = planFixture();
+  f.model.prepareTaskAction.mockResolvedValue([{ key: 'linked@outside-calendar', taskId: 'linked', occurrenceId: 'outside-calendar', title: '联动任务', kind: 'task' }]);
+  await f.view.applyPlan();
+  expect(f.model.execute).not.toHaveBeenCalled();
+  expect(f.model.saveTask).not.toHaveBeenCalled();
+  expect(f.model.state.error).toContain('任务草稿');
+  expect(f.model.state.preview).not.toBeNull();
+});
+
+test('saving the current draft requires a new preview instead of applying stale plan revisions', async () => {
+  const f = planFixture();
+  f.model.prepareTaskAction.mockResolvedValueOnce([{ key: 'task@occ', taskId: 'task', occurrenceId: 'occ', title: '任务', kind: 'task' }]).mockResolvedValueOnce([]);
+  f.model.saveTask.mockImplementation(async () => {
+    // A real task save clears the previous preview as part of accepting its command reply.
+    f.model.state.preview = null;
+    return true;
+  });
+  await f.view.applyPlan();
+  expect(f.confirm).toHaveBeenCalledOnce();
+  expect(f.model.saveTask).toHaveBeenCalledOnce();
+  expect(f.model.execute).not.toHaveBeenCalled();
+  expect(f.model.state.notice).toContain('重新生成并确认安排预览');
+});
+
+test.each(['replace', 'mutate', 'selection', 'deactivate'] as const)('a %s during preparation cannot redirect the frozen plan action', async (change) => {
+  const f = planFixture();
+  f.model.prepareTaskAction.mockImplementation(async () => {
+    if (change === 'replace') f.model.state.preview = { ...f.model.state.preview!, id: 'new-plan' };
+    if (change === 'mutate') f.model.state.preview!.changes[0].start.time = '15:00';
+    if (change === 'selection') f.model.state.selectedOccurrenceId = 'another-period';
+    if (change === 'deactivate') f.view.calendarActive = false;
+    return [];
+  });
+  await f.view.applyPlan();
+  expect(f.model.execute).not.toHaveBeenCalled();
+});
+
+test('invalid current input, cancelled save and failed save preserve a plan without applying it', async () => {
+  for (const reason of ['invalid', 'cancel', 'failed']) {
+    const f = planFixture();
+    f.model.prepareTaskAction.mockResolvedValue([{ key: 'task@occ', taskId: 'task', occurrenceId: 'occ', title: '任务', kind: 'task' }]);
+    if (reason === 'invalid') f.model.validateTaskDraft.mockReturnValue(false);
+    if (reason === 'cancel') f.confirm.mockResolvedValue(false);
+    if (reason === 'failed') f.model.saveTask.mockResolvedValue(false);
+    await f.view.applyPlan();
+    expect(f.model.execute).not.toHaveBeenCalled();
+    expect(f.model.state.preview).not.toBeNull();
+  }
 });
