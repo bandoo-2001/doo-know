@@ -1,5 +1,5 @@
 /* Shared page patterns. Module-specific content layout stays with each module. */
-.to-doo-workspace.todo-task-page .todo-page { padding-top: var(--todo-space-16); }
+.to-doo-workspace.todo-task-page .todo-page { padding-top: var(--todo-space-12); }
 .to-doo-workspace.todo-task-page .todo-page-heading { min-height: var(--todo-nav-height); }
 .to-doo-workspace .todo-header-task-toolbar .todo-page-toolbar { margin: 0; }
 .to-doo-workspace .todo-header-task-toolbar { min-width: 0; }

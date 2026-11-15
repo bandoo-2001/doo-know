@@ -1,11 +1,10 @@
 import { readFile, mkdir } from 'node:fs/promises';
-import type { Locator } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
 import { goToToDooSection, selectToDooContext } from '../support/to-doo-navigation';
 import {
   confirmToDooAction,
   expandToDooGroup,
-  expectToDooSelection,
   fillToDooDate,
   selectToDooOption,
 } from '../support/to-doo-ant-controls';
@@ -19,6 +18,14 @@ async function expectToDooPageReady(app: Locator) {
 async function showCompletedTasks(app: Locator) {
   const show = app.getByRole('button', { name: '显示已完成任务', exact: true });
   if (await show.isVisible()) await show.click();
+}
+
+async function openTaskProperty(page: Page, detail: Locator, name: string) {
+  await detail.getByRole('button', { name: '更多任务属性', exact: true }).click();
+  await page.getByRole('menuitem', { name, exact: true }).click();
+  const dialog = page.getByRole('dialog', { name, exact: true });
+  await expect(dialog).toBeVisible();
+  return dialog;
 }
 
 test('To Doo creates a real goal and task, preserves edits, completes and survives refresh', async ({
@@ -35,6 +42,7 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
   await editor.getByLabel('名称', { exact: true }).fill(name);
   await editor.getByRole('button', { name: '保存', exact: true }).click();
   await expect(app.locator('.todo-goals').getByRole('button', { name, exact: true })).toBeVisible();
+  await app.locator('.todo-goals').getByRole('button', { name, exact: true }).click();
   await app.getByRole('button', { name: '新建任务', exact: true }).first().click();
   await app.getByLabel('任务标题', { exact: true }).fill('验证真实任务持久保存 ' + name);
   await selectToDooOption(app, '目标或清单', name);
@@ -50,23 +58,26 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
     '验证真实任务持久保存 ' + name,
   );
   await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
+  await detail.getByRole('button', { name: '＋ 添加说明', exact: true }).click();
   await detail.getByLabel('任务说明', { exact: true }).fill('刷新后应该仍能读到这段记录');
   await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeVisible();
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   await expect(app.getByRole('status')).toContainText('任务已保存');
-  await expandToDooGroup(detail, '任务附件');
-  await detail.getByLabel('上传任务附件', { exact: true }).setInputFiles({
+  const attachments = await openTaskProperty(page, detail, '任务附件');
+  await attachments.getByLabel('上传任务附件', { exact: true }).setInputFiles({
     name: 'task-evidence.txt',
     mimeType: 'text/plain',
     buffer: Buffer.from('Task evidence from the isolated browser fixture'),
   });
   await expect(app.getByText('附件已上传', { exact: true })).toBeVisible();
-  await expect(detail.locator('.todo-attachment')).toContainText('task-evidence.txt');
+  await expect(attachments.locator('.todo-attachment')).toContainText('task-evidence.txt');
   const attachmentDownload = page.waitForEvent('download');
-  await detail.getByRole('link', { name: '下载', exact: true }).click();
+  await attachments.getByRole('link', { name: '下载', exact: true }).click();
   expect((await attachmentDownload).suggestedFilename()).toBe('task-evidence.txt');
+  await attachments.getByRole('button', { name: '完成设置', exact: true }).click();
+  await expect(attachments).not.toBeVisible();
   await detail.getByRole('button', { name: '标记完成', exact: true }).click();
-  await expectToDooSelection(detail, '状态', '已完成');
+  await expect(detail.getByRole('button', { name: '重新打开', exact: true })).toHaveAttribute('aria-pressed', 'true');
   const taskId = new URL(page.url()).searchParams.get('task');
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   for (const [section, label] of [
@@ -94,7 +105,7 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
   }
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&task=' + taskId);
   await page.reload();
-  await expect(app.getByRole('complementary', { name: '任务详情' })).toContainText('已完成');
+  await expect(app.getByRole('complementary', { name: '任务详情' }).getByRole('button', { name: '重新打开', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(app.getByLabel('任务说明', { exact: true })).toHaveValue(
     '刷新后应该仍能读到这段记录',
   );
@@ -249,6 +260,7 @@ test('focus, habit check-ins, anniversary and real CSV import/export use durable
   expect((await download).suggestedFilename()).toBe('to-doo.json');
   await expandToDooGroup(app, '导入选项');
   await selectToDooOption(app, '格式', '滴答 CSV');
+  await app.getByRole('button', { name: '粘贴文件内容', exact: true }).click();
   await app
     .getByLabel('或粘贴文件内容', { exact: true })
     .fill('Title,Status\nImported ' + name + ',todo\n');
@@ -307,8 +319,8 @@ test.describe('To Doo source and evidence', () => {
     expect(task.source.noteId).toBe(note.id);
     expect(task.source.draft).toBe(true);
     expect(task.source.quote).toContain('草稿中的跟进行动');
-    await expandToDooGroup(detail, '完成标准与成果');
-    await detail.getByRole('button', { name: '创建成果笔记并关联', exact: true }).click();
+    const results = await openTaskProperty(page, detail, '完成标准与成果');
+    await results.getByRole('button', { name: '创建成果笔记并关联', exact: true }).click();
     const outcome = page.getByRole('dialog', { name: '创建成果笔记', exact: true });
     await outcome.getByLabel('笔记标题', { exact: true }).fill('已验证成果 ' + taskTitle);
     await outcome
@@ -348,7 +360,7 @@ test.describe('To Doo source and evidence', () => {
     expect(output.content).toContain('完成了一次真实的行动与成果关联');
     const source = await (await page.request.get('/api/notes/' + note.id)).json();
     expect(source.content).toBe(savedContent);
-    await app.getByRole('button', { name: '打开成果笔记', exact: true }).click();
+    await results.getByRole('button', { name: '打开成果笔记', exact: true }).click();
     await page.getByRole('button', { name: '放弃修改', exact: true }).click();
     await expect(page.locator('.cm-content')).toContainText('完成了一次真实的行动与成果关联');
     // The original prepared intent survives a browser restart before any note exists.
@@ -456,7 +468,7 @@ test('bulk and cascade completion freeze execution membership and persist their 
   const cascadeBody = (await cascadeRequest).postDataJSON();
   expect(cascadeBody.payload.expectedOccurrenceIds).toHaveLength(2);
   expect(Object.keys(cascadeBody.payload.expectedRevisions)).toHaveLength(4);
-  await expectToDooSelection(detail, '状态', '已完成');
+  await expect(detail.getByRole('button', { name: '重新打开', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   await app.getByRole('button', { name: '任务管理', exact: true }).click();
   await page.getByRole('menuitem', { name: '多选', exact: true }).click();

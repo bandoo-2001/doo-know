@@ -64,6 +64,7 @@ const emit = defineEmits<{
   'outcome-note': [];
   'list-created': [id: string];
   saved: [value: ToDooTaskPlacement];
+  retry: [];
 }>();
 const state = props.model.state,
   form = computed(() => props.model.draft());
@@ -78,6 +79,7 @@ const inlineListOpen = ref(false);
 const propertyFields = ref<HTMLElement>();
 type DetailPanel = 'due' | 'priority' | 'list' | 'plan' | 'repeat' | 'reminders' | 'resources' | 'classification' | 'attachments' | 'results' | 'properties' | 'records' | 'history';
 const detailPanel = ref<DetailPanel>();
+const propertyOpen = ref(false);
 const panelLabels: Record<DetailPanel, string> = {
   due: '截止日期', priority: '优先级', list: '所属清单', plan: '时间安排', repeat: '重复规则', reminders: '任务提醒', resources: '关联资料', classification: '四象限归类',
   attachments: '任务附件', results: '完成标准与成果', properties: '其他属性', records: '推进记录', history: '操作历史',
@@ -110,14 +112,16 @@ function cancelProperty() {
     scope.value = baseline.scope;
   }
   detailPanel.value = undefined;
+  propertyOpen.value = false;
   propertyBaseline = undefined;
   validationError.value = '';
 }
 function completeProperty() {
   if (!validateDetail(true)) return;
-  detailPanel.value = undefined;
+  propertyOpen.value = false;
   propertyBaseline = undefined;
 }
+function closeProperty() { propertyOpen.value = false; }
 function addPlan() {
   const draft = form.value;
   if (!draft?.occurrence || state.busy) return;
@@ -176,16 +180,19 @@ const repeatSummary = computed(() =>
 async function revealDetail(section: DetailPanel) {
   const taskId = state.selectedTaskId,
     occurrenceId = state.selectedOccurrenceId;
+  if (detailPanel.value && detailPanel.value !== section && propertyFields.value?.querySelector('input:invalid, textarea:invalid, [aria-invalid="true"]')) {
+    propertyOpen.value = true;
+    validateDetail(true);
+    return;
+  }
   captureProperty(section);
   detailPanel.value = section;
+  propertyOpen.value = true;
   if (section === 'due') editingDue.value = true;
   await nextTick();
   if (!currentDetail(taskId, occurrenceId)) return;
-  propertyFields.value
-    ?.querySelector?.<HTMLElement>(
-      'input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex="0"]',
-    )
-    ?.focus?.({ preventScroll: true });
+  const firstInput = propertyFields.value?.querySelector<HTMLElement>('input:not([disabled]), select:not([disabled]), textarea:not([disabled])');
+  (firstInput || propertyFields.value?.querySelector<HTMLElement>('button:not([disabled]), [tabindex="0"]'))?.focus?.({ preventScroll: true });
 }
 const validationError = ref('');
 function validateDetail(propertyOnly = false) {
@@ -193,6 +200,7 @@ function validateDetail(propertyOnly = false) {
     'input:invalid, textarea:invalid, [aria-invalid="true"]',
   )) || propertyFields.value?.querySelector<HTMLInputElement>('input:invalid, textarea:invalid, [aria-invalid="true"]');
   if (invalid) {
+    if (propertyFields.value?.contains(invalid)) propertyOpen.value = true;
     validationError.value = '请检查日期、时间或其他输入后再保存';
     if (deadlineFields.value?.contains(invalid)) editingDue.value = true;
     void nextTick(() => {
@@ -244,7 +252,7 @@ function shortcut(event: KeyboardEvent) {
   if (event.key !== 'Enter' || !(event.ctrlKey || event.metaKey) || event.isComposing) return;
   event.preventDefault();
   event.stopPropagation();
-  if (detailPanel.value) completeProperty();
+  if (propertyOpen.value) completeProperty();
   else void (props.creating ? create() : save());
 }
 function changeList(listId: string | null) {
@@ -317,6 +325,7 @@ watch(
     validationError.value = '';
     editingDue.value = false;
     detailPanel.value = undefined;
+    propertyOpen.value = false;
     descriptionOpen.value = false;
     showChildren.value = false;
   },
@@ -574,7 +583,7 @@ async function discardConflict() {
     occurrenceId = state.selectedOccurrenceId;
   if (!(await confirmAction('放弃这份本地输入，改用服务端当前内容？'))) return;
   if (!currentDetail(taskId, occurrenceId)) return;
-  await props.model.ensureTask(taskId);
+  if (!(await props.model.ensureTask(taskId))) return;
   if (!currentDetail(taskId, occurrenceId)) return;
   props.model.discardDraft();
   state.conflict = false;
@@ -629,6 +638,10 @@ defineExpose({
     <p v-if="validationError" class="todo-detail-validation todo-danger" role="alert">
       {{ validationError }}
     </p>
+    <p v-if="state.error && !state.conflict" class="todo-detail-validation todo-danger" role="alert">{{ state.error }}</p>
+    <div v-if="state.pendingMutation" class="todo-detail-validation todo-warning" role="alert">
+      <span>上次提交的结果待核对，修改仍保留。</span><AButton type="link" :disabled="state.busy" @click="emit('retry')">核对原操作</AButton>
+    </div>
     <section v-if="!creating && state.conflict" class="todo-conflict-panel todo-alert" role="alert" aria-label="比较任务更新">
       <strong>这份任务有更新，本地输入仍保留</strong>
       <p>{{ state.error || '先载入最新版本，比较后再保存。' }}</p>
@@ -839,7 +852,7 @@ defineExpose({
         <div class="todo-detail-property-chips" role="group" aria-label="任务安排">
           <AButton type="text" aria-label="编辑计划日期" :disabled="state.busy || !form.occurrence" @click="revealDetail('plan')"><ToDooIcon name="calendar" :size="15" />{{ planSummary }}</AButton>
           <AButton type="text" aria-label="编辑截止日期" :class="{ 'is-overdue': deadlineOverdue }" :disabled="state.busy || !form.occurrence" @click="revealDetail('due')"><ToDooIcon name="today" :size="15" />{{ deadlineSummary }}</AButton>
-          <AButton type="text" aria-label="编辑优先级" :class="'todo-priority-' + form.task.priority" :disabled="state.busy" @click="revealDetail('priority')">{{ toDooPriorityLabels[form.task.priority] }}{{ form.task.priority === 'none' ? '优先级' : '优先' }}</AButton>
+          <AButton type="text" aria-label="编辑优先级" :class="'todo-priority-' + form.task.priority" :disabled="state.busy" @click="revealDetail('priority')">{{ form.task.priority === 'none' ? '设置优先级' : toDooPriorityLabels[form.task.priority] + '优先级' }}</AButton>
         </div>
         <AButton v-if="!form.task.description && !descriptionOpen" type="text" class="todo-add-property" @click="descriptionOpen = true">＋ 添加说明</AButton>
         <label v-else class="todo-document-description"
@@ -929,7 +942,7 @@ defineExpose({
             <AMenuItem v-for="(label, key) in panelLabels" :key="key" @click="revealDetail(key)">{{ label }}</AMenuItem>
           </AMenu></template>
         </ADropdown>
-        <AModal :open="!!detailPanel" :title="detailPanel ? panelLabels[detailPanel] : ''" :footer="null" :width="560" destroy-on-close wrap-class-name="todo-ant-modal todo-property-modal" @cancel="cancelProperty">
+        <AModal :open="propertyOpen" :title="detailPanel ? panelLabels[detailPanel] : ''" :footer="null" :width="560" wrap-class-name="todo-ant-modal todo-property-modal" @cancel="closeProperty">
           <fieldset ref="propertyFields" class="todo-form todo-create-fields todo-detail-options" :disabled="state.busy" @keydown="shortcut">
             <p v-if="validationError" class="todo-danger" role="alert">{{ validationError }}</p>
             <section v-if="detailPanel === 'list'" class="todo-form">
@@ -1285,9 +1298,6 @@ defineExpose({
               <template #header><span>{{ detailPanel === 'reminders' ? '任务提醒' : '其他属性' }}</span></template>
               <div class="todo-disclosure-content todo-form">
                 <template v-if="detailPanel !== 'reminders'">
-                <label v-if="form.occurrence?.due"
-                  >截止时区<AInput v-model:value="form.occurrence.due.timeZone"
-                /></label>
                 <div class="todo-form-grid">
                   <label
                     >分组<ToDooSelect v-model="form.task.sectionId">

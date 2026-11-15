@@ -1476,7 +1476,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
           </details>
         </div>
 
-        <div v-if="state.error && !state.conflict" class="todo-error todo-alert" role="alert">
+        <div v-if="state.error && !state.conflict && !detailOpen" class="todo-error todo-alert" role="alert">
           {{ state.error
           }}<AButton html-type="button" class="todo-link" @click="state.error = ''" type="link"
             >关闭提示</AButton
@@ -1715,6 +1715,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         @created="created"
         @list-created="loadLists()"
         @saved="taskSaved"
+        @retry="retryOriginal"
         @select="selectTask"
         @edit="edit"
         @open-note="emit('open-note', $event)"

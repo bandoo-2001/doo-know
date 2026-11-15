@@ -27,8 +27,9 @@ test('saving reveals and focuses an invalid timezone inside folded preferences',
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   const field = app.getByLabel('显示时区', { exact: true });
-  await expect(field).toBeVisible();
+  await expect(field).not.toBeVisible();
   await expandToDooGroup(app, '日期与提醒');
+  await expect(field).toBeVisible();
   const original = await field.inputValue();
   await field.fill('Invalid/Zone');
   await toDooDisclosureHeader(app, '日期与提醒').click();
@@ -47,8 +48,9 @@ test('optional calendar forms retain drafts across sections and idle recovery st
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   await selectToDooContext(page, '提醒与连接');
   const address = app.getByRole('textbox', { name: 'HTTPS 日历地址', exact: true });
-  await expect(address).toBeVisible();
+  await expect(address).not.toBeVisible();
   await expandToDooGroup(app, '连接外部只读日历');
+  await expect(address).toBeVisible();
   await address.fill('https://example.test/draft.ics');
   await toDooDisclosureHeader(app, '连接外部只读日历').click();
   await selectToDooContext(page, '偏好');
@@ -62,5 +64,8 @@ test('optional calendar forms retain drafts across sections and idle recovery st
     'false',
   );
   await expect(app.getByRole('button', { name: '导出 JSON', exact: true })).toBeVisible();
-  await expect(app.getByLabel('或粘贴文件内容', { exact: true })).toBeVisible();
+  const content = app.getByLabel('或粘贴文件内容', { exact: true });
+  await expect(content).not.toBeVisible();
+  await app.getByRole('button', { name: '粘贴文件内容', exact: true }).click();
+  await expect(content).toBeVisible();
 });

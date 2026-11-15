@@ -25,6 +25,9 @@ type Node = {
   children: Node[];
   text: string;
   parent?: Node;
+  querySelector: (selector: string) => null;
+  querySelectorAll: (selector: string) => [];
+  contains: (node: unknown) => boolean;
 };
 const cleanup: (() => void)[] = [];
 afterEach(() => {
@@ -78,6 +81,9 @@ function mount(name: string, props: Record<string, any>) {
     text,
     props: {},
     children: [],
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    contains: () => false,
   });
   const renderer = Vue.createRenderer<Node, Node>({
     insertStaticContent(content, parent, anchor) {
@@ -330,7 +336,7 @@ describe('task surface controls', () => {
     expect(JSON.stringify(value.draft())).toBe(before);
     expect(value.dirty()).toBe(false);
 
-    detail.all().find((node) => node.tag === 'button' && detail.text(node) === '返回任务')!.props.onClick();
+    dialogs()[0].props.onKeydown({ key: 'Escape' });
     await Vue.nextTick();
     expect(dialogs()).toHaveLength(0);
     await shortcut!.props.onClick();
@@ -1005,4 +1011,38 @@ describe('light task controls and recoverable capture', () => {
     form.props.onSubmit({ preventDefault() {} });
     expect(create).toHaveBeenCalledOnce();
   });
+});
+
+
+test('cancelling a property restores only that setting and preserves earlier task edits', async () => {
+  const value = model();
+  value.draft()!.task.title = '先前保留的标题';
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+  await detail.ref.value.openProperty('priority');
+  const priority = detail.all().find((node) => node.tag === 'select' && node.props['aria-label'] === '优先级')!;
+  priority.props.onChange({ target: { value: 'low' } });
+  await Vue.nextTick();
+  expect(value.draft()!.task.priority).toBe('low');
+  detail.all().find((node) => node.tag === 'button' && detail.text(node) === '取消本次设置')!.props.onClick();
+  await Vue.nextTick();
+  expect(value.draft()!.task).toMatchObject({ title: '先前保留的标题', priority: 'high' });
+  expect(value.state.snapshot!.tasks[0].title).toBe('准备报告');
+  expect(value.dirty()).toBe(true);
+  expect(detail.all().filter((node) => node.props.role === 'dialog')).toHaveLength(0);
+});
+
+test('completing a property keeps it in the explicit task draft without saving to the server', async () => {
+  const value = model();
+  const save = vi.spyOn(value, 'saveTask');
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+  await detail.ref.value.openProperty('priority');
+  detail.all().find((node) => node.tag === 'select' && node.props['aria-label'] === '优先级')!.props.onChange({ target: { value: 'low' } });
+  await Vue.nextTick();
+  detail.all().find((node) => node.tag === 'button' && detail.text(node) === '完成设置')!.props.onClick();
+  await Vue.nextTick();
+  expect(value.draft()!.task.priority).toBe('low');
+  expect(value.state.snapshot!.tasks[0].priority).toBe('high');
+  expect(value.dirty()).toBe(true);
+  expect(save).not.toHaveBeenCalled();
+  expect(detail.byClass('todo-detail-save')[0].props.disabled).toBe(false);
 });

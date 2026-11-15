@@ -8,6 +8,7 @@ const app = (page: Page) => page.getByRole('region', { name: 'To Doo 行动工�
 async function dataTab(page: Page) {
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
   await selectToDooContext(page, '数据与恢复');
+  await app(page).getByRole('button', { name: '粘贴文件内容', exact: true }).click();
   await expandToDooGroup(app(page), '导入选项');
   await selectToDooOption(app(page), '格式', '滴答 CSV');
 }

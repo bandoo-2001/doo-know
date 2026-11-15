@@ -1,0 +1,180 @@
+import { readFile } from 'node:fs/promises';
+import type { Page } from '@playwright/test';
+import { test, expect } from '../support/browser-test';
+import { fillToDooDate, selectToDooOption } from '../support/to-doo-ant-controls';
+import type { ToDooCommandResult, ToDooSnapshot } from '../../shared/to-doo-contracts';
+
+test.setTimeout(90000);
+test.beforeEach(async ({ context }) => {
+  await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
+});
+async function command(page: Page, action: string, payload: Record<string, unknown>) {
+  const csrf = await (await page.request.get('/api/security/csrf')).json();
+  const response = await page.request.post('/api/to-doo/commands', {
+    headers: { origin: String(test.info().project.use.baseURL), 'x-csrf-token': csrf.token },
+    data: { requestId: crypto.randomUUID(), action, payload },
+  });
+  expect(response.ok(), await response.text()).toBe(true);
+  return await response.json() as ToDooCommandResult;
+}
+async function snapshot(page: Page, taskId: string) {
+  const response = await page.request.get('/api/to-doo/state?taskIds=' + taskId +
+    '&includeTree=true&limit=500&filter=' + encodeURIComponent(JSON.stringify({ includeDeleted: true, includeArchived: true })));
+  expect(response.ok()).toBe(true);
+  return await response.json() as ToDooSnapshot;
+}
+const detail = (page: Page) => page.getByRole('complementary', { name: '任务详情', exact: true });
+async function open(page: Page, id: string) {
+  await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all&task=' + id);
+  await expect(detail(page).getByLabel('任务标题', { exact: true })).toBeVisible();
+}
+async function save(page: Page) {
+  const button = detail(page).getByRole('button', { name: '保存任务', exact: true });
+  await expect(button).toBeEnabled();
+  await button.click();
+  await expect(button).toBeDisabled();
+  await expect(detail(page).getByText('已保存', { exact: true })).toBeVisible();
+}
+async function editPlan(page: Page, date: string) {
+  await detail(page).getByRole('button', { name: '编辑计划日期', exact: true }).click();
+  const modal = page.getByRole('dialog', { name: '时间安排', exact: true });
+  await fillToDooDate(modal.getByLabel('日期', { exact: true }), date);
+  await modal.getByRole('button', { name: '完成设置', exact: true }).click();
+  await expect(modal).not.toBeVisible();
+}
+async function changeList(page: Page, currentName: string, nextName: string) {
+  await detail(page).getByRole('button', { name: currentName + ' ⌄', exact: true }).click();
+  const modal = page.getByRole('dialog', { name: '所属清单', exact: true });
+  await selectToDooOption(modal, '所属目标或清单', nextName);
+  await modal.getByRole('button', { name: '完成设置', exact: true }).click();
+  await expect(modal).not.toBeVisible();
+}
+function recordWrites(page: Page) {
+  const writes: any[] = [];
+  page.on('request', (request) => {
+    if (request.method() === 'POST' && request.url().endsWith('/api/to-doo/commands'))
+      writes.push(request.postDataJSON());
+  });
+  return writes;
+}
+
+test('an existing edit survives browser reload and remains local until the detail save', async ({ page }) => {
+  const title = '刷新恢复 ' + crypto.randomUUID(), edited = title + ' 本地';
+  const created = await command(page, 'create_task', { title, description: '服务端原说明' });
+  const id = created.ids[0]; await open(page, id);
+  const writes = recordWrites(page);
+  await detail(page).getByLabel('任务标题', { exact: true }).fill(edited);
+  await detail(page).getByLabel('任务说明', { exact: true }).fill('浏览器内保留，尚未提交');
+  await expect.poll(() => page.evaluate((taskId) => Object.keys(localStorage)
+    .filter((key) => key.startsWith('dooknow.to-doo.recovery:'))
+    .some((key) => Object.values(JSON.parse(localStorage.getItem(key) || '{}').edits || {})
+      .some((entry: any) => entry.draft?.task.id === taskId && entry.draft.task.description === '浏览器内保留，尚未提交')), id)).toBe(true);
+  await page.reload();
+  await expect(detail(page).getByLabel('任务标题', { exact: true })).toHaveValue(edited);
+  await expect(detail(page).getByLabel('任务说明', { exact: true })).toHaveValue('浏览器内保留，尚未提交');
+  expect(writes).toEqual([]);
+  expect((await snapshot(page, id)).tasks.find((task) => task.id === id)).toMatchObject({ title, description: '服务端原说明' });
+  await save(page);
+  expect((await snapshot(page, id)).tasks.find((task) => task.id === id)).toMatchObject({ title: edited, description: '浏览器内保留，尚未提交' });
+  await page.reload();
+  await expect(detail(page).getByLabel('任务标题', { exact: true })).toHaveValue(edited);
+  await expect(detail(page).getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
+});
+
+test('a real 409 requires comparison and honors explicit local and remote title choices', async ({ page }) => {
+  for (const choice of ['local', 'remote'] as const) {
+    const title = '冲突选择 ' + choice + ' ' + crypto.randomUUID();
+    const created = await command(page, 'create_task', { title, description: '原说明' });
+    const id = created.ids[0]; await open(page, id);
+    await detail(page).getByLabel('任务标题', { exact: true }).fill(title + ' 我的');
+    await detail(page).getByLabel('任务说明', { exact: true }).fill('保留本地独立说明');
+    const original = (await snapshot(page, id)).tasks.find((task) => task.id === id)!;
+    await command(page, 'update_task', { id, expectedRevision: original.revision, patch: { title: title + ' 远端', priority: 'high' } });
+    const rejected = page.waitForResponse((response) => response.url().endsWith('/api/to-doo/commands') && response.status() === 409);
+    await detail(page).getByRole('button', { name: '保存任务', exact: true }).click();
+    await rejected;
+    const comparison = detail(page).getByRole('alert', { name: '比较任务更新', exact: true });
+    await expect(comparison).toBeVisible();
+    await expect(detail(page).getByLabel('任务标题', { exact: true })).toHaveValue(title + ' 我的');
+    await comparison.getByRole('button', { name: '载入最新并比较', exact: true }).click();
+    const titleConflict = comparison.locator('.todo-conflict-field').filter({ has: page.getByText('标题', { exact: true }) });
+    await expect(titleConflict).toContainText(title + ' 我的');
+    await expect(titleConflict).toContainText(title + ' 远端');
+    await titleConflict.getByRole('button', { name: choice === 'local' ? '保留我的输入' : '使用最新内容', exact: true }).click();
+    await expect(comparison).not.toBeVisible();
+    expect((await snapshot(page, id)).tasks.find((task) => task.id === id)?.title).toBe(title + ' 远端');
+    await save(page);
+    expect((await snapshot(page, id)).tasks.find((task) => task.id === id)).toMatchObject({
+      title: title + (choice === 'local' ? ' 我的' : ' 远端'), description: '保留本地独立说明', priority: 'high',
+    });
+  }
+});
+
+test('plan comparison preserves independent edits and explicitly resolves same-field date conflicts', async ({ page }) => {
+  for (const sameField of [false, true]) {
+    const created = await command(page, 'create_task', { title: '时间块比较 ' + crypto.randomUUID(),
+      plan: { date: '2030-05-17', time: '09:00', timeZone: 'UTC' } });
+    const id = created.ids[0]; await open(page, id);
+    const before = await snapshot(page, id), plan = before.timeBlocks.find((block) => !block.deletedAt)!;
+    const writes = recordWrites(page);
+    await editPlan(page, '2030-05-18');
+    expect(writes).toEqual([]);
+    expect((await snapshot(page, id)).timeBlocks.find((block) => block.id === plan.id)?.start.date).toBe('2030-05-17');
+    await command(page, 'save_entity', { kind: 'timeBlock', expectedRevision: plan.revision,
+      entity: sameField ? { ...plan, start: { ...plan.start, date: '2030-05-19' } } : { ...plan, durationMinutes: 60 } });
+    await detail(page).getByRole('button', { name: '保存任务', exact: true }).click();
+    const comparison = detail(page).getByRole('alert', { name: '比较任务更新', exact: true });
+    await expect(comparison).toBeVisible();
+    await comparison.getByRole('button', { name: '载入最新并比较', exact: true }).click();
+    if (sameField) {
+      const conflict = comparison.locator('.todo-conflict-field').filter({ hasText: '时间安排 · 计划时间' });
+      await expect(conflict).toContainText('2030-05-18'); await expect(conflict).toContainText('2030-05-19');
+      await conflict.getByRole('button', { name: '保留我的输入', exact: true }).click();
+    }
+    await expect(comparison).not.toBeVisible();
+    await detail(page).getByRole('button', { name: '编辑计划日期', exact: true }).click();
+    const modal = page.getByRole('dialog', { name: '时间安排', exact: true });
+    await expect(modal.getByLabel('日期', { exact: true })).toHaveValue('2030-05-18');
+    await expect(modal.getByRole('spinbutton', { name: '时长（分钟）', exact: true })).toHaveValue(String(sameField ? plan.durationMinutes : 60));
+    await modal.getByRole('button', { name: '完成设置', exact: true }).click(); await save(page);
+    const after = await snapshot(page, id), active = after.timeBlocks.filter((block) => !block.deletedAt);
+    expect(active).toHaveLength(1); expect(active[0]).toMatchObject({ id: plan.id,
+      start: { date: '2030-05-18', time: '09:00', timeZone: 'UTC' }, durationMinutes: sameField ? plan.durationMinutes : 60 });
+    expect(active[0].revision).not.toBe(plan.revision);
+  }
+});
+
+test('a hidden child draft blocks a parent move and the detail later moves the saved subtree atomically', async ({ page }) => {
+  const suffix = crypto.randomUUID(), firstName = '原清单 ' + suffix, secondName = '目标清单 ' + suffix;
+  const first = (await command(page, 'save_entity', { kind: 'list', entity: { name: firstName } })).ids[0];
+  const second = (await command(page, 'save_entity', { kind: 'list', entity: { name: secondName } })).ids[0];
+  const section = (await command(page, 'save_entity', { kind: 'section', entity: { listId: first, name: '原分组' } })).ids[0];
+  const parentTitle = '父任务 ' + suffix, childTitle = '子任务 ' + suffix, editedChild = childTitle + ' 未保存';
+  const parent = (await command(page, 'create_task', { title: parentTitle, listId: first, sectionId: section })).ids[0];
+  const child = (await command(page, 'create_task', { title: childTitle, listId: first, parentTaskId: parent })).ids[0];
+  await open(page, child); await detail(page).getByLabel('任务标题', { exact: true }).fill(editedChild);
+  await detail(page).getByRole('button', { name: '关闭任务详情', exact: true }).click();
+  await page.getByRole('button', { name: parentTitle, exact: true }).click();
+  const writes = recordWrites(page);
+  await changeList(page, firstName, secondName);
+  expect(writes).toEqual([]);
+  await detail(page).getByRole('button', { name: '保存任务', exact: true }).click();
+  await expect(page.getByText('移动范围内还有其他未保存的任务，请先处理这些草稿', { exact: true })).toBeVisible();
+  expect(writes).toEqual([]);
+  const blocked = await snapshot(page, parent);
+  for (const id of [parent, child]) expect(blocked.tasks.find((task) => task.id === id)?.listId).toBe(first);
+  expect(blocked.tasks.find((task) => task.id === child)?.title).toBe(childTitle);
+  await detail(page).getByRole('button', { name: '关闭任务详情', exact: true }).click();
+  await page.getByRole('button', { name: '任务草稿', exact: true }).click();
+  await page.getByRole('menuitem').filter({ hasText: editedChild }).click();
+  await expect(detail(page).getByLabel('任务标题', { exact: true })).toHaveValue(editedChild);
+  await save(page); await detail(page).getByRole('button', { name: '关闭任务详情', exact: true }).click();
+  await page.getByRole('button', { name: parentTitle, exact: true }).click(); await save(page);
+  const after = await snapshot(page, parent);
+  expect(after.tasks.find((task) => task.id === parent)).toMatchObject({ listId: second, sectionId: null });
+  expect(after.tasks.find((task) => task.id === child)).toMatchObject({ listId: second, parentTaskId: parent, title: editedChild });
+  const move = writes.find((body) => body.action === 'batch_tasks' && body.payload.operation === 'move');
+  expect(move?.payload).toMatchObject({ listId: second, includeDescendants: true });
+  expect(move.payload.expectedRevisions[child]).toBeTruthy();
+  expect(writes.filter((body) => body.action === 'update_task').every((body) => !Object.hasOwn(body.payload.patch, 'listId'))).toBe(true);
+});
