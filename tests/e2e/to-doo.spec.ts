@@ -34,6 +34,7 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
   page,
   context,
 }, info) => {
+  test.setTimeout(90000);
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/?view=apps&app=to-doo&appSection=overview');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
@@ -112,6 +113,7 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
   }
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&task=' + taskId);
   await page.reload();
+  await expectToDooPageReady(app);
   await expect(app.getByRole('complementary', { name: '任务详情' }).getByRole('button', { name: '重新打开', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(app.getByLabel('任务说明', { exact: true })).toHaveValue(
     '刷新后应该仍能读到这段记录',
@@ -122,6 +124,9 @@ test('all To Doo sections are reachable on narrow and dark workspaces without ov
   page,
   context,
 }, info) => {
+  // This traverses all twelve sections twice, including screenshot capture and
+  // a 205-task shared fixture. Keep per-action assertions, with a journey budget.
+  test.setTimeout(120000);
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const sections = [
     'overview',

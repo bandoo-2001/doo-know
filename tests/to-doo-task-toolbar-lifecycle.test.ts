@@ -26,13 +26,14 @@ function fixture(section: 'tasks' | 'board' = 'tasks') {
   const headers = [header], headerTarget = Vue.shallowRef(header);
   // A controlled, body-mounted popup tests the same lifecycle boundary as Ant.
   // KeepAlive and both levels of Teleport are the real Vue implementations.
+  const RendererTeleport = Vue.Teleport as unknown as Vue.Component;
   const Popover = Vue.defineComponent({
     inheritAttrs: false, props: ['open', 'title'], emits: ['update:open', 'openChange'],
     setup: (props, { attrs, emit, slots }) => () => Vue.h('span', attrs, [
       ...(slots.default?.() || []).map(child => Vue.cloneVNode(child, { onClick: () => {
         emit('update:open', !props.open); emit('openChange', !props.open);
       } })),
-      props.open ? Vue.h(Vue.Teleport, { to: popup }, slots.content?.()) : null,
+      props.open ? Vue.h(RendererTeleport, { to: popup }, slots.content?.()) : null,
     ]),
   });
   const compile = (name: string): Vue.Component => {
@@ -124,9 +125,11 @@ function fixture(section: 'tasks' | 'board' = 'tasks') {
   const all = (parent: Node): Node[] => [parent, ...parent.children.flatMap(all)];
   const visible = () => [root, ...headers, popup].flatMap(all);
   const text = (parent: Node): string => parent.text + parent.children.map(text).join('');
-  const find = (tag: string, label: string) => visible().find(item => item.tag === tag &&
-    (item.props['aria-label'] === label || text(item).trim() === label));
-  const button = (label: string) => find('button', label)!;
+  const find = (tag: string, label: string | RegExp) => visible().find(item => {
+    const matches = (value: string) => typeof label === 'string' ? value === label : label.test(value);
+    return item.tag === tag && (matches(item.props['aria-label'] || '') || matches(text(item).trim()));
+  });
+  const button = (label: string | RegExp) => find('button', label)!;
   const byClass = (name: string, target?: Node) => (target ? all(target) : visible())
     .filter(item => String(item.props.class || '').split(' ').includes(name));
   const replaceHeader = () => {
@@ -170,15 +173,16 @@ test.each([
   ['搜索任务', 'todo-task-search-form'], ['筛选', 'todo-task-filter-form'], ['任务显示与管理', 'todo-task-display-form'],
 ])('the %s popup closes on deactivation and stays closed on return without clearing filters', async (trigger, popupClass) => {
   const f = fixture(); await settle();
+  const triggerName = trigger === '筛选' ? /^筛选\s*\d*$/ : trigger;
   f.model.state.filter.query = '待办';
-  f.button(trigger).props.onClick(); await settle();
+  f.button(triggerName).props.onClick(); await settle();
   expect(f.byClass(popupClass, f.popup)).toHaveLength(1);
   f.shown.value = false; await settle();
   expect(f.byClass(popupClass)).toHaveLength(0);
   f.shown.value = true; await settle();
   expect(f.byClass(popupClass)).toHaveLength(0);
   expect(f.model.state.filter.query).toBe('待办');
-  f.button(trigger).props.onClick(); await settle();
+  f.button(triggerName).props.onClick(); await settle();
   expect(f.byClass(popupClass, f.popup)).toHaveLength(1);
 });
 
