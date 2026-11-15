@@ -125,6 +125,11 @@ test('resizing from desktop to drawer keeps keyboard focus, the task draft and o
   await expect(overview).toBeFocused();
   await overview.press('Escape');
   await expect(more).toBeFocused();
+  await current.focus();
+  await page.setViewportSize({ width: 1080, height: 720 });
+  await expect(expand).toBeFocused();
+  await page.setViewportSize({ width: 991, height: 720 });
+  await expect(menu).toBeFocused();
 });
 
 test('scaled 1080p desktops keep popup controls and the reader within the CSS viewport', async ({ browser, page }, info) => {

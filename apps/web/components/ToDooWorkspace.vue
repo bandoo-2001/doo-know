@@ -314,8 +314,8 @@ function resizeDetail() {
     if (prior.getClientRects().length || (document.activeElement !== document.body && document.activeElement !== prior)) return;
     const selector = compactNavigation ? '.todo-topbar .todo-navigation-trigger' : '.todo-sidebar button[aria-label="展开清单导航"]';
     const opener = workspaceRef.value?.querySelector<HTMLElement>(selector);
-    if (opener?.getClientRects().length) opener.focus({ preventScroll: true });
     lastSidebarControl = undefined;
+    if (opener?.getClientRects().length) opener.focus({ preventScroll: true });
   });
   if (compactNavigation === false && !automaticCondensedNavigation.value && navigationOpen.value) {
     const restoreNavigationFocus = navigationDialog.value?.contains(document.activeElement);
