@@ -169,6 +169,12 @@
 .todo-page-calendar .todo-mobile-agenda { flex: 1; min-height: 0; overflow: auto; }
 .todo-page-calendar .todo-calendar-habits { flex: 0 0 auto; max-height: calc(var(--todo-control-height) * 2); overflow: auto; margin-top: var(--todo-space-8); padding: var(--todo-space-8) var(--todo-space-12); }
 .to-doo-workspace.todo-page-timeline .todo-timeline-scroll { flex: 1; min-height: 0; overflow: auto; }
+.todo-page-timeline .todo-timeline-track .todo-deadline {
+  padding-inline: 0;
+  font-size: var(--todo-caption-size);
+  color: var(--todo-warning-text);
+  white-space: nowrap;
+}
 .todo-page-calendar .todo-plan-preview, .todo-page-timeline .todo-plan-preview { max-height: 40%; overflow: auto; flex: 0 0 auto; }
 .todo-ant-modal .todo-plan-tools { display: flex; flex-direction: column; align-items: stretch; gap: var(--todo-space-12); padding: 0; }
 .todo-ant-modal .todo-plan-tools .ant-picker { width: 100%; }
