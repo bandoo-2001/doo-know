@@ -1131,6 +1131,9 @@ test('adding an execution record does not reopen its task after the user selects
   const { value } = confirmationModel();
   value.state.snapshot!.occurrences = value.state.snapshot!.occurrences.filter(occurrence => occurrence.taskId !== 'task-a');
   value.selectTask('task-a');
+  // Keep this fixture's empty execution context stable while testing the
+  // command reply race; confirmationModel's GET fixture still contains occ-a.
+  vi.spyOn(value, 'prepareTaskAction').mockResolvedValue([]);
   let finish!: (result: any) => void;
   const execute = vi.spyOn(value, 'execute').mockImplementation(() => new Promise(resolve => { finish = resolve; }));
   const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
