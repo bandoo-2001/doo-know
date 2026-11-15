@@ -56,7 +56,7 @@ test('PC list, task reader and header share readable widths across laptop, scale
     if (width === 1920) {
       expect(input.width).toBeGreaterThanOrEqual(pane.width * .88);
       expect(input.x - pane.x).toBeLessThanOrEqual(96);
-      const task = main.locator('.todo-task-row').filter({ has: row });
+      const task = main.locator('.todo-task-row').filter({ has: page.getByRole('button', { name: taskTitle, exact: true }) });
       const dates = task.locator('.todo-task-date');
       await expect(dates).toHaveCount(2);
       const firstDate = (await dates.first().boundingBox())!;
