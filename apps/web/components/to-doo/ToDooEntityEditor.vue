@@ -10,7 +10,7 @@ import {
 } from 'ant-design-vue';
 import ToDooSelect from './ToDooSelect.vue';
 import ToDooDateField from './ToDooDateField.vue';
-import { computed, nextTick, reactive, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue';
 import lunar from 'lunar-javascript';
 import type { TreeEntry } from '../../../../shared/contracts';
 import type { ToDooEntityKind } from '../../../../shared/to-doo-contracts';
@@ -25,6 +25,7 @@ import ToDooHabitFields from './ToDooHabitFields.vue';
 import ToDooTimeBlockFields from './ToDooTimeBlockFields.vue';
 import ToDooAnniversaryAppearance from './ToDooAnniversaryAppearance.vue';
 import { saveTaskSection } from '../../to-doo-task-groups';
+import { guardToDooTaskAction } from '../../to-doo-action-guard';
 const props = defineProps<{
   model: ToDooWorkbench;
   kind: ToDooEntityKind;
@@ -144,6 +145,15 @@ function setLunarPart(index: number, value: number | string | null) {
   form.date = [0, 1, 2].map((i) => parts[i] || '').join('-');
 }
 const completeOutcome = ref(false);
+const savingOutcome = ref(false);
+let editorAlive = true;
+onBeforeUnmount(() => { editorAlive = false; });
+const outcomeOccurrenceBaseline = {
+  id: form.occurrenceId || null,
+  revision: props.model.state.snapshot?.occurrences.find(
+    occurrence => occurrence.id === form.occurrenceId && !occurrence.deletedAt,
+  )?.revision,
+};
 const extraFields = ref<InstanceType<typeof ToDooDisclosure>>();
 const formLayout = ref<InstanceType<typeof ToDooFormLayout>>();
 const validationError = ref('');
@@ -158,9 +168,6 @@ function revealInvalid(event: Event) {
     if (input.isConnected) input.focus({ preventScroll: false });
   });
 }
-const occurrenceRevision = props.model.state.snapshot?.occurrences.find(
-  (o) => o.id === form.occurrenceId,
-)?.revision;
 const baseline = JSON.stringify(form),
   templateLines = ref<string>((form.tasks || []).map((t: any) => t.title).join('\n'));
 const initialTemplateLines = templateLines.value;
@@ -247,6 +254,65 @@ async function close() {
   if (hasUnsavedInput() && !(await confirm('表单尚未保存，确定关闭并放弃这些输入？'))) return;
   emit('close');
 }
+async function saveNewOutcome() {
+  if (savingOutcome.value) return;
+  const datasetId = props.model.state.snapshot?.datasetId;
+  const occurrenceId = form.occurrenceId || null;
+  const taskId = props.model.state.snapshot?.occurrences.find(
+    occurrence => occurrence.id === occurrenceId && !occurrence.deletedAt,
+  )?.taskId;
+  if (!datasetId || occurrenceId && !taskId || !occurrenceId && completeOutcome.value) {
+    props.model.state.error = '本次执行已不可用，请重新打开任务后记录成果；当前输入仍保留。';
+    return;
+  }
+  const outcomeInput = () => JSON.stringify({ entity: form, complete: completeOutcome.value });
+  const submittedInput = outcomeInput();
+  const { complete, entity } = JSON.parse(submittedInput);
+  const outcome = { summary: entity.summary, verification: entity.verification,
+    criteriaResults: entity.criteriaResults, evidenceRefs: entity.evidenceRefs };
+  const current = () => editorAlive && props.kind === 'outcome' && !props.entity &&
+    props.model.state.snapshot?.datasetId === datasetId && (form.occurrenceId || null) === occurrenceId &&
+    outcomeInput() === submittedInput;
+  let savedOccurrenceRevision: string | undefined;
+  savingOutcome.value = true;
+  try {
+    if (!(await guardToDooTaskAction(props.model, taskId ? [taskId] : [], confirm, {
+      includeDescendants: true, current,
+      save: async () => {
+        const result = await props.model.saveTask();
+        if (result && current() && !props.model.dirty())
+          savedOccurrenceRevision = props.model.state.snapshot?.occurrences.find(
+            entry => entry.id === occurrenceId && entry.taskId === taskId && !entry.deletedAt,
+          )?.revision;
+        return result;
+      },
+    })) || !current()) return;
+    if (!occurrenceId) {
+      // An unattached outcome has no affected task, but still respects the pending-command guard.
+      const result = await props.model.saveEntity('outcome', entity);
+      if (result && current()) emit('close');
+      return;
+    }
+    // Only our confirmed draft save may advance the revision captured when this editor opened.
+    // An unrelated refresh must still produce a server conflict rather than adopt remote edits.
+    const occurrence = props.model.state.snapshot?.occurrences.find(
+      entry => entry.id === occurrenceId && entry.taskId === taskId && !entry.deletedAt,
+    );
+    const expectedRevision = savedOccurrenceRevision ||
+      (outcomeOccurrenceBaseline.id === occurrenceId ? outcomeOccurrenceBaseline.revision : undefined);
+    if (!occurrence || !expectedRevision) {
+      props.model.state.error = '本次执行已变化，请重新打开任务后记录成果；当前输入仍保留。';
+      return;
+    }
+    const result = await props.model.execute({
+      action: 'save_outcome',
+      payload: { occurrenceId, expectedRevision, outcome, complete },
+    });
+    if (result && current()) emit('close');
+  } finally {
+    savingOutcome.value = false;
+  }
+}
 async function save() {
   if (props.kind === 'anniversary' && form.calendar === 'lunar') {
     try {
@@ -286,22 +352,8 @@ async function save() {
   if (props.kind === 'habit' && form.target) form.target = Number(form.target);
   if (form.start) form.start.time ||= null;
   if (form.end) form.end.time ||= null;
-  if (props.kind === 'outcome' && !props.entity && form.occurrenceId && occurrenceRevision) {
-    const result = await props.model.execute({
-      action: 'save_outcome',
-      payload: {
-        occurrenceId: form.occurrenceId,
-        expectedRevision: occurrenceRevision,
-        outcome: {
-          summary: form.summary,
-          verification: form.verification,
-          criteriaResults: form.criteriaResults,
-          evidenceRefs: form.evidenceRefs,
-        },
-        complete: completeOutcome.value,
-      },
-    });
-    if (result) emit('close');
+  if (props.kind === 'outcome' && !props.entity) {
+    await saveNewOutcome();
     return;
   }
   const entity = JSON.parse(JSON.stringify(form));
@@ -829,10 +881,10 @@ defineExpose({
         ><AButton
           html-type="submit"
           class="todo-button todo-primary"
-          :disabled="model.state.busy"
+          :disabled="model.state.busy || savingOutcome"
           type="primary"
         >
-          {{ model.state.busy ? '保存中…' : '保存' }}
+          {{ model.state.busy || savingOutcome ? '保存中…' : '保存' }}
         </AButton>
       </template>
     </ToDooFormLayout>

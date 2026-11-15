@@ -102,6 +102,8 @@ test('month geometry stays within the viewport and settings never move the date 
     await page.setViewportSize(size);
     await page.goto('/?view=apps&app=to-doo&appSection=calendar&calendarView=month&date=2026-10-30');
     const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
+    // This can be the first cold workspace load in the browser project.
+    await expect(app).toBeVisible({ timeout: 20000 });
     if (size.width === 390) {
       await expect(app.locator('.todo-mobile-agenda')).toBeVisible();
       await app.getByText('网格', { exact: true }).click();

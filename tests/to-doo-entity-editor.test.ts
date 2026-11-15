@@ -6,6 +6,7 @@ import * as Vue from 'vue';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as controls from '../apps/web/to-doo-controls';
 import * as groups from '../apps/web/to-doo-task-groups';
+import * as actionGuards from '../apps/web/to-doo-action-guard';
 import lunar from 'lunar-javascript';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
 
@@ -30,6 +31,8 @@ function editor(
     seed?: Record<string, any>;
     entity?: Record<string, any>;
     render?: boolean;
+    confirm?: (message: string, options?: { title?: string; danger?: boolean }) => Promise<boolean>;
+    occurrence?: { id: string; taskId: string; revision: string; deletedAt?: string | null };
   },
 ) {
   const { descriptor } = parse(
@@ -48,8 +51,10 @@ function editor(
       if (id === 'vue') return Vue;
       if (id === 'lunar-javascript') return { default: lunar };
       if (id === '../../to-doo-workbench') return workbench;
-      if (id === '../../to-doo-controls') return controls;
+      if (id === '../../to-doo-controls') return options?.confirm
+        ? { ...controls, useToDooConfirm: () => options.confirm } : controls;
       if (id === '../../to-doo-task-groups') return groups;
+      if (id === '../../to-doo-action-guard') return actionGuards;
       if (id === 'ant-design-vue') return options?.render ? toDooAntStubs : {};
       if (id.endsWith('.vue'))
         return options?.render ? { default: toDooBoundaryStub(id) || SlotBoundary } : {};
@@ -113,14 +118,22 @@ function editor(
   const model = {
     state: Vue.reactive({
       snapshot: {
+        datasetId: 'test',
         settings: { timeZone: 'UTC' },
-        occurrences: [],
+        occurrences: (options?.occurrence ? [{ ...options.occurrence }] : []) as { id: string; taskId: string; revision: string; deletedAt?: string | null }[],
         lists: [{ id: 'list-1', name: 'Goal' }],
       },
+      selectedTaskId: 'task-a',
+      selectedOccurrenceId: 'occ-a',
       error: '',
     }),
     saveEntity,
-    execute: vi.fn(async () => true),
+    prepareTaskAction: vi.fn(async () => [] as workbench.ToDooActionDraft[] | null),
+    taskDefinitions: vi.fn(() => []),
+    validateTaskDraft: vi.fn(() => true),
+    saveTask: vi.fn(async () => true),
+    dirty: vi.fn(() => false),
+    execute: vi.fn(async (_command?: unknown, _notice?: string) => true),
   };
   const closed = vi.fn();
   const app = renderer.createApp(component, {
@@ -180,6 +193,145 @@ describe('section editor required list', () => {
     } finally {
       form.unmount();
     }
+  });
+});
+
+describe('new outcome task draft safety', () => {
+  const currentDraft: workbench.ToDooActionDraft = {
+    key: 'task-a@occ-a', kind: 'task', taskId: 'task-a', occurrenceId: 'occ-a', title: '待保存的任务',
+  };
+  function outcomeEditor(confirm: NonNullable<Parameters<typeof editor>[1]>['confirm']) {
+    return editor(null, { kind: 'outcome', seed: { summary: '已核对成果', occurrenceId: 'occ-a' }, confirm,
+      occurrence: { id: 'occ-a', taskId: 'task-a', revision: 'occ-old' } });
+  }
+  it.each([false, true])('keeps complete=%s unsent when saving the affected task draft is declined', async complete => {
+    const confirm = vi.fn(async () => false), value = outcomeEditor(confirm);
+    try {
+      value.setCompleteOutcome(complete);
+      value.model.prepareTaskAction.mockResolvedValue([currentDraft]);
+      await value.save();
+      expect(value.model.prepareTaskAction).toHaveBeenCalledWith(['task-a'], true);
+      expect(confirm).toHaveBeenCalledWith(expect.stringContaining('保存成功后再继续'), { title: '保存并继续' });
+      expect(value.model.saveTask).not.toHaveBeenCalled();
+      expect(value.model.execute).not.toHaveBeenCalled();
+      expect(value.model.saveEntity).not.toHaveBeenCalled();
+      expect(value.closed).not.toHaveBeenCalled();
+      expect(value.form.summary).toBe('已核对成果');
+    } finally { value.unmount(); }
+  });
+  it.each([false, true])('keeps complete=%s unsent when another execution has a hidden dirty draft', async complete => {
+    const confirm = vi.fn(async () => true), value = outcomeEditor(confirm);
+    try {
+      value.setCompleteOutcome(complete);
+      value.model.prepareTaskAction.mockResolvedValue([{ ...currentDraft, key: 'task-a@occ-other', occurrenceId: 'occ-other' }]);
+      await value.save();
+      expect(value.model.state.error).toContain('任务草稿');
+      expect(confirm).not.toHaveBeenCalled();
+      expect(value.model.saveTask).not.toHaveBeenCalled();
+      expect(value.model.execute).not.toHaveBeenCalled();
+      expect(value.closed).not.toHaveBeenCalled();
+    } finally { value.unmount(); }
+  });
+  it.each([false, true])('saves the task first and submits complete=%s using the execution revision read after that save', async complete => {
+    const confirm = vi.fn(async () => true), value = outcomeEditor(confirm);
+    try {
+      value.setCompleteOutcome(complete);
+      value.model.prepareTaskAction.mockResolvedValueOnce([currentDraft]).mockResolvedValueOnce([]);
+      value.model.saveTask.mockImplementation(async () => {
+        expect(value.model.execute).not.toHaveBeenCalled();
+        value.model.state.snapshot.occurrences[0].revision = 'occ-after-task-save';
+        return true;
+      });
+      await value.save();
+      expect(value.model.saveTask).toHaveBeenCalledTimes(1);
+      expect(value.model.prepareTaskAction).toHaveBeenCalledTimes(2);
+      expect(value.model.execute).toHaveBeenCalledExactlyOnceWith({
+        action: 'save_outcome', payload: {
+          occurrenceId: 'occ-a', expectedRevision: 'occ-after-task-save', complete,
+          outcome: { summary: '已核对成果', verification: 'self_assessed', criteriaResults: [], evidenceRefs: [] },
+        },
+      });
+      expect(value.model.saveEntity).not.toHaveBeenCalled();
+      expect(value.closed).toHaveBeenCalledTimes(1);
+    } finally { value.unmount(); }
+  });
+  it('does not queue an outcome if the task save fails or leaves an unresolved draft', async () => {
+    const value = outcomeEditor(async () => true);
+    try {
+      value.model.prepareTaskAction.mockResolvedValue([currentDraft]);
+      value.model.saveTask.mockResolvedValue(false);
+      await value.save();
+      expect(value.model.execute).not.toHaveBeenCalled();
+      value.model.saveTask.mockResolvedValue(true); value.model.dirty.mockReturnValue(true);
+      await value.save();
+      expect(value.model.execute).not.toHaveBeenCalled();
+      expect(value.closed).not.toHaveBeenCalled();
+    } finally { value.unmount(); }
+  });
+  it('retains the opened execution revision after an external refresh when no local draft was saved', async () => {
+    const confirm = vi.fn(async () => true), value = outcomeEditor(confirm);
+    try {
+      value.model.state.snapshot.occurrences[0].revision = 'external-before-prepare';
+      value.model.prepareTaskAction.mockImplementation(async () => {
+        value.model.state.snapshot.occurrences[0].revision = 'external-after-prepare';
+        return [];
+      });
+      value.model.execute.mockImplementation(async input => {
+        expect(input).toMatchObject({ action: 'save_outcome', payload: { expectedRevision: 'occ-old' } });
+        value.model.state.error = '版本冲突，请比较最新版本';
+        return false;
+      });
+      await value.save();
+      expect(value.model.execute).toHaveBeenCalledTimes(1);
+      expect(confirm).not.toHaveBeenCalled();
+      expect(value.model.saveTask).not.toHaveBeenCalled();
+      expect(value.closed).not.toHaveBeenCalled();
+      expect(value.form.summary).toBe('已核对成果');
+      expect(value.model.state.error).toContain('版本冲突');
+    } finally { value.unmount(); }
+  });
+  it('captures the target through asynchronous confirmation and ignores duplicate save clicks', async () => {
+    let finish!: (accepted: boolean) => void;
+    const confirm = vi.fn(() => new Promise<boolean>(resolve => { finish = resolve; }));
+    const value = outcomeEditor(confirm);
+    try {
+      value.model.prepareTaskAction.mockResolvedValue([currentDraft]);
+      const saving = value.save();
+      await vi.waitFor(() => expect(confirm).toHaveBeenCalledTimes(1));
+      await value.save();
+      expect(value.model.prepareTaskAction).toHaveBeenCalledTimes(1);
+      value.form.occurrenceId = 'occ-other';
+      finish(true); await saving;
+      expect(value.model.saveTask).not.toHaveBeenCalled();
+      expect(value.model.execute).not.toHaveBeenCalled();
+      expect(value.closed).not.toHaveBeenCalled();
+    } finally { value.unmount(); }
+  });
+  it('never falls back to an unguarded generic write when a new outcome has no current execution', async () => {
+    const value = editor(null, { kind: 'outcome', seed: { summary: '保留成果', occurrenceId: 'missing-occurrence' } });
+    try {
+      await value.save();
+      expect(value.model.state.error).toContain('本次执行已不可用');
+      expect(value.model.execute).not.toHaveBeenCalled();
+      expect(value.model.saveEntity).not.toHaveBeenCalled();
+      expect(value.closed).not.toHaveBeenCalled();
+    } finally { value.unmount(); }
+  });
+  it('preserves unattached outcome creation while checking the pending-action guard first', async () => {
+    const value = editor(null, { kind: 'outcome', seed: { summary: '独立成果', listId: 'list-1' } });
+    try {
+      value.model.prepareTaskAction.mockResolvedValueOnce(null);
+      await value.save();
+      expect(value.model.saveEntity).not.toHaveBeenCalled();
+      expect(value.closed).not.toHaveBeenCalled();
+      await value.save();
+      expect(value.model.prepareTaskAction).toHaveBeenCalledWith([], true);
+      expect(value.model.saveEntity).toHaveBeenCalledExactlyOnceWith('outcome', {
+        summary: '独立成果', listId: 'list-1', verification: 'self_assessed', criteriaResults: [], evidenceRefs: [],
+      });
+      expect(value.model.execute).not.toHaveBeenCalled();
+      expect(value.closed).toHaveBeenCalledTimes(1);
+    } finally { value.unmount(); }
   });
 });
 
