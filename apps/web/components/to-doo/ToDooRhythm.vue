@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, reactive, ref, watch } from 'vue';
+import { computed, nextTick, onUnmounted, reactive, ref, watch } from 'vue';
 import {
   Alert as AAlert,
   Button as AButton,
@@ -10,7 +10,6 @@ import {
 } from 'ant-design-vue';
 import ToDooFocus from './ToDooFocus.vue';
 import ToDooHabitCard from './ToDooHabitCard.vue';
-import ToDooHint from './ToDooHint.vue';
 import '../../to-doo-anniversary.css';
 import { formatHabitSchedule } from '../../to-doo-habit-presentation';
 import ToDooPageToolbar from './ToDooPageToolbar.vue';
@@ -31,10 +30,17 @@ const props = defineProps<{
   model: ToDooWorkbench;
   section: 'focus' | 'habits' | 'anniversaries';
   occurrenceId?: string;
+  listId?: string;
+  historyRequest?: number;
+  historyDate?: string;
+  historyRange?: { from: string; to: string };
 }>();
 const emit = defineEmits<{
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
   task: [id: string, occurrenceId?: string];
+  list: [id: string];
+  'all-habits': [];
+  'task-context-consumed': [];
 }>();
 const confirmAction = useToDooConfirm();
 const { now: tick, active: clockActive } = useToDooClock();
@@ -43,8 +49,23 @@ const state = props.model.state,
 const today = computed(() =>
   toDooLocalDate(new Date(tick.value), state.snapshot?.settings.timeZone),
 );
-const habits = computed(() => state.snapshot?.habits.filter((h) => !h.deletedAt) || []);
+void props.model.ensureListCatalog();
+const lists = computed(() => props.model.taskLists());
+const scopedList = computed(() => lists.value.find((list) => list.id === props.listId));
+const habits = computed(
+  () =>
+    state.snapshot?.habits.filter(
+      (h) => !h.deletedAt && (!props.listId || h.listId === props.listId),
+    ) || [],
+);
+const habitList = (habit: ToDooEntityMap['habit']) =>
+  lists.value.find((list) => list.id === habit.listId);
+function createHabit() {
+  emit('edit', 'habit', undefined, props.listId ? { listId: props.listId } : undefined);
+}
 const habitPane = ref('today');
+const habitHistory = ref<HTMLElement>();
+let appliedHistoryRequest = 0;
 const habitEntries = ref<ToDooEntityMap['habitEntry'][]>([]);
 const habitLoading = ref(false),
   habitError = ref(''),
@@ -120,6 +141,24 @@ const weekStart = computed(() => {
 });
 const days = computed(() =>
   Array.from({ length: 7 }, (_, i) => shiftToDooDate(weekStart.value, i)),
+);
+watch(
+  () => [props.section, props.historyRequest, props.historyDate] as const,
+  async () => {
+    const request = props.historyRequest || 0;
+    if (props.section !== 'habits' || !request || request === appliedHistoryRequest) return;
+    appliedHistoryRequest = request;
+    weekOffset.value = 0;
+    const date = props.historyDate;
+    if (date && /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(Date.parse(date)))
+      weekOffset.value = Math.floor(
+        (Date.parse(date + 'T12:00:00Z') - Date.parse(weekStart.value + 'T12:00:00Z')) / 604800000,
+      );
+    habitPane.value = 'history';
+    await nextTick();
+    habitHistory.value?.scrollIntoView({ block: 'start', behavior: 'instant' });
+  },
+  { immediate: true },
 );
 const habitRange = computed(() => {
   const periods = habits.value
@@ -254,6 +293,28 @@ const habitSummary = (habit: ToDooEntityMap['habit'], date: string) =>
 const exemptDay = (habit: ToDooEntityMap['habit'], date: string) => {
   return !getHabitPeriod(habit, date).scheduledDates.includes(date);
 };
+const todayHabitGroups = computed(() => {
+  const groups = [
+    { id: 'pending', label: '待打卡', items: [] as ToDooEntityMap['habit'][] },
+    { id: 'done', label: '已完成', items: [] as ToDooEntityMap['habit'][] },
+    { id: 'rest', label: '今天无需打卡', items: [] as ToDooEntityMap['habit'][] },
+  ];
+  for (const habit of habits.value) {
+    const date = habitToday(habit);
+    const summary = habitSummary(habit, date);
+    const resting =
+      exemptDay(habit, date) ||
+      habit.pausedDates.includes(date) ||
+      summary.status === 'inactive' ||
+      entries(habit.id, date).some((entry) => entry.skipped);
+    const completed =
+      getHabitGoalMode(summary.rule) === 'checkin'
+        ? amount(habit.id, date) > 0
+        : summary.status === 'achieved';
+    groups[!habitReady.value ? 0 : resting ? 2 : completed ? 1 : 0].items.push(habit);
+  }
+  return groups.filter((group) => group.items.length);
+});
 async function skip(habit: ToDooEntityMap['habit'], date: string) {
   if (!habitReady.value || state.busy) return;
   return props.model.execute(
@@ -337,7 +398,9 @@ async function saveNumeric() {
         sourceSessionId: null,
       },
     },
-    '习惯记录已保存',
+    dialog.date === habitToday(dialog.habit)
+      ? `已记录「${dialog.habit.name}」`
+      : `已补记「${dialog.habit.name}」${dialog.date}`,
   );
   if (result) {
     numericDialog.value = null;
@@ -359,6 +422,7 @@ async function undo(habit: ToDooEntityMap['habit'], date: string) {
     const r = await props.model.removeEntity('habitEntry', entry);
     if (!r) return false;
   }
+  state.notice = `已撤销「${habit.name}」${date} 的记录`;
   return true;
 }
 async function undoEntry(entry: ToDooEntityMap['habitEntry']) {
@@ -411,7 +475,9 @@ async function recordToday(habit: ToDooEntityMap['habit']) {
         sourceSessionId: null,
       },
     },
-    '习惯记录已保存',
+    getHabitGoalMode(getHabitRule(habit, habitToday(habit))) === 'checkin'
+      ? `已为「${habit.name}」打卡`
+      : `已记录「${habit.name}」${value} ${getHabitRule(habit, habitToday(habit)).unit}`,
   );
   if (result && quantities[key] === value) delete quantities[key];
 }
@@ -452,8 +518,11 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
       v-if="section === 'focus'"
       :model="model"
       :occurrence-id="occurrenceId"
+      :history-request="historyRequest"
+      :history-range="historyRange"
       @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)"
       @task="(id, occurrence) => emit('task', id, occurrence)"
+      @task-context-consumed="emit('task-context-consumed')"
   /></KeepAlive>
   <template v-if="section === 'habits'"
     ><ToDooPageToolbar class="todo-calendar-toolbar">
@@ -474,50 +543,72 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
         <AButton type="text" class="todo-icon-button" aria-label="下一周" @click="weekOffset++">
           ›
         </AButton>
+        <AButton v-if="weekOffset" type="text" @click="weekOffset = 0">回到本周</AButton>
       </div>
     </ToDooPageToolbar>
+    <div v-if="listId" class="todo-habit-scope" aria-label="当前习惯范围">
+      <span>{{ scopedList?.name || '当前清单' }} · 关联习惯</span>
+      <AButton type="link" @click="emit('all-habits')">查看全部习惯</AButton>
+      <AButton
+        v-if="scopedList && !scopedList.archivedAt"
+        type="link"
+        @click="emit('list', scopedList.id)"
+        >查看清单任务</AButton
+      >
+    </div>
     <AAlert v-if="habitError" type="error" :message="habitError" show-icon
       ><template #action
         ><AButton @click="loadHabitEntries">重试读取习惯记录</AButton></template
       ></AAlert
     >
     <div v-if="habitPane === 'today'" class="todo-habit-cards" :aria-busy="habitLoading">
-      <ToDooHabitCard
-        v-for="h in habits"
-        :key="h.id"
-        :habit="h"
-        :date="habitToday(h)"
-        :show-local-date="
-          habitToday(h) !== today || h.timeZone !== state.snapshot?.settings.timeZone
-        "
-        :summary="habitSummary(h, habitToday(h))"
-        :amount="amount(h.id, habitToday(h))"
-        :entry-count="entries(h.id, habitToday(h)).length"
-        :skipped="entries(h.id, habitToday(h)).some((entry) => entry.skipped)"
-        :exempt="exemptDay(h, habitToday(h))"
-        :ready="habitReady"
-        :busy="state.busy"
-        :quantity="quantity(h)"
-        :error="quantityErrors[quantityKey(h)]"
-        @update:quantity="
-          quantities[quantityKey(h)] = $event;
-          quantityErrors[quantityKey(h)] = '';
-        "
-        @record="recordToday(h)"
-        @edit="emit('edit', 'habit', h)"
-        @skip="skip(h, habitToday(h))"
-        @undo="undo(h, habitToday(h))"
-        @pause="pauseToday(h)"
-        @statistics="openHabitStatistics(h)"
-        @entries="checkin(h, habitToday(h))"
-      />
-      <AEmpty v-if="!habits.length" description="从一件小事开始，记录每一次积累。" />
+      <section
+        v-for="group in todayHabitGroups"
+        :key="group.id"
+        class="todo-habit-today-group"
+        :aria-label="group.label"
+      >
+        <h2 v-if="habitReady" class="todo-habit-today-heading">
+          {{ group.label }} <small>{{ group.items.length }}</small>
+        </h2>
+        <ToDooHabitCard
+          v-for="h in group.items"
+          :key="h.id"
+          :habit="h"
+          :date="habitToday(h)"
+          :show-local-date="
+            habitToday(h) !== today || h.timeZone !== state.snapshot?.settings.timeZone
+          "
+          :summary="habitSummary(h, habitToday(h))"
+          :amount="amount(h.id, habitToday(h))"
+          :entry-count="entries(h.id, habitToday(h)).length"
+          :skipped="entries(h.id, habitToday(h)).some((entry) => entry.skipped)"
+          :exempt="exemptDay(h, habitToday(h))"
+          :ready="habitReady"
+          :busy="state.busy"
+          :quantity="quantity(h)"
+          :error="quantityErrors[quantityKey(h)]"
+          :list="habitList(h)"
+          @update:quantity="
+            quantities[quantityKey(h)] = $event;
+            quantityErrors[quantityKey(h)] = '';
+          "
+          @record="recordToday(h)"
+          @edit="emit('edit', 'habit', h)"
+          @skip="skip(h, habitToday(h))"
+          @undo="undo(h, habitToday(h))"
+          @pause="pauseToday(h)"
+          @statistics="openHabitStatistics(h)"
+          @entries="checkin(h, habitToday(h))"
+          @list="emit('list', $event)"
+        />
+      </section>
+      <AEmpty v-if="!habits.length" :description="listId ? '这个清单还没有关联习惯' : '还没有习惯'">
+        <AButton @click="createHabit">新建习惯</AButton>
+      </AEmpty>
     </div>
     <template v-else>
-      <ToDooHint :model="model" hint-id="habit-calendar-edit" class="todo-top-gap"
-        >点击日期补记或调整记录。周／月累计请在“今天”查看。</ToDooHint
-      >
-      <section class="todo-panel todo-habit-table">
+      <section ref="habitHistory" class="todo-panel todo-habit-table">
         <div class="todo-habit-row head">
           <span>习惯</span
           ><span v-for="d in days" :key="d"
@@ -595,14 +686,8 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
             </button>
           </div>
         </div>
-        <AEmpty
-          v-if="!habits.length"
-          class="todo-empty"
-          description="让一个小行动重复发生，习惯以真实数量记录，中断一天也可以继续。"
-        >
-          <AButton type="default" class="todo-button" @click="emit('edit', 'habit')"
-            >新建习惯</AButton
-          >
+        <AEmpty v-if="!habits.length" class="todo-empty" description="还没有习惯记录">
+          <AButton type="default" class="todo-button" @click="createHabit">新建习惯</AButton>
         </AEmpty>
       </section></template
     ></template
@@ -707,9 +792,7 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
         当前连续 {{ habitStatistics.streak.current }} 期 · 最长连续
         {{ habitStatistics.streak.longest }} 期
       </p>
-      <ToDooHint :model="model" hint-id="habit-statistics-rules"
-        >按记录当天的规则和日／周／月周期计算；暂停与跳过使用当期规则。</ToDooHint
-      >
+
       <AAlert
         v-if="habitStatistics.streak.estimated"
         type="info"
@@ -757,13 +840,7 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
         当期累计 {{ dialogSummary?.amount }} / {{ dialogRule.target }}
         {{ ordinaryDialog ? '天' : dialogRule.unit }}
       </p>
-      <ToDooHint
-        :model="model"
-        :hint-id="ordinaryDialog ? 'habit-checkin-save' : 'habit-quantity-save'"
-        >{{
-          ordinaryDialog ? '点击打卡后保存本次记录' : '点击保存后记录本次新增'
-        }}；关闭会放弃本次输入，已保存记录保留。</ToDooHint
-      >
+
       <ul
         v-if="numericDialog && dialogEntries.length"
         class="todo-habit-entries"
@@ -847,6 +924,43 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
 </template>
 
 <style scoped>
+.todo-habit-scope {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: -4px 0 16px;
+  padding: 8px 12px;
+  background: var(--todo-soft);
+  border-radius: 6px;
+  color: var(--todo-muted);
+  font-size: 13px;
+}
+.todo-habit-scope > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.todo-habit-scope .ant-btn {
+  height: auto;
+  padding: 3px 0;
+  font-size: 13px;
+}
+.todo-habit-today-group {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.todo-habit-today-heading {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 0;
+}
+.todo-habit-today-heading small {
+  color: var(--todo-muted);
+  font-size: var(--todo-caption-size);
+  font-weight: 400;
+}
 .todo-anniversary-heading > .ant-btn {
   margin-left: auto;
 }

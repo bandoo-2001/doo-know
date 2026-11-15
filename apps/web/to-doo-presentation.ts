@@ -8,6 +8,12 @@ import {
 } from './to-doo-workbench';
 
 export type ToDooQuickFilter = ToDooTaskFilter;
+export type ToDooTaskPlacement = {
+  taskId: string;
+  title: string;
+  listId: string | null;
+  planDates: string[];
+};
 export function toDooCalendarRange(
   anchor: string,
   view: 'month' | 'week' | 'timeline',
@@ -20,10 +26,11 @@ export function toDooCalendarRange(
   return { from, to: shiftToDooDate(from, view === 'month' ? 41 : 6) };
 }
 export const toDooQuickViews = [
-  { id: 'inbox', name: '收集箱', icon: 'inbox' },
   { id: 'today', name: '今天', icon: 'today' },
+  { id: 'inbox', name: '收集箱', icon: 'inbox' },
   { id: 'upcoming', name: '近七天', icon: 'upcoming' },
   { id: 'all', name: '所有任务', icon: 'tasks' },
+  { id: 'done', name: '已完成', icon: 'check' },
 ] as const;
 
 export function toDooQuickFilter(
@@ -58,6 +65,24 @@ export function toDooQuickFilter(
   if (value === 'trash') filter.includeDeleted = true;
   if (value === 'archived') filter.includeArchived = true;
   return filter;
+}
+
+/** Show extra conditions without repeating the scope already named in the heading. */
+export function toDooAdditionalFilters(
+  filter: ToDooFilter,
+  scope: ToDooQuickFilter,
+  today: string,
+  listId?: string,
+): ToDooFilter {
+  const extra = { ...filter };
+  const preset = toDooQuickFilter({}, listId ? 'all' : scope, today);
+  for (const key of Object.keys(preset) as (keyof ToDooFilter)[]) {
+    if (JSON.stringify(extra[key]) === JSON.stringify(preset[key])) delete extra[key];
+  }
+  const selectedList = listId || (scope === 'inbox' ? 'inbox' : undefined);
+  if (selectedList && extra.listIds?.length === 1 && extra.listIds[0] === selectedList)
+    delete extra.listIds;
+  return extra;
 }
 
 export function prepareToDooQuickDraft(

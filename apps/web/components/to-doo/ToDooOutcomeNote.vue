@@ -8,7 +8,6 @@ import {
 } from 'ant-design-vue';
 import ToDooSelect from './ToDooSelect.vue';
 import ToDooDisclosure from './ToDooDisclosure.vue';
-import ToDooHint from './ToDooHint.vue';
 import ToDooFormLayout from './ToDooFormLayout.vue';
 import ToDooMarkdownPreview from './ToDooMarkdownPreview.vue';
 import { computed, reactive, ref } from 'vue';
@@ -148,9 +147,7 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || busy.value });
       :disabled="busy"
       >×</AButton
     >
-    <ToDooHint :model="model" hint-id="outcome-save-policy">
-      创建后正文保存在知识库，并关联这次行动。收起后在当前工作空间保留输入，刷新或离开工作空间前请保存。
-    </ToDooHint>
+
     <p>
       关联任务：{{ task.title
       }}<template v-if="occurrence.scheduledDate || occurrence.due?.date">

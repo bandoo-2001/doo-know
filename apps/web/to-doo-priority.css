@@ -91,7 +91,7 @@
   align-items: flex-start;
   flex-shrink: 0;
   gap: 10px;
-  background: color-mix(in srgb, var(--todo-zone-color) 9%, var(--todo-paper));
+  background: var(--todo-paper);
   color: var(--todo-zone-color);
   padding: 12px;
 }
@@ -103,10 +103,10 @@
 }
 
 .to-doo-workspace .todo-quadrant-heading h2 {
-  font-size: 13px;
+  font-size: var(--todo-item-size);
 }
 .to-doo-workspace .todo-quadrant-action {
-  font-size: 11px;
+  font-size: var(--todo-caption-size);
 }
 .to-doo-workspace .todo-quadrant-items {
   flex: 1;

@@ -1,4 +1,8 @@
-import { openToDooTaskTools } from '../support/to-doo-navigation';
+import {
+  openToDooTaskTools,
+  selectToDooTaskView,
+  selectToDooQuickView,
+} from '../support/to-doo-navigation';
 import { readFile, mkdir } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
@@ -26,7 +30,7 @@ test('quick add today persists its plan without opening details and keeps comple
   await page.goto('/?view=apps&app=to-doo&appSection=tasks');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
   await expect(app).toBeVisible();
-  await app.getByRole('button', { name: '今天', exact: true }).click();
+  await selectToDooQuickView(page, '今天');
   const title = '快速今日行动 ' + info.project.name + '-' + Date.now();
   const input = app.getByRole('textbox', { name: '快速添加任务', exact: true });
   await expect(input).toBeVisible();
@@ -67,7 +71,7 @@ test('quick add today persists its plan without opening details and keeps comple
     fullPage: true,
   });
 
-  await app.getByRole('button', { name: '所有任务', exact: true }).click();
+  await selectToDooQuickView(page, '所有任务');
   await app.getByRole('button', { name: '完成 ' + title, exact: true }).click();
   await expect(app.getByRole('button', { name: title, exact: true })).not.toBeVisible();
   await app.getByRole('button', { name: '显示已完成任务', exact: true }).click();
@@ -105,25 +109,25 @@ test('quick add inherits the selected list and clearing filters restores tasks a
   expect(state.tasks.find((task: any) => task.title === title)?.listId).toBe(listId);
   await expect(app.getByRole('button', { name: outsideTitle, exact: true })).not.toBeVisible();
 
-  await app.getByRole('button', { name: /^筛选与排序/ }).click();
-  await selectToDooOption(app, '筛选目标清单', '全部目标与清单');
+  await selectToDooQuickView(page, '所有任务');
   await expect(app.getByRole('button', { name: outsideTitle, exact: true })).toBeVisible();
   await openToDooTaskTools(page);
   const search = app.getByRole('textbox', { name: '搜索任务', exact: true });
   await search.fill(title);
   await app.getByRole('button', { name: '执行搜索', exact: true }).click();
   await expect(app.getByRole('button', { name: outsideTitle, exact: true })).not.toBeVisible();
-  await app.locator('.todo-view-switch').getByText('看板', { exact: true }).click();
+  await selectToDooTaskView(page, '看板');
   await expect(search).toHaveValue(title);
   await expect(app.getByRole('button', { name: title, exact: true })).toBeVisible();
   await expect(app.getByRole('button', { name: outsideTitle, exact: true })).not.toBeVisible();
-  await app.locator('.todo-view-switch').getByText('四象限', { exact: true }).click();
+  await selectToDooTaskView(page, '四象限');
   await expect(search).toHaveValue(title);
   await expect(app.getByRole('button', { name: title, exact: true })).toBeVisible();
+  await app.locator('.todo-task-toolbar').getByRole('button', { name: /^筛选/ }).click();
   await app.getByRole('button', { name: '清除筛选', exact: true }).click();
   await expect(search).toHaveValue('');
   await expect(app.getByRole('button', { name: outsideTitle, exact: true })).toBeVisible();
-  await app.locator('.todo-view-switch').getByText('列表', { exact: true }).click();
+  await selectToDooTaskView(page, '列表');
   await expect(app.getByRole('button', { name: title, exact: true })).toBeVisible();
   await expect(app.getByRole('button', { name: outsideTitle, exact: true })).toBeVisible();
 });
@@ -173,14 +177,14 @@ test('today and inbox quick navigation survive reload and browser history', asyn
   await page.goto('/?view=apps&app=to-doo&appSection=tasks');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
   await expect(app).toBeVisible();
-  await app.getByRole('button', { name: '今天', exact: true }).click();
+  await selectToDooQuickView(page, '今天');
   await expect(app.getByRole('heading', { name: '今天', exact: true })).toBeVisible();
   await expect.poll(() => new URL(page.url()).searchParams.get('taskFilter')).toBe('today');
   await page.reload();
   await expect(app.getByRole('heading', { name: '今天', exact: true })).toBeVisible();
   await expect.poll(() => new URL(page.url()).searchParams.get('taskFilter')).toBe('today');
 
-  await app.getByRole('button', { name: '收集箱', exact: true }).click();
+  await selectToDooQuickView(page, '收集箱');
   await expect(app.getByRole('heading', { name: '收集箱', exact: true })).toBeVisible();
   await expect.poll(() => new URL(page.url()).searchParams.get('taskFilter')).toBe('inbox');
   await page.goBack();
@@ -191,13 +195,13 @@ test('today and inbox quick navigation survive reload and browser history', asyn
   await expect.poll(() => new URL(page.url()).searchParams.get('taskFilter')).toBe('inbox');
 });
 
-test('wide task details continue the quick draft and submit exactly one real task', async ({
+test('creation footer submits its form while close and cancelled discard preserve the quick draft', async ({
   page,
   context,
 }, info) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/?view=apps&app=to-doo&appSection=tasks');
+  await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
   const quickForm = app.getByRole('form', { name: '快速添加任务', exact: true });
   const title = '从快速输入继续编辑 ' + info.project.name + '-' + Date.now();
@@ -210,14 +214,38 @@ test('wide task details continue the quick draft and submit exactly one real tas
   await expect(toDooDisclosureHeader(detail, '更多选项')).toBeVisible();
   await expect(detail.getByLabel('截止日期', { exact: true })).not.toBeVisible();
   await expect(detail.getByLabel('完成标准', { exact: true })).not.toBeVisible();
-  await mkdir('.sdd/to-doo-ux/screenshots', { recursive: true });
   await page.screenshot({
-    path: '.sdd/to-doo-ux/screenshots/' + info.project.name + '-detail.png',
+    path: info.outputPath('task-create-footer.png'),
     fullPage: true,
   });
-  await detail.getByRole('button', { name: '创建任务', exact: true }).click();
+  const footer = detail.locator('.todo-create-footer');
+  const submit = footer.getByRole('button', { name: '创建任务', exact: true });
+  expect(
+    await submit.evaluate((element) => {
+      const button = element as HTMLButtonElement;
+      return !!button.form && !button.form.contains(button);
+    }),
+  ).toBe(true);
+  await toDooDisclosureHeader(detail, '更多选项').click();
+  await detail.locator('form.todo-detail-body').evaluate((element) => {
+    element.scrollTop = element.scrollHeight;
+  });
+  await expect(submit).toBeInViewport();
+  await footer.getByRole('button', { name: '取消', exact: true }).click();
+  const discard = page.getByRole('dialog', { name: '确认操作', exact: true });
+  await expect(discard).toContainText('取消创建并清除已填写的内容');
+  await discard.getByRole('button', { name: '取消', exact: true }).click();
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
-  await expect(detail.getByRole('button', { name: '保存任务', exact: true })).not.toBeVisible();
+  await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
+  await expect(detail).not.toBeVisible();
+  await expect(quickForm.getByRole('textbox', { name: '快速添加任务', exact: true })).toHaveValue(
+    title,
+  );
+  await quickForm.getByRole('button', { name: '详细添加', exact: true }).click();
+  await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
+  await submit.click();
+  await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
+  await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
   const state = await (
     await page.request.get(
       '/api/to-doo/state?filter=' + encodeURIComponent(JSON.stringify({ query: title })),
@@ -261,7 +289,10 @@ test('discarding a wide new-task detail clears its original list draft and prese
   await sidebar.getByRole('button', { name: listBName, exact: true }).click();
   await expect(app.getByRole('heading', { name: listBName, exact: true })).toBeVisible();
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(titleA);
-  await detail.getByRole('button', { name: '放弃这份新建草稿', exact: true }).click();
+  await detail
+    .locator('.todo-create-footer')
+    .getByRole('button', { name: '取消', exact: true })
+    .click();
   await confirmToDooAction(page);
   await expect(detail).not.toBeVisible();
   await expect(input).toHaveValue(titleB);
@@ -279,7 +310,7 @@ test('quick entry stays usable in a 320px dark workspace', async ({ page, contex
   await page.goto('/?view=apps&app=to-doo&appSection=tasks');
   await page.evaluate(() => (document.documentElement.dataset.theme = 'dark'));
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
-  await app.getByRole('button', { name: '今天', exact: true }).click();
+  await selectToDooQuickView(page, '今天');
   const input = app.getByRole('textbox', { name: '快速添加任务', exact: true });
   const title = '窄屏快速行动 ' + info.project.name + '-' + Date.now();
   await input.fill(title);
@@ -291,7 +322,7 @@ test('quick entry stays usable in a 320px dark workspace', async ({ page, contex
   await expect(app.getByRole('button', { name: '详细添加', exact: true })).toBeVisible();
   await mkdir('.sdd/to-doo-ux/screenshots', { recursive: true });
   await page.screenshot({
-    path: '.sdd/to-doo-ux/screenshots/' + info.project.name + '-320-dark-quick-entry.png',
+    path: info.outputPath('320-dark-quick-entry.png'),
     fullPage: true,
   });
 });
@@ -357,7 +388,9 @@ test.describe('quick view time zones', () => {
     await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
     const before = (await (await page.request.get('/api/to-doo/state')).json()).settings;
     await command(page, 'save_entity', {
-      kind: 'settings', entity: { ...before, timeZone: 'Asia/Shanghai' }, expectedRevision: before.revision,
+      kind: 'settings',
+      entity: { ...before, timeZone: 'Asia/Shanghai' },
+      expectedRevision: before.revision,
     });
     try {
       const title = '上海次日行动 ' + info.project.name + '-' + Date.now();
@@ -378,9 +411,11 @@ test.describe('quick view time zones', () => {
         await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=today');
         const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
         await expect(app.getByRole('heading', { name: '今天', exact: true })).toBeVisible();
-        await expect.poll(() => requestedDates.at(-1), {
-          message: 'Today must load October 30 in the workspace time zone at 23:30 UTC',
-        }).toBe('2026-10-30');
+        await expect
+          .poll(() => requestedDates.at(-1), {
+            message: 'Today must load October 30 in the workspace time zone at 23:30 UTC',
+          })
+          .toBe('2026-10-30');
         await expect(app.getByRole('button', { name: title, exact: true })).toBeVisible();
       } finally {
         page.off('request', observe);
@@ -388,7 +423,9 @@ test.describe('quick view time zones', () => {
     } finally {
       const latest = (await (await page.request.get('/api/to-doo/state')).json()).settings;
       await command(page, 'save_entity', {
-        kind: 'settings', entity: { ...latest, timeZone: before.timeZone }, expectedRevision: latest.revision,
+        kind: 'settings',
+        entity: { ...latest, timeZone: before.timeZone },
+        expectedRevision: latest.revision,
       });
     }
   });

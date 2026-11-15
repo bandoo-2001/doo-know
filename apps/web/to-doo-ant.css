@@ -160,7 +160,7 @@
 }
 .to-doo-workspace .todo-ant-collapse .ant-collapse-header {
   color: var(--todo-ink);
-  font-size: 12px;
+  font-size: var(--todo-font-size);
   padding: 10px 8px;
 }
 .to-doo-workspace .todo-detail .todo-ant-collapse .ant-collapse-header-text {
@@ -418,4 +418,10 @@
     max-width: calc(100vw - 16px);
     overflow-x: auto;
   }
+}
+
+.to-doo-workspace :is(.todo-notification-tabs, .todo-settings-tabs) .ant-tabs-tab {
+  min-height: var(--todo-control-height);
+  padding-block: 7px;
+  font-size: var(--todo-font-size);
 }

@@ -100,6 +100,7 @@ test('a failed refresh retains the task DOM, search focus and content position',
   await expect(tree).toBeVisible();
   await expect(main).toHaveAttribute('aria-busy', 'false');
   await openToDooTaskTools(page);
+  await app.getByRole('button', { name: '显示选项', exact: true }).click();
   await search.focus();
   const originalSearch = await search.elementHandle(),
     originalTree = await tree.elementHandle(),
@@ -113,7 +114,7 @@ test('a failed refresh retains the task DOM, search focus and content position',
   });
   try {
     // Trigger the same refresh action without moving keyboard focus to its button.
-    await app.getByRole('button', { name: '刷新 To Doo', exact: true }).dispatchEvent('click');
+    await page.getByRole('button', { name: '刷新内容', exact: true }).dispatchEvent('click');
     await requested.promise;
     const refreshing = status(page, refreshLabel);
     await expect(refreshing).toBeVisible();

@@ -58,7 +58,7 @@ async function fixture(page: Page, count: number) {
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   const showProjects = async () => {
     const panes = app.locator('.todo-focus-mobile-panes');
-    if (await panes.isVisible()) await panes.getByText('项目', { exact: true }).click();
+    if (await panes.isVisible()) await panes.getByText('专注', { exact: true }).click();
   };
   return { app, id, name, otherName, command, entity, showProjects };
 }

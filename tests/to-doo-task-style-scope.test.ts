@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { compileStyle, parse } from '@vue/compiler-sfc';
 import { expect, test } from 'vitest';
 
-test('compiled task theme overrides stay inside the task page in both themes', () => {
+test('page components leave the shared theme palette to the common stylesheet', () => {
   const filename = new URL('../apps/web/components/ToDooWorkspace.vue', import.meta.url);
   const { descriptor } = parse(readFileSync(filename, 'utf8'));
   const selectors: string[] = [];
@@ -20,6 +20,6 @@ test('compiled task theme overrides stay inside the task page in both themes', (
       });
     });
   }
-  expect(selectors.length).toBeGreaterThan(0);
-  for (const selector of selectors) expect(selector).toContain('.todo-task-page');
+  // A task-only palette made navigation and primary actions change when switching pages.
+  expect(selectors).toEqual([]);
 });

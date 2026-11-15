@@ -8,6 +8,10 @@ import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
 import * as controls from '../apps/web/to-doo-controls';
 import * as push from '../apps/web/to-doo-push';
+import * as calendarLayout from '../apps/web/to-doo-calendar-layout';
+import * as clock from '../apps/web/to-doo-time';
+import * as taskGroups from '../apps/web/to-doo-task-groups';
+import * as anniversaries from '../shared/to-doo-anniversaries';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
 import { TO_DOO_COLLECTIONS, toDooEntitySchemas } from '../shared/to-doo-contracts';
 import type { ToDooAppSection } from '../apps/web/navigation';
@@ -20,14 +24,22 @@ type Node = {
   parent?: Node;
 };
 const cleanups: (() => void)[] = [];
+let settingsTimeZone: string | undefined;
 beforeEach(() => {
-  vi.stubGlobal('document', { querySelector: () => null, querySelectorAll: () => [] });
+  settingsTimeZone = undefined;
+  vi.stubGlobal('document', {
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    addEventListener() {},
+    removeEventListener() {},
+  });
   vi.stubGlobal('window', { addEventListener() {}, removeEventListener() {} });
   vi.stubGlobal('navigator', {});
   vi.stubGlobal('localStorage', { getItem: () => null, setItem() {}, removeItem() {} });
 });
 afterEach(() => {
   cleanups.splice(0).forEach((fn) => fn());
+  vi.useRealTimers();
   vi.unstubAllGlobals();
 });
 
@@ -42,6 +54,7 @@ function snapshot() {
       revision: 'r1',
       createdAt: '2026-10-29T08:00:00Z',
       updatedAt: '2026-10-29T08:00:00Z',
+      timeZone: settingsTimeZone,
     }),
     lists: [
       toDooEntitySchemas.list.parse({
@@ -82,6 +95,10 @@ function component(path: string): Vue.Component {
       if (id === '@vueuse/core') return vueuse;
       if (id.endsWith('/to-doo-controls')) return controls;
       if (id.endsWith('/to-doo-push')) return push;
+      if (id.endsWith('/to-doo-calendar-layout')) return calendarLayout;
+      if (id.endsWith('/to-doo-time')) return clock;
+      if (id.endsWith('/to-doo-task-groups')) return taskGroups;
+      if (id.endsWith('/to-doo-anniversaries')) return anniversaries;
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };
       if (id.endsWith('/to-doo-workbench')) return workbench;
@@ -102,10 +119,26 @@ function component(path: string): Vue.Component {
             throw Error('Unexpected request: ' + url);
           },
         };
-      if (/ToDoo(Hint|Navigation|Settings|Icon|PageHeader|FormLayout)\.vue$/.test(id))
+      if (
+        /ToDoo(Navigation|Settings|Icon|PageHeader|PageToolbar|FormLayout|Calendar)\.vue$/.test(id)
+      )
         return {
           __esModule: true,
           default: component('to-doo/' + id.split('/').at(-1)!.replace('.vue', '')),
+        };
+      if (/ToDoo(EntityEditor|TaskDetail)\.vue$/.test(id))
+        return {
+          __esModule: true,
+          default: Vue.defineComponent({
+            props: ['kind', 'seed', 'creating'],
+            setup: (props) => () =>
+              Vue.h('div', {
+                'data-editor-boundary': id.endsWith('ToDooEntityEditor.vue') ? 'entity' : 'task',
+                'data-kind': props.kind,
+                'data-seed': props.seed,
+                'data-creating': props.creating,
+              }),
+          }),
         };
       if (id.endsWith('.vue'))
         return { __esModule: true, default: Vue.defineComponent({ render: () => null }) };
@@ -203,7 +236,7 @@ async function settled() {
   for (let i = 0; i < 6; i++) await Vue.nextTick();
 }
 
-describe('To Doo hosted secondary navigation', () => {
+describe('To Doo unified application navigation', () => {
   it('an unopened directory cannot steal focus from an active field during its initial closed callback', async () => {
     const field = {};
     const close = {
@@ -221,6 +254,8 @@ describe('To Doo hosted secondary navigation', () => {
       activeElement: field,
       querySelector: () => null,
       querySelectorAll: () => [dialog],
+      addEventListener() {},
+      removeEventListener() {},
     };
     vi.stubGlobal('document', documentState);
     const view = mount('tasks', true);
@@ -244,12 +279,12 @@ describe('To Doo hosted secondary navigation', () => {
     'notifications',
     'settings',
   ] as const)(
-    '%s fills the workspace without a duplicate directory or mobile function strip',
+    '%s keeps the same app navigation without a second mobile function strip',
     async (section) => {
       const view = mount(section, true);
       await settled();
-      expect(view.byClass('todo-sidebar')).toHaveLength(0);
-      expect(view.byClass('todo-navigation-trigger')).toHaveLength(0);
+      expect(view.byClass('todo-sidebar')).toHaveLength(1);
+      expect(view.byClass('todo-navigation-trigger')).toHaveLength(1);
       expect(view.byClass('todo-mobile-nav')).toHaveLength(0);
       expect(view.byClass('todo-mobile-tools')).toHaveLength(0);
       expect(view.text(view.byClass('todo-topbar')[0])).toContain('To Doo');
@@ -257,7 +292,7 @@ describe('To Doo hosted secondary navigation', () => {
   );
 
   it.each(['tasks', 'board', 'overview'] as const)(
-    '%s keeps task ranges, goals and lists, without repeating main features',
+    '%s exposes stable task destinations and lists in the same navigation',
     async (section) => {
       const view = mount(section, true);
       await settled();
@@ -267,44 +302,132 @@ describe('To Doo hosted secondary navigation', () => {
       expect(view.text(sidebar)).toContain('目标总览');
       expect(view.text(sidebar)).toContain('工作清单');
       expect(view.text(sidebar)).not.toContain('四象限');
-      expect(view.text(sidebar)).not.toContain('通知中心');
+      expect(view.text(sidebar)).toContain('设置');
       view.button('工作清单').props.onClick();
-      expect(view.events.at(-1)).toEqual([
-        section === 'board' ? 'board' : 'tasks',
-        { list: 'work', taskFilter: 'all' },
-      ]);
+      expect(view.events.at(-1)).toEqual(['tasks', { list: 'work', taskFilter: 'all' }]);
     },
   );
 
-  it('calendar directory routes real dates and month/week/timeline choices', async () => {
+  it('calendar date and view controls remain local while its navigation stays stable', async () => {
     const view = mount('calendar', true);
     await settled();
     const sidebar = view.byClass('todo-sidebar')[0];
-    expect(view.text(sidebar)).not.toContain('工作清单');
-    view.button('月视图').props.onClick();
+    expect(view.text(sidebar)).toContain('工作清单');
+    await vi.waitFor(() => expect(view.button('月')).toBeDefined());
+    view.button('月').props.onClick();
     expect(view.events.at(-1)).toEqual(['calendar', { date: '2026-10-29', calendarView: 'month' }]);
-    view.button('时间线').props.onClick();
-    expect(view.events.at(-1)).toEqual(['timeline', { date: '2026-10-29', calendarView: 'week' }]);
+    view.button('显示内容').props.onClick();
+    await settled();
     view
       .all()
-      .find((n) => n.tag === 'input' && n.props.type === 'date')!
+      .find((n) => n.tag === 'input' && n.props['aria-label'] === '跳转日期')!
       .props.onChange({ target: { value: '2026-11-03' } });
     expect(view.events.at(-1)).toEqual(['calendar', { date: '2026-11-03', calendarView: 'week' }]);
   });
 
+  it.each(['calendar', 'timeline'] as const)(
+    '%s exposes one task action and one schedule action that open their respective editors',
+    async (section) => {
+      settingsTimeZone = 'Asia/Shanghai';
+      const view = mount(section, true);
+      await vi.waitFor(() => expect(view.button('＋ 预留时间')).toBeDefined());
+      const action = (label: string) =>
+        view.all().filter((node) => node.tag === 'button' && view.text(node).trim() === label);
+      expect(action('＋ 新建任务')).toHaveLength(1);
+      expect(action('＋ 预留时间')).toHaveLength(1);
+
+      view.button('＋ 新建任务').props.onClick();
+      await settled();
+      expect(view.all().filter((node) => node.props['data-editor-boundary'] === 'task')).toEqual([
+        expect.objectContaining({ props: expect.objectContaining({ 'data-creating': true }) }),
+      ]);
+      expect(
+        view.all().filter((node) => node.props['data-editor-boundary'] === 'entity'),
+      ).toHaveLength(0);
+
+      view
+        .all()
+        .find((node) => node.props['aria-label'] === '收起任务详情')!
+        .props.onClick();
+      await settled();
+      await vi.waitFor(() => expect(view.button('＋ 预留时间')).toBeDefined());
+      view.button('＋ 预留时间').props.onClick();
+      await settled();
+      expect(
+        view.all().filter((node) => node.props['data-editor-boundary'] === 'task'),
+      ).toHaveLength(0);
+      expect(view.all().filter((node) => node.props['data-editor-boundary'] === 'entity')).toEqual([
+        expect.objectContaining({
+          props: expect.objectContaining({
+            'data-kind': 'timeBlock',
+            'data-seed': {
+              start: { date: '2026-10-29', time: '09:00', timeZone: 'Asia/Shanghai' },
+            },
+          }),
+        }),
+      ]);
+    },
+  );
+
+  it.each(['calendar', 'timeline'] as const)(
+    '%s schedules on the local date when the route has no selected date',
+    async (section) => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(new Date('2026-11-12T16:30:00Z'));
+      settingsTimeZone = 'Asia/Shanghai';
+      const view = mount(section, true, Workspace, { selection: { calendarView: 'month' } });
+      await settled();
+      await vi.waitFor(() => expect(view.button('＋ 预留时间')).toBeDefined());
+      view.button('＋ 预留时间').props.onClick();
+      await settled();
+      const editor = view.all().find((node) => node.props['data-editor-boundary'] === 'entity');
+      expect(editor?.props['data-seed']).toEqual({
+        start: { date: '2026-11-13', time: '09:00', timeZone: 'Asia/Shanghai' },
+      });
+    },
+  );
+
+  it.each(['calendar', 'timeline'] as const)(
+    '%s keeps the schedule action on the current local date after midnight while mounted',
+    async (section) => {
+      vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
+      vi.setSystemTime(new Date('2026-11-12T15:59:45Z'));
+      settingsTimeZone = 'Asia/Shanghai';
+      const view = mount(section, true, Workspace, { selection: { calendarView: 'month' } });
+      await settled();
+      await vi.waitFor(() => expect(view.button('显示内容')).toBeDefined());
+      view.button('显示内容').props.onClick();
+      await settled();
+      const dateInput = () =>
+        view.all().find((node) => node.tag === 'input' && node.props.type === 'date');
+      expect(dateInput()?.props.value).toBe('2026-11-12');
+
+      await vi.advanceTimersByTimeAsync(60000);
+      await settled();
+      expect(dateInput()?.props.value).toBe('2026-11-13');
+      await vi.waitFor(() => expect(view.button('＋ 预留时间')).toBeDefined());
+      view.button('＋ 预留时间').props.onClick();
+      await settled();
+      const editor = view.all().find((node) => node.props['data-editor-boundary'] === 'entity');
+      expect(editor?.props['data-seed']).toEqual({
+        start: { date: '2026-11-13', time: '09:00', timeZone: 'Asia/Shanghai' },
+      });
+    },
+  );
+
   it('standalone navigation keeps complete feature access', async () => {
     const view = mount('focus');
     await settled();
-    expect(view.text(view.byClass('todo-sidebar')[0])).toContain('四象限');
+    expect(view.text(view.byClass('todo-sidebar')[0])).toContain('今天');
     expect(view.text(view.byClass('todo-sidebar')[0])).toContain('设置');
   });
 
-  it('timeline keeps its date directory and can return to a calendar week', async () => {
+  it('timeline uses the same navigation to reach the calendar', async () => {
     const view = mount('timeline', true);
     await settled();
-    expect(view.text(view.byClass('todo-sidebar')[0])).toContain('日历视图');
-    view.button('周视图').props.onClick();
-    expect(view.events.at(-1)).toEqual(['calendar', { date: '2026-10-29', calendarView: 'week' }]);
+    expect(view.text(view.byClass('todo-sidebar')[0])).toContain('所有任务');
+    view.button('日历').props.onClick();
+    expect(view.events.at(-1)?.[0]).toBe('calendar');
   });
 
   it('protects unsaved settings when the host switches section, preserves the form on cancel', async () => {
@@ -336,11 +459,11 @@ describe('To Doo hosted secondary navigation', () => {
   });
 });
 
-it('selecting Today in a board retains the board view', async () => {
+it('selecting Today from a board returns to the stable task destination', async () => {
   const view = mount('board', true);
   await settled();
   view.button('今天').props.onClick();
-  expect(view.events.at(-1)).toEqual(['board', { taskFilter: 'today' }]);
+  expect(view.events.at(-1)).toEqual(['tasks', { taskFilter: 'today' }]);
 });
 
 it('phone overflow navigation keeps a stable More label when an overflow function is active', async () => {
@@ -380,16 +503,11 @@ it('phone overflow navigation keeps a stable More label when an overflow functio
   expect(view.text(more)).toBe('更多');
 });
 
-it('compact matrix offers its retained task scope without restoring the duplicate directory', async () => {
+it('matrix keeps a plain title and returns to Today through the shared navigation', async () => {
   const view = mount('matrix', true);
   await settled();
-  const scope = view.all().find((n) => n.props['aria-label'] === '当前任务范围');
-  expect(scope).toBeDefined();
-  expect(view.text(scope!)).toContain('所有任务');
-  expect(view.byClass('todo-sidebar')).toHaveLength(0);
-  const range = view
-    .all()
-    .find((n) => n.tag === 'select' && n.props['aria-label'] === '切换任务范围')!;
-  range.props.onChange({ target: { value: 'quick:today' } });
-  expect(view.events.at(-1)).toEqual(['matrix', { taskFilter: 'today' }]);
+  expect(view.byClass('todo-sidebar')).toHaveLength(1);
+  expect(view.all().filter((n) => n.props['aria-label'] === '切换任务范围')).toHaveLength(0);
+  view.button('今天').props.onClick();
+  expect(view.events.at(-1)).toEqual(['tasks', { taskFilter: 'today' }]);
 });

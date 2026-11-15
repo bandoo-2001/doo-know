@@ -9,6 +9,7 @@ import {
   prepareToDooQuickDraft,
   toDooDateLabel,
   toDooDraftPayload,
+  type ToDooTaskPlacement,
 } from '../../to-doo-presentation';
 import ToDooIcon from './ToDooIcon.vue';
 const props = defineProps<{
@@ -17,7 +18,7 @@ const props = defineProps<{
   defaultDate?: string;
   seed?: ToDooCreateSeed;
 }>();
-const emit = defineEmits<{ expand: [] }>();
+const emit = defineEmits<{ expand: []; created: [value: ToDooTaskPlacement] }>();
 const captureForm = ref<HTMLFormElement>();
 function captureInput() {
   return captureForm.value?.querySelector<HTMLInputElement>('input[aria-label="快速添加任务"]');
@@ -112,10 +113,17 @@ async function add() {
   if (!draft.value.title.trim() || state.busy || state.pendingMutation) return;
   // Normalize into the persisted draft so a retried request can also clear it.
   Object.assign(draft.value, prepared.value);
-  const result = await props.model.createTask(
-    toDooDraftPayload(draft.value, state.snapshot?.settings.timeZone || 'UTC'),
-  );
+  const payload = toDooDraftPayload(draft.value, state.snapshot?.settings.timeZone || 'UTC');
+  const result = await props.model.createTask(payload);
   if (result) {
+    const taskId = result.ids.find((id) => result.snapshot.tasks.some((task) => task.id === id));
+    if (taskId)
+      emit('created', {
+        taskId,
+        title: payload.title,
+        listId: payload.listId || null,
+        planDates: payload.plan?.date ? [payload.plan.date] : [],
+      });
     await nextTick();
     captureInput()?.focus();
   }
@@ -135,13 +143,12 @@ async function add() {
       <AInput
         v-model:value="draft.title"
         aria-label="快速添加任务"
-        placeholder="添加任务，按 Enter 创建"
+        placeholder="添加任务…"
         :maxlength="256"
         autocomplete="off"
         :disabled="state.busy || !!state.pendingMutation"
         @keydown.enter="($event as KeyboardEvent).isComposing && $event.preventDefault()"
       />
-      <span class="todo-quick-enter" aria-hidden="true">↵</span>
       <AButton
         v-if="draft.title.trim()"
         html-type="submit"
@@ -153,14 +160,14 @@ async function add() {
       </AButton>
       <AButton
         html-type="button"
-        class="todo-icon-button"
+        class="todo-quick-details"
         aria-label="详细添加"
-        title="打开完整任务编辑"
+        title="填写任务详情"
         :disabled="state.busy"
         @click="emit('expand')"
         type="text"
       >
-        <ToDooIcon name="more" />
+        详情
       </AButton>
     </div>
     <div v-if="draft.title.trim()" class="todo-quick-add-hint">
@@ -173,7 +180,6 @@ async function add() {
         prepared.frequency === 'daily' ? '每天重复' : '每周重复'
       }}</span>
       <span v-if="prepared.tagIds.length">{{ prepared.tagIds.length }} 个标签</span>
-      <span class="todo-quick-tip">可输入「明天 下午3点 写方案」</span>
     </div>
     <div v-if="expanded" class="todo-composer-actions">
       <label class="todo-composer-date">
@@ -208,7 +214,6 @@ async function add() {
       >
         明天
       </AButton>
-      <span class="todo-capture-key">Q 快速输入 · Enter 创建</span>
     </div>
   </form>
 </template>

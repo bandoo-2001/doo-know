@@ -1,3 +1,4 @@
+import { openToDooDirectory, closeToDooDirectory } from '../support/to-doo-navigation';
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 import { notificationPlans, reminderEventId } from '../../packages/core/to-doo/notifications';
@@ -60,9 +61,11 @@ test('recent notifications and mark-all include unread records beyond the first 
   await page.goto('/?view=apps&app=to-doo&appSection=notifications');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   await expect(app.locator('.todo-notification').first()).toContainText(prefix + '-latest');
-  await expect(app.getByRole('button', { name: '打开通知中心', exact: true })).toHaveText(
-    String(unreadBefore + 206),
-  );
+  const directory = await openToDooDirectory(page);
+  await expect(
+    directory.getByRole('button', { name: '通知', exact: true }).locator('small'),
+  ).toHaveText(String(unreadBefore + 206));
+  await closeToDooDirectory(page);
   await app.getByRole('button', { name: '全部标为已读', exact: true }).click();
   await expect
     .poll(

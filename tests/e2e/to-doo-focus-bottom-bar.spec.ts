@@ -9,29 +9,25 @@ test.beforeEach(async ({ context, page }, info) => {
   );
 });
 
-async function expectBottomBar(page: Page) {
+async function expectEntryTimer(page: Page) {
   const timer = page.getByRole('region', { name: '专注计时器', exact: true });
   await expect(timer).toBeInViewport({ ratio: 1 });
-  await expect
-    .poll(async () => {
-      const box = await timer.boundingBox();
-      const host = await page.locator('.main-content').boundingBox();
-      return Math.abs(
-        box!.y + box!.height - Math.min(host!.y + host!.height, page.viewportSize()!.height),
-      );
-    })
-    .toBeLessThanOrEqual(1);
+  const timerBox = await timer.boundingBox();
+  const projects = await page.locator('.todo-focus-projects').boundingBox();
+  expect(timerBox!.y + timerBox!.height).toBeLessThanOrEqual(projects!.y);
 }
 
-test('focus timer rests on the content bottom when the project list is short', async ({ page }) => {
+test('focus opens with a visible timer before project management on large and short screens', async ({
+  page,
+}) => {
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
   await page.locator('.todo-focus-projects').getByText('已归档', { exact: true }).click();
-  await expectBottomBar(page);
+  await expectEntryTimer(page);
   await page.setViewportSize({ width: 390, height: 664 });
-  await expectBottomBar(page);
+  await expectEntryTimer(page);
 });
 
-test('focus timer stays at the bottom while long project lists remain reachable', async ({
+test('long project lists remain reachable and selecting a project updates the first timer', async ({
   page,
 }) => {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
@@ -52,12 +48,12 @@ test('focus timer stays at the bottom while long project lists remain reachable'
   });
   expect(response.ok(), await response.text()).toBe(true);
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
-  await expectBottomBar(page);
+  await expectEntryTimer(page);
   const last = page.getByRole('button', { name: '选择专注项目 ' + lastName, exact: true });
   await last.click();
   await expect(last).toBeInViewport({ ratio: 1 });
-  const row = await last.boundingBox();
-  const timer = await page.getByRole('region', { name: '专注计时器', exact: true }).boundingBox();
-  expect(row!.y + row!.height).toBeLessThanOrEqual(timer!.y);
-  await expectBottomBar(page);
+  const timer = page.getByRole('region', { name: '专注计时器', exact: true });
+  await expect(timer).toContainText(lastName);
+  await timer.scrollIntoViewIfNeeded();
+  await expectEntryTimer(page);
 });

@@ -262,9 +262,9 @@ onUnmounted(() => {
   box-sizing: border-box;
   min-height: 68px;
   margin: 0;
-  padding: 16px 28px;
+  padding: 16px;
   border: 1px solid var(--todo-line);
-  border-radius: 10px;
+  border-radius: var(--todo-radius);
   background: color-mix(in srgb, var(--todo-accent) 3%, var(--todo-paper));
 }
 .todo-overview-summary dl {
@@ -277,11 +277,11 @@ onUnmounted(() => {
   gap: 10px;
   align-items: center;
   min-width: 0;
-  font-size: 20px;
-  line-height: 28px;
+  font-size: var(--todo-font-size);
+  line-height: 24px;
 }
 .todo-overview-summary-metric + .todo-overview-summary-metric {
-  padding-left: 28px;
+  padding-left: 16px;
   border-left: 1px solid var(--todo-line);
 }
 .todo-overview-summary-metric :deep(svg) {
@@ -335,7 +335,7 @@ onUnmounted(() => {
   .todo-overview-summary dd {
     box-sizing: border-box;
     flex-basis: 100%;
-    padding-left: 29px;
+    padding-left: 0;
   }
 }
 </style>

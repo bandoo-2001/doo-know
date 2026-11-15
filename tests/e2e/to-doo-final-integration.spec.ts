@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
-import { openToDooTaskTools } from '../support/to-doo-navigation';
+import { openToDooTaskTools, selectToDooTaskView } from '../support/to-doo-navigation';
 
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
@@ -151,7 +151,7 @@ test('task first row and board first card remain compact while tools and groupin
   const row = await first.boundingBox();
   expect(row!.y).toBeLessThan(410);
   await page.screenshot({ path: info.outputPath('phone-tasks-final.png'), animations: 'disabled' });
-  await page.locator('.todo-view-switch').getByText('看板', { exact: true }).click();
+  await selectToDooTaskView(page, '看板');
   const card = page.locator('.todo-board-card').first();
   await expect(card).toBeVisible();
   expect((await card.boundingBox())!.y).toBeLessThan(450);

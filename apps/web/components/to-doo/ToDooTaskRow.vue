@@ -16,6 +16,7 @@ const props = withDefaults(
     selected?: boolean;
     selecting?: boolean;
     hideList?: boolean;
+    readOnly?: boolean;
     today?: string;
     timeZone?: string;
   }>(),
@@ -89,7 +90,7 @@ const dates = computed(() => {
       html-type="button"
       class="todo-check"
       :class="{ 'is-checked': item.status === 'done' }"
-      :disabled="!item.occurrence"
+      :disabled="readOnly || !item.occurrence"
       :aria-label="(item.status === 'done' ? '重新打开 ' : '完成 ') + item.title"
       @click="emit('complete', item)"
       type="text"

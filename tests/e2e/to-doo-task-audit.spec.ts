@@ -1,5 +1,6 @@
-import { readFile, mkdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
+import { selectToDooTaskView, selectToDooQuickView } from '../support/to-doo-navigation';
 import {
   selectToDooOption,
   expandToDooGroup,
@@ -29,10 +30,11 @@ test('board scope remains visible and column creation saves initial status and c
     entity: { name: '审查任务清单 ' + suffix },
   });
   await page.goto('/?view=apps&app=to-doo&appSection=board&list=' + list.ids[0]);
-  await expect(app(page).getByLabel('当前任务范围')).toContainText('审查任务清单');
-  await selectToDooOption(app(page), '切换任务范围', '今天');
-  await expect.poll(() => new URL(page.url()).searchParams.get('appSection')).toBe('board');
-  await expect(app(page).getByLabel('当前任务范围')).toContainText('今天');
+  await expect(app(page).locator('.todo-page h1')).toContainText('审查任务清单');
+  await selectToDooQuickView(page, '今天');
+  await expect.poll(() => new URL(page.url()).searchParams.get('appSection')).toBe('tasks');
+  await selectToDooTaskView(page, '看板');
+  await expect(app(page).locator('.todo-page h1')).toContainText('今天');
   const doing = app(page)
     .locator('.todo-board-column')
     .filter({ has: page.getByRole('heading', { name: '进行中', exact: true }) });
@@ -40,10 +42,10 @@ test('board scope remains visible and column creation saves initial status and c
   const detail = page.getByRole('complementary', { name: '任务详情', exact: true });
   const title = '列内直接配置 ' + suffix;
   await detail.getByLabel('任务标题', { exact: true }).fill(title);
-  await expectToDooSelection(detail, '初始状态', '进行中');
   await expect(detail.getByLabel('计划日期', { exact: true })).not.toHaveValue('');
   await selectToDooOption(detail, '优先级', '高优先级');
   await expandToDooGroup(detail, '更多选项');
+  await expectToDooSelection(detail, '初始状态', '进行中');
   await expect(detail.getByLabel('计划时间', { exact: true })).toHaveValue('');
   await selectToDooOption(detail, '重复', '每天');
   await detail.getByRole('button', { name: '＋ 添加提醒', exact: true }).click();
@@ -116,7 +118,7 @@ test('mobile task tools and dates stay readable with board and quadrant overview
     due: { date: '2026-11-04', time: '08:30', timeZone: 'UTC' },
   });
   await page.goto('/?view=apps&app=to-doo&appSection=board&list=' + list.ids[0]);
-  const tools = app(page).getByRole('button', { name: '搜索与管理', exact: true });
+  const tools = app(page).getByRole('button', { name: '搜索任务', exact: true });
   await expect(tools).toBeVisible();
   await expect(app(page).getByRole('textbox', { name: '搜索任务', exact: true })).not.toBeVisible();
   await tools.click();
@@ -142,22 +144,19 @@ test('mobile task tools and dates stay readable with board and quadrant overview
   await expect(dates).toBeVisible();
   await expect(dates).toContainText('计划');
   await expect(dates).toContainText('截止');
-  await mkdir('docs/design/to-doo/audit-fixes-2026-11-03/tasks', { recursive: true });
   await page.screenshot({
-    path:
-      'docs/design/to-doo/audit-fixes-2026-11-03/tasks/mobile-board-' + info.project.name + '.png',
+    path: info.outputPath('mobile-board.png'),
     fullPage: true,
     animations: 'disabled',
   });
-  await app(page).locator('.todo-view-switch').getByText('四象限', { exact: true }).click();
+  await selectToDooTaskView(page, '四象限');
   await expect(app(page).getByRole('navigation', { name: '象限概览', exact: true })).toBeVisible();
   await app(page)
     .getByRole('navigation', { name: '象限概览', exact: true })
     .getByRole('button', { name: /不紧急不重要/ })
     .click();
   await page.screenshot({
-    path:
-      'docs/design/to-doo/audit-fixes-2026-11-03/tasks/mobile-matrix-' + info.project.name + '.png',
+    path: info.outputPath('mobile-matrix.png'),
     fullPage: true,
     animations: 'disabled',
   });
@@ -179,7 +178,7 @@ test('completing a filtered parent discovers its hidden child and supports cance
   });
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&list=' + list.ids[0]);
   await expect(app(page).locator('.todo-tree')).toBeVisible();
-  const toggle = app(page).getByRole('button', { name: '搜索与管理', exact: true });
+  const toggle = app(page).getByRole('button', { name: '搜索任务', exact: true });
   if (await toggle.isVisible()) await toggle.click();
   await app(page).getByRole('textbox', { name: '搜索任务', exact: true }).fill(title);
   await app(page).getByRole('button', { name: '执行搜索', exact: true }).click();

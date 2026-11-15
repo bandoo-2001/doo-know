@@ -198,7 +198,7 @@ test('all-day schedule hides irrelevant controls, restores the timed draft and p
   await page.setViewportSize({ width: 320, height: 844 });
   await page.goto('/?view=apps&app=to-doo&appSection=calendar');
   await page.evaluate(() => (document.documentElement.dataset.theme = 'dark'));
-  await page.getByRole('button', { name: '＋ 时间安排', exact: true }).click();
+  await page.getByRole('button', { name: '＋ 预留时间', exact: true }).click();
   const editor = page.getByRole('dialog', { name: '新建时间安排', exact: true });
   await editor.getByLabel('安排标题', { exact: true }).fill('全天安排 ' + info.project.name);
   await fillToDooDate(editor.getByLabel('时间', { exact: true }), '10:30');
@@ -265,7 +265,7 @@ test('changing list type does not erase its hidden goal fields', async ({ page }
 
 test('invalid required settings inside a closed group are revealed on save', async ({ page }) => {
   await page.goto('/?view=apps&app=to-doo&appSection=calendar');
-  await page.getByRole('button', { name: '＋ 时间安排', exact: true }).click();
+  await page.getByRole('button', { name: '＋ 预留时间', exact: true }).click();
   const editor = page.getByRole('dialog', { name: '新建时间安排', exact: true });
   await expandToDooGroup(editor, '补充信息');
   await editor.getByLabel('时区', { exact: true }).fill('');
@@ -283,16 +283,13 @@ test('task settings shortcuts open the existing editors with one click', async (
   const created = await command(page, 'create_task', { title: '直接设置提醒' });
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&task=' + created.ids[0]);
   const detail = page.getByRole('complementary', { name: '任务详情' });
-  await detail.getByRole('button', { name: '添加属性', exact: true }).click();
-  await page.getByRole('button', { name: '编辑任务提醒', exact: true }).click();
+  await detail.getByRole('button', { name: '编辑任务提醒', exact: true }).click();
   await expect(detail.getByRole('button', { name: '＋ 添加提醒', exact: true })).toBeInViewport();
   await detail.getByRole('button', { name: '＋ 添加提醒', exact: true }).click();
   await expect(detail.getByRole('combobox', { name: '提醒依据', exact: true })).toBeVisible();
-  await detail.getByRole('button', { name: '添加属性', exact: true }).click();
-  await page.getByRole('button', { name: '编辑重复规则', exact: true }).click();
+  await detail.getByRole('button', { name: '编辑重复规则', exact: true }).click();
   await expect(detail.getByRole('combobox', { name: '重复', exact: true })).toBeFocused();
-  await detail.getByRole('button', { name: '添加属性', exact: true }).click();
-  await page.getByRole('button', { name: '编辑关联资料', exact: true }).click();
+  await detail.getByRole('button', { name: '编辑关联资料', exact: true }).click();
   await expect(detail.getByRole('button', { name: '+ 关联资料', exact: true })).toBeInViewport();
 });
 

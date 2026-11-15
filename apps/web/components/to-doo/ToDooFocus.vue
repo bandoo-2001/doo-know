@@ -28,6 +28,7 @@ import type {
   ToDooEntityMap,
   ToDooFocusHistory,
   ToDooFocusTrend,
+  ToDooSnapshot,
 } from '../../../../shared/to-doo-contracts';
 import {
   focusElapsed,
@@ -44,17 +45,22 @@ import ToDooPageToolbar from './ToDooPageToolbar.vue';
 import ToDooSectionHeader from './ToDooSectionHeader.vue';
 import ToDooFocusTimerFields from './ToDooFocusTimerFields.vue';
 import ToDooFocusTrendChart from './ToDooFocusTrend.vue';
-import ToDooHint from './ToDooHint.vue';
 import '../../to-doo-focus.css';
 
 type Session = ToDooEntityMap['focusSession'];
 type Topic = ToDooEntityMap['focusTopic'];
 const ATextarea = Input.TextArea,
   AMenuItem = AMenu.Item;
-const props = defineProps<{ model: ToDooWorkbench; occurrenceId?: string }>();
+const props = defineProps<{
+  model: ToDooWorkbench;
+  occurrenceId?: string;
+  historyRequest?: number;
+  historyRange?: { from: string; to: string };
+}>();
 const emit = defineEmits<{
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
   task: [id: string, occurrenceId?: string];
+  'task-context-consumed': [];
 }>();
 const state = props.model.state,
   confirm = useToDooConfirm();
@@ -116,6 +122,71 @@ useEventListener(
   wake,
 );
 const active = computed(() => history.value?.active ?? null);
+const finishedTaskSession = ref<Session>();
+function consumeTaskContext() {
+  if (!props.occurrenceId) return;
+  if (!active.value) chosen.value = props.occurrenceId;
+  mobilePane.value = 'projects';
+  finishedTaskSession.value = undefined;
+  emit('task-context-consumed');
+}
+function freeFocus() {
+  if (active.value) return;
+  selectedTopic.value = '';
+  chosen.value = '';
+  finishedTaskSession.value = undefined;
+  emit('task-context-consumed');
+}
+async function sessionTask(session: Session) {
+  if (!session.occurrenceId) return;
+  const params = new URLSearchParams({
+    kind: 'occurrence',
+    ids: session.occurrenceId,
+    filter: JSON.stringify({ includeArchived: true }),
+    limit: '1',
+  });
+  const response = (await props.model.request('/api/to-doo/state?' + params)) as ToDooSnapshot;
+  const occurrence = response.occurrences.find(
+    (row) => row.id === session.occurrenceId && !row.deletedAt,
+  );
+  if (!occurrence) throw Error('关联任务暂不可用，请在所有任务或回收站核对。');
+  return occurrence;
+}
+async function viewSessionTask(session: Session) {
+  if (state.busy || focusBusy.value) return;
+  focusBusy.value = true;
+  try {
+    const occurrence = await sessionTask(session);
+    if (occurrence) emit('task', occurrence.taskId, occurrence.id);
+  } catch (cause) {
+    state.error = cause instanceof Error ? cause.message : String(cause);
+  } finally {
+    focusBusy.value = false;
+  }
+}
+async function completeSessionTask(session: Session) {
+  if (state.busy || focusBusy.value) return;
+  focusBusy.value = true;
+  try {
+    const occurrence = await sessionTask(session);
+    if (!occurrence) return;
+    if (occurrence.status === 'done') {
+      finishedTaskSession.value = undefined;
+      state.notice = '这项任务已经完成';
+      return;
+    }
+    await props.model.ensureTask(occurrence.taskId);
+    const count = await props.model.statusChildCount(occurrence.taskId);
+    if (count === null) return;
+    if (count && !(await confirm(`这个任务有 ${count} 个子任务，是否一并完成？`))) return;
+    const result = await props.model.setStatus(occurrence.id, 'done', count > 0);
+    if (result) finishedTaskSession.value = undefined;
+  } catch (cause) {
+    state.error = cause instanceof Error ? cause.message : String(cause);
+  } finally {
+    focusBusy.value = false;
+  }
+}
 function editActiveNote(value: string) {
   const session = active.value;
   if (!session) return;
@@ -131,6 +202,7 @@ const topicEntities = ref<Topic[]>([]),
   topicLoading = ref(false),
   topicError = ref('');
 let topicEpoch = 0;
+let topicsLoadedOnce = false;
 const allTopics = computed(() => topicEntities.value.filter((topic) => !topic.deletedAt));
 const topics = computed(() =>
   allTopics.value.filter((topic) => !!topic.archivedAt === (archived.value === 'archived')),
@@ -189,7 +261,20 @@ const taskOptions = computed(() => [
     .filter((row) => !row.deletedAt && !['done', 'cancelled', 'skipped'].includes(row.status))
     .flatMap((row) => {
       const task = state.snapshot?.tasks.find((task) => task.id === row.taskId && !task.deletedAt);
-      return task ? [{ value: row.id, label: row.titleOverride || task.title }] : [];
+      const list = task?.listId
+        ? props.model.taskLists().find((list) => list.id === task.listId)
+        : undefined;
+      return task && !task.archivedAt
+        ? [
+            {
+              value: row.id,
+              label:
+                (row.titleOverride || task.title) +
+                (list ? ' · ' + list.name : '') +
+                (task.recurrence && row.scheduledDate ? ' · ' + row.scheduledDate : ''),
+            },
+          ]
+        : [];
     }),
 ]);
 const elapsed = computed(() => (active.value ? focusElapsed(active.value, now.value) : 0));
@@ -288,6 +373,13 @@ async function loadTopics(append = false) {
   try {
     const response = await props.model.request('/api/to-doo/state?' + params);
     if (token !== topicEpoch) return;
+    const known = new Set(topicEntities.value.map((topic) => topic.id));
+    const newlyCreated =
+      topicsLoadedOnce && !append
+        ? (response.focusTopics.find(
+            (topic: Topic) => !topic.archivedAt && !known.has(topic.id),
+          ) as Topic | undefined)
+        : undefined;
     topicEntities.value = append
       ? [
           ...new Map(
@@ -298,6 +390,8 @@ async function loadTopics(append = false) {
           ).values(),
         ]
       : response.focusTopics;
+    topicsLoadedOnce = true;
+    if (newlyCreated && !active.value) selectedTopic.value = newlyCreated.id;
     topicCursor.value = response.page.nextCursor;
     topicError.value = '';
   } catch (cause) {
@@ -432,14 +526,19 @@ function activate() {
   if (visible.value) return;
   visible.value = true;
   tick.value = Date.now();
+  if (!props.occurrenceId) chosen.value = '';
+  consumeTaskContext();
   void load();
   void loadTopics();
+  void revealRequestedHistory();
   clock.resume();
   polling.resume();
 }
 function deactivate() {
   visible.value = false;
   timerSettings.value = false;
+  if (!active.value) chosen.value = '';
+  finishedTaskSession.value = undefined;
   topicEpoch++;
   epoch++;
   loading.value = false;
@@ -476,16 +575,39 @@ watch([topicFilter, showTrend, trendPeriod, trendDate], () => {
 });
 watch(
   () => props.occurrenceId,
-  (id) => {
-    if (!active.value) chosen.value = id || '';
-  },
+  () => consumeTaskContext(),
 );
-watch(allTopics, (values, old) => {
-  const added = values.find(
-    (topic) => !topic.archivedAt && !old?.some((row) => row.id === topic.id),
-  );
-  if (added && old?.length !== values.length && !active.value) selectedTopic.value = added.id;
-});
+let latestHistoryRequest = 0;
+let historyScrollPending = false;
+async function revealRequestedHistory() {
+  if (!visible.value || !historyScrollPending) return;
+  await nextTick();
+  if (!visible.value) return;
+  if (!narrowTimer.value)
+    focusRoot.value
+      ?.querySelector<HTMLElement>('.todo-focus-records')
+      ?.scrollIntoView({ block: 'start' });
+  historyScrollPending = false;
+}
+watch(
+  () => props.historyRequest,
+  (request) => {
+    if (!request || request <= latestHistoryRequest) return;
+    latestHistoryRequest = request;
+    mobilePane.value = 'history';
+    topicFilter.value = '';
+    period.value = props.historyRange ? 'custom' : 'all';
+    from.value = props.historyRange?.from || '';
+    to.value = props.historyRange?.to || '';
+    showTrend.value = false;
+    historyScrollPending = true;
+    if (visible.value) {
+      void load();
+      void revealRequestedHistory();
+    }
+  },
+  { immediate: true },
+);
 function chooseTopic(topic: Topic) {
   if (!active.value) selectedTopic.value = topic.id;
 }
@@ -550,7 +672,10 @@ async function start(topic?: Topic) {
     },
     '专注已开始',
   );
-  if (result) await load();
+  if (result) {
+    finishedTaskSession.value = undefined;
+    await load();
+  }
 }
 async function control(
   operation: 'pause' | 'resume' | 'finish' | 'cancel' | 'takeover',
@@ -587,11 +712,14 @@ async function control(
       operation === 'finish' ? '本次专注已保存' : '专注状态已保存',
     );
     if (result && operation === 'finish') {
+      finishedTaskSession.value = session.occurrenceId ? { ...session } : undefined;
+      chosen.value = '';
       if (notes[session.id] === submittedNote) {
         delete notes[session.id];
         delete noteBaselines[session.id];
       } else if (Object.hasOwn(notes, session.id)) noteBaselines[session.id] = submittedNote;
     }
+    if (result && operation === 'cancel') chosen.value = '';
     await load();
   } finally {
     focusBusy.value = false;
@@ -666,6 +794,10 @@ async function persistNote(session: Session, note: string, submitted: string, fi
       )
     : await props.model.saveEntity('focusSession', { ...session, note }, session.revision);
   if (!result) return false;
+  if (finish) {
+    finishedTaskSession.value = session.occurrenceId ? { ...session } : undefined;
+    chosen.value = '';
+  }
   if (notes[session.id] === submitted) {
     delete notes[session.id];
     delete noteBaselines[session.id];
@@ -726,13 +858,104 @@ async function resolveNoteConflict(merge: boolean) {
 
 <template>
   <div ref="focusRoot" class="todo-focus-workspace">
+    <section
+      class="todo-focus-timer"
+      :class="{ 'has-focus-task-picker': !active }"
+      aria-label="专注计时器"
+    >
+      <div class="todo-focus-timer-context">
+        <ToDooIcon name="focus" :size="24" />
+        <div>
+          <strong>{{ active ? sessionName(active) : selected?.name || '自由专注' }}</strong
+          ><small
+            >{{
+              active ? statusLabel(active.status) : selected?.archivedAt ? '项目已归档' : '准备开始'
+            }}
+            · {{ timerSummary }}</small
+          >
+          <small
+            v-if="active && linkedAction && linkedAction !== sessionName(active)"
+            class="todo-focus-linked-action"
+            >任务：{{ linkedAction }}</small
+          >
+          <AButton v-if="!active && chosen" size="small" type="text" @click="chosen = ''"
+            >取消关联任务</AButton
+          >
+          <small
+            v-if="active && (Object.hasOwn(notes, active.id) || active.note)"
+            class="todo-focus-note-status"
+          >
+            {{ Object.hasOwn(notes, active.id) ? '记录未保存' : '已添加专注记录' }}
+          </small>
+        </div>
+      </div>
+      <label v-if="!active" class="todo-focus-primary-task">
+        专注任务<ToDooSelect
+          v-model="chosen"
+          aria-label="专注任务"
+          :options="taskOptions"
+          :disabled="state.busy || focusBusy"
+        />
+      </label>
+      <span class="todo-focus-timer-clock" role="timer" aria-label="专注计时">{{ display }}</span>
+      <AButton
+        type="text"
+        class="todo-focus-settings-toggle"
+        aria-label="计时设置"
+        :aria-expanded="timerSettings"
+        @click="timerSettings = true"
+        >{{ active ? '记录与设置' : '设置' }}</AButton
+      >
+      <div class="todo-focus-timer-actions">
+        <template v-if="active"
+          ><AButton
+            type="primary"
+            class="todo-button todo-primary"
+            :disabled="state.busy || focusBusy"
+            @click="control(active.status === 'paused' ? 'resume' : 'pause')"
+            >{{ active.status === 'paused' ? '继续' : '暂停' }}</AButton
+          ><AButton :disabled="state.busy || focusBusy" @click="control('finish')"
+            >结束并保存</AButton
+          ><AButton type="text" :disabled="state.busy || focusBusy" @click="control('cancel')"
+            >取消本次</AButton
+          ></template
+        ><AButton
+          v-else
+          type="primary"
+          class="todo-button todo-primary"
+          :disabled="
+            state.busy ||
+            focusBusy ||
+            (loading && !syncing) ||
+            (!!selected?.archivedAt && !(mode === 'break' && target === 0))
+          "
+          @click="start()"
+          ><ToDooIcon name="play" :size="16" />{{
+            mode === 'break' && target === 0 ? '跳过休息' : '开始专注'
+          }}</AButton
+        >
+      </div>
+    </section>
+    <section v-if="finishedTaskSession" class="todo-focus-task-next" aria-label="专注后的任务">
+      <span>任务：{{ finishedTaskSession.taskTitle || '关联任务' }}</span>
+      <div class="todo-actions">
+        <AButton :disabled="state.busy || focusBusy" @click="viewSessionTask(finishedTaskSession)"
+          >查看任务</AButton
+        >
+        <AButton
+          :disabled="state.busy || focusBusy"
+          @click="completeSessionTask(finishedTaskSession)"
+          >完成任务</AButton
+        >
+      </div>
+    </section>
     <ASegmented
       v-if="narrowTimer"
       v-model:value="mobilePane"
       class="todo-focus-mobile-panes"
       aria-label="专注页面"
       :options="[
-        { label: '项目', value: 'projects' },
+        { label: '专注', value: 'projects' },
         { label: '历史', value: 'history' },
       ]"
     />
@@ -760,13 +983,11 @@ async function resolveNoteConflict(merge: boolean) {
             "
             >查看全部记录</AButton
           >
-          <AButton :disabled="!!active" :aria-pressed="!selectedTopic" @click="selectedTopic = ''"
+          <AButton :disabled="!!active" :aria-pressed="!selectedTopic && !chosen" @click="freeFocus"
             >自由专注</AButton
           >
         </ToDooPageToolbar>
-        <ToDooHint :model="model" hint-id="focus-project-selection">
-          选择项目用于计时；查看累计用于筛选记录。
-        </ToDooHint>
+
         <AAlert v-if="topicError" type="error" :message="topicError"
           ><template #action
             ><AButton type="link" @click="loadTopics()">重试</AButton></template
@@ -829,11 +1050,7 @@ async function resolveNoteConflict(merge: boolean) {
         </article>
         <AEmpty
           v-if="!topics.length"
-          :description="
-            archived === 'archived'
-              ? '归档的项目和记录会一直保留在这里'
-              : '为阅读、学习或工作建立一个专注项目'
-          "
+          :description="archived === 'archived' ? '暂无归档项目' : '还没有专注项目'"
           class="todo-focus-empty"
           ><AButton
             v-if="archived !== 'archived'"
@@ -970,6 +1187,14 @@ async function resolveNoteConflict(merge: boolean) {
                 <p v-if="session.note">{{ session.note }}</p>
                 <div class="todo-focus-history-actions">
                   <AButton
+                    v-if="session.occurrenceId"
+                    type="link"
+                    size="small"
+                    :disabled="state.busy || focusBusy"
+                    @click="viewSessionTask(session)"
+                    >查看任务</AButton
+                  >
+                  <AButton
                     v-if="session.status === 'interrupted'"
                     type="link"
                     size="small"
@@ -1052,16 +1277,6 @@ async function resolveNoteConflict(merge: boolean) {
             }}
           </p>
         </div>
-        <ToDooHint :model="model" hint-id="focus-history-scope">
-          历史/趋势项目独立于计时；概览统计该项目今日与累计。
-        </ToDooHint>
-        <details class="todo-focus-policy">
-          <summary>统计口径</summary>
-          <p class="todo-focus-count todo-muted">
-            概览统计当前筛选项目的今日与累计，不受记录日期影响；趋势按所选周期，记录按所选日期范围。计时项目独立选择。
-            完成次数按开始日计算；时长按每日片段计入，修正时长计入开始日。休息与取消不计入专注统计。
-          </p>
-        </details>
       </aside>
     </div>
     <section
@@ -1071,73 +1286,6 @@ async function resolveNoteConflict(merge: boolean) {
     >
       <label>尚未保存的专注记录<ATextarea v-model:value="notes[id]" /></label
       ><AButton :disabled="state.busy || focusBusy" @click="saveRetainedNote(id)">保存记录</AButton>
-    </section>
-    <section class="todo-focus-timer" aria-label="专注计时器">
-      <div class="todo-focus-timer-context">
-        <ToDooIcon name="focus" :size="24" />
-        <div>
-          <strong>{{ active ? sessionName(active) : selected?.name || '自由专注' }}</strong
-          ><small
-            >{{
-              active ? statusLabel(active.status) : selected?.archivedAt ? '项目已归档' : '准备开始'
-            }}
-            · {{ timerSummary }}</small
-          >
-          <small
-            v-if="linkedAction && linkedAction !== (active ? sessionName(active) : selected?.name)"
-            class="todo-focus-linked-action"
-            >关联行动：{{ linkedAction
-            }}<template v-if="!active">（切换项目仍保留）</template></small
-          >
-          <AButton v-if="!active && chosen" size="small" type="text" @click="chosen = ''"
-            >清空关联行动</AButton
-          >
-          <small
-            v-if="active && (Object.hasOwn(notes, active.id) || active.note)"
-            class="todo-focus-note-status"
-          >
-            {{ Object.hasOwn(notes, active.id) ? '记录未保存' : '已添加专注记录' }}
-          </small>
-        </div>
-      </div>
-      <span class="todo-focus-timer-clock" role="timer" aria-label="专注计时">{{ display }}</span>
-      <AButton
-        type="text"
-        class="todo-focus-settings-toggle"
-        aria-label="计时设置"
-        :aria-expanded="timerSettings"
-        @click="timerSettings = true"
-        >{{ active ? '记录与设置' : '设置' }}</AButton
-      >
-      <div class="todo-focus-timer-actions">
-        <template v-if="active"
-          ><AButton
-            type="primary"
-            class="todo-button todo-primary"
-            :disabled="state.busy || focusBusy"
-            @click="control(active.status === 'paused' ? 'resume' : 'pause')"
-            >{{ active.status === 'paused' ? '继续' : '暂停' }}</AButton
-          ><AButton :disabled="state.busy || focusBusy" @click="control('finish')"
-            >结束并保存</AButton
-          ><AButton type="text" :disabled="state.busy || focusBusy" @click="control('cancel')"
-            >取消本次</AButton
-          ></template
-        ><AButton
-          v-else
-          type="primary"
-          class="todo-button todo-primary"
-          :disabled="
-            state.busy ||
-            focusBusy ||
-            (loading && !syncing) ||
-            (!!selected?.archivedAt && !(mode === 'break' && target === 0))
-          "
-          @click="start()"
-          ><ToDooIcon name="play" :size="16" />{{
-            mode === 'break' && target === 0 ? '跳过休息' : '开始专注'
-          }}</AButton
-        >
-      </div>
     </section>
     <ADrawer
       v-if="focusRoot"

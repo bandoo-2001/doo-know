@@ -41,24 +41,35 @@ const blocked = computed(
     (props.model.state.selectedTaskId === props.item.task.id && props.model.dirty()),
 );
 const lists = computed(() => props.model.taskLists().filter((list) => !list.archivedAt));
-async function run(operation: 'copy' | 'move' | 'archive' | 'delete', listId?: string | null) {
+async function run(
+  operation: 'copy' | 'move' | 'archive' | 'unarchive' | 'delete' | 'restore',
+  listId?: string | null,
+) {
   if (blocked.value) return;
   const target = props.item;
+  if (target.task.deletedAt && operation !== 'restore') return;
+  if (operation === 'restore' && !target.task.deletedAt) return;
+  if (operation === 'unarchive' && !target.task.archivedAt) return;
   if (operation === 'delete') {
     if (props.parentDelete) {
       return props.removeTask?.();
     }
     if (!(await confirm(`将「${target.title}」及其子任务移入回收站？`, { danger: true }))) return;
   }
-  await props.model.batchTasks(
+  const result = await props.model.batchTasks(
     [target.task.id],
-    operation === 'archive' ? 'patch' : operation,
+    operation === 'archive' || operation === 'unarchive' ? 'patch' : operation,
     operation === 'move'
       ? { listId: listId ?? null }
       : operation === 'archive'
         ? { patch: { archivedAt: new Date().toISOString() } }
-        : {},
+        : operation === 'unarchive'
+          ? { patch: { archivedAt: null } }
+          : {},
   );
+  if (result && (operation === 'restore' || operation === 'unarchive'))
+    props.model.state.notice =
+      operation === 'restore' ? `已恢复「${target.title}」` : `已取消归档「${target.title}」`;
 }
 async function status(value: keyof typeof toDooStatusLabels) {
   if (blocked.value || !props.item.occurrence) return;
@@ -95,7 +106,7 @@ async function priority(value: string) {
     :trigger="contextMenu ? ['contextmenu'] : ['click']"
     placement="bottomRight"
     overlay-class-name="todo-task-menu-popup todo-ant-popup"
-    @open-change="$event && model.ensureListCatalog()"
+    @open-change="$event && !item.task.deletedAt && model.ensureListCatalog()"
   >
     <slot v-if="slots.default" />
     <AButton
@@ -113,65 +124,77 @@ async function priority(value: string) {
         <AMenuItem v-if="blocked && !model.state.busy" disabled
           >先保存更改或核对待处理操作</AMenuItem
         >
-        <AMenuItem @click="emit('open', item)">打开任务详情</AMenuItem>
-        <AMenuItem @click="emit('child', item.task.id)">添加子任务</AMenuItem>
-        <AMenuItem
-          :disabled="blocked || !item.occurrence"
-          @click="
-            emit('edit', 'timeBlock', undefined, {
-              occurrenceId: item.occurrence?.id,
-              title: item.title,
-            })
-          "
-          >安排时间</AMenuItem
+        <AMenuItem v-if="item.task.deletedAt" :disabled="blocked" @click="run('restore')"
+          >恢复任务</AMenuItem
         >
-        <ASubMenu
-          key="priority"
-          title="优先级"
-          popup-class-name="todo-task-menu-popup todo-ant-popup"
-          :disabled="blocked"
-        >
+        <template v-else>
+          <AMenuItem @click="emit('open', item)">打开任务详情</AMenuItem>
+          <AMenuItem @click="emit('child', item.task.id)">添加子任务</AMenuItem>
           <AMenuItem
-            v-for="(name, value) in toDooPriorityLabels"
-            :key="value"
-            @click="priority(value)"
-            >{{ name }}{{ value === 'none' ? '' : '优先级'
-            }}<span v-if="item.task.priority === value" class="todo-menu-current"
-              >✓</span
-            ></AMenuItem
+            :disabled="blocked || !item.occurrence"
+            @click="
+              emit('edit', 'timeBlock', undefined, {
+                occurrenceId: item.occurrence?.id,
+                title: item.title,
+              })
+            "
+            >安排时间</AMenuItem
           >
-        </ASubMenu>
-        <ASubMenu
-          key="status"
-          title="状态"
-          popup-class-name="todo-task-menu-popup todo-ant-popup"
-          :disabled="blocked || !item.occurrence"
-        >
-          <AMenuItem v-for="(name, value) in toDooStatusLabels" :key="value" @click="status(value)"
-            >{{ name
-            }}<span v-if="item.status === value" class="todo-menu-current">✓</span></AMenuItem
+          <ASubMenu
+            key="priority"
+            title="优先级"
+            popup-class-name="todo-task-menu-popup todo-ant-popup"
+            :disabled="blocked"
           >
-        </ASubMenu>
-        <ASubMenu
-          key="move"
-          title="移动到"
-          popup-class-name="todo-task-menu-popup todo-ant-popup"
-          :disabled="blocked"
-        >
-          <AMenuItem :disabled="!item.task.listId" @click="run('move', null)">收集箱</AMenuItem>
+            <AMenuItem
+              v-for="(name, value) in toDooPriorityLabels"
+              :key="value"
+              @click="priority(value)"
+              >{{ name }}{{ value === 'none' ? '' : '优先级'
+              }}<span v-if="item.task.priority === value" class="todo-menu-current"
+                >✓</span
+              ></AMenuItem
+            >
+          </ASubMenu>
+          <ASubMenu
+            key="status"
+            title="状态"
+            popup-class-name="todo-task-menu-popup todo-ant-popup"
+            :disabled="blocked || !item.occurrence"
+          >
+            <AMenuItem
+              v-for="(name, value) in toDooStatusLabels"
+              :key="value"
+              @click="status(value)"
+              >{{ name
+              }}<span v-if="item.status === value" class="todo-menu-current">✓</span></AMenuItem
+            >
+          </ASubMenu>
+          <ASubMenu
+            key="move"
+            title="移动到"
+            popup-class-name="todo-task-menu-popup todo-ant-popup"
+            :disabled="blocked"
+          >
+            <AMenuItem :disabled="!item.task.listId" @click="run('move', null)">收集箱</AMenuItem>
+            <AMenuItem
+              v-for="list in lists"
+              :key="list.id"
+              :disabled="list.id === item.task.listId"
+              @click="run('move', list.id)"
+              >{{ list.name }}</AMenuItem
+            >
+          </ASubMenu>
+          <AMenuItem :disabled="blocked" @click="run('copy')">创建副本</AMenuItem>
           <AMenuItem
-            v-for="list in lists"
-            :key="list.id"
-            :disabled="list.id === item.task.listId"
-            @click="run('move', list.id)"
-            >{{ list.name }}</AMenuItem
+            :disabled="blocked"
+            @click="run(item.task.archivedAt ? 'unarchive' : 'archive')"
+            >{{ item.task.archivedAt ? '取消归档' : '归档任务' }}</AMenuItem
           >
-        </ASubMenu>
-        <AMenuItem :disabled="blocked" @click="run('copy')">创建副本</AMenuItem>
-        <AMenuItem :disabled="blocked" @click="run('archive')">归档任务</AMenuItem>
-        <AMenuItem :disabled="blocked" danger @click="run('delete')">{{
-          parentDelete ? '删除' : '删除任务'
-        }}</AMenuItem>
+          <AMenuItem :disabled="blocked" danger @click="run('delete')">{{
+            parentDelete ? '删除' : '删除任务'
+          }}</AMenuItem>
+        </template>
       </AMenu></template
     >
   </ADropdown>

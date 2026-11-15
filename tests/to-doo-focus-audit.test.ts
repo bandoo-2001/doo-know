@@ -58,7 +58,7 @@ function component(name: string): Vue.Component {
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };
       if (
-        /ToDoo(Hint|PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|Icon)\.vue$/.test(
+        /ToDoo(PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|Icon)\.vue$/.test(
           id,
         )
       )
@@ -192,7 +192,13 @@ function model(count = 1) {
       },
     };
   });
-  return { state, execute: vi.fn(async () => ({})), request, data };
+  return {
+    state,
+    execute: vi.fn(async () => ({})),
+    request,
+    data,
+    taskLists: () => state.snapshot.lists,
+  };
 }
 async function settle() {
   for (let i = 0; i < 20; i++) await Vue.nextTick();
@@ -453,7 +459,7 @@ test('history responses from a different snapshot dataset cannot populate the cu
   expect(rows(view).map((n) => n.props['data-session-id'])).toEqual(['row-0000']);
 });
 
-test('changing the timer project explains the retained linked action and can explicitly clear it', async () => {
+test('changing projects keeps the visible task choice while free focus clears both targets', async () => {
   const value = model();
   value.state.snapshot.tasks = [{ id: 'task', title: '已关联行动', listId: 'inbox' }];
   value.state.snapshot.occurrences = [{ id: 'action', taskId: 'task', status: 'todo' }];
@@ -461,21 +467,15 @@ test('changing the timer project explains the retained linked action and can exp
   await settle();
   button(view, '选择专注项目 阅读')!.props.onClick();
   await settle();
-  expect(
-    view
-      .all()
-      .filter((n) => n.tag === 'small')
-      .map(view.text)
-      .join(''),
-  ).toContain('关联行动：已关联行动（切换项目仍保留）');
-  button(view, '清空关联行动')!.props.onClick();
+  expect(view.all().find((n) => n.props['aria-label'] === '专注任务')!.props.value).toBe('action');
+  button(view, '自由专注')!.props.onClick();
   await settle();
   button(view, '开始专注')!.props.onClick();
   await settle();
   expect(value.execute).toHaveBeenCalledWith(
     expect.objectContaining({
       action: 'start_focus',
-      payload: expect.objectContaining({ occurrenceId: null }),
+      payload: expect.objectContaining({ occurrenceId: null, topicId: null }),
     }),
     expect.anything(),
   );

@@ -13,9 +13,7 @@ import {
 async function expectToDooPageReady(app: Locator) {
   const main = app.locator('.todo-main');
   await expect(main).toHaveAttribute('aria-busy', 'false');
-  await expect(
-    main.getByRole('status', { name: '正在载入 To Doo…', exact: true }),
-  ).toHaveCount(0);
+  await expect(main.getByRole('status', { name: '正在载入 To Doo…', exact: true })).toHaveCount(0);
 }
 
 async function showCompletedTasks(app: Locator) {
@@ -51,7 +49,7 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(
     '验证真实任务持久保存 ' + name,
   );
-  await expect(detail.getByRole('button', { name: '保存任务', exact: true })).not.toBeVisible();
+  await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
   await detail.getByLabel('任务说明', { exact: true }).fill('刷新后应该仍能读到这段记录');
   await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeVisible();
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
@@ -299,7 +297,7 @@ test.describe('To Doo source and evidence', () => {
     const app = page.getByRole('region', { name: 'To Doo 行动工作空间' }),
       detail = app.getByRole('complementary', { name: '任务详情' });
     await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(taskTitle);
-    await expect(detail.getByRole('button', { name: '保存任务', exact: true })).not.toBeVisible();
+    await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
     const taskId = new URL(page.url()).searchParams.get('task');
     expect(taskId).toBeTruthy();
     const state = await (

@@ -16,16 +16,25 @@ import ToDooIcon from './ToDooIcon.vue';
 import { createToDooReminderController } from '../../to-doo-reminders';
 import ToDooPageToolbar from './ToDooPageToolbar.vue';
 import ToDooSectionHeader from './ToDooSectionHeader.vue';
-import ToDooHint from './ToDooHint.vue';
 import { useToDooClock } from '../../to-doo-time';
 import type { ToDooEntityKind, ToDooEntityMap } from '../../../../shared/to-doo-contracts';
 import type { ToDooReminderSource } from '../../../../shared/to-doo-contracts';
-import { shiftToDooDate, toDooLocalDate, type ToDooWorkbench } from '../../to-doo-workbench';
+import {
+  shiftToDooDate,
+  toDooLocalDate,
+  type ToDooWorkbench,
+  type ToDooCreateSeed,
+} from '../../to-doo-workbench';
 const props = defineProps<{ model: ToDooWorkbench; section: 'stats' | 'notifications' }>();
 const emit = defineEmits<{
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
   task: [id: string, occurrenceId?: string];
   source: [context: ToDooReminderSource];
+  navigate: [section: 'tasks'];
+  completed: [];
+  history: [section: 'focus' | 'habits', range: { from: string; to: string }];
+  list: [id: string];
+  'create-task': [seed: ToDooCreateSeed];
 }>();
 const { now } = useToDooClock();
 const state = props.model.state,
@@ -280,6 +289,8 @@ async function markAll() {
 function createReview() {
   const metrics = state.snapshot?.statistics;
   emit('edit', 'review', undefined, {
+    name: `复盘 ${appliedFrom.value} — ${appliedTo.value}`,
+    content: '本期收获\n\n\n遇到的阻碍\n\n\n下一步行动\n',
     from: appliedFrom.value,
     to: appliedTo.value,
     capturedAt: metrics?.asOf ?? new Date().toISOString(),
@@ -288,6 +299,15 @@ function createReview() {
       focusMinutes: metrics?.focusMinutes ?? 0,
       outcomes: metrics?.outcomes ?? 0,
     },
+  });
+}
+function createNextTask(review: ToDooEntityMap['review']) {
+  emit('create-task', {
+    title: '',
+    description:
+      `来自复盘「${review.name}」\n复盘区间：${review.from} — ${review.to}` +
+      (review.content.trim() ? '\n\n' + review.content.trim().slice(0, 2000) : ''),
+    listId: review.listId,
   });
 }
 defineExpose({ createReview, markAll, markingAll, actingReminder });
@@ -341,12 +361,16 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
       />
       <AStatistic title="沉淀成果" :value="state.snapshot?.statistics.outcomes || 0" suffix="份" />
     </div>
-    <ToDooHint :model="model" hint-id="review-statistics-policy">
-      {{ appliedFrom }} — {{ appliedTo }} ·
-      {{ bucketDays > 1 ? '每 ' + bucketDays + ' 天汇总' : '按天统计' }}
-      · 历史完成保留归档行动的已完成记录；目标进展为当前未归档行动的累计执行次数，
-      不含父行动、取消和跳过的执行。已保存复盘保留保存时的指标。
-    </ToDooHint>
+    <nav class="todo-review-sources" aria-label="查看复盘资料">
+      <AButton type="link" @click="emit('completed')">查看全部已完成任务</AButton>
+      <AButton type="link" @click="emit('history', 'focus', { from: appliedFrom, to: appliedTo })"
+        >查看专注记录</AButton
+      >
+      <AButton type="link" @click="emit('history', 'habits', { from: appliedFrom, to: appliedTo })"
+        >查看习惯记录</AButton
+      >
+    </nav>
+
     <div class="todo-review-grid">
       <section class="todo-panel todo-review-trend">
         <ToDooSectionHeader title="完成趋势"><small>单位：项</small></ToDooSectionHeader>
@@ -377,7 +401,12 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
         <ToDooSectionHeader title="目标进展"><small>累计</small></ToDooSectionHeader>
         <div v-for="l in lists" :key="l.id" class="todo-progress-row">
           <div class="todo-between">
-            <span>{{ l.name }}</span
+            <AButton
+              type="link"
+              class="todo-review-goal-link"
+              :aria-label="'查看目标任务 ' + l.name"
+              @click="emit('list', l.id)"
+              >{{ l.name }}</AButton
             ><span
               >{{ state.snapshot?.statistics.byList[l.id]?.completed || 0 }}/{{
                 state.snapshot?.statistics.byList[l.id]?.total || 0
@@ -390,32 +419,49 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
             :aria-label="l.name + '完成进度'"
           />
         </div>
-        <AEmpty
-          v-if="!lists.length"
-          class="todo-empty"
-          description="创建目标后，在这里回顾进展。"
-        />
+        <AEmpty v-if="!lists.length" class="todo-empty" description="还没有目标">
+          <AButton @click="emit('edit', 'list', undefined, { kind: 'goal' })">新建目标</AButton>
+        </AEmpty>
       </section>
       <section class="todo-panel todo-review-records">
         <ToDooSectionHeader title="复盘与成果" />
-        <AButton
-          type="text"
+        <article
           v-for="r in reviews"
           :key="r.id"
-          class="todo-saved-row todo-text-button"
-          @click="emit('edit', 'review', r)"
+          class="todo-review-entry"
+          :aria-label="'复盘 ' + r.name"
         >
-          <span
-            ><strong>{{ r.name }}</strong
-            ><small>{{ r.from }} — {{ r.to }}</small>
-            <p>{{ r.content.slice(0, 160) }}</p></span
-          ><span>↗</span>
-        </AButton>
+          <AButton
+            type="text"
+            class="todo-saved-row todo-text-button"
+            :aria-label="'打开复盘 ' + r.name"
+            @click="emit('edit', 'review', r)"
+          >
+            <span
+              ><strong>{{ r.name }}</strong
+              ><small>{{ r.from }} — {{ r.to }}</small>
+              <p>{{ r.content.slice(0, 160) }}</p></span
+            ><span>↗</span>
+          </AButton>
+          <AButton
+            type="link"
+            class="todo-review-next-task"
+            :disabled="state.busy"
+            @click="createNextTask(r)"
+            >＋ 添加下一步任务</AButton
+          >
+        </article>
         <AEmpty
           v-if="!reviews.length && !outcomes.length"
           class="todo-empty"
-          description="写下做对的事与下一次调整，让记录成为下一步的依据。"
-        />
+          description="还没有复盘记录"
+        >
+          <AButton
+            :disabled="state.loading || state.busy || state.snapshot?.statistics.scope !== 'period'"
+            @click="createReview"
+            >写第一篇复盘</AButton
+          >
+        </AEmpty>
         <AButton
           type="text"
           v-for="o in outcomes"
@@ -458,9 +504,7 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
           :disabled="markingAll || state.loading || !!actingReminder"
       /></ATabs>
     </ToDooPageToolbar>
-    <ToDooHint :model="model" hint-id="notification-actions">
-      确认提醒只更新通知状态，不会自动完成任务或习惯；完成事项请查看来源。误操作可在更多提醒操作中恢复未读。
-    </ToDooHint>
+
     <section class="todo-panel">
       <section
         v-for="group in notificationGroups"
@@ -568,8 +612,54 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
           notificationFilter === 'unread' ? '当前没有未读提醒' : '这个状态下暂时没有提醒'
         "
       >
-        <p class="todo-muted">为任务、习惯或重要日子添加提醒，到时会集中显示。</p>
+        <AButton
+          v-if="notificationFilter !== 'all'"
+          :disabled="state.loading || markingAll || !!actingReminder"
+          @click="notificationFilterChanged('all')"
+          >查看全部提醒</AButton
+        >
+        <AButton v-else @click="emit('navigate', 'tasks')">查看任务</AButton>
       </AEmpty>
     </section></template
   >
 </template>
+
+<style scoped>
+.todo-review-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 0 0 12px;
+}
+.todo-review-sources .ant-btn {
+  height: auto;
+  padding: 3px 0;
+  font-size: 13px;
+}
+.todo-review-goal-link.ant-btn {
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  color: var(--todo-accent);
+  font-size: inherit;
+  white-space: normal;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.todo-review-entry {
+  min-width: 0;
+  border-bottom: 1px solid var(--todo-line);
+}
+.todo-review-entry .todo-saved-row {
+  border-bottom: 0;
+}
+.todo-review-entry p {
+  white-space: pre-line;
+}
+.todo-review-next-task.ant-btn {
+  height: auto;
+  margin: 0 16px 12px;
+  padding: 3px 0;
+  font-size: 13px;
+}
+</style>

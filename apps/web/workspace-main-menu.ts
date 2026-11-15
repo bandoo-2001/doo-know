@@ -23,6 +23,8 @@ export type WorkspaceMainMenuItem = {
 export type WorkspaceMainMenuDefinition = {
   id: string;
   label: string;
+  /** Applications with a complete navigation surface own their rail and mobile tabs. */
+  navigationMode?: 'embedded';
   icon?: string;
   activeId?: string;
   items: readonly WorkspaceMainMenuItem[];

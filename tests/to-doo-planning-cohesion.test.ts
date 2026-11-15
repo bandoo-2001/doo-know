@@ -70,7 +70,8 @@ function component(name: string): Vue.Component {
         };
       if (id.endsWith('ToDooTaskRow.vue')) return { default: component('ToDooTaskRow') };
       if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
-      if (id.endsWith('ToDooHint.vue')) return { default: component('ToDooHint') };
+
+      if (id.endsWith('ToDooPageToolbar.vue')) return { default: component('ToDooPageToolbar') };
       if (id.endsWith('.vue')) return { default: Vue.defineComponent({ render: () => null }) };
       throw Error('Unexpected planning dependency: ' + id);
     },
@@ -353,7 +354,7 @@ test('mobile agenda keeps occupied dates, today and anchor while empty dates rem
     calendar
       .byClass('todo-agenda-day')
       .every((day) =>
-        calendar.all(day).some((n) => n.tag === 'button' && calendar.text(n).includes('添加安排')),
+        calendar.all(day).some((n) => n.tag === 'button' && calendar.text(n).includes('添加任务')),
       ),
   ).toBe(true);
   calendar.button('隐藏空白日期')!.props.onClick();

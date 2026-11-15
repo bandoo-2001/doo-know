@@ -215,6 +215,7 @@ const toDooSelection = ref<ToDooSelection>({ task: readWorkspaceRoute().task, oc
 const appsRef = ref<InstanceType<typeof AppsWorkspace>>();
 const workspaceMenuHost = provideWorkspaceMainMenu();
 const activeAppMenu = computed(() => panel.value === 'apps' ? workspaceMenuHost.current.value : undefined);
+const appOwnsNavigation = computed(() => activeAppMenu.value?.navigationMode === 'embedded');
 const appNavigationMemory = createAppNavigationMemory();
 appNavigationMemory.remember(readWorkspaceRoute());
 let confirmedAppLeaveIntent = -1;
@@ -299,6 +300,8 @@ async function navigateApp(app: WorkspaceRoute['app'], section?: BlogSection | T
     }
   }
   const nextSection = await resolveAppSection(app, section, selection);
+  if (app === 'to-doo' && !section && nextSection === 'tasks' && !Object.values(selection).some(value => value !== undefined))
+    selection = { taskFilter: 'today' };
   if (!currentIntent(intent)) return;
   if (panel.value === 'apps' && appsApp.value !== app && !await confirmAppLeave(intent)) return;
   if (panel.value === 'apps' && appsApp.value === 'to-doo' && app === 'to-doo' && nextSection !== appsSection.value &&
@@ -752,7 +755,7 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
   if (route.view === 'apps') {
     appNavigationMemory.remember(route);
     appsApp.value = route.app; appsSection.value = nextAppSection;
-    toDooSelection.value = { task: route.task, occurrence: route.occurrence, list: route.list, date: route.date, calendarView: route.calendarView, taskFilter: route.taskFilter };
+    toDooSelection.value = { task: route.task, occurrence: route.occurrence, list: route.list, date: route.date, calendarView: route.calendarView, taskFilter: route.taskFilter || (route.app === 'to-doo' && !route.appSection && nextAppSection === 'tasks' && !route.task && !route.occurrence && !route.list && !route.date ? 'today' : undefined) };
     return openApps(false, intent);
   }
   if (route.view === 'trash') return openTrash(false, intent);
@@ -2701,13 +2704,13 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <div
-    :class="['workspace', { 'sidebar-collapsed': panel === 'apps' || (sidebarCollapsed && panel === 'note') }]"
+    :class="['workspace', { 'sidebar-collapsed': panel === 'apps' || (sidebarCollapsed && panel === 'note'), 'app-navigation-embedded': appOwnsNavigation }]"
     :style="{ '--sidebar-width': sidebarWidth + 'px', '--outline-width': outlineWidth + 'px' }"
   >
     <Transition name="scrim">
-      <div v-if="drawer" class="drawer-scrim" @click="drawer = false"></div>
+      <div v-if="drawer && !appOwnsNavigation" class="drawer-scrim" @click="drawer = false"></div>
     </Transition>
-    <aside id="notebook-navigation" :class="['sidebar', { open: drawer }]" aria-label="笔记导航">
+    <aside v-if="!appOwnsNavigation" id="notebook-navigation" :class="['sidebar', { open: drawer }]" aria-label="笔记导航">
       <div class="brand">
         <Icon :name="activeAppMenu?.icon || 'book'" :size="31" /><strong>{{ activeAppMenu?.label || 'DooKnow' }}</strong
         ><button class="mobile-only icon-button" aria-label="关闭侧栏" @click="drawer = false">
@@ -2943,6 +2946,7 @@ onBeforeUnmount(() => {
       </div>
     </aside>
     <WorkspaceFooter
+      v-if="!appOwnsNavigation"
       :username="props.username"
       :active="panel"
       :collection="collection"
@@ -2985,7 +2989,7 @@ onBeforeUnmount(() => {
     <NoteBacklinks v-if="backlinksOpen && note" :note-id="note.id" @open="openBacklink" @close="backlinksOpen=false" />
     <DiagramSaveDialog v-if="diagramSaveContext" :needs="diagramSaveContext.needs" :busy="diagramSaveBusy" :error="diagramSaveError" @generate="finishDiagramSave(true)" @source-only="finishDiagramSave(false)" @close="diagramSaveContext=undefined" />
     <EditorInsertMenu v-if="insertMenuOpen" :open="insertMenuOpen" :read-only="formatDisabled" @insert="insertSnippet" @close="insertMenuOpen=false" />
-    <SidebarResizer v-model="sidebarWidth" @commit="saveSidebarWidth" />
+    <SidebarResizer v-if="!appOwnsNavigation" v-model="sidebarWidth" @commit="saveSidebarWidth" />
     <main
       ref="mainRef"
       :class="['main-content', { 'utility-scroll': ['settings', 'trash', 'apps'].includes(panel) }]"
@@ -3481,6 +3485,7 @@ onBeforeUnmount(() => {
         :model="blogModel"
         :selection="toDooSelection"
         @navigate="navigateApp"
+        @return-app="returnFromApp"
         @menu-select="drawer = false"
         @open-note="openBlogNote"
         @note-created="run(refresh)"

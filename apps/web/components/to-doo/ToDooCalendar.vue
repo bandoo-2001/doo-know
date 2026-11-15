@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, onActivated, onDeactivated, ref, watch } from 'vue';
 import {
   Alert as AAlert,
   Button as AButton,
@@ -9,8 +9,10 @@ import {
   Segmented as ASegmented,
 } from 'ant-design-vue';
 import ToDooDateField from './ToDooDateField.vue';
+import ToDooSelect from './ToDooSelect.vue';
 import ToDooDisclosure from './ToDooDisclosure.vue';
-import ToDooHint from './ToDooHint.vue';
+import ToDooPageToolbar from './ToDooPageToolbar.vue';
+import ToDooCalendarTaskPicker from './ToDooCalendarTaskPicker.vue';
 import { groupTaskItems } from '../../to-doo-task-groups';
 import { useToDooClock } from '../../to-doo-time';
 import {
@@ -29,6 +31,7 @@ import {
   type ToDooItem,
   type ToDooSelection,
   type ToDooWorkbench,
+  type ToDooCreateSeed,
 } from '../../to-doo-workbench';
 import type { ToDooEntityKind, ToDooEntityMap } from '../../../../shared/to-doo-contracts';
 const props = defineProps<{
@@ -39,11 +42,15 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{
   open: [item: ToDooItem];
+  'create-task': [seed?: ToDooCreateSeed];
   navigate: [selection: ToDooSelection];
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
   'task-view': [section: 'tasks' | 'board' | 'matrix' | 'timeline'];
+  habits: [];
 }>();
 const state = props.model.state,
+  taskPicker = ref(false),
+  taskPickerAnchor = ref(''),
   displayOpen = ref(false),
   mobilePresentation = ref('agenda'),
   showEmptyDates = ref(false),
@@ -211,6 +218,69 @@ function timelineSummary(item: ToDooItem) {
 }
 function itemFor(id: string | null) {
   return items.value.find((i) => i.occurrence?.id === id);
+}
+let blockOpen = 0,
+  calendarActive = true;
+onActivated(() => {
+  calendarActive = true;
+});
+onDeactivated(() => {
+  calendarActive = false;
+  blockOpen++;
+});
+function showTaskPicker() {
+  taskPickerAnchor.value = anchor.value;
+  taskPicker.value = true;
+}
+function scheduledTask(date: string) {
+  taskPicker.value = false;
+  if (
+    !calendarActive ||
+    state.query.view !== 'calendar' ||
+    anchor.value !== taskPickerAnchor.value
+  ) {
+    void props.model.load();
+    return;
+  }
+  if (props.date === date) void props.model.load();
+  else emit('navigate', { date, calendarView: props.view });
+}
+async function openBlock(block: ToDooEntityMap['timeBlock']) {
+  if (!block.occurrenceId) {
+    emit('edit', 'timeBlock', block);
+    return;
+  }
+  const ticket = ++blockOpen;
+  const view = state.query.view,
+    date = anchor.value,
+    dataset = state.snapshot?.datasetId;
+  let item = itemFor(block.occurrenceId);
+  if (!item) {
+    try {
+      const data = await props.model.request(
+        '/api/to-doo/state?kinds=occurrence&ids=' +
+          encodeURIComponent(block.occurrenceId) +
+          '&limit=1',
+      );
+      const occurrence = data.occurrences.find(
+        (row: ToDooEntityMap['occurrence']) => row.id === block.occurrenceId,
+      );
+      if (occurrence) await props.model.ensureTask(occurrence.taskId);
+      if (
+        ticket !== blockOpen ||
+        state.query.view !== view ||
+        anchor.value !== date ||
+        state.snapshot?.datasetId !== dataset
+      )
+        return;
+      item = itemFor(block.occurrenceId);
+    } catch (cause) {
+      state.error = cause instanceof Error ? cause.message : '关联任务暂时无法读取，请重试';
+      return;
+    }
+  }
+  if (item) emit('open', item);
+  else state.error = '关联任务暂不可用，请刷新日历后重试';
 }
 function due(date: string) {
   return items.value.filter(
@@ -538,7 +608,7 @@ watch(
 );
 </script>
 <template>
-  <div class="todo-calendar-toolbar">
+  <ToDooPageToolbar class="todo-calendar-toolbar" aria-label="日期与日历显示">
     <div class="todo-actions">
       <AButton
         class="todo-icon-button"
@@ -595,7 +665,15 @@ watch(
         >显示内容</AButton
       >
       <AButton
-        class="todo-button todo-primary"
+        v-if="!timeline"
+        class="todo-button"
+        html-type="button"
+        type="default"
+        @click="showTaskPicker"
+        >安排已有任务</AButton
+      >
+      <AButton
+        class="todo-button"
         html-type="button"
         @click="
           emit('edit', 'timeBlock', undefined, {
@@ -606,12 +684,12 @@ watch(
             },
           })
         "
-        type="primary"
+        type="default"
       >
-        ＋ 时间安排
+        ＋ 预留时间
       </AButton>
     </div>
-  </div>
+  </ToDooPageToolbar>
   <div v-if="displayOpen" class="todo-calendar-options todo-calendar-display-panel">
     <label class="todo-calendar-jump"
       >跳转日期<ToDooDateField
@@ -690,10 +768,12 @@ watch(
     </div>
   </div>
   <template v-if="timeline">
-    <div class="todo-task-toolbar">
-      <ASegmented
+    <ToDooPageToolbar class="todo-task-toolbar" aria-label="任务展示方式">
+      <ToDooSelect
+        class="todo-view-picker"
         aria-label="任务展示方式"
         value="timeline"
+        :show-search="false"
         :options="[
           { value: 'tasks', label: '列表' },
           { value: 'board', label: '看板' },
@@ -702,7 +782,7 @@ watch(
         ]"
         @change="emit('task-view', $event as 'tasks' | 'board' | 'matrix' | 'timeline')"
       />
-    </div>
+    </ToDooPageToolbar>
     <div
       class="todo-timeline-scroll"
       role="region"
@@ -784,10 +864,7 @@ watch(
         />
       </div>
     </div>
-    <ToDooHint :model="model" hint-id="timeline-editing">
-      紫色区段代表计划；◆ 代表截止。点击区段调整时间，任务详情可设置前置依赖。
-    </ToDooHint></template
-  >
+  </template>
   <template v-else>
     <div class="todo-mobile-calendar-choice">
       <ASegmented
@@ -826,16 +903,8 @@ watch(
           <button
             type="button"
             class="todo-day-number"
-            :aria-label="'在 ' + day + ' 添加安排'"
-            @click="
-              emit('edit', 'timeBlock', undefined, {
-                start: {
-                  date: day,
-                  time: '09:00',
-                  timeZone: state.snapshot?.settings.timeZone || 'UTC',
-                },
-              })
-            "
+            :aria-label="'在 ' + day + ' 添加任务'"
+            @click="emit('create-task', { planDate: day })"
           >
             {{ day.slice(0, 7) !== anchor.slice(0, 7) ? Number(day.slice(5, 7)) + '/' : ''
             }}{{ Number(day.slice(-2)) }}</button
@@ -845,15 +914,19 @@ watch(
             type="button"
             draggable="true"
             class="todo-calendar-event"
+            :class="{ 'is-done': itemFor(b.occurrenceId)?.status === 'done' }"
+            :title="b.occurrenceId ? '打开任务详情' : '编辑预留时间'"
             @dragstart="drag($event, b.id)"
-            @click="emit('edit', 'timeBlock', b)"
+            @click="openBlock(b)"
           >
-            {{ blockSegment(b, day)?.time || (b.allDay ? '全天' : '未指定时刻') }}
+            {{ itemFor(b.occurrenceId)?.status === 'done' ? '✓ ' : ''
+            }}{{ blockSegment(b, day)?.time || (b.allDay ? '全天' : '未指定时刻') }}
             {{ itemFor(b.occurrenceId)?.title || b.title || '时间安排' }}</button
           ><button
             v-for="item in due(day)"
             :key="item.key"
             class="todo-calendar-event deadline"
+            :class="{ 'is-done': item.status === 'done' }"
             type="button"
             @click="emit('open', item)"
           >
@@ -918,9 +991,11 @@ watch(
                     :key="block.id"
                     type="button"
                     class="todo-calendar-event"
-                    @click="emit('edit', 'timeBlock', block)"
+                    :class="{ 'is-done': itemFor(block.occurrenceId)?.status === 'done' }"
+                    @click="openBlock(block)"
                   >
-                    全天 ·
+                    {{ itemFor(block.occurrenceId)?.status === 'done' ? '✓ ' : ''
+                    }}{{ block.allDay ? '全天' : '未指定时刻' }} ·
                     {{ itemFor(block.occurrenceId)?.title || block.title || '时间安排' }}</button
                   ><button
                     v-for="event in external(day).filter((e) => e.allDay || e.start.time === null)"
@@ -943,6 +1018,7 @@ watch(
                     <button
                       type="button"
                       class="todo-calendar-event deadline"
+                      :class="{ 'is-done': item.status === 'done' }"
                       @click="emit('open', item)"
                     >
                       ◆ {{ deadlineLabel(item) }} · {{ item.title }}
@@ -972,7 +1048,10 @@ watch(
                 :key="event.id"
                 type="button"
                 class="todo-week-event"
-                :class="{ external: !!event.event }"
+                :class="{
+                  'is-done': event.block && itemFor(event.block.occurrenceId)?.status === 'done',
+                  external: !!event.event,
+                }"
                 :draggable="!!event.block"
                 :style="slotStyle(event)"
                 :aria-label="event.title + ' ' + event.time + ' ' + event.duration + '分钟'"
@@ -990,9 +1069,7 @@ watch(
                 @mouseenter="inspectWeekEvent(event, day)"
                 @dragstart="event.block && drag($event, event.block.id)"
                 @click="
-                  event.block
-                    ? emit('edit', 'timeBlock', event.block)
-                    : event.event && inspectExternal(event.event)
+                  event.block ? openBlock(event.block) : event.event && inspectExternal(event.event)
                 "
               >
                 <span
@@ -1021,9 +1098,7 @@ watch(
         </div>
       </div>
     </div>
-    <ToDooHint v-if="view === 'week'" :model="model" hint-id="calendar-week-legend">
-      色线表示实际占用；旁侧为事件说明
-    </ToDooHint>
+
     <p v-if="readableEvent" class="todo-calendar-event-detail" role="status">
       {{ readableEvent.title }} · {{ readableEvent.time }}—{{ readableEvent.endTime }} ·
       {{ readableEvent.duration }} 分钟
@@ -1049,14 +1124,16 @@ watch(
         <AButton
           v-for="b in blocks(day)"
           :key="b.id"
-          class="todo-saved-row todo-text-button"
+          class="todo-saved-row todo-text-button todo-agenda-plan"
+          :class="{ 'is-done': itemFor(b.occurrenceId)?.status === 'done' }"
           html-type="button"
-          @click="emit('edit', 'timeBlock', b)"
+          @click="openBlock(b)"
           type="text"
         >
           <span>{{ blockSegment(b, day)?.time || (b.allDay ? '全天' : '未指定时刻') }}</span
           ><span
-            >{{ itemFor(b.occurrenceId)?.title || b.title || '时间安排'
+            >{{ itemFor(b.occurrenceId)?.status === 'done' ? '✓ ' : ''
+            }}{{ itemFor(b.occurrenceId)?.title || b.title || '时间安排'
             }}<small>{{
               b.allDay ? '全天安排' : blockSegment(b, day)?.duration + ' 分钟'
             }}</small></span
@@ -1065,7 +1142,8 @@ watch(
           v-for="item in due(day)"
           :key="item.key"
           html-type="button"
-          class="todo-saved-row todo-text-button"
+          class="todo-saved-row todo-text-button todo-agenda-plan"
+          :class="{ 'is-done': item.status === 'done' }"
           @click="emit('open', item)"
           type="text"
         >
@@ -1103,18 +1181,10 @@ watch(
         <AButton
           html-type="button"
           class="todo-link todo-pad"
-          @click="
-            emit('edit', 'timeBlock', undefined, {
-              start: {
-                date: day,
-                time: '09:00',
-                timeZone: state.snapshot?.settings.timeZone || 'UTC',
-              },
-            })
-          "
+          @click="emit('create-task', { planDate: day })"
           type="link"
         >
-          ＋ 添加安排
+          ＋ 添加任务
         </AButton>
       </section>
     </div>
@@ -1123,7 +1193,10 @@ watch(
     v-if="showHabits && state.snapshot?.habits.some((h) => !h.deletedAt)"
     class="todo-calendar-habits todo-panel"
   >
-    <h3>每日习惯</h3>
+    <div class="todo-between">
+      <h3>习惯</h3>
+      <AButton type="link" @click="emit('habits')">今天打卡</AButton>
+    </div>
     <span
       v-for="h in state.snapshot.habits.filter((h) => !h.deletedAt)"
       :key="h.id"
@@ -1133,6 +1206,19 @@ watch(
       }}</span
     >
   </div>
+  <ToDooCalendarTaskPicker
+    v-if="taskPicker"
+    :model="model"
+    :date="anchor"
+    @close="taskPicker = false"
+    @scheduled="scheduledTask"
+    @create="
+      (date) => {
+        taskPicker = false;
+        emit('create-task', { planDate: date });
+      }
+    "
+  />
   <AModal
     :open="!!selectedExternal"
     title="外部日历事件"

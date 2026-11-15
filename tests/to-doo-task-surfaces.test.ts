@@ -47,10 +47,12 @@ function component(name: string): Vue.Component {
       if (id === 'ant-design-vue') return toDooAntStubs;
       if (id.endsWith('/to-doo-controls')) return controls;
       if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
-      if (id.endsWith('ToDooHint.vue')) return { default: component('ToDooHint') };
+
+      if (id.endsWith('ToDooPageToolbar.vue')) return { default: component('ToDooPageToolbar') };
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };
       if (id.endsWith('ToDooTaskRow.vue')) return { default: component('ToDooTaskRow') };
+      if (id.endsWith('ToDooTaskPlan.vue')) return { default: component('ToDooTaskPlan') };
       if (id.endsWith('ToDooTaskMenu.vue')) return { default: component('ToDooTaskMenu') };
       if (id.endsWith('ToDooTaskGroupMenu.vue'))
         return { default: component('ToDooTaskGroupMenu') };
@@ -241,15 +243,19 @@ function confirmationModel() {
 }
 
 describe('task surface controls', () => {
-  test('empty optional settings are absent from the main detail while their editors remain reachable', () => {
+  test('common task settings are directly available while advanced details start folded', async () => {
     const value = model();
+    const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+    expect(detail.byClass('todo-detail-save')[0].props.disabled).toBe(true);
     value.draft()!.task.priority = 'none';
     value.draft()!.occurrence!.due = null;
-    const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
-    expect(detail.byClass('todo-detail-shortcuts')).toHaveLength(0);
-    expect(
-      detail.all().some((node) => node.tag === 'button' && node.props['aria-label'] === '添加属性'),
-    ).toBe(true);
+    await Vue.nextTick();
+    expect(detail.byClass('todo-detail-shortcuts')).toHaveLength(1);
+    for (const label of ['设置具体时间', '编辑截止日期', '编辑任务提醒', '编辑关联资料'])
+      expect(
+        detail.all().some((node) => node.tag === 'button' && node.props['aria-label'] === label),
+      ).toBe(true);
+    expect(detail.byClass('todo-detail-save')[0].props.disabled).toBe(false);
     expect(
       detail
         .all()
@@ -313,7 +319,7 @@ describe('task surface controls', () => {
     const value = model();
     const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
     const shortcuts = () => detail.byClass('todo-detail-shortcuts')[0]!;
-    expect(shortcuts()).toBeUndefined();
+    expect(detail.text(shortcuts())).toContain('不重复');
     const repeat = detail
       .all()
       .filter(
@@ -333,8 +339,8 @@ describe('task surface controls', () => {
     value.draft()!.task.noteRefs.push({ noteId: 'note-a', role: 'material', title: '报告材料' });
     await Vue.nextTick();
     expect(detail.text(shortcuts())).toContain('每周');
-    expect(detail.text(shortcuts())).toContain('1 条提醒');
-    expect(detail.text(shortcuts())).toContain('1 份资料');
+    expect(detail.text(shortcuts())).toContain('1 条');
+    expect(detail.text(shortcuts())).toContain('1 份');
     expect(
       detail.all().filter((node) => node.tag === 'summary' && detail.text(node) === '关联资料1'),
     ).toHaveLength(1);
@@ -493,7 +499,7 @@ describe('task surface controls', () => {
     },
   );
 
-  test('segmented view navigation preserves list and query state', () => {
+  test('view selection preserves list and query state', () => {
     const value = model(),
       navigate = vi.fn();
     value.state.filter = { listIds: ['work'], query: '报告' };
@@ -505,9 +511,9 @@ describe('task surface controls', () => {
       onNavigate: navigate,
     });
     const switcher = view.all().find((n) => n.props['aria-label'] === '任务展示方式')!;
-    const board = switcher.children.find((n) => view.text(n) === '看板')!;
+    const board = switcher.children.find((n) => n.props.value === 'board')!;
     expect(board).toBeDefined();
-    board.props.onClick();
+    switcher.props.onChange({ target: { value: 'board' } });
     expect(navigate).toHaveBeenCalledWith('board');
     expect(value.state.filter).toEqual({ listIds: ['work'], query: '报告' });
   });
@@ -672,7 +678,7 @@ describe('task audit context regressions', () => {
     );
   });
 
-  test('cancelled and skipped remain visible as terminal states outside pending count', () => {
+  test('the list count matches visible tasks including cancelled and skipped states', () => {
     const value = model(),
       data = value.state.snapshot!;
     for (const status of ['cancelled', 'skipped'] as const) {
@@ -690,7 +696,7 @@ describe('task audit context regressions', () => {
       tree: [],
       creating: true,
     });
-    expect(view.text(view.byClass('todo-task-list-heading')[0])).toContain('1 项');
+    expect(view.text(view.byClass('todo-task-list-heading')[0])).toContain('3 项');
     expect(view.text(view.root)).toContain('已取消');
     expect(view.text(view.root)).toContain('已跳过');
   });
@@ -782,13 +788,15 @@ test('matrix offers direct classification and manual override reset independentl
   );
 });
 
-test('task reader explains immediate status actions and the lifetime of unsaved text', () => {
+test('task reader exposes unsaved edits and keeps them when the detail is closed', () => {
   const value = model();
   value.draft()!.task.title = '当前页面的输入';
   const closed = vi.fn();
   const detail = mount('ToDooTaskDetail', { model: value, tree: [], onClose: closed });
-  expect(detail.text(detail.root)).toContain('执行状态和菜单操作立即生效');
-  expect(detail.text(detail.root)).toContain('刷新前请保存');
+  expect(detail.text(detail.root)).toContain('未保存的更改');
+  const save = detail.byClass('todo-detail-save')[0];
+  expect(detail.text(save)).toBe('保存任务');
+  expect(save.props.disabled).toBe(false);
   detail
     .all()
     .find((n) => n.props['aria-label'] === '关闭任务详情')!
