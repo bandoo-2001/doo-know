@@ -79,9 +79,9 @@ const workspaceServiceUnavailable = computed(() =>
 const ownerId = ref('');
 provide('dooknow.owner-id', ownerId);
 const username = ref('');
-watch(resolvedTheme, mode => applyPlatformCssVariables(document.documentElement, mode), {
-  immediate: true,
-});
+if (typeof document !== 'undefined') {
+  watch(resolvedTheme, mode => applyPlatformCssVariables(document.documentElement, mode), { immediate: true });
+}
 const activeAntTheme = computed(() => ({
   ...antTheme,
   algorithm:
