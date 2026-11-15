@@ -59,7 +59,6 @@
     position: sticky;
     top: 0;
     z-index: 3;
-    padding-block: var(--todo-space-4);
   }
   .to-doo-workspace .todo-main:has(> .todo-page-tasks) {
     scroll-padding-block-start: calc(var(--todo-nav-height) + var(--todo-space-16));
