@@ -1,0 +1,41 @@
+ToDoo 本轮改造与验证
+
+基线：2495951351776c04a66f3c1c083bd9fbe7b2da6c
+功能代码：15f00d5aaf6f66f2a18465444f1b212f314a3fcf
+分支：codex/todoo-refinement；本地提交，未推送、未部署。
+现行规范：docs/ToDoo界面组件.md；platform-theme.ts是token权威来源。
+
+按已批准决策实施：显式保存；带版本/账户/资料库范围的浏览器本地既有任务草稿恢复；1080可并排详情，鼠标舒适40px/紧凑36px，触摸至少44px，任务字号14px。
+
+阶段：
+P0 基线/空间指标/功能与回归映射。
+P1 显式保存、三方合并、字段冲突选择、分段回执恢复、隐藏草稿与联动动作保护。
+P2 Ant Design Vue同源浅深主题、尺寸/Portal/表单/按钮/反馈规范及公共页头。
+P3 精简导航、任务行与详情；搜索/筛选/更多；同一属性编辑器、快速输入解析可纠正、可选元数据显示。
+P4 月历42格、画布内部滚动、四象限与安排菜单；专注当前/历史分开，保留排程和任务桥接。
+P5 习惯/纪念日/复盘/通知/设置收纳；知识侧Ant任务入口；成果409与精确重试；MCP唯一插件管理入口。
+P6 领域/服务/HTTP/SDK/组件/原生控件、桌面/触摸浏览器回归；规范、截图和验证报告。
+
+最终同功能提交结果：
+- npm run typecheck：通过。
+- npm run build：通过，原有构建警告保留。
+- npx vitest run to-doo platform-theme tests/workspace-save-recovery.test.ts tests/workspace-markdown-navigation.test.ts tests/web-drafts.test.ts tests/editor-image-navigation.test.ts：74文件1026项全过。
+- workbench/task-surfaces/task-toolbar-lifecycle/planning-cohesion四文件：214项全过。
+- 最终定向浏览器：桌面4项、移动4项全过，无重试。覆盖205条分页及末条写入、视图状态、真实附件上传下载/完成刷新、12页两种主题导览。
+- 分批累计去重：桌面93场景、移动93场景已有通过证据（含部分中间重试）。这是分阶段证据集合，并非最终SHA一次完整浏览器运行通过的声明。
+
+浏览器复现：
+npm run test:e2e -- tests/e2e/to-doo-task-simplification.spec.ts tests/e2e/to-doo.spec.ts tests/e2e/to-doo-large-list.spec.ts --grep 'real goal and task|all To Doo sections|205-task|group creation and view switching' --retries=2
+scripts/e2e.ts分别为desktop/mobile准备临时账户、数据库、数据目录和4179服务，reuseExistingServer为false，不写用户5173/3010实例。
+
+回归中发现并修复：200条默认回包丢失末页任务保存基线/列表窗口/附件回执；通用补读抢占独立计划核对；KeepAlive的Teleport工具栏残留；迟到附件回执覆盖较新读取；冲突比较布局和全天切换时间恢复。
+
+边界：
+- 1080同条件首任务top293.2→169.6px；390为269.6→205.6px，达空间目标。默认入口7→5/6→5，仅减少28.6%/16.7%，未达到建议的30%；保留高频入口。
+- 总数和游标元信息保留最近一次作用域读取，下次作用域GET更新；不能使用默认全域回执替代筛选总数。
+- 真机推送送达、长期系统后台计时和物理软键盘/输入法遮挡仍需设备验收。
+- 独立全站ReminderCards入口沿用刷新/三方合并/409保护，不具有ToDoo局部动作相同的保存询问；这一交叉入口本轮为源码复核证据。
+- 全仓另有4项失败在未修改2495951基线复现：legacy search权限1、MCP SDK search/index2、自定义授权过期轮换1。未把相关套件全过宣称为全仓全绿。
+- 全仓一次测试在知识数据刷新/flush处长时间阻塞，已停止；未完整基线重现该阻塞，不称为已证实基线问题。
+
+详细阶段、F01–F37映射、原始几何、去重场景与完整日志在本次工作区父目录outputs/ToDoo分阶段改造与验证报告.txt及outputs/todoo-refinement中。
