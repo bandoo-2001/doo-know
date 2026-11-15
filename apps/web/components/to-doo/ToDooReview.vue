@@ -459,8 +459,8 @@ function createNextTask(review: ToDooEntityMap['review']) {
 defineExpose({ createReview, markAll, markingAll, actingReminder });
 </script>
 <template>
-  <template v-if="section === 'stats'"
-    ><ATabs
+  <div v-if="section === 'stats'" class="todo-review">
+    <ATabs
       v-if="!contextualNavigation"
       class="todo-review-view-tabs"
       aria-label="统计内容"
@@ -660,10 +660,10 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
           ＋ 新增推进记录
         </AButton>
       </section>
-    </div></template
-  >
-  <template v-else
-    ><ToDooPageToolbar
+    </div>
+  </div>
+  <div v-else class="todo-review">
+    <ToDooPageToolbar
       class="todo-calendar-toolbar todo-notification-toolbar"
       aria-label="通知范围与筛选"
     >
@@ -874,8 +874,8 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
         >
         <AButton v-else @click="emit('navigate', 'tasks')">查看任务</AButton>
       </AEmpty>
-    </section></template
-  >
+    </section>
+  </div>
 </template>
 <style src="../../to-doo-management-layout.css"></style>
 <style src="../../to-doo-review-layout.css"></style>

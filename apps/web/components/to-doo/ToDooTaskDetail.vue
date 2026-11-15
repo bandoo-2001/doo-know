@@ -1016,10 +1016,18 @@ defineExpose({
           >
         </section>
         <section v-if="form.task.tagIds.length || form.task.dependencies.length || form.task.criteria || form.task.attachments.length || outcomes.length" class="todo-detail-value-summary" aria-label="任务补充信息">
-          <AButton v-if="form.task.tagIds.length" type="text" @click="revealDetail('properties')">标签：{{ form.task.tagIds.map(id => state.snapshot?.tags.find(tag => tag.id === id)?.name || '标签').join('、') }}</AButton>
-          <AButton v-if="form.task.dependencies.length" type="text" @click="revealDetail('properties')">前置任务：{{ form.task.dependencies.map(entry => model.taskDefinitions().find(task => task.id === entry.taskId)?.title || '关联任务').join('、') }}</AButton>
+          <AButton v-if="form.task.tagIds.length" type="text" @click="revealDetail('properties')">
+            标签{{ form.task.tagIds.length > 1 ? ' ' + form.task.tagIds.length + ' 个' : '' }}：{{
+              form.task.tagIds.map(id => state.snapshot?.tags.find(tag => tag.id === id)?.name || '标签').join('、')
+            }}
+          </AButton>
+          <AButton v-if="form.task.dependencies.length" type="text" @click="revealDetail('properties')">
+            前置任务{{ form.task.dependencies.length > 1 ? ' ' + form.task.dependencies.length + ' 项' : '' }}：{{
+              form.task.dependencies.map(entry => model.taskDefinitions().find(task => task.id === entry.taskId)?.title || '关联任务').join('、')
+            }}
+          </AButton>
           <AButton v-if="form.task.attachments.length" type="text" @click="revealDetail('attachments')">附件 {{ form.task.attachments.length }} 份</AButton>
-          <AButton v-if="form.task.criteria" type="text" class="todo-detail-criteria-summary" @click="revealDetail('results')">完成标准：{{ form.task.criteria }}</AButton>
+          <AButton v-if="form.task.criteria" type="text" @click="revealDetail('results')">完成标准：{{ form.task.criteria }}</AButton>
           <AButton v-if="outcomes.length" type="text" @click="revealDetail('results')">成果 {{ outcomes.length }} 份 · {{ outcomes[0].summary }}</AButton>
         </section>
         <div class="todo-detail-shortcuts" role="group" aria-label="任务快捷设置">
@@ -1058,7 +1066,7 @@ defineExpose({
           </AMenu></template>
         </ADropdown>
         </div>
-        <AModal :open="propertyOpen" :title="detailPanel ? panelLabels[detailPanel] : ''" :footer="null" :width="560" wrap-class-name="todo-ant-modal todo-property-modal" @cancel="closeProperty">
+        <AModal :open="propertyOpen" :title="detailPanel ? panelLabels[detailPanel] : ''" :width="560" wrap-class-name="todo-ant-modal todo-property-modal" @cancel="closeProperty">
           <fieldset ref="propertyFields" class="todo-form todo-create-fields todo-detail-options" :disabled="state.busy" @keydown="shortcut">
             <p v-if="validationError" class="todo-danger" role="alert">{{ validationError }}</p>
             <section v-if="detailPanel === 'list'" class="todo-form">
@@ -1612,12 +1620,14 @@ defineExpose({
                 <p v-if="!history.length" class="todo-muted todo-small">当前范围没有历史记录</p>
               </div>
             </ToDooDisclosure>
-            <div class="todo-property-footer">
+          </fieldset>
+          <template #footer>
+            <div class="todo-property-footer" @keydown="shortcut">
               <span class="todo-muted">设置完成后，请在任务详情中保存。</span>
               <AButton :disabled="state.busy" @click="cancelProperty">取消本次设置</AButton>
               <AButton type="primary" :disabled="state.busy || inlineListOpen" @click="completeProperty">完成设置</AButton>
             </div>
-          </fieldset>
+          </template>
         </AModal>
       </fieldset>
     </div>

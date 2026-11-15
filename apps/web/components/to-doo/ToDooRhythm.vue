@@ -1033,6 +1033,14 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
   gap: var(--todo-space-12);
   min-width: 0;
 }
+@container (min-width: 1440px) {
+  .todo-habit-today-group {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .todo-habit-today-heading {
+    grid-column: 1 / -1;
+  }
+}
 .todo-habit-today-heading {
   display: flex;
   gap: 8px;

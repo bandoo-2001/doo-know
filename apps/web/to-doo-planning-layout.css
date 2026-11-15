@@ -80,7 +80,7 @@
 .to-doo-workspace .todo-board-column {
   display: flex;
   flex-direction: column;
-  min-height: min(620px, 65dvh);
+  min-height: clamp(230px, 32dvh, 380px);
 }
 .to-doo-workspace .todo-board-column > .todo-link:last-child {
   margin-top: auto;

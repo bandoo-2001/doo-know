@@ -335,6 +335,7 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scroll-padding-block: var(--todo-space-8);
+  padding-block-end: calc(var(--todo-focus-width) + var(--todo-focus-offset));
 }
 .todo-focus-history:focus-visible,
 .todo-focus-history-more summary:focus-visible {

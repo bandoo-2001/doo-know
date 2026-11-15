@@ -12,6 +12,7 @@
 }
 .todo-settings.todo-settings-simplified .todo-settings-preferences-form {
   padding: 0;
+  max-inline-size: 56rem;
 }
 .todo-settings.todo-settings-simplified .todo-preference-card {
   border: 0;

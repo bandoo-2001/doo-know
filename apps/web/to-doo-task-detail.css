@@ -1,11 +1,15 @@
 /* The task reader keeps its controls discoverable without a full form outline. */
 .todo-property-modal .todo-detail-options > .todo-ant-collapse > .ant-collapse-item > .ant-collapse-header { display: none; }
 .todo-property-modal .todo-detail-options > .todo-ant-collapse > .ant-collapse-item > .ant-collapse-content > .ant-collapse-content-box { padding: 0; }
-.todo-property-modal .todo-detail-options { min-width: 0; max-height: min(65dvh, 680px); overflow-y: auto; }
+.todo-property-modal .todo-detail-options { min-width: 0; }
+.todo-property-modal .ant-modal-content .ant-modal-body {
+  max-height: min(65dvh, 680px);
+  scroll-padding-block: var(--todo-space-12);
+}
 .todo-property-modal .todo-disclosure-content { padding: 0; }
 .todo-property-modal .todo-repeat-advanced-fields { padding-block: 8px; }
 .todo-property-footer { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; padding-top: 16px; border-top: 1px solid var(--todo-line); }
-.todo-property-footer > span { flex: 1; }
+.todo-property-footer > span { flex: 1; text-align: start; }
 .todo-plan-editor { padding-block: 12px; border-bottom: 1px solid var(--todo-line); }
 .to-doo-workspace .todo-conflict-panel { display: block; flex-shrink: 0; min-width: 0; max-height: 45%; overflow-y: auto; scroll-padding-block: var(--todo-space-8); margin: 8px 16px; padding: 12px; border: 1px solid var(--todo-warning); border-radius: var(--todo-control-radius); }
 .todo-conflict-panel p { margin: 8px 0; }
@@ -467,7 +471,7 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-.todo-detail-criteria-summary > span {
+.todo-detail-value-summary .ant-btn > span {
   display: -webkit-box;
   overflow: hidden;
   -webkit-line-clamp: 3;
@@ -530,6 +534,7 @@
   padding: 0;
 }
 @media (max-width: 600px) {
+  .todo-property-footer > span { flex-basis: 100%; }
   .to-doo-workspace .todo-detail .todo-form-grid {
     grid-template-columns: minmax(0, 1fr);
   }
