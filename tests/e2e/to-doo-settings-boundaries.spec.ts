@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
-import { selectToDooContext } from '../support/to-doo-navigation';
+import { closeToDooDirectory, openToDooDirectory, selectToDooContext } from '../support/to-doo-navigation';
 import { expandToDooGroup, selectToDooOption } from '../support/to-doo-ant-controls';
 
 const app = (page: Page) => page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
@@ -145,18 +145,20 @@ test('name-only calendar and subscription drafts request confirmation before lea
   await expandToDooGroup(workspace, '连接外部只读日历');
   const name = workspace.getByRole('textbox', { name: '来源名称', exact: true });
   await name.fill('仅名称草稿');
-  await page.getByRole('button', { name: '任务', exact: true }).click();
+  await (await openToDooDirectory(page)).getByRole('button', { name: '所有任务', exact: true }).click();
   const confirmation = page.getByRole('dialog', { name: '尚有未保存内容', exact: true });
   await expect(confirmation).toBeVisible();
   await confirmation.getByRole('button', { name: '继续编辑', exact: true }).click();
+  await closeToDooDirectory(page);
   await expect(name).toHaveValue('仅名称草稿');
   await name.fill('');
   await expandToDooGroup(workspace, '创建 To Doo 只读订阅链接');
   const subscription = workspace.getByRole('textbox', { name: '订阅名称', exact: true });
   await subscription.fill('订阅草稿');
-  await page.getByRole('button', { name: '任务', exact: true }).click();
+  await (await openToDooDirectory(page)).getByRole('button', { name: '所有任务', exact: true }).click();
   await expect(confirmation).toBeVisible();
   await confirmation.getByRole('button', { name: '继续编辑', exact: true }).click();
+  await closeToDooDirectory(page);
   await expect(subscription).toHaveValue('订阅草稿');
 });
 
