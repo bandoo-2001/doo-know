@@ -57,7 +57,7 @@ it('checks a stale project start against running and paused sessions across proj
   };
   const started = command('start_focus', { mode: 'stopwatch', topicId: 'reading', requireIdle: true });
   const running = service.getEntity('focusSession', started.ids[0])!;
-  expect(running.status).toBe('running');
+  expect(running).toMatchObject({ status: 'running' });
   expect(() => service.command(stale)).toThrow(/运行/);
   expect(() => command('start_focus', { mode: 'pomodoro' })).toThrow(/运行/);
   command('control_focus', { id: running.id, operation: 'pause', expectedRevision: running.revision });
@@ -66,8 +66,8 @@ it('checks a stale project start against running and paused sessions across proj
   expect(service.focusHistory().items).toHaveLength(1);
   expect(service.getEntity('focusSession', running.id)).toEqual(paused);
   const other = command('start_focus', { mode: 'pomodoro', topicId: 'writing' });
-  expect(service.getEntity('focusSession', other.ids[0])?.status).toBe('running');
-  expect(service.getEntity('focusSession', running.id)?.status).toBe('paused');
+  expect(service.getEntity('focusSession', other.ids[0])).toMatchObject({ status: 'running' });
+  expect(service.getEntity('focusSession', running.id)).toMatchObject({ status: 'paused' });
 });
 
 it('aggregates a complete project week independently of history filters, pagination and other projects', () => {
