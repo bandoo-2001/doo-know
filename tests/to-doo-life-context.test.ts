@@ -11,6 +11,7 @@ import * as habitPresentation from '../apps/web/to-doo-habit-presentation';
 import * as anniversaries from '../shared/to-doo-anniversaries';
 import * as focusSync from '../apps/web/to-doo-focus-history-sync';
 import * as workbench from '../apps/web/to-doo-workbench';
+import * as actionGuards from '../apps/web/to-doo-action-guard';
 import { TO_DOO_COLLECTIONS, toDooEntitySchemas } from '../shared/to-doo-contracts';
 
 type Node = {
@@ -57,6 +58,7 @@ function component(name: string): Vue.Component {
       if (id === '../../../../shared/to-doo-anniversaries') return anniversaries;
       if (id === '../../to-doo-focus-history-sync') return focusSync;
       if (id === '../../to-doo-workbench') return workbench;
+      if (id === '../../to-doo-action-guard') return actionGuards;
       if (id === '../../to-doo-controls') return { useToDooConfirm: () => async () => false };
       if (id === 'ant-design-vue')
         return {

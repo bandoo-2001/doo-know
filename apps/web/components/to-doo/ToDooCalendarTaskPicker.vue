@@ -8,11 +8,14 @@ import {
 } from 'ant-design-vue';
 import type { ToDooCommandResult, ToDooSnapshot } from '../../../../shared/to-doo-contracts';
 import type { ToDooWorkbench } from '../../to-doo-workbench';
+import { guardToDooTaskAction } from '../../to-doo-action-guard';
+import { useToDooConfirm } from '../../to-doo-controls';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
 const props = defineProps<{ model: ToDooWorkbench; date: string }>();
 const emit = defineEmits<{ close: []; create: [date: string]; scheduled: [date: string] }>();
 const state = props.model.state;
+const confirmAction = useToDooConfirm();
 const date = ref(props.date),
   selected = ref(''),
   error = ref(''),
@@ -115,13 +118,47 @@ async function schedule() {
   const occurrence = snapshot.value?.occurrences.find((row) => row.id === selected.value);
   const task = snapshot.value?.tasks.find((row) => row.id === occurrence?.taskId);
   if (!task || !occurrence || snapshot.value?.datasetId !== state.snapshot?.datasetId) return;
+  const selectedOccurrence = selected.value, requestedDate = date.value, ticket = epoch,
+    datasetId = state.snapshot?.datasetId,
+    detailTaskId = state.selectedTaskId, detailOccurrenceId = state.selectedOccurrenceId;
+  const current = () => ticket === epoch && state.snapshot?.datasetId === datasetId &&
+    selected.value === selectedOccurrence && date.value === requestedDate &&
+    state.selectedTaskId === detailTaskId && state.selectedOccurrenceId === detailOccurrenceId;
   saving.value = true;
   error.value = '';
   try {
+    const guardDrafts = async (taskIds: string[], preview?: NonNullable<typeof prepared.value>) => {
+      let savedDraft = false;
+      const fingerprint = preview && JSON.stringify(preview);
+      const allowed = await guardToDooTaskAction(props.model, taskIds, confirmAction, {
+        includeDescendants: false,
+        current: () => current() && (!preview || prepared.value === preview && JSON.stringify(prepared.value) === fingerprint),
+        save: async () => {
+          const result = await props.model.saveTask();
+          savedDraft = !!result;
+          return result;
+        },
+      });
+      if (savedDraft) {
+        // The selected task may now have a plan or a changed recurrence. Refresh
+        // eligible tasks and require another explicit choice rather than using
+        // the picker's old occurrence revisions or proposal.
+        clearPreview();
+        if (current()) {
+          selected.value = '';
+          await load();
+          error.value = '任务草稿已保存，请重新选择任务并确认安排';
+        }
+        return false;
+      }
+      if (!allowed && current()) error.value = state.error || '安排尚未执行，请先处理相关任务草稿';
+      return allowed && current();
+    };
     let result: ToDooCommandResult | undefined;
     if (ownPending.value) {
       const action = state.pendingMutation!.action;
       result = await props.model.retryPending();
+      if (!current()) return;
       if (!result) {
         error.value = state.error || '安排结果暂未确认，请重试';
         return;
@@ -135,6 +172,7 @@ async function schedule() {
       }
       prepared.value = result.preview;
     }
+    if (!(await guardDrafts([task.id]))) return;
     if (!prepared.value) {
       result = await props.model.execute(
         {
@@ -161,6 +199,7 @@ async function schedule() {
         },
         '',
       );
+      if (!current()) return;
       if (!result?.preview) {
         error.value = state.error || '暂时无法安排，请重试';
         return;
@@ -172,16 +211,21 @@ async function schedule() {
       clearPreview();
       return;
     }
+    const proposal = prepared.value;
+    const taskIds = [...new Set([task.id, ...Object.keys(proposal.expectedRevisions)
+      .filter(key => key.startsWith('task:')).map(key => key.slice(5))])];
+    if (!(await guardDrafts(taskIds, proposal))) return;
     result = await props.model.execute(
-      { action: 'apply_plan', payload: { plan: prepared.value } },
-      `已安排「${task.title}」到 ${date.value}`,
+      { action: 'apply_plan', payload: { plan: JSON.parse(JSON.stringify(proposal)) } },
+      `已安排「${task.title}」到 ${requestedDate}`,
     );
+    if (!current()) return;
     if (!result) {
       error.value = state.error || '安排结果暂未确认，请重试';
       return;
     }
     clearPreview();
-    emit('scheduled', date.value);
+    emit('scheduled', requestedDate);
     emit('close');
   } finally {
     saving.value = false;

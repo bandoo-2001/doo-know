@@ -7,6 +7,7 @@ import * as vueuse from '@vueuse/core';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
 import * as focusSync from '../apps/web/to-doo-focus-history-sync';
 import * as workbench from '../apps/web/to-doo-workbench';
+import * as actionGuards from '../apps/web/to-doo-action-guard';
 import { TO_DOO_COLLECTIONS, toDooEntitySchemas } from '../shared/to-doo-contracts';
 
 type Node = {
@@ -32,11 +33,11 @@ const control = (tag: string) =>
   });
 const controls = toDooAntStubs;
 const Input = controls.Input;
-function component(name: string): Vue.Component {
+function component(name: string, confirm: (message: string) => Promise<boolean> = async () => false, inlineTemplate = true): Vue.Component {
   const { descriptor } = parse(
     readFileSync(new URL(`../apps/web/components/to-doo/${name}.vue`, import.meta.url), 'utf8'),
   );
-  const compiled = compileScript(descriptor, { id: name, inlineTemplate: true });
+  const compiled = compileScript(descriptor, { id: name, inlineTemplate });
   const source = ts.transpileModule(compiled.content, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;
@@ -47,7 +48,8 @@ function component(name: string): Vue.Component {
       if (id === '@vueuse/core') return vueuse;
       if (id === '../../to-doo-focus-history-sync') return focusSync;
       if (id === '../../to-doo-workbench') return workbench;
-      if (id === '../../to-doo-controls') return { useToDooConfirm: () => async () => false };
+      if (id === '../../to-doo-action-guard') return actionGuards;
+      if (id === '../../to-doo-controls') return { useToDooConfirm: () => confirm };
       if (id === 'ant-design-vue')
         return {
           ...controls,
@@ -508,4 +510,102 @@ test('changing projects keeps the visible task choice while free focus clears bo
     }),
     expect.anything(),
   );
+});
+
+function completionFixture() {
+  const value = model();
+  const stamp = { revision: 'r1', createdAt: '2026-11-03T12:00:00Z', updatedAt: '2026-11-03T12:00:00Z' };
+  const task = toDooEntitySchemas.task.parse({ ...stamp, id: 'task', title: '完成专注后的行动' });
+  const occurrence = toDooEntitySchemas.occurrence.parse({ ...stamp, id: 'occ', taskId: task.id });
+  const session = toDooEntitySchemas.focusSession.parse({ ...value.data.sessions[0], occurrenceId: occurrence.id });
+  Object.assign(value.state, { selectedTaskId: task.id, selectedOccurrenceId: occurrence.id });
+  Object.assign(value.state.snapshot, { datasetId: 'fixture', tasks: [task], occurrences: [occurrence] });
+  const events: string[] = [];
+  const extra = {
+    ensureTask: vi.fn(async () => { events.push('ensure'); return true; }),
+    prepareTaskAction: vi.fn(async () => { events.push('prepare'); return [] as any[]; }),
+    saveTask: vi.fn(async () => { events.push('save'); return true; }),
+    dirty: vi.fn().mockReturnValue(false),
+    validateTaskDraft: vi.fn().mockReturnValue(true),
+    taskDefinitions: () => value.state.snapshot.tasks,
+    statusChildCount: vi.fn(async () => { events.push('count'); return 0 as number | null; }),
+    setStatus: vi.fn(async () => { events.push('status'); return {}; }),
+  };
+  const request = value.request;
+  value.request = vi.fn(async (url: string) => url.includes('kind=occurrence')
+    ? { datasetId: 'fixture', occurrences: [occurrence] } : request(url)) as typeof value.request;
+  const subjectModel = Object.assign(value, extra);
+  const confirm = vi.fn().mockResolvedValue(true);
+  const renderer = Vue.createRenderer<any, any>({
+    createComment: () => ({}), createElement: () => ({}), createText: () => ({}),
+    insert() {}, remove() {}, setText() {}, setElementText() {}, patchProp() {},
+    parentNode: () => null, nextSibling: () => null,
+  });
+  const subject = { ...component('ToDooFocus', confirm, false) as any, render: () => null };
+  const app = renderer.createApp(subject, { model: subjectModel });
+  const instance = app.mount({});
+  cleanups.push(() => app.unmount());
+  const setup = (instance.$ as any).setupState;
+  setup.visible = true;
+  setup.finishedTaskSession = session;
+  return { model: subjectModel, session, occurrence, confirm, events, setup };
+}
+
+test('focus completion checks the task draft before resolving the final child scope', async () => {
+  const f = completionFixture();
+  f.model.prepareTaskAction.mockResolvedValueOnce([{ key: 'task@occ', taskId: 'task', occurrenceId: 'occ', title: '任务', kind: 'task' }]).mockResolvedValueOnce([]);
+  await f.setup.completeSessionTask(f.session);
+  expect(f.model.prepareTaskAction).toHaveBeenCalledWith(['task'], true);
+  expect(f.model.saveTask).toHaveBeenCalledOnce();
+  expect(f.events.indexOf('save')).toBeLessThan(f.events.indexOf('count'));
+  expect(f.model.setStatus).toHaveBeenCalledWith('occ', 'done', false);
+  expect(f.setup.finishedTaskSession).toBeUndefined();
+});
+
+test('a hidden child draft prevents completing a focus task and leaves its feedback available', async () => {
+  const f = completionFixture();
+  f.model.prepareTaskAction.mockResolvedValue([{ key: 'child@other-occ', taskId: 'child', occurrenceId: 'other-occ', title: '子任务', kind: 'task' }]);
+  await f.setup.completeSessionTask(f.session);
+  expect(f.model.saveTask).not.toHaveBeenCalled();
+  expect(f.model.statusChildCount).not.toHaveBeenCalled();
+  expect(f.model.setStatus).not.toHaveBeenCalled();
+  expect(f.model.state.error).toContain('任务草稿');
+  expect(f.setup.finishedTaskSession.id).toBe(f.session.id);
+});
+
+test.each(['cancel', 'invalid', 'failed', 'new-selection', 'replaced-feedback', 'deactivated'] as const)('focus completion preserves the task for %s', async (reason) => {
+  const f = completionFixture();
+  f.model.prepareTaskAction.mockResolvedValue([{ key: 'task@occ', taskId: 'task', occurrenceId: 'occ', title: '任务', kind: 'task' }]);
+  if (reason === 'invalid') f.model.validateTaskDraft.mockReturnValue(false);
+  if (reason === 'failed') f.model.saveTask.mockResolvedValue(false);
+  f.confirm.mockImplementation(async () => {
+    if (reason === 'new-selection') f.model.state.selectedOccurrenceId = 'other-occ';
+    if (reason === 'replaced-feedback') f.setup.finishedTaskSession = { ...f.session, id: 'other-session' };
+    if (reason === 'deactivated') f.setup.visible = false;
+    return reason !== 'cancel';
+  });
+  await f.setup.completeSessionTask(f.session);
+  expect(f.model.setStatus).not.toHaveBeenCalled();
+  expect(f.model.statusChildCount).not.toHaveBeenCalled();
+  expect(f.setup.finishedTaskSession).toBeDefined();
+});
+
+test('a changed session occurrence while its read is pending cannot complete the replacement', async () => {
+  const f = completionFixture();
+  f.model.request.mockImplementationOnce(async () => {
+    f.session.occurrenceId = 'another-occ';
+    return { datasetId: 'fixture', occurrences: [{ ...f.occurrence, id: 'another-occ' }] } as any;
+  });
+  await f.setup.completeSessionTask(f.session);
+  expect(f.model.prepareTaskAction).not.toHaveBeenCalled();
+  expect(f.model.setStatus).not.toHaveBeenCalled();
+});
+
+test('cancelling the descendant confirmation leaves the focused task incomplete', async () => {
+  const f = completionFixture();
+  f.model.statusChildCount.mockResolvedValue(2);
+  f.confirm.mockResolvedValue(false);
+  await f.setup.completeSessionTask(f.session);
+  expect(f.confirm).toHaveBeenCalledWith(expect.stringContaining('2 个子任务'));
+  expect(f.model.setStatus).not.toHaveBeenCalled();
 });

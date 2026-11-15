@@ -38,6 +38,7 @@ import {
 } from '../../to-doo-workbench';
 import { reconcileFocusHistory, type FocusHistoryScan } from '../../to-doo-focus-history-sync';
 import { useToDooConfirm } from '../../to-doo-controls';
+import { guardToDooTaskAction } from '../../to-doo-action-guard';
 import ToDooSelect from './ToDooSelect.vue';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooIcon from './ToDooIcon.vue';
@@ -204,21 +205,31 @@ async function viewSessionTask(session: Session) {
 }
 async function completeSessionTask(session: Session) {
   if (state.busy || focusBusy.value) return;
+  const sessionId = session.id, occurrenceId = session.occurrenceId,
+    datasetId = state.snapshot?.datasetId;
+  const current = () => visible.value && state.snapshot?.datasetId === datasetId &&
+    session.id === sessionId && session.occurrenceId === occurrenceId &&
+    finishedTaskSession.value?.id === sessionId && finishedTaskSession.value?.occurrenceId === occurrenceId;
+  if (!current()) return;
   focusBusy.value = true;
   try {
     const occurrence = await sessionTask(session);
-    if (!occurrence) return;
+    if (!occurrence || !current()) return;
     if (occurrence.status === 'done') {
       finishedTaskSession.value = undefined;
       state.notice = '这项任务已经完成';
       return;
     }
     await props.model.ensureTask(occurrence.taskId);
+    if (!current() || !(await guardToDooTaskAction(props.model, [occurrence.taskId], confirm, {
+      includeDescendants: true, current,
+    }))) return;
     const count = await props.model.statusChildCount(occurrence.taskId);
-    if (count === null) return;
+    if (count === null || !current()) return;
     if (count && !(await confirm(`这个任务有 ${count} 个子任务，是否一并完成？`))) return;
+    if (!current()) return;
     const result = await props.model.setStatus(occurrence.id, 'done', count > 0);
-    if (result) finishedTaskSession.value = undefined;
+    if (result && current()) finishedTaskSession.value = undefined;
   } catch (cause) {
     state.error = cause instanceof Error ? cause.message : String(cause);
   } finally {
