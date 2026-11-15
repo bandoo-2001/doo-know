@@ -22,6 +22,7 @@ import ToDooFilterGroup from './ToDooFilterGroup.vue';
 import ToDooDisclosure from './ToDooDisclosure.vue';
 import ToDooFormLayout from './ToDooFormLayout.vue';
 import ToDooHabitFields from './ToDooHabitFields.vue';
+import ToDooTimeBlockFields from './ToDooTimeBlockFields.vue';
 import ToDooAnniversaryAppearance from './ToDooAnniversaryAppearance.vue';
 import { saveTaskSection } from '../../to-doo-task-groups';
 const props = defineProps<{
@@ -648,28 +649,8 @@ defineExpose({
         </div>
       </template>
       <template v-if="kind === 'timeBlock'">
-        <label
-          >安排标题<AInput v-model:value="form.title" placeholder="给这段时间起个名字"
-        /></label>
         <p v-if="linkedAction" class="todo-form-context">关联行动：{{ linkedAction }}</p>
-        <ACheckbox class="todo-checkbox" v-model:checked="form.allDay">全天安排</ACheckbox>
-        <div class="todo-form-grid">
-          <label>日期<ToDooDateField v-model="form.start.date" type="date" required /></label>
-          <label v-if="!form.allDay"
-            >时间<ToDooDateField v-model="form.start.time" type="time"
-          /></label>
-          <label v-if="!form.allDay"
-            >时长（分钟）<AInputNumber
-              aria-label="时长（分钟）"
-              :value="form.durationMinutes"
-              @update:value="form.durationMinutes = Number($event ?? 1)"
-              :min="1"
-              required
-          /></label>
-          <label v-if="form.allDay"
-            >结束日期（不含当天）<ToDooDateField v-model="form.dateEndExclusive" type="date"
-          /></label>
-        </div>
+        <ToDooTimeBlockFields :block="form as any" :disabled="model.state.busy" />
       </template>
       <ToDooDisclosure
         ref="extraFields"
@@ -819,7 +800,7 @@ defineExpose({
               </option></ToDooSelect
             ></label
           >
-          <label v-if="kind === 'timeBlock' || kind === 'calendarEvent'"
+          <label v-if="kind === 'calendarEvent'"
             >时区<AInput v-model:value="form.start.timeZone" required
           /></label>
           <ToDooReminders v-if="kind === 'anniversary'" v-model="form.reminders" />

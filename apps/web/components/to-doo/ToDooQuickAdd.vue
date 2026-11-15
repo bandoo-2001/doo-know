@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import ToDooDateField from './ToDooDateField.vue';
-import { Button as AButton, Input as AInput } from 'ant-design-vue';
+import { Button as AButton, Input as AInput, Popover as APopover } from 'ant-design-vue';
+import ToDooSelect from './ToDooSelect.vue';
 
-import { computed, nextTick, onMounted, onBeforeUnmount, ref } from 'vue';
+import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import type { ToDooWorkbench, ToDooCreateSeed } from '../../to-doo-workbench';
-import { shiftToDooDate, toDooLocalDate } from '../../to-doo-workbench';
+import { parseToDooQuickEntry, shiftToDooDate, toDooLocalDate } from '../../to-doo-workbench';
 import {
   prepareToDooQuickDraft,
   toDooDateLabel,
@@ -29,6 +30,24 @@ let pointerDown = false,
 let blurTimer: ReturnType<typeof setTimeout> | undefined;
 const state = props.model.state;
 const draft = computed(() => props.model.newTaskDraft(undefined, props.listId, props.seed));
+const literalTitle = computed({ get: () => !!draft.value.literalTitle, set: (value: boolean) => { draft.value.literalTitle = value; } });
+const composing = ref(false);
+const chipOpen = ref<string | null>(null);
+let chipOpener: HTMLElement | undefined;
+function rememberChip(event: MouseEvent) { chipOpener = event.currentTarget as HTMLElement; }
+function setChipOpen(kind: string, open: boolean) {
+  if (open && !normalize()) return;
+  chipOpen.value = open ? kind : null;
+}
+function closeChip() {
+  chipOpen.value = null;
+  nextTick(() => chipOpener?.isConnected && chipOpener.focus());
+}
+const originalDraft = ref<{ title: string; draft: typeof draft.value } | null>(null);
+watch(() => draft.value.title, () => {
+  literalTitle.value = false;
+  originalDraft.value = null;
+}, { flush: 'sync' });
 const today = computed(() => toDooLocalDate(new Date(), state.snapshot?.settings.timeZone));
 const prepared = computed(() =>
   prepareToDooQuickDraft(
@@ -38,12 +57,53 @@ const prepared = computed(() =>
     props.defaultDate,
   ),
 );
-const date = computed(() => prepared.value.planDate || prepared.value.dueDate);
+const recognized = computed(() => !literalTitle.value && parseToDooQuickEntry(
+  draft.value.title, today.value, state.snapshot?.tags.filter((tag) => !tag.deletedAt) || [],
+).recognized);
+function normalize() {
+  if (state.busy || state.pendingMutation) return false;
+  const original = originalDraft.value || {
+    title: draft.value.title,
+    draft: JSON.parse(JSON.stringify(draft.value)),
+  };
+  Object.assign(draft.value, prepared.value);
+  originalDraft.value = original;
+  literalTitle.value = true;
+  return true;
+}
+function useOriginal() {
+  if (state.busy || state.pendingMutation) return;
+  if (originalDraft.value) {
+    const original = originalDraft.value;
+    Object.assign(draft.value, original.draft, { title: original.title });
+  }
+  originalDraft.value = null;
+  literalTitle.value = true;
+}
+function removeDate(kind: 'plan' | 'due') {
+  if (!normalize()) return;
+  if (kind === 'plan') Object.assign(draft.value, { planDate: '', planTime: '', planDateCleared: true });
+  else Object.assign(draft.value, { dueDate: '', dueTime: '', planDateCleared: true });
+}
+function removeRepeat() {
+  if (normalize()) Object.assign(draft.value, { frequency: null, weekdays: [] });
+}
+function removeTag(id: string) {
+  if (normalize()) draft.value.tagIds = draft.value.tagIds.filter((tagId) => tagId !== id);
+}
+function correctTag(id: string, value: string | number) {
+  if (normalize()) draft.value.tagIds = [...new Set(draft.value.tagIds.map((tagId) => tagId === id ? String(value) : tagId))];
+}
+function correctRepeat(value: string | number | null) {
+  if (!normalize()) return;
+  draft.value.frequency = value === 'daily' || value === 'weekly' ? value : null;
+  if (value === 'weekly' && !draft.value.weekdays.length) draft.value.weekdays = [1];
+}
 const expanded = computed(() => focused.value || !!draft.value.title.trim());
 function setPlanDate(value: string) {
   if (state.busy || state.pendingMutation) return;
-  // Move recognized tokens into the existing recoverable draft before overriding the plan.
-  Object.assign(draft.value, prepared.value, {
+  if (!normalize()) return;
+  Object.assign(draft.value, {
     planDate: value,
     planDateCleared: !value,
     planTime: value ? prepared.value.planTime : '',
@@ -110,7 +170,7 @@ onBeforeUnmount(() => {
   clearTimeout(blurTimer);
 });
 async function add() {
-  if (!draft.value.title.trim() || state.busy || state.pendingMutation) return;
+  if (composing.value || !draft.value.title.trim() || state.busy || state.pendingMutation) return;
   // Normalize into the persisted draft so a retried request can also clear it.
   Object.assign(draft.value, prepared.value);
   const payload = toDooDraftPayload(draft.value, state.snapshot?.settings.timeZone || 'UTC');
@@ -147,7 +207,9 @@ async function add() {
         :maxlength="256"
         autocomplete="off"
         :disabled="state.busy || !!state.pendingMutation"
-        @keydown.enter="($event as KeyboardEvent).isComposing && $event.preventDefault()"
+        @compositionstart="composing = true"
+        @compositionend="composing = false"
+        @keydown.enter="(($event as KeyboardEvent).isComposing || composing) && $event.preventDefault()"
       />
       <AButton
         v-if="draft.title.trim()"
@@ -170,16 +232,36 @@ async function add() {
         详情
       </AButton>
     </div>
-    <div v-if="draft.title.trim()" class="todo-quick-add-hint">
-      <span v-if="date" class="todo-quick-date"
-        ><ToDooIcon name="calendar" :size="13" />{{ prepared.planDate ? '计划' : '截止' }}
-        {{ toDooDateLabel(date, today) }}
-        {{ prepared.planDate ? prepared.planTime : prepared.dueTime }}</span
-      >
-      <span v-if="prepared.frequency">{{
-        prepared.frequency === 'daily' ? '每天重复' : '每周重复'
-      }}</span>
-      <span v-if="prepared.tagIds.length">{{ prepared.tagIds.length }} 个标签</span>
+    <div v-if="draft.title.trim()" class="todo-quick-add-hint" aria-label="任务输入属性">
+      <span v-if="prepared.planDate" class="todo-capture-chip">
+        <APopover :open="chipOpen === 'plan'" trigger="click" title="计划" overlay-class-name="todo-ant-popup" @open-change="(open: boolean) => setChipOpen('plan', open)">
+          <AButton type="text" @click="rememberChip" aria-label="纠正计划日期">计划 {{ toDooDateLabel(prepared.planDate, today) }} {{ prepared.planTime }}</AButton>
+          <template #content><div class="todo-capture-chip-editor" @keydown.esc.stop.prevent="closeChip"><label>计划日期<ToDooDateField v-model="draft.planDate" type="date" aria-label="纠正计划日期" /></label><label>计划时间<ToDooDateField v-model="draft.planTime" type="time" aria-label="纠正计划时间" /></label></div></template>
+        </APopover>
+        <AButton type="text" aria-label="移除计划识别" @click="removeDate('plan')">×</AButton>
+      </span>
+      <span v-if="prepared.dueDate" class="todo-capture-chip">
+        <APopover :open="chipOpen === 'due'" trigger="click" title="截止" overlay-class-name="todo-ant-popup" @open-change="(open: boolean) => setChipOpen('due', open)">
+          <AButton type="text" @click="rememberChip" aria-label="纠正截止日期">截止 {{ toDooDateLabel(prepared.dueDate, today) }} {{ prepared.dueTime }}</AButton>
+          <template #content><div class="todo-capture-chip-editor" @keydown.esc.stop.prevent="closeChip"><label>截止日期<ToDooDateField v-model="draft.dueDate" type="date" aria-label="纠正截止日期" /></label><label>截止时间<ToDooDateField v-model="draft.dueTime" type="time" aria-label="纠正截止时间" /></label></div></template>
+        </APopover>
+        <AButton type="text" aria-label="移除截止识别" @click="removeDate('due')">×</AButton>
+      </span>
+      <span v-if="prepared.frequency" class="todo-capture-chip">
+        <APopover :open="chipOpen === 'repeat'" trigger="click" title="重复" overlay-class-name="todo-ant-popup" @open-change="(open: boolean) => setChipOpen('repeat', open)">
+          <AButton type="text" @click="rememberChip" aria-label="纠正重复规则">{{ prepared.frequency === 'daily' ? '每天重复' : '每周' + '日一二三四五六'[prepared.weekdays[0] ?? 1] + '重复' }}</AButton>
+          <template #content><div class="todo-capture-chip-editor" @keydown.esc.stop.prevent="closeChip"><label>重复<ToDooSelect :value="draft.frequency" aria-label="纠正重复规则" @change="correctRepeat"><option :value="null">不重复</option><option value="daily">每天</option><option value="weekly">每周</option></ToDooSelect></label><label v-if="draft.frequency === 'weekly'">星期<ToDooSelect :value="draft.weekdays[0] ?? 1" aria-label="重复星期" @change="draft.weekdays = [Number($event)]"><option v-for="(day, index) in ['日', '一', '二', '三', '四', '五', '六']" :key="index" :value="index">星期{{ day }}</option></ToDooSelect></label></div></template>
+        </APopover>
+        <AButton type="text" aria-label="移除重复识别" @click="removeRepeat">×</AButton>
+      </span>
+      <span v-for="id in prepared.tagIds" :key="id" class="todo-capture-chip">
+        <APopover :open="chipOpen === 'tag-' + id" trigger="click" title="标签" overlay-class-name="todo-ant-popup" @open-change="(open: boolean) => setChipOpen('tag-' + id, open)">
+          <AButton type="text" :aria-label="'纠正标签 ' + (state.snapshot?.tags.find((tag) => tag.id === id)?.name || id)" @click="rememberChip">{{ state.snapshot?.tags.find((tag) => tag.id === id)?.name || '标签' }}</AButton>
+          <template #content><div class="todo-capture-chip-editor" @keydown.esc.stop.prevent="closeChip"><label>标签<ToDooSelect :value="id" aria-label="纠正标签" @change="correctTag(id, $event)"><option v-for="tag in state.snapshot?.tags.filter((entry) => !entry.deletedAt)" :key="tag.id" :value="tag.id">{{ tag.name }}</option></ToDooSelect></label></div></template>
+        </APopover>
+        <AButton type="text" :aria-label="'移除标签 ' + (state.snapshot?.tags.find((tag) => tag.id === id)?.name || id)" @click="removeTag(id)">×</AButton>
+      </span>
+      <AButton v-if="recognized || originalDraft" type="link" class="todo-capture-literal" @click="useOriginal">按原文输入</AButton>
     </div>
     <div v-if="expanded" class="todo-composer-actions">
       <label class="todo-composer-date">

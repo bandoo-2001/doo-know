@@ -91,6 +91,11 @@ export function prepareToDooQuickDraft(
   tags: ToDooEntityMap['tag'][],
   defaultDate = '',
 ): ToDooNewTaskDraft {
+  if (draft.literalTitle) {
+    const value = { ...draft, title: draft.title.trim() };
+    if (!value.planDate && value.planDateCleared !== true && defaultDate) value.planDate = defaultDate;
+    return value;
+  }
   const quick = parseToDooQuickEntry(draft.title, today, tags);
   const value = {
     ...draft,

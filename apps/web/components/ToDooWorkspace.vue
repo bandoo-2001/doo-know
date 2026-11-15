@@ -9,6 +9,7 @@ import {
   defineAsyncComponent,
   defineComponent,
   h,
+  inject,
   nextTick,
   onBeforeUnmount,
   reactive,
@@ -16,16 +17,17 @@ import {
   watch,
   type AsyncComponentLoader,
   type Component,
+  type Ref,
 } from 'vue';
 import {
   Button as AButton,
+  ConfigProvider as AConfigProvider,
   Drawer as ADrawer,
   Dropdown as ADropdown,
   Menu as AMenu,
   MenuItem as AMenuItem,
   Modal as AModal,
   Popover as APopover,
-  Segmented as ASegmented,
 } from 'ant-design-vue';
 import type { TreeEntry } from '../../../shared/contracts';
 import type {
@@ -36,6 +38,9 @@ import type {
   ToDooReminderSource,
 } from '../../../shared/to-doo-contracts';
 import { api } from '../api';
+import { resolvedTheme } from '../preferences';
+import { toDooAntTheme } from '../ant-design';
+import type { ToDooDensity } from '../platform-theme';
 import type { ToDooAppSection } from '../navigation';
 import {
   createToDooWorkbench,
@@ -108,14 +113,53 @@ const ToDooCalendar = asyncPage('calendar', () => import('./to-doo/ToDooCalendar
 const ToDooRhythm = asyncPage('rhythm', () => import('./to-doo/ToDooRhythm.vue'));
 const ToDooReview = asyncPage('review', () => import('./to-doo/ToDooReview.vue'));
 const ToDooSettings = asyncPage('settings', () => import('./to-doo/ToDooSettings.vue'));
-const model = createToDooWorkbench(api),
+const ownerId = inject<Ref<string> | undefined>('dooknow.owner-id', undefined);
+const model = createToDooWorkbench(api, { recoveryScope: ownerId?.value }),
   state = model.state,
   creating = ref(false),
   parentId = ref<string>(),
   creatingListId = ref<string>(),
   detailOpen = ref(false),
   focusOccurrence = ref(''),
-  density = ref('comfortable');
+  density = ref<ToDooDensity>(readDensity());
+function readDensity(): ToDooDensity {
+  try {
+    return localStorage.getItem('dooknow.to-doo.density') === 'compact' ? 'compact' : 'comfortable';
+  } catch {
+    return 'comfortable';
+  }
+}
+watch(density, value => {
+  try { localStorage.setItem('dooknow.to-doo.density', value); } catch { /* The current preference still works. */ }
+});
+const activeToDooTheme = computed(() => toDooAntTheme(resolvedTheme.value, density.value));
+let noticeTimer: ReturnType<typeof setTimeout> | undefined;
+let completionTimer: ReturnType<typeof setTimeout> | undefined;
+let completionDeadline = 0, completionRemaining = 6000;
+function pauseCompletion() {
+  clearTimeout(completionTimer);
+  completionRemaining = Math.max(0, completionDeadline - Date.now());
+}
+function resumeCompletion() {
+  clearTimeout(completionTimer);
+  if (!state.completionFeedback) return;
+  completionDeadline = Date.now() + completionRemaining;
+  completionTimer = setTimeout(() => { state.completionFeedback = null; }, completionRemaining);
+}
+watch(() => state.completionFeedback, value => {
+  clearTimeout(completionTimer);
+  if (value) { completionRemaining = 6000; resumeCompletion(); }
+});
+watch(() => state.notice, notice => {
+  clearTimeout(noticeTimer);
+  if (notice && !state.pendingMutation && !state.conflict)
+    noticeTimer = setTimeout(() => { if (state.notice === notice) state.notice = ''; }, 3000);
+});
+watch(() => props.section, () => {
+  state.notice = '';
+  state.completionFeedback = null;
+});
+onBeforeUnmount(() => { clearTimeout(noticeTimer); clearTimeout(completionTimer); });
 const focusHistoryRequest = ref(0),
   habitHistoryRequest = ref(0);
 const focusHistoryRange = ref<{ from: string; to: string }>();
@@ -153,7 +197,30 @@ const createdNoteId = ref(''),
   createdNoteTaskId = ref('');
 const bulkOpen = ref(false);
 const taskDraftsOpen = ref(false);
+const draftManagerOpen = ref(false);
 const retainedTaskDrafts = computed(() => model.retainedNewTaskDrafts());
+const retainedEdits = computed(() => model.retainedTaskDrafts());
+async function continueTaskDraft(key: string) {
+  const entry = retainedEdits.value.find(value => value.key === key);
+  if (!entry) return;
+  taskDraftsOpen.value = false;
+  draftManagerOpen.value = false;
+  await selectTask(entry.taskId, entry.occurrenceId || undefined);
+}
+async function discardTaskDraft(key: string) {
+  const entry = retainedEdits.value.find(value => value.key === key);
+  if (!entry || !(await confirmation.ask(`放弃「${entry.title}」的未保存修改？`, { danger: true }))) return;
+  model.discardTaskDraft(key);
+}
+async function discardNewTaskDraft(key: string) {
+  const entry = retainedTaskDrafts.value.find(value => value.key === key);
+  if (!entry || !(await confirmation.ask(`放弃「${entry.draft.title || '未命名任务'}」的新建草稿？`, { danger: true }))) return;
+  model.clearNewTaskDraft(entry.parentTaskId || undefined, entry.listId || '');
+}
+async function recoverLegacyDrafts() {
+  if (!(await confirmation.ask('发现此资料库的旧版本地恢复记录。请确认这些记录属于当前账号，再恢复到当前账号的草稿中。', { title: '确认旧草稿归属' }))) return;
+  await model.adoptLegacyRecovery();
+}
 const taskDestination = ref<{
   message: string;
   label: string;
@@ -188,10 +255,12 @@ function changePageContext(value: string) {
 }
 const workspaceRef = ref<HTMLElement>();
 const detailLayer = ref<HTMLElement>();
-const detailOverlay = ref(window.innerWidth < 1280);
+const viewportWidth = ref(window.innerWidth);
+const detailOverlay = computed(() => viewportWidth.value < 960);
+const condensedNavigation = computed(() => detailOpen.value && !detailOverlay.value && viewportWidth.value < 1032);
 let detailOpener: HTMLElement | undefined;
 function resizeDetail() {
-  detailOverlay.value = window.innerWidth < 1280;
+  viewportWidth.value = window.innerWidth;
   const compactNavigation = window.matchMedia?.(
     '(max-width: 1000px), (max-width: 1100px) and (orientation: portrait), (max-width: 1366px) and (orientation: portrait) and (pointer: coarse)',
   ).matches;
@@ -769,7 +838,18 @@ function openReminderSource(source: ToDooReminderSource) {
   });
 }
 let reviewViewBeforeEditor: ToDooSnapshot | undefined;
-function edit(kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>) {
+async function edit(kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>) {
+  const linkedOccurrence = kind === 'timeBlock' ? entity?.occurrenceId || seed?.occurrenceId : undefined;
+  if (linkedOccurrence) {
+    const occurrence = state.snapshot?.occurrences.find(value => value.id === linkedOccurrence);
+    if (occurrence) {
+      await model.ensureTask(occurrence.taskId);
+      await selectTask(occurrence.taskId, occurrence.id);
+      await nextTick();
+      detailRef.value?.openProperty('plan');
+      return;
+    }
+  }
   reviewViewBeforeEditor =
     props.section === 'stats' && state.snapshot?.statistics.scope === 'period'
       ? JSON.parse(JSON.stringify(state.snapshot))
@@ -903,7 +983,9 @@ function finishLeave(answer: boolean) {
   leaving.value = false;
   if (answer) {
     if (props.section === 'settings') settingsVersion.value++;
-    Object.keys(state.drafts).forEach((k) => delete state.drafts[k]);
+    Object.keys(state.drafts).forEach(key => model.discardTaskDraft(key));
+    for (const entry of retainedTaskDrafts.value)
+      model.clearNewTaskDraft(entry.parentTaskId || undefined, entry.listId || '');
     editor.value = undefined;
     bulkOpen.value = false;
     outcomeNote.value = undefined;
@@ -912,6 +994,17 @@ function finishLeave(answer: boolean) {
     detailOpen.value = false;
   }
   leaveResolver?.(answer);
+  leaveResolver = undefined;
+}
+function hasNonRecoverableChanges() {
+  return !!outcomeRef.value?.hasUnsavedChanges() || bulkOpen.value ||
+    !!editorRef.value?.hasUnsavedChanges() || !!settingsRef.value?.hasUnsavedChanges?.() ||
+    !!detailRef.value?.hasInvalidInput?.();
+}
+function keepDraftsAndLeave() {
+  if (hasNonRecoverableChanges() || !model.flushRecovery()) return;
+  leaving.value = false;
+  leaveResolver?.(true);
   leaveResolver = undefined;
 }
 function openOutcomeNote() {
@@ -982,7 +1075,8 @@ async function back() {
   if (props.hostedNavigation || (await requestLeave())) emit('back');
 }
 function beforeUnload(event: BeforeUnloadEvent) {
-  if (hasUnsavedChanges()) {
+  const retained = model.flushRecovery();
+  if (hasUnsavedChanges() && (hasNonRecoverableChanges() || !retained)) {
     event.preventDefault();
     event.returnValue = '';
   }
@@ -1089,15 +1183,20 @@ watch(
 defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
 </script>
 <template>
+  <AConfigProvider :theme="activeToDooTheme">
   <section
     ref="workspaceRef"
     class="to-doo-workspace"
     :class="{
       'todo-compact': density === 'compact',
       'todo-has-detail': detailOpen,
+      'todo-detail-docked': detailOpen && !detailOverlay,
+      'todo-navigation-condensed': condensedNavigation,
       'todo-hosted-navigation': hostedNavigation,
       'todo-task-page': section === 'tasks' || section === 'overview',
       'todo-task-overview-page': section === 'overview',
+      'todo-page-calendar': section === 'calendar',
+      'todo-page-timeline': section === 'timeline',
     }"
     aria-label="To Doo 行动工作空间"
   >
@@ -1122,15 +1221,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       <APopover trigger="click" placement="bottomRight">
         <template #content
           ><div class="todo-ant-density">
-            <span>界面密度</span
-            ><ASegmented
-              v-model:value="density"
-              aria-label="界面密度"
-              :options="[
-                { label: '舒展', value: 'comfortable' },
-                { label: '紧凑', value: 'compact' },
-              ]"
-            /><AButton type="text" :disabled="state.loading || state.busy" @click="model.load()"
+            <AButton type="text" :disabled="state.loading || state.busy" @click="model.load()"
               >刷新内容</AButton
             >
           </div></template
@@ -1282,7 +1373,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               "
               class="todo-task-create-actions"
               :class="{
-                'todo-has-drafts': showTaskScope && retainedTaskDrafts.length && !creating,
+                'todo-has-drafts': showTaskScope && (retainedTaskDrafts.length || retainedEdits.length) && !creating,
               }"
             >
               <AButton
@@ -1293,7 +1384,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
                 >＋ 新建任务</AButton
               >
               <ADropdown
-                v-if="showTaskScope && retainedTaskDrafts.length && !creating"
+                v-if="showTaskScope && (retainedTaskDrafts.length || retainedEdits.length) && !creating"
                 v-model:open="taskDraftsOpen"
                 :trigger="['click']"
                 placement="bottomRight"
@@ -1310,6 +1401,10 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
                 /></AButton>
                 <template #overlay>
                   <AMenu :selectable="false" aria-label="任务草稿">
+                    <AMenuItem v-for="entry in retainedEdits" :key="'edit:' + entry.key" @click="continueTaskDraft(entry.key)">
+                      <span class="todo-task-draft-title">{{ entry.title || '未命名任务' }}</span>
+                      <span class="todo-task-draft-context">{{ entry.recovered ? '恢复的修改' : '未保存修改' }}</span>
+                    </AMenuItem>
                     <AMenuItem
                       v-for="entry in retainedTaskDrafts"
                       :key="entry.key"
@@ -1330,6 +1425,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
                         }}</span
                       >
                     </AMenuItem>
+                    <AMenuItem key="manage-drafts" @click="draftManagerOpen = true">管理任务草稿…</AMenuItem>
                   </AMenu>
                 </template>
               </ADropdown>
@@ -1386,17 +1482,21 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
           </details>
         </div>
 
-        <div v-if="state.error" class="todo-error todo-alert" role="alert">
+        <div v-if="state.error && !state.conflict" class="todo-error todo-alert" role="alert">
           {{ state.error
           }}<AButton html-type="button" class="todo-link" @click="state.error = ''" type="link"
             >关闭提示</AButton
           >
         </div>
+        <div v-if="state.conflict && !detailOpen" class="todo-error todo-alert" role="alert">
+          <span>这份任务有更新需要比较，本地修改仍保留。</span>
+          <AButton type="link" @click="detailOpen = true">打开任务核对</AButton>
+        </div>
         <div v-if="taskDestination" class="todo-action-feedback" role="status">
           <span>{{ taskDestination.message }}</span
           ><AButton type="link" @click="openTaskDestination">{{ taskDestination.label }}</AButton>
         </div>
-        <div v-else-if="state.completionFeedback" class="todo-action-feedback" role="status">
+        <div v-else-if="state.completionFeedback" class="todo-action-feedback todo-transient-feedback" role="status" @mouseenter="pauseCompletion" @mouseleave="resumeCompletion" @focusin="pauseCompletion" @focusout="resumeCompletion">
           <span>已完成「{{ state.completionFeedback.title }}」</span>
           <AButton
             v-if="state.completionFeedback.undoable"
@@ -1412,7 +1512,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
             >查看已完成</AButton
           >
         </div>
-        <p v-else-if="state.notice" class="todo-notice" role="status">{{ state.notice }}</p>
+        <p v-else-if="state.notice" class="todo-notice todo-transient-notice" role="status">{{ state.notice }}</p>
         <AButton
           v-if="createdNoteId && !detailOpen"
           class="todo-link todo-open-output"
@@ -1424,6 +1524,10 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
           打开成果笔记 ↗
         </AButton>
         <p v-if="state.localWarning" class="todo-warning" role="alert">{{ state.localWarning }}</p>
+        <p v-if="state.recoveryStatus === 'unavailable'" class="todo-warning" role="alert">此浏览器暂时无法保存恢复记录，请保存任务后再离开。</p>
+        <div v-if="state.legacyRecoveryAvailable" class="todo-alert todo-warning" role="status">
+          <span>发现旧版本地恢复记录，需确认账号归属后恢复。</span><AButton type="link" :disabled="state.busy" @click="recoverLegacyDrafts">检查并恢复</AButton>
+        </div>
         <div
           v-if="state.pendingMutation && !state.busy"
           class="todo-panel todo-pad todo-pending-request"
@@ -1464,6 +1568,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               :quick-view="quickView"
               :scope-list-id="selection.list"
               :creating="creating"
+              v-model:density="density"
               @quick-filter="chooseQuickView"
               @clear-filters="clearScopeFilters"
               @search-all="searchAllTasks"
@@ -1668,6 +1773,19 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       @close="closeEditor"
       @open-note="emit('open-note', $event)"
     />
+    <AModal :open="draftManagerOpen" title="任务草稿" :footer="null" wrap-class-name="todo-ant-modal" @cancel="draftManagerOpen = false">
+      <p class="todo-muted">草稿保留在此浏览器，点击保存任务后才会提交到服务器。</p>
+      <div v-for="entry in retainedEdits" :key="entry.key" class="todo-draft-manager-row">
+        <span>{{ entry.title || '未命名任务' }}<small>{{ entry.recovered ? '恢复的修改' : '未保存修改' }}</small><small v-if="state.unavailableDrafts[entry.key]">{{ state.unavailableDrafts[entry.key] }}</small></span>
+        <AButton @click="continueTaskDraft(entry.key)">继续编辑</AButton><AButton danger type="text" :disabled="state.busy || !!state.pendingMutation" @click="discardTaskDraft(entry.key)">放弃</AButton>
+      </div>
+      <div v-for="entry in retainedTaskDrafts" :key="entry.key" class="todo-draft-manager-row">
+        <span>{{ entry.draft.title || '未命名任务' }}<small>新建草稿</small></span>
+        <AButton @click="draftManagerOpen = false; continueNewDraft(entry.key)">继续编辑</AButton>
+        <AButton danger type="text" :disabled="state.busy || !!state.pendingMutation" @click="discardNewTaskDraft(entry.key)">放弃</AButton>
+      </div>
+      <p v-if="!retainedEdits.length && !retainedTaskDrafts.length" class="todo-muted">没有未保存的任务草稿</p>
+    </AModal>
     <AModal
       :open="leaving"
       title="尚有未保存内容"
@@ -1678,9 +1796,10 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       wrap-class-name="todo-ant-modal todo-leave-modal"
       @cancel="finishLeave(false)"
     >
-      <p>可以继续编辑，或明确放弃尚未提交的表单后离开。</p>
+      <p>尚有内容没有保存到服务器。</p>
       <div class="todo-ant-modal-actions">
         <AButton type="primary" @click="finishLeave(false)">继续编辑</AButton>
+        <AButton v-if="!hasNonRecoverableChanges()" @click="keepDraftsAndLeave">保留草稿并离开</AButton>
         <AButton danger @click="finishLeave(true)">放弃更改并离开</AButton>
       </div>
     </AModal>
@@ -1699,4 +1818,23 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       <p>{{ confirmRequest?.content }}</p>
     </AModal>
   </section>
+  </AConfigProvider>
 </template>
+<style scoped>
+.todo-transient-notice, .todo-transient-feedback {
+  position: absolute;
+  inset: auto 16px 16px auto;
+  z-index: 20;
+  max-width: min(440px, calc(100% - 32px));
+  padding: 10px 16px;
+  color: var(--todo-ink);
+  background: var(--todo-paper);
+  border: 1px solid var(--todo-line);
+  border-radius: var(--todo-radius);
+  box-shadow: var(--todo-shadow);
+}
+.todo-transient-notice { pointer-events: none; }
+.todo-draft-manager-row { display: flex; align-items: center; gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--todo-line); }
+.todo-draft-manager-row > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.todo-draft-manager-row small { display: block; color: var(--todo-muted); }
+</style>

@@ -11,7 +11,7 @@
 .todo-conflict-field { display: grid; gap: 8px; margin-top: 12px; }
 .todo-conflict-values { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .todo-conflict-values section { min-width: 0; }
-.todo-conflict-values pre { max-height: 160px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-family: inherit; font-size: var(--todo-body-size); padding: 8px; background: var(--todo-wash); }
+.todo-conflict-values pre { max-height: 160px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-family: inherit; font-size: var(--todo-font-size); padding: 8px; background: var(--todo-soft); }
 .todo-detail .todo-add-property.ant-btn { align-self: flex-start; padding-inline: 0; color: var(--todo-muted); }
 .to-doo-workspace .todo-readable-list-content {
   width: 100%;

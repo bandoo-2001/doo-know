@@ -92,10 +92,11 @@ const dates = computed(() => {
       :class="{ 'is-checked': item.status === 'done' }"
       :disabled="readOnly || !item.occurrence"
       :aria-label="(item.status === 'done' ? '重新打开 ' : '完成 ') + item.title"
+      :aria-pressed="item.status === 'done'"
       @click="emit('complete', item)"
       type="text"
     >
-      {{ item.status === 'done' ? '✓' : '' }}
+      <span class="todo-check-indicator" aria-hidden="true">{{ item.status === 'done' ? '✓' : '' }}</span>
     </AButton>
     <AButton
       html-type="button"

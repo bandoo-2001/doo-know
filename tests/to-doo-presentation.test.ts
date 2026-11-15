@@ -129,6 +129,28 @@ describe('inline task capture', () => {
         .plan,
     ).toBeNull();
   });
+  test('literal capture intent survives full-editor preparation and draft restoration', () => {
+    const value = draft();
+    Object.assign(value, {
+      title: '明天 每天 #工作 阅读', literalTitle: true,
+      planDate: '2026-11-02', description: '保留手动安排',
+    });
+    const tags = [{ id: 'work', name: '工作' }];
+    const fullEditor = prepareToDooQuickDraft(value, '2026-10-29', tags, '2026-10-29');
+    const restored = prepareToDooQuickDraft(JSON.parse(JSON.stringify(fullEditor)), '2026-10-30', tags, '2026-10-30');
+    expect(toDooDraftPayload(restored, 'Asia/Shanghai')).toMatchObject({
+      title: value.title, description: value.description,
+      plan: { date: '2026-11-02' }, recurrence: null, tagIds: [],
+    });
+    expect(restored.literalTitle).toBe(true);
+  });
+  test('literal input still inherits its task scope default without parsing title words', () => {
+    const value = draft();
+    Object.assign(value, { title: '明天 每天 阅读', literalTitle: true });
+    expect(toDooDraftPayload(prepareToDooQuickDraft(value, '2026-10-29', [], '2026-10-29'), 'UTC')).toMatchObject({
+      title: value.title, plan: { date: '2026-10-29' }, recurrence: null,
+    });
+  });
 });
 
 test('date labels are short and use the supplied user-local day', () => {

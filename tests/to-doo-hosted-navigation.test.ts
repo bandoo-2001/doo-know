@@ -9,6 +9,8 @@ import * as presentation from '../apps/web/to-doo-presentation';
 import * as contextNavigation from '../apps/web/to-doo-context-navigation';
 import * as workspaceLayout from '../apps/web/workspace-layout';
 import * as controls from '../apps/web/to-doo-controls';
+import * as actionGuards from '../apps/web/to-doo-action-guard';
+import * as antDesign from '../apps/web/ant-design';
 import * as push from '../apps/web/to-doo-push';
 import * as calendarLayout from '../apps/web/to-doo-calendar-layout';
 import * as clock from '../apps/web/to-doo-time';
@@ -81,6 +83,21 @@ function snapshot() {
   };
 }
 
+
+// Exercise Ant's controlled open boundary instead of rendering hidden popup content.
+const ControlledPopover = Vue.defineComponent({
+  inheritAttrs: false,
+  props: ['open', 'title'],
+  emits: ['update:open', 'openChange'],
+  setup: (props, { attrs, slots, emit }) => () => Vue.h('div', attrs, [
+    ...(slots.default?.() || []).map((child) => Vue.cloneVNode(child, { onClick: () => {
+      emit('update:open', !props.open);
+      emit('openChange', !props.open);
+    } })),
+    props.open ? slots.content?.() : null,
+  ]),
+});
+
 function component(path: string): Vue.Component {
   const descriptor = parse(
     readFileSync(new URL('../apps/web/components/' + path + '.vue', import.meta.url), 'utf8'),
@@ -93,10 +110,17 @@ function component(path: string): Vue.Component {
   new Function('require', 'module', 'exports', source)(
     (id: string) => {
       if (id === 'vue') return { ...Vue, vModelText: {}, vModelSelect: {}, vModelCheckbox: {} };
-      if (id === 'ant-design-vue') return toDooAntStubs;
+      if (id === 'ant-design-vue') return {
+        ...toDooAntStubs,
+        Popover: ControlledPopover,
+        ConfigProvider: Vue.defineComponent({ setup: (_, { slots }) => () => slots.default?.() }),
+      };
+      if (id === '../preferences') return { resolvedTheme: Vue.ref('light') };
+      if (id === '../ant-design') return antDesign;
       if (id === '@vueuse/core') return vueuse;
       if (id === '../workspace-layout') return workspaceLayout;
       if (id.endsWith('/to-doo-controls')) return controls;
+      if (id.endsWith('/to-doo-action-guard')) return actionGuards;
       if (id.endsWith('/to-doo-push')) return push;
       if (id.endsWith('/to-doo-calendar-layout')) return calendarLayout;
       if (id.endsWith('/to-doo-time')) return clock;
@@ -514,4 +538,39 @@ it('matrix keeps a plain title and returns to Today through the shared navigatio
   expect(view.all().filter((n) => n.props['aria-label'] === '切换任务范围')).toHaveLength(0);
   view.button('今天').props.onClick();
   expect(view.events.at(-1)).toEqual(['tasks', { taskFilter: 'today' }]);
+});
+
+
+it('custom common modules persist without removing any module or task-management scope', async () => {
+  const saved = new Map<string, string>();
+  vi.stubGlobal('localStorage', {
+    getItem: (key: string) => saved.get(key) || null,
+    setItem: (key: string, value: string) => saved.set(key, value),
+    removeItem: (key: string) => saved.delete(key),
+  });
+  const items = [
+    ['calendar', '日历', ''], ['habits', '习惯', ''], ['focus', '专注', ''],
+    ['overview', '目标总览', ''], ['stats', '统计与复盘', ''], ['anniversaries', '纪念日', ''],
+  ];
+  const extra = { quickView: 'all', lists: [], items, listLoading: false, listError: false, hasMoreLists: false };
+  const subject = component('to-doo/ToDooNavigation');
+  const view = mount('tasks', false, subject, extra);
+  const common = () => view.all().find((node) => node.tag === 'section' && node.props['aria-label'] === '计划与执行')!;
+  const pinned = () => view.all(common()).filter((node) => node.tag === 'button' && node.props['aria-label'] === '目标总览');
+  expect(pinned()).toHaveLength(0);
+  view.all().find((node) => node.tag === 'button' && node.props['aria-label'] === '自定义常用模块')!.props.onClick();
+  await settled();
+  view.all().find((node) => node.tag === 'input' && node.parent && view.text(node.parent) === '目标总览')!.props.onChange({ target: { checked: true } });
+  await settled();
+  expect(pinned()).toHaveLength(1);
+  expect(JSON.parse(saved.get('to-doo.navigation-pins.v1')!)).toContain('overview');
+  const restored = mount('tasks', false, subject, extra);
+  await settled();
+  const commonAgain = restored.all().find((node) => node.tag === 'section' && node.props['aria-label'] === '计划与执行')!;
+  expect(restored.all(commonAgain).some((node) => node.tag === 'button' && node.props['aria-label'] === '目标总览')).toBe(true);
+  for (const label of ['日历', '习惯', '专注', '目标总览', '统计与复盘', '纪念日', '逾期', '未安排', '受阻', '已归档', '回收站']) {
+    expect(restored.all().filter((node) => node.tag === 'button' && node.props['aria-label'] === label)).toHaveLength(1);
+  }
+  expect(restored.text(restored.byClass('todo-navigation-more')[0])).toContain('任务范围');
+  expect(restored.text(restored.byClass('todo-navigation-more')[0])).toContain('历史管理');
 });

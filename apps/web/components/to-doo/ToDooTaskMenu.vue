@@ -16,6 +16,7 @@ import {
 } from '../../to-doo-workbench';
 import { useToDooConfirm } from '../../to-doo-controls';
 import { useToDooMenu } from '../../to-doo-menu';
+import { guardToDooTaskAction } from '../../to-doo-action-guard';
 import ToDooIcon from './ToDooIcon.vue';
 const props = defineProps<{
   model: ToDooWorkbench;
@@ -37,8 +38,7 @@ const { open: menuOpen, trigger } = useToDooMenu();
 const blocked = computed(
   () =>
     props.model.state.busy ||
-    !!props.model.state.pendingMutation ||
-    (props.model.state.selectedTaskId === props.item.task.id && props.model.dirty()),
+    !!props.model.state.pendingMutation,
 );
 const lists = computed(() => props.model.taskLists().filter((list) => !list.archivedAt));
 async function run(
@@ -50,18 +50,21 @@ async function run(
   if (target.task.deletedAt && operation !== 'restore') return;
   if (operation === 'restore' && !target.task.deletedAt) return;
   if (operation === 'unarchive' && !target.task.archivedAt) return;
+  if (!(await guardToDooTaskAction(props.model, [target.task.id], confirm, {
+    current: () => props.item.task.id === target.task.id,
+  }))) return;
   if (operation === 'delete') {
     if (props.parentDelete) {
       return props.removeTask?.();
     }
     if (!(await confirm(`将「${target.title}」及其子任务移入回收站？`, { danger: true }))) return;
   }
-  const result = await props.model.batchTasks(
+  const result = operation === 'move'
+    ? await props.model.moveTasks([target.task.id], listId ?? null)
+    : await props.model.batchTasks(
     [target.task.id],
     operation === 'archive' || operation === 'unarchive' ? 'patch' : operation,
-    operation === 'move'
-      ? { listId: listId ?? null }
-      : operation === 'archive'
+    operation === 'archive'
         ? { patch: { archivedAt: new Date().toISOString() } }
         : operation === 'unarchive'
           ? { patch: { archivedAt: null } }
@@ -74,6 +77,9 @@ async function run(
 async function status(value: keyof typeof toDooStatusLabels) {
   if (blocked.value || !props.item.occurrence) return;
   const target = props.item;
+  if (!(await guardToDooTaskAction(props.model, [target.task.id], confirm, {
+    current: () => props.item.task.id === target.task.id,
+  }))) return;
   const children = value === 'done' ? await props.model.statusChildCount(target.task.id) : 0;
   if (children === null) return;
   if (
@@ -82,16 +88,21 @@ async function status(value: keyof typeof toDooStatusLabels) {
     !(await confirm(`这个任务有 ${children} 个子任务，是否一并完成？`))
   )
     return;
+  if (props.item.task.id !== target.task.id || props.item.occurrence?.id !== target.occurrence?.id) return;
   await props.model.setStatus(target.occurrence!.id, value, value === 'done' && children > 0);
 }
 async function priority(value: string) {
   if (blocked.value) return;
+  const taskId = props.item.task.id;
+  if (!(await guardToDooTaskAction(props.model, [taskId], confirm, { includeDescendants: false }))) return;
+  const task = props.model.taskDefinitions().find(value => value.id === taskId);
+  if (!task) return;
   await props.model.execute(
     {
       action: 'update_task',
       payload: {
-        id: props.item.task.id,
-        expectedRevision: props.item.task.revision,
+        id: taskId,
+        expectedRevision: task.revision,
         patch: { priority: value as typeof props.item.task.priority },
       },
     },
@@ -128,6 +139,7 @@ async function priority(value: string) {
           >恢复任务</AMenuItem
         >
         <template v-else>
+          <slot name="additional" />
           <AMenuItem @click="emit('open', item)">打开任务详情</AMenuItem>
           <AMenuItem @click="emit('child', item.task.id)">添加子任务</AMenuItem>
           <AMenuItem

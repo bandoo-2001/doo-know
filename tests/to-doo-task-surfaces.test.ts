@@ -6,6 +6,7 @@ import * as Vue from 'vue';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
 import * as controls from '../apps/web/to-doo-controls';
+import * as actionGuards from '../apps/web/to-doo-action-guard';
 import * as groups from '../apps/web/to-doo-task-groups';
 import * as menus from '../apps/web/to-doo-menu';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
@@ -26,7 +27,11 @@ type Node = {
   parent?: Node;
 };
 const cleanup: (() => void)[] = [];
-afterEach(() => cleanup.splice(0).forEach((fn) => fn()));
+afterEach(() => {
+  cleanup.splice(0).forEach((fn) => fn());
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
 
 function component(name: string): Vue.Component {
   const { descriptor } = parse(
@@ -46,6 +51,7 @@ function component(name: string): Vue.Component {
       if (id === '../../to-doo-menu') return menus;
       if (id === 'ant-design-vue') return toDooAntStubs;
       if (id.endsWith('/to-doo-controls')) return controls;
+      if (id.endsWith('/to-doo-action-guard')) return actionGuards;
       if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
 
       if (id.endsWith('ToDooPageToolbar.vue')) return { default: component('ToDooPageToolbar') };
@@ -53,6 +59,7 @@ function component(name: string): Vue.Component {
       if (boundary) return { default: boundary };
       if (id.endsWith('ToDooTaskRow.vue')) return { default: component('ToDooTaskRow') };
       if (id.endsWith('ToDooTaskPlan.vue')) return { default: component('ToDooTaskPlan') };
+      if (id.endsWith('ToDooTimeBlockFields.vue')) return { default: component('ToDooTimeBlockFields') };
       if (id.endsWith('ToDooTaskMenu.vue')) return { default: component('ToDooTaskMenu') };
       if (id.endsWith('ToDooTaskGroupMenu.vue'))
         return { default: component('ToDooTaskGroupMenu') };
@@ -723,7 +730,8 @@ describe('task audit context regressions', () => {
       tree: [],
       creating: true,
     });
-    expect(view.text(view.byClass('todo-task-list-heading')[0])).toContain('3 项');
+    expect(view.byClass('todo-task-list-heading')).toHaveLength(0);
+    expect(view.byClass('todo-task-row')).toHaveLength(3);
     expect(view.text(view.root)).toContain('已取消');
     expect(view.text(view.root)).toContain('已跳过');
   });
@@ -779,7 +787,7 @@ test('task menu parent completion asks and uses the version guarded cascade', as
   });
 });
 
-test('matrix offers direct classification and manual override reset independently of priority', async () => {
+test('matrix offers keyboard menu classification and manual override reset without a per-row form', async () => {
   const value = model(),
     execute = vi.spyOn(value, 'execute').mockResolvedValue(undefined);
   const matrix = mount('ToDooTaskViews', {
@@ -788,12 +796,13 @@ test('matrix offers direct classification and manual override reset independentl
     tree: [],
     creating: true,
   });
-  expect(matrix.text(matrix.root)).toContain('手动不紧急');
-  const select = matrix
+  expect(matrix.byClass('todo-matrix-classification')).toHaveLength(0);
+  expect(matrix.text(matrix.root)).toContain('重要不紧急 ✓');
+  const action = matrix
     .all()
-    .find((n) => n.tag === 'select' && n.props['aria-label'] === '设置象限 准备报告')!;
-  expect(select).toBeDefined();
-  select.props.onChange({ target: { value: '2' } });
+    .find((n) => n.props.role === 'menuitem' && matrix.text(n) === '紧急不重要')!;
+  expect(action).toBeDefined();
+  await action.props.onClick();
   await Vue.nextTick();
   expect(execute).toHaveBeenCalledWith(
     expect.objectContaining({
@@ -937,3 +946,65 @@ test.each(['menu', 'tasks', 'board', 'detail'] as const)(
     );
   },
 );
+
+
+describe('light task controls and recoverable capture', () => {
+  function capture() {
+    vi.stubGlobal('window', { addEventListener() {}, removeEventListener() {} });
+    vi.stubGlobal('document', { addEventListener() {}, removeEventListener() {}, querySelectorAll: () => [] });
+    const value = model();
+    const create = vi.spyOn(value, 'createTask').mockResolvedValue(undefined);
+    return { value, create };
+  }
+  function button(view: ReturnType<typeof mount>, label: string) {
+    return view.all().find((node) => node.tag === 'button' && (node.props['aria-label'] === label || view.text(node) === label))!;
+  }
+  test('sorting, density and filters use popovers without an in-flow filter panel', async () => {
+    const density = vi.fn();
+    const view = mount('ToDooTaskViews', { model: model(), section: 'tasks', tree: [], creating: true, 'onUpdate:density': density });
+    expect(view.byClass('todo-filter-panel')).toHaveLength(0);
+    expect(view.byClass('todo-task-list-heading')).toHaveLength(0);
+    expect(view.byClass('todo-task-filter-form')[0].parent?.tag).toBe('details');
+    view.all().find((node) => node.tag === 'select' && node.props['aria-label'] === '任务密度')!.props.onChange({ target: { value: 'compact' } });
+    expect(density).toHaveBeenCalledWith('compact');
+    button(view, '更多筛选条件').props.onClick();
+    await Vue.nextTick();
+    expect(view.all().some((node) => node.props['aria-label'] === '高级筛选')).toBe(true);
+  });
+  test('recognized date and repeat can be removed independently before submission', async () => {
+    const { value, create } = capture();
+    value.newTaskDraft().title = '明天 每天 整理';
+    const view = mount('ToDooQuickAdd', { model: value });
+    button(view, '移除计划识别').props.onClick();
+    await Vue.nextTick();
+    expect(button(view, '纠正重复规则')).toBeDefined();
+    button(view, '移除重复识别').props.onClick();
+    await Vue.nextTick();
+    view.all().find((node) => node.tag === 'form')!.props.onSubmit({ preventDefault() {} });
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ title: '整理', plan: null, recurrence: null }));
+    expect(value.newTaskDraft().title).toBe('整理');
+  });
+  test('use original preserves recognized words as literal title without assigning parsed properties', async () => {
+    const { value, create } = capture();
+    const title = '明天 下午3点 每天 复习';
+    value.newTaskDraft().title = title;
+    const view = mount('ToDooQuickAdd', { model: value });
+    button(view, '按原文输入').props.onClick();
+    await Vue.nextTick();
+    view.all().find((node) => node.tag === 'form')!.props.onSubmit({ preventDefault() {} });
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ title, plan: null, recurrence: null }));
+  });
+  test('composition blocks form submission until the input composition finishes', async () => {
+    const { value, create } = capture();
+    value.newTaskDraft().title = '输入中的任务';
+    const view = mount('ToDooQuickAdd', { model: value });
+    const input = view.all().find((node) => node.tag === 'input' && node.props['aria-label'] === '快速添加任务')!;
+    const form = view.all().find((node) => node.tag === 'form')!;
+    input.props.onCompositionstart();
+    form.props.onSubmit({ preventDefault() {} });
+    expect(create).not.toHaveBeenCalled();
+    input.props.onCompositionend();
+    form.props.onSubmit({ preventDefault() {} });
+    expect(create).toHaveBeenCalledOnce();
+  });
+});
