@@ -233,3 +233,9 @@
     overflow-x: auto;
   }
 }
+@media (pointer: coarse) {
+  :is(.to-doo-workspace, .todo-ant-modal, .todo-ant-popup) :is(.ant-btn, .ant-input, .ant-picker, .ant-input-number, .ant-select-single .ant-select-selector, .ant-dropdown-menu-item) {
+    min-height: var(--todo-touch-target);
+  }
+  .to-doo-workspace .todo-quick-add-line { padding-block: 0; }
+}

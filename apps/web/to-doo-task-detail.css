@@ -1,8 +1,9 @@
 /* The task reader keeps its controls discoverable without a full form outline. */
-.todo-property-modal .ant-collapse > .ant-collapse-item > .ant-collapse-header { display: none; }
-.todo-property-modal .ant-collapse > .ant-collapse-item > .ant-collapse-content > .ant-collapse-content-box { padding: 0; }
+.todo-property-modal .todo-detail-options > .todo-ant-collapse > .ant-collapse-item > .ant-collapse-header { display: none; }
+.todo-property-modal .todo-detail-options > .todo-ant-collapse > .ant-collapse-item > .ant-collapse-content > .ant-collapse-content-box { padding: 0; }
 .todo-property-modal .todo-detail-options { min-width: 0; max-height: min(65dvh, 680px); overflow-y: auto; }
 .todo-property-modal .todo-disclosure-content { padding: 0; }
+.todo-property-modal .todo-repeat-advanced-fields { padding-block: 8px; }
 .todo-property-footer { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; padding-top: 16px; border-top: 1px solid var(--todo-line); }
 .todo-property-footer > span { flex: 1; }
 .todo-plan-editor { padding-block: 12px; border-bottom: 1px solid var(--todo-line); }

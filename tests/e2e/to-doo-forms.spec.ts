@@ -296,6 +296,18 @@ test('task settings shortcuts open the existing editors with one click', async (
   await detail.getByRole('button', { name: '编辑重复规则', exact: true }).click();
   const repeat = page.getByRole('dialog', { name: '重复规则', exact: true });
   await expect(repeat.getByRole('combobox', { name: '重复', exact: true })).toBeFocused();
+  await selectToDooOption(repeat, '重复', '每天');
+  await expect(repeat.getByRole('combobox', { name: '修改范围', exact: true })).toBeVisible();
+  await expect(repeat.getByLabel('开始日期', { exact: true })).not.toBeVisible();
+  await expandToDooGroup(repeat, '高级重复规则');
+  await expect(repeat.getByLabel('开始日期', { exact: true })).toBeVisible();
+  await repeat.getByRole('spinbutton', { name: '间隔', exact: true }).fill('');
+  await repeat.getByRole('spinbutton', { name: '间隔', exact: true }).press('Escape');
+  await detail.getByRole('button', { name: '保存任务', exact: true }).click();
+  await expect(repeat).toBeVisible();
+  await expect(repeat.getByRole('alert')).toContainText('请检查');
+  await expect(repeat.getByRole('spinbutton', { name: '间隔', exact: true })).toBeFocused();
+  await repeat.getByRole('spinbutton', { name: '间隔', exact: true }).fill('1');
   await repeat.getByRole('button', { name: '完成设置', exact: true }).click();
   await expect(repeat).not.toBeVisible();
   await detail.getByRole('button', { name: '编辑关联资料', exact: true }).click();

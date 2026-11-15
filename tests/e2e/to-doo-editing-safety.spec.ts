@@ -195,8 +195,8 @@ test('a timed task arrangement can become all-day and still participate in sched
     expectedBlockRevision: block.revision, start: { ...block.start, date: '2030-05-18' },
     durationMinutes: block.durationMinutes, allDay: true, dateEndExclusive: null,
   }] });
-  expect(preview.plan?.changes).toHaveLength(1);
-  await command(page, 'apply_plan', { plan: preview.plan });
+  expect(preview.preview?.changes).toHaveLength(1);
+  await command(page, 'apply_plan', { plan: preview.preview });
   const moved = await snapshot(page, created.ids[0]);
   expect(moved.timeBlocks.find(value => value.id === block.id)).toMatchObject({ allDay: true, start: { date: '2030-05-18', time: null } });
 });

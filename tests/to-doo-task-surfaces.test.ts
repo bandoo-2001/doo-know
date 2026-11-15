@@ -8,6 +8,7 @@ import * as presentation from '../apps/web/to-doo-presentation';
 import * as displayPreferences from '../apps/web/to-doo-display-preferences';
 import * as controls from '../apps/web/to-doo-controls';
 import * as actionGuards from '../apps/web/to-doo-action-guard';
+import * as draftValidation from '../apps/web/to-doo-draft-validation';
 import * as groups from '../apps/web/to-doo-task-groups';
 import * as menus from '../apps/web/to-doo-menu';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
@@ -56,6 +57,7 @@ function component(name: string): Vue.Component {
       if (id === 'ant-design-vue') return toDooAntStubs;
       if (id.endsWith('/to-doo-controls')) return controls;
       if (id.endsWith('/to-doo-action-guard')) return actionGuards;
+      if (id.endsWith('/to-doo-draft-validation')) return draftValidation;
       if (id.endsWith('/to-doo-display-preferences')) return displayPreferences;
       if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
 
@@ -1050,6 +1052,58 @@ test('completing a property keeps it in the explicit task draft without saving t
   expect(value.dirty()).toBe(true);
   expect(save).not.toHaveBeenCalled();
   expect(detail.byClass('todo-detail-save')[0].props.disabled).toBe(false);
+});
+
+test('a property can finish with an empty recoverable title while whole-task validation still requires it', async () => {
+  const value = model();
+  value.draft()!.task.title = '';
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+  await detail.ref.value.openProperty('priority');
+  detail.all().find(node => node.tag === 'button' && detail.text(node) === '完成设置')!.props.onClick();
+  await Vue.nextTick();
+  expect(detail.all().filter(node => node.props.role === 'dialog')).toHaveLength(0);
+  expect(detail.ref.value.hasInvalidInput()).toBe(false);
+  expect(value.validateTaskDraft()).toBe(false);
+  expect(detail.all().filter(node => node.props.role === 'alert').some(node => detail.text(node).includes('任务标题'))).toBe(true);
+});
+
+test('semantic numeric errors reopen the owning panel and explicit cancel restores its original baseline', async () => {
+  const value = model();
+  const save = vi.spyOn(value, 'saveTask');
+  value.draft()!.task.dependencies = [{ taskId: 'task-b', lagMinutes: 15 }];
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+  await detail.ref.value.openProperty('properties');
+  value.draft()!.task.dependencies[0].lagMinutes = null as any;
+  detail.all().find(node => node.tag === 'button' && node.props['aria-label'] === 'Close')!.props.onClick();
+  await Vue.nextTick();
+  expect(detail.ref.value.hasInvalidInput()).toBe(true);
+  expect(value.validateTaskDraft()).toBe(false);
+  await Vue.nextTick();
+  expect(detail.all().filter(node => node.props.role === 'dialog').map(node => node.props['aria-label'])).toEqual(['其他属性']);
+  detail.all().find(node => node.tag === 'button' && detail.text(node) === '取消本次设置')!.props.onClick();
+  await Vue.nextTick();
+  expect(value.draft()!.task.dependencies[0].lagMinutes).toBe(15);
+  expect(detail.ref.value.hasInvalidInput()).toBe(false);
+  expect(save).not.toHaveBeenCalled();
+});
+
+test('removing an existing plan with invalid edits creates a valid recoverable deletion marker', async () => {
+  const value = model();
+  const task = value.draft()!.task;
+  value.draft()!.blocks.push(toDooEntitySchemas.timeBlock.parse({
+    id: 'existing-plan', revision: 'plan-r1', createdAt: task.createdAt, updatedAt: task.updatedAt,
+    occurrenceId: 'occ-a', start: { date: '2026-11-15', time: '09:00' }, durationMinutes: 30,
+  }));
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+  await detail.ref.value.openProperty('plan');
+  value.draft()!.blocks[0].durationMinutes = null as any;
+  expect(detail.ref.value.hasInvalidInput()).toBe(true);
+  detail.all().find(node => node.tag === 'button' && detail.text(node) === '移除这段安排')!.props.onClick();
+  await Vue.nextTick();
+  expect(value.draft()!.blocks[0]).toMatchObject({ durationMinutes: 30, revision: 'plan-r1', deletedAt: expect.any(String) });
+  expect(detail.ref.value.hasInvalidInput()).toBe(false);
+  expect(value.validateTaskDraft()).toBe(true);
+  expect(toDooEntitySchemas.timeBlock.safeParse(value.draft()!.blocks[0]).success).toBe(true);
 });
 
 

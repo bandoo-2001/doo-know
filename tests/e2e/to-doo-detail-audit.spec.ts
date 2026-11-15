@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
-import { fillToDooDate, selectToDooOption } from '../support/to-doo-ant-controls';
+import { expandToDooGroup, fillToDooDate, selectToDooOption } from '../support/to-doo-ant-controls';
 import { completeToDooDetailProperty, openToDooDetailProperty } from '../support/to-doo-detail-controls';
 
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
@@ -147,6 +147,9 @@ test('optional detail fields stay folded and remain editable when requested', as
   await completeToDooDetailProperty(page);
   const repeat = await openToDooDetailProperty(page, 'repeat');
   await selectToDooOption(repeat, '重复', '每天');
+  await expect(repeat.getByLabel('开始日期', { exact: true })).not.toBeVisible();
+  await expect(repeat.getByRole('combobox', { name: '修改范围', exact: true })).toBeVisible();
+  await expandToDooGroup(repeat, '高级重复规则');
   await expect(repeat.getByLabel('开始日期', { exact: true })).toBeVisible();
   await page.screenshot({ path: info.outputPath('detail-expanded.png'), fullPage: true });
 });

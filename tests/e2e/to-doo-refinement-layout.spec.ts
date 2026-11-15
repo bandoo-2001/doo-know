@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
+import { selectToDooOption } from '../support/to-doo-ant-controls';
 
 test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -24,6 +25,16 @@ for (const size of [{ width: 1440, height: 900 }, { width: 1080, height: 812 }, 
     const top = (await first.boundingBox())!.y;
     expect(top).toBeLessThanOrEqual(size.width >= 1080 ? 180 : 216);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+    const touch = await page.evaluate(() => matchMedia('(pointer: coarse)').matches);
+    expect((await first.boundingBox())!.height).toBeCloseTo(touch ? 44 : 40, 0);
+    await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+    await selectToDooOption(page, '任务密度', '紧凑');
+    await page.keyboard.press('Escape');
+    expect((await first.boundingBox())!.height).toBeCloseTo(touch ? 44 : 36, 0);
+    expect(await first.evaluate(element => getComputedStyle(element).fontSize)).toBe('14px');
+    await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+    await selectToDooOption(page, '任务密度', '舒适');
+    await page.keyboard.press('Escape');
     for (const theme of ['light', 'dark']) {
       await page.evaluate(async mode => {
         const modulePath = '/preferences.ts';

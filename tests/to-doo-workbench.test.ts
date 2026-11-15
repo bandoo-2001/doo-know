@@ -2086,6 +2086,65 @@ describe('versioned editing recovery and action guards', () => {
       setItem: (key: string, value: string) => values.set(key, value) });
     return values;
   }
+  test('restores a future recurrence scope and uses it for an indirect save instead of changing the whole series', async () => {
+    const storage = storageFixture();
+    try {
+      const initial = snapshot();
+      initial.tasks[0].recurrence = toDooEntitySchemas.task.parse({ ...initial.tasks[0], recurrence: {
+        id: 'daily-rule', frequency: 'daily', interval: 1, anchorDate: '2026-11-01', timeZone: 'UTC',
+      } }).recurrence;
+      initial.occurrences[0].scheduledDate = '2026-11-20';
+      const server = transport(initial), submitted: ReturnType<typeof toDooCommandSchema.parse>[] = [];
+      const request = async (url: string, method = 'GET', input?: unknown) => {
+        if (method !== 'GET') {
+          const command = toDooCommandSchema.parse(input);
+          submitted.push(command);
+          if (command.action === 'change_recurrence') {
+            const task = server.data.tasks.find((entry) => entry.id === command.payload.taskId)!;
+            expect(command.payload.expectedRevision).toBe(task.revision);
+            task.recurrence = command.payload.rule;
+            task.revision = 'recurrence-r3'; server.data.version = '3';
+            return { snapshot: structuredClone(server.data), ids: [task.id],
+              changed: [{ kind: 'task', id: task.id, revision: task.revision }],
+              replayed: false, transactionId: 'recurrence-tx' };
+          }
+        }
+        return server.request(url, method, input);
+      };
+      const first = createToDooWorkbench(request); await first.load(); first.selectTask('task-a', 'occ-a');
+      first.setDraftRecurrenceScope('future');
+      expect(first.dirty()).toBe(false);
+      first.draft()!.task.recurrence!.interval = 2;
+      expect(first.flushRecovery()).toBe(true);
+      expect(JSON.parse(storage.get('dooknow.to-doo.recovery:test')!).edits['task-a@occ-a'].scope).toBe('future');
+      const restored = createToDooWorkbench(request); await restored.load(); restored.selectTask('task-a', 'occ-a');
+      expect(restored.getDraftRecurrenceScope()).toBe('future');
+      await restored.saveTask();
+      expect(submitted.filter((entry) => entry.action === 'change_recurrence')).toMatchObject([
+        { payload: { scope: 'future', from: '2026-11-20', rule: { interval: 2 } } },
+      ]);
+      expect(server.data.tasks[0].recurrence?.interval).toBe(2);
+      expect(restored.dirty()).toBe(false);
+      expect(restored.getDraftRecurrenceScope()).toBe('all');
+      restored.draft()!.task.recurrence!.interval = 3;
+      restored.setDraftRecurrenceScope('future');
+      await restored.saveTask('all');
+      expect(submitted.filter((entry) => entry.action === 'change_recurrence').at(-1)).toMatchObject({ payload: { scope: 'all' } });
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('discard and dataset changes clear recurrence choices without making scope alone an entity edit', async () => {
+    const model = createToDooWorkbench(transport().request); await model.load(); model.selectTask('task-a', 'occ-a');
+    model.setDraftRecurrenceScope('future');
+    expect(model.dirty()).toBe(false);
+    expect(model.hasUnsavedChanges()).toBe(false);
+    model.discardDraft();
+    expect(model.getDraftRecurrenceScope()).toBe('all');
+    expect(model.state.draftRecurrenceScopes).toEqual({});
+    model.setDraftRecurrenceScope('future');
+    model.acceptSnapshot({ ...snapshot(), datasetId: 'another-library' });
+    expect(model.state.draftRecurrenceScopes).toEqual({});
+    expect(model.getDraftRecurrenceScope('task-a@occ-a')).toBe('all');
+  });
   test('restores an existing edit, empty title and a new unsaved plan without claiming server persistence', async () => {
     const storage = storageFixture();
     try {
@@ -2191,6 +2250,7 @@ describe('versioned editing recovery and action guards', () => {
       const server = transport(), legacy = createToDooWorkbench(server.request);
       await legacy.load(); legacy.newTaskDraft().title = '不能在归属确认前展示的标题';
       legacy.selectTask('task-a'); legacy.draft()!.task.description = '旧版编辑';
+      legacy.setDraftRecurrenceScope('future');
       legacy.state.pendingMutation = { requestId: 'legacy-unknown', action: 'create_task', payload: { title: '待核对创建' } } as any;
       legacy.flushRecovery(); await (await import('vue')).nextTick();
       const original = storage.get('dooknow.to-doo.recovery:test');
@@ -2200,6 +2260,7 @@ describe('versioned editing recovery and action guards', () => {
       expect(scoped.retainedTaskDrafts()).toEqual([]); expect(scoped.state.pendingMutation).toBeNull();
       expect(scoped.adoptLegacyRecovery()).toBe(true);
       expect(scoped.retainedTaskDrafts()[0]?.draft.task.description).toBe('旧版编辑');
+      expect(scoped.getDraftRecurrenceScope('task-a@occ-a')).toBe('future');
       expect(scoped.state.pendingMutation?.requestId).toBe('legacy-unknown');
       expect(scoped.state.legacyRecoveryAvailable).toBe(false);
       expect(storage.get('dooknow.to-doo.recovery:test')).toBe(original);

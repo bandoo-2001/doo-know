@@ -6,6 +6,7 @@ import ToDooSelect from './ToDooSelect.vue';
 import ToDooInlineListCreate from './ToDooInlineListCreate.vue';
 import ToDooTimeBlockFields from './ToDooTimeBlockFields.vue';
 import { guardToDooTaskAction } from '../../to-doo-action-guard';
+import { validateToDooTaskDraft, type ToDooDraftIssue } from '../../to-doo-draft-validation';
 
 import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
 import {
@@ -134,7 +135,16 @@ function addPlan() {
 function removePlan(id: string) {
   const draft = form.value, block = draft?.blocks.find(value => value.id === id);
   if (!block || state.busy) return;
-  if (block.revision) block.deletedAt = new Date().toISOString();
+  if (block.revision) {
+    const baseline = propertyBaseline?.key === state.selectedTaskId + '@' + state.selectedOccurrenceId
+      ? propertyBaseline.blocks?.find(value => value.id === id) : undefined;
+    const saved = [baseline, state.snapshot?.timeBlocks.find(value => value.id === id)].find(value =>
+      value && !validateToDooTaskDraft({ task: draft!.task, occurrence: draft!.occurrence, blocks: [value] }, { panel: 'plan' }).length,
+    );
+    // A removed plan still needs a valid tombstone for saving and recovery.
+    if (saved) Object.assign(block, cloneProperty(saved));
+    block.deletedAt = new Date().toISOString();
+  }
   else draft!.blocks = draft!.blocks.filter(value => value.id !== id);
 }
 const currentConflicts = computed(() => state.draftConflicts.filter(entry => entry.draftKey === state.selectedTaskId + '@' + state.selectedOccurrenceId));
@@ -144,6 +154,7 @@ function conflictValue(value: unknown) {
   return JSON.stringify(value, null, 2);
 }
 const repeatDetails = ref<InstanceType<typeof ToDooDisclosure>>();
+const advancedRepeatDetails = ref<InstanceType<typeof ToDooDisclosure>>();
 const moreOptions = ref<InstanceType<typeof ToDooDisclosure>>();
 const linkedResources = ref<InstanceType<typeof ToDooDisclosure>>();
 const repeatFields = ref<HTMLElement>();
@@ -180,12 +191,15 @@ const repeatSummary = computed(() =>
 async function revealDetail(section: DetailPanel) {
   const taskId = state.selectedTaskId,
     occurrenceId = state.selectedOccurrenceId;
-  if (detailPanel.value && detailPanel.value !== section && propertyFields.value?.querySelector('input:invalid, textarea:invalid, [aria-invalid="true"]')) {
+  if (detailPanel.value && detailPanel.value !== section && (
+    propertyFields.value?.querySelector('input:invalid, textarea:invalid, [aria-invalid="true"]') ||
+    validateToDooTaskDraft(form.value, { panel: detailPanel.value as any, allowEmptyTitle: true }).length
+  )) {
     propertyOpen.value = true;
     validateDetail(true);
     return;
   }
-  captureProperty(section);
+  if (detailPanel.value !== section || !propertyBaseline) captureProperty(section);
   detailPanel.value = section;
   propertyOpen.value = true;
   if (section === 'due') editingDue.value = true;
@@ -207,15 +221,54 @@ function validateDetail(propertyOnly = false) {
     if (propertyFields.value?.contains(invalid)) propertyOpen.value = true;
     validationError.value = '请检查日期、时间或其他输入后再保存';
     if (deadlineFields.value?.contains(invalid)) editingDue.value = true;
-    void nextTick(() => {
+    void nextTick(async () => {
+      if (detailPanel.value === 'repeat' && propertyFields.value?.contains(invalid)) {
+        advancedRepeatDetails.value?.expand({ immediate: true });
+        await nextTick();
+      }
       if (!detailAlive || !invalid.isConnected) return;
       invalid.focus();
       invalid.reportValidity?.();
     });
     return false;
   }
+  const issue = props.creating ? undefined : validateToDooTaskDraft(form.value, {
+    ...(propertyOnly ? { panel: detailPanel.value as any } : {}),
+  })[0];
+  if (issue) {
+    validationError.value = issue.message;
+    if (issue.panel !== 'title' && issue.panel !== 'description') {
+      // Reopening validation must preserve the baseline captured when the user began this panel.
+      if (detailPanel.value !== issue.panel) {
+        captureProperty(issue.panel);
+        detailPanel.value = issue.panel;
+      }
+      propertyOpen.value = true;
+    } else if (issue.panel === 'description') descriptionOpen.value = true;
+    void nextTick(async () => {
+      if (!detailAlive) return;
+      if (issue.panel === 'repeat') {
+        advancedRepeatDetails.value?.expand({ immediate: true });
+        await nextTick();
+      }
+      focusDraftIssue(issue);
+    });
+    return false;
+  }
   validationError.value = '';
   return true;
+}
+function focusDraftIssue(issue: ToDooDraftIssue) {
+  let root = issue.panel === 'title' || issue.panel === 'description' ? detailElement.value : propertyFields.value;
+  if (issue.kind === 'timeBlock') {
+    const index = form.value?.blocks.filter(block => !block.deletedAt).findIndex(block => block.id === issue.entityId) ?? -1;
+    if (index >= 0) root = root?.querySelectorAll<HTMLElement>('.todo-plan-editor')[index] || root;
+  }
+  const candidates = Array.from(root?.querySelectorAll<HTMLInputElement>('input:not([disabled]), textarea:not([disabled]), select:not([disabled])') || []);
+  const matches = (input: HTMLInputElement) => (input.getAttribute('aria-label') || '').includes(issue.label) || (input.closest('label')?.textContent || '').includes(issue.label);
+  const input = candidates.find(matches) || candidates[0];
+  input?.focus?.({ preventScroll: true });
+  input?.reportValidity?.();
 }
 async function save() {
   if (state.busy || savingTask.value || inlineListOpen.value || !validateDetail()) return;
@@ -319,12 +372,14 @@ function adoptQuick() {
   }
   local.literalTitle = true;
 }
-const scope = ref<'all' | 'future'>('all'),
+const scope = computed<'all' | 'future'>({
+    get: () => props.model.getDraftRecurrenceScope(),
+    set: value => props.model.setDraftRecurrenceScope(value),
+  }),
   previewAsset = ref('');
 watch(
   () => [state.selectedTaskId, state.selectedOccurrenceId],
   () => {
-    scope.value = 'all';
     previewAsset.value = '';
     validationError.value = '';
     editingDue.value = false;
@@ -609,7 +664,7 @@ async function remove() {
 defineExpose({
   validate: validateDetail,
   openProperty: revealDetail,
-  hasInvalidInput: () => !!(detailElement.value?.querySelector('input:invalid:not([data-todo-required-title]), textarea:invalid, [aria-invalid="true"]') || propertyFields.value?.querySelector('input:invalid, textarea:invalid, [aria-invalid="true"]')),
+  hasInvalidInput: () => !!(detailElement.value?.querySelector('input:invalid:not([data-todo-required-title]), textarea:invalid, [aria-invalid="true"]') || propertyFields.value?.querySelector('input:invalid, textarea:invalid, [aria-invalid="true"]') || (!props.creating && validateToDooTaskDraft(form.value, { allowEmptyTitle: true }).length)),
   hasUnsavedChanges: () =>
     (props.creating ? !!local.title || !!local.description : props.model.dirty()) ||
     !!detailElement.value?.querySelector('[aria-invalid="true"]'),
@@ -914,11 +969,12 @@ defineExpose({
             >{{ note.title || '关联资料' }} ↗</AButton
           >
         </section>
-        <section v-if="form.task.tagIds.length || form.task.dependencies.length || form.task.criteria || form.task.attachments.length" class="todo-detail-value-summary" aria-label="任务补充信息">
+        <section v-if="form.task.tagIds.length || form.task.dependencies.length || form.task.criteria || form.task.attachments.length || outcomes.length" class="todo-detail-value-summary" aria-label="任务补充信息">
           <AButton v-if="form.task.tagIds.length" type="text" @click="revealDetail('properties')">标签：{{ form.task.tagIds.map(id => state.snapshot?.tags.find(tag => tag.id === id)?.name || '标签').join('、') }}</AButton>
           <AButton v-if="form.task.dependencies.length" type="text" @click="revealDetail('properties')">前置任务：{{ form.task.dependencies.map(entry => model.taskDefinitions().find(task => task.id === entry.taskId)?.title || '关联任务').join('、') }}</AButton>
           <AButton v-if="form.task.attachments.length" type="text" @click="revealDetail('attachments')">附件 {{ form.task.attachments.length }} 份</AButton>
           <AButton v-if="form.task.criteria" type="text" class="todo-detail-criteria-summary" @click="revealDetail('results')">完成标准：{{ form.task.criteria }}</AButton>
+          <AButton v-if="outcomes.length" type="text" @click="revealDetail('results')">成果 {{ outcomes.length }} 份 · {{ outcomes[0].summary }}</AButton>
         </section>
         <div class="todo-detail-shortcuts" role="group" aria-label="任务快捷设置">
           <AButton
@@ -1057,36 +1113,7 @@ defineExpose({
                     <option value="yearly">每年</option>
                     <option value="after_completion">完成后重复</option>
                   </ToDooSelect></label
-                ><template v-if="form.task.recurrence"
-                  ><div class="todo-form-grid">
-                    <label
-                      >间隔<AInputNumber
-                        aria-label="间隔"
-                        v-model:value="form.task.recurrence.interval"
-                        :min="1" /></label
-                    ><label
-                      >开始日期<ToDooDateField
-                        v-model="form.task.recurrence.anchorDate"
-                        type="date" /></label
-                    ><label
-                      >重复时间<ToDooDateField
-                        v-model="form.task.recurrence.time"
-                        type="time" /></label
-                    ><label>时区<AInput v-model:value="form.task.recurrence.timeZone" /></label
-                    ><label
-                      >结束日期<ToDooDateField
-                        v-model="form.task.recurrence.until"
-                        type="date" /></label
-                    ><label
-                      >最多次数<AInputNumber
-                        aria-label="最多次数"
-                        :value="form.task.recurrence.count ?? undefined"
-                        @update:value="
-                          form.task.recurrence.count = $event == null ? null : Number($event)
-                        "
-                        :min="1"
-                    /></label>
-                  </div>
+                ><template v-if="form.task.recurrence">
                   <label v-if="form.task.recurrence.frequency === 'weekly'"
                     >每周日期<ToDooSelect v-model="form.task.recurrence.weekdays" multiple>
                       <option
@@ -1098,6 +1125,39 @@ defineExpose({
                       </option>
                     </ToDooSelect></label
                   >
+                  <ToDooDisclosure ref="advancedRepeatDetails" class="todo-repeat-advanced">
+                    <template #header><span>高级重复规则</span></template>
+                    <div class="todo-form todo-repeat-advanced-fields">
+                      <div class="todo-form-grid">
+                    <label
+                      >间隔<AInputNumber
+                        aria-label="间隔"
+                        v-model:value="form.task.recurrence.interval"
+                        :min="1" :max="1000" :step="1" :precision="0" required /></label
+                    ><label
+                      >开始日期<ToDooDateField
+                        v-model="form.task.recurrence.anchorDate" required :allow-clear="false"
+                        type="date" /></label
+                    ><label
+                      >重复时间<ToDooDateField
+                        :model-value="form.task.recurrence.time" @update:model-value="form.task.recurrence.time = $event || null"
+                        type="time" /></label
+                    ><label>时区<AInput v-model:value="form.task.recurrence.timeZone" /></label
+                    ><label
+                      >结束日期<ToDooDateField
+                        :model-value="form.task.recurrence.until" @update:model-value="form.task.recurrence.until = $event || null"
+                        type="date" /></label
+                    ><label
+                      >最多次数<AInputNumber
+                        aria-label="最多次数"
+                        :value="form.task.recurrence.count ?? undefined"
+                        @update:value="
+                          form.task.recurrence.count = $event == null ? null : Number($event)
+                        "
+                        :min="1" :max="100000" :precision="0"
+                    /></label>
+                  </div>
+
                   <div v-if="form.task.recurrence.frequency === 'monthly'" class="todo-form">
                     <label
                       >每月方式<ToDooSelect
@@ -1154,13 +1214,15 @@ defineExpose({
                   /><ToDooDateExceptions
                     v-model="form.task.recurrence.additionalDates"
                     label="额外安排这些日期"
-                  /><label
-                    >修改范围<ToDooSelect v-model="scope">
-                      <option value="all">整个系列（保留完成历史）</option>
-                      <option value="future">本次及以后</option>
-                    </ToDooSelect></label
-                  ></template
-                >
+                  />
+                    </div>
+                  </ToDooDisclosure>
+                </template>
+                <label v-if="form.task.recurrence || propertyBaseline?.task.recurrence || occurrences.length > 1"
+                  >修改范围<ToDooSelect v-model="scope">
+                    <option value="all">整个系列（保留完成历史）</option>
+                    <option value="future">本次及以后</option>
+                  </ToDooSelect></label>
               </div>
             </ToDooDisclosure>
             <ToDooDisclosure ref="linkedResources" v-if="detailPanel === 'resources'" :open="detailPanel === 'resources'" class="todo-disclosure">
@@ -1380,7 +1442,7 @@ defineExpose({
                           dependency.taskId,
                       ) + ' 完成后等待（分钟）'
                     "
-                    v-model:value="dependency.lagMinutes"
+                    v-model:value="dependency.lagMinutes" required :precision="0"
                     :min="0"
                     :max="525600"
                     :step="1" /></label

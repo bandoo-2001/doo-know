@@ -13,6 +13,7 @@ import * as groups from '../apps/web/to-doo-task-groups';
 import * as anniversaries from '../shared/to-doo-anniversaries';
 import * as controls from '../apps/web/to-doo-controls';
 import * as actionGuards from '../apps/web/to-doo-action-guard';
+import * as draftValidation from '../apps/web/to-doo-draft-validation';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
 import {
   TO_DOO_COLLECTIONS,
@@ -74,6 +75,7 @@ function component(name: string): Vue.Component {
       if (id.endsWith('/to-doo-anniversaries')) return anniversaries;
       if (id.endsWith('/to-doo-controls')) return controls;
       if (id.endsWith('/to-doo-action-guard')) return actionGuards;
+      if (id.endsWith('/to-doo-draft-validation')) return draftValidation;
       if (id.endsWith('/to-doo-display-preferences')) return displayPreferences;
       if (id === 'ant-design-vue') return { ...toDooAntStubs, Popover: ControlledPopover };
       const boundary = toDooBoundaryStub(id);

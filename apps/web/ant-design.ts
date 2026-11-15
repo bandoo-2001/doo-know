@@ -2,7 +2,7 @@ import type { App } from 'vue';
 import { Alert, Button, Input, theme } from 'ant-design-vue';
 import type { ThemeConfig } from 'ant-design-vue/es/config-provider/context';
 import {
-  applyPlatformCssVariables, platformAntTokens, toDooAntTokens,
+  applyPlatformCssVariables, platformAntTokens, toDooAntTokens, toDooUiScale,
   type PlatformThemeMode, type ToDooDensity,
 } from './platform-theme';
 
@@ -10,10 +10,10 @@ export const antTheme: ThemeConfig = {
   token: platformAntTokens('light'),
 };
 
-export function toDooAntTheme(mode: PlatformThemeMode, density: ToDooDensity = 'comfortable'): ThemeConfig {
+export function toDooAntTheme(mode: PlatformThemeMode, density: ToDooDensity = 'comfortable', touchTargets = typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches): ThemeConfig {
   return {
     algorithm: mode === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
-    token: toDooAntTokens(mode, density),
+    token: { ...toDooAntTokens(mode, density), ...(touchTargets ? { controlHeight: toDooUiScale.touchTarget, controlHeightSM: toDooUiScale.touchTarget } : {}) },
   };
 }
 

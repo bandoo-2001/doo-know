@@ -37,6 +37,7 @@ body:has(.to-doo-workspace.todo-compact) :is(.todo-ant-modal, .todo-ant-popup) {
   :is(.to-doo-workspace, .todo-ant-modal, .todo-ant-popup),
   body:has(.to-doo-workspace.todo-compact) :is(.todo-ant-modal, .todo-ant-popup) {
     --todo-icon-button-size: var(--todo-touch-target);
+    --todo-control-height: var(--todo-touch-target);
     --todo-row-min-height: var(--todo-touch-target);
     --todo-row-padding-block: 0px;
     --todo-nav-height: var(--todo-touch-target);

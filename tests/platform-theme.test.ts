@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { toDooAntTheme } from '../apps/web/ant-design';
 import {
   applyPlatformCssVariables,
   platformAntTokens,
@@ -16,6 +17,15 @@ function luminance(hex: string) {
   });
   return r * 0.2126 + g * 0.7152 + b * 0.0722;
 }
+test('touch controls keep a 44px target in either density without shrinking typography', () => {
+  for (const density of ['comfortable', 'compact'] as const) {
+    const theme = toDooAntTheme('light', density, true);
+    expect(theme.token?.controlHeight).toBe(44);
+    expect(theme.token?.controlHeightSM).toBe(44);
+    expect(theme.token?.fontSize).toBe(14);
+  }
+  expect(toDooAntTheme('light', 'compact', false).token?.controlHeight).toBe(32);
+});
 function contrast(foreground: string, background: string) {
   const values = [luminance(foreground), luminance(background)].sort((a, b) => b - a);
   return (values[0] + 0.05) / (values[1] + 0.05);

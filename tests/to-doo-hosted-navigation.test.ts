@@ -10,6 +10,7 @@ import * as contextNavigation from '../apps/web/to-doo-context-navigation';
 import * as workspaceLayout from '../apps/web/workspace-layout';
 import * as controls from '../apps/web/to-doo-controls';
 import * as actionGuards from '../apps/web/to-doo-action-guard';
+import * as draftValidation from '../apps/web/to-doo-draft-validation';
 import * as antDesign from '../apps/web/ant-design';
 import * as push from '../apps/web/to-doo-push';
 import * as calendarLayout from '../apps/web/to-doo-calendar-layout';
@@ -121,6 +122,7 @@ function component(path: string): Vue.Component {
       if (id === '../workspace-layout') return workspaceLayout;
       if (id.endsWith('/to-doo-controls')) return controls;
       if (id.endsWith('/to-doo-action-guard')) return actionGuards;
+      if (id.endsWith('/to-doo-draft-validation')) return draftValidation;
       if (id.endsWith('/to-doo-push')) return push;
       if (id.endsWith('/to-doo-calendar-layout')) return calendarLayout;
       if (id.endsWith('/to-doo-time')) return clock;

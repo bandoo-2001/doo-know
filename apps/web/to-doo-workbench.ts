@@ -572,6 +572,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     selectedTaskId: '',
     selectedOccurrenceId: '',
     drafts: {} as Record<string, ToDooTaskDraft>,
+    draftRecurrenceScopes: {} as Record<string, 'all' | 'future'>,
     draftConflicts: [] as ToDooDraftConflict[],
     recoveredDraftKeys: [] as string[],
     unavailableDrafts: {} as Record<string, string>,
@@ -691,6 +692,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       const edits = Object.fromEntries(Object.entries(state.drafts)
         .filter(([key, value]) => saved.has(key) && saved.get(key) !== fingerprint(value))
         .map(([key, value]) => [key, { draft: value, baseline: JSON.parse(saved.get(key)!),
+          scope: getDraftRecurrenceScope(key),
           conflicts: state.draftConflicts.filter((entry) => entry.draftKey === key),
           updatedAt: new Date().toISOString() }]));
       localStorage.setItem(
@@ -748,7 +750,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
         state.newTaskDrafts[key] = { ...base, ...d };
       }
       for (const [draftKey, entry] of Object.entries(raw?.edits || {})) {
-        const item = entry as { draft?: unknown; baseline?: unknown; conflicts?: ToDooDraftConflict[] };
+        const item = entry as { draft?: unknown; baseline?: unknown; scope?: unknown; conflicts?: ToDooDraftConflict[] };
         const readDraft = (input: unknown, editable = false): ToDooTaskDraft | null => {
           if (!input || typeof input !== 'object') return null;
           const value = input as ToDooTaskDraft;
@@ -781,6 +783,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
           continue;
         }
         state.drafts[draftKey] = local;
+        state.draftRecurrenceScopes[draftKey] = item.scope === 'future' ? 'future' : 'all';
         saved.set(draftKey, fingerprint(baseline));
         state.recoveredDraftKeys.push(draftKey);
         for (const conflict of Array.isArray(item.conflicts) ? item.conflicts : []) {
@@ -870,7 +873,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       return false;
     }
     const before = {
-      drafts: clone(state.drafts), newDrafts: clone(state.newTaskDrafts),
+      drafts: clone(state.drafts), scopes: clone(state.draftRecurrenceScopes), newDrafts: clone(state.newTaskDrafts),
       pending: clone(state.pendingMutation), conflicts: clone(state.draftConflicts),
       recovered: [...state.recoveredDraftKeys], unavailable: { ...state.unavailableDrafts },
       saved: [...saved], newSaved: [...newSaved], plans: [...pendingPlanCheckpoints], statuses: [...pendingStatusReceipts],
@@ -878,6 +881,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     };
     const restoreBefore = () => {
       state.drafts = before.drafts; state.newTaskDrafts = before.newDrafts; state.pendingMutation = before.pending;
+      state.draftRecurrenceScopes = before.scopes;
       state.draftConflicts = before.conflicts; state.recoveredDraftKeys = before.recovered;
       state.unavailableDrafts = before.unavailable;
       saved.clear(); before.saved.forEach(([key, value]) => saved.set(key, value));
@@ -916,7 +920,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
         if (state.newTaskDrafts[key] && newSaved.get(key) === fingerprint(state.newTaskDrafts[key]))
           merged.drafts[key] = value;
       restoringRecovery = true;
-      state.drafts = {}; state.newTaskDrafts = {}; state.draftConflicts = []; state.recoveredDraftKeys = [];
+      state.drafts = {}; state.draftRecurrenceScopes = {}; state.newTaskDrafts = {}; state.draftConflicts = []; state.recoveredDraftKeys = [];
       saved.clear(); newSaved.clear(); pendingPlanCheckpoints.clear(); pendingStatusReceipts.clear();
       recoveryReadBlocked = false;
       legacySourceFingerprint = '';
@@ -925,6 +929,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       for (const [key, value] of Object.entries(before.drafts)) {
         if (state.drafts[key]) continue;
         state.drafts[key] = value;
+        if (before.scopes[key]) state.draftRecurrenceScopes[key] = before.scopes[key];
         const baseline = before.saved.find(([entryKey]) => entryKey === key)?.[1];
         if (baseline) saved.set(key, baseline);
       }
@@ -987,11 +992,18 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
         return { key, draft, parentTaskId: parentTaskId || null, listId: listId || null };
       });
   }
-  watch(() => [state.newTaskDrafts, state.pendingMutation, state.drafts, state.draftConflicts],
+  watch(() => [state.newTaskDrafts, state.pendingMutation, state.drafts, state.draftConflicts, state.draftRecurrenceScopes],
     persistRecovery, { deep: true });
   let generation = 0;
   const key = () => state.selectedTaskId + '@' + state.selectedOccurrenceId;
   const draft = () => state.drafts[key()];
+  const getDraftRecurrenceScope = (draftKey = key()): 'all' | 'future' =>
+    state.draftRecurrenceScopes[draftKey] || 'all';
+  function setDraftRecurrenceScope(scope: 'all' | 'future', draftKey = key()) {
+    if (!state.drafts[draftKey] || scope !== 'all' && scope !== 'future') return;
+    state.draftRecurrenceScopes[draftKey] = scope;
+    persistRecovery();
+  }
   const dirty = (id?: string) =>
     id
       ? Object.entries(state.drafts).some(
@@ -1195,6 +1207,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       pendingPlanCheckpoints.clear();
       pendingStatusReceipts.clear();
       state.drafts = {};
+      state.draftRecurrenceScopes = {};
       state.newTaskDrafts = {};
       saved.clear();
       newSaved.clear();
@@ -1831,11 +1844,13 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     }
     return result;
   }
-  async function saveTask(scope: 'all' | 'future' = 'all') {
+  async function saveTask(scope?: 'all' | 'future') {
     let value = draft();
     if (!value || !validateTaskDraft()) return;
     const draftKey = key(),
       datasetId = state.snapshot?.datasetId;
+    scope ??= getDraftRecurrenceScope(draftKey);
+    setDraftRecurrenceScope(scope, draftKey);
     if (state.recoveredDraftKeys.includes(draftKey)) {
       if (!(await rebaseDraft(draftKey))) return;
       value = state.drafts[draftKey];
@@ -1985,6 +2000,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     const current = state.drafts[draftKey];
     if (current && saved.get(draftKey) === fingerprint(current)) {
       delete state.drafts[draftKey];
+      delete state.draftRecurrenceScopes[draftKey];
       if (key() === draftKey) selectTask(id, submitted.occurrence?.id);
     }
     if (key() !== draftKey && !dirty())
@@ -2400,6 +2416,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     for (const [id, entry] of pendingPlanCheckpoints)
       if (entry.draftKey === draftKey) pendingPlanCheckpoints.delete(id);
     delete state.drafts[draftKey]; saved.delete(draftKey);
+    delete state.draftRecurrenceScopes[draftKey];
     delete state.unavailableDrafts[draftKey];
     state.recoveredDraftKeys = state.recoveredDraftKeys.filter((entry) => entry !== draftKey);
     state.draftConflicts = state.draftConflicts.filter((entry) => entry.draftKey !== draftKey);
@@ -2517,6 +2534,8 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     state,
     registerTaskDraftValidator,
     validateTaskDraft,
+    getDraftRecurrenceScope,
+    setDraftRecurrenceScope,
     request,
     load,
     nextPage,
