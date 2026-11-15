@@ -638,6 +638,8 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     occurrenceRevision?: string;
   };
   const pendingPlanCheckpoints = new Map<string, PlanCheckpoint>();
+  type TaskCheckpoint = { draftKey: string; datasetId: string; submitted: ToDooTask; revision: string };
+  const pendingTaskCheckpoints = new Map<string, TaskCheckpoint>();
   const pendingStatusReceipts = new Map<
     string,
     {
@@ -681,7 +683,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     if (recoveryReadBlocked) return false;
     try {
       if (typeof localStorage === 'undefined') {
-        const needsRecovery = !!state.pendingMutation || pendingPlanCheckpoints.size > 0 ||
+        const needsRecovery = !!state.pendingMutation || pendingPlanCheckpoints.size > 0 || pendingTaskCheckpoints.size > 0 ||
           pendingStatusReceipts.size > 0 || Object.entries(state.drafts)
             .some(([key, value]) => saved.get(key) !== fingerprint(value)) ||
           Object.entries(state.newTaskDrafts)
@@ -706,6 +708,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
           legacySourceFingerprint,
           drafts: state.newTaskDrafts, edits,
           planCheckpoints: [...pendingPlanCheckpoints.entries()],
+          taskCheckpoints: [...pendingTaskCheckpoints.entries()],
           statusReceipts: [...pendingStatusReceipts.entries()] }),
       );
       state.recoveryStatus = 'saved';
@@ -822,6 +825,14 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
         if (typeof id === 'string' && entry?.datasetId === datasetId && typeof entry.revision === 'string')
           pendingStatusReceipts.set(id, entry);
       }
+      for (const pair of raw?.taskCheckpoints || []) {
+        if (!Array.isArray(pair) || pair.length !== 2) continue;
+        const [draftKey, entry] = pair as [string, TaskCheckpoint];
+        const submitted = toDooEntitySchemas.task.safeParse(entry?.submitted);
+        if (typeof draftKey === 'string' && entry?.draftKey === draftKey && entry.datasetId === datasetId && submitted.success &&
+          state.drafts[draftKey]?.task.id === submitted.data.id &&
+          typeof entry.revision === 'string') pendingTaskCheckpoints.set(draftKey, { ...entry, submitted: submitted.data });
+      }
       state.recoveryStatus = recoveryReadBlocked ? 'unavailable' : 'saved';
     } catch {
       recoveryReadBlocked = true;
@@ -859,7 +870,8 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
         }).length,
         pending: !!raw.pending,
         receipts: (Array.isArray(raw.planCheckpoints) ? raw.planCheckpoints.length : 0) +
-          (Array.isArray(raw.statusReceipts) ? raw.statusReceipts.length : 0) };
+          (Array.isArray(raw.statusReceipts) ? raw.statusReceipts.length : 0) +
+          (Array.isArray(raw.taskCheckpoints) ? raw.taskCheckpoints.length : 0) };
       if (!summary.newDrafts && !summary.taskDrafts && !summary.pending && !summary.receipts) return;
       state.legacyRecoveryAvailable = true;
       state.legacyRecoverySummary = summary;
@@ -880,7 +892,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       drafts: clone(state.drafts), scopes: clone(state.draftRecurrenceScopes), newDrafts: clone(state.newTaskDrafts),
       pending: clone(state.pendingMutation), conflicts: clone(state.draftConflicts),
       recovered: [...state.recoveredDraftKeys], unavailable: { ...state.unavailableDrafts },
-      saved: [...saved], newSaved: [...newSaved], plans: [...pendingPlanCheckpoints], statuses: [...pendingStatusReceipts],
+      saved: [...saved], newSaved: [...newSaved], plans: [...pendingPlanCheckpoints], tasks: [...pendingTaskCheckpoints], statuses: [...pendingStatusReceipts],
       source: legacySourceFingerprint, blocked: recoveryReadBlocked,
     };
     const restoreBefore = () => {
@@ -891,6 +903,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       saved.clear(); before.saved.forEach(([key, value]) => saved.set(key, value));
       newSaved.clear(); before.newSaved.forEach(([key, value]) => newSaved.set(key, value));
       pendingPlanCheckpoints.clear(); before.plans.forEach(([key, value]) => pendingPlanCheckpoints.set(key, value));
+      pendingTaskCheckpoints.clear(); before.tasks.forEach(([key, value]) => pendingTaskCheckpoints.set(key, value));
       pendingStatusReceipts.clear(); before.statuses.forEach(([key, value]) => pendingStatusReceipts.set(key, value));
       legacySourceFingerprint = before.source; recoveryReadBlocked = before.blocked;
       syncSelectedConflict();
@@ -917,6 +930,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
         drafts: { ...legacy.drafts, ...current?.drafts }, edits: { ...legacy.edits, ...current?.edits },
         pending: current?.pending || legacy.pending || null,
         planCheckpoints: [...new Map([...(legacy.planCheckpoints || []), ...(current?.planCheckpoints || [])]).entries()],
+        taskCheckpoints: [...new Map([...(legacy.taskCheckpoints || []), ...(current?.taskCheckpoints || [])]).entries()],
         statusReceipts: [...new Map([...(legacy.statusReceipts || []), ...(current?.statusReceipts || [])]).entries()],
         legacySourceFingerprint: legacyFingerprint(text) };
       // Untouched placeholders may adopt the confirmed older content; edited scoped drafts always win.
@@ -925,7 +939,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
           merged.drafts[key] = value;
       restoringRecovery = true;
       state.drafts = {}; state.draftRecurrenceScopes = {}; state.newTaskDrafts = {}; state.draftConflicts = []; state.recoveredDraftKeys = [];
-      saved.clear(); newSaved.clear(); pendingPlanCheckpoints.clear(); pendingStatusReceipts.clear();
+      saved.clear(); newSaved.clear(); pendingPlanCheckpoints.clear(); pendingTaskCheckpoints.clear(); pendingStatusReceipts.clear();
       recoveryReadBlocked = false;
       legacySourceFingerprint = '';
       restoreRecovery(datasetId, merged);
@@ -1165,6 +1179,100 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     persistRecovery();
     return resumePlanCheckpoint(entry, baseline);
   }
+  const taskReadWarning = '任务内容已保存，但最新版本暂时无法读取。请重试保存以核对原回执，当前输入仍保留。';
+  async function resumeTaskCheckpoint(entry: TaskCheckpoint, baseline: ToDooTaskDraft) {
+    if (state.snapshot?.datasetId !== entry.datasetId || !state.drafts[entry.draftKey]) return false;
+    let remote = state.snapshot.tasks.find(task => task.id === entry.submitted.id);
+    const ticket = generation, ownedBusy = !state.busy;
+    if (ownedBusy) state.busy = true;
+    try {
+      if (remote?.revision !== entry.revision) {
+        const query = new URLSearchParams({ kind: 'task', ids: entry.submitted.id, limit: '1',
+          filter: JSON.stringify({ includeDeleted: true, includeArchived: true }) });
+        const data = await request('/api/to-doo/state?' + query) as ToDooSnapshot;
+        if (ticket !== generation || state.snapshot?.datasetId !== entry.datasetId || data.datasetId !== entry.datasetId)
+          throw Error('资料库或操作状态已变化，请重新核对任务回执');
+        remote = data.tasks.find(task => task.id === entry.submitted.id);
+        if (remote?.revision !== entry.revision) {
+          pendingTaskCheckpoints.delete(entry.draftKey);
+          markDraftConflict(entry.draftKey);
+          state.error = '任务内容已保存，但记录版本已变化。请比较最新版本，当前输入仍保留。';
+          persistRecovery();
+          return false;
+        }
+        // A detail read must not replace the current filtered list's pagination metadata.
+        adoptDetail(data, entry.submitted.id);
+      }
+      checkpointSavedEntity(entry.draftKey, entry.submitted, remote, 'task', baseline);
+      pendingTaskCheckpoints.delete(entry.draftKey);
+      if (state.localWarning === taskReadWarning) state.localWarning = '';
+      if (state.error === taskReadWarning) state.error = '';
+      persistRecovery();
+      return true;
+    } catch {
+      if (state.snapshot?.datasetId === entry.datasetId) {
+        state.localWarning = taskReadWarning;
+        state.error = taskReadWarning;
+        persistRecovery();
+      }
+      return false;
+    } finally { if (ownedBusy) state.busy = false; }
+  }
+  async function checkpointCommittedTask(draftKey: string, submitted: ToDooTask,
+    baseline: ToDooTaskDraft, result: ToDooCommandResult) {
+    const revision = result.changed.find(row => row.kind === 'task' && row.id === submitted.id)?.revision;
+    if (!revision) {
+      checkpointSavedEntity(draftKey, submitted, state.snapshot?.tasks.find(task => task.id === submitted.id), 'task', baseline);
+      return true;
+    }
+    const entry = { draftKey, datasetId: result.snapshot.datasetId, submitted: clone(submitted), revision };
+    pendingTaskCheckpoints.set(draftKey, entry);
+    persistRecovery();
+    return resumeTaskCheckpoint(entry, baseline);
+  }
+  /** Preserve a detail save's loaded task window, never the command reply's default global cursor. */
+  async function adoptTaskSaveWindow(result: ToDooCommandResult, before: ToDooSnapshot, ticket: number) {
+    if (state.snapshot?.datasetId !== before.datasetId || result.snapshot.datasetId !== before.datasetId) return;
+    const changedIds = new Set(result.changed.filter(row => row.kind === 'task').map(row => row.id));
+    const knownIds = new Set(before.tasks.map(task => task.id));
+    const tasks = new Map(before.tasks.map(task => [task.id, clone(task)]));
+    for (const task of result.snapshot.tasks)
+      if (knownIds.has(task.id) || changedIds.has(task.id)) tasks.set(task.id, clone(task));
+    const missing = before.tasks.filter(task => !changedIds.has(task.id) && !result.snapshot.tasks.some(row => row.id === task.id)).map(task => task.id);
+    for (let offset = 0; offset < missing.length; offset += 100) {
+      const ids = missing.slice(offset, offset + 100);
+      try {
+        const query = new URLSearchParams({ kind: 'task', ids: ids.join(','), limit: '100',
+          filter: JSON.stringify({ includeDeleted: true, includeArchived: true }) });
+        const page = await request('/api/to-doo/state?' + query) as ToDooSnapshot;
+        if (ticket !== generation || state.snapshot?.datasetId !== before.datasetId || page.datasetId !== before.datasetId) return;
+        // Explicit ID reads distinguish a missing window row from a removed entity.
+        for (const id of ids) {
+          const remote = page.tasks.find(task => task.id === id);
+          if (remote) tasks.set(id, clone(remote)); else tasks.delete(id);
+        }
+      } catch {
+        state.localWarning = '任务内容已保存，但部分已载入列表记录暂时无法核对，请刷新后查看最新列表。';
+        break;
+      }
+    }
+    if (ticket !== generation || state.snapshot?.datasetId !== before.datasetId) return;
+    const next = clone(result.snapshot);
+    next.tasks = [...tasks.values()];
+    const taskIds = new Set(next.tasks.map(task => task.id));
+    const occurrences = new Map(before.occurrences.map(occurrence => [occurrence.id, clone(occurrence)]));
+    for (const occurrence of result.snapshot.occurrences)
+      if (taskIds.has(occurrence.taskId) || occurrences.has(occurrence.id)) occurrences.set(occurrence.id, clone(occurrence));
+    next.occurrences = [...occurrences.values()].filter(occurrence => taskIds.has(occurrence.taskId));
+    const occurrenceIds = new Set(next.occurrences.map(occurrence => occurrence.id));
+    const blocks = new Map(before.timeBlocks.map(block => [block.id, clone(block)]));
+    for (const block of result.snapshot.timeBlocks)
+      if (block.occurrenceId && occurrenceIds.has(block.occurrenceId) || blocks.has(block.id)) blocks.set(block.id, clone(block));
+    next.timeBlocks = [...blocks.values()];
+    next.page = clone(before.page);
+    next.collectionPages = clone(before.collectionPages || {});
+    adopt(next);
+  }
   const hasUnsavedChanges = () =>
     !!state.pendingMutation ||
     Object.entries(state.newTaskDrafts).some(
@@ -1210,6 +1318,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       state.completionFeedback = null;
       completionUndo = undefined;
       pendingPlanCheckpoints.clear();
+      pendingTaskCheckpoints.clear();
       pendingStatusReceipts.clear();
       state.drafts = {};
       state.draftRecurrenceScopes = {};
@@ -1589,7 +1698,9 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       state.localWarning = '';
     return accepted;
   }
-  async function execute(input: ToDooInput, notice = '已保存') {
+  async function execute(input: ToDooInput, notice = '已保存', taskSaveWindow?: {
+    snapshot: ToDooSnapshot; draftKey: string; submitted: ToDooTask;
+  }) {
     if (state.busy || state.preparingTaskAction) return;
     // Only the latest write can offer an undo; this state is never recovery data.
     state.completionFeedback = null;
@@ -1660,6 +1771,16 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     state.loading = false;
     try {
       const result = (await request('/api/to-doo/commands', 'POST', command)) as ToDooCommandResult;
+      if (taskSaveWindow && command.action === 'update_task' && result.snapshot.datasetId === taskSaveWindow.snapshot.datasetId) {
+        const revision = result.changed.find(row => row.kind === 'task' && row.id === command.payload.id)?.revision;
+        if (revision && state.snapshot?.datasetId === result.snapshot.datasetId) {
+          pendingTaskCheckpoints.set(taskSaveWindow.draftKey, { draftKey: taskSaveWindow.draftKey,
+            datasetId: result.snapshot.datasetId, submitted: clone(taskSaveWindow.submitted), revision });
+          // Persist a confirmed receipt before any follow-up GET. A reload must only verify it.
+          state.pendingMutation = null;
+          persistRecovery();
+        }
+      }
       if (
         command.action === 'set_occurrence_status' &&
         state.pendingMutation?.requestId === command.requestId
@@ -1710,7 +1831,9 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
           adopt(next);
         }
         if (ticket === generation) mergeCommittedStatuses(statusRecords);
-      } else adopt(result.snapshot);
+      } else if (taskSaveWindow && command.action === 'update_task')
+        await adoptTaskSaveWindow(result, taskSaveWindow.snapshot, ticket);
+      else adopt(result.snapshot);
       if (command.action === 'set_occurrence_status') {
         const affected = new Set([
           command.payload.id,
@@ -1856,6 +1979,23 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       datasetId = state.snapshot?.datasetId;
     scope ??= getDraftRecurrenceScope(draftKey);
     setDraftRecurrenceScope(scope, draftKey);
+    const resumedTask = pendingTaskCheckpoints.get(draftKey);
+    if (resumedTask) {
+      const baseline = JSON.parse(saved.get(draftKey) || fingerprint(value)) as ToDooTaskDraft;
+      if (!(await resumeTaskCheckpoint(resumedTask, baseline))) return;
+      value = state.drafts[draftKey];
+      if (!value || state.snapshot?.datasetId !== datasetId) return;
+      if (saved.get(draftKey) === fingerprint(value)) {
+        delete state.drafts[draftKey];
+        delete state.draftRecurrenceScopes[draftKey];
+        state.recoveredDraftKeys = state.recoveredDraftKeys.filter(entry => entry !== draftKey);
+        if (key() === draftKey) selectTask(value.task.id, value.occurrence?.id);
+        state.notice = '任务已保存';
+        persistRecovery();
+        return { transactionId: null, replayed: true, ids: [resumedTask.submitted.id],
+          changed: [{ kind: 'task' as const, id: resumedTask.submitted.id, revision: resumedTask.revision }], snapshot: state.snapshot! };
+      }
+    }
     if (state.recoveredDraftKeys.includes(draftKey)) {
       if (!(await rebaseDraft(draftKey))) return;
       value = state.drafts[draftKey];
@@ -1912,26 +2052,22 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       delete (patch as Partial<ToDooTask>).parentTaskId;
       delete (patch as Partial<ToDooTask>).sectionId;
     }
-    const result = await execute(
-      { action: 'update_task', payload: { id, expectedRevision: revision, patch } },
-      '',
-    );
+    const taskSubmitted = {
+      ...submitted.task,
+      ...(structuralMove ? { listId: baseline.task.listId, parentTaskId: baseline.task.parentTaskId,
+        sectionId: baseline.task.sectionId } : {}),
+      recurrence: baseline.task.recurrence,
+      recurrenceHistory: baseline.task.recurrenceHistory,
+    };
+    const result = resumedTask && fingerprint(taskSubmitted) === fingerprint(baseline.task)
+      ? { transactionId: null, replayed: true, ids: [id],
+          changed: [{ kind: 'task' as const, id, revision: baseline.task.revision }], snapshot: state.snapshot! }
+      : await execute({ action: 'update_task', payload: { id, expectedRevision: revision, patch } }, '',
+          state.snapshot ? { snapshot: clone(state.snapshot), draftKey, submitted: taskSubmitted } : undefined);
     if (!result) return;
     const ownRevisions = new Map(result.changed.map((c) => [c.id, c.revision]));
+    if (!(await checkpointCommittedTask(draftKey, taskSubmitted, baseline, result))) return;
     let fresh = state.snapshot?.tasks.find((t) => t.id === id);
-    checkpointSavedEntity(
-      draftKey,
-      {
-        ...submitted.task,
-        ...(structuralMove ? { listId: baseline.task.listId, parentTaskId: baseline.task.parentTaskId,
-          sectionId: baseline.task.sectionId } : {}),
-        recurrence: baseline.task.recurrence,
-        recurrenceHistory: baseline.task.recurrenceHistory,
-      },
-      fresh,
-      'task',
-      baseline,
-    );
     if (structuralMove) {
       const moved = await moveTasks([id], submitted.task.listId, {
         excludeDraftKey: draftKey, parentTaskId: submitted.task.parentTaskId });
@@ -1941,8 +2077,9 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       }
       moved.changed.forEach((entry) => ownRevisions.set(entry.id, entry.revision));
       fresh = state.snapshot?.tasks.find((task) => task.id === id);
-      checkpointSavedEntity(draftKey, { ...submitted.task, recurrence: baseline.task.recurrence,
-        recurrenceHistory: baseline.task.recurrenceHistory }, fresh, 'task', baseline);
+      if (!(await checkpointCommittedTask(draftKey, { ...submitted.task, recurrence: baseline.task.recurrence,
+        recurrenceHistory: baseline.task.recurrenceHistory }, baseline, moved))) return;
+      fresh = state.snapshot?.tasks.find(task => task.id === id);
     }
     if (
       submitted.occurrence &&
@@ -1993,13 +2130,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
         '',
       );
       if (!changed) return;
-      checkpointSavedEntity(
-        draftKey,
-        submitted.task,
-        state.snapshot?.tasks.find((t) => t.id === id),
-        'task',
-        baseline,
-      );
+      if (!(await checkpointCommittedTask(draftKey, submitted.task, baseline, changed))) return;
     }
     // Only committed input becomes the baseline; text typed during the save remains a draft.
     const current = state.drafts[draftKey];
@@ -2436,6 +2567,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       ? { parentTaskId: moveOptions.parentTaskId } : {}) }, taskIds);
   }
   function discardTaskDraft(draftKey: string) {
+    pendingTaskCheckpoints.delete(draftKey);
     for (const [id, entry] of pendingPlanCheckpoints)
       if (entry.draftKey === draftKey) pendingPlanCheckpoints.delete(id);
     delete state.drafts[draftKey]; saved.delete(draftKey);

@@ -2820,3 +2820,269 @@ describe('confirmed status records outside the reply window', () => {
     }
   });
 });
+
+describe('confirmed task records outside the reply window', () => {
+  function pagingContext(page: ToDooSnapshot['page']) {
+    const { kind, total, limit, nextCursor, truncated, from, to } = page;
+    return { kind, total, limit, nextCursor, truncated, from, to };
+  }
+  function isExactTaskRead(url: string, taskId: string) {
+    const params = new URL(url, 'https://local').searchParams;
+    return (params.get('kind') === 'task' || params.get('kinds')?.split(',').includes('task')) &&
+      params.get('ids')?.split(',').includes(taskId);
+  }
+  function withoutTaskRecord(result: ToDooSnapshot | ToDooCommandResult, taskId: string) {
+    if (!('snapshot' in result)) throw Error('A task command must return a transaction receipt');
+    return { ...result, snapshot: { ...result.snapshot,
+      tasks: result.snapshot.tasks.filter(task => task.id !== taskId) } };
+  }
+  test('saving row 205 reads its receipt revision without replacing the loaded rows, page or selection', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const ids: string[] = [];
+      for (let index = 1; index <= 205; index++) {
+        const result = f.service.command({ requestId: crypto.randomUUID(), action: 'create_task',
+          payload: { title: 'Receipt row ' + String(index).padStart(3, '0') } });
+        ids.push(result.ids[0]);
+      }
+      const taskId = ids[204];
+      let writes = 0, reads = 0, receiptRevision = '';
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'GET' && isExactTaskRead(url, taskId)) reads++;
+        const result = await f.request(url, method, body);
+        if (method === 'POST' && toDooCommandSchema.parse(body).action === 'update_task') {
+          writes++;
+          if (!('snapshot' in result)) throw Error('Expected the real service transaction receipt');
+          expect(result.snapshot.tasks).toHaveLength(200);
+          expect(result.snapshot.tasks.some(task => task.id === taskId)).toBe(false);
+          receiptRevision = result.changed.find(entry => entry.kind === 'task' && entry.id === taskId)!.revision;
+        }
+        return result;
+      });
+      await model.load({ view: 'tasks', limit: 500 });
+      expect(model.state.snapshot?.tasks).toHaveLength(205);
+      const loadedIds = model.state.snapshot!.tasks.map(task => task.id);
+      const page = { ...model.state.snapshot!.page };
+      const taskPage = { ...model.state.snapshot!.collectionPages!.task! };
+      model.state.selectedIds = [ids[0], taskId];
+      model.selectTask(taskId);
+      const occurrenceId = model.state.selectedOccurrenceId;
+      model.draft()!.task.description = 'The last loaded task was saved';
+      await model.saveTask();
+      expect(writes).toBe(1); expect(reads).toBe(1);
+      expect(receiptRevision).toBeTruthy();
+      expect(f.service.getEntity('task', taskId)).toMatchObject({ description: 'The last loaded task was saved', revision: receiptRevision });
+      expect(model.draft()?.task).toMatchObject({ description: 'The last loaded task was saved', revision: receiptRevision });
+      expect(model.dirty()).toBe(false); expect(model.state.pendingMutation).toBeNull();
+      expect(model.state.snapshot?.tasks.map(task => task.id)).toEqual(loadedIds);
+      expect(model.state.snapshot?.tasks.find(task => task.id === taskId)?.revision).toBe(receiptRevision);
+      expect(model.state.snapshot?.page).toMatchObject({ limit: page.limit, total: page.total, nextCursor: page.nextCursor });
+      expect(model.state.snapshot?.collectionPages?.task).toMatchObject({ limit: taskPage.limit, total: taskPage.total, nextCursor: taskPage.nextCursor });
+      expect(model.state.query).toMatchObject({ view: 'tasks', limit: 500 });
+      expect(model.state.selectedIds).toEqual([ids[0], taskId]);
+      expect(model.state.selectedTaskId).toBe(taskId); expect(model.state.selectedOccurrenceId).toBe(occurrenceId);
+    } finally { await f.close(); }
+  }, 30000);
+  test('a partial filtered task page retains its scoped cursor through a save and can continue paging', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const listId = f.service.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+        payload: { kind: 'list', entity: { name: 'Filtered receipt list' } } }).ids[0];
+      const otherListId = f.service.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+        payload: { kind: 'list', entity: { name: 'Outside the active filter' } } }).ids[0];
+      const outsiderId = f.service.command({ requestId: crypto.randomUUID(), action: 'create_task',
+        payload: { title: 'This row must stay outside the filtered view', listId: otherListId } }).ids[0];
+      const scopedIds: string[] = [];
+      for (let index = 1; index <= 205; index++)
+        scopedIds.push(f.service.command({ requestId: crypto.randomUUID(), action: 'create_task',
+          payload: { title: 'Scoped receipt row ' + String(index).padStart(3, '0'), listId } }).ids[0]);
+      let writes = 0;
+      const pageReads: URLSearchParams[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        const params = new URL(url, 'https://local').searchParams;
+        if (method === 'GET' && params.has('cursor')) pageReads.push(params);
+        const result = await f.request(url, method, body);
+        if (method === 'POST' && toDooCommandSchema.parse(body).action === 'update_task') {
+          writes++;
+          if (!('snapshot' in result)) throw Error('Expected the real unfiltered command receipt');
+          expect(result.snapshot.tasks.some(task => task.id === outsiderId)).toBe(true);
+          expect(result.snapshot.page.nextCursor).not.toBeNull();
+        }
+        return result;
+      });
+      const filter = { listIds: [listId] };
+      await model.load({ view: 'tasks', limit: 200, filter });
+      const page = JSON.parse(JSON.stringify(model.state.snapshot!.page));
+      const taskPage = JSON.parse(JSON.stringify(model.state.snapshot!.collectionPages!.task!));
+      const originalQuery = JSON.parse(JSON.stringify(model.state.query));
+      expect(page.nextCursor).not.toBeNull(); expect(taskPage.nextCursor).not.toBeNull();
+      expect(page.total).toBe(205); expect(page.limit).toBe(200);
+      model.selectTask(scopedIds[0]);
+      model.draft()!.task.title = 'Saved within the original filtered page';
+      await model.saveTask();
+      expect(writes).toBe(1); expect(model.dirty()).toBe(false);
+      expect(model.state.query).toEqual(originalQuery);
+      expect(model.state.snapshot?.page).toMatchObject(pagingContext(page));
+      expect(model.state.snapshot?.collectionPages?.task).toMatchObject(pagingContext(taskPage));
+      expect(model.state.snapshot?.tasks.some(task => task.id === outsiderId)).toBe(false);
+      expect(model.state.snapshot?.tasks.every(task => task.listId === listId)).toBe(true);
+      await model.nextPage();
+      expect(model.state.error).toBe('');
+      expect(pageReads).toHaveLength(1);
+      expect(pageReads[0].get('cursor')).toBe(page.nextCursor);
+      expect(JSON.parse(pageReads[0].get('filter')!)).toEqual(filter);
+      expect(model.state.query.filter).toEqual(filter);
+      expect(model.state.snapshot?.page.nextCursor).toBeNull();
+      const loaded = model.state.snapshot!.tasks;
+      expect(loaded).toHaveLength(205);
+      expect(new Set(loaded.map(task => task.id)).size).toBe(205);
+      expect(loaded.map(task => task.id).sort()).toEqual([...scopedIds].sort());
+      expect(loaded.every(task => task.listId === listId)).toBe(true);
+      expect(f.service.getEntity('task', scopedIds[0])).toMatchObject({ title: 'Saved within the original filtered page', listId });
+    } finally { await f.close(); }
+  }, 30000);
+  test.each([false, true])('a failed receipt read stays recoverable and only verifies the confirmed write (reload: %s)', async reload => {
+    const f = await domainStatusFixture();
+    const storage = new Map<string, string>();
+    vi.stubGlobal('localStorage', { getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => storage.set(key, value) });
+    try {
+      const task = f.create('Task receipt verification retry');
+      const recoveryKey = 'dooknow.to-doo.recovery:' + f.service.snapshot({ taskIds: [task.id] }).datasetId;
+      const calls: { method: string; url: string }[] = [];
+      let fail = true, writes = 0, reads = 0, receiptRevision = '';
+      let recoveryBeforeFirstRead: any;
+      const request: Parameters<typeof createToDooWorkbench>[0] = async (url, method = 'GET', body) => {
+        calls.push({ method, url });
+        if (method === 'GET' && isExactTaskRead(url, task.id)) {
+          reads++;
+          if (fail) {
+            recoveryBeforeFirstRead = JSON.parse(storage.get(recoveryKey)!);
+            fail = false; throw Error('Confirmed task read temporarily unavailable');
+          }
+        }
+        const result = await f.request(url, method, body);
+        if (method === 'POST' && toDooCommandSchema.parse(body).action === 'update_task') {
+          writes++;
+          if (!('snapshot' in result)) throw Error('Expected a task receipt');
+          receiptRevision = result.changed.find(entry => entry.kind === 'task' && entry.id === task.id)!.revision;
+          return withoutTaskRecord(result, task.id);
+        }
+        return result;
+      };
+      const model = createToDooWorkbench(request);
+      await model.load(); model.selectTask(task.id);
+      model.draft()!.task.description = 'Committed once, not sent twice';
+      await model.saveTask();
+      expect(writes).toBe(1); expect(reads).toBe(1);
+      expect(recoveryBeforeFirstRead.pending).toBeNull();
+      expect(recoveryBeforeFirstRead.taskCheckpoints).toEqual(expect.arrayContaining([
+        [expect.any(String), expect.objectContaining({ revision: receiptRevision,
+          submitted: expect.objectContaining({ id: task.id, description: 'Committed once, not sent twice' }) })],
+      ]));
+      expect(model.state.pendingMutation).toBeNull(); expect(model.dirty()).toBe(true);
+      expect(model.state.localWarning || model.state.error).toMatch(/保存|提交|核对|读取/);
+      expect(f.service.getEntity('task', task.id)).toMatchObject({ description: 'Committed once, not sent twice', revision: receiptRevision });
+      expect(model.draft()?.task.description).toBe('Committed once, not sent twice');
+      expect(model.flushRecovery()).toBe(true);
+      const persisted = JSON.parse(storage.get(recoveryKey)!);
+      expect(persisted.pending).toBeNull();
+      expect(persisted.taskCheckpoints).toMatchObject([[model.state.selectedTaskId + '@' + model.state.selectedOccurrenceId,
+        { revision: receiptRevision, submitted: { id: task.id, description: 'Committed once, not sent twice' } }]]);
+      const recoveryCallIndex = calls.length;
+      const recovering = reload ? createToDooWorkbench(request) : model;
+      if (reload) {
+        await recovering.load(); recovering.selectTask(task.id, model.state.selectedOccurrenceId);
+        expect(recovering.dirty()).toBe(true);
+        expect(recovering.draft()?.task.description).toBe('Committed once, not sent twice');
+      }
+      expect(await recovering.saveTask()).toBeTruthy();
+      expect(writes).toBe(1);
+      if (!reload) expect(reads).toBe(2);
+      const recoveryCalls = calls.slice(recoveryCallIndex);
+      expect(recoveryCalls.length).toBeGreaterThan(0);
+      expect(recoveryCalls.every(call => call.method === 'GET')).toBe(true);
+      expect(recovering.state.error).toBe(''); expect(recovering.dirty()).toBe(false);
+      expect(recovering.draft()?.task.revision).toBe(receiptRevision);
+      expect(JSON.parse(storage.get(recoveryKey)!).taskCheckpoints).toEqual([]);
+      expect(JSON.parse(storage.get(recoveryKey)!).pending).toBeNull();
+      expect(f.service.getEntity('task', task.id)?.revision).toBe(receiptRevision);
+    } finally { vi.unstubAllGlobals(); await f.close(); }
+  });
+  test('a newer remote task is not accepted as the confirmed save and requires explicit comparison', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('Task receipt concurrent writer');
+      let writes = 0, externalChange = false, receiptRevision = '';
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'GET' && isExactTaskRead(url, task.id) && !externalChange) {
+          externalChange = true;
+          const current = toDooEntitySchemas.task.parse(f.service.getEntity('task', task.id));
+          f.service.command({ requestId: crypto.randomUUID(), action: 'update_task', payload: {
+            id: task.id, expectedRevision: current.revision, patch: { description: 'Another writer changed it after commit' },
+          } });
+        }
+        const result = await f.request(url, method, body);
+        if (method === 'POST' && toDooCommandSchema.parse(body).action === 'update_task') {
+          writes++;
+          if (!('snapshot' in result)) throw Error('Expected a task receipt');
+          receiptRevision = result.changed.find(entry => entry.kind === 'task' && entry.id === task.id)!.revision;
+          return withoutTaskRecord(result, task.id);
+        }
+        return result;
+      });
+      await model.load(); model.selectTask(task.id);
+      model.draft()!.task.description = 'My confirmed input';
+      await model.saveTask();
+      const remote = toDooEntitySchemas.task.parse(f.service.getEntity('task', task.id));
+      expect(remote.revision).not.toBe(receiptRevision);
+      expect(remote.description).toBe('Another writer changed it after commit');
+      expect(model.state.conflict).toBe(true); expect(model.state.error).toMatch(/版本|比较|变化|冲突/);
+      expect(model.dirty()).toBe(true); expect(model.draft()?.task.description).toBe('My confirmed input');
+      expect(model.draft()?.task.revision).not.toBe(remote.revision);
+      await model.saveTask(); expect(writes).toBe(1);
+      await model.rebaseDraft();
+      expect(model.state.draftConflicts).toMatchObject([{ kind: 'task', field: 'description', local: 'My confirmed input', remote: 'Another writer changed it after commit' }]);
+      expect(f.service.getEntity('task', task.id)?.revision).toBe(remote.revision);
+    } finally { await f.close(); }
+  });
+  test('text typed while a confirmed task receipt is being read remains a later draft with the new revision', async () => {
+    const f = await domainStatusFixture();
+    let release!: () => void;
+    const wait = new Promise<void>(resolve => { release = resolve; });
+    try {
+      const task = f.create('Task receipt later input');
+      let reached!: () => void;
+      const started = new Promise<void>(resolve => { reached = resolve; });
+      let pauseRead = true, writes = 0, receiptRevision = '';
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'GET' && isExactTaskRead(url, task.id) && pauseRead) {
+          pauseRead = false; reached(); await wait;
+        }
+        const result = await f.request(url, method, body);
+        if (method === 'POST' && toDooCommandSchema.parse(body).action === 'update_task') {
+          writes++;
+          if (!('snapshot' in result)) throw Error('Expected a task receipt');
+          receiptRevision = result.changed.find(entry => entry.kind === 'task' && entry.id === task.id)!.revision;
+          return withoutTaskRecord(result, task.id);
+        }
+        return result;
+      });
+      await model.load(); model.selectTask(task.id);
+      model.draft()!.task.description = 'The submitted description';
+      const saving = model.saveTask();
+      await started;
+      expect(f.service.getEntity('task', task.id)).toMatchObject({ description: 'The submitted description', revision: receiptRevision });
+      model.draft()!.task.description = 'Typed after commit while verification was pending';
+      release(); await saving;
+      expect(writes).toBe(1);
+      expect(model.draft()?.task).toMatchObject({ description: 'Typed after commit while verification was pending', revision: receiptRevision });
+      expect(model.dirty()).toBe(true); expect(model.state.pendingMutation).toBeNull();
+      expect(f.service.getEntity('task', task.id)).toMatchObject({ description: 'The submitted description', revision: receiptRevision });
+      await model.saveTask();
+      expect(writes).toBe(2); expect(model.state.error).toBe(''); expect(model.dirty()).toBe(false);
+      expect(f.service.getEntity('task', task.id)).toMatchObject({ description: 'Typed after commit while verification was pending', revision: receiptRevision });
+      expect(model.draft()?.task.revision).toBe(receiptRevision);
+    } finally { release(); await f.close(); }
+  });
+});
