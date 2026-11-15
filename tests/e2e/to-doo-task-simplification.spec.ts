@@ -42,6 +42,9 @@ async function fixture(page: Page) {
     listId: list.ids[0],
   });
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&list=' + list.ids[0]);
+  const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
+  await expect(app).toBeVisible({ timeout: 20000 });
+  await expect(app.locator('.todo-main')).toHaveAttribute('aria-busy', 'false', { timeout: 20000 });
   return {
     suffix,
     listId: list.ids[0],

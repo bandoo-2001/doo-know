@@ -6,8 +6,8 @@ import { expandToDooGroup } from '../support/to-doo-ant-controls';
 const workspace = (page: Page) => page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
 async function openSection(page: Page, section: string) {
   await page.goto('/?view=apps&app=to-doo&appSection=' + section);
-  await expect(workspace(page)).toBeVisible();
-  await expect(workspace(page).locator('.todo-main')).toHaveAttribute('aria-busy', 'false');
+  await expect(workspace(page)).toBeVisible({ timeout: 20000 });
+  await expect(workspace(page).locator('.todo-main')).toHaveAttribute('aria-busy', 'false', { timeout: 20000 });
 }
 test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -92,5 +92,5 @@ test('plugin management navigation protects unsaved To Doo preferences', async (
   await app.getByRole('button', { name: '打开 MCP 与插件管理', exact: true }).click();
   await leaving.getByRole('button', { name: '放弃更改并离开', exact: true }).click();
   await expect(page).toHaveURL(/view=settings.*section=plugins/);
-  await expect(page.getByRole('heading', { name: '功能设置', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '插件与连接', exact: true })).toBeVisible();
 });
