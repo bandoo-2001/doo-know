@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, useId } from 'vue';
 import { Button as AButton, Checkbox as ACheckbox, Tag as ATag } from 'ant-design-vue';
 import type { ToDooItem } from '../../to-doo-workbench';
 import type { ToDooDisplayFields } from '../../to-doo-display-preferences';
@@ -33,6 +33,7 @@ const emit = defineEmits<{
   select: [id: string];
   child: [id: string];
 }>();
+const rowId = useId();
 function openFromRow(event: MouseEvent) {
   if (event.defaultPrevented || event.button !== 0) return;
   const row = event.currentTarget as HTMLElement;
@@ -147,11 +148,12 @@ const dates = computed(() => {
       :data-task-key="item.key"
       :aria-keyshortcuts="listNavigation ? 'ArrowUp ArrowDown Home End Enter Shift+F10' : 'Shift+F10'"
       :aria-label="item.title"
+      :aria-describedby="[hasMetadata && rowId + '-meta', dates.length > 0 && rowId + '-dates'].filter(Boolean).join(' ') || undefined"
       :aria-current="active ? 'true' : undefined"
       type="text"
     >
       <span class="todo-task-name">{{ item.title }}</span>
-      <small v-if="hasMetadata" class="todo-task-meta">
+      <small v-if="hasMetadata" :id="rowId + '-meta'" class="todo-task-meta">
         <ATag
           v-if="displayFields?.priority !== false && item.task.priority !== 'none'"
           class="todo-priority-label"
@@ -159,15 +161,15 @@ const dates = computed(() => {
           >{{ toDooPriorityLabels[item.task.priority] }}优先级</ATag
         >
         <span v-if="displayFields?.list !== false && item.list && !hideList" class="todo-row-list" :title="item.list.name"><span>{{ item.list.name }}</span></span>
-        <span v-if="displayFields?.resources !== false && item.task.noteRefs.length" class="todo-row-symbol" :aria-label="'关联资料 ' + item.task.noteRefs.length + ' 份'"><ToDooIcon name="attachment" :size="14" />{{ item.task.noteRefs.length }}</span>
-        <span v-if="displayFields?.recurrence !== false && item.task.recurrence" class="todo-row-symbol" title="重复任务" aria-label="重复任务"><ToDooIcon name="repeat" :size="14" /></span>
+        <span v-if="displayFields?.resources !== false && item.task.noteRefs.length" class="todo-row-symbol" role="img" :aria-label="'关联资料 ' + item.task.noteRefs.length + ' 份'"><ToDooIcon name="attachment" :size="14" />{{ item.task.noteRefs.length }}</span>
+        <span v-if="displayFields?.recurrence !== false && item.task.recurrence" class="todo-row-symbol" role="img" title="重复任务" aria-label="重复任务"><ToDooIcon name="repeat" :size="14" /></span>
         <span v-if="item.status === 'blocked'">受阻</span>
         <span v-if="item.status === 'cancelled'">已取消</span>
         <span v-if="item.status === 'skipped'">已跳过</span>
         <span v-if="item.status === 'unavailable'">执行记录尚未载入</span>
       </small>
     </AButton>
-    <span v-if="dates.length" class="todo-task-dates">
+    <span v-if="dates.length" :id="rowId + '-dates'" class="todo-task-dates">
       <span
         v-for="date in dates"
         :key="date.kind"

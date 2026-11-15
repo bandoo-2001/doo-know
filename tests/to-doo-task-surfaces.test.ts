@@ -420,8 +420,8 @@ describe('task surface controls', () => {
 
   test.each([
     ['list', '工作'],
-    ['references', '▤ 1'],
-    ['recurrence', '↻'],
+    ['references', '1'],
+    ['recurrence', ''],
     ['blocked', '受阻'],
     ['unavailable', '执行记录尚未载入'],
   ])('a default-priority row retains its %s indicator on its own', (indicator, expected) => {
@@ -456,7 +456,14 @@ describe('task surface controls', () => {
     const row = mount('ToDooTaskRow', { item, today: '2026-10-29' });
     const body = row.byClass('todo-task-body')[0]!;
     expect(row.text(body)).toBe('准备报告' + expected);
-    expect(body.children.filter((node) => node.tag === 'small')).toHaveLength(1);
+    const metadata = row.byClass('todo-task-meta');
+    expect(metadata).toHaveLength(1);
+    expect(body.props['aria-describedby'].split(' ')).toContain(metadata[0]!.props.id);
+    if (indicator === 'references' || indicator === 'recurrence') {
+      const symbol = row.byClass('todo-row-symbol')[0]!;
+      expect(symbol.props.role).toBe('img');
+      expect(symbol.props['aria-label']).toBe(indicator === 'references' ? '关联资料 1 份' : '重复任务');
+    }
     expect(row.byClass('todo-priority-label')).toHaveLength(0);
     if (indicator === 'unavailable')
       expect(row.byClass('todo-check')[0]!.props.disabled).toBe(true);
