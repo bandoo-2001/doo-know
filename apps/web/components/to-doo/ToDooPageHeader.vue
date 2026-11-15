@@ -10,6 +10,7 @@ defineProps<{ title: string; description?: string }>();
       </h1>
       <p v-if="description">{{ description }}</p>
     </div>
-    <div v-if="$slots.actions" class="todo-actions"><slot name="actions" /></div>
+    <div v-if="$slots.actions" class="todo-actions" role="group" :aria-label="title + '操作'"><slot name="actions" /></div>
   </header>
 </template>
+<style src="../../to-doo-layout.css"></style>

@@ -2,6 +2,51 @@
 
 To Doo 使用项目现有 Ant Design Vue 4.2.6，与全局 ConfigProvider 共用语言和主题。普通表单与操作按需导入组件，保留应用自己的菜单、品牌和内容布局；不加载全局 reset，也不影响笔记编辑器样式。
 
+## 主题与尺寸的权威来源
+
+`apps/web/platform-theme.ts` 是平台色板、ToDoo 命名尺寸和框架映射的唯一字面量来源。`platformAntTokens()` 保持全站控件 13px；`toDooAntTokens()` 在同一来源中给任务工具明确的 14px 模块作用域，不修改知识正文、编辑器或用户自选内容颜色。`ant-design.ts` 的 `toDooAntTheme(mode, density)` 提供对应浅/深色算法与 token，ToDoo 根节点使用局部 ConfigProvider。
+
+`installAntDesign()` 在挂载前安装根 CSS 变量；App 在主题变化时通过 `applyPlatformCssVariables(document.documentElement, mode)` 更新。变量安装在 document 根，Portal 中的 Modal、Dropdown、Select 和日期弹层继承同一色板。`to-doo-tokens.css` 只负责语义别名、密度和响应式选择，不再维护第二份浅/深色十六进制表。
+
+| 角色 | 舒适模式 | 紧凑模式/例外 |
+| --- | --- | --- |
+| 正文、任务标题、控件 | 14px / 22px，常规400 | 字号/行高不缩小 |
+| 页面标题 | 20px / 28px，600 | 同一字级，窄屏允许换行 |
+| 分区标题、详情标题 | 16px / 22px；22px / 30px，600 | 不因模块另设字级 |
+| 说明与标签 | 12px / 18px，muted | 低于12px不承担必要信息 |
+| 任务行、导航行 | 40px最小高度 | 36px；触摸均至少44px |
+| 通用控件 | 36px | 32px；触摸主要动作44px |
+| 图标按钮命中区 | 32px，内部图标16或18px | 触摸44px；完成标记视觉和命中区分别处理 |
+| 导航、详情 | 展开200px/收起56px；详情360–400px | 列表净宽不足440px时先收导航；窄屏详情使用抽屉 |
+| 页头、详情页尾 | 48px；56px | 内容增长时允许高度自然增加，不裁切按钮 |
+| 间距、圆角 | 4/8/12/16/24/32px；容器8、控件6、标签4px | 不用任意负margin补齐布局 |
+| 焦点、动效 | 2px强调色外框、偏移2px；120/180ms | 减少动态效果时关闭动效 |
+
+颜色沿用现有 `platformPalette`。主强调色只承载当前项、链接、焦点和主要动作；辅助信息使用 soft/muted/tint。成功、警告、危险的种子颜色绘制图形和边条，小字号文字使用 `--todo-success-text`、`--todo-warning-text`、`--todo-danger-text`，其与框架对应语义文字 token 同源。选中用 tint，并以勾选或当前位置标记提供非颜色线索。业务优先级和象限颜色也由同一主题源输出；高优先级不等于校验错误。清单/标签的用户颜色只绘制色点或条，不能替代正文颜色。
+
+页面几何位于 `to-doo-layout.css`，Ant 适配位于 `to-doo-ant.css`，详情几何位于 `to-doo-task-detail.css`。Ant 本身拥有控件皮肤，适配层只处理业务布局、复合控件单焦点框和弹层边界；禁止新增全局 `.ant-*` 颜色补丁、旧色板或大面积 `!important`。原生输入规则不能命中 Ant 内部输入。
+
+## 公共模式及操作层级
+
+| 模式/组件 | 职责与允许变体 | 禁止用法 |
+| --- | --- | --- |
+| PageHeader / PageToolbar | 页面唯一 h1、当前范围、作用域操作；专业画布可提供自己的工具 | 重复标题/计数条/口号；每页另外发明高度 |
+| SectionHeader | 内容确有分区时提供 h2 和局部操作 | 为无增量空容器增加边框和标题 |
+| Navigation | 任务范围、清单、独立模块分组；当前项可读且有 aria-current | 将范围、视图和管理操作混成巨型更多菜单 |
+| TaskRow | 普通任务一行标题；有值且影响决策的日期/元数据；悬停与焦点辅助动作 | 空属性占位、同清单重复清单名、必要操作仅右键/悬停可用 |
+| QuickAdd | 标题 Enter 创建；解析结果可确认/纠正；完整新建入口 | 默认铺开完整任务表单、静默写入无法纠正的解析结果 |
+| 属性入口/详情 | 有值展示，常用属性紧凑入口；所有入口复用同一字段编辑器 | 给更多详情再套更多折叠、同一字段多套规则 |
+| 筛选/视图菜单 | 筛选只管内容条件；视图菜单管展示/分组/排序/密度 | 展开筛选推低内容，把复杂条件管理放在行菜单 |
+| 对象更多菜单 | 低频对象操作按意义分组；危险项分隔置底 | 将全部高频字段与危险动作无区分地平铺 |
+| FormLayout / Confirm | 字段标签、提交、错误定位、忙碌锁定；确认写明对象及影响范围 | 隐藏校验失败、确认后不复核当前任务/实例、默认聚焦危险项 |
+| Empty / Loading / Error | 首次空态创建、筛选空态清筛选、保持几何的骨架、就地错误重试 | 筛选空态催建任务、刷新清空已有内容、跨页面滞留成功反馈 |
+
+每个明确作用域至多一个 primary 动作；default 为次操作，text 为辅助工具，link 为打开资源或导航，danger 仅用于破坏性动作。新建、保存、开始专注保留文字；搜索、关闭、更多等常见图标需可访问名称、提示与可见焦点。hover 和 focus-within 对等，触摸保留可见更多入口。
+
+弹层 Esc 优先关闭最内层，再处理详情；关闭恢复焦点至原触发器。快速输入 Enter 提交，多行说明 Enter 换行，详情 Ctrl/Cmd+Enter 保存；日期内部 Enter 不得误触外层创建。字段错误与字段关联，提交定位首错并展开所在组。列表、详情和表单各自只保留一个主要滚动体；头尾常驻，不让弹层被业务 overflow 裁切。只读保持可选可复制，禁用不等于只读；保存中、失败、冲突、未保存和已保存各有明确局部状态，失败保留输入。
+
+`App.vue` 登录弹层外壳及服务/OAuth状态、`Workspace.vue` 部分全局提示与知识侧对话框仍使用 Naive；Login 表单自身已经是 Ant。两套 Provider 共享 `platformPalette`，不将全站 Naive 清零作为 ToDoo 迭代前置条件。资料侧创建任务入口的外壳迁移须单独验证关联、草稿快照与创建提交。
+
 ## 控件约定
 
 - 按钮使用 Button，提交按钮设置 `html-type="submit"`；`type` 仅表示 Ant 按钮样式。
@@ -36,4 +81,8 @@ To Doo 使用项目现有 Ant Design Vue 4.2.6，与全局 ConfigProvider 共用
 所有To Doo页面使用ToDooWorkspace统一外壳，PageHeader、PageToolbar与SectionHeader负责共享结构；尺寸和跨页规则统一见[规范与验收入口](design/to-doo/unified-ui-v2/IMPLEMENTATION.md)，不要在页面中重定义。专注页面使用真实focusTopic实体、独立历史/活动查询与完整统计；计时字段在ToDooFocusTimerFields复用，手机显示在AntDV Drawer中。
 
 
-共享`ToDooFormLayout`使用AntDV Form和统一提交/错误定位，忙碌时通过Form disabled与原生fieldset锁定控件；Select/Date适配器未显式指定disabled时继承该上下文。日期的未确认非法文本保留在控件中，保存会阻止并定位；取消输入使用Escape。农历原始日期使用独立文本字段，避免公历DatePicker替换合法农历日期。主题颜色只在`to-doo-tokens.css`定义，弹层继承同一组变量。
+共享`ToDooFormLayout`使用AntDV Form和统一提交/错误定位，忙碌时通过Form disabled与原生fieldset锁定控件；Select/Date适配器未显式指定disabled时继承该上下文。日期的未确认非法文本保留在控件中，保存会阻止并定位；取消输入使用Escape。农历原始日期使用独立文本字段，避免公历DatePicker替换合法农历日期。主题颜色及框架映射统一由`platform-theme.ts`输出，弹层继承根变量。
+
+## 代表性验收
+
+任务列表、详情、日历、四象限、设置使用相同数据、主题和初始状态，在1440×900、1080×812、768和390宽检查基线、间距、字号、按钮层级、弹层范围、焦点、校验、空态和失败态。再检查关闭提示后的熟练状态。`tests/platform-theme.test.ts` 保护框架/CSS映射一致、主题切换、正文与语义文字对比度及密度不缩字；浏览器测试仍负责最终computed style、Portal、键盘/触摸、真实业务流程和无溢出，逻辑测试不代替运行验收。

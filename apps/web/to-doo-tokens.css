@@ -1,44 +1,20 @@
-/* Shared geometry and visual scale for every To Doo page. */
+/* Values are owned by platform-theme.ts and installed on the document root.
+   Keep only semantic aliases and responsive/density selection here. */
 :root {
-  --todo-primary-nav-width: 64px;
-  --todo-global-header-height: 56px;
-  --todo-context-nav-width: 232px;
-  --todo-detail-width: 420px;
-  --todo-page-padding: 24px;
-  --todo-space: 8px;
-  --todo-radius: 10px;
-  --todo-font-size: 14px;
-  --todo-heading-size: 28px;
-  --todo-section-size: 18px;
-  --todo-item-size: 16px;
-  --todo-caption-size: 13px;
-  --todo-control-height: 36px;
-  --todo-nav-height: 40px;
-  --todo-bg: #ffffff;
-  --todo-paper: #fff;
-  --todo-soft: #f7f8fa;
-  --todo-ink: #272b3a;
-  --todo-muted: #657084;
-  --todo-line: #e6e9f1;
-  --todo-accent: #4566c6;
-  --todo-tint: #edf1ff;
-  --todo-green: #438674;
-  --todo-danger: #b75b66;
-  --todo-warning: #a47939;
+  --todo-space: var(--todo-space-8);
+  --todo-control-height: var(--todo-comfort-control-height);
+  --todo-row-min-height: var(--todo-comfort-row-height);
+  --todo-row-padding-block: var(--todo-comfort-row-padding);
+  --todo-nav-height: var(--todo-comfort-nav-height);
+  --todo-motion-fast: var(--todo-motion-fast-base);
+  --todo-motion-panel: var(--todo-motion-panel-base);
 }
 
-:root[data-theme='dark'] {
-  --todo-bg: #13151e;
-  --todo-paper: #1b1e29;
-  --todo-soft: #252937;
-  --todo-ink: #e5e8f0;
-  --todo-muted: #a1a9bb;
-  --todo-line: #323746;
-  --todo-accent: #8ba4ff;
-  --todo-tint: #25334d;
-  --todo-green: #8bcaaf;
-  --todo-danger: #eea1ac;
-  --todo-warning: #dbb884;
+.todo-compact {
+  --todo-control-height: var(--todo-compact-control-height);
+  --todo-row-min-height: var(--todo-compact-row-height);
+  --todo-row-padding-block: var(--todo-compact-row-padding);
+  --todo-nav-height: var(--todo-compact-nav-height);
 }
 
 /* The application provides one complete navigation surface. */
@@ -50,10 +26,24 @@
   grid-column: 1;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .to-doo-workspace {
+    --todo-page-padding: var(--todo-narrow-page-padding);
+  }
+}
+
+@media (pointer: coarse) {
+  :is(.to-doo-workspace, .todo-ant-modal, .todo-ant-popup) {
+    --todo-icon-button-size: var(--todo-touch-target);
+    --todo-row-min-height: var(--todo-touch-target);
+    --todo-row-padding-block: 0px;
+    --todo-nav-height: var(--todo-touch-target);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
   :root {
-    --todo-heading-size: 24px;
-    --todo-section-size: 16px;
-    --todo-item-size: 15px;
+    --todo-motion-fast: 0ms;
+    --todo-motion-panel: 0ms;
   }
 }
