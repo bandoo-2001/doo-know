@@ -113,7 +113,7 @@ function component(path: string): Vue.Component {
       if (id === 'ant-design-vue') return {
         ...toDooAntStubs,
         Popover: ControlledPopover,
-        ConfigProvider: Vue.defineComponent({ setup: (_, { slots }) => () => slots.default?.() }),
+        ConfigProvider: Vue.defineComponent({ inheritAttrs: false, props: ['theme'], setup: (_, { slots }) => () => slots.default?.() }),
       };
       if (id === '../preferences') return { resolvedTheme: Vue.ref('light') };
       if (id === '../ant-design') return antDesign;
@@ -290,6 +290,10 @@ describe('To Doo unified application navigation', () => {
     await settled();
     function drawerNode(node: any): any {
       if (node?.type === toDooAntStubs.Drawer) return node;
+      if (node?.component?.subTree) {
+        const found = drawerNode(node.component.subTree);
+        if (found) return found;
+      }
       for (const child of Array.isArray(node?.children) ? node.children : []) {
         const found = drawerNode(child);
         if (found) return found;

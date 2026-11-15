@@ -116,12 +116,13 @@ function mount(name: string, props: Record<string, any>) {
   });
   const root = node('root');
   const subject = component(name);
+  const subjectRef = Vue.ref<any>();
   const shown = Vue.ref(true);
   let confirmation!: ReturnType<typeof controls.provideToDooConfirm>;
   const app = renderer.createApp({
     setup() {
       confirmation = controls.provideToDooConfirm();
-      return () => (shown.value ? Vue.h(subject, props) : null);
+      return () => (shown.value ? Vue.h(subject, { ...props, ref: subjectRef }) : null);
     },
   });
   app.mount(root);
@@ -140,6 +141,7 @@ function mount(name: string, props: Record<string, any>) {
     text,
     byClass,
     confirmation,
+    ref: subjectRef,
     hide: () => {
       shown.value = false;
     },
@@ -285,7 +287,7 @@ describe('task surface controls', () => {
     value.draft()!.occurrence!.due = null;
     await Vue.nextTick();
     expect(detail.byClass('todo-detail-shortcuts')).toHaveLength(1);
-    for (const label of ['设置具体时间', '编辑截止日期', '编辑任务提醒', '编辑关联资料'])
+    for (const label of ['编辑计划日期', '编辑截止日期', '编辑优先级', '编辑任务提醒', '编辑关联资料'])
       expect(
         detail.all().some((node) => node.tag === 'button' && node.props['aria-label'] === label),
       ).toBe(true);
@@ -303,16 +305,12 @@ describe('task surface controls', () => {
     const primary = detail.byClass('todo-primary-children')[0];
     expect(primary).toBeDefined();
     expect(detail.text(primary)).toContain('报告子任务');
-    expect(
-      detail
-        .all()
-        .find((node) => node.tag === 'summary' && detail.text(node).startsWith('更多详情'))!.parent!
-        .parent!.props['active-key'],
-    ).toEqual([]);
+    expect(detail.all().filter((node) => node.props.role === 'dialog')).toHaveLength(0);
+    expect(detail.all().filter((node) => node.tag === 'select')).toHaveLength(0);
   });
   test.each([
     ['编辑重复规则', '重复规则'],
-    ['编辑任务提醒', '更多选项：标签、提醒、依赖与来源'],
+    ['编辑任务提醒', '任务提醒'],
     ['编辑关联资料', '关联资料'],
   ])('%s reveals the existing editor in one click and can reopen it', async (label, title) => {
     const value = model();
@@ -322,31 +320,23 @@ describe('task surface controls', () => {
       .all()
       .find((node) => node.tag === 'button' && node.props['aria-label'] === label);
     expect(shortcut).toBeDefined();
-    const collapse = (name: string) =>
-      detail.all().find((node) => node.tag === 'summary' && detail.text(node).startsWith(name))!
-        .parent!.parent!;
-    const active = (name: string) => collapse(name).props['active-key'];
-    expect(active('更多详情')).toEqual([]);
-    expect(active(title)).toEqual([]);
+    const dialogs = () => detail.all().filter((node) => node.props.role === 'dialog');
+    expect(dialogs()).toHaveLength(0);
 
     await shortcut!.props.onClick();
     await Vue.nextTick();
-    expect(active('更多详情')).toEqual(['content']);
-    expect(active(title)).toEqual(['content']);
-    expect(collapse('更多详情').props['open-animation']).toEqual({ css: false });
-    expect(collapse(title).props['open-animation']).toEqual({ css: false });
+    expect(dialogs()).toHaveLength(1);
+    expect(dialogs()[0].props['aria-label']).toBe(title);
     expect(JSON.stringify(value.draft())).toBe(before);
     expect(value.dirty()).toBe(false);
 
-    collapse('更多详情').props.onChange([]);
-    collapse(title).props.onChange([]);
+    detail.all().find((node) => node.tag === 'button' && detail.text(node) === '返回任务')!.props.onClick();
     await Vue.nextTick();
-    expect(collapse('更多详情').props['open-animation']).toBeUndefined();
-    expect(collapse(title).props['open-animation']).toBeUndefined();
+    expect(dialogs()).toHaveLength(0);
     await shortcut!.props.onClick();
     await Vue.nextTick();
-    expect(active('更多详情')).toEqual(['content']);
-    expect(active(title)).toEqual(['content']);
+    expect(dialogs()).toHaveLength(1);
+    expect(dialogs()[0].props['aria-label']).toBe(title);
   });
 
   test('shortcut summaries reflect the current draft without duplicating editors', async () => {
@@ -354,6 +344,8 @@ describe('task surface controls', () => {
     const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
     const shortcuts = () => detail.byClass('todo-detail-shortcuts')[0]!;
     expect(detail.text(shortcuts())).toContain('不重复');
+    await detail.ref.value.openProperty('repeat');
+    await Vue.nextTick();
     const repeat = detail
       .all()
       .filter(
@@ -460,6 +452,8 @@ describe('task surface controls', () => {
   test('importance and urgency remain editable in their compact group, independently of priority', async () => {
     const value = model();
     const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+    await detail.ref.value.openProperty('classification');
+    await Vue.nextTick();
     const visibleField = (label: string) =>
       detail.all().find((n) => {
         if (n.tag !== 'label' || !detail.text(n).startsWith(label)) return false;
@@ -469,6 +463,8 @@ describe('task surface controls', () => {
     expect(classification).toBeDefined();
     expect(visibleField('重要程度')).toBeDefined();
     expect(visibleField('紧急程度')).toBeDefined();
+    await detail.ref.value.openProperty('priority');
+    await Vue.nextTick();
     const priority = detail
       .all()
       .find((n) => n.tag === 'select' && n.props['aria-label'] === '优先级')!;
@@ -522,6 +518,8 @@ describe('task surface controls', () => {
     async (input, expected) => {
       const value = model();
       const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+      await detail.ref.value.openProperty('classification');
+      await Vue.nextTick();
       const urgency = detail
         .all()
         .find((node) => node.tag === 'select' && node.props['aria-label'] === '紧急程度')!;
@@ -588,7 +586,7 @@ describe('task surface controls', () => {
       .all()
       .find((item) => item.tag === 'button' && detail.text(item).trim() === '删除')!;
     const pending = button.props.onClick();
-    expect(detail.confirmation.current.value).not.toBeNull();
+    await vi.waitFor(() => expect(detail.confirmation.current.value).not.toBeNull());
     detail.hide();
     await Vue.nextTick();
     detail.confirmation.finish(true);

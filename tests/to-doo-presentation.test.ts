@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { createToDooWorkbench } from '../apps/web/to-doo-workbench';
+import { toDooEntitySchemas } from '../shared/to-doo-contracts';
 import * as presentation from '../apps/web/to-doo-presentation';
 import {
   toDooQuickFilter,
@@ -135,7 +136,10 @@ describe('inline task capture', () => {
       title: '明天 每天 #工作 阅读', literalTitle: true,
       planDate: '2026-11-02', description: '保留手动安排',
     });
-    const tags = [{ id: 'work', name: '工作' }];
+    const tags = [toDooEntitySchemas.tag.parse({
+      id: 'work', name: '工作', revision: 'r1',
+      createdAt: '2026-10-29T08:00:00Z', updatedAt: '2026-10-29T08:00:00Z',
+    })];
     const fullEditor = prepareToDooQuickDraft(value, '2026-10-29', tags, '2026-10-29');
     const restored = prepareToDooQuickDraft(JSON.parse(JSON.stringify(fullEditor)), '2026-10-30', tags, '2026-10-30');
     expect(toDooDraftPayload(restored, 'Asia/Shanghai')).toMatchObject({

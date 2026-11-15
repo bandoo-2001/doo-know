@@ -2166,7 +2166,7 @@ describe('versioned editing recovery and action guards', () => {
       const original = storage.get('dooknow.to-doo.recovery:test');
       const scoped = createToDooWorkbench(server.request, { recoveryScope: 'account-a' }); await scoped.load();
       expect(scoped.state.legacyRecoveryAvailable).toBe(true);
-      expect(scoped.state.legacyRecoverySummary).toEqual({ newDrafts: 1, taskDrafts: 1, pending: true });
+      expect(scoped.state.legacyRecoverySummary).toEqual({ newDrafts: 1, taskDrafts: 1, pending: true, receipts: 0 });
       expect(scoped.retainedTaskDrafts()).toEqual([]); expect(scoped.state.pendingMutation).toBeNull();
       expect(scoped.adoptLegacyRecovery()).toBe(true);
       expect(scoped.retainedTaskDrafts()[0]?.draft.task.description).toBe('旧版编辑');
@@ -2191,6 +2191,23 @@ describe('versioned editing recovery and action guards', () => {
       expect(scoped.draft()!.task.description).toBe('当前账号内容');
       expect(storage.get('dooknow.to-doo.recovery:test')).toBe(original);
       expect(scoped.state.legacyRecoveryAvailable).toBe(true);
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('empty legacy composer placeholders stay quiet while confirmed receipts remain recoverable', async () => {
+    const storage = storageFixture();
+    try {
+      const source = createToDooWorkbench(transport().request); await source.load();
+      source.newTaskDraft(undefined, 'work', { planDate: '2026-11-15', priority: 'high' });
+      source.flushRecovery(); await (await import('vue')).nextTick();
+      const quiet = createToDooWorkbench(transport().request, { recoveryScope: 'account-a' }); await quiet.load();
+      expect(quiet.state.legacyRecoveryAvailable).toBe(false);
+      expect(quiet.state.legacyRecoverySummary).toBeNull();
+      const raw = JSON.parse(storage.get('dooknow.to-doo.recovery:test')!);
+      raw.statusReceipts = [['occ-a', { datasetId: 'test', revision: 'confirmed-r' }]];
+      storage.set('dooknow.to-doo.recovery:test', JSON.stringify(raw));
+      const receipts = createToDooWorkbench(transport().request, { recoveryScope: 'account-b' }); await receipts.load();
+      expect(receipts.state.legacyRecoveryAvailable).toBe(true);
+      expect(receipts.state.legacyRecoverySummary).toEqual({ newDrafts: 0, taskDrafts: 0, pending: false, receipts: 1 });
     } finally { vi.unstubAllGlobals(); }
   });
   test('legacy adoption cannot replace a scoped pending request or report success when scoped writes fail', async () => {

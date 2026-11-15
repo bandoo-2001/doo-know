@@ -13,6 +13,12 @@
 .todo-conflict-values section { min-width: 0; }
 .todo-conflict-values pre { max-height: 160px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-family: inherit; font-size: var(--todo-font-size); padding: 8px; background: var(--todo-soft); }
 .todo-detail .todo-add-property.ant-btn { align-self: flex-start; padding-inline: 0; color: var(--todo-muted); }
+.todo-detail-context { display: flex; align-items: center; gap: var(--todo-space-8); }
+.todo-detail-context .ant-btn { padding-inline: 0; color: var(--todo-muted); }
+.todo-detail-property-chips { display: flex; flex-wrap: wrap; align-items: center; gap: var(--todo-space-4); }
+.todo-detail-property-chips .ant-btn { display: inline-flex; align-items: center; gap: var(--todo-space-4); padding-inline: var(--todo-space-8); max-width: 100%; overflow: hidden; text-overflow: ellipsis; color: var(--todo-muted); }
+.todo-detail-property-chips .ant-btn.is-overdue { color: var(--todo-danger-text); }
+.todo-property-modal .todo-document-meta { display: block; }
 .to-doo-workspace .todo-readable-list-content {
   width: 100%;
   max-width: none;

@@ -577,7 +577,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     unavailableDrafts: {} as Record<string, string>,
     recoveryStatus: 'idle' as 'idle' | 'saved' | 'unavailable',
     legacyRecoveryAvailable: false,
-    legacyRecoverySummary: null as { newDrafts: number; taskDrafts: number; pending: boolean } | null,
+    legacyRecoverySummary: null as { newDrafts: number; taskDrafts: number; pending: boolean; receipts: number } | null,
     newTaskDrafts: {} as Record<string, ToDooNewTaskDraft>,
     pendingMutation: null as ToDooCommand | null,
     pendingOperations: [] as ToDooEntityMap['operation'][],
@@ -824,9 +824,19 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       const raw = JSON.parse(text);
       if (!raw || raw.scope || raw.datasetId && raw.datasetId !== datasetId ||
         raw.schemaVersion && raw.schemaVersion !== 2) return;
-      const summary = { newDrafts: Object.keys(raw.drafts || {}).length,
-        taskDrafts: Object.keys(raw.edits || {}).length, pending: !!raw.pending };
-      if (!summary.newDrafts && !summary.taskDrafts && !summary.pending) return;
+      const summary = { newDrafts: Object.values(raw.drafts || {}).filter((input) => {
+        const draft = input as Partial<ToDooNewTaskDraft> | null;
+        return !!draft && [draft.title, draft.description, draft.criteria]
+          .some((value) => typeof value === 'string' && !!value.trim());
+      }).length,
+        taskDrafts: Object.values(raw.edits || {}).filter((input) => {
+          const entry = input as { draft?: unknown; baseline?: unknown } | null;
+          return !!entry?.draft && !sameToDooDraftValue(entry.draft, entry.baseline);
+        }).length,
+        pending: !!raw.pending,
+        receipts: (Array.isArray(raw.planCheckpoints) ? raw.planCheckpoints.length : 0) +
+          (Array.isArray(raw.statusReceipts) ? raw.statusReceipts.length : 0) };
+      if (!summary.newDrafts && !summary.taskDrafts && !summary.pending && !summary.receipts) return;
       state.legacyRecoveryAvailable = true;
       state.legacyRecoverySummary = summary;
     } catch { /* An unreadable legacy record never changes the scoped recovery state. */ }

@@ -198,6 +198,7 @@ const createdNoteId = ref(''),
 const bulkOpen = ref(false);
 const taskDraftsOpen = ref(false);
 const draftManagerOpen = ref(false);
+const taskToolbarTarget = ref<HTMLElement>();
 const retainedTaskDrafts = computed(() => model.retainedNewTaskDrafts());
 const retainedEdits = computed(() => model.retainedTaskDrafts());
 async function continueTaskDraft(key: string) {
@@ -1358,14 +1359,6 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               @click="edit('list', undefined, { kind: 'goal' })"
               >＋ 新建目标</AButton
             >
-            <AButton
-              v-if="section === 'focus'"
-              type="default"
-              class="todo-button"
-              aria-label="新建专注项目"
-              @click="edit('focusTopic')"
-              >＋ 新建项目</AButton
-            >
             <div
               v-if="
                 ['tasks', 'board', 'matrix', 'calendar', 'timeline'].includes(section) &&
@@ -1373,7 +1366,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               "
               class="todo-task-create-actions"
               :class="{
-                'todo-has-drafts': showTaskScope && (retainedTaskDrafts.length || retainedEdits.length) && !creating,
+                'todo-has-drafts': showTaskScope && (retainedTaskDrafts.length || retainedEdits.length || state.legacyRecoveryAvailable) && !creating,
               }"
             >
               <AButton
@@ -1384,7 +1377,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
                 >＋ 新建任务</AButton
               >
               <ADropdown
-                v-if="showTaskScope && (retainedTaskDrafts.length || retainedEdits.length) && !creating"
+                v-if="showTaskScope && (retainedTaskDrafts.length || retainedEdits.length || state.legacyRecoveryAvailable) && !creating"
                 v-model:open="taskDraftsOpen"
                 :trigger="['click']"
                 placement="bottomRight"
@@ -1430,6 +1423,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
                 </template>
               </ADropdown>
             </div>
+            <div v-if="showTaskScope && section !== 'overview'" ref="taskToolbarTarget" class="todo-header-task-toolbar" />
             <AButton
               v-if="section === 'habits'"
               type="primary"
@@ -1525,9 +1519,6 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         </AButton>
         <p v-if="state.localWarning" class="todo-warning" role="alert">{{ state.localWarning }}</p>
         <p v-if="state.recoveryStatus === 'unavailable'" class="todo-warning" role="alert">此浏览器暂时无法保存恢复记录，请保存任务后再离开。</p>
-        <div v-if="state.legacyRecoveryAvailable" class="todo-alert todo-warning" role="status">
-          <span>发现旧版本地恢复记录，需确认账号归属后恢复。</span><AButton type="link" :disabled="state.busy" @click="recoverLegacyDrafts">检查并恢复</AButton>
-        </div>
         <div
           v-if="state.pendingMutation && !state.busy"
           class="todo-panel todo-pad todo-pending-request"
@@ -1561,6 +1552,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         >
           <KeepAlive
             ><ToDooTaskViews
+              :toolbar-target="taskToolbarTarget"
               v-if="taskSections.includes(section)"
               :model="model"
               :tree="tree"
@@ -1775,6 +1767,9 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
     />
     <AModal :open="draftManagerOpen" title="任务草稿" :footer="null" wrap-class-name="todo-ant-modal" @cancel="draftManagerOpen = false">
       <p class="todo-muted">草稿保留在此浏览器，点击保存任务后才会提交到服务器。</p>
+      <div v-if="state.legacyRecoveryAvailable" class="todo-alert todo-warning" role="status">
+        <span>发现旧版本地恢复记录，需确认账号归属后恢复。</span><AButton type="link" :disabled="state.busy" @click="recoverLegacyDrafts">检查并恢复</AButton>
+      </div>
       <div v-for="entry in retainedEdits" :key="entry.key" class="todo-draft-manager-row">
         <span>{{ entry.title || '未命名任务' }}<small>{{ entry.recovered ? '恢复的修改' : '未保存修改' }}</small><small v-if="state.unavailableDrafts[entry.key]">{{ state.unavailableDrafts[entry.key] }}</small></span>
         <AButton @click="continueTaskDraft(entry.key)">继续编辑</AButton><AButton danger type="text" :disabled="state.busy || !!state.pendingMutation" @click="discardTaskDraft(entry.key)">放弃</AButton>
