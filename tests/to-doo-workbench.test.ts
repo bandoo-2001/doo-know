@@ -3295,4 +3295,99 @@ describe('confirmed task records outside the reply window', () => {
       expect(createWrites).toBe(1); expect(f.service.snapshot({ all: true }).tasks).toHaveLength(1);
     } finally { await f.close(); }
   });
+  test('a generic time-block editor without detail ownership still reads a confirmed far-date block into state and its returned snapshot', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('Generic time-block receipt');
+      const blockId = 'generic-block-' + crypto.randomUUID();
+      const reads: URLSearchParams[] = [];
+      let writes = 0, receiptRevision = '';
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'GET') reads.push(new URL(url, 'https://local').searchParams);
+        const result = await f.request(url, method, body);
+        if (method === 'POST') {
+          const command = toDooCommandSchema.parse(body);
+          expect(command).toMatchObject({ action: 'save_entity', payload: { kind: 'timeBlock', entity: { id: blockId } } });
+          writes++;
+          if (!('snapshot' in result)) throw Error('Expected the real time-block transaction receipt');
+          expect(result.snapshot.timeBlocks.some(block => block.id === blockId)).toBe(false);
+          receiptRevision = result.changed.find(row => row.kind === 'timeBlock' && row.id === blockId)!.revision;
+        }
+        return result;
+      });
+      await model.load({ view: 'tasks', limit: 200 }); model.selectTask(task.id);
+      const occurrenceId = model.state.selectedOccurrenceId;
+      const result = await model.saveEntity('timeBlock', { id: blockId, occurrenceId,
+        title: 'Direct entity editor plan', start: { date: '2030-05-17', time: '10:30', timeZone: 'UTC' },
+        durationMinutes: 45, allDay: false, dateEndExclusive: null });
+      expect(result).toBeTruthy(); expect(writes).toBe(1); expect(receiptRevision).toBeTruthy();
+      expect(reads.some(params => (params.get('kind') === 'timeBlock' || params.get('kinds')?.split(',').includes('timeBlock')) &&
+        params.get('ids')?.split(',').includes(blockId))).toBe(true);
+      const block = toDooEntitySchemas.timeBlock.parse(f.service.getEntity('timeBlock', blockId));
+      const occurrence = toDooEntitySchemas.occurrence.parse(f.service.getEntity('occurrence', occurrenceId));
+      expect(block.revision).toBe(receiptRevision);
+      for (const data of [model.state.snapshot!, result!.snapshot]) {
+        expect(data.timeBlocks.find(row => row.id === blockId)).toMatchObject({ occurrenceId,
+          revision: receiptRevision, start: { date: '2030-05-17', time: '10:30' }, durationMinutes: 45 });
+        expect(data.occurrences.find(row => row.id === occurrenceId)).toMatchObject({ revision: occurrence.revision, scheduleRevision: occurrence.scheduleRevision });
+        expect(data.tasks.some(row => row.id === task.id)).toBe(true);
+      }
+      expect(f.service.snapshot({ taskIds: [task.id] }).timeBlocks).toHaveLength(1);
+      expect(model.state.pendingMutation).toBeNull(); expect(model.state.error).toBe('');
+    } finally { await f.close(); }
+  });
+  test('an externally confirmed attachment refreshes the clean selected task beyond row 200 using only GETs', async () => {
+    const f = await domainStatusFixture();
+    let restoreAssetRead = () => {};
+    try {
+      const ids: string[] = [];
+      for (let index = 1; index <= 205; index++)
+        ids.push(f.service.command({ requestId: crypto.randomUUID(), action: 'create_task',
+          payload: { title: 'External attachment row ' + String(index).padStart(3, '0') } }).ids[0]);
+      const taskId = ids[204];
+      const calls: { method: string; url: string }[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        calls.push({ method, url });
+        return f.request(url, method, body);
+      });
+      await model.load({ view: 'tasks', limit: 500 }); model.selectTask(taskId);
+      expect(model.dirty()).toBe(false); expect(model.draft()?.task.attachments).toEqual([]);
+      const loadedIds = model.state.snapshot!.tasks.map(task => task.id);
+      expect(loadedIds).toHaveLength(205);
+      const page = JSON.parse(JSON.stringify(model.state.snapshot!.page));
+      const taskPage = JSON.parse(JSON.stringify(model.state.snapshot!.collectionPages!.task!));
+      const occurrenceId = model.state.selectedOccurrenceId;
+      const bytes = Buffer.from('In-memory attachment receipt proof');
+      const { createHash } = await import('node:crypto');
+      const hash = createHash('sha256').update(bytes).digest('hex');
+      const knowledgeData = await import('../packages/core/knowledge-data');
+      const originalRead = knowledgeData.readKnowledgeDataFile;
+      const assetRead = vi.spyOn(knowledgeData, 'readKnowledgeDataFile').mockImplementation((root, relative) =>
+        relative === 'apps/to-doo/assets/' + hash ? bytes : originalRead(root, relative));
+      restoreAssetRead = () => assetRead.mockRestore();
+      const attachment = { hash, name: 'receipt-proof.txt', mime: 'text/plain', size: bytes.length };
+      const result = f.service.command({ requestId: crypto.randomUUID(), action: 'attach_asset',
+        payload: { taskId, expectedRevision: model.draft()!.task.revision, attachment } });
+      expect(result.snapshot.tasks).toHaveLength(200);
+      expect(result.snapshot.tasks.some(task => task.id === taskId)).toBe(false);
+      const revision = result.changed.find(row => row.kind === 'task' && row.id === taskId)!.revision;
+      const readStart = calls.length;
+      expect(await model.acceptCommandResult(result)).toBe(true);
+      const reads = calls.slice(readStart);
+      expect(reads.length).toBeGreaterThan(0); expect(reads.every(call => call.method === 'GET')).toBe(true);
+      expect(calls.every(call => call.method === 'GET')).toBe(true);
+      expect(model.state.snapshot!.tasks.map(task => task.id)).toEqual(loadedIds);
+      expect(model.state.snapshot!.page).toMatchObject(pagingContext(page));
+      expect(model.state.snapshot!.collectionPages!.task).toMatchObject(pagingContext(taskPage));
+      expect(model.state.selectedTaskId).toBe(taskId); expect(model.state.selectedOccurrenceId).toBe(occurrenceId);
+      expect(model.draft()?.task).toMatchObject({ id: taskId, revision, attachments: [attachment] });
+      expect(model.state.snapshot!.tasks.find(task => task.id === taskId)).toMatchObject({ revision, attachments: [attachment] });
+      expect(f.service.getEntity('task', taskId)).toMatchObject({ revision, attachments: [attachment] });
+      expect(model.dirty()).toBe(false);
+      const beforeForeign = JSON.stringify(model.state);
+      expect(await model.acceptCommandResult({ ...result, snapshot: { ...result.snapshot, datasetId: 'foreign-attachment-library' } })).toBe(false);
+      expect(JSON.stringify(model.state)).toBe(beforeForeign);
+      expect(calls.every(call => call.method === 'GET')).toBe(true);
+    } finally { restoreAssetRead(); await f.close(); }
+  }, 30000);
 });

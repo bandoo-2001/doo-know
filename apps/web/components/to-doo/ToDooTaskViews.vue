@@ -9,7 +9,7 @@ import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
 import ToDooPageToolbar from './ToDooPageToolbar.vue';
 
-import { computed, nextTick, ref } from 'vue';
+import { computed, nextTick, onActivated, onDeactivated, ref } from 'vue';
 import {
   Button as AButton,
   Card as ACard,
@@ -108,6 +108,18 @@ const advancedFilters = ref(false);
 const toolsOpen = ref(false);
 const displayOpen = ref(false);
 const templatesOpen = ref(false);
+const toolbarActive = ref(true);
+onActivated(() => { toolbarActive.value = true; });
+onDeactivated(() => {
+  // KeepAlive stores the view body, while Teleport would leave its controls in
+  // the shared header. Only the active page owns that header and its popups.
+  toolbarActive.value = false;
+  toolsOpen.value = false;
+  filterOpen.value = false;
+  displayOpen.value = false;
+  advancedFilters.value = false;
+  templatesOpen.value = false;
+});
 const displayFields = ref(readToDooDisplayFields());
 const displayFieldOptions = [
   { key: 'list', label: '清单' }, { key: 'priority', label: '优先级' },
@@ -947,7 +959,7 @@ function saveView() {
     </details>
   </div>
   <template v-else>
-    <Teleport :to="toolbarTarget || 'body'" :disabled="!toolbarTarget" defer>
+    <Teleport v-if="toolbarActive" :to="toolbarTarget || 'body'" :disabled="!toolbarTarget" defer>
     <ToDooPageToolbar
       class="todo-task-toolbar"
       :class="{ 'todo-task-list-toolbar': section === 'tasks' }"

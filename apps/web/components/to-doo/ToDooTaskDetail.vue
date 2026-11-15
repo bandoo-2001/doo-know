@@ -596,6 +596,8 @@ async function uploadAsset(event: Event) {
     input.value = '';
     return;
   }
+  const taskId = form.value.task.id, occurrenceId = state.selectedOccurrenceId,
+    datasetId = state.snapshot?.datasetId;
   const data = new FormData();
   data.set('file', file);
   data.set('requestId', crypto.randomUUID());
@@ -605,16 +607,16 @@ async function uploadAsset(event: Event) {
   state.notice = '';
   try {
     const result = await props.model.request(
-      '/api/to-doo/tasks/' + encodeURIComponent(form.value.task.id) + '/assets',
+      '/api/to-doo/tasks/' + encodeURIComponent(taskId) + '/assets',
       'POST',
       data,
     );
-    props.model.acceptSnapshot(result.snapshot);
-    state.notice = '附件已上传';
+    if (!(await props.model.acceptCommandResult(result))) return;
+    if (currentDetail(taskId, occurrenceId)) state.notice = '附件已上传';
   } catch (e) {
-    state.error = e instanceof Error ? e.message : String(e);
+    if (state.snapshot?.datasetId === datasetId) state.error = e instanceof Error ? e.message : String(e);
   } finally {
-    state.busy = false;
+    if (state.snapshot?.datasetId === datasetId) state.busy = false;
     input.value = '';
   }
 }
@@ -623,6 +625,8 @@ async function removeAsset(hash: string) {
     state.error = '请先保存任务内容，再调整附件关联';
     return;
   }
+  const taskId = form.value.task.id, occurrenceId = state.selectedOccurrenceId,
+    datasetId = state.snapshot?.datasetId;
   state.busy = true;
   state.error = '';
   state.notice = '';
@@ -631,13 +635,15 @@ async function removeAsset(hash: string) {
       requestId: crypto.randomUUID(),
       expectedRevision: form.value.task.revision,
     });
-    props.model.acceptSnapshot(result.snapshot);
-    if (previewAsset.value === hash) previewAsset.value = '';
-    state.notice = '附件关联已移除';
+    if (!(await props.model.acceptCommandResult(result))) return;
+    if (currentDetail(taskId, occurrenceId)) {
+      if (previewAsset.value === hash) previewAsset.value = '';
+      state.notice = '附件关联已移除';
+    }
   } catch (e) {
-    state.error = e instanceof Error ? e.message : String(e);
+    if (state.snapshot?.datasetId === datasetId) state.error = e instanceof Error ? e.message : String(e);
   } finally {
-    state.busy = false;
+    if (state.snapshot?.datasetId === datasetId) state.busy = false;
   }
 }
 async function discardNew() {
