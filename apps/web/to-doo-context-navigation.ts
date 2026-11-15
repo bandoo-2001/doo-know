@@ -17,8 +17,8 @@ const entries: Partial<Record<ToDooAppSection, ToDooContextEntry[]>> = {
     { id: 'history', label: '历史', icon: 'focus' },
   ],
   anniversaries: [
-    { id: 'all', label: '全部', icon: 'anniversaries' },
     { id: 'upcoming', label: '即将到来', icon: 'calendar' },
+    { id: 'all', label: '全部', icon: 'anniversaries' },
     { id: 'today', label: '今天', icon: 'today' },
     { id: 'past', label: '已过去', icon: 'focus' },
   ],
@@ -28,8 +28,8 @@ const entries: Partial<Record<ToDooAppSection, ToDooContextEntry[]>> = {
     { id: 'reviews', label: '历史复盘', icon: 'tasks' },
   ],
   notifications: [
-    { id: 'all', label: '全部', icon: 'notifications' },
     { id: 'unread', label: '未读', icon: 'notifications' },
+    { id: 'all', label: '全部', icon: 'notifications' },
     { id: 'read', label: '已读', icon: 'check' },
     { id: 'acknowledged', label: '已确认', icon: 'check' },
     { id: 'snoozed', label: '稍后', icon: 'focus' },

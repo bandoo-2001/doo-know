@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 import type { ToDooCommandResult, ToDooSnapshot } from '../../shared/to-doo-contracts';
 import { test, expect } from '../support/browser-test';
 import { fillToDooDate } from '../support/to-doo-ant-controls';
+import { openToDooDetailProperty, completeToDooDetailProperty } from '../support/to-doo-detail-controls';
 
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
@@ -55,8 +56,8 @@ test('a clean narrow dark task shows content, date actions and a disabled save b
     '先阅读任务说明，再决定是否修改。',
   );
   await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
-  await expect(detail.getByLabel('截止日期', { exact: true })).not.toBeVisible();
-  await expect(detail.getByLabel('截止时间', { exact: true })).not.toBeVisible();
+  await expect(page.getByLabel('截止日期', { exact: true })).not.toBeVisible();
+  await expect(page.getByLabel('截止时间', { exact: true })).not.toBeVisible();
   await expect(detail.getByRole('button', { name: '编辑截止日期', exact: true })).toBeVisible();
   await expect(detail.getByRole('button', { name: '编辑截止日期', exact: true })).toContainText(
     '2031年4月17日 17:45',
@@ -149,9 +150,10 @@ test('deadline editing updates the summary and stays closed after reopening or c
   );
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   const detail = app.getByRole('complementary', { name: '任务详情', exact: true });
-  await detail.getByRole('button', { name: '编辑截止日期', exact: true }).click();
-  await fillToDooDate(detail.getByLabel('截止日期', { exact: true }), '2031-04-19');
-  await fillToDooDate(detail.getByLabel('截止时间', { exact: true }), '14:35');
+  const deadline = await openToDooDetailProperty(page, 'due');
+  await fillToDooDate(deadline.getByLabel('截止日期', { exact: true }), '2031-04-19');
+  await fillToDooDate(deadline.getByLabel('截止时间', { exact: true }), '14:35');
+  await completeToDooDetailProperty(page);
   const saved = commandResponse(page, 'save_entity', occurrenceId);
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   const response = await saved;
@@ -174,22 +176,24 @@ test('deadline editing updates the summary and stays closed after reopening or c
 
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   await app.getByRole('button', { name: title, exact: true }).click();
-  await expect(detail.getByLabel('截止日期', { exact: true })).not.toBeVisible();
+  await expect(page.getByLabel('截止日期', { exact: true })).not.toBeVisible();
   await expect(detail.getByRole('button', { name: '编辑截止日期', exact: true })).toContainText(
     '2031年4月19日 14:35',
   );
-  await detail.getByRole('button', { name: '编辑截止日期', exact: true }).click();
-  await expect(detail.getByLabel('截止日期', { exact: true })).toBeVisible();
+  const reopenedDeadline = await openToDooDetailProperty(page, 'due');
+  await expect(reopenedDeadline.getByLabel('截止日期', { exact: true })).toBeVisible();
+  await reopenedDeadline.getByRole('button', { name: '取消本次设置', exact: true }).click();
+  await expect(reopenedDeadline).not.toBeVisible();
   if (info.project.name === 'mobile')
     await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   await app.getByRole('button', { name: otherTitle, exact: true }).click();
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(otherTitle);
-  await expect(detail.getByLabel('截止日期', { exact: true })).not.toBeVisible();
-  await expect(detail.getByLabel('截止时间', { exact: true })).not.toBeVisible();
+  await expect(page.getByLabel('截止日期', { exact: true })).not.toBeVisible();
+  await expect(page.getByLabel('截止时间', { exact: true })).not.toBeVisible();
   await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
 });
 
-test('title completion preserves an unsaved description and saving it keeps the task completed', async ({
+test('completion saves pending description after confirmation and later edits keep the task completed', async ({
   page,
 }, info) => {
   const title = '保留完成时的草稿 ' + info.project.name + '-' + crypto.randomUUID();
@@ -201,8 +205,13 @@ test('title completion preserves an unsaved description and saving it keeps the 
   const detail = app.getByRole('complementary', { name: '任务详情', exact: true });
   const description = '完成任务也要保留尚未保存的说明。';
   await detail.getByLabel('任务说明', { exact: true }).fill(description);
+  const savedBeforeComplete = commandResponse(page, 'update_task', taskId);
   const completed = commandResponse(page, 'set_occurrence_status', occurrenceId);
   await detail.getByRole('button', { name: '标记完成', exact: true }).click();
+  const saveAndContinue = page.getByRole('dialog', { name: '保存并继续', exact: true });
+  await expect(saveAndContinue).toContainText('保存成功后');
+  await saveAndContinue.getByRole('button', { name: '确认', exact: true }).click();
+  expect((await savedBeforeComplete).ok()).toBe(true);
   const completion = await completed;
   expect(completion.ok()).toBe(true);
   const completionReceipt = (await completion.json()) as ToDooCommandResult;
@@ -210,23 +219,27 @@ test('title completion preserves an unsaved description and saving it keeps the 
     completionReceipt.snapshot.occurrences.find((item) => item.id === occurrenceId)?.status,
   ).toBe('done');
   expect(completionReceipt.snapshot.tasks.find((task) => task.id === taskId)?.description).toBe(
-    '原说明',
+    description,
   );
   await expect(detail.getByRole('button', { name: '重新打开', exact: true })).toBeVisible();
   await expect(detail.getByLabel('任务说明', { exact: true })).toHaveValue(description);
   await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeVisible();
+  await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
 
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
-  const showCompleted = app.getByRole('button', { name: '显示已完成任务', exact: true });
-  if (await showCompleted.isVisible()) await showCompleted.click();
+  await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await page.getByRole('checkbox', { name: '显示已完成任务', exact: true }).check();
+  await page.keyboard.press('Escape');
   await app.getByRole('button', { name: title, exact: true }).click();
   await expect(detail.getByLabel('任务说明', { exact: true })).toHaveValue(description);
+  const completedDescription = description + '\n补充完成后的记录。';
+  await detail.getByLabel('任务说明', { exact: true }).fill(completedDescription);
   const saved = commandResponse(page, 'update_task', taskId);
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   expect((await saved).ok()).toBe(true);
   await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
   let state = await taskState(page, taskId);
-  expect(state.tasks.find((task) => task.id === taskId)?.description).toBe(description);
+  expect(state.tasks.find((task) => task.id === taskId)?.description).toBe(completedDescription);
   expect(state.occurrences.find((item) => item.id === occurrenceId)?.status).toBe('done');
 
   const reopened = commandResponse(page, 'set_occurrence_status', occurrenceId);
@@ -235,5 +248,5 @@ test('title completion preserves an unsaved description and saving it keeps the 
   await expect(detail.getByRole('button', { name: '标记完成', exact: true })).toBeVisible();
   state = await taskState(page, taskId);
   expect(state.occurrences.find((item) => item.id === occurrenceId)?.status).toBe('todo');
-  expect(state.tasks.find((task) => task.id === taskId)?.description).toBe(description);
+  expect(state.tasks.find((task) => task.id === taskId)?.description).toBe(completedDescription);
 });

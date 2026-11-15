@@ -11,6 +11,7 @@ import * as habitPresentation from '../apps/web/to-doo-habit-presentation';
 import * as anniversaries from '../shared/to-doo-anniversaries';
 import * as focusSync from '../apps/web/to-doo-focus-history-sync';
 import * as workbench from '../apps/web/to-doo-workbench';
+import * as actionGuards from '../apps/web/to-doo-action-guard';
 import { TO_DOO_COLLECTIONS, toDooEntitySchemas } from '../shared/to-doo-contracts';
 
 type Node = {
@@ -57,6 +58,7 @@ function component(name: string): Vue.Component {
       if (id === '../../../../shared/to-doo-anniversaries') return anniversaries;
       if (id === '../../to-doo-focus-history-sync') return focusSync;
       if (id === '../../to-doo-workbench') return workbench;
+      if (id === '../../to-doo-action-guard') return actionGuards;
       if (id === '../../to-doo-controls') return { useToDooConfirm: () => async () => false };
       if (id === 'ant-design-vue')
         return {
@@ -207,7 +209,8 @@ function model(count = 1) {
       },
     };
   });
-  return { state, execute: vi.fn(async () => ({})), request, data };
+  return { state, execute: vi.fn(async () => ({})), request, data,
+    ensureListCatalog: vi.fn(async () => undefined), taskLists: () => state.snapshot.lists };
 }
 async function settle() {
   for (let i = 0; i < 20; i++) await Vue.nextTick();
@@ -241,7 +244,7 @@ test('controlled habits opens history and can restore today without duplicate pa
 // Each bucket is independently derived: today is not upcoming; an expired one-off is past.
 test.each([
   ['all', ['今天纪念日', '下周纪念日', '远期纪念日', '过去纪念日']],
-  ['upcoming', ['下周纪念日']],
+  ['upcoming', ['今天纪念日', '下周纪念日']],
   ['today', ['今天纪念日']],
   ['past', ['过去纪念日']],
 ])('anniversary context %s filters real calendar dates', async (context, expected) => {
@@ -306,7 +309,7 @@ test('focus context is forwarded through Rhythm to the mobile pane and internal 
   expect(pane('专注计时器')).toBeDefined();
 });
 
-// On desktop both panes remain available; context changes select a real section anchor.
+// Desktop uses the same controlled pane state; routing preserves the independent live timer.
 test('desktop focus navigation scrolls to a real section and leaves the timer project independent', async () => {
   const view = mount('ToDooRhythm', {
     model: model(),
@@ -320,6 +323,9 @@ test('desktop focus navigation scrolls to a real section and leaves the timer pr
   await settle();
   const records = view.all().find((n) => n.props['aria-label'] === '专注概览和历史')! as any;
   expect(records.scrollIntoView).toHaveBeenCalled();
+  expect(records.style.display).not.toBe('none');
+  const projects = view.all().find((n) => n.props['aria-label'] === '专注项目')! as any;
+  expect(projects.style.display).toBe('none');
   const select = view
     .all()
     .find((n) => n.tag === 'select' && n.props['aria-label'] === '专注记录项目')!;

@@ -138,11 +138,13 @@ test('a valid lunar day outside the Gregorian month can be saved and reopened as
   await editor.getByRole('spinbutton', { name: '农历日', exact: true }).fill('30');
   await editor.getByRole('button', { name: '保存', exact: true }).click();
   await expect(editor).not.toBeVisible();
+  await selectToDooContext(page, '全部');
   const card = page
     .locator('.todo-anniversary')
     .filter({ has: page.getByRole('heading', { name, exact: true }) });
   await expect(card).toContainText('农历原日期：2024-02-30');
   await page.reload();
+  await selectToDooContext(page, '全部');
   await card.getByRole('button', { name: '编辑 ' + name, exact: true }).click();
   const reopened = page.getByRole('dialog', { name: '编辑纪念日', exact: true });
   await expect(reopened.getByRole('spinbutton', { name: '农历年', exact: true })).toHaveValue(
@@ -198,7 +200,13 @@ test('all-day schedule hides irrelevant controls, restores the timed draft and p
 }, info) => {
   await page.setViewportSize({ width: 320, height: 844 });
   await page.goto('/?view=apps&app=to-doo&appSection=calendar');
-  await page.evaluate(() => (document.documentElement.dataset.theme = 'dark'));
+  await page.evaluate(async () => {
+    const modulePath = '/preferences.ts';
+    const preferences = await import(modulePath);
+    preferences.setEditorPreferences({ theme: 'dark' });
+    await document.fonts.ready;
+  });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.getByRole('button', { name: '＋ 预留时间', exact: true }).click();
   const editor = page.getByRole('dialog', { name: '新建时间安排', exact: true });
   await editor.getByLabel('安排标题', { exact: true }).fill('全天安排 ' + info.project.name);
@@ -247,7 +255,9 @@ test('changing list type does not erase its hidden goal fields', async ({ page }
   });
   const id = created.ids[0];
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&list=' + id);
-  await page.getByRole('button', { name: '编辑当前清单', exact: true }).click();
+  await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await page.locator('.todo-task-management-options').getByText('组织清单', { exact: true }).click();
+  await page.getByRole('menuitem', { name: '编辑当前清单', exact: true }).click();
   const editor = page.getByRole('dialog', { name: /^编辑(目标|清单)$/ });
   await expect(editor.getByLabel('说明', { exact: true })).not.toBeVisible();
   await expect(editor.getByLabel('目标日期', { exact: true })).not.toBeVisible();
@@ -285,13 +295,32 @@ test('task settings shortcuts open the existing editors with one click', async (
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&task=' + created.ids[0]);
   const detail = page.getByRole('complementary', { name: '任务详情' });
   await detail.getByRole('button', { name: '编辑任务提醒', exact: true }).click();
-  await expect(detail.getByRole('button', { name: '＋ 添加提醒', exact: true })).toBeInViewport();
-  await detail.getByRole('button', { name: '＋ 添加提醒', exact: true }).click();
-  await expect(detail.getByRole('combobox', { name: '提醒依据', exact: true })).toBeVisible();
+  const reminders = page.getByRole('dialog', { name: '任务提醒', exact: true });
+  await expect(reminders.getByRole('button', { name: '＋ 添加提醒', exact: true })).toBeInViewport();
+  await reminders.getByRole('button', { name: '＋ 添加提醒', exact: true }).click();
+  await expect(reminders.getByRole('combobox', { name: '提醒依据', exact: true })).toBeVisible();
+  await reminders.getByRole('button', { name: '取消本次设置', exact: true }).click();
+  await expect(reminders).not.toBeVisible();
   await detail.getByRole('button', { name: '编辑重复规则', exact: true }).click();
-  await expect(detail.getByRole('combobox', { name: '重复', exact: true })).toBeFocused();
+  const repeat = page.getByRole('dialog', { name: '重复规则', exact: true });
+  await expect(repeat.getByRole('combobox', { name: '重复', exact: true })).toBeFocused();
+  await selectToDooOption(repeat, '重复', '每天');
+  await expect(repeat.getByRole('combobox', { name: '修改范围', exact: true })).toBeVisible();
+  await expect(repeat.getByLabel('开始日期', { exact: true })).not.toBeVisible();
+  await expandToDooGroup(repeat, '高级重复规则');
+  await expect(repeat.getByLabel('开始日期', { exact: true })).toBeVisible();
+  await repeat.getByRole('spinbutton', { name: '间隔', exact: true }).fill('');
+  await repeat.getByRole('spinbutton', { name: '间隔', exact: true }).press('Escape');
+  await detail.getByRole('button', { name: '保存任务', exact: true }).click();
+  await expect(repeat).toBeVisible();
+  await expect(repeat.getByRole('alert')).toContainText('请检查');
+  await expect(repeat.getByRole('spinbutton', { name: '间隔', exact: true })).toBeFocused();
+  await repeat.getByRole('spinbutton', { name: '间隔', exact: true }).fill('1');
+  await repeat.getByRole('button', { name: '完成设置', exact: true }).click();
+  await expect(repeat).not.toBeVisible();
   await detail.getByRole('button', { name: '编辑关联资料', exact: true }).click();
-  await expect(detail.getByRole('button', { name: '+ 关联资料', exact: true })).toBeInViewport();
+  const resources = page.getByRole('dialog', { name: '关联资料', exact: true });
+  await expect(resources.getByRole('button', { name: '+ 关联资料', exact: true })).toBeInViewport();
 });
 
 test('preference groups preserve folded values while saving a common setting', async ({ page }) => {
@@ -331,6 +360,8 @@ test('settings sections preserve drafts and keep unrelated forms out of preferen
   await selectToDooContext(page, '数据与恢复');
   await expect(duration).not.toBeVisible();
   const importContent = app.getByLabel('或粘贴文件内容', { exact: true });
+  await expect(importContent).not.toBeVisible();
+  await app.getByRole('button', { name: '粘贴文件内容', exact: true }).click();
   await importContent.fill('尚未预览的导入草稿');
   await selectToDooContext(page, '提醒与连接');
   await expect(app.getByRole('heading', { name: '桌面提醒', exact: true })).toBeVisible();

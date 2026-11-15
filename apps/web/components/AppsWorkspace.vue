@@ -53,6 +53,7 @@ const emit = defineEmits<{
   'toggle-pin': [app: WorkspaceAppId];
   'menu-select': [];
   'return-app': [];
+  'open-plugin-settings': [];
 }>();
 defineExpose({
   // The async component ref can temporarily point to its loading placeholder.
@@ -147,6 +148,7 @@ watch(
     @open-note="emit('open-note', $event)"
     @back="emit('return-app')"
     @note-created="emit('note-created', $event)"
+    @open-plugin-settings="emit('open-plugin-settings')"
   />
   <GraphWorkspace
     v-else-if="app === 'graph'"

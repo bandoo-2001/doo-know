@@ -7,6 +7,7 @@ import * as vueuse from '@vueuse/core';
 import * as clock from '../apps/web/to-doo-time';
 import * as focusSync from '../apps/web/to-doo-focus-history-sync';
 import * as workbench from '../apps/web/to-doo-workbench';
+import * as actionGuards from '../apps/web/to-doo-action-guard';
 import * as reminders from '../apps/web/to-doo-reminders';
 import * as habits from '../shared/to-doo-habits';
 import * as habitPresentation from '../apps/web/to-doo-habit-presentation';
@@ -69,6 +70,7 @@ function component(name: string): Vue.Component {
       if (id === '../../to-doo-time') return clock;
       if (id === '../../to-doo-focus-history-sync') return focusSync;
       if (id === '../../to-doo-workbench') return workbench;
+      if (id === '../../to-doo-action-guard') return actionGuards;
       if (id === '../../to-doo-reminders') return reminders;
       if (id === '../../../../shared/to-doo-habits') return habits;
       if (id === '../../to-doo-habit-presentation') return habitPresentation;
@@ -198,6 +200,8 @@ function model() {
   });
   return {
     state,
+    ensureListCatalog: vi.fn(async () => {}),
+    taskLists: () => (state.snapshot as any).lists || [],
     execute: vi.fn(async () => ({})),
     removeEntity: vi.fn(),
     request: async (url: string) =>
@@ -335,14 +339,20 @@ test('empty focus history omits loaded-count chrome while keeping today and cumu
   value.state.snapshot.focusSessions = [];
   const view = mount('ToDooRhythm', { model: value, section: 'focus' });
   await settle();
+  const panes = view.all().find(node => node.props['aria-label'] === '专注页面')!;
+  panes.props['onUpdate:value']('history');
+  await settle();
+  const records = view.all().find(node => node.props['aria-label'] === '专注概览和历史')! as Node & { style: { display?: string } };
+  expect(records.style.display).not.toBe('none');
   expect(view.all().filter((n) => n.tag === 'Statistic')).toHaveLength(4);
   expect(view.all().filter((n) => n.tag === 'p' && view.text(n).includes('已载入'))).toHaveLength(
     0,
   );
-  const policy = view
-    .all()
-    .find((n) => n.tag === 'p' && view.text(n).includes('完成次数按开始日计算'))!;
-  expect(ancestor(policy, 'details')).toBeDefined();
+  for (const title of ['今日次数', '今日时长', '累计次数', '累计时长']) {
+    const statistic = view.all(records).find(node => node.tag === 'Statistic' && node.props.title === title)!;
+    expect(statistic, title).toBeDefined();
+    expect(statistic.props.value, title).toBe(0);
+  }
 });
 
 test('anniversaries keep lunar origins visible and place additional content in a nonempty disclosure', () => {
@@ -375,7 +385,7 @@ test('anniversaries keep lunar origins visible and place additional content in a
       }),
     ],
   });
-  const view = mount('ToDooRhythm', { model: value, section: 'anniversaries' });
+  const view = mount('ToDooRhythm', { model: value, section: 'anniversaries', context: 'all' });
   const lunar = view.all().find((n) => n.tag === 'article' && view.text(n).includes('中秋'))!;
   const solar = view.all().find((n) => n.tag === 'article' && view.text(n).includes('见面'))!;
   const original = view
@@ -391,4 +401,25 @@ test('anniversaries keep lunar origins visible and place additional content in a
   expect(view.text(solar)).not.toContain('重要日子');
   expect(view.text(solar)).not.toContain('公历原日期：');
   expect(view.text(solar)).toContain('下次公历：2026-11-05');
+});
+
+test('default anniversaries include today and the next thirty days without discarding the all range', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-10-30T12:00:00Z'));
+  const value = model();
+  (value.state.snapshot as any).anniversaries = [
+    ['today', '2026-10-30'], ['soon', '2026-11-05'], ['later', '2026-12-05'], ['past', '2026-10-01'],
+  ].map(([name, date]) => toDooEntitySchemas.anniversary.parse({
+    id: name, name, date, repeatYearly: false, revision: 'r1',
+    createdAt: '2026-10-30T12:00:00Z', updatedAt: '2026-10-30T12:00:00Z',
+  }));
+  const view = mount('ToDooRhythm', { model: value, section: 'anniversaries' });
+  const cards = () => view.all().filter(node => node.tag === 'article').map(node => view.text(node));
+  expect(cards()).toHaveLength(2);
+  expect(cards().some(text => text.includes('today') && text.includes('就是今天'))).toBe(true);
+  expect(cards().some(text => text.includes('soon'))).toBe(true);
+  const ranges = view.all().find(node => node.props['aria-label'] === '纪念日范围')!;
+  ranges.props['onUpdate:value']('all');
+  await Vue.nextTick();
+  expect(cards()).toHaveLength(4);
 });

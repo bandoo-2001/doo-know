@@ -4,7 +4,9 @@ import { useToDooConfirm } from '../../to-doo-controls';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
 import ToDooInlineListCreate from './ToDooInlineListCreate.vue';
-import ToDooTaskPlan from './ToDooTaskPlan.vue';
+import ToDooTimeBlockFields from './ToDooTimeBlockFields.vue';
+import { guardToDooTaskAction } from '../../to-doo-action-guard';
+import { validateToDooTaskDraft, type ToDooDraftIssue } from '../../to-doo-draft-validation';
 
 import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
 import {
@@ -12,6 +14,10 @@ import {
   Checkbox as ACheckbox,
   Input as AInput,
   InputNumber as AInputNumber,
+  Modal as AModal,
+  Dropdown as ADropdown,
+  Menu as AMenu,
+  MenuItem as AMenuItem,
   Select as ASelect,
   Tag as ATag,
   Textarea as ATextarea,
@@ -47,9 +53,11 @@ const props = defineProps<{
   parentTaskId?: string;
   listId?: string;
   createdNoteId?: string;
+  adjacentTasks?: { previous?: ToDooItem; next?: ToDooItem };
 }>();
 const emit = defineEmits<{
   close: [];
+  step: [direction: 'previous' | 'next'];
   created: [id: string];
   select: [id: string, occurrence?: string];
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
@@ -59,6 +67,7 @@ const emit = defineEmits<{
   'outcome-note': [];
   'list-created': [id: string];
   saved: [value: ToDooTaskPlacement];
+  retry: [];
 }>();
 const state = props.model.state,
   form = computed(() => props.model.draft());
@@ -70,8 +79,108 @@ const editingDue = ref(false);
 const createFormId = 'todo-create-task-' + useId();
 const savingTask = ref(false);
 const inlineListOpen = ref(false);
-const advancedDetails = ref<InstanceType<typeof ToDooDisclosure>>();
+const propertyFields = ref<HTMLElement>();
+type DetailPanel = 'due' | 'priority' | 'list' | 'plan' | 'repeat' | 'reminders' | 'resources' | 'classification' | 'attachments' | 'results' | 'properties' | 'records' | 'history';
+const detailPanel = ref<DetailPanel>();
+const propertyOpen = ref(false);
+let propertyTrigger: HTMLElement | null = null;
+watch(propertyOpen, open => {
+  if (!open || typeof document === 'undefined') return;
+  const active = document.activeElement as HTMLElement | null;
+  propertyTrigger = active?.closest?.('.todo-ant-popup')
+    ? detailElement.value?.querySelector<HTMLElement>('[aria-label="更多任务属性"]') ?? null
+    : active;
+}, { flush: 'sync' });
+function restorePropertyFocus() {
+  if (propertyOpen.value) return;
+  const trigger = propertyTrigger;
+  propertyTrigger = null;
+  const active = document.activeElement;
+  if (trigger?.isConnected && trigger.getClientRects().length &&
+    (active === document.body || active?.closest('.todo-property-modal'))) {
+    trigger.focus({ preventScroll: true });
+  }
+}
+const panelLabels: Record<DetailPanel, string> = {
+  due: '截止日期', priority: '优先级', list: '所属清单', plan: '时间安排', repeat: '重复规则', reminders: '任务提醒', resources: '关联资料', classification: '四象限归类',
+  attachments: '任务附件', results: '完成标准与成果', properties: '其他属性', records: '推进记录', history: '操作历史',
+};
+const descriptionOpen = ref(false);
+const descriptionLabel = ref<HTMLLabelElement>();
+async function editDescription() {
+  descriptionOpen.value = true;
+  await nextTick();
+  descriptionLabel.value?.querySelector('textarea')?.focus();
+}
+const showChildren = ref(false);
+let propertyBaseline: { key: string; task: Record<string, any>; occurrence: Record<string, any>; blocks?: any[]; scope: 'all' | 'future' } | undefined;
+const propertyTaskFields: Partial<Record<DetailPanel, string[]>> = {
+  priority: ['priority'], list: ['listId', 'sectionId'], repeat: ['recurrence', 'inheritRecurrence'],
+  reminders: ['reminders'], resources: ['noteRefs'], classification: ['importance', 'urgentOverride'],
+  results: ['criteria'], properties: ['sectionId', 'estimateMinutes', 'tagIds', 'dependencies', 'source'],
+};
+const propertyOccurrenceFields: Partial<Record<DetailPanel, string[]>> = { due: ['due'], properties: ['blockedReason', 'titleOverride'] };
+const cloneProperty = (value: any) => value === undefined ? undefined : JSON.parse(JSON.stringify(value));
+function captureProperty(section: DetailPanel) {
+  const draft = form.value;
+  if (!draft) return;
+  const pick = (value: any, fields: string[]) => Object.fromEntries(fields.map(field => [field, cloneProperty(value?.[field])]));
+  propertyBaseline = { key: state.selectedTaskId + '@' + state.selectedOccurrenceId,
+    task: pick(draft.task, propertyTaskFields[section] || []),
+    occurrence: pick(draft.occurrence, propertyOccurrenceFields[section] || []),
+    ...(section === 'plan' ? { blocks: cloneProperty(draft.blocks) } : {}), scope: scope.value };
+}
+function cancelProperty() {
+  const draft = form.value, baseline = propertyBaseline;
+  if (draft && baseline?.key === state.selectedTaskId + '@' + state.selectedOccurrenceId) {
+    Object.assign(draft.task, cloneProperty(baseline.task));
+    if (draft.occurrence) Object.assign(draft.occurrence, cloneProperty(baseline.occurrence));
+    if (baseline.blocks) draft.blocks = cloneProperty(baseline.blocks);
+    scope.value = baseline.scope;
+  }
+  detailPanel.value = undefined;
+  propertyOpen.value = false;
+  propertyBaseline = undefined;
+  validationError.value = '';
+}
+function completeProperty() {
+  if (!validateDetail(true)) return;
+  propertyOpen.value = false;
+  propertyBaseline = undefined;
+}
+function closeProperty() { propertyOpen.value = false; }
+function addPlan() {
+  const draft = form.value;
+  if (!draft?.occurrence || state.busy) return;
+  const now = new Date().toISOString();
+  draft.blocks.push({ id: 'plan-' + crypto.randomUUID(), revision: '', createdAt: now, updatedAt: now,
+    deletedAt: null, occurrenceId: draft.occurrence.id, title: '',
+    start: { date: today.value, time: null, timeZone: zone.value },
+    durationMinutes: state.snapshot?.settings.defaultDurationMinutes || 30, allDay: false, dateEndExclusive: null });
+}
+function removePlan(id: string) {
+  const draft = form.value, block = draft?.blocks.find(value => value.id === id);
+  if (!block || state.busy) return;
+  if (block.revision) {
+    const baseline = propertyBaseline?.key === state.selectedTaskId + '@' + state.selectedOccurrenceId
+      ? propertyBaseline.blocks?.find(value => value.id === id) : undefined;
+    const saved = [baseline, state.snapshot?.timeBlocks.find(value => value.id === id)].find(value =>
+      value && !validateToDooTaskDraft({ task: draft!.task, occurrence: draft!.occurrence, blocks: [value] }, { panel: 'plan' }).length,
+    );
+    // A removed plan still needs a valid tombstone for saving and recovery.
+    if (saved) Object.assign(block, cloneProperty(saved));
+    block.deletedAt = new Date().toISOString();
+  }
+  else draft!.blocks = draft!.blocks.filter(value => value.id !== id);
+}
+const currentConflicts = computed(() => state.draftConflicts.filter(entry => entry.draftKey === state.selectedTaskId + '@' + state.selectedOccurrenceId));
+function conflictValue(value: unknown) {
+  if (value == null || value === '') return '（空）';
+  if (typeof value === 'string') return value;
+  return JSON.stringify(value, null, 2);
+}
 const repeatDetails = ref<InstanceType<typeof ToDooDisclosure>>();
+const advancedRepeatDetails = ref<InstanceType<typeof ToDooDisclosure>>();
 const moreOptions = ref<InstanceType<typeof ToDooDisclosure>>();
 const linkedResources = ref<InstanceType<typeof ToDooDisclosure>>();
 const repeatFields = ref<HTMLElement>();
@@ -105,43 +214,87 @@ const repeatSummary = computed(() =>
         }[form.value.task.recurrence.frequency]
       : '不重复',
 );
-async function revealDetail(section: 'repeat' | 'reminders' | 'resources') {
+async function revealDetail(section: DetailPanel) {
   const taskId = state.selectedTaskId,
     occurrenceId = state.selectedOccurrenceId;
-  advancedDetails.value?.expand({ immediate: true });
+  if (detailPanel.value && detailPanel.value !== section && (
+    propertyFields.value?.querySelector('input:invalid, textarea:invalid, [aria-invalid="true"]') ||
+    validateToDooTaskDraft(form.value, { panel: detailPanel.value as any, allowEmptyTitle: true }).length
+  )) {
+    propertyOpen.value = true;
+    validateDetail(true);
+    return;
+  }
+  if (detailPanel.value !== section || !propertyBaseline) captureProperty(section);
+  detailPanel.value = section;
+  propertyOpen.value = true;
+  if (section === 'due') editingDue.value = true;
   await nextTick();
   if (!currentDetail(taskId, occurrenceId)) return;
-  const disclosure =
-    section === 'repeat' ? repeatDetails : section === 'reminders' ? moreOptions : linkedResources;
-  disclosure.value?.expand({ immediate: true });
-  await nextTick();
-  if (!currentDetail(taskId, occurrenceId)) return;
-  const target =
-    section === 'repeat' ? repeatFields : section === 'reminders' ? reminderFields : resourceFields;
-  target.value
-    ?.querySelector?.<HTMLElement>(
-      'input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex="0"]',
-    )
-    ?.focus?.({ preventScroll: true });
-  target.value?.scrollIntoView?.({ block: 'nearest' });
+  const firstInput = propertyFields.value?.querySelector<HTMLElement>('input:not([disabled]), select:not([disabled]), textarea:not([disabled])');
+  (firstInput || propertyFields.value?.querySelector<HTMLElement>('button:not([disabled]), [tabindex="0"]'))?.focus?.({ preventScroll: true });
 }
 const validationError = ref('');
-function validateDetail() {
-  const invalid = detailElement.value?.querySelector<HTMLInputElement>(
+const releaseDraftValidation = props.creating ? () => {} : props.model.registerTaskDraftValidator(
+  state.selectedTaskId + '@' + state.selectedOccurrenceId, () => validateDetail(),
+);
+onBeforeUnmount(releaseDraftValidation);
+function validateDetail(propertyOnly = false) {
+  const invalid = (!propertyOnly && detailElement.value?.querySelector<HTMLInputElement>(
     'input:invalid, textarea:invalid, [aria-invalid="true"]',
-  );
+  )) || propertyFields.value?.querySelector<HTMLInputElement>('input:invalid, textarea:invalid, [aria-invalid="true"]');
   if (invalid) {
+    if (propertyFields.value?.contains(invalid)) propertyOpen.value = true;
     validationError.value = '请检查日期、时间或其他输入后再保存';
     if (deadlineFields.value?.contains(invalid)) editingDue.value = true;
-    void nextTick(() => {
+    void nextTick(async () => {
+      if (detailPanel.value === 'repeat' && propertyFields.value?.contains(invalid)) {
+        advancedRepeatDetails.value?.expand({ immediate: true });
+        await nextTick();
+      }
       if (!detailAlive || !invalid.isConnected) return;
       invalid.focus();
       invalid.reportValidity?.();
     });
     return false;
   }
+  const issue = props.creating ? undefined : validateToDooTaskDraft(form.value, {
+    ...(propertyOnly ? { panel: detailPanel.value as any } : {}),
+  })[0];
+  if (issue) {
+    validationError.value = issue.message;
+    if (issue.panel !== 'title' && issue.panel !== 'description') {
+      // Reopening validation must preserve the baseline captured when the user began this panel.
+      if (detailPanel.value !== issue.panel) {
+        captureProperty(issue.panel);
+        detailPanel.value = issue.panel;
+      }
+      propertyOpen.value = true;
+    } else if (issue.panel === 'description') descriptionOpen.value = true;
+    void nextTick(async () => {
+      if (!detailAlive) return;
+      if (issue.panel === 'repeat') {
+        advancedRepeatDetails.value?.expand({ immediate: true });
+        await nextTick();
+      }
+      focusDraftIssue(issue);
+    });
+    return false;
+  }
   validationError.value = '';
   return true;
+}
+function focusDraftIssue(issue: ToDooDraftIssue) {
+  let root = issue.panel === 'title' || issue.panel === 'description' ? detailElement.value : propertyFields.value;
+  if (issue.kind === 'timeBlock') {
+    const index = form.value?.blocks.filter(block => !block.deletedAt).findIndex(block => block.id === issue.entityId) ?? -1;
+    if (index >= 0) root = root?.querySelectorAll<HTMLElement>('.todo-plan-editor')[index] || root;
+  }
+  const candidates = Array.from(root?.querySelectorAll<HTMLInputElement>('input:not([disabled]), textarea:not([disabled]), select:not([disabled])') || []);
+  const matches = (input: HTMLInputElement) => (input.getAttribute('aria-label') || '').includes(issue.label) || (input.closest('label')?.textContent || '').includes(issue.label);
+  const input = candidates.find(matches) || candidates[0];
+  input?.focus?.({ preventScroll: true });
+  input?.reportValidity?.();
 }
 async function save() {
   if (state.busy || savingTask.value || inlineListOpen.value || !validateDetail()) return;
@@ -182,7 +335,26 @@ function shortcut(event: KeyboardEvent) {
   if (event.key !== 'Enter' || !(event.ctrlKey || event.metaKey) || event.isComposing) return;
   event.preventDefault();
   event.stopPropagation();
-  void (props.creating ? create() : save());
+  if (propertyOpen.value) completeProperty();
+  else void (props.creating ? create() : save());
+}
+let pickerEscape: KeyboardEvent | undefined;
+function capturePickerEscape(event: KeyboardEvent) {
+  if (event.target instanceof Element && event.target.closest('.ant-picker')) {
+    const popups = document.querySelectorAll<HTMLElement>(
+      '.ant-picker-dropdown:not(.ant-picker-dropdown-hidden):not([class*="-leave"])',
+    );
+    // Ant starts its exit animation in the input handler, before this key bubbles back.
+    if (Array.from(popups).some(popup => popup.getClientRects().length)) pickerEscape = event;
+  }
+}
+function propertyKeydown(event: KeyboardEvent) {
+  if (event === pickerEscape) {
+    pickerEscape = undefined;
+    event.stopPropagation();
+    return;
+  }
+  shortcut(event);
 }
 function changeList(listId: string | null) {
   if (!form.value) return;
@@ -242,16 +414,23 @@ function adoptQuick() {
     local.frequency = value.frequency;
     local.weekdays = value.weekdays;
   }
+  local.literalTitle = true;
 }
-const scope = ref<'all' | 'future'>('all'),
+const scope = computed<'all' | 'future'>({
+    get: () => props.model.getDraftRecurrenceScope(),
+    set: value => props.model.setDraftRecurrenceScope(value),
+  }),
   previewAsset = ref('');
 watch(
   () => [state.selectedTaskId, state.selectedOccurrenceId],
   () => {
-    scope.value = 'all';
     previewAsset.value = '';
     validationError.value = '';
     editingDue.value = false;
+    detailPanel.value = undefined;
+    propertyOpen.value = false;
+    descriptionOpen.value = false;
+    showChildren.value = false;
   },
 );
 const zone = computed(() => state.snapshot?.settings.timeZone || 'UTC');
@@ -260,6 +439,12 @@ function displaySchedule(value: ToDooDateTime) {
   const shown = toDooDisplayTime(value, zone.value);
   return toDooDateLabel(shown.date, today.value) + (shown.time ? ' ' + shown.time : '');
 }
+const scheduledBlocks = computed(() => form.value?.blocks.filter(value => !value.deletedAt) || []);
+const planSummary = computed(() => {
+  const blocks = scheduledBlocks.value;
+  if (!blocks.length) return '添加计划';
+  return displaySchedule(blocks[0].start) + (blocks.length > 1 ? ' 等' + blocks.length + '段' : '');
+});
 const deadlineSummary = computed(() =>
   form.value?.occurrence?.due ? displaySchedule(form.value.occurrence.due) : '设置截止日期',
 );
@@ -388,6 +573,9 @@ async function status(value: string) {
   const taskId = state.selectedTaskId,
     occurrenceId = state.selectedOccurrenceId;
   const targetOccurrence = form.value.occurrence.id;
+  if (!(await guardToDooTaskAction(props.model, [taskId], confirmAction, {
+    current: () => currentDetail(taskId, occurrenceId), save,
+  }))) return;
   const descendants = value === 'done' ? await props.model.statusChildCount(taskId) : 0;
   if (descendants === null || !currentDetail(taskId, occurrenceId)) return;
   let cascade = false;
@@ -403,7 +591,23 @@ async function status(value: string) {
   if (currentDetail(taskId, occurrenceId) && !props.model.dirty())
     props.model.selectTask(taskId, occurrenceId);
 }
-function makeOutcome() {
+async function materializeToday() {
+  if (!form.value || state.busy || state.pendingMutation) return;
+  const taskId = state.selectedTaskId, occurrenceId = state.selectedOccurrenceId;
+  if (!(await guardToDooTaskAction(props.model, [taskId], confirmAction, {
+    current: () => currentDetail(taskId, occurrenceId), save,
+  }))) return;
+  const today = toDooLocalDate(new Date(), zone.value);
+  const result = await props.model.execute({
+    action: 'materialize_occurrences', payload: { taskId, from: today, to: today },
+  });
+  if (result && currentDetail(taskId, occurrenceId)) props.model.selectTask(taskId);
+}
+async function makeOutcome() {
+  const taskId = state.selectedTaskId, occurrenceId = state.selectedOccurrenceId;
+  if (!(await guardToDooTaskAction(props.model, [taskId], confirmAction, {
+    current: () => currentDetail(taskId, occurrenceId), save,
+  }))) return;
   emit('edit', 'outcome', undefined, {
     occurrenceId: form.value?.occurrence?.id || null,
     listId: form.value?.task.listId || null,
@@ -437,6 +641,9 @@ async function uploadAsset(event: Event) {
     input.value = '';
     return;
   }
+  const taskId = form.value.task.id, occurrenceId = state.selectedOccurrenceId,
+    datasetId = state.snapshot?.datasetId;
+  const receiptContext = props.model.captureCommandResultContext();
   const data = new FormData();
   data.set('file', file);
   data.set('requestId', crypto.randomUUID());
@@ -446,16 +653,16 @@ async function uploadAsset(event: Event) {
   state.notice = '';
   try {
     const result = await props.model.request(
-      '/api/to-doo/tasks/' + encodeURIComponent(form.value.task.id) + '/assets',
+      '/api/to-doo/tasks/' + encodeURIComponent(taskId) + '/assets',
       'POST',
       data,
     );
-    props.model.acceptSnapshot(result.snapshot);
-    state.notice = '附件已上传';
+    if (!(await props.model.acceptCommandResult(result, receiptContext))) return;
+    if (currentDetail(taskId, occurrenceId)) state.notice = '附件已上传';
   } catch (e) {
-    state.error = e instanceof Error ? e.message : String(e);
+    if (state.snapshot?.datasetId === datasetId) state.error = e instanceof Error ? e.message : String(e);
   } finally {
-    state.busy = false;
+    if (state.snapshot?.datasetId === datasetId) state.busy = false;
     input.value = '';
   }
 }
@@ -464,6 +671,9 @@ async function removeAsset(hash: string) {
     state.error = '请先保存任务内容，再调整附件关联';
     return;
   }
+  const taskId = form.value.task.id, occurrenceId = state.selectedOccurrenceId,
+    datasetId = state.snapshot?.datasetId;
+  const receiptContext = props.model.captureCommandResultContext();
   state.busy = true;
   state.error = '';
   state.notice = '';
@@ -472,13 +682,15 @@ async function removeAsset(hash: string) {
       requestId: crypto.randomUUID(),
       expectedRevision: form.value.task.revision,
     });
-    props.model.acceptSnapshot(result.snapshot);
-    if (previewAsset.value === hash) previewAsset.value = '';
-    state.notice = '附件关联已移除';
+    if (!(await props.model.acceptCommandResult(result, receiptContext))) return;
+    if (currentDetail(taskId, occurrenceId)) {
+      if (previewAsset.value === hash) previewAsset.value = '';
+      state.notice = '附件关联已移除';
+    }
   } catch (e) {
-    state.error = e instanceof Error ? e.message : String(e);
+    if (state.snapshot?.datasetId === datasetId) state.error = e instanceof Error ? e.message : String(e);
   } finally {
-    state.busy = false;
+    if (state.snapshot?.datasetId === datasetId) state.busy = false;
   }
 }
 async function discardNew() {
@@ -499,7 +711,7 @@ async function discardConflict() {
     occurrenceId = state.selectedOccurrenceId;
   if (!(await confirmAction('放弃这份本地输入，改用服务端当前内容？'))) return;
   if (!currentDetail(taskId, occurrenceId)) return;
-  await props.model.ensureTask(taskId);
+  if (!(await props.model.ensureTask(taskId))) return;
   if (!currentDetail(taskId, occurrenceId)) return;
   props.model.discardDraft();
   state.conflict = false;
@@ -507,15 +719,21 @@ async function discardConflict() {
 }
 async function remove() {
   if (!form.value) return;
-  const target = { ...form.value.task };
   const taskId = state.selectedTaskId,
     occurrenceId = state.selectedOccurrenceId;
+  if (!(await guardToDooTaskAction(props.model, [taskId], confirmAction, {
+    current: () => currentDetail(taskId, occurrenceId), save,
+  }))) return;
+  const target = { ...form.value!.task };
   if (!(await confirmAction('将任务及其子任务移入回收站？', { danger: true }))) return;
   if (!currentDetail(taskId, occurrenceId)) return;
   const r = await props.model.removeEntity('task', target, false, true);
   if (r && detailAlive && (!state.selectedTaskId || state.selectedTaskId === taskId)) emit('close');
 }
 defineExpose({
+  validate: validateDetail,
+  openProperty: revealDetail,
+  hasInvalidInput: () => !!(detailElement.value?.querySelector('input:invalid:not([data-todo-required-title]), textarea:invalid, [aria-invalid="true"]') || propertyFields.value?.querySelector('input:invalid, textarea:invalid, [aria-invalid="true"]') || (!props.creating && validateToDooTaskDraft(form.value, { allowEmptyTitle: true }).length)),
   hasUnsavedChanges: () =>
     (props.creating ? !!local.title || !!local.description : props.model.dirty()) ||
     !!detailElement.value?.querySelector('[aria-invalid="true"]'),
@@ -526,29 +744,57 @@ defineExpose({
     ref="detailElement"
     class="todo-detail"
     :class="{ 'todo-document-detail': !creating }"
+    tabindex="-1"
     aria-label="任务详情"
     @keydown="shortcut"
   >
-    <header class="todo-between">
-      <span class="todo-muted">{{ creating ? '新建任务' : '任务详情' }}</span
+    <header class="todo-between todo-reader-header">
+      <AButton html-type="button" class="todo-icon-button" aria-label="关闭任务详情"
+        title="关闭任务详情 (Esc)" type="text" @click="close"><ToDooIcon name="close" :size="16" /></AButton>
+      <span class="todo-reader-heading">{{ creating ? '新建任务' : '任务详情' }}</span
       ><span
         v-if="!creating"
-        class="todo-small"
+        class="todo-small todo-reader-save-state"
         :class="model.dirty() ? 'todo-warning' : 'todo-muted'"
-        >{{ savingTask ? '保存中…' : model.dirty() ? '未保存的更改' : '已保存' }}</span
-      ><AButton
-        html-type="button"
-        class="todo-icon-button"
-        aria-label="关闭任务详情"
-        @click="close"
-        type="text"
       >
-        ×
-      </AButton>
+        <ToDooIcon v-if="!savingTask && !model.dirty()" name="check" :size="14" />
+        {{ savingTask ? '保存中…' : model.dirty() ? '未保存的更改' : '已保存' }}
+      </span>
+      <div v-if="adjacentTasks" class="todo-reader-navigation" role="group" aria-label="按列表顺序浏览">
+        <AButton type="text" class="todo-icon-button" data-step="previous" aria-label="上一个任务"
+          :title="adjacentTasks.previous ? '上一个：' + adjacentTasks.previous.title : '已是第一项'"
+          :disabled="state.busy || !!state.pendingMutation || !adjacentTasks.previous" @click="emit('step', 'previous')">
+          <ToDooIcon name="back" :size="16" />
+        </AButton>
+        <AButton type="text" class="todo-icon-button" data-step="next" aria-label="下一个任务"
+          :title="adjacentTasks.next ? '下一个：' + adjacentTasks.next.title : '已是最后一项'"
+          :disabled="state.busy || !!state.pendingMutation || !adjacentTasks.next" @click="emit('step', 'next')">
+          <ToDooIcon name="chevron" :size="16" />
+        </AButton>
+      </div>
     </header>
     <p v-if="validationError" class="todo-detail-validation todo-danger" role="alert">
       {{ validationError }}
     </p>
+    <p v-if="state.error && !state.conflict" class="todo-detail-validation todo-danger" role="alert">{{ state.error }}</p>
+    <div v-if="state.pendingMutation" class="todo-detail-validation todo-warning" role="alert">
+      <span>上次提交的结果待核对，修改仍保留。</span><AButton type="link" :disabled="state.busy" @click="emit('retry')">核对原操作</AButton>
+    </div>
+    <section v-if="!creating && state.conflict" class="todo-conflict-panel todo-alert" role="alert" aria-label="比较任务更新">
+      <strong>这份任务有更新，本地输入仍保留</strong>
+      <p>{{ state.error || '先载入最新版本，比较后再保存。' }}</p>
+      <div class="todo-actions">
+        <AButton :disabled="state.busy || !!state.pendingMutation" @click="model.rebaseDraft()">载入最新并比较</AButton>
+        <AButton type="text" danger :disabled="state.busy" @click="discardConflict">放弃本地修改</AButton>
+      </div>
+      <div v-for="entry in currentConflicts" :key="entry.id" class="todo-conflict-field">
+        <strong>{{ entry.label }}</strong>
+        <div class="todo-conflict-values">
+          <section><span>我的输入</span><pre>{{ conflictValue(entry.local) }}</pre><AButton @click="model.resolveDraftConflict(entry.id, 'local')">保留我的输入</AButton></section>
+          <section><span>最新内容</span><pre>{{ conflictValue(entry.remote) }}</pre><AButton @click="model.resolveDraftConflict(entry.id, 'remote')">使用最新内容</AButton></section>
+        </div>
+      </div>
+    </section>
     <form
       v-if="creating"
       :id="createFormId"
@@ -559,12 +805,14 @@ defineExpose({
         <label
           >任务标题<AInput
             v-model:value="local.title"
+            data-todo-required-title
+            @update:value="local.literalTitle = false"
             required
             :maxlength="256"
             autofocus
             placeholder="要做什么？"
         /></label>
-        <div v-if="quick.recognized" class="todo-quick-preview">
+        <div v-if="quick.recognized && !local.literalTitle" class="todo-quick-preview">
           <p>
             识别到 {{ quick.date || '' }} {{ quick.time || '' }}
             {{
@@ -677,70 +925,42 @@ defineExpose({
     </form>
     <div v-else-if="form" class="todo-detail-body todo-form">
       <fieldset class="todo-create-fields todo-document-fields" :disabled="state.busy">
-        <div class="todo-document-title-row">
-          <AButton
-            html-type="button"
-            type="text"
-            class="todo-detail-complete"
-            :class="{ 'is-complete': form.occurrence?.status === 'done' }"
-            :aria-label="form.occurrence?.status === 'done' ? '重新打开' : '标记完成'"
-            :aria-pressed="form.occurrence?.status === 'done'"
-            :disabled="state.busy || !form.occurrence"
-            @click="status(form.occurrence?.status === 'done' ? 'todo' : 'done')"
-          >
-            <span aria-hidden="true">{{ form.occurrence?.status === 'done' ? '✓' : '' }}</span
-            ><span class="todo-accessible-label">{{
-              form.occurrence?.status === 'done' ? '重新打开' : '标记完成'
-            }}</span>
-          </AButton>
-          <label class="todo-title-input"
-            ><span class="todo-accessible-label">任务标题</span
-            ><ATextarea
-              aria-label="任务标题"
-              v-model:value="form.task.title"
-              :maxlength="256"
-              :auto-size="{ minRows: 1, maxRows: 5 }"
-              :rows="1"
-              @keydown.enter="
-                !$event.isComposing && !$event.ctrlKey && !$event.metaKey && $event.preventDefault()
-              "
-          /></label>
-        </div>
-        <div class="todo-document-meta">
-          <label
-            ><span class="todo-document-field-label">状态</span
-            ><ToDooSelect
-              aria-label="状态"
-              :value="form.occurrence?.status || 'unavailable'"
+        <div class="todo-document-intro">
+          <div class="todo-document-title-row">
+            <AButton
+              html-type="button"
+              type="text"
+              class="todo-detail-complete"
+              :class="['todo-priority-' + form.task.priority, { 'is-complete': form.occurrence?.status === 'done' }]"
+              :aria-label="form.occurrence?.status === 'done' ? '重新打开' : '标记完成'"
+              :aria-pressed="form.occurrence?.status === 'done'"
               :disabled="state.busy || !form.occurrence"
-              @change="status($event)"
+              @click="status(form.occurrence?.status === 'done' ? 'todo' : 'done')"
             >
-              <option v-if="!form.occurrence" value="unavailable">执行记录尚未载入</option>
-              <option v-for="(label, key) in toDooStatusLabels" :key="key" :value="key">
-                {{ label }}
-              </option>
-            </ToDooSelect></label
-          >
-          <label
-            ><span class="todo-document-field-label">清单</span
-            ><ToDooSelect
-              aria-label="所属目标或清单"
-              :value="form.task.listId"
-              @change="changeList"
-              :disabled="!!form.task.parentTaskId"
-              ><option :value="null">收集箱</option>
-              <option v-for="l in model.taskLists()" :key="l.id" :value="l.id">
-                {{ l.name }}
-              </option></ToDooSelect
-            ></label
-          >
+              <span aria-hidden="true" class="todo-check-indicator">{{ form.occurrence?.status === 'done' ? '✓' : '' }}</span>
+              <span class="todo-accessible-label">{{ form.occurrence?.status === 'done' ? '重新打开' : '标记完成' }}</span>
+            </AButton>
+            <label class="todo-title-input">
+              <span class="todo-accessible-label">任务标题</span>
+              <ATextarea
+                aria-label="任务标题"
+                v-model:value="form.task.title"
+                :maxlength="256"
+                :auto-size="{ minRows: 1 }"
+                :rows="1"
+                @keydown.enter="
+                  !$event.isComposing && !$event.ctrlKey && !$event.metaKey && $event.preventDefault()
+                "
+              />
+            </label>
+          </div>
+          <AButton v-if="!form.task.description && !descriptionOpen" type="text" class="todo-add-property" @click="editDescription">＋ 添加说明</AButton>
+          <label v-else ref="descriptionLabel" class="todo-document-description">
+            <span class="todo-accessible-label">任务说明</span>
+            <ATextarea aria-label="任务说明" v-model:value="form.task.description"
+              :auto-size="{ minRows: 1, maxRows: 12 }" :rows="1" placeholder="添加说明，或记下下一步…" />
+          </label>
         </div>
-        <ToDooInlineListCreate
-          v-if="!form.task.parentTaskId"
-          :model="model"
-          @created="useCreatedList"
-          @open-change="inlineListOpen = $event"
-        />
         <label v-if="form.task.recurrence || occurrences.length > 1"
           >重复任务记录<ToDooSelect
             aria-label="重复任务记录"
@@ -755,115 +975,41 @@ defineExpose({
           v-if="!form.occurrence"
           html-type="button"
           class="todo-button"
-          :disabled="state.busy"
-          @click="
-            model
-              .execute({
-                action: 'materialize_occurrences',
-                payload: {
-                  taskId: form.task.id,
-                  from: toDooLocalDate(new Date(), zone),
-                  to: toDooLocalDate(new Date(), zone),
-                },
-              })
-              .then(() => model.selectTask(form!.task.id))
-          "
+          :disabled="state.busy || !!state.pendingMutation"
+          @click="materializeToday"
           type="default"
           >添加本次任务记录</AButton
         >
-        <div class="todo-document-properties" role="group" aria-label="任务安排">
-          <div class="todo-document-property">
-            <span class="todo-document-property-name"
-              ><ToDooIcon name="calendar" :size="15" />计划</span
-            >
-            <ToDooTaskPlan
-              :model="model"
-              :draft="form"
-              @edit="
-                (block) =>
-                  emit(
-                    'edit',
-                    'timeBlock',
-                    block,
-                    block
-                      ? undefined
-                      : { occurrenceId: form.occurrence?.id || null, title: form.task.title },
-                  )
-              "
-            />
+        <div class="todo-detail-property-chips" role="group" aria-label="任务安排">
+          <div class="todo-detail-context">
+            <AButton type="text" :disabled="state.busy" :title="currentListName" @click="revealDetail('list')">
+              <ToDooIcon :name="form.task.listId ? 'list' : 'inbox'" :size="16" />
+              <span class="todo-detail-property-value">{{ currentListName }}</span>
+              <span class="todo-list-chevron">⌄</span>
+            </AButton>
+            <span v-if="form.occurrence && !['todo', 'done'].includes(form.occurrence.status)" class="todo-muted">{{ toDooStatusLabels[form.occurrence.status] }}</span>
           </div>
-          <div class="todo-document-property">
-            <span class="todo-document-property-name"
-              ><ToDooIcon name="today" :size="15" />截止</span
-            >
-            <AButton
-              html-type="button"
-              type="text"
-              class="todo-property-action"
-              :class="{ 'is-empty': !form.occurrence?.due, 'is-overdue': deadlineOverdue }"
-              aria-label="编辑截止日期"
-              :aria-describedby="deadlineSummaryId"
-              :aria-expanded="editingDue"
-              :disabled="state.busy || !form.occurrence"
-              @click="editDeadline"
-              ><span :id="deadlineSummaryId">{{ deadlineSummary }}</span></AButton
-            >
-          </div>
-          <div v-show="editingDue" ref="deadlineFields" class="todo-date-editor">
-            <div class="todo-form-grid">
-              <label
-                >截止日期<ToDooDateField
-                  type="date"
-                  aria-label="截止日期"
-                  :value="form.occurrence?.due?.date || ''"
-                  @input="due($event, 'date')"
-              /></label>
-              <label
-                >截止时间<ToDooDateField
-                  type="time"
-                  aria-label="截止时间"
-                  :value="form.occurrence?.due?.time || ''"
-                  @input="due($event, 'time')"
-              /></label>
-            </div>
-            <small
-              v-if="form.occurrence?.due && form.occurrence.due.timeZone !== zone"
-              class="todo-muted"
-              >按 {{ form.occurrence.due.timeZone }} 填写</small
-            >
-            <AButton html-type="button" type="text" class="todo-link" @click="editingDue = false"
-              >收起日期编辑</AButton
-            >
-          </div>
-          <div class="todo-document-property">
-            <span class="todo-document-property-name">优先级</span>
-            <ASelect
-              v-model:value="form.task.priority"
-              class="todo-priority-select todo-document-priority"
-              :class="'todo-priority-' + form.task.priority"
-              aria-label="优先级"
-              :options="priorityOptions"
-              :disabled="state.busy"
-              :get-popup-container="priorityPopupContainer"
-              dropdown-class-name="todo-priority-popup"
-              ><template #option="{ value, label }"
-                ><ATag class="todo-priority-label" :class="'todo-priority-' + value">{{
-                  label
-                }}</ATag></template
-              ></ASelect
-            >
-          </div>
+          <AButton type="text" class="todo-detail-schedule" aria-label="编辑计划日期" :title="planSummary"
+            :class="{ 'is-empty': !scheduledBlocks.length }"
+            :disabled="state.busy || !form.occurrence" @click="revealDetail('plan')">
+            <ToDooIcon name="calendar" :size="16" />
+            <span class="todo-detail-property-value"><template v-if="scheduledBlocks.length">计划 </template>{{ planSummary }}</span>
+          </AButton>
+          <AButton type="text" class="todo-detail-schedule" aria-label="编辑截止日期" :aria-describedby="deadlineSummaryId"
+            :title="deadlineSummary" :class="{ 'is-empty': !form.occurrence?.due, 'is-overdue': deadlineOverdue }"
+            :disabled="state.busy || !form.occurrence" @click="revealDetail('due')">
+            <ToDooIcon name="calendar" :size="16" />
+            <span class="todo-detail-property-value"><template v-if="form.occurrence?.due">截止 </template>{{ deadlineSummary }}</span>
+          </AButton>
+          <span :id="deadlineSummaryId" class="todo-accessible-label">{{ deadlineSummary }}</span>
+          <AButton type="text" aria-label="编辑优先级" :class="'todo-priority-' + form.task.priority"
+            :disabled="state.busy" @click="revealDetail('priority')">
+            <ToDooIcon name="flag" :size="16" />
+            <span class="todo-detail-property-value">{{ form.task.priority === 'none' ? '设置优先级' : toDooPriorityLabels[form.task.priority] + '优先级' }}</span>
+          </AButton>
         </div>
-        <label class="todo-document-description"
-          ><span class="todo-accessible-label">任务说明</span
-          ><ATextarea
-            aria-label="任务说明"
-            v-model:value="form.task.description"
-            :auto-size="{ minRows: 1, maxRows: 12 }"
-            :rows="1"
-            placeholder="添加说明，或记下下一步…"
-        /></label>
-        <ToDooDisclosure class="todo-disclosure todo-primary-children" :open="!!children.length">
+        <AButton v-if="!children.length && !showChildren" type="text" class="todo-add-property" @click="emit('child', form.task.id)">＋ 添加子任务</AButton>
+        <ToDooDisclosure v-else class="todo-disclosure todo-primary-children" :open="!!children.length">
           <template #header
             ><span>子任务</span
             ><small v-if="children.length" class="todo-muted">{{
@@ -879,7 +1025,7 @@ defineExpose({
               @click="emit('select', t.id)"
               type="text"
             >
-              {{ t.title }} <span>↗</span></AButton
+              <span>{{ t.title }}</span><span aria-hidden="true">↗</span></AButton
             ><AButton
               html-type="button"
               class="todo-link"
@@ -902,23 +1048,39 @@ defineExpose({
             type="link"
             class="todo-link"
             @click="emit('open-note', note.noteId)"
-            >{{ note.title || '关联资料' }} ↗</AButton
+            ><ToDooIcon name="link" :size="16" /><span>{{ note.title || '关联资料' }}</span> ↗</AButton
           >
+        </section>
+        <section v-if="form.task.tagIds.length || form.task.dependencies.length || form.task.criteria || form.task.attachments.length || outcomes.length" class="todo-detail-value-summary" aria-label="任务补充信息">
+          <AButton v-if="form.task.tagIds.length" type="text" @click="revealDetail('properties')">
+            标签{{ form.task.tagIds.length > 1 ? ' ' + form.task.tagIds.length + ' 个' : '' }}：{{
+              form.task.tagIds.map(id => state.snapshot?.tags.find(tag => tag.id === id)?.name || '标签').join('、')
+            }}
+          </AButton>
+          <AButton v-if="form.task.dependencies.length" type="text" @click="revealDetail('properties')">
+            前置任务{{ form.task.dependencies.length > 1 ? ' ' + form.task.dependencies.length + ' 项' : '' }}：{{
+              form.task.dependencies.map(entry => model.taskDefinitions().find(task => task.id === entry.taskId)?.title || '关联任务').join('、')
+            }}
+          </AButton>
+          <AButton v-if="form.task.attachments.length" type="text" @click="revealDetail('attachments')">附件 {{ form.task.attachments.length }} 份</AButton>
+          <AButton v-if="form.task.criteria" type="text" @click="revealDetail('results')">完成标准：{{ form.task.criteria }}</AButton>
+          <AButton v-if="outcomes.length" type="text" @click="revealDetail('results')">成果 {{ outcomes.length }} 份 · {{ outcomes[0].summary }}</AButton>
         </section>
         <div class="todo-detail-shortcuts" role="group" aria-label="任务快捷设置">
           <AButton
             html-type="button"
             type="text"
             aria-label="编辑重复规则"
+            :title="repeatSummary"
             @click="revealDetail('repeat')"
-            ><span>重复</span><small>{{ repeatSummary }}</small></AButton
+            ><ToDooIcon name="repeat" :size="16" /><span>重复</span><small :class="{ 'todo-accessible-label': repeatSummary === '不重复' }">{{ repeatSummary }}</small></AButton
           >
           <AButton
             html-type="button"
             type="text"
             aria-label="编辑任务提醒"
             @click="revealDetail('reminders')"
-            ><span>提醒</span
+            ><ToDooIcon name="notifications" :size="16" /><span>提醒</span
             ><small v-if="form.task.reminders.length"
               >{{ form.task.reminders.length }} 条</small
             ></AButton
@@ -928,22 +1090,67 @@ defineExpose({
             type="text"
             aria-label="编辑关联资料"
             @click="revealDetail('resources')"
-            ><span>关联资料</span
+            ><ToDooIcon name="link" :size="16" /><span>关联资料</span
             ><small v-if="form.task.noteRefs.length"
               >{{ form.task.noteRefs.length }} 份</small
             ></AButton
           >
+        <ADropdown :trigger="['click']" overlay-class-name="todo-ant-popup">
+          <AButton type="text" aria-label="更多任务属性" title="更多属性"><ToDooIcon name="more" :size="16" />更多</AButton>
+          <template #overlay><AMenu :selectable="false">
+            <AMenuItem v-for="(label, key) in panelLabels" :key="key" @click="revealDetail(key)">{{ label }}</AMenuItem>
+          </AMenu></template>
+        </ADropdown>
         </div>
-        <ToDooDisclosure
-          ref="advancedDetails"
-          class="todo-disclosure todo-detail-advanced"
-          :open="!!createdNoteId"
-        >
-          <template #header
-            ><span>更多详情</span><small class="todo-muted">重复、提醒、资料与记录</small></template
+        <AModal :open="propertyOpen" :title="detailPanel ? panelLabels[detailPanel] : ''" :width="560"
+          wrap-class-name="todo-ant-modal todo-property-modal" :after-close="restorePropertyFocus" @cancel="closeProperty">
+          <fieldset ref="propertyFields" class="todo-form todo-create-fields todo-detail-options" :disabled="state.busy"
+            @keydown.esc.capture="capturePickerEscape" @keydown="propertyKeydown">
+            <p v-if="validationError" class="todo-danger" role="alert">{{ validationError }}</p>
+            <section v-if="detailPanel === 'list'" class="todo-form">
+        <div class="todo-document-meta">
+          <label
+            ><span class="todo-document-field-label">清单</span
+            ><ToDooSelect
+              aria-label="所属目标或清单"
+              :value="form.task.listId"
+              @change="changeList"
+              :disabled="!!form.task.parentTaskId"
+              ><option :value="null">收集箱</option>
+              <option v-for="l in model.taskLists()" :key="l.id" :value="l.id">
+                {{ l.name }}
+              </option></ToDooSelect
+            ></label
           >
-          <div class="todo-detail-options">
-            <ToDooDisclosure class="todo-disclosure todo-classification">
+        </div>
+        <ToDooInlineListCreate
+          v-if="!form.task.parentTaskId"
+          :model="model"
+          @created="useCreatedList"
+          @open-change="inlineListOpen = $event"
+        />
+
+            </section>
+            <section v-if="detailPanel === 'due'" ref="deadlineFields" class="todo-form">
+              <div class="todo-form-grid">
+                <label>截止日期<ToDooDateField type="date" aria-label="截止日期" :value="form.occurrence?.due?.date || ''" @input="due($event, 'date')" /></label>
+                <label>截止时间<ToDooDateField type="time" aria-label="截止时间" :value="form.occurrence?.due?.time || ''" @input="due($event, 'time')" /></label>
+              </div>
+              <label v-if="form.occurrence?.due">截止时区<AInput v-model:value="form.occurrence.due.timeZone" /></label>
+              <AButton :disabled="state.busy || !form.occurrence?.due" @click="due('', 'date')">清除截止日期</AButton>
+            </section>
+            <section v-if="detailPanel === 'priority'" class="todo-form">
+              <label>优先级<ASelect v-model:value="form.task.priority" aria-label="优先级" :options="priorityOptions" :disabled="state.busy" dropdown-class-name="todo-ant-popup todo-priority-popup" /></label>
+            </section>
+            <section v-if="detailPanel === 'plan'" class="todo-form">
+              <div v-for="block in form.blocks.filter(value => !value.deletedAt)" :key="block.id" class="todo-form todo-plan-editor">
+                <ToDooTimeBlockFields :block="block" :disabled="state.busy" />
+                <AButton type="text" danger :disabled="state.busy" @click="removePlan(block.id)">移除这段安排</AButton>
+              </div>
+              <p v-if="!form.blocks.some(value => !value.deletedAt)" class="todo-muted">还没有安排时间，可添加一段或多段安排。</p>
+              <AButton :disabled="state.busy || !form.occurrence" @click="addPlan">＋ 添加一段时间</AButton>
+            </section>
+            <ToDooDisclosure v-if="detailPanel === 'classification'" :open="detailPanel === 'classification'" class="todo-disclosure todo-classification">
               <template #header
                 ><span>四象限归类</span
                 ><small class="todo-muted"
@@ -976,7 +1183,7 @@ defineExpose({
                 <small class="todo-muted">重要和紧急程度决定象限，优先级决定执行顺序。</small>
               </div>
             </ToDooDisclosure>
-            <ToDooDisclosure ref="repeatDetails" class="todo-disclosure">
+            <ToDooDisclosure ref="repeatDetails" v-if="detailPanel === 'repeat'" :open="detailPanel === 'repeat'" class="todo-disclosure">
               <template #header
                 ><span>重复规则</span
                 ><small class="todo-muted">{{ repeatSummary }}</small></template
@@ -999,36 +1206,7 @@ defineExpose({
                     <option value="yearly">每年</option>
                     <option value="after_completion">完成后重复</option>
                   </ToDooSelect></label
-                ><template v-if="form.task.recurrence"
-                  ><div class="todo-form-grid">
-                    <label
-                      >间隔<AInputNumber
-                        aria-label="间隔"
-                        v-model:value="form.task.recurrence.interval"
-                        :min="1" /></label
-                    ><label
-                      >开始日期<ToDooDateField
-                        v-model="form.task.recurrence.anchorDate"
-                        type="date" /></label
-                    ><label
-                      >重复时间<ToDooDateField
-                        v-model="form.task.recurrence.time"
-                        type="time" /></label
-                    ><label>时区<AInput v-model:value="form.task.recurrence.timeZone" /></label
-                    ><label
-                      >结束日期<ToDooDateField
-                        v-model="form.task.recurrence.until"
-                        type="date" /></label
-                    ><label
-                      >最多次数<AInputNumber
-                        aria-label="最多次数"
-                        :value="form.task.recurrence.count ?? undefined"
-                        @update:value="
-                          form.task.recurrence.count = $event == null ? null : Number($event)
-                        "
-                        :min="1"
-                    /></label>
-                  </div>
+                ><template v-if="form.task.recurrence">
                   <label v-if="form.task.recurrence.frequency === 'weekly'"
                     >每周日期<ToDooSelect v-model="form.task.recurrence.weekdays" multiple>
                       <option
@@ -1040,6 +1218,39 @@ defineExpose({
                       </option>
                     </ToDooSelect></label
                   >
+                  <ToDooDisclosure ref="advancedRepeatDetails" class="todo-repeat-advanced">
+                    <template #header><span>高级重复规则</span></template>
+                    <div class="todo-form todo-repeat-advanced-fields">
+                      <div class="todo-form-grid">
+                    <label
+                      >间隔<AInputNumber
+                        aria-label="间隔"
+                        v-model:value="form.task.recurrence.interval"
+                        :min="1" :max="1000" :step="1" :precision="0" required /></label
+                    ><label
+                      >开始日期<ToDooDateField
+                        v-model="form.task.recurrence.anchorDate" required :allow-clear="false"
+                        type="date" /></label
+                    ><label
+                      >重复时间<ToDooDateField
+                        :model-value="form.task.recurrence.time" @update:model-value="form.task.recurrence.time = $event || null"
+                        type="time" /></label
+                    ><label>时区<AInput v-model:value="form.task.recurrence.timeZone" /></label
+                    ><label
+                      >结束日期<ToDooDateField
+                        :model-value="form.task.recurrence.until" @update:model-value="form.task.recurrence.until = $event || null"
+                        type="date" /></label
+                    ><label
+                      >最多次数<AInputNumber
+                        aria-label="最多次数"
+                        :value="form.task.recurrence.count ?? undefined"
+                        @update:value="
+                          form.task.recurrence.count = $event == null ? null : Number($event)
+                        "
+                        :min="1" :max="100000" :precision="0"
+                    /></label>
+                  </div>
+
                   <div v-if="form.task.recurrence.frequency === 'monthly'" class="todo-form">
                     <label
                       >每月方式<ToDooSelect
@@ -1096,16 +1307,18 @@ defineExpose({
                   /><ToDooDateExceptions
                     v-model="form.task.recurrence.additionalDates"
                     label="额外安排这些日期"
-                  /><label
-                    >修改范围<ToDooSelect v-model="scope">
-                      <option value="all">整个系列（保留完成历史）</option>
-                      <option value="future">本次及以后</option>
-                    </ToDooSelect></label
-                  ></template
-                >
+                  />
+                    </div>
+                  </ToDooDisclosure>
+                </template>
+                <label v-if="form.task.recurrence || propertyBaseline?.task.recurrence || occurrences.length > 1"
+                  >修改范围<ToDooSelect v-model="scope">
+                    <option value="all">整个系列（保留完成历史）</option>
+                    <option value="future">本次及以后</option>
+                  </ToDooSelect></label>
               </div>
             </ToDooDisclosure>
-            <ToDooDisclosure ref="linkedResources" class="todo-disclosure">
+            <ToDooDisclosure ref="linkedResources" v-if="detailPanel === 'resources'" :open="detailPanel === 'resources'" class="todo-disclosure">
               <template #header
                 ><span>关联资料</span
                 ><small v-if="form.task.noteRefs.length" class="todo-muted">{{
@@ -1120,7 +1333,7 @@ defineExpose({
                 />
               </div>
             </ToDooDisclosure>
-            <ToDooDisclosure class="todo-disclosure">
+            <ToDooDisclosure v-if="detailPanel === 'attachments'" :open="detailPanel === 'attachments'" class="todo-disclosure">
               <template #header
                 ><span>任务附件</span
                 ><small v-if="form.task.attachments.length" class="todo-muted">{{
@@ -1190,7 +1403,7 @@ defineExpose({
                 </p>
               </div>
             </ToDooDisclosure>
-            <ToDooDisclosure class="todo-disclosure" :open="!!createdNoteId">
+            <ToDooDisclosure v-if="detailPanel === 'results'" :open="detailPanel === 'results'" class="todo-disclosure">
               <template #header
                 ><span>完成标准与成果</span
                 ><small v-if="outcomes.length" class="todo-muted">{{
@@ -1249,12 +1462,10 @@ defineExpose({
                 </AButton>
               </div>
             </ToDooDisclosure>
-            <ToDooDisclosure ref="moreOptions" class="todo-disclosure">
-              <template #header><span>更多选项：标签、提醒、依赖与来源</span></template>
+            <ToDooDisclosure ref="moreOptions" v-if="detailPanel === 'properties' || detailPanel === 'reminders'" :open="detailPanel === 'properties' || detailPanel === 'reminders'" class="todo-disclosure">
+              <template #header><span>{{ detailPanel === 'reminders' ? '任务提醒' : '其他属性' }}</span></template>
               <div class="todo-disclosure-content todo-form">
-                <label v-if="form.occurrence?.due"
-                  >截止时区<AInput v-model:value="form.occurrence.due.timeZone"
-                /></label>
+                <template v-if="detailPanel !== 'reminders'">
                 <div class="todo-form-grid">
                   <label
                     >分组<ToDooSelect v-model="form.task.sectionId">
@@ -1324,7 +1535,7 @@ defineExpose({
                           dependency.taskId,
                       ) + ' 完成后等待（分钟）'
                     "
-                    v-model:value="dependency.lagMinutes"
+                    v-model:value="dependency.lagMinutes" required :precision="0"
                     :min="0"
                     :max="525600"
                     :step="1" /></label
@@ -1334,9 +1545,11 @@ defineExpose({
                     :rows="2"
                   ></ATextarea
                 ></label>
-                <div ref="reminderFields">
+                </template>
+                <div ref="reminderFields" v-if="detailPanel === 'reminders'">
                   <ToDooReminders v-model="form.task.reminders" :date-based="false" />
                 </div>
+                <template v-if="detailPanel !== 'reminders'">
                 <label
                   >来源资料<ToDooSelect
                     :value="form.task.source?.noteId || ''"
@@ -1378,9 +1591,10 @@ defineExpose({
                     @update:value="form.occurrence.titleOverride = $event"
                     placeholder="留空使用系列标题"
                 /></label>
+                </template>
               </div>
             </ToDooDisclosure>
-            <ToDooDisclosure class="todo-disclosure">
+            <ToDooDisclosure v-if="detailPanel === 'records'" :open="detailPanel === 'records'" class="todo-disclosure">
               <template #header
                 ><span>推进记录</span
                 ><small v-if="records.length" class="todo-muted">{{
@@ -1420,7 +1634,7 @@ defineExpose({
                 </AButton>
               </div>
             </ToDooDisclosure>
-            <ToDooDisclosure class="todo-disclosure">
+            <ToDooDisclosure v-if="detailPanel === 'history'" :open="detailPanel === 'history'" class="todo-disclosure">
               <template #header><span>操作历史</span></template>
               <div class="todo-disclosure-content todo-form">
                 <template
@@ -1444,8 +1658,15 @@ defineExpose({
                 <p v-if="!history.length" class="todo-muted todo-small">当前范围没有历史记录</p>
               </div>
             </ToDooDisclosure>
-          </div>
-        </ToDooDisclosure>
+          </fieldset>
+          <template #footer>
+            <div class="todo-property-footer" @keydown="shortcut">
+              <span class="todo-muted">设置完成后，请在任务详情中保存。</span>
+              <AButton :disabled="state.busy" @click="cancelProperty">取消本次设置</AButton>
+              <AButton type="primary" :disabled="state.busy || inlineListOpen" @click="completeProperty">完成设置</AButton>
+            </div>
+          </template>
+        </AModal>
       </fieldset>
     </div>
     <p v-else class="todo-empty">任务暂不可用，可能尚未载入或已被移除。</p>

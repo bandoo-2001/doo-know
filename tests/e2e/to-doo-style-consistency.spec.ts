@@ -1,4 +1,5 @@
 import { test, expect } from '../support/browser-test';
+import { selectToDooOption } from '../support/to-doo-ant-controls';
 import {
   closeToDooDirectory,
   goToToDooSection,
@@ -89,32 +90,35 @@ for (const viewport of [
         await expect(heading.locator('h1')).toBeVisible();
         const metrics = await heading.evaluate((element) => {
           const title = getComputedStyle(element.querySelector('h1')!);
-          const action = element.querySelector<HTMLElement>('.todo-actions > .ant-btn')!;
-          const actionStyle = getComputedStyle(action);
+          const action = [...element.querySelectorAll<HTMLElement>('.todo-actions .ant-btn')].find(button => button.getBoundingClientRect().height > 0);
+          const actionStyle = action ? getComputedStyle(action) : undefined;
           return {
             titleFont: title.fontSize,
             titleWeight: title.fontWeight,
             titleColor: title.color,
-            actionHeight: action.getBoundingClientRect().height,
-            actionFont: actionStyle.fontSize,
+            actionHeight: action?.getBoundingClientRect().height || 0,
+            actionFont: actionStyle?.fontSize || '',
           };
         });
         if (!reference) {
-          const directory = app.locator('.todo-navigation-content').first();
+          const directory = await openToDooDirectory(page);
           const directoryMetrics = await directory.evaluate((element) => ({
-            directoryFont: getComputedStyle(element.querySelector('nav .ant-btn')!).fontSize,
+            directoryFont: getComputedStyle(element.querySelector('.ant-btn')!).fontSize,
             directoryTitleFont: getComputedStyle(element.querySelector('.todo-nav-label')!)
               .fontSize,
           }));
           reference = { ...metrics, ...directoryMetrics };
+          await closeToDooDirectory(page);
         }
         expect.soft(metrics.titleFont, section + ': title font').toBe(reference.titleFont);
         expect.soft(metrics.titleWeight, section + ': title weight').toBe(reference.titleWeight);
         expect.soft(metrics.titleColor, section + ': title color').toBe(reference.titleColor);
-        expect
-          .soft(metrics.actionHeight, section + ': main action height')
-          .toBeCloseTo(reference.actionHeight, 0);
-        expect.soft(metrics.actionFont, section + ': main action font').toBe(reference.actionFont);
+        if (section === 'focus') {
+          expect.soft(metrics.actionHeight, 'focus keeps its action with the timer').toBe(0);
+        } else {
+          expect.soft(metrics.actionHeight, section + ': main action height').toBeCloseTo(reference.actionHeight, 0);
+          expect.soft(metrics.actionFont, section + ': main action font').toBe(reference.actionFont);
+        }
 
         // Page actions and the first toolbar share one visual priority level.
         const primaryCount = await app
@@ -128,15 +132,21 @@ for (const viewport of [
           const directory = await openToDooDirectory(page);
           const directoryMetrics = await directory.evaluate((element) => ({
             directoryFont: getComputedStyle(element.querySelector('.ant-btn')!).fontSize,
-            directoryTitleFont: getComputedStyle(element.querySelector('.todo-nav-label')!)
-              .fontSize,
+            directoryTitleFont: element.querySelector('.todo-nav-label')
+              ? getComputedStyle(element.querySelector('.todo-nav-label')!).fontSize : null,
           }));
           expect
             .soft(directoryMetrics.directoryFont, 'calendar: directory font')
             .toBe(reference.directoryFont);
-          expect
-            .soft(directoryMetrics.directoryTitleFont, 'calendar: directory title')
-            .toBe(reference.directoryTitleFont);
+          if (await directory.getByRole('navigation', { name: 'To Doo 主菜单', exact: true }).isVisible()) {
+            // Calendar owns the global rail, while task/list captions belong to
+            // the task directory. Do not require an irrelevant second sidebar.
+            await expect(directory.getByRole('navigation', { name: 'To Doo 任务导航', exact: true })).toHaveCount(0);
+            expect.soft(directoryMetrics.directoryTitleFont, 'calendar: no task directory caption').toBeNull();
+          } else {
+            expect.soft(directoryMetrics.directoryTitleFont, 'calendar: combined drawer caption')
+              .toBe(reference.directoryTitleFont);
+          }
           await closeToDooDirectory(page);
         }
 
@@ -208,14 +218,16 @@ test('compact task density reduces row height without shrinking task text', asyn
 }, info) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   const csrf = await (await page.request.get('/api/security/csrf')).json();
-  const title = '紧凑密度仍保持清晰的任务标题';
-  const listId = 'style-density-goal-' + crypto.randomUUID();
+  const suffix = crypto.randomUUID().slice(0, 8);
+  const title = '紧凑密度仍保持清晰的任务标题 ' + suffix;
+  const goalName = '紧凑目标卡片布局 ' + suffix;
+  const listId = 'style-density-goal-' + suffix;
   const goalResponse = await page.request.post('/api/to-doo/commands', {
     headers: { origin: String(info.project.use.baseURL), 'x-csrf-token': csrf.token },
     data: {
       requestId: crypto.randomUUID(),
       action: 'save_entity',
-      payload: { kind: 'list', entity: { id: listId, name: '紧凑目标卡片布局', kind: 'goal' } },
+      payload: { kind: 'list', entity: { id: listId, name: goalName, kind: 'goal' } },
     },
   });
   expect(goalResponse.ok()).toBe(true);
@@ -230,7 +242,7 @@ test('compact task density reduces row height without shrinking task text', asyn
   expect(response.ok()).toBe(true);
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
-  const row = app.locator('.todo-task-row').filter({ hasText: title }).last();
+  const row = app.locator('.todo-task-row').filter({ hasText: title });
   await expect(row).toBeVisible();
   const measure = () =>
     row.evaluate((element) => ({
@@ -238,20 +250,21 @@ test('compact task density reduces row height without shrinking task text', asyn
       font: getComputedStyle(element.querySelector('.todo-task-name')!).fontSize,
     }));
   const comfortable = await measure();
-  await app.getByRole('button', { name: '显示选项', exact: true }).click();
-  const density = page.locator('.todo-ant-density');
-  await density.getByText('紧凑', { exact: true }).click();
+  await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await selectToDooOption(page, '任务密度', '紧凑');
+  await page.keyboard.press('Escape');
   await expect(app).toHaveClass(/todo-compact/);
   const compact = await measure();
-  expect(compact.height).toBeLessThan(comfortable.height);
+  const touch = await page.evaluate(() => matchMedia('(pointer: coarse)').matches);
+  if (touch) expect(compact.height).toBe(comfortable.height);
+  else expect(compact.height).toBeLessThan(comfortable.height);
   expect(compact.font).toBe(comfortable.font);
-  await app.getByRole('button', { name: '显示选项', exact: true }).click();
   await page.screenshot({
     path: info.outputPath('1440-compact-tasks.png'),
     animations: 'disabled',
   });
   await goToToDooSection(page, 'overview');
-  const goal = app.locator('.todo-goal').filter({ hasText: '紧凑目标卡片布局' });
+  const goal = app.locator('.todo-goal').filter({ hasText: goalName });
   await expect(goal).toBeVisible();
   const card = await goal.evaluate((element) => ({
     width: element.getBoundingClientRect().width,
@@ -265,8 +278,9 @@ test('compact task density reduces row height without shrinking task text', asyn
     animations: 'disabled',
   });
   await goToToDooSection(page, 'tasks');
-  await app.getByRole('button', { name: '显示选项', exact: true }).click();
-  await density.getByText('舒展', { exact: true }).click();
+  await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await selectToDooOption(page, '任务密度', '舒适');
+  await page.keyboard.press('Escape');
   await expect(app).not.toHaveClass(/todo-compact/);
   expect((await measure()).height).toBeCloseTo(comfortable.height, 0);
 });

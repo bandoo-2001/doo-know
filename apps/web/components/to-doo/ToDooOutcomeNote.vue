@@ -10,7 +10,7 @@ import ToDooSelect from './ToDooSelect.vue';
 import ToDooDisclosure from './ToDooDisclosure.vue';
 import ToDooFormLayout from './ToDooFormLayout.vue';
 import ToDooMarkdownPreview from './ToDooMarkdownPreview.vue';
-import { computed, reactive, ref } from 'vue';
+import { computed, onBeforeUnmount, reactive, ref } from 'vue';
 import type { TreeEntry } from '../../../../shared/contracts';
 import type {
   ToDooOccurrence,
@@ -20,6 +20,7 @@ import type {
 import { toDooOutcomeResumeInput, type ToDooWorkbench } from '../../to-doo-workbench';
 import DirectoryTreeSelect from '../DirectoryTreeSelect.vue';
 import { useToDooConfirm } from '../../to-doo-controls';
+import { guardToDooTaskAction } from '../../to-doo-action-guard';
 const props = defineProps<{
   open?: boolean;
   model: ToDooWorkbench;
@@ -30,6 +31,9 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{ close: []; saved: [id: string]; 'open-note': [id: string] }>();
 const confirm = useToDooConfirm();
+const ownerDatasetId = props.model.state.snapshot?.datasetId;
+let alive = true;
+onBeforeUnmount(() => { alive = false; });
 const form = reactive({
   title: props.operation?.title || props.task.title + ' · 成果',
   folderPath: props.operation?.folderPath || '',
@@ -55,33 +59,71 @@ const folders = computed(() => {
 });
 const dirty = computed(() => JSON.stringify(form) !== baseline || !!submitted.value);
 const previewing = ref(false);
+function captureOwner() {
+  const taskId = props.task.id, occurrenceId = props.occurrence.id,
+    selectedTaskId = props.model.state.selectedTaskId,
+    selectedOccurrenceId = props.model.state.selectedOccurrenceId,
+    input = JSON.stringify(form);
+  return { taskId, occurrenceId, current: () => alive && props.task.id === taskId &&
+    props.occurrence.id === occurrenceId && props.occurrence.taskId === taskId &&
+    props.model.state.snapshot?.datasetId === ownerDatasetId &&
+    props.model.state.selectedTaskId === selectedTaskId &&
+    props.model.state.selectedOccurrenceId === selectedOccurrenceId && JSON.stringify(form) === input };
+}
+async function guardOwner(owner: ReturnType<typeof captureOwner>, saved?: () => void) {
+  if (!owner.current()) return false;
+  if (!(await guardToDooTaskAction(props.model, [owner.taskId], confirm, {
+    current: owner.current,
+    save: async () => {
+      const result = await props.model.saveTask();
+      if (result && !props.model.dirty()) saved?.();
+      return result;
+    },
+  }))) {
+    error.value = props.model.state.error || '任务内容尚未保存，这次成果操作尚未执行。';
+    return false;
+  }
+  return owner.current();
+}
 async function save() {
   if (busy.value) return;
+  const owner = captureOwner();
+  if (!owner.current()) return;
   busy.value = true;
   error.value = '';
-  const payload = submitted.value || {
-    requestId,
-    occurrenceId: props.occurrence.id,
-    expectedRevision: expectedRevision.value,
-    title: form.title,
-    content: form.content,
-    verification: form.verification,
-    complete: form.complete,
-    criteriaResults: props.task.criteria
-      .split('\n')
-      .map((label) => label.trim())
-      .filter(Boolean)
-      .map((label) => ({ label, passed: false })),
-    ...(form.folderPath ? { folderPath: form.folderPath } : {}),
-  };
-  submitted.value = payload;
   try {
+    if (!submitted.value) {
+      // A retained note can outlive the task selection and the version it opened with.
+      let savedRevision: string | undefined, savedCriteria: string | undefined;
+      if (!(await props.model.ensureTask(owner.taskId)) || !owner.current() || !(await guardOwner(owner, () => {
+        savedRevision = props.model.state.snapshot?.occurrences.find(o => o.id === owner.occurrenceId && o.taskId === owner.taskId)?.revision;
+        savedCriteria = props.model.taskDefinitions().find(task => task.id === owner.taskId)?.criteria;
+      }))) return;
+      const occurrence = props.model.state.snapshot?.occurrences.find(o => o.id === owner.occurrenceId && o.taskId === owner.taskId && !o.deletedAt),
+        task = props.model.taskDefinitions().find(task => task.id === owner.taskId && !task.deletedAt);
+      if (!occurrence || !task) {
+        error.value = '关联任务或执行记录暂不可用，请先回到任务核对。';
+        return;
+      }
+      // An unrelated refresh must still produce a 409 against the version this form opened with.
+      // Only the task save explicitly confirmed above may advance that expectation.
+      if (savedRevision) expectedRevision.value = savedRevision;
+      submitted.value = {
+        requestId, occurrenceId: owner.occurrenceId, expectedRevision: expectedRevision.value,
+        title: form.title, content: form.content, verification: form.verification, complete: form.complete,
+        criteriaResults: (savedCriteria ?? props.task.criteria).split('\n').map(label => label.trim()).filter(Boolean).map(label => ({ label, passed: false })),
+        ...(form.folderPath ? { folderPath: form.folderPath } : {}),
+      };
+    }
+    // A retry must reconcile the exact original request, even if task input became dirty later.
+    const payload = submitted.value;
     const response = await props.model.request('/api/to-doo/outcome-note', 'POST', payload);
+    if (props.model.state.snapshot?.datasetId !== ownerDatasetId || response.snapshot.datasetId !== ownerDatasetId) return;
     props.model.acceptSnapshot(response.snapshot, true);
     void props.model.loadPendingOperations();
     savedNoteId.value = response.noteId;
     props.model.state.notice = '成果笔记已创建并关联';
-    emit('saved', response.noteId);
+    if (owner.current()) emit('saved', response.noteId);
   } catch (cause) {
     const e = cause as Error & { status?: number; data?: Record<string, any> };
     error.value = e.message;
@@ -94,36 +136,41 @@ async function save() {
   }
 }
 async function reconcile() {
-  if (!operationId.value && !canReconcile.value) return;
+  if (busy.value || (!operationId.value && !canReconcile.value)) return;
+  const owner = captureOwner();
+  if (!owner.current()) return;
+  let ready = false;
+  busy.value = true;
+  error.value = '';
   try {
     const data = await props.model.request(
-      '/api/to-doo/state?kind=occurrence&ids=' +
-        encodeURIComponent(props.occurrence.id) +
-        '&limit=1',
+      '/api/to-doo/state?kind=occurrence&ids=' + encodeURIComponent(owner.occurrenceId) + '&limit=1',
     );
+    if (!owner.current() || data.datasetId !== ownerDatasetId) return;
     props.model.acceptSnapshot(data, true);
+    const current = props.model.state.snapshot?.occurrences.find(o => o.id === owner.occurrenceId && o.taskId === owner.taskId && !o.deletedAt);
+    if (!current) {
+      error.value = '执行记录暂不可用，请先回到任务核对';
+      return;
+    }
+    if (!(await confirm(
+      '已重新载入任务状态。使用当前版本继续这次成果操作？标题、正文与目录保持原内容；如果笔记已保存，会继续关联同一篇。',
+    )) || !owner.current() || !(await guardOwner(owner))) return;
+    const latest = props.model.state.snapshot?.occurrences.find(o => o.id === owner.occurrenceId && o.taskId === owner.taskId && !o.deletedAt);
+    if (!latest) return;
+    expectedRevision.value = latest.revision;
+    submitted.value = {
+      ...submitted.value,
+      ...(operationId.value ? { operationId: operationId.value } : {}),
+      expectedRevision: latest.revision,
+    };
+    ready = true;
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : String(cause);
-    return;
+  } finally {
+    busy.value = false;
   }
-  const current = props.model.state.snapshot?.occurrences.find((o) => o.id === props.occurrence.id);
-  if (!current) {
-    error.value = '执行记录暂不可用，请先回到任务核对';
-    return;
-  }
-  if (
-    !(await confirm(
-      '已重新载入任务状态。使用当前版本继续这次成果操作？标题、正文与目录保持原内容；如果笔记已保存，会继续关联同一篇。',
-    ))
-  )
-    return;
-  expectedRevision.value = current.revision;
-  submitted.value = {
-    ...submitted.value,
-    ...(operationId.value ? { operationId: operationId.value } : {}),
-    expectedRevision: current.revision,
-  };
-  await save();
+  if (ready && owner.current()) await save();
 }
 defineExpose({ hasUnsavedChanges: () => dirty.value || busy.value });
 </script>

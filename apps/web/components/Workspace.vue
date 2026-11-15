@@ -22,6 +22,7 @@ import { knowledgeMarkdown } from '../../../shared/knowledge-markdown';
 import { defineAsyncComponent, ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { NModal, NAlert } from 'naive-ui';
 import { Button as AButton, Input as AInput, Alert as AAlert, Select as ASelect, Popover as APopover } from 'ant-design-vue';
+import ToDooCaptureDialog from './to-doo/ToDooCaptureDialog.vue';
 import MarkdownIt from 'markdown-it';
 import { markdownStyles } from '../../../shared/markdown-styles';
 import DOMPurify from 'dompurify';
@@ -306,7 +307,7 @@ async function navigateApp(app: WorkspaceRoute['app'], section?: BlogSection | T
     selection = { taskFilter: 'today' };
   if (!currentIntent(intent)) return;
   if (panel.value === 'apps' && appsApp.value !== app && !await confirmAppLeave(intent)) return;
-  if (panel.value === 'apps' && appsApp.value === 'to-doo' && app === 'to-doo' && nextSection !== appsSection.value &&
+  if (panel.value === 'apps' && appsApp.value === 'to-doo' && app === 'to-doo' &&
       (await appsRef.value?.requestSectionLeave(nextSection as ToDooAppSection)) === false) return;
   if (!currentIntent(intent)) return;
   appNavigationMemory.remember(navigation.currentRoute());
@@ -730,7 +731,7 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
   if (panel.value === 'apps' && !(route.view === 'apps' && route.app === appsApp.value) && !await confirmAppLeave(intent)) return false;
   const nextAppSection = route.view === 'apps' ? await resolveAppSection(route.app, route.appSection, route) : 'overview';
   if (!currentIntent(intent)) return false;
-  if (panel.value === 'apps' && appsApp.value === 'to-doo' && route.view === 'apps' && route.app === 'to-doo' && nextAppSection !== appsSection.value &&
+  if (panel.value === 'apps' && appsApp.value === 'to-doo' && route.view === 'apps' && route.app === 'to-doo' &&
       (await appsRef.value?.requestSectionLeave(nextAppSection as ToDooAppSection)) === false) return false;
   if (!currentIntent(intent)) return false;
   if (route.note && ['settings', 'trash', 'apps', 'collection'].includes(panel.value) && note.value?.id === route.note) {
@@ -3601,6 +3602,7 @@ async function closeNotebookDrawer() {
         @navigate="navigateApp"
         @return-app="returnFromApp"
         @menu-select="drawer = false"
+        @open-plugin-settings="settings('plugins')"
         @open-note="openBlogNote"
         @note-created="run(refresh)"
       />
@@ -3637,7 +3639,7 @@ async function closeNotebookDrawer() {
       @moved="moved"
     />
     <NoteCopyDialog v-model:show="copyOpen" :note-id="copyTarget?.id" :relative-path="copyTarget?.path" :folders="folders" @copied="copied" />
-    <NModal v-model:show="toDooCaptureOpen" preset="card" class="dialog-card" title="从资料创建任务" :mask-closable="!toDooCaptureBusy" :close-on-esc="!toDooCaptureBusy" :closable="!toDooCaptureBusy">
+    <ToDooCaptureDialog v-model:open="toDooCaptureOpen" :busy="toDooCaptureBusy">
       <form v-if="capturedTask" class="to-doo-capture-form" @submit.prevent="saveCapturedTask">
         <label>任务标题<AInput v-model:value="capturedTask.title" aria-label="任务标题" :maxlength="256" :disabled="toDooCaptureBusy" /></label>
         <label>目标或清单<ASelect v-model:value="capturedList" aria-label="目标或清单" :options="[{label:'收集箱',value:'inbox'},...captureLists.map(list=>({label:list.name,value:list.id}))]" :disabled="toDooCaptureBusy" /></label>
@@ -3646,7 +3648,7 @@ async function closeNotebookDrawer() {
         <AAlert v-if="toDooCaptureError" type="error" :message="toDooCaptureError" role="alert" />
         <div class="dialog-actions"><AButton :disabled="toDooCaptureBusy" @click="toDooCaptureOpen=false">取消</AButton><AButton type="primary" html-type="submit" :loading="toDooCaptureBusy" :disabled="!capturedTask.title.trim()">创建任务</AButton></div>
       </form>
-    </NModal>
+    </ToDooCaptureDialog>
     <NModal
       v-model:show="importOpen"
       preset="card"

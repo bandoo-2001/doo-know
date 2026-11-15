@@ -40,6 +40,7 @@ const emit = defineEmits<{
   'task-scope': [value: 'archived' | 'trash'];
   'resume-outcome': [operation: ToDooEntityMap['operation']];
   'open-note': [id: string];
+  'open-plugin-settings': [];
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
 }>();
 const confirmAction = useToDooConfirm();
@@ -61,6 +62,7 @@ const activeTab = computed<string>({
 });
 const importFileInput = ref<HTMLInputElement>();
 const fileDecoding = ref(false);
+const pasteImport = ref(false);
 const timeZoneSuggestions = [
   ...new Set([
     'UTC',
@@ -794,7 +796,7 @@ defineExpose({
 });
 </script>
 <template>
-  <div class="todo-settings" :class="{ 'todo-settings-contextual': contextualNavigation }">
+  <div class="todo-settings todo-settings-simplified" :class="{ 'todo-settings-contextual': contextualNavigation }">
     <datalist id="to-doo-timezones">
       <option v-for="zone in timeZoneSuggestions" :key="zone" :value="zone" />
     </datalist>
@@ -842,8 +844,7 @@ defineExpose({
             · {{ state.pendingOperations.length }} 项待继续
           </span>
         </template>
-        <div class="todo-panel-header">
-          <h2>待继续的成果笔记</h2>
+        <div class="todo-actions todo-pad">
           <AButton
             html-type="button"
             class="todo-link"
@@ -941,8 +942,7 @@ defineExpose({
         @input="validationError = ''"
       >
         <AAlert v-if="validationError" type="error" :message="validationError" show-icon />
-        <section class="todo-form-section todo-preference-card todo-preference-daily">
-          <h3>日常使用</h3>
+        <section class="todo-form-section todo-preference-card todo-preference-daily" aria-label="日常使用">
           <div class="todo-form-grid">
             <label
               >默认视图<ToDooSelect v-model="settings.defaultView">
@@ -977,7 +977,6 @@ defineExpose({
         </section>
         <ToDooDisclosure
           ref="dateRules"
-          :open="contextualNavigation"
           class="todo-preference-card todo-preference-date"
         >
           <template #header>
@@ -1041,7 +1040,6 @@ defineExpose({
         </ToDooDisclosure>
         <ToDooDisclosure
           ref="focusRules"
-          :open="contextualNavigation"
           class="todo-preference-card todo-preference-focus"
         >
           <template #header>
@@ -1179,7 +1177,8 @@ defineExpose({
           aria-label="选择导入文件"
           @change="chooseFile"
         />
-        <label v-if="!file"
+        <AButton v-if="!file && !pasteImport && !content" type="text" html-type="button" @click="pasteImport = true">粘贴文件内容</AButton>
+        <label v-if="!file" v-show="pasteImport || !!content"
           >或粘贴文件内容<ATextarea
             v-model:value="content"
             :rows="4"
@@ -1391,6 +1390,10 @@ defineExpose({
       </div>
     </section>
     <section v-show="activeTab === 'connections'" class="todo-panel">
+      <div class="todo-panel-header"><h2>MCP 与插件</h2></div>
+      <div class="todo-pad todo-form"><p class="todo-muted">管理 AI 工具连接、知识访问范围和 To Doo 授权。</p><AButton @click="emit('open-plugin-settings')">打开 MCP 与插件管理</AButton></div>
+    </section>
+    <section v-show="activeTab === 'connections'" class="todo-panel">
       <div class="todo-panel-header">
         <h2>桌面提醒</h2>
         <AButton
@@ -1479,8 +1482,8 @@ defineExpose({
     </section>
     <section v-show="activeTab === 'connections'" class="todo-panel">
       <div class="todo-panel-header"><h2>日历连接与订阅</h2></div>
-      <ToDooDisclosure class="todo-connection-disclosure" :open="contextualNavigation">
-        <template #header><span>连接外部只读日历</span></template>
+      <ToDooDisclosure class="todo-connection-disclosure" :open="!!connection.name || !!connection.url">
+        <template #header><span>连接外部只读日历</span><small v-if="connection.name || connection.url" class="todo-muted">未提交</small></template>
         <form class="todo-form todo-pad" @submit.prevent="connect">
           <label>来源名称<AInput v-model:value="connection.name" required :maxlength="256" /></label
           ><label
@@ -1538,8 +1541,8 @@ defineExpose({
           </AButton>
         </div>
       </div>
-      <ToDooDisclosure class="todo-connection-disclosure" :open="!!feed || contextualNavigation">
-        <template #header><span>创建 To Doo 只读订阅链接</span></template>
+      <ToDooDisclosure class="todo-connection-disclosure" :open="!!feed || !!feedName || !!feedLists.length || feedDescription">
+        <template #header><span>创建 To Doo 只读订阅链接</span><small v-if="!feed && (feedName || feedLists.length || feedDescription)" class="todo-muted">未提交</small></template>
         <form class="todo-form todo-pad" @submit.prevent="createFeed">
           <label>订阅名称<AInput v-model:value="feedName" required /></label
           ><label
@@ -1699,3 +1702,4 @@ defineExpose({
 </template>
 
 <style src="../../to-doo-management-layout.css"></style>
+<style src="../../to-doo-settings-layout.css"></style>

@@ -74,9 +74,11 @@ test('quick add today persists its plan without opening details and keeps comple
   await selectToDooQuickView(page, '所有任务');
   await app.getByRole('button', { name: '完成 ' + title, exact: true }).click();
   await expect(app.getByRole('button', { name: title, exact: true })).not.toBeVisible();
-  await app.getByRole('button', { name: '显示已完成任务', exact: true }).click();
+  await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await page.getByRole('checkbox', { name: '显示已完成任务', exact: true }).check();
   await expect(app.getByRole('button', { name: title, exact: true })).toBeVisible();
-  await app.getByRole('button', { name: '隐藏已完成任务', exact: true }).click();
+  await page.getByRole('checkbox', { name: '显示已完成任务', exact: true }).uncheck();
+  await page.keyboard.press('Escape');
   await expect(app.getByRole('button', { name: title, exact: true })).not.toBeVisible();
   const persisted = await (await page.request.get('/api/to-doo/state?taskIds=' + task.id)).json();
   expect(persisted.occurrences.find((item: any) => item.id === occurrence.id)?.status).toBe('done');
@@ -112,20 +114,24 @@ test('quick add inherits the selected list and clearing filters restores tasks a
   await selectToDooQuickView(page, '所有任务');
   await expect(app.getByRole('button', { name: outsideTitle, exact: true })).toBeVisible();
   await openToDooTaskTools(page);
-  const search = app.getByRole('textbox', { name: '搜索任务', exact: true });
+  const search = page.getByRole('textbox', { name: '搜索任务', exact: true });
   await search.fill(title);
-  await app.getByRole('button', { name: '执行搜索', exact: true }).click();
+  await page.getByRole('button', { name: '执行搜索', exact: true }).click();
   await expect(app.getByRole('button', { name: outsideTitle, exact: true })).not.toBeVisible();
   await selectToDooTaskView(page, '看板');
+  await openToDooTaskTools(page);
   await expect(search).toHaveValue(title);
   await expect(app.getByRole('button', { name: title, exact: true })).toBeVisible();
   await expect(app.getByRole('button', { name: outsideTitle, exact: true })).not.toBeVisible();
   await selectToDooTaskView(page, '四象限');
+  await openToDooTaskTools(page);
   await expect(search).toHaveValue(title);
   await expect(app.getByRole('button', { name: title, exact: true })).toBeVisible();
   await app.locator('.todo-task-toolbar').getByRole('button', { name: /^筛选/ }).click();
-  await app.getByRole('button', { name: '清除筛选', exact: true }).click();
+  await page.locator('.todo-task-filter-form').getByRole('button', { name: '清除筛选', exact: true }).click();
+  await openToDooTaskTools(page);
   await expect(search).toHaveValue('');
+  await page.keyboard.press('Escape');
   await expect(app.getByRole('button', { name: outsideTitle, exact: true })).toBeVisible();
   await selectToDooTaskView(page, '列表');
   await expect(app.getByRole('button', { name: title, exact: true })).toBeVisible();
@@ -339,7 +345,9 @@ test('deleting a list immediately removes it from the sidebar catalog', async ({
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
   const entry = app.locator('.todo-sidebar nav').getByRole('button', { name, exact: true });
   await entry.click();
-  await app.getByRole('button', { name: '编辑当前清单', exact: true }).click();
+  await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await page.getByRole('menuitem', { name: '组织清单', exact: true }).click();
+  await page.getByRole('menuitem', { name: '编辑当前清单', exact: true }).click();
   await page
     .getByRole('dialog', { name: /^编辑(目标|清单)$/ })
     .getByRole('button', { name: '移入回收站', exact: true })
@@ -361,7 +369,9 @@ test('retrying a deleted list refreshes the sidebar after its editor was closed'
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
   const entry = app.locator('.todo-sidebar nav').getByRole('button', { name, exact: true });
   await entry.click();
-  await app.getByRole('button', { name: '编辑当前清单', exact: true }).click();
+  await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await page.getByRole('menuitem', { name: '组织清单', exact: true }).click();
+  await page.getByRole('menuitem', { name: '编辑当前清单', exact: true }).click();
   await page.route(
     '**/api/to-doo/commands',
     (route) => route.fulfill({ status: 503, json: { error: '删除暂时不可用' } }),

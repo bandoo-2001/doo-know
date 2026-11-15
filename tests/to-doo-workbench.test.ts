@@ -10,7 +10,9 @@ import {
   focusElapsed,
 } from '../apps/web/to-doo-workbench';
 import { toDooAnniversaryDate as nextToDooAnniversary } from '../shared/to-doo-anniversaries';
-import { toDooDraftPayload } from '../apps/web/to-doo-presentation';
+import { prepareToDooQuickDraft, toDooDraftPayload } from '../apps/web/to-doo-presentation';
+import { saveTaskSection } from '../apps/web/to-doo-task-groups';
+import { toDooCaptureFromNote } from '../apps/web/to-doo-capture';
 import {
   TO_DOO_COLLECTIONS,
   toDooEntitySchemas,
@@ -112,6 +114,72 @@ const stamp = {
   createdAt: '2026-10-29T08:00:00.000Z',
   updatedAt: '2026-10-29T08:00:00.000Z',
 };
+
+test.each(['unchanged', 'edited', 'replaced'] as const)(
+  'a recovered quick capture receipt clears only its exact original draft (%s)', async (change) => {
+    const storage = new Map<string, string>();
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => storage.set(key, value),
+    });
+    try {
+      const data = snapshot();
+      const scope = { recoveryScope: 'capture-owner' };
+      const first = createToDooWorkbench(async () => { throw Error('response lost'); }, scope);
+      first.acceptSnapshot(data);
+      const source = first.newTaskDraft(undefined, 'list-A');
+      source.title = '明天 核对账单';
+      const prepared = prepareToDooQuickDraft(source, '2026-10-29', []);
+      const payload = toDooDraftPayload(prepared, 'UTC');
+      // Two saved drafts may point to the same editable destination.
+      const other = first.newTaskDraft(undefined, 'list-B');
+      Object.assign(other, prepared);
+      await first.createTask(payload, source);
+      const originalId = first.state.pendingMutation!.requestId;
+      expect(source.title).toBe('明天 核对账单');
+      const second = createToDooWorkbench(async (_url, method, body) => {
+        if (method !== 'POST') return data;
+        expect(toDooCommandSchema.parse(body).requestId).toBe(originalId);
+        return { snapshot: data, ids: ['task-a'], changed: [] };
+      }, scope);
+      second.acceptSnapshot(data);
+      expect(second.state.pendingMutation?.requestId).toBe(originalId);
+      if (change === 'replaced') {
+        second.clearNewTaskDraft(undefined, 'list-A');
+        second.newTaskDraft(undefined, 'list-A').title = source.title;
+      }
+      if (change === 'edited') second.newTaskDraft(undefined, 'list-A').criteria = '补充核对要求';
+      const result = await second.retryPending();
+      expect(result, second.state.error).toBeDefined();
+      expect(second.state.selectedTaskId).toBe('');
+      expect(second.newTaskDraft(undefined, 'list-A').title).toBe(change === 'unchanged' ? '' : source.title);
+      expect(second.newTaskDraft(undefined, 'list-B').title).toBe(payload.title);
+      expect(second.state.pendingQuickCapture).toBeNull();
+    } finally { vi.unstubAllGlobals(); }
+  },
+);
+
+test('a late quick capture receipt keeps the draft and selection in the newly opened dataset', async () => {
+  const data = snapshot();
+  let finish!: () => void;
+  const wait = new Promise<void>((resolve) => { finish = resolve; });
+  const model = createToDooWorkbench(async (_url, method) => {
+    if (method !== 'POST') return data;
+    await wait;
+    return { snapshot: data, ids: ['task-a'], changed: [] };
+  });
+  model.acceptSnapshot(data);
+  const source = model.newTaskDraft();
+  source.title = '核对账单';
+  const saving = model.createTask(toDooDraftPayload(source, 'UTC'), source);
+  model.acceptSnapshot({ ...data, datasetId: 'another-dataset' });
+  model.newTaskDraft().title = source.title;
+  finish();
+  await saving;
+  expect(model.newTaskDraft().title).toBe(source.title);
+  expect(model.state.selectedTaskId).toBe('');
+});
+
 function snapshot(): ToDooSnapshot {
   const collections: ToDooCollections = {
     lists: [],
@@ -241,6 +309,16 @@ function transport(initial = snapshot()) {
     },
   };
 }
+test('active editor validation protects non-serializable input from an indirect save', async () => {
+  const server = transport(), model = createToDooWorkbench(server.request);
+  await model.load(); model.selectTask('task-a');
+  model.draft()!.task.title = '仍在编辑';
+  const release = model.registerTaskDraftValidator('task-a@' + model.state.selectedOccurrenceId, () => false);
+  expect(await model.saveTask()).toBeUndefined();
+  expect(server.data.tasks[0].title).not.toBe('仍在编辑'); expect(model.dirty()).toBe(true);
+  release(); await model.saveTask();
+  expect(server.data.tasks[0].title).toBe('仍在编辑'); expect(model.dirty()).toBe(false);
+});
 async function domainStatusFixture() {
   const { mkdtemp, mkdir, rm } = await import('node:fs/promises'),
     { tmpdir } = await import('node:os'),
@@ -875,6 +953,8 @@ describe('To Doo workbench', () => {
         start: { date: '2030-05-20' },
       });
       await model.rebaseDraft();
+      expect(model.state.draftConflicts).toMatchObject([{ kind: 'timeBlock', field: 'start' }]);
+      model.resolveAllDraftConflicts('local');
       model.draft()!.blocks[0]!.start.date = '2030-05-21';
       await model.saveTask();
       expect(model.state.error).toBe('');
@@ -1255,6 +1335,136 @@ describe('To Doo workbench', () => {
       await f.close();
     }
   });
+  test.each(['added', 'deleted', 'moved'] as const)('a child %s while the descendant confirmation is open invalidates the frozen scope', async (change) => {
+    const f = await domainStatusFixture();
+    try {
+      const parent = f.create('Confirmed parent'), child = f.create('Confirmed child', { parentTaskId: parent.id });
+      const before = f.service.snapshot({ taskIds: [parent.id], includeTree: true });
+      const root = before.occurrences.find(o => o.taskId === parent.id)!;
+      const bodies: any[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'POST') bodies.push(JSON.parse(JSON.stringify(body)));
+        return f.request(url, method, body);
+      });
+      await model.load();
+      expect(await model.statusChildCount(parent.id)).toBe(1);
+      let extraId: string | undefined;
+      if (change === 'added') extraId = f.create('New unconfirmed child', { parentTaskId: parent.id }).id;
+      else f.service.command({ requestId: crypto.randomUUID(),
+        ...(change === 'deleted'
+          ? { action: 'delete_entity', payload: { kind: 'task', id: child.id, expectedRevision: child.revision, cascade: true } }
+          : { action: 'batch_tasks', payload: { ids: [child.id], expectedRevisions: { [child.id]: child.revision }, operation: 'move', parentTaskId: null, listId: null, includeDescendants: true } }),
+      });
+      await model.setStatus(root.id, 'done', true);
+      expect(model.state.error).toMatch(/版本|变化|冲突/);
+      expect(bodies).toHaveLength(1);
+      expect([...bodies[0].payload.expectedOccurrenceIds].sort()).toEqual(before.occurrences.map(o => o.id).sort());
+      const after = f.service.snapshot({ filter: { includeDeleted: true }, limit: 500 });
+      expect(after.occurrences.find(o => o.id === root.id)?.status).toBe('todo');
+      if (extraId) expect(after.occurrences.find(o => o.taskId === extraId)?.status).toBe('todo');
+    } finally { await f.close(); }
+  });
+
+  test('a child edited while the descendant confirmation is open keeps its frozen expected revision', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const parent = f.create('Parent confirmation'), child = f.create('Child confirmation', { parentTaskId: parent.id });
+      const before = f.service.snapshot({ taskIds: [parent.id], includeTree: true });
+      const root = before.occurrences.find(o => o.taskId === parent.id)!, leaf = before.occurrences.find(o => o.taskId === child.id)!;
+      const model = createToDooWorkbench(f.request);
+      await model.load();
+      expect(await model.statusChildCount(parent.id)).toBe(1);
+      f.service.command({ requestId: crypto.randomUUID(), action: 'set_occurrence_status',
+        payload: { id: leaf.id, expectedRevision: leaf.revision, status: 'doing' } });
+      await model.setStatus(root.id, 'done', true);
+      expect(model.state.error).toMatch(/版本|变化|冲突/);
+      const after = f.service.snapshot({ taskIds: [parent.id], includeTree: true });
+      expect(after.occurrences.find(o => o.id === root.id)?.status).toBe('todo');
+      expect(after.occurrences.find(o => o.id === leaf.id)?.status).toBe('doing');
+    } finally { await f.close(); }
+  });
+
+  test('a repeated count refreshes a cancelled confirmation baseline before the next cascade', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const parent = f.create('Reconfirmed parent'); f.create('Original child', { parentTaskId: parent.id });
+      const model = createToDooWorkbench(f.request);
+      await model.load();
+      const root = model.state.snapshot!.occurrences.find(o => o.taskId === parent.id)!;
+      expect(await model.statusChildCount(parent.id)).toBe(1);
+      f.create('Confirmed new child', { parentTaskId: parent.id });
+      expect(await model.statusChildCount(parent.id)).toBe(2);
+      expect(await model.setStatus(root.id, 'done', true)).toBeTruthy();
+      expect(model.state.error).toBe('');
+      expect(f.service.snapshot({ taskIds: [parent.id], includeTree: true }).occurrences.every(o => o.status === 'done')).toBe(true);
+    } finally { await f.close(); }
+  });
+
+  test('a non-cascading status consumes its count baseline and a later direct cascade reads fresh scope', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const parent = f.create('One-shot confirmation'); f.create('Original child', { parentTaskId: parent.id });
+      const model = createToDooWorkbench(f.request);
+      await model.load();
+      const root = model.state.snapshot!.occurrences.find(o => o.taskId === parent.id)!;
+      await model.statusChildCount(parent.id);
+      expect(await model.setStatus(root.id, 'doing', false)).toBeTruthy();
+      f.create('Direct API child', { parentTaskId: parent.id });
+      expect(await model.setStatus(root.id, 'done', true)).toBeTruthy();
+      expect(model.state.error).toBe('');
+      expect(f.service.snapshot({ taskIds: [parent.id], includeTree: true }).occurrences.every(o => o.status === 'done')).toBe(true);
+    } finally { await f.close(); }
+  });
+
+  test('a changed dataset cannot consume an old descendant confirmation or adopt its late graph read', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const parent = f.create('Dataset confirmation'); f.create('Child', { parentTaskId: parent.id });
+      const bodies: any[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'POST') bodies.push(body);
+        return f.request(url, method, body);
+      });
+      await model.load();
+      const root = model.state.snapshot!.occurrences.find(o => o.taskId === parent.id)!;
+      await model.statusChildCount(parent.id);
+      model.acceptSnapshot({ ...f.service.snapshot(), datasetId: 'different-confirmation-dataset' });
+      await model.setStatus(root.id, 'done', true);
+      expect(bodies).toEqual([]);
+      expect(model.state.snapshot?.datasetId).toBe('different-confirmation-dataset');
+      expect(model.state.error).toMatch(/资料库|范围已变化/);
+      expect(f.service.snapshot({ taskIds: [parent.id] }).occurrences.find(o => o.id === root.id)?.status).toBe('todo');
+    } finally { await f.close(); }
+  });
+
+  test('an unknown cascade retries its original frozen request even after a newer count', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const parent = f.create('Receipt confirmation'); f.create('Original child', { parentTaskId: parent.id });
+      const bodies: any[] = []; let lost = true;
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        const result = await f.request(url, method, body);
+        if (method === 'POST') {
+          bodies.push(JSON.parse(JSON.stringify(body)));
+          if (lost) { lost = false; throw Error('confirmed cascade reply lost'); }
+        }
+        return result;
+      });
+      await model.load();
+      const root = model.state.snapshot!.occurrences.find(o => o.taskId === parent.id)!;
+      await model.statusChildCount(parent.id);
+      await model.setStatus(root.id, 'done', true);
+      expect(model.state.pendingMutation).not.toBeNull();
+      const added = f.create('Added after commit', { parentTaskId: parent.id });
+      await model.statusChildCount(parent.id);
+      await model.setStatus(root.id, 'done', true);
+      expect(bodies).toHaveLength(2);
+      expect(bodies[1]).toEqual(bodies[0]);
+      expect(model.state.pendingMutation).toBeNull();
+      expect(f.service.snapshot({ taskIds: [added.id] }).occurrences.find(o => o.taskId === added.id)?.status).toBe('todo');
+    } finally { await f.close(); }
+  });
+
   test('a normal subtree batch completes leaves then parents with one frozen version closure', async () => {
     const f = await domainStatusFixture();
     try {
@@ -2067,6 +2277,368 @@ for (const recovered of [false, true]) {
   );
 }
 
+describe('versioned editing recovery and action guards', () => {
+  function storageFixture() {
+    const values = new Map<string, string>();
+    vi.stubGlobal('localStorage', { getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => values.set(key, value) });
+    return values;
+  }
+  test('restores a future recurrence scope and uses it for an indirect save instead of changing the whole series', async () => {
+    const storage = storageFixture();
+    try {
+      const initial = snapshot();
+      initial.tasks[0].recurrence = toDooEntitySchemas.task.parse({ ...initial.tasks[0], recurrence: {
+        id: 'daily-rule', frequency: 'daily', interval: 1, anchorDate: '2026-11-01', timeZone: 'UTC',
+      } }).recurrence;
+      initial.occurrences[0].scheduledDate = '2026-11-20';
+      const server = transport(initial), submitted: ReturnType<typeof toDooCommandSchema.parse>[] = [];
+      const request = async (url: string, method = 'GET', input?: unknown) => {
+        if (method !== 'GET') {
+          const command = toDooCommandSchema.parse(input);
+          submitted.push(command);
+          if (command.action === 'change_recurrence') {
+            const task = server.data.tasks.find((entry) => entry.id === command.payload.taskId)!;
+            expect(command.payload.expectedRevision).toBe(task.revision);
+            task.recurrence = command.payload.rule;
+            task.revision = 'recurrence-r3'; server.data.version = '3';
+            return { snapshot: structuredClone(server.data), ids: [task.id],
+              changed: [{ kind: 'task', id: task.id, revision: task.revision }],
+              replayed: false, transactionId: 'recurrence-tx' };
+          }
+        }
+        return server.request(url, method, input);
+      };
+      const first = createToDooWorkbench(request); await first.load(); first.selectTask('task-a', 'occ-a');
+      first.setDraftRecurrenceScope('future');
+      expect(first.dirty()).toBe(false);
+      first.draft()!.task.recurrence!.interval = 2;
+      expect(first.flushRecovery()).toBe(true);
+      expect(JSON.parse(storage.get('dooknow.to-doo.recovery:test')!).edits['task-a@occ-a'].scope).toBe('future');
+      const restored = createToDooWorkbench(request); await restored.load(); restored.selectTask('task-a', 'occ-a');
+      expect(restored.getDraftRecurrenceScope()).toBe('future');
+      await restored.saveTask();
+      expect(submitted.filter((entry) => entry.action === 'change_recurrence')).toMatchObject([
+        { payload: { scope: 'future', from: '2026-11-20', rule: { interval: 2 } } },
+      ]);
+      expect(server.data.tasks[0].recurrence?.interval).toBe(2);
+      expect(restored.dirty()).toBe(false);
+      expect(restored.getDraftRecurrenceScope()).toBe('all');
+      restored.draft()!.task.recurrence!.interval = 3;
+      restored.setDraftRecurrenceScope('future');
+      await restored.saveTask('all');
+      expect(submitted.filter((entry) => entry.action === 'change_recurrence').at(-1)).toMatchObject({ payload: { scope: 'all' } });
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('discard and dataset changes clear recurrence choices without making scope alone an entity edit', async () => {
+    const model = createToDooWorkbench(transport().request); await model.load(); model.selectTask('task-a', 'occ-a');
+    model.setDraftRecurrenceScope('future');
+    expect(model.dirty()).toBe(false);
+    expect(model.hasUnsavedChanges()).toBe(false);
+    model.discardDraft();
+    expect(model.getDraftRecurrenceScope()).toBe('all');
+    expect(model.state.draftRecurrenceScopes).toEqual({});
+    model.setDraftRecurrenceScope('future');
+    model.acceptSnapshot({ ...snapshot(), datasetId: 'another-library' });
+    expect(model.state.draftRecurrenceScopes).toEqual({});
+    expect(model.getDraftRecurrenceScope('task-a@occ-a')).toBe('all');
+  });
+  test('restores an existing edit, empty title and a new unsaved plan without claiming server persistence', async () => {
+    const storage = storageFixture();
+    try {
+      const server = transport(), first = createToDooWorkbench(server.request);
+      await first.load(); first.selectTask('task-a');
+      first.draft()!.task.title = '';
+      first.draft()!.task.description = '刷新前的输入';
+      first.draft()!.blocks.push({ ...toDooEntitySchemas.timeBlock.parse({ ...stamp, id: 'local-plan',
+        occurrenceId: 'occ-a', start: { date: '2026-11-18' }, durationMinutes: 30 }), revision: '' });
+      expect(first.flushRecovery()).toBe(true);
+      expect(JSON.parse(storage.get('dooknow.to-doo.recovery:test')!).schemaVersion).toBe(2);
+      const second = createToDooWorkbench(server.request);
+      await second.load(); second.selectTask('task-a', 'occ-a');
+      expect(second.draft()?.task).toMatchObject({ title: '', description: '刷新前的输入' });
+      expect(second.draft()?.blocks[0]).toMatchObject({ id: 'local-plan', revision: '' });
+      expect(second.retainedTaskDrafts()).toMatchObject([{ recovered: true, key: 'task-a@occ-a' }]);
+      expect(server.data.tasks[0].description).toBe('');
+      expect(second.dirty()).toBe(true);
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('a restored conflicting field cannot be submitted until an explicit choice, even after another reload', async () => {
+    storageFixture();
+    try {
+      const server = transport(); let writes = 0;
+      const request = async (url: string, method = 'GET', body?: unknown) => {
+        if (method !== 'GET') writes++;
+        return server.request(url, method, body);
+      };
+      const first = createToDooWorkbench(request); await first.load(); first.selectTask('task-a');
+      first.draft()!.task.title = '本地标题'; first.flushRecovery();
+      server.data.tasks[0].title = '远端标题'; server.data.tasks[0].revision = 'remote-title';
+      const restored = createToDooWorkbench(request); await restored.load(); restored.selectTask('task-a', 'occ-a');
+      expect(await restored.rebaseDraft()).toBe(false);
+      expect(restored.state.draftConflicts).toMatchObject([{ kind: 'task', field: 'title', local: '本地标题', remote: '远端标题' }]);
+      await restored.saveTask(); expect(writes).toBe(0);
+      const third = createToDooWorkbench(request); await third.load(); third.selectTask('task-a', 'occ-a');
+      expect(await third.rebaseDraft()).toBe(false);
+      expect(third.state.conflictDraftKey).toBe('task-a@occ-a');
+      third.resolveAllDraftConflicts('local');
+      await third.saveTask();
+      expect(writes).toBe(1); expect(server.data.tasks[0].title).toBe('本地标题');
+      expect(third.dirty()).toBe(false);
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('legacy new-draft and pending records stay readable and are not discarded with an existing edit', async () => {
+    const storage = storageFixture();
+    try {
+      const source = createToDooWorkbench(transport().request); await source.load();
+      const newDraft = { ...source.newTaskDraft(), title: '旧新建草稿' };
+      await (await import('vue')).nextTick();
+      const pending = { requestId: 'lost-request', action: 'create_task', payload: { title: '待核对' } };
+      storage.set('dooknow.to-doo.recovery:test', JSON.stringify({ drafts: { '@': newDraft }, pending }));
+      const restored = createToDooWorkbench(transport().request); await restored.load();
+      expect(restored.newTaskDraft().title).toBe('旧新建草稿');
+      expect(restored.state.pendingMutation).toMatchObject(pending);
+      restored.selectTask('task-a'); restored.draft()!.task.description = '待放弃';
+      restored.discardDraft();
+      expect(restored.state.pendingMutation).toMatchObject(pending);
+      expect(JSON.parse(storage.get('dooknow.to-doo.recovery:test')!).pending.requestId).toBe('lost-request');
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('failed or unreadable storage remains an explicit failure without erasing the recovery record', async () => {
+    const storage = storageFixture();
+    try {
+      const unknownRecord = JSON.stringify({ schemaVersion: 999, edits: { future: 'retain' } });
+      storage.set('dooknow.to-doo.recovery:test', unknownRecord);
+      const model = createToDooWorkbench(transport().request); await model.load(); model.selectTask('task-a');
+      model.draft()!.task.description = '仍在内存';
+      expect(model.flushRecovery()).toBe(false);
+      expect(model.state.recoveryStatus).toBe('unavailable');
+      expect(storage.get('dooknow.to-doo.recovery:test')).toBe(unknownRecord);
+      expect(model.hasUnsavedChanges()).toBe(true);
+      vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => { throw Error('quota'); } });
+      const quota = createToDooWorkbench(transport().request); await quota.load(); quota.selectTask('task-a');
+      quota.draft()!.task.description = '容量失败';
+      expect(quota.flushRecovery()).toBe(false); expect(quota.state.localWarning).toContain('不能保存恢复信息');
+      expect(quota.draft()!.task.description).toBe('容量失败');
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('headless clean reads and untouched composers need no recovery storage but real edits still report failure', async () => {
+    vi.stubGlobal('localStorage', undefined);
+    try {
+      const model = createToDooWorkbench(transport().request); await model.load();
+      model.newTaskDraft(); await (await import('vue')).nextTick();
+      expect(model.state.recoveryStatus).toBe('idle');
+      expect(model.state.localWarning).toBe('');
+      expect(model.flushRecovery()).toBe(true);
+      model.newTaskDraft().title = '需要恢复的真实内容';
+      await (await import('vue')).nextTick();
+      expect(model.state.recoveryStatus).toBe('unavailable');
+      expect(model.flushRecovery()).toBe(false);
+      model.clearNewTaskDraft();
+      expect(model.state.recoveryStatus).toBe('idle');
+      expect(model.flushRecovery()).toBe(true);
+      model.selectTask('task-a'); model.draft()!.task.description = '既有任务的未保存修改';
+      expect(model.flushRecovery()).toBe(false);
+      expect(model.state.recoveryStatus).toBe('unavailable');
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('legacy recovery reveals only a summary and migrates after explicit adoption without deleting the source', async () => {
+    const storage = storageFixture();
+    try {
+      const server = transport(), legacy = createToDooWorkbench(server.request);
+      await legacy.load(); legacy.newTaskDraft().title = '不能在归属确认前展示的标题';
+      legacy.selectTask('task-a'); legacy.draft()!.task.description = '旧版编辑';
+      legacy.setDraftRecurrenceScope('future');
+      legacy.state.pendingMutation = { requestId: 'legacy-unknown', action: 'create_task', payload: { title: '待核对创建' } } as any;
+      legacy.flushRecovery(); await (await import('vue')).nextTick();
+      const original = storage.get('dooknow.to-doo.recovery:test');
+      const scoped = createToDooWorkbench(server.request, { recoveryScope: 'account-a' }); await scoped.load();
+      expect(scoped.state.legacyRecoveryAvailable).toBe(true);
+      expect(scoped.state.legacyRecoverySummary).toEqual({ newDrafts: 1, taskDrafts: 1, pending: true, receipts: 0 });
+      expect(scoped.retainedTaskDrafts()).toEqual([]); expect(scoped.state.pendingMutation).toBeNull();
+      expect(scoped.adoptLegacyRecovery()).toBe(true);
+      expect(scoped.retainedTaskDrafts()[0]?.draft.task.description).toBe('旧版编辑');
+      expect(scoped.getDraftRecurrenceScope('task-a@occ-a')).toBe('future');
+      expect(scoped.state.pendingMutation?.requestId).toBe('legacy-unknown');
+      expect(scoped.state.legacyRecoveryAvailable).toBe(false);
+      expect(storage.get('dooknow.to-doo.recovery:test')).toBe(original);
+      const again = createToDooWorkbench(server.request, { recoveryScope: 'account-a' }); await again.load();
+      expect(again.state.legacyRecoveryAvailable).toBe(false);
+      expect(again.state.pendingMutation?.requestId).toBe('legacy-unknown');
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('legacy adoption refuses same-task input collisions and preserves both account and legacy records', async () => {
+    const storage = storageFixture();
+    try {
+      const server = transport(), legacy = createToDooWorkbench(server.request); await legacy.load(); legacy.selectTask('task-a');
+      legacy.draft()!.task.description = '旧版内容'; legacy.flushRecovery(); await (await import('vue')).nextTick();
+      const original = storage.get('dooknow.to-doo.recovery:test');
+      const scoped = createToDooWorkbench(server.request, { recoveryScope: 'account-a' }); await scoped.load(); scoped.selectTask('task-a');
+      scoped.draft()!.task.description = '当前账号内容'; scoped.flushRecovery();
+      expect(scoped.adoptLegacyRecovery()).toBe(false);
+      expect(scoped.state.error).toContain('同任务');
+      expect(scoped.draft()!.task.description).toBe('当前账号内容');
+      expect(storage.get('dooknow.to-doo.recovery:test')).toBe(original);
+      expect(scoped.state.legacyRecoveryAvailable).toBe(true);
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('adopting legacy new drafts keeps the currently open clean detail available', async () => {
+    storageFixture();
+    try {
+      const server = transport(), legacy = createToDooWorkbench(server.request); await legacy.load();
+      legacy.newTaskDraft().title = '旧版新建内容'; legacy.flushRecovery(); await (await import('vue')).nextTick();
+      const scoped = createToDooWorkbench(server.request, { recoveryScope: 'account-a' });
+      await scoped.load(); scoped.selectTask('task-a');
+      expect(scoped.adoptLegacyRecovery()).toBe(true);
+      expect(scoped.state.selectedTaskId).toBe('task-a');
+      expect(scoped.draft()?.task.id).toBe('task-a');
+      expect(scoped.dirty()).toBe(false);
+      expect(scoped.retainedNewTaskDrafts()[0]?.draft.title).toBe('旧版新建内容');
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('empty legacy composer placeholders stay quiet while confirmed receipts remain recoverable', async () => {
+    const storage = storageFixture();
+    try {
+      const source = createToDooWorkbench(transport().request); await source.load();
+      source.newTaskDraft(undefined, 'work', { planDate: '2026-11-15', priority: 'high' });
+      source.flushRecovery(); await (await import('vue')).nextTick();
+      const quiet = createToDooWorkbench(transport().request, { recoveryScope: 'account-a' }); await quiet.load();
+      expect(quiet.state.legacyRecoveryAvailable).toBe(false);
+      expect(quiet.state.legacyRecoverySummary).toBeNull();
+      const raw = JSON.parse(storage.get('dooknow.to-doo.recovery:test')!);
+      raw.statusReceipts = [['occ-a', { datasetId: 'test', revision: 'confirmed-r' }]];
+      storage.set('dooknow.to-doo.recovery:test', JSON.stringify(raw));
+      const receipts = createToDooWorkbench(transport().request, { recoveryScope: 'account-b' }); await receipts.load();
+      expect(receipts.state.legacyRecoveryAvailable).toBe(true);
+      expect(receipts.state.legacyRecoverySummary).toEqual({ newDrafts: 0, taskDrafts: 0, pending: false, receipts: 1 });
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('legacy adoption cannot replace a scoped pending request or report success when scoped writes fail', async () => {
+    const storage = storageFixture();
+    try {
+      const legacy = createToDooWorkbench(transport().request); await legacy.load(); legacy.newTaskDraft().title = '旧新建';
+      legacy.flushRecovery(); await (await import('vue')).nextTick();
+      const original = storage.get('dooknow.to-doo.recovery:test');
+      const scoped = createToDooWorkbench(transport().request, { recoveryScope: 'account-a' }); await scoped.load();
+      scoped.state.pendingMutation = { requestId: 'current-unknown', action: 'create_task', payload: { title: '当前待核对' } } as any;
+      expect(scoped.adoptLegacyRecovery()).toBe(false); expect(scoped.state.pendingMutation?.requestId).toBe('current-unknown');
+      scoped.state.pendingMutation = null;
+      vi.stubGlobal('localStorage', { getItem: (key: string) => storage.get(key) ?? null,
+        setItem: () => { throw Error('quota'); } });
+      expect(scoped.adoptLegacyRecovery()).toBe(false);
+      expect(scoped.state.recoveryStatus).toBe('unavailable');
+      expect(storage.get('dooknow.to-doo.recovery:test')).toBe(original);
+      expect(scoped.retainedNewTaskDrafts()).toEqual([]);
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('account scopes and datasets cannot adopt another identity\'s existing drafts', async () => {
+    storageFixture();
+    try {
+      const data = transport(); const a = createToDooWorkbench(data.request, { recoveryScope: 'account-a' });
+      await a.load(); a.selectTask('task-a'); a.draft()!.task.description = 'A私有输入'; a.flushRecovery();
+      const b = createToDooWorkbench(data.request, { recoveryScope: 'account-b' });
+      await b.load(); expect(b.retainedTaskDrafts()).toEqual([]);
+      const aAgain = createToDooWorkbench(data.request, { recoveryScope: 'account-a' });
+      await aAgain.load(); expect(aAgain.retainedTaskDrafts()[0]?.draft.task.description).toBe('A私有输入');
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('a recovered edit of a remotely deleted task remains copyable and cannot silently restore it', async () => {
+    storageFixture();
+    try {
+      const server = transport(); let writes = 0;
+      const request = async (url: string, method = 'GET', body?: unknown) => {
+        if (method !== 'GET') writes++;
+        return server.request(url, method, body);
+      };
+      const first = createToDooWorkbench(request); await first.load(); first.selectTask('task-a');
+      first.draft()!.task.description = '删除前尚未提交的内容'; first.flushRecovery();
+      server.data.tasks[0].deletedAt = '2026-11-15T12:00:00Z'; server.data.tasks[0].revision = 'deleted-r';
+      const recovered = createToDooWorkbench(request); await recovered.load(); recovered.selectTask('task-a', 'occ-a');
+      expect(await recovered.saveTask()).toBeUndefined();
+      expect(writes).toBe(0); expect(recovered.draft()?.task.description).toBe('删除前尚未提交的内容');
+      expect(recovered.state.unavailableDrafts['task-a@occ-a']).toContain('已被移除');
+      expect(recovered.state.conflictDraftKey).toBe('task-a@occ-a');
+      expect(server.data.tasks[0].deletedAt).toBe('2026-11-15T12:00:00Z');
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('action preparation finds hidden-period, descendant and not-yet-created child drafts', async () => {
+    const data = snapshot(), parent = data.tasks[0];
+    data.tasks.push({ ...parent, id: 'child', title: '后代任务', parentTaskId: parent.id });
+    data.occurrences.push({ ...data.occurrences[0], id: 'child-occ', taskId: 'child' },
+      { ...data.occurrences[0], id: 'another-period', cycleKey: 'later' });
+    const model = createToDooWorkbench(transport(data).request); await model.load();
+    model.selectTask('task-a', 'another-period'); model.draft()!.task.description = '隐藏周期输入';
+    model.selectTask('child', 'child-occ'); model.draft()!.task.title = '后代草稿';
+    model.newTaskDraft('child').title = '未创建后代'; model.selectTask('');
+    expect(await model.prepareTaskAction(['task-a'])).toMatchObject([
+      { key: 'task-a@another-period', kind: 'task' }, { key: 'child@child-occ', kind: 'task' },
+      { taskId: 'child', occurrenceId: '', title: '未创建后代', kind: 'new' },
+    ]);
+  });
+  test('preparing a subtree action hydrates metadata without adding children to filtered result rows', async () => {
+    const visible = snapshot(), tree = structuredClone(visible);
+    tree.tasks.push({ ...tree.tasks[0], id: 'unmatched-child', title: '未命中筛选的子项', parentTaskId: 'task-a' });
+    const model = createToDooWorkbench(async (url) => url.includes('kind=task') ? structuredClone(tree) : structuredClone(visible));
+    await model.load();
+    expect(await model.prepareTaskAction(['task-a'])).toEqual([]);
+    expect(model.state.snapshot?.tasks.map((task) => task.id)).toEqual(['task-a']);
+    expect(model.taskDefinitions().some((task) => task.id === 'unmatched-child')).toBe(true);
+  });
+  test('saving a parent list change moves the frozen subtree without an invalid single-task list patch', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const first = f.service.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+        payload: { kind: 'list', entity: { name: '原清单' } } }).ids[0];
+      const second = f.service.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+        payload: { kind: 'list', entity: { name: '目标清单' } } }).ids[0];
+      const parent = f.create('父任务', { listId: first }), child = f.create('子任务', { listId: first, parentTaskId: parent.id });
+      const bodies: any[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'POST') bodies.push(JSON.parse(JSON.stringify(body)));
+        return f.request(url, method, body);
+      });
+      await model.load(); model.selectTask(parent.id);
+      model.draft()!.task.listId = second; model.draft()!.task.description = '移动同时修改正文';
+      await model.saveTask();
+      expect(model.state.error).toBe(''); expect(model.dirty()).toBe(false);
+      expect(bodies.find((body) => body.action === 'update_task').payload.patch).not.toHaveProperty('listId');
+      const move = bodies.find((body) => body.action === 'batch_tasks');
+      expect(move.payload).toMatchObject({ operation: 'move', includeDescendants: true, listId: second });
+      expect(move.payload.expectedRevisions[child.id]).toBeTruthy();
+      for (const id of [parent.id, child.id]) expect(f.service.getEntity('task', id)).toMatchObject({ listId: second, sectionId: null });
+      expect(f.service.getEntity('task', parent.id)).toMatchObject({ description: '移动同时修改正文' });
+    } finally { await f.close(); }
+  });
+  test('unknown subtree move retries its exact body and checkpoints the destination before another save', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const target = f.service.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+        payload: { kind: 'list', entity: { name: '目标' } } }).ids[0];
+      const parent = f.create('响应丢失的移动'), child = f.create('子项', { parentTaskId: parent.id });
+      const bodies: any[] = []; let lose = true;
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        const command = body as any;
+        if (method === 'POST' && command.action === 'batch_tasks')
+          bodies.push(JSON.parse(JSON.stringify(body)));
+        const result = await f.request(url, method, body);
+        if (method === 'POST' && command.action === 'batch_tasks') {
+          if (lose) { lose = false; throw Error('回复丢失'); }
+        }
+        return result;
+      });
+      await model.load(); model.selectTask(parent.id); model.draft()!.task.listId = target;
+      await model.saveTask(); expect(model.state.pendingMutation?.action).toBe('batch_tasks');
+      expect(await model.retryPending()).toBeDefined();
+      expect(model.state.error).toBe('');
+      expect(bodies).toHaveLength(2); expect(bodies[1]).toEqual(bodies[0]);
+      model.draft()!.task.description = '核对后继续编辑'; await model.saveTask();
+      expect(model.state.error).toBe(''); expect(model.dirty()).toBe(false);
+      expect(f.service.getEntity('task', child.id)).toMatchObject({ listId: target });
+      expect(f.service.getEntity('task', parent.id)).toMatchObject({ listId: target, description: '核对后继续编辑' });
+    } finally { await f.close(); }
+  });
+});
+
 describe('confirmed status records outside the reply window', () => {
   function withoutStatusRecords(result: ToDooSnapshot | ToDooCommandResult, omitTasks = false) {
     if (!('snapshot' in result)) throw Error('A status command must return a transaction receipt');
@@ -2314,5 +2886,617 @@ describe('confirmed status records outside the reply window', () => {
     } finally {
       await f.close();
     }
+  });
+});
+
+describe('confirmed task records outside the reply window', () => {
+  function pagingContext(page: ToDooSnapshot['page']) {
+    const { kind, total, limit, nextCursor, truncated, from, to } = page;
+    return { kind, total, limit, nextCursor, truncated, from, to };
+  }
+  function isExactTaskRead(url: string, taskId: string) {
+    const params = new URL(url, 'https://local').searchParams;
+    return (params.get('kind') === 'task' || params.get('kinds')?.split(',').includes('task')) &&
+      params.get('ids')?.split(',').includes(taskId);
+  }
+  function withoutTaskRecord(result: ToDooSnapshot | ToDooCommandResult, taskId: string) {
+    if (!('snapshot' in result)) throw Error('A task command must return a transaction receipt');
+    return { ...result, snapshot: { ...result.snapshot,
+      tasks: result.snapshot.tasks.filter(task => task.id !== taskId) } };
+  }
+  test('saving row 205 reads its receipt revision without replacing the loaded rows, page or selection', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const ids: string[] = [];
+      for (let index = 1; index <= 205; index++) {
+        const result = f.service.command({ requestId: crypto.randomUUID(), action: 'create_task',
+          payload: { title: 'Receipt row ' + String(index).padStart(3, '0') } });
+        ids.push(result.ids[0]);
+      }
+      const taskId = ids[204];
+      let writes = 0, reads = 0, receiptRevision = '';
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'GET' && isExactTaskRead(url, taskId)) reads++;
+        const result = await f.request(url, method, body);
+        if (method === 'POST' && toDooCommandSchema.parse(body).action === 'update_task') {
+          writes++;
+          if (!('snapshot' in result)) throw Error('Expected the real service transaction receipt');
+          expect(result.snapshot.tasks).toHaveLength(200);
+          expect(result.snapshot.tasks.some(task => task.id === taskId)).toBe(false);
+          receiptRevision = result.changed.find(entry => entry.kind === 'task' && entry.id === taskId)!.revision;
+        }
+        return result;
+      });
+      await model.load({ view: 'tasks', limit: 500 });
+      expect(model.state.snapshot?.tasks).toHaveLength(205);
+      const loadedIds = model.state.snapshot!.tasks.map(task => task.id);
+      const page = { ...model.state.snapshot!.page };
+      const taskPage = { ...model.state.snapshot!.collectionPages!.task! };
+      model.state.selectedIds = [ids[0], taskId];
+      model.selectTask(taskId);
+      const occurrenceId = model.state.selectedOccurrenceId;
+      model.draft()!.task.description = 'The last loaded task was saved';
+      await model.saveTask();
+      expect(writes).toBe(1); expect(reads).toBe(1);
+      expect(receiptRevision).toBeTruthy();
+      expect(f.service.getEntity('task', taskId)).toMatchObject({ description: 'The last loaded task was saved', revision: receiptRevision });
+      expect(model.draft()?.task).toMatchObject({ description: 'The last loaded task was saved', revision: receiptRevision });
+      expect(model.dirty()).toBe(false); expect(model.state.pendingMutation).toBeNull();
+      expect(model.state.snapshot?.tasks.map(task => task.id)).toEqual(loadedIds);
+      expect(model.state.snapshot?.tasks.find(task => task.id === taskId)?.revision).toBe(receiptRevision);
+      expect(model.state.snapshot?.page).toMatchObject({ limit: page.limit, total: page.total, nextCursor: page.nextCursor });
+      expect(model.state.snapshot?.collectionPages?.task).toMatchObject({ limit: taskPage.limit, total: taskPage.total, nextCursor: taskPage.nextCursor });
+      expect(model.state.query).toMatchObject({ view: 'tasks', limit: 500 });
+      expect(model.state.selectedIds).toEqual([ids[0], taskId]);
+      expect(model.state.selectedTaskId).toBe(taskId); expect(model.state.selectedOccurrenceId).toBe(occurrenceId);
+    } finally { await f.close(); }
+  }, 30000);
+  test('a partial filtered task page retains its scoped cursor through a save and can continue paging', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const listId = f.service.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+        payload: { kind: 'list', entity: { name: 'Filtered receipt list' } } }).ids[0];
+      const otherListId = f.service.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+        payload: { kind: 'list', entity: { name: 'Outside the active filter' } } }).ids[0];
+      const outsiderId = f.service.command({ requestId: crypto.randomUUID(), action: 'create_task',
+        payload: { title: 'This row must stay outside the filtered view', listId: otherListId } }).ids[0];
+      const scopedIds: string[] = [];
+      for (let index = 1; index <= 205; index++)
+        scopedIds.push(f.service.command({ requestId: crypto.randomUUID(), action: 'create_task',
+          payload: { title: 'Scoped receipt row ' + String(index).padStart(3, '0'), listId } }).ids[0]);
+      let writes = 0;
+      const pageReads: URLSearchParams[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        const params = new URL(url, 'https://local').searchParams;
+        if (method === 'GET' && params.has('cursor')) pageReads.push(params);
+        const result = await f.request(url, method, body);
+        if (method === 'POST' && toDooCommandSchema.parse(body).action === 'update_task') {
+          writes++;
+          if (!('snapshot' in result)) throw Error('Expected the real unfiltered command receipt');
+          expect(result.snapshot.tasks.some(task => task.id === outsiderId)).toBe(true);
+          expect(result.snapshot.page.nextCursor).not.toBeNull();
+        }
+        return result;
+      });
+      const filter = { listIds: [listId] };
+      await model.load({ view: 'tasks', limit: 200, filter });
+      const page = JSON.parse(JSON.stringify(model.state.snapshot!.page));
+      const taskPage = JSON.parse(JSON.stringify(model.state.snapshot!.collectionPages!.task!));
+      const originalQuery = JSON.parse(JSON.stringify(model.state.query));
+      expect(page.nextCursor).not.toBeNull(); expect(taskPage.nextCursor).not.toBeNull();
+      expect(page.total).toBe(205); expect(page.limit).toBe(200);
+      model.selectTask(scopedIds[0]);
+      model.draft()!.task.title = 'Saved within the original filtered page';
+      await model.saveTask();
+      expect(writes).toBe(1); expect(model.dirty()).toBe(false);
+      expect(model.state.query).toEqual(originalQuery);
+      expect(model.state.snapshot?.page).toMatchObject(pagingContext(page));
+      expect(model.state.snapshot?.collectionPages?.task).toMatchObject(pagingContext(taskPage));
+      expect(model.state.snapshot?.tasks.some(task => task.id === outsiderId)).toBe(false);
+      expect(model.state.snapshot?.tasks.every(task => task.listId === listId)).toBe(true);
+      await model.nextPage();
+      expect(model.state.error).toBe('');
+      expect(pageReads).toHaveLength(1);
+      expect(pageReads[0].get('cursor')).toBe(page.nextCursor);
+      expect(JSON.parse(pageReads[0].get('filter')!)).toEqual(filter);
+      expect(model.state.query.filter).toEqual(filter);
+      expect(model.state.snapshot?.page.nextCursor).toBeNull();
+      const loaded = model.state.snapshot!.tasks;
+      expect(loaded).toHaveLength(205);
+      expect(new Set(loaded.map(task => task.id)).size).toBe(205);
+      expect(loaded.map(task => task.id).sort()).toEqual([...scopedIds].sort());
+      expect(loaded.every(task => task.listId === listId)).toBe(true);
+      expect(f.service.getEntity('task', scopedIds[0])).toMatchObject({ title: 'Saved within the original filtered page', listId });
+    } finally { await f.close(); }
+  }, 30000);
+  test.each([false, true])('a failed receipt read stays recoverable and only verifies the confirmed write (reload: %s)', async reload => {
+    const f = await domainStatusFixture();
+    const storage = new Map<string, string>();
+    vi.stubGlobal('localStorage', { getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => storage.set(key, value) });
+    try {
+      const task = f.create('Task receipt verification retry');
+      const recoveryKey = 'dooknow.to-doo.recovery:' + f.service.snapshot({ taskIds: [task.id] }).datasetId;
+      const calls: { method: string; url: string }[] = [];
+      let fail = true, writes = 0, reads = 0, receiptRevision = '';
+      let recoveryBeforeFirstRead: any;
+      const request: Parameters<typeof createToDooWorkbench>[0] = async (url, method = 'GET', body) => {
+        calls.push({ method, url });
+        if (method === 'GET' && isExactTaskRead(url, task.id)) {
+          reads++;
+          if (fail) {
+            recoveryBeforeFirstRead = JSON.parse(storage.get(recoveryKey)!);
+            fail = false; throw Error('Confirmed task read temporarily unavailable');
+          }
+        }
+        const result = await f.request(url, method, body);
+        if (method === 'POST' && toDooCommandSchema.parse(body).action === 'update_task') {
+          writes++;
+          if (!('snapshot' in result)) throw Error('Expected a task receipt');
+          receiptRevision = result.changed.find(entry => entry.kind === 'task' && entry.id === task.id)!.revision;
+          return withoutTaskRecord(result, task.id);
+        }
+        return result;
+      };
+      const model = createToDooWorkbench(request);
+      await model.load(); model.selectTask(task.id);
+      model.draft()!.task.description = 'Committed once, not sent twice';
+      await model.saveTask();
+      expect(writes).toBe(1); expect(reads).toBe(1);
+      expect(recoveryBeforeFirstRead.pending).toBeNull();
+      expect(recoveryBeforeFirstRead.taskCheckpoints).toEqual(expect.arrayContaining([
+        [expect.any(String), expect.objectContaining({ revision: receiptRevision,
+          submitted: expect.objectContaining({ id: task.id, description: 'Committed once, not sent twice' }) })],
+      ]));
+      expect(model.state.pendingMutation).toBeNull(); expect(model.dirty()).toBe(true);
+      expect(model.state.localWarning || model.state.error).toMatch(/保存|提交|核对|读取/);
+      expect(f.service.getEntity('task', task.id)).toMatchObject({ description: 'Committed once, not sent twice', revision: receiptRevision });
+      expect(model.draft()?.task.description).toBe('Committed once, not sent twice');
+      expect(model.flushRecovery()).toBe(true);
+      const persisted = JSON.parse(storage.get(recoveryKey)!);
+      expect(persisted.pending).toBeNull();
+      expect(persisted.taskCheckpoints).toMatchObject([[model.state.selectedTaskId + '@' + model.state.selectedOccurrenceId,
+        { revision: receiptRevision, submitted: { id: task.id, description: 'Committed once, not sent twice' } }]]);
+      const recoveryCallIndex = calls.length;
+      const recovering = reload ? createToDooWorkbench(request) : model;
+      if (reload) {
+        await recovering.load(); recovering.selectTask(task.id, model.state.selectedOccurrenceId);
+        expect(recovering.dirty()).toBe(true);
+        expect(recovering.draft()?.task.description).toBe('Committed once, not sent twice');
+      }
+      expect(await recovering.saveTask()).toBeTruthy();
+      expect(writes).toBe(1);
+      if (!reload) expect(reads).toBe(2);
+      const recoveryCalls = calls.slice(recoveryCallIndex);
+      expect(recoveryCalls.length).toBeGreaterThan(0);
+      expect(recoveryCalls.every(call => call.method === 'GET')).toBe(true);
+      expect(recovering.state.error).toBe(''); expect(recovering.dirty()).toBe(false);
+      expect(recovering.draft()?.task.revision).toBe(receiptRevision);
+      expect(JSON.parse(storage.get(recoveryKey)!).taskCheckpoints).toEqual([]);
+      expect(JSON.parse(storage.get(recoveryKey)!).pending).toBeNull();
+      expect(f.service.getEntity('task', task.id)?.revision).toBe(receiptRevision);
+    } finally { vi.unstubAllGlobals(); await f.close(); }
+  });
+  test('a newer remote task is not accepted as the confirmed save and requires explicit comparison', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('Task receipt concurrent writer');
+      let writes = 0, externalChange = false, receiptRevision = '';
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'GET' && isExactTaskRead(url, task.id) && !externalChange) {
+          externalChange = true;
+          const current = toDooEntitySchemas.task.parse(f.service.getEntity('task', task.id));
+          f.service.command({ requestId: crypto.randomUUID(), action: 'update_task', payload: {
+            id: task.id, expectedRevision: current.revision, patch: { description: 'Another writer changed it after commit' },
+          } });
+        }
+        const result = await f.request(url, method, body);
+        if (method === 'POST' && toDooCommandSchema.parse(body).action === 'update_task') {
+          writes++;
+          if (!('snapshot' in result)) throw Error('Expected a task receipt');
+          receiptRevision = result.changed.find(entry => entry.kind === 'task' && entry.id === task.id)!.revision;
+          return withoutTaskRecord(result, task.id);
+        }
+        return result;
+      });
+      await model.load(); model.selectTask(task.id);
+      model.draft()!.task.description = 'My confirmed input';
+      await model.saveTask();
+      const remote = toDooEntitySchemas.task.parse(f.service.getEntity('task', task.id));
+      expect(remote.revision).not.toBe(receiptRevision);
+      expect(remote.description).toBe('Another writer changed it after commit');
+      expect(model.state.conflict).toBe(true); expect(model.state.error).toMatch(/版本|比较|变化|冲突/);
+      expect(model.dirty()).toBe(true); expect(model.draft()?.task.description).toBe('My confirmed input');
+      expect(model.draft()?.task.revision).not.toBe(remote.revision);
+      await model.saveTask(); expect(writes).toBe(1);
+      await model.rebaseDraft();
+      expect(model.state.draftConflicts).toMatchObject([{ kind: 'task', field: 'description', local: 'My confirmed input', remote: 'Another writer changed it after commit' }]);
+      expect(f.service.getEntity('task', task.id)?.revision).toBe(remote.revision);
+    } finally { await f.close(); }
+  });
+  test('text typed while a confirmed task receipt is being read remains a later draft with the new revision', async () => {
+    const f = await domainStatusFixture();
+    let release!: () => void;
+    const wait = new Promise<void>(resolve => { release = resolve; });
+    try {
+      const task = f.create('Task receipt later input');
+      let reached!: () => void;
+      const started = new Promise<void>(resolve => { reached = resolve; });
+      let pauseRead = true, writes = 0, receiptRevision = '';
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'GET' && isExactTaskRead(url, task.id) && pauseRead) {
+          pauseRead = false; reached(); await wait;
+        }
+        const result = await f.request(url, method, body);
+        if (method === 'POST' && toDooCommandSchema.parse(body).action === 'update_task') {
+          writes++;
+          if (!('snapshot' in result)) throw Error('Expected a task receipt');
+          receiptRevision = result.changed.find(entry => entry.kind === 'task' && entry.id === task.id)!.revision;
+          return withoutTaskRecord(result, task.id);
+        }
+        return result;
+      });
+      await model.load(); model.selectTask(task.id);
+      model.draft()!.task.description = 'The submitted description';
+      const saving = model.saveTask();
+      await started;
+      expect(f.service.getEntity('task', task.id)).toMatchObject({ description: 'The submitted description', revision: receiptRevision });
+      model.draft()!.task.description = 'Typed after commit while verification was pending';
+      release(); await saving;
+      expect(writes).toBe(1);
+      expect(model.draft()?.task).toMatchObject({ description: 'Typed after commit while verification was pending', revision: receiptRevision });
+      expect(model.dirty()).toBe(true); expect(model.state.pendingMutation).toBeNull();
+      expect(f.service.getEntity('task', task.id)).toMatchObject({ description: 'The submitted description', revision: receiptRevision });
+      await model.saveTask();
+      expect(writes).toBe(2); expect(model.state.error).toBe(''); expect(model.dirty()).toBe(false);
+      expect(f.service.getEntity('task', task.id)).toMatchObject({ description: 'Typed after commit while verification was pending', revision: receiptRevision });
+      expect(model.draft()?.task.revision).toBe(receiptRevision);
+    } finally { release(); await f.close(); }
+  });
+  test('general command receipts preserve scoped trees, hydrate copies and captures, and remove moved rows beyond the global reply window', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const createList = (name: string) => f.service.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+        payload: { kind: 'list', entity: { name } } }).ids[0];
+      const backgroundList = createList('Global rows before the active list');
+      const listId = createList('Current scoped command list');
+      const movedList = createList('Moved tree destination');
+      const create = (title: string, extra: Record<string, unknown> = {}) => {
+        const id = f.service.command({ requestId: crypto.randomUUID(), action: 'create_task',
+          payload: { title, ...extra } }).ids[0];
+        return toDooEntitySchemas.task.parse(f.service.getEntity('task', id));
+      };
+      const backgroundIds = new Set<string>();
+      for (let index = 1; index <= 205; index++)
+        backgroundIds.add(create('Global command row ' + String(index).padStart(3, '0'), { listId: backgroundList }).id);
+      const originalSection = f.service.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+        payload: { kind: 'section', entity: { name: 'Original group', listId } } }).ids[0];
+      const parent = create('Scoped command parent', { listId, sectionId: originalSection });
+      const child = create('Scoped command child', { listId, parentTaskId: parent.id });
+      const originalIds = [parent.id, child.id];
+      const calls: { method: string; url: string }[] = [];
+      const commands: ReturnType<typeof toDooCommandSchema.parse>[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        calls.push({ method, url });
+        const result = await f.request(url, method, body);
+        if (method === 'POST') {
+          const command = toDooCommandSchema.parse(body);
+          commands.push(command);
+          if (!('snapshot' in result)) throw Error('Expected a real command receipt');
+          expect(result.snapshot.tasks).toHaveLength(200);
+          expect(result.snapshot.tasks.every(task => backgroundIds.has(task.id))).toBe(true);
+          if (command.action === 'batch_tasks' && command.payload.operation === 'copy' || command.action === 'create_task')
+            expect(result.ids.every(id => !result.snapshot.tasks.some(task => task.id === id))).toBe(true);
+        }
+        return result;
+      });
+      const filter = { listIds: [listId] };
+      model.state.filter = filter;
+      await model.load({ view: 'tasks', limit: 200, filter }); model.selectTask(parent.id);
+      const originalQuery = JSON.parse(JSON.stringify(model.state.query));
+      const assertScopedRows = (expectedIds: string[]) => {
+        const tasks = model.state.snapshot!.tasks;
+        expect(tasks.map(task => task.id).sort()).toEqual([...expectedIds].sort());
+        expect(tasks.every(task => task.listId === listId && !task.deletedAt)).toBe(true);
+        expect(tasks.some(task => backgroundIds.has(task.id))).toBe(false);
+        expect(model.state.query).toEqual(originalQuery);
+        expect(model.state.filter).toEqual(filter);
+      };
+      const assertExactTaskReads = (expectedIds: string[], after: number) => {
+        const readIds = new Set(calls.slice(after).filter(call => call.method === 'GET').flatMap(call => {
+          const params = new URL(call.url, 'https://local').searchParams;
+          if (params.get('kind') !== 'task' && !params.get('kinds')?.split(',').includes('task')) return [];
+          return (params.get('ids') || params.get('taskIds') || '').split(',').filter(Boolean);
+        }));
+        for (const id of expectedIds) expect(readIds.has(id)).toBe(true);
+      };
+      assertScopedRows(originalIds);
+      const inserted = await saveTaskSection(model, { name: 'Inserted group', listId }, { beforeId: originalSection });
+      expect(inserted).toBeTruthy(); expect(commands.at(-1)?.action).toBe('import_entities');
+      assertScopedRows(originalIds);
+      const insertedSection = model.state.snapshot!.sections.find(section => section.name === 'Inserted group')!;
+      expect(insertedSection).toBeTruthy();
+      expect(f.service.getEntity('section', insertedSection.id)).toMatchObject({ listId, name: 'Inserted group', deletedAt: null });
+      const deleted = await model.removeEntity('section', insertedSection);
+      expect(deleted).toBeTruthy(); assertScopedRows(originalIds);
+      expect(f.service.getEntity('section', insertedSection.id)?.deletedAt).not.toBeNull();
+      expect(model.state.snapshot!.sections.some(section => section.id === insertedSection.id && !section.deletedAt)).toBe(false);
+
+      model.state.selectedIds = [child.id];
+      const copyReadStart = calls.length;
+      const copied = await model.batchTasks([parent.id], 'copy');
+      expect(copied).toBeTruthy(); expect(copied!.ids).toHaveLength(2);
+      const copiedIds = copied!.ids;
+      assertExactTaskReads(copiedIds, copyReadStart);
+      assertScopedRows([...originalIds, ...copiedIds]);
+      expect(model.state.selectedIds).toEqual([child.id]);
+      const copiedParent = copied!.snapshot.tasks.find(task => copiedIds.includes(task.id) && !task.parentTaskId)!;
+      const copiedChild = copied!.snapshot.tasks.find(task => copiedIds.includes(task.id) && task.parentTaskId === copiedParent.id)!;
+      expect(copiedParent).toMatchObject({ title: parent.title + ' 副本', listId });
+      expect(copiedChild).toMatchObject({ title: child.title + ' 副本', listId, parentTaskId: copiedParent.id });
+      for (const id of copiedIds) {
+        const task = toDooEntitySchemas.task.parse(f.service.getEntity('task', id));
+        const occurrence = f.service.snapshot({ taskIds: [id] }).occurrences.find(row => row.taskId === id && !row.deletedAt)!;
+        expect(occurrence).toBeTruthy();
+        expect(copied!.snapshot.tasks.find(row => row.id === id)?.revision).toBe(task.revision);
+        expect(model.state.snapshot!.tasks.find(row => row.id === id)?.revision).toBe(task.revision);
+        expect(copied!.snapshot.occurrences.find(row => row.id === occurrence.id)).toMatchObject({ taskId: id, revision: occurrence.revision });
+        expect(model.state.snapshot!.occurrences.find(row => row.id === occurrence.id)).toMatchObject({ taskId: id, revision: occurrence.revision });
+      }
+
+      const priorityReadStart = calls.length;
+      const currentParent = model.state.snapshot!.tasks.find(task => task.id === parent.id)!;
+      const prioritized = await model.execute({ action: 'update_task', payload: { id: parent.id,
+        expectedRevision: currentParent.revision, patch: { priority: 'high' } } });
+      expect(prioritized).toBeTruthy(); assertExactTaskReads([parent.id], priorityReadStart);
+      assertScopedRows([...originalIds, ...copiedIds]);
+      expect(model.state.snapshot!.tasks.find(task => task.id === parent.id)?.priority).toBe('high');
+      expect(f.service.getEntity('task', parent.id)).toMatchObject({ priority: 'high', listId });
+      expect(model.state.selectedIds).toEqual([child.id]);
+
+      const moved = await model.moveTasks([parent.id], movedList);
+      expect(moved).toBeTruthy(); assertScopedRows(copiedIds);
+      for (const id of originalIds) {
+        expect(f.service.getEntity('task', id)).toMatchObject({ listId: movedList, sectionId: null });
+        expect(model.state.snapshot!.tasks.some(task => task.id === id)).toBe(false);
+        expect(model.items().some(item => item.task.id === id)).toBe(false);
+      }
+      expect(f.service.getEntity('task', child.id)).toMatchObject({ parentTaskId: parent.id });
+
+      const composer = model.newTaskDraft(undefined, listId);
+      composer.title = 'Created inside the active task list';
+      composer.description = 'Submitted through the ordinary task composer';
+      const taskCreateStart = calls.length;
+      const created = await model.createTask(toDooDraftPayload(composer, 'UTC'));
+      expect(created).toBeTruthy();
+      const createdId = created!.ids[0];
+      assertExactTaskReads([createdId], taskCreateStart); assertScopedRows([...copiedIds, createdId]);
+      expect(model.state.selectedTaskId).toBe(createdId);
+      expect(model.draft()?.task).toMatchObject({ id: createdId, title: composer.title, listId });
+      const createdOccurrence = f.service.snapshot({ taskIds: [createdId] }).occurrences.find(row => row.taskId === createdId && !row.deletedAt)!;
+      expect(model.state.selectedOccurrenceId).toBe(createdOccurrence.id);
+      expect(created!.snapshot.tasks.find(task => task.id === createdId)).toMatchObject({ title: composer.title, listId });
+      expect(created!.snapshot.occurrences.find(row => row.id === createdOccurrence.id)).toMatchObject({ taskId: createdId });
+      expect(model.retainedNewTaskDrafts()).toEqual([]);
+
+      model.state.filter = {};
+      await model.load({ view: 'workspace', limit: 200 });
+      const workspaceIds = model.state.snapshot!.tasks.map(task => task.id);
+      const capture = toDooCaptureFromNote({ noteId: 'capture-source-note', title: 'Source material',
+        markdown: 'Check the captured source material', savedMarkdown: 'Check the captured source material',
+        selection: { anchor: 0, head: 34 }, contentHash: 'capture-content-hash' });
+      const captureReadStart = calls.length;
+      const captured = await model.createTask({ ...capture, listId });
+      expect(captured).toBeTruthy();
+      const capturedId = captured!.ids[0];
+      assertExactTaskReads([capturedId], captureReadStart);
+      expect(model.state.query).toMatchObject({ view: 'workspace', limit: 200 });
+      expect(model.state.selectedTaskId).toBe(capturedId);
+      expect(model.state.snapshot!.tasks.map(task => task.id).sort()).toEqual([...workspaceIds, capturedId].sort());
+      const capturedOccurrence = f.service.snapshot({ taskIds: [capturedId] }).occurrences.find(row => row.taskId === capturedId && !row.deletedAt)!;
+      expect(model.state.selectedOccurrenceId).toBe(capturedOccurrence.id);
+      for (const data of [model.state.snapshot!, captured!.snapshot]) {
+        expect(data.tasks.find(task => task.id === capturedId)).toMatchObject({ id: capturedId, title: capture.title,
+          listId, noteRefs: [{ noteId: 'capture-source-note', role: 'source' }], source: { noteId: 'capture-source-note', quote: capture.description } });
+        expect(data.occurrences.find(row => row.id === capturedOccurrence.id)).toMatchObject({ taskId: capturedId, revision: capturedOccurrence.revision });
+      }
+      expect(f.service.getEntity('task', capturedId)).toMatchObject({ title: capture.title, listId, source: { noteId: 'capture-source-note' } });
+      expect(model.state.pendingMutation).toBeNull(); expect(model.state.error).toBe('');
+      expect(commands.map(command => command.action)).toEqual([
+        'import_entities', 'delete_entity', 'batch_tasks', 'update_task', 'batch_tasks', 'create_task', 'create_task',
+      ]);
+    } finally { await f.close(); }
+  }, 45000);
+  test('a confirmed create with a failed entity read clears only the submitted composer and recovers by GET without creating twice', async () => {
+    const f = await domainStatusFixture();
+    try {
+      let createdId = '', createWrites = 0, failedReads = 0;
+      const calls: { method: string; url: string }[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        calls.push({ method, url });
+        if (method === 'GET' && createdId && isExactTaskRead(url, createdId) && failedReads === 0) {
+          failedReads++;
+          throw Error('The confirmed task cannot be read back yet');
+        }
+        const result = await f.request(url, method, body);
+        if (method === 'POST' && toDooCommandSchema.parse(body).action === 'create_task') {
+          createWrites++;
+          if (!('snapshot' in result)) throw Error('Expected the real confirmed creation receipt');
+          createdId = result.ids.find(id => result.changed.some(row => row.kind === 'task' && row.id === id))!;
+          return withoutTaskRecord(result, createdId);
+        }
+        return result;
+      });
+      await model.load({ view: 'workspace', limit: 200 });
+      const composer = model.newTaskDraft();
+      composer.title = 'Confirmed creation despite a missing reply-window entity';
+      composer.description = 'A second Enter must not create this task again';
+      const result = await model.createTask(toDooDraftPayload(composer, 'UTC'));
+      expect(result).toBeTruthy(); expect(createdId).toBeTruthy();
+      expect(result!.ids).toContain(createdId);
+      expect(result!.changed).toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'task', id: createdId })]));
+      expect(createWrites).toBe(1); expect(failedReads).toBe(1);
+      expect(f.service.getEntity('task', createdId)).toMatchObject({ title: composer.title, description: composer.description });
+      expect(f.service.snapshot({ all: true }).tasks).toHaveLength(1);
+      expect(model.state.newTaskDrafts).toEqual({});
+      expect(model.retainedNewTaskDrafts()).toEqual([]); expect(model.hasNewTaskDraft()).toBe(false);
+      expect(model.state.selectedTaskId).toBe(createdId);
+      expect(model.draft()).toBeUndefined();
+      expect(model.state.snapshot!.tasks.some(task => task.id === createdId)).toBe(false);
+      expect(result!.snapshot.tasks.some(task => task.id === createdId)).toBe(false);
+      expect(model.state.localWarning).toMatch(/已保存|已创建/);
+      expect(model.state.localWarning).toMatch(/核对|读取|刷新/);
+      expect(model.state.pendingMutation).toBeNull();
+      const readStart = calls.length;
+      const recovered = await model.ensureTask(model.state.selectedTaskId);
+      expect(recovered).toBeTruthy();
+      const reads = calls.slice(readStart);
+      expect(reads.length).toBeGreaterThan(0); expect(reads.every(call => call.method === 'GET')).toBe(true);
+      expect(reads.some(call => new URL(call.url, 'https://local').searchParams.get('taskIds') === createdId)).toBe(true);
+      const stored = toDooEntitySchemas.task.parse(f.service.getEntity('task', createdId));
+      const occurrence = f.service.snapshot({ taskIds: [createdId] }).occurrences.find(row => row.taskId === createdId && !row.deletedAt)!;
+      expect(model.state.snapshot!.tasks.find(task => task.id === createdId)).toMatchObject({ title: composer.title, revision: stored.revision });
+      expect(model.state.snapshot!.occurrences.find(row => row.id === occurrence.id)).toMatchObject({ taskId: createdId, revision: occurrence.revision });
+      expect(model.state.selectedTaskId).toBe(createdId); expect(model.hasNewTaskDraft()).toBe(false);
+      expect(createWrites).toBe(1); expect(f.service.snapshot({ all: true }).tasks).toHaveLength(1);
+    } finally { await f.close(); }
+  });
+  test('a generic time-block editor without detail ownership still reads a confirmed far-date block into state and its returned snapshot', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('Generic time-block receipt');
+      const blockId = 'generic-block-' + crypto.randomUUID();
+      const reads: URLSearchParams[] = [];
+      let writes = 0, receiptRevision = '';
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'GET') reads.push(new URL(url, 'https://local').searchParams);
+        const result = await f.request(url, method, body);
+        if (method === 'POST') {
+          const command = toDooCommandSchema.parse(body);
+          expect(command).toMatchObject({ action: 'save_entity', payload: { kind: 'timeBlock', entity: { id: blockId } } });
+          writes++;
+          if (!('snapshot' in result)) throw Error('Expected the real time-block transaction receipt');
+          expect(result.snapshot.timeBlocks.some(block => block.id === blockId)).toBe(false);
+          receiptRevision = result.changed.find(row => row.kind === 'timeBlock' && row.id === blockId)!.revision;
+        }
+        return result;
+      });
+      await model.load({ view: 'tasks', limit: 200 }); model.selectTask(task.id);
+      const occurrenceId = model.state.selectedOccurrenceId;
+      const result = await model.saveEntity('timeBlock', { id: blockId, occurrenceId,
+        title: 'Direct entity editor plan', start: { date: '2030-05-17', time: '10:30', timeZone: 'UTC' },
+        durationMinutes: 45, allDay: false, dateEndExclusive: null });
+      expect(result).toBeTruthy(); expect(writes).toBe(1); expect(receiptRevision).toBeTruthy();
+      expect(reads.some(params => (params.get('kind') === 'timeBlock' || params.get('kinds')?.split(',').includes('timeBlock')) &&
+        params.get('ids')?.split(',').includes(blockId))).toBe(true);
+      const block = toDooEntitySchemas.timeBlock.parse(f.service.getEntity('timeBlock', blockId));
+      const occurrence = toDooEntitySchemas.occurrence.parse(f.service.getEntity('occurrence', occurrenceId));
+      expect(block.revision).toBe(receiptRevision);
+      for (const data of [model.state.snapshot!, result!.snapshot]) {
+        expect(data.timeBlocks.find(row => row.id === blockId)).toMatchObject({ occurrenceId,
+          revision: receiptRevision, start: { date: '2030-05-17', time: '10:30' }, durationMinutes: 45 });
+        expect(data.occurrences.find(row => row.id === occurrenceId)).toMatchObject({ revision: occurrence.revision, scheduleRevision: occurrence.scheduleRevision });
+        expect(data.tasks.some(row => row.id === task.id)).toBe(true);
+      }
+      expect(f.service.snapshot({ taskIds: [task.id] }).timeBlocks).toHaveLength(1);
+      expect(model.state.pendingMutation).toBeNull(); expect(model.state.error).toBe('');
+    } finally { await f.close(); }
+  });
+  test('an externally confirmed attachment refreshes the clean selected task beyond row 200 using only GETs', async () => {
+    const f = await domainStatusFixture();
+    let restoreAssetRead = () => {};
+    try {
+      const ids: string[] = [];
+      for (let index = 1; index <= 205; index++)
+        ids.push(f.service.command({ requestId: crypto.randomUUID(), action: 'create_task',
+          payload: { title: 'External attachment row ' + String(index).padStart(3, '0') } }).ids[0]);
+      const taskId = ids[204];
+      const calls: { method: string; url: string }[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        calls.push({ method, url });
+        return f.request(url, method, body);
+      });
+      await model.load({ view: 'tasks', limit: 500 }); model.selectTask(taskId);
+      expect(model.dirty()).toBe(false); expect(model.draft()?.task.attachments).toEqual([]);
+      const loadedIds = model.state.snapshot!.tasks.map(task => task.id);
+      expect(loadedIds).toHaveLength(205);
+      const page = JSON.parse(JSON.stringify(model.state.snapshot!.page));
+      const taskPage = JSON.parse(JSON.stringify(model.state.snapshot!.collectionPages!.task!));
+      const occurrenceId = model.state.selectedOccurrenceId;
+      const bytes = Buffer.from('In-memory attachment receipt proof');
+      const { createHash } = await import('node:crypto');
+      const hash = createHash('sha256').update(bytes).digest('hex');
+      const knowledgeData = await import('../packages/core/knowledge-data');
+      const originalRead = knowledgeData.readKnowledgeDataFile;
+      const assetRead = vi.spyOn(knowledgeData, 'readKnowledgeDataFile').mockImplementation((root, relative) =>
+        relative === 'apps/to-doo/assets/' + hash ? bytes : originalRead(root, relative));
+      restoreAssetRead = () => assetRead.mockRestore();
+      const attachment = { hash, name: 'receipt-proof.txt', mime: 'text/plain', size: bytes.length };
+      const commandContext = model.captureCommandResultContext();
+      const result = f.service.command({ requestId: crypto.randomUUID(), action: 'attach_asset',
+        payload: { taskId, expectedRevision: model.draft()!.task.revision, attachment } });
+      expect(result.snapshot.tasks).toHaveLength(200);
+      expect(result.snapshot.tasks.some(task => task.id === taskId)).toBe(false);
+      const revision = result.changed.find(row => row.kind === 'task' && row.id === taskId)!.revision;
+      const readStart = calls.length;
+      expect(await model.acceptCommandResult(result, commandContext)).toBe(true);
+      const reads = calls.slice(readStart);
+      expect(reads.length).toBeGreaterThan(0); expect(reads.every(call => call.method === 'GET')).toBe(true);
+      expect(calls.every(call => call.method === 'GET')).toBe(true);
+      expect(model.state.snapshot!.tasks.map(task => task.id)).toEqual(loadedIds);
+      expect(model.state.snapshot!.page).toMatchObject(pagingContext(page));
+      expect(model.state.snapshot!.collectionPages!.task).toMatchObject(pagingContext(taskPage));
+      expect(model.state.selectedTaskId).toBe(taskId); expect(model.state.selectedOccurrenceId).toBe(occurrenceId);
+      expect(model.draft()?.task).toMatchObject({ id: taskId, revision, attachments: [attachment] });
+      expect(model.state.snapshot!.tasks.find(task => task.id === taskId)).toMatchObject({ revision, attachments: [attachment] });
+      expect(f.service.getEntity('task', taskId)).toMatchObject({ revision, attachments: [attachment] });
+      expect(model.dirty()).toBe(false);
+      const beforeForeign = JSON.stringify(model.state);
+      const foreignContext = model.captureCommandResultContext();
+      expect(await model.acceptCommandResult({ ...result, snapshot: { ...result.snapshot, datasetId: 'foreign-attachment-library' } }, foreignContext)).toBe(false);
+      expect(JSON.stringify(model.state)).toBe(beforeForeign);
+      expect(calls.every(call => call.method === 'GET')).toBe(true);
+    } finally { restoreAssetRead(); await f.close(); }
+  }, 30000);
+  test('an old external attachment response cannot replace a newer task read after its POST was captured', async () => {
+    const f = await domainStatusFixture();
+    let restoreAssetRead = () => {};
+    try {
+      const task = f.create('Before the delayed external attachment response');
+      const calls: { method: string; url: string }[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        calls.push({ method, url }); return f.request(url, method, body);
+      });
+      await model.load({ view: 'tasks', limit: 200 }); model.selectTask(task.id);
+      const bytes = Buffer.from('Delayed external receipt proof');
+      const { createHash } = await import('node:crypto');
+      const hash = createHash('sha256').update(bytes).digest('hex');
+      const knowledgeData = await import('../packages/core/knowledge-data');
+      const originalRead = knowledgeData.readKnowledgeDataFile;
+      const assetRead = vi.spyOn(knowledgeData, 'readKnowledgeDataFile').mockImplementation((root, relative) =>
+        relative === 'apps/to-doo/assets/' + hash ? bytes : originalRead(root, relative));
+      restoreAssetRead = () => assetRead.mockRestore();
+      const attachment = { hash, name: 'delayed-proof.txt', mime: 'text/plain', size: bytes.length };
+      const postedContext = model.captureCommandResultContext();
+      const delayed = f.service.command({ requestId: crypto.randomUUID(), action: 'attach_asset',
+        payload: { taskId: task.id, expectedRevision: model.draft()!.task.revision, attachment } });
+      const attached = toDooEntitySchemas.task.parse(f.service.getEntity('task', task.id));
+      expect(delayed.changed).toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'task', id: task.id, revision: attached.revision })]));
+      f.service.command({ requestId: crypto.randomUUID(), action: 'update_task', payload: {
+        id: task.id, expectedRevision: attached.revision,
+        patch: { title: 'Newer task title from another writer', description: 'The later read must remain authoritative', priority: 'high' },
+      } });
+      await model.load({ view: 'tasks', limit: 200 });
+      const current = toDooEntitySchemas.task.parse(f.service.getEntity('task', task.id));
+      expect(current.revision).not.toBe(attached.revision);
+      expect(model.draft()?.task).toMatchObject({ title: current.title, description: current.description,
+        priority: 'high', revision: current.revision, attachments: [attachment] });
+      const before = JSON.stringify(model.state), readCount = calls.length;
+      expect(await model.acceptCommandResult(delayed, postedContext)).toBe(false);
+      expect(JSON.stringify(model.state)).toBe(before);
+      expect(calls).toHaveLength(readCount); expect(calls.every(call => call.method === 'GET')).toBe(true);
+      expect(f.service.getEntity('task', task.id)).toMatchObject({ title: 'Newer task title from another writer',
+        description: 'The later read must remain authoritative', priority: 'high', revision: current.revision, attachments: [attachment] });
+    } finally { restoreAssetRead(); await f.close(); }
   });
 });

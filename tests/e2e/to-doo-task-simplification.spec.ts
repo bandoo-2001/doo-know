@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
+import { openToDooDetailProperty } from '../support/to-doo-detail-controls';
 
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
@@ -41,6 +42,9 @@ async function fixture(page: Page) {
     listId: list.ids[0],
   });
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&list=' + list.ids[0]);
+  const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
+  await expect(app).toBeVisible({ timeout: 20000 });
+  await expect(app.locator('.todo-main')).toHaveAttribute('aria-busy', 'false', { timeout: 20000 });
   return {
     suffix,
     listId: list.ids[0],
@@ -115,7 +119,13 @@ test('task details retain subtasks and provide direct reminder editing', async (
   await expect(detail).not.toContainText('未关联');
   await expect(detail).not.toContainText('未设置');
   for (const theme of ['light', 'dark']) {
-    await page.evaluate((theme) => (document.documentElement.dataset.theme = theme), theme);
+    await page.evaluate(async (theme) => {
+      const modulePath = '/preferences.ts';
+      const preferences = await import(modulePath);
+      preferences.setEditorPreferences({ theme });
+      await document.fonts.ready;
+    }, theme);
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
     await page.setViewportSize({ width: info.project.name === 'mobile' ? 320 : 1440, height: 960 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
@@ -126,8 +136,8 @@ test('task details retain subtasks and provide direct reminder editing', async (
       animations: 'disabled',
     });
   }
-  await detail.getByRole('button', { name: '编辑任务提醒', exact: true }).click();
-  await expect(detail.getByRole('button', { name: '＋ 添加提醒', exact: true })).toBeInViewport();
+  const reminders = await openToDooDetailProperty(page, 'reminders');
+  await expect(reminders.getByRole('button', { name: '＋ 添加提醒', exact: true })).toBeInViewport();
 });
 
 test('context menu copy, priority and subtree move leave multi-selection untouched', async ({
@@ -141,9 +151,9 @@ test('context menu copy, priority and subtree move leave multi-selection untouch
     entity: { name: '工作 ' + f.suffix },
   });
   await page.reload();
-  await openToDooTaskTools(page);
-  await page.getByRole('button', { name: '任务管理', exact: true }).click();
-  await page.getByRole('menuitem', { name: '多选', exact: true }).click();
+  await expect(page.locator('.todo-task-toolbar')).toBeVisible();
+  await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await page.getByRole('menuitem', { name: '选择任务', exact: true }).click();
   const selected = page.getByRole('checkbox', { name: '选择 ' + otherTitle, exact: true });
   await selected.check();
   const row = page
@@ -203,10 +213,13 @@ test('group creation and view switching preserve the group, list and selected ta
       await expect(
         page.getByRole('textbox', { name: '连续安排开始时间', exact: true }),
       ).not.toBeVisible();
-      await page.locator('.todo-plan-disclosure .ant-collapse-header').click();
+      await page.getByRole('button', { name: '日历工具', exact: true }).click();
+      await page.getByRole('menuitem', { name: '连续安排', exact: true }).click();
       await expect(
         page.getByRole('textbox', { name: '连续安排开始时间', exact: true }),
       ).toBeVisible();
+      await page.getByRole('dialog', { name: '连续安排', exact: true }).getByRole('button', { name: '取消', exact: true }).click();
+      await expect(page.getByRole('textbox', { name: '连续安排开始时间', exact: true })).not.toBeVisible();
     }
   }
   const stored = await (await page.request.get('/api/to-doo/state?kind=task&limit=1000')).json();

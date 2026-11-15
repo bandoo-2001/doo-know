@@ -1,151 +1,229 @@
-/* Shared geometry for the approved module rail + contextual directory layout. */
-.to-doo-workspace.todo-hosted-navigation {
+/* Shared page patterns. Module-specific content layout stays with each module. */
+.to-doo-workspace.todo-task-page .todo-page { padding-top: var(--todo-space-12); }
+.to-doo-workspace.todo-task-page .todo-page-heading { min-height: var(--todo-nav-height); }
+.to-doo-workspace .todo-header-task-toolbar .todo-page-toolbar { margin: 0; }
+.to-doo-workspace .todo-header-task-toolbar { min-width: 0; }
+.to-doo-workspace .todo-page-heading > .todo-actions:has(.todo-header-task-toolbar) { flex-wrap: wrap; }
+.to-doo-workspace .todo-page-heading {
+  position: relative;
+  top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--todo-space-8) var(--todo-space-16);
+  min-height: var(--todo-header-height);
+  margin-bottom: var(--todo-space-8);
+  background: var(--todo-bg);
+}
+.to-doo-workspace .todo-page-heading-copy {
+  min-width: 0;
+  flex: 1 1 160px;
+}
+.to-doo-workspace .todo-page-heading h1 {
+  margin: 0;
+  font-size: var(--todo-heading-size);
+  font-weight: 600;
+  line-height: var(--todo-heading-line-height);
+  letter-spacing: normal;
+  overflow-wrap: anywhere;
+}
+.todo-task-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--todo-space-8);
+}
+.todo-task-scope-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  color: color-mix(in srgb, var(--scope-color, var(--todo-accent)) 78%, var(--todo-ink));
+  background: color-mix(in srgb, var(--scope-color, var(--todo-accent)) 11%, var(--todo-paper));
+}
+.todo-task-heading-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (min-width: 1001px) and (orientation: landscape) {
+  .to-doo-workspace :is(.todo-page-tasks, .todo-page-focus) {
+    /* Base the gutter on the main pane. Opening the reader returns space to the list. */
+    --todo-work-gutter: clamp(var(--todo-page-padding), calc(var(--todo-page-padding) + (100cqi - 1280px) / 8), 80px);
+    box-sizing: border-box;
+    width: 100%;
+    max-width: calc(var(--todo-desktop-work-width) + 2 * var(--todo-work-gutter));
+    margin-inline: auto;
+    padding-inline: var(--todo-work-gutter);
+  }
+  .to-doo-workspace .todo-page-tasks > .todo-page-heading {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+  }
+  .to-doo-workspace .todo-main:has(> .todo-page-tasks) {
+    scroll-padding-block-start: calc(var(--todo-nav-height) + var(--todo-space-16));
+  }
+}
+.to-doo-workspace .todo-page-heading p {
+  margin: var(--todo-space-4) 0 0;
+  color: var(--todo-muted);
+  font-size: var(--todo-caption-size);
+  line-height: var(--todo-caption-line-height);
+}
+.to-doo-workspace .todo-page-heading > .todo-actions {
+  margin-inline-start: auto;
   flex: 0 0 auto;
-  grid-template-rows: var(--todo-global-header-height) auto;
-  align-content: stretch;
-  font-size: 14px;
-  --todo-page-padding: 28px;
+  gap: var(--todo-space-8);
+}
+.to-doo-workspace .todo-page-heading > .todo-actions .ant-btn {
+  min-height: var(--todo-control-height);
+  height: var(--todo-control-height);
+  padding-block: 0;
+  padding-inline: var(--todo-space-12);
+  font-size: var(--todo-font-size);
+  line-height: var(--todo-body-line-height);
+  border-radius: var(--todo-control-radius);
+}
+.to-doo-workspace .todo-page-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--todo-space-8);
+  min-width: 0;
+  margin-bottom: var(--todo-space-8);
+}
+.to-doo-workspace .todo-page-heading .todo-task-list-create .ant-btn {
+  color: var(--todo-accent);
+  border-color: color-mix(in srgb, var(--todo-accent) 28%, var(--todo-line));
+  background: var(--todo-paper);
+  box-shadow: none;
+}
+.to-doo-workspace .todo-page-heading .todo-task-list-create .ant-btn:hover {
+  border-color: var(--todo-accent);
+  background: var(--todo-tint);
+}
+.to-doo-workspace .todo-page-heading .todo-toolbar-tool.ant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--todo-space-4);
+  width: auto;
+  min-width: var(--todo-control-height);
+  padding-inline: var(--todo-space-8);
+  color: var(--todo-muted);
+}
+.to-doo-workspace .todo-page-heading .todo-toolbar-tool:is(:hover, :focus-visible, .is-active) {
+  color: var(--todo-accent);
+  background: var(--todo-tint);
+}
+.to-doo-workspace .todo-display-tool .todo-tool-label { display: none; }
+@container (max-width: 740px) {
+  .to-doo-workspace .todo-page-heading .todo-toolbar-tool { padding-inline: var(--todo-space-4); }
+  .todo-task-toolbar .todo-tool-label { display: none; }
+  .to-doo-workspace .todo-page-heading-copy:has(.todo-task-heading) { flex-basis: 5em; }
+}
+.to-doo-workspace .todo-page-toolbar > .todo-actions {
+  min-width: 0;
+}
+.to-doo-workspace .todo-page-toolbar :is(.ant-btn, .ant-segmented, .ant-picker, .ant-input) {
+  font-size: var(--todo-font-size);
+}
+.to-doo-workspace .todo-page-toolbar .ant-btn:not(.todo-icon-button):not(.ant-btn-sm) {
+  min-height: var(--todo-control-height);
+}
+.to-doo-workspace .todo-page-toolbar .ant-segmented {
+  border-radius: var(--todo-control-radius);
+}
+.to-doo-workspace .todo-page-toolbar .ant-segmented-item-label {
+  min-height: var(--todo-compact-control-height);
+  line-height: var(--todo-compact-control-height);
+}
+.to-doo-workspace .todo-section-header {
+  min-height: var(--todo-control-height);
+  padding: var(--todo-space-8) var(--todo-space-12);
+  gap: var(--todo-space-8);
+}
+.to-doo-workspace .todo-section-header h2 {
+  margin: 0;
+  font-size: var(--todo-section-size);
+  font-weight: 600;
+  line-height: var(--todo-body-line-height);
 }
 .todo-hosted-navigation .todo-sidebar {
   background: var(--todo-soft);
-  padding: 22px 12px 16px;
+  padding: var(--todo-space-16) var(--todo-space-8);
 }
 .todo-hosted-navigation .todo-directory-title {
-  padding: 0 12px 20px;
-  font-size: 19px;
+  padding: 0 var(--todo-space-12) var(--todo-space-16);
+  font-size: var(--todo-section-size);
   font-weight: 600;
 }
 .todo-hosted-navigation .todo-navigation-content nav .ant-btn {
-  min-height: 38px;
+  min-height: var(--todo-nav-height);
   height: auto;
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: var(--todo-space-8) var(--todo-space-12);
+  font-size: var(--todo-font-size);
 }
 .todo-hosted-navigation .todo-navigation-group {
-  margin-bottom: 22px;
+  margin-bottom: var(--todo-space-16);
 }
 .todo-hosted-navigation .todo-nav-label {
-  font-size: 11px;
+  font-size: var(--todo-caption-size);
 }
-.todo-hosted-navigation .todo-main,
-.todo-hosted-navigation .todo-page,
-.todo-hosted-navigation .todo-content {
+.todo-hosted-navigation :is(.todo-main, .todo-page, .todo-content) {
   min-width: 0;
   width: 100%;
 }
 .todo-hosted-navigation .todo-readable-list-content {
   max-width: none;
 }
-.todo-hosted-navigation .todo-page-heading {
-  margin-bottom: 22px;
-  align-items: center;
-}
-.todo-hosted-navigation .todo-page-heading h1 {
-  font-size: 26px;
-  font-weight: 600;
-  letter-spacing: -0.025em;
-}
-.todo-hosted-navigation .todo-page-heading p {
-  font-size: 13px;
-}
-.todo-hosted-navigation .todo-page-heading .todo-actions .ant-btn {
-  min-height: 36px;
-  height: auto;
-  padding-inline: 16px;
-}
 .todo-hosted-navigation .todo-topbar {
-  padding-inline: 22px;
-  gap: 14px;
+  padding-inline: var(--todo-space-16);
+  gap: var(--todo-space-12);
 }
 .todo-hosted-navigation .todo-desktop-crumb {
-  padding-left: 18px;
-  border-left: 1px solid var(--todo-line);
-  font-size: 12px;
+  padding-inline-start: var(--todo-space-16);
+  border-inline-start: 1px solid var(--todo-line);
+  font-size: var(--todo-caption-size);
 }
 .todo-hosted-navigation .todo-task-scope {
   justify-content: flex-start;
-  gap: 12px;
-  margin: -6px 0 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--todo-line);
+  gap: var(--todo-space-12);
+  margin: 0 0 var(--todo-space-8);
 }
 .todo-hosted-navigation .todo-scope-filters {
-  margin-left: auto;
+  margin-inline-start: auto;
   max-width: 100%;
-}
-.todo-hosted-navigation .todo-scope-filters[open] {
-  flex-basis: 100%;
 }
 .todo-hosted-navigation .todo-scope-filters ul {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 18px;
-  padding-inline-start: 18px;
-  margin-block: 8px;
+  gap: var(--todo-space-8) var(--todo-space-16);
+  padding-inline-start: var(--todo-space-16);
+  margin-block: var(--todo-space-8);
 }
-.todo-hosted-navigation .todo-empty {
-  padding-block: 56px;
-}
-.workspace-main-menu[data-menu-id='to-doo'] .rail-notes-navigation button {
-  font-size: 11px;
-}
-@media (min-width: 1280px) {
-  .todo-hosted-navigation.todo-has-detail {
-    --todo-detail-width: clamp(360px, 29vw, 440px);
+@media (max-width: 768px) {
+  .to-doo-workspace .todo-page-heading {
+    gap: var(--todo-space-8);
   }
-}
-@media (max-width: 1000px) {
-  .to-doo-workspace.todo-hosted-navigation {
-    --todo-page-padding: 20px;
-  }
-}
-@media (max-width: 720px) {
-  .to-doo-workspace.todo-hosted-navigation {
-    --todo-page-padding: 16px;
-    font-size: 13px;
+  .to-doo-workspace .todo-page-heading > .todo-actions {
+    flex-shrink: 1;
   }
   .todo-hosted-navigation .todo-topbar {
-    padding-inline: 12px;
-    gap: 4px;
-  }
-  .todo-hosted-navigation .todo-topbar-brand {
-    font-size: 14px;
-  }
-  .todo-hosted-navigation .todo-page-heading {
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .todo-hosted-navigation .todo-page-heading h1 {
-    font-size: 23px;
-  }
-  .todo-hosted-navigation .todo-page-heading p {
-    font-size: 12px;
-  }
-  .todo-hosted-navigation .todo-page-heading .todo-actions {
-    gap: 6px;
-  }
-  .todo-hosted-navigation .todo-page-heading .todo-actions .ant-btn {
-    padding-inline: 10px;
+    padding-inline: var(--todo-space-12);
+    gap: var(--todo-space-4);
   }
   .todo-hosted-navigation .todo-task-scope {
     flex-wrap: wrap;
-    gap: 8px;
   }
   .todo-hosted-navigation .todo-scope-filters {
-    margin-left: 0;
-  }
-  .todo-hosted-navigation .todo-empty {
-    padding: 32px 12px;
+    margin-inline-start: 0;
   }
   .todo-hosted-navigation .todo-drawer-sidebar {
-    padding: 12px;
-  }
-}
-@media (max-width: 359px) {
-  .to-doo-workspace.todo-hosted-navigation {
-    --todo-page-padding: 12px;
-  }
-  .todo-hosted-navigation .todo-topbar-brand .todo-app-mark {
-    display: none;
+    padding: var(--todo-space-12);
   }
 }

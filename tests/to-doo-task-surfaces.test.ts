@@ -5,7 +5,10 @@ import ts from 'typescript';
 import * as Vue from 'vue';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
+import * as displayPreferences from '../apps/web/to-doo-display-preferences';
 import * as controls from '../apps/web/to-doo-controls';
+import * as actionGuards from '../apps/web/to-doo-action-guard';
+import * as draftValidation from '../apps/web/to-doo-draft-validation';
 import * as groups from '../apps/web/to-doo-task-groups';
 import * as menus from '../apps/web/to-doo-menu';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
@@ -24,9 +27,16 @@ type Node = {
   children: Node[];
   text: string;
   parent?: Node;
+  querySelector: (selector: string) => null;
+  querySelectorAll: (selector: string) => [];
+  contains: (node: unknown) => boolean;
 };
 const cleanup: (() => void)[] = [];
-afterEach(() => cleanup.splice(0).forEach((fn) => fn()));
+afterEach(() => {
+  cleanup.splice(0).forEach((fn) => fn());
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
 
 function component(name: string): Vue.Component {
   const { descriptor } = parse(
@@ -46,6 +56,9 @@ function component(name: string): Vue.Component {
       if (id === '../../to-doo-menu') return menus;
       if (id === 'ant-design-vue') return toDooAntStubs;
       if (id.endsWith('/to-doo-controls')) return controls;
+      if (id.endsWith('/to-doo-action-guard')) return actionGuards;
+      if (id.endsWith('/to-doo-draft-validation')) return draftValidation;
+      if (id.endsWith('/to-doo-display-preferences')) return displayPreferences;
       if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
 
       if (id.endsWith('ToDooPageToolbar.vue')) return { default: component('ToDooPageToolbar') };
@@ -53,6 +66,7 @@ function component(name: string): Vue.Component {
       if (boundary) return { default: boundary };
       if (id.endsWith('ToDooTaskRow.vue')) return { default: component('ToDooTaskRow') };
       if (id.endsWith('ToDooTaskPlan.vue')) return { default: component('ToDooTaskPlan') };
+      if (id.endsWith('ToDooTimeBlockFields.vue')) return { default: component('ToDooTimeBlockFields') };
       if (id.endsWith('ToDooTaskMenu.vue')) return { default: component('ToDooTaskMenu') };
       if (id.endsWith('ToDooTaskGroupMenu.vue'))
         return { default: component('ToDooTaskGroupMenu') };
@@ -71,8 +85,12 @@ function mount(name: string, props: Record<string, any>) {
     text,
     props: {},
     children: [],
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    contains: () => false,
   });
   const renderer = Vue.createRenderer<Node, Node>({
+    querySelector: () => null,
     insertStaticContent(content, parent, anchor) {
       const child = node('#static', content);
       child.parent = parent;
@@ -109,12 +127,13 @@ function mount(name: string, props: Record<string, any>) {
   });
   const root = node('root');
   const subject = component(name);
+  const subjectRef = Vue.ref<any>();
   const shown = Vue.ref(true);
   let confirmation!: ReturnType<typeof controls.provideToDooConfirm>;
   const app = renderer.createApp({
     setup() {
       confirmation = controls.provideToDooConfirm();
-      return () => (shown.value ? Vue.h(subject, props) : null);
+      return () => (shown.value ? Vue.h(subject, { ...props, ref: subjectRef }) : null);
     },
   });
   app.mount(root);
@@ -133,6 +152,7 @@ function mount(name: string, props: Record<string, any>) {
     text,
     byClass,
     confirmation,
+    ref: subjectRef,
     hide: () => {
       shown.value = false;
     },
@@ -278,7 +298,7 @@ describe('task surface controls', () => {
     value.draft()!.occurrence!.due = null;
     await Vue.nextTick();
     expect(detail.byClass('todo-detail-shortcuts')).toHaveLength(1);
-    for (const label of ['设置具体时间', '编辑截止日期', '编辑任务提醒', '编辑关联资料'])
+    for (const label of ['编辑计划日期', '编辑截止日期', '编辑优先级', '编辑任务提醒', '编辑关联资料'])
       expect(
         detail.all().some((node) => node.tag === 'button' && node.props['aria-label'] === label),
       ).toBe(true);
@@ -296,16 +316,12 @@ describe('task surface controls', () => {
     const primary = detail.byClass('todo-primary-children')[0];
     expect(primary).toBeDefined();
     expect(detail.text(primary)).toContain('报告子任务');
-    expect(
-      detail
-        .all()
-        .find((node) => node.tag === 'summary' && detail.text(node).startsWith('更多详情'))!.parent!
-        .parent!.props['active-key'],
-    ).toEqual([]);
+    expect(detail.all().filter((node) => node.props.role === 'dialog')).toHaveLength(0);
+    expect(detail.all().filter((node) => node.tag === 'select')).toHaveLength(0);
   });
   test.each([
     ['编辑重复规则', '重复规则'],
-    ['编辑任务提醒', '更多选项：标签、提醒、依赖与来源'],
+    ['编辑任务提醒', '任务提醒'],
     ['编辑关联资料', '关联资料'],
   ])('%s reveals the existing editor in one click and can reopen it', async (label, title) => {
     const value = model();
@@ -315,31 +331,23 @@ describe('task surface controls', () => {
       .all()
       .find((node) => node.tag === 'button' && node.props['aria-label'] === label);
     expect(shortcut).toBeDefined();
-    const collapse = (name: string) =>
-      detail.all().find((node) => node.tag === 'summary' && detail.text(node).startsWith(name))!
-        .parent!.parent!;
-    const active = (name: string) => collapse(name).props['active-key'];
-    expect(active('更多详情')).toEqual([]);
-    expect(active(title)).toEqual([]);
+    const dialogs = () => detail.all().filter((node) => node.props.role === 'dialog');
+    expect(dialogs()).toHaveLength(0);
 
     await shortcut!.props.onClick();
     await Vue.nextTick();
-    expect(active('更多详情')).toEqual(['content']);
-    expect(active(title)).toEqual(['content']);
-    expect(collapse('更多详情').props['open-animation']).toEqual({ css: false });
-    expect(collapse(title).props['open-animation']).toEqual({ css: false });
+    expect(dialogs()).toHaveLength(1);
+    expect(dialogs()[0].props['aria-label']).toBe(title);
     expect(JSON.stringify(value.draft())).toBe(before);
     expect(value.dirty()).toBe(false);
 
-    collapse('更多详情').props.onChange([]);
-    collapse(title).props.onChange([]);
+    dialogs()[0].props.onKeydown({ key: 'Escape' });
     await Vue.nextTick();
-    expect(collapse('更多详情').props['open-animation']).toBeUndefined();
-    expect(collapse(title).props['open-animation']).toBeUndefined();
+    expect(dialogs()).toHaveLength(0);
     await shortcut!.props.onClick();
     await Vue.nextTick();
-    expect(active('更多详情')).toEqual(['content']);
-    expect(active(title)).toEqual(['content']);
+    expect(dialogs()).toHaveLength(1);
+    expect(dialogs()[0].props['aria-label']).toBe(title);
   });
 
   test('shortcut summaries reflect the current draft without duplicating editors', async () => {
@@ -347,6 +355,8 @@ describe('task surface controls', () => {
     const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
     const shortcuts = () => detail.byClass('todo-detail-shortcuts')[0]!;
     expect(detail.text(shortcuts())).toContain('不重复');
+    await detail.ref.value.openProperty('repeat');
+    await Vue.nextTick();
     const repeat = detail
       .all()
       .filter(
@@ -368,6 +378,8 @@ describe('task surface controls', () => {
     expect(detail.text(shortcuts())).toContain('每周');
     expect(detail.text(shortcuts())).toContain('1 条');
     expect(detail.text(shortcuts())).toContain('1 份');
+    await detail.ref.value.openProperty('resources');
+    await Vue.nextTick();
     expect(
       detail.all().filter((node) => node.tag === 'summary' && detail.text(node) === '关联资料1'),
     ).toHaveLength(1);
@@ -408,8 +420,8 @@ describe('task surface controls', () => {
 
   test.each([
     ['list', '工作'],
-    ['references', '▤ 1'],
-    ['recurrence', '↻'],
+    ['references', '1'],
+    ['recurrence', ''],
     ['blocked', '受阻'],
     ['unavailable', '执行记录尚未载入'],
   ])('a default-priority row retains its %s indicator on its own', (indicator, expected) => {
@@ -444,7 +456,14 @@ describe('task surface controls', () => {
     const row = mount('ToDooTaskRow', { item, today: '2026-10-29' });
     const body = row.byClass('todo-task-body')[0]!;
     expect(row.text(body)).toBe('准备报告' + expected);
-    expect(body.children.filter((node) => node.tag === 'small')).toHaveLength(1);
+    const metadata = row.byClass('todo-task-meta');
+    expect(metadata).toHaveLength(1);
+    expect(body.props['aria-describedby'].split(' ')).toContain(metadata[0]!.props.id);
+    if (indicator === 'references' || indicator === 'recurrence') {
+      const symbol = row.byClass('todo-row-symbol')[0]!;
+      expect(symbol.props.role).toBe('img');
+      expect(symbol.props['aria-label']).toBe(indicator === 'references' ? '关联资料 1 份' : '重复任务');
+    }
     expect(row.byClass('todo-priority-label')).toHaveLength(0);
     if (indicator === 'unavailable')
       expect(row.byClass('todo-check')[0]!.props.disabled).toBe(true);
@@ -453,6 +472,8 @@ describe('task surface controls', () => {
   test('importance and urgency remain editable in their compact group, independently of priority', async () => {
     const value = model();
     const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+    await detail.ref.value.openProperty('classification');
+    await Vue.nextTick();
     const visibleField = (label: string) =>
       detail.all().find((n) => {
         if (n.tag !== 'label' || !detail.text(n).startsWith(label)) return false;
@@ -462,6 +483,8 @@ describe('task surface controls', () => {
     expect(classification).toBeDefined();
     expect(visibleField('重要程度')).toBeDefined();
     expect(visibleField('紧急程度')).toBeDefined();
+    await detail.ref.value.openProperty('priority');
+    await Vue.nextTick();
     const priority = detail
       .all()
       .find((n) => n.tag === 'select' && n.props['aria-label'] === '优先级')!;
@@ -515,6 +538,8 @@ describe('task surface controls', () => {
     async (input, expected) => {
       const value = model();
       const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+      await detail.ref.value.openProperty('classification');
+      await Vue.nextTick();
       const urgency = detail
         .all()
         .find((node) => node.tag === 'select' && node.props['aria-label'] === '紧急程度')!;
@@ -581,7 +606,7 @@ describe('task surface controls', () => {
       .all()
       .find((item) => item.tag === 'button' && detail.text(item).trim() === '删除')!;
     const pending = button.props.onClick();
-    expect(detail.confirmation.current.value).not.toBeNull();
+    await vi.waitFor(() => expect(detail.confirmation.current.value).not.toBeNull());
     detail.hide();
     await Vue.nextTick();
     detail.confirmation.finish(true);
@@ -723,7 +748,8 @@ describe('task audit context regressions', () => {
       tree: [],
       creating: true,
     });
-    expect(view.text(view.byClass('todo-task-list-heading')[0])).toContain('3 项');
+    expect(view.byClass('todo-task-list-heading')).toHaveLength(0);
+    expect(view.byClass('todo-task-row')).toHaveLength(3);
     expect(view.text(view.root)).toContain('已取消');
     expect(view.text(view.root)).toContain('已跳过');
   });
@@ -779,7 +805,7 @@ test('task menu parent completion asks and uses the version guarded cascade', as
   });
 });
 
-test('matrix offers direct classification and manual override reset independently of priority', async () => {
+test('matrix offers keyboard menu classification and manual override reset without a per-row form', async () => {
   const value = model(),
     execute = vi.spyOn(value, 'execute').mockResolvedValue(undefined);
   const matrix = mount('ToDooTaskViews', {
@@ -788,12 +814,13 @@ test('matrix offers direct classification and manual override reset independentl
     tree: [],
     creating: true,
   });
-  expect(matrix.text(matrix.root)).toContain('手动不紧急');
-  const select = matrix
+  expect(matrix.byClass('todo-matrix-classification')).toHaveLength(0);
+  expect(matrix.text(matrix.root)).toContain('重要不紧急 ✓');
+  const action = matrix
     .all()
-    .find((n) => n.tag === 'select' && n.props['aria-label'] === '设置象限 准备报告')!;
-  expect(select).toBeDefined();
-  select.props.onChange({ target: { value: '2' } });
+    .find((n) => n.props.role === 'menuitem' && matrix.text(n) === '紧急不重要')!;
+  expect(action).toBeDefined();
+  await action.props.onClick();
   await Vue.nextTick();
   expect(execute).toHaveBeenCalledWith(
     expect.objectContaining({
@@ -937,3 +964,302 @@ test.each(['menu', 'tasks', 'board', 'detail'] as const)(
     );
   },
 );
+
+
+describe('light task controls and recoverable capture', () => {
+  function capture() {
+    vi.stubGlobal('window', { addEventListener() {}, removeEventListener() {} });
+    vi.stubGlobal('document', { addEventListener() {}, removeEventListener() {}, querySelectorAll: () => [] });
+    const value = model();
+    const create = vi.spyOn(value, 'createTask').mockResolvedValue(undefined);
+    return { value, create };
+  }
+  function button(view: ReturnType<typeof mount>, label: string) {
+    return view.all().find((node) => node.tag === 'button' && (node.props['aria-label'] === label || view.text(node) === label))!;
+  }
+  test('sorting, density and filters use popovers without an in-flow filter panel', async () => {
+    const density = vi.fn();
+    const view = mount('ToDooTaskViews', { model: model(), section: 'tasks', tree: [], creating: true, 'onUpdate:density': density });
+    expect(view.byClass('todo-filter-panel')).toHaveLength(0);
+    expect(view.byClass('todo-task-list-heading')).toHaveLength(0);
+    expect(view.byClass('todo-task-filter-form')[0].parent?.tag).toBe('details');
+    view.all().find((node) => node.tag === 'select' && node.props['aria-label'] === '任务密度')!.props.onChange({ target: { value: 'compact' } });
+    expect(density).toHaveBeenCalledWith('compact');
+    button(view, '更多筛选条件').props.onClick();
+    await Vue.nextTick();
+    expect(view.all().some((node) => node.props['aria-label'] === '高级筛选')).toBe(true);
+  });
+  test('recognized date and repeat can be removed independently before submission', async () => {
+    const { value, create } = capture();
+    value.newTaskDraft().title = '明天 每天 整理';
+    const view = mount('ToDooQuickAdd', { model: value });
+    button(view, '移除计划识别').props.onClick();
+    await Vue.nextTick();
+    expect(button(view, '纠正重复规则')).toBeDefined();
+    button(view, '移除重复识别').props.onClick();
+    await Vue.nextTick();
+    view.all().find((node) => node.tag === 'form')!.props.onSubmit({ preventDefault() {} });
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ title: '整理', plan: null, recurrence: null }), value.newTaskDraft());
+    expect(value.newTaskDraft().title).toBe('整理');
+  });
+  test('use original preserves recognized words as literal title without assigning parsed properties', async () => {
+    const { value, create } = capture();
+    const title = '明天 下午3点 每天 复习';
+    value.newTaskDraft().title = title;
+    const view = mount('ToDooQuickAdd', { model: value });
+    button(view, '按原文输入').props.onClick();
+    await Vue.nextTick();
+    view.all().find((node) => node.tag === 'form')!.props.onSubmit({ preventDefault() {} });
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ title, plan: null, recurrence: null }), value.newTaskDraft());
+  });
+  test('composition blocks form submission until the input composition finishes', async () => {
+    const { value, create } = capture();
+    value.newTaskDraft().title = '输入中的任务';
+    const view = mount('ToDooQuickAdd', { model: value });
+    const input = view.all().find((node) => node.tag === 'input' && node.props['aria-label'] === '快速添加任务')!;
+    const form = view.all().find((node) => node.tag === 'form')!;
+    input.props.onCompositionstart();
+    form.props.onSubmit({ preventDefault() {} });
+    expect(create).not.toHaveBeenCalled();
+    input.props.onCompositionend();
+    form.props.onSubmit({ preventDefault() {} });
+    expect(create).toHaveBeenCalledOnce();
+  });
+  test('a confirmed creation still exposes its real task identity when the detail read is unavailable', async () => {
+    const { value, create } = capture();
+    value.newTaskDraft().title = '已确认但详情读取暂不可用';
+    create.mockResolvedValue({ transactionId: null, replayed: false, ids: ['created-task'],
+      changed: [{ kind: 'task', id: 'created-task', revision: 'confirmed-revision' }],
+      snapshot: { ...value.state.snapshot!, tasks: [] } });
+    const created = vi.fn();
+    const view = mount('ToDooQuickAdd', { model: value, onCreated: created });
+    await view.all().find(node => node.tag === 'form')!.props.onSubmit({ preventDefault() {} });
+    expect(created).toHaveBeenCalledWith({ taskId: 'created-task', title: '已确认但详情读取暂不可用', listId: null, planDates: [] });
+    expect(value.state.snapshot!.tasks.map(task => task.id)).toEqual(['task-a']);
+    expect(create).toHaveBeenCalledOnce();
+  });
+});
+
+
+test('cancelling a property restores only that setting and preserves earlier task edits', async () => {
+  const value = model();
+  value.draft()!.task.title = '先前保留的标题';
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+  await detail.ref.value.openProperty('priority');
+  const priority = detail.all().find((node) => node.tag === 'select' && node.props['aria-label'] === '优先级')!;
+  priority.props.onChange({ target: { value: 'low' } });
+  await Vue.nextTick();
+  expect(value.draft()!.task.priority).toBe('low');
+  detail.all().find((node) => node.tag === 'button' && detail.text(node) === '取消本次设置')!.props.onClick();
+  await Vue.nextTick();
+  expect(value.draft()!.task).toMatchObject({ title: '先前保留的标题', priority: 'high' });
+  expect(value.state.snapshot!.tasks[0].title).toBe('准备报告');
+  expect(value.dirty()).toBe(true);
+  expect(detail.all().filter((node) => node.props.role === 'dialog')).toHaveLength(0);
+});
+
+test('completing a property keeps it in the explicit task draft without saving to the server', async () => {
+  const value = model();
+  const save = vi.spyOn(value, 'saveTask');
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+  await detail.ref.value.openProperty('priority');
+  detail.all().find((node) => node.tag === 'select' && node.props['aria-label'] === '优先级')!.props.onChange({ target: { value: 'low' } });
+  await Vue.nextTick();
+  detail.all().find((node) => node.tag === 'button' && detail.text(node) === '完成设置')!.props.onClick();
+  await Vue.nextTick();
+  expect(value.draft()!.task.priority).toBe('low');
+  expect(value.state.snapshot!.tasks[0].priority).toBe('high');
+  expect(value.dirty()).toBe(true);
+  expect(save).not.toHaveBeenCalled();
+  expect(detail.byClass('todo-detail-save')[0].props.disabled).toBe(false);
+});
+
+test('a property can finish with an empty recoverable title while whole-task validation still requires it', async () => {
+  const value = model();
+  value.draft()!.task.title = '';
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+  await detail.ref.value.openProperty('priority');
+  detail.all().find(node => node.tag === 'button' && detail.text(node) === '完成设置')!.props.onClick();
+  await Vue.nextTick();
+  expect(detail.all().filter(node => node.props.role === 'dialog')).toHaveLength(0);
+  expect(detail.ref.value.hasInvalidInput()).toBe(false);
+  expect(value.validateTaskDraft()).toBe(false);
+  await Vue.nextTick();
+  expect(detail.all().filter(node => node.props.role === 'alert').some(node => detail.text(node).includes('任务标题'))).toBe(true);
+});
+
+test('semantic numeric errors reopen the owning panel and explicit cancel restores its original baseline', async () => {
+  const value = model();
+  const save = vi.spyOn(value, 'saveTask');
+  value.draft()!.task.dependencies = [{ taskId: 'task-b', lagMinutes: 15 }];
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+  await detail.ref.value.openProperty('properties');
+  value.draft()!.task.dependencies[0].lagMinutes = null as any;
+  detail.all().find(node => node.tag === 'button' && node.props['aria-label'] === 'Close')!.props.onClick();
+  await Vue.nextTick();
+  expect(detail.ref.value.hasInvalidInput()).toBe(true);
+  expect(value.validateTaskDraft()).toBe(false);
+  await Vue.nextTick();
+  expect(detail.all().filter(node => node.props.role === 'dialog').map(node => node.props['aria-label'])).toEqual(['其他属性']);
+  detail.all().find(node => node.tag === 'button' && detail.text(node) === '取消本次设置')!.props.onClick();
+  await Vue.nextTick();
+  expect(value.draft()!.task.dependencies[0].lagMinutes).toBe(15);
+  expect(detail.ref.value.hasInvalidInput()).toBe(false);
+  expect(save).not.toHaveBeenCalled();
+});
+
+test('removing an existing plan with invalid edits creates a valid recoverable deletion marker', async () => {
+  const value = model();
+  const task = value.draft()!.task;
+  value.draft()!.blocks.push(toDooEntitySchemas.timeBlock.parse({
+    id: 'existing-plan', revision: 'plan-r1', createdAt: task.createdAt, updatedAt: task.updatedAt,
+    occurrenceId: 'occ-a', start: { date: '2026-11-15', time: '09:00' }, durationMinutes: 30,
+  }));
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+  await detail.ref.value.openProperty('plan');
+  value.draft()!.blocks[0].durationMinutes = null as any;
+  expect(detail.ref.value.hasInvalidInput()).toBe(true);
+  detail.all().find(node => node.tag === 'button' && detail.text(node) === '移除这段安排')!.props.onClick();
+  await Vue.nextTick();
+  expect(value.draft()!.blocks[0]).toMatchObject({ durationMinutes: 30, revision: 'plan-r1', deletedAt: expect.any(String) });
+  expect(detail.ref.value.hasInvalidInput()).toBe(false);
+  expect(value.validateTaskDraft()).toBe(true);
+  expect(toDooEntitySchemas.timeBlock.safeParse(value.draft()!.blocks[0]).success).toBe(true);
+});
+
+
+test('recording an outcome asks to save criteria and aborts when the selected task changes', async () => {
+  const { value, writes } = confirmationModel();
+  const edit = vi.fn();
+  const save = vi.spyOn(value, 'saveTask');
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [], onEdit: edit });
+  await detail.ref.value.openProperty('results');
+  value.draft()!.task.criteria = '未保存的完成标准';
+  const action = detail.all().find(node => node.tag === 'button' && detail.text(node).trim() === '＋ 记录成果与证据')!;
+  const pending = action.props.onClick();
+  await vi.waitFor(() => expect(detail.confirmation.current.value).not.toBeNull());
+  expect(edit).not.toHaveBeenCalled();
+  value.selectTask('task-b', 'occ-b');
+  detail.confirmation.finish(true);
+  await pending;
+  expect(save).not.toHaveBeenCalled();
+  expect(edit).not.toHaveBeenCalled();
+  expect(writes).toHaveLength(0);
+});
+
+test('adding an execution record does not reopen its task after the user selects another one', async () => {
+  const { value } = confirmationModel();
+  value.state.snapshot!.occurrences = value.state.snapshot!.occurrences.filter(occurrence => occurrence.taskId !== 'task-a');
+  value.selectTask('task-a');
+  // Keep this fixture's empty execution context stable while testing the
+  // command reply race; confirmationModel's GET fixture still contains occ-a.
+  vi.spyOn(value, 'prepareTaskAction').mockResolvedValue([]);
+  let finish!: (result: any) => void;
+  const execute = vi.spyOn(value, 'execute').mockImplementation(() => new Promise(resolve => { finish = resolve; }));
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+  const action = detail.all().find(node => node.tag === 'button' && detail.text(node).trim() === '添加本次任务记录')!;
+  const pending = action.props.onClick();
+  await vi.waitFor(() => expect(execute).toHaveBeenCalledOnce());
+  expect(execute).toHaveBeenCalledWith(expect.objectContaining({ action: 'materialize_occurrences', payload: expect.objectContaining({ taskId: 'task-a' }) }));
+  value.selectTask('task-b', 'occ-b');
+  finish({ ids: ['occ-new'] });
+  await pending;
+  expect(value.state.selectedTaskId).toBe('task-b');
+  expect(value.state.selectedOccurrenceId).toBe('occ-b');
+});
+
+test('one task More popup retains view rules, organization, templates and selection actions', async () => {
+  const value = model();
+  const stamp = { revision: 'r1', createdAt: '2026-10-29T08:00:00Z', updatedAt: '2026-10-29T08:00:00Z' };
+  value.state.snapshot!.lists.push(toDooEntitySchemas.list.parse({ ...stamp, id: 'work', name: '工作' }));
+  value.state.snapshot!.templates.push(toDooEntitySchemas.template.parse({ ...stamp, id: 'template-one', name: '检查模板', tasks: [{ key: 'first', title: '模板中的任务' }] }));
+  value.state.filter.listIds = ['work'];
+  const edit = vi.fn(), navigate = vi.fn();
+  const execute = vi.spyOn(value, 'execute').mockResolvedValue(undefined);
+  const view = mount('ToDooTaskViews', { model: value, section: 'board', tree: [], creating: true, scopeListId: 'work', onEdit: edit, onNavigate: navigate });
+  const toolbar = view.byClass('todo-task-toolbar')[0];
+  const triggers = view.all(toolbar).filter((node) => node.tag === 'details' && node.parent === toolbar).map((popup) => view.text(popup.children.find((node) => node.tag === 'summary')!));
+  expect(triggers).toEqual(['搜索', '筛选', '更多']);
+  const display = view.byClass('todo-task-display-form')[0];
+  for (const label of ['任务展示方式', '任务排序', '看板分组', '任务密度']) {
+    expect(view.all(display).filter((node) => node.tag === 'select' && node.props['aria-label'] === label)).toHaveLength(1);
+  }
+  const action = (label: string) => view.all(display).find((node) => node.tag === 'button' && view.text(node) === label)!;
+  for (const label of ['选择任务', '编辑当前清单', '清单习惯', '新建分组', '新建标签', '从模板新建', '新建模板', '保存当前视图']) expect(action(label)).toBeDefined();
+  action('新建标签').props.onClick();
+  expect(edit).toHaveBeenLastCalledWith('tag');
+  action('新建模板').props.onClick();
+  expect(edit).toHaveBeenLastCalledWith('template');
+  action('保存当前视图').props.onClick();
+  expect(edit).toHaveBeenLastCalledWith('view', undefined, expect.objectContaining({ mode: 'board', filter: { listIds: ['work'] } }));
+  action('选择任务').props.onClick();
+  await Vue.nextTick();
+  expect(view.byClass('todo-batch')).toHaveLength(1);
+  view.all(display).find((node) => node.tag === 'select' && node.props['aria-label'] === '任务展示方式')!.props.onChange({ target: { value: 'matrix' } });
+  expect(navigate).toHaveBeenLastCalledWith('matrix');
+  action('从模板新建').props.onClick();
+  await Vue.nextTick();
+  await view.all().find((node) => node.tag === 'button' && view.text(node).trim() === '检查模板')!.props.onClick();
+  expect(execute).toHaveBeenCalledWith({ action: 'apply_template', payload: { templateId: 'template-one', listId: 'work', titlePrefix: '' } });
+});
+
+test('capture keeps detailed creation available after focus without a redundant collapsed action', async () => {
+  vi.stubGlobal('window', { addEventListener() {}, removeEventListener() {} });
+  vi.stubGlobal('document', { addEventListener() {}, removeEventListener() {}, querySelectorAll: () => [] });
+  const expand = vi.fn();
+  const capture = mount('ToDooQuickAdd', { model: model(), onExpand: expand });
+  const detailButtons = () => capture.all().filter((node) => node.tag === 'button' && node.props['aria-label'] === '详细添加');
+  expect(detailButtons()).toHaveLength(0);
+  capture.all().find((node) => node.tag === 'form')!.props.onFocusin();
+  await Vue.nextTick();
+  expect(detailButtons()).toHaveLength(1);
+  detailButtons()[0].props.onClick();
+  expect(expand).toHaveBeenCalledOnce();
+});
+
+
+test('optional metadata switches preserve task status, plan and overdue deadline without changing entities', () => {
+  const value = model();
+  const base = value.items()[0];
+  const task = toDooEntitySchemas.task.parse({ ...base.task, listId: 'work', noteRefs: [{ noteId: 'note-a', role: 'material', title: '参考资料' }], recurrence: { id: 'rule-a', frequency: 'daily', anchorDate: '2026-10-29', timeZone: 'UTC' } });
+  const stamp = { revision: 'r1', createdAt: '2026-10-29T08:00:00Z', updatedAt: '2026-10-29T08:00:00Z' };
+  const item = { ...base, task, status: 'blocked' as const, list: toDooEntitySchemas.list.parse({ ...stamp, id: 'work', name: '工作' }),
+    occurrence: { ...base.occurrence!, status: 'blocked' as const, due: { date: '2026-10-28', time: null, timeZone: 'UTC' } },
+    blocks: [toDooEntitySchemas.timeBlock.parse({ ...stamp, id: 'block-a', occurrenceId: 'occ-a', start: { date: '2026-10-29', time: '10:00', timeZone: 'UTC' }, durationMinutes: 30 })],
+  };
+  const before = JSON.stringify(item);
+  const row = mount('ToDooTaskRow', { item, today: '2026-10-30', timeZone: 'UTC', displayFields: { list: false, priority: false, recurrence: false, resources: false } });
+  expect(row.byClass('todo-priority-label')).toHaveLength(0);
+  expect(row.byClass('todo-row-list')).toHaveLength(0);
+  expect(row.all().filter((node) => String(node.props['aria-label'] || '').startsWith('关联资料 '))).toHaveLength(0);
+  expect(row.all().filter((node) => node.props['aria-label'] === '重复任务')).toHaveLength(0);
+  expect(row.text(row.byClass('todo-task-meta')[0])).toContain('受阻');
+  expect(row.byClass('todo-task-date')).toHaveLength(2);
+  expect(row.text(row.byClass('todo-task-dates')[0])).toContain('计划');
+  expect(row.text(row.byClass('todo-task-dates')[0])).toContain('截止');
+  expect(row.byClass('todo-danger')).toHaveLength(1);
+  expect(JSON.stringify(item)).toBe(before);
+});
+
+
+test('display field choices survive remount and only hide the selected optional field', async () => {
+  const saved = new Map<string, string>();
+  vi.stubGlobal('localStorage', { getItem: (key: string) => saved.get(key) || null, setItem: (key: string, value: string) => saved.set(key, value), removeItem: (key: string) => saved.delete(key) });
+  const firstModel = model();
+  const originalTasks = JSON.stringify(firstModel.state.snapshot!.tasks);
+  const execute = vi.spyOn(firstModel, 'execute');
+  const first = mount('ToDooTaskViews', { model: firstModel, section: 'tasks', tree: [], creating: true });
+  expect(first.byClass('todo-priority-label')).toHaveLength(1);
+  const option = (view: ReturnType<typeof mount>, label: string) => view.all().find((node) => node.tag === 'input' && node.parent?.tag === 'label' && view.text(node.parent) === label)!;
+  option(first, '优先级').props.onChange({ target: { checked: false } });
+  await Vue.nextTick();
+  expect(first.byClass('todo-priority-label')).toHaveLength(0);
+  expect(option(first, '清单').props.checked).toBe(true);
+  expect(option(first, '重复').props.checked).toBe(true);
+  expect(JSON.stringify(firstModel.state.snapshot!.tasks)).toBe(originalTasks);
+  expect(execute).not.toHaveBeenCalled();
+  const restored = mount('ToDooTaskViews', { model: model(), section: 'tasks', tree: [], creating: true });
+  expect(option(restored, '优先级').props.checked).toBe(false);
+  expect(restored.byClass('todo-priority-label')).toHaveLength(0);
+  expect(restored.byClass('todo-task-dates')).toHaveLength(1);
+});

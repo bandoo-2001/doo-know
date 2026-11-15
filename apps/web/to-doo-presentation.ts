@@ -33,6 +33,14 @@ export const toDooQuickViews = [
   { id: 'done', name: '已完成', icon: 'check' },
 ] as const;
 
+export function toDooTaskScopeIcon(view: ToDooQuickFilter, listId?: string) {
+  if (listId) return 'list';
+  const additionalIcons: Partial<Record<ToDooQuickFilter, string>> = {
+    overdue: 'calendar', unscheduled: 'inbox', blocked: 'tasks', archived: 'archive', trash: 'trash',
+  };
+  return toDooQuickViews.find(entry => entry.id === view)?.icon ?? additionalIcons[view] ?? 'tasks';
+}
+
 export function toDooQuickFilter(
   current: ToDooFilter,
   value: ToDooQuickFilter,
@@ -91,6 +99,11 @@ export function prepareToDooQuickDraft(
   tags: ToDooEntityMap['tag'][],
   defaultDate = '',
 ): ToDooNewTaskDraft {
+  if (draft.literalTitle) {
+    const value = { ...draft, title: draft.title.trim() };
+    if (!value.planDate && value.planDateCleared !== true && defaultDate) value.planDate = defaultDate;
+    return value;
+  }
   const quick = parseToDooQuickEntry(draft.title, today, tags);
   const value = {
     ...draft,

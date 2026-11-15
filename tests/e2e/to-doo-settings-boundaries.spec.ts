@@ -1,13 +1,14 @@
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
-import { selectToDooContext } from '../support/to-doo-navigation';
+import { closeToDooDirectory, selectToDooQuickView, selectToDooContext } from '../support/to-doo-navigation';
 import { expandToDooGroup, selectToDooOption } from '../support/to-doo-ant-controls';
 
 const app = (page: Page) => page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
 async function dataTab(page: Page) {
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
   await selectToDooContext(page, '数据与恢复');
+  await app(page).getByRole('button', { name: '粘贴文件内容', exact: true }).click();
   await expandToDooGroup(app(page), '导入选项');
   await selectToDooOption(app(page), '格式', '滴答 CSV');
 }
@@ -144,18 +145,20 @@ test('name-only calendar and subscription drafts request confirmation before lea
   await expandToDooGroup(workspace, '连接外部只读日历');
   const name = workspace.getByRole('textbox', { name: '来源名称', exact: true });
   await name.fill('仅名称草稿');
-  await page.getByRole('button', { name: '任务', exact: true }).click();
+  await selectToDooQuickView(page, '任务');
   const confirmation = page.getByRole('dialog', { name: '尚有未保存内容', exact: true });
   await expect(confirmation).toBeVisible();
   await confirmation.getByRole('button', { name: '继续编辑', exact: true }).click();
+  await closeToDooDirectory(page);
   await expect(name).toHaveValue('仅名称草稿');
   await name.fill('');
   await expandToDooGroup(workspace, '创建 To Doo 只读订阅链接');
   const subscription = workspace.getByRole('textbox', { name: '订阅名称', exact: true });
   await subscription.fill('订阅草稿');
-  await page.getByRole('button', { name: '任务', exact: true }).click();
+  await selectToDooQuickView(page, '任务');
   await expect(confirmation).toBeVisible();
   await confirmation.getByRole('button', { name: '继续编辑', exact: true }).click();
+  await closeToDooDirectory(page);
   await expect(subscription).toHaveValue('订阅草稿');
 });
 

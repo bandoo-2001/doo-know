@@ -6,11 +6,14 @@ import * as Vue from 'vue';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
+import * as displayPreferences from '../apps/web/to-doo-display-preferences';
 import * as calendarLayout from '../apps/web/to-doo-calendar-layout';
 import * as time from '../apps/web/to-doo-time';
 import * as groups from '../apps/web/to-doo-task-groups';
 import * as anniversaries from '../shared/to-doo-anniversaries';
 import * as controls from '../apps/web/to-doo-controls';
+import * as actionGuards from '../apps/web/to-doo-action-guard';
+import * as draftValidation from '../apps/web/to-doo-draft-validation';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
 import {
   TO_DOO_COLLECTIONS,
@@ -36,6 +39,21 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+
+// Exercise Ant's controlled open boundary instead of rendering hidden popup content.
+const ControlledPopover = Vue.defineComponent({
+  inheritAttrs: false,
+  props: ['open', 'title'],
+  emits: ['update:open', 'openChange'],
+  setup: (props, { attrs, slots, emit }) => () => Vue.h('div', attrs, [
+    ...(slots.default?.() || []).map((child) => Vue.cloneVNode(child, { onClick: () => {
+      emit('update:open', !props.open);
+      emit('openChange', !props.open);
+    } })),
+    props.open ? slots.content?.() : null,
+  ]),
+});
+
 function component(name: string): Vue.Component {
   const { descriptor } = parse(
     readFileSync(new URL(`../apps/web/components/to-doo/${name}.vue`, import.meta.url), 'utf8'),
@@ -56,7 +74,10 @@ function component(name: string): Vue.Component {
       if (id.endsWith('/to-doo-task-groups')) return groups;
       if (id.endsWith('/to-doo-anniversaries')) return anniversaries;
       if (id.endsWith('/to-doo-controls')) return controls;
-      if (id === 'ant-design-vue') return toDooAntStubs;
+      if (id.endsWith('/to-doo-action-guard')) return actionGuards;
+      if (id.endsWith('/to-doo-draft-validation')) return draftValidation;
+      if (id.endsWith('/to-doo-display-preferences')) return displayPreferences;
+      if (id === 'ant-design-vue') return { ...toDooAntStubs, Popover: ControlledPopover };
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };
       if (id.endsWith('ToDooFormLayout.vue'))
@@ -69,6 +90,7 @@ function component(name: string): Vue.Component {
           }),
         };
       if (id.endsWith('ToDooTaskRow.vue')) return { default: component('ToDooTaskRow') };
+      if (id.endsWith('ToDooTimeBlockFields.vue')) return { default: component('ToDooTimeBlockFields') };
       if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
 
       if (id.endsWith('ToDooPageToolbar.vue')) return { default: component('ToDooPageToolbar') };
@@ -89,6 +111,7 @@ function mount(name: string, initial: Record<string, any>) {
     scrollTop: 0,
   });
   const renderer = Vue.createRenderer<Node, Node>({
+    querySelector: () => null,
     createElement: (tag) => node(tag),
     createText: (text) => node('#text', text),
     createComment: () => node('#comment'),
@@ -285,10 +308,13 @@ test('matrix hides completed rows until the user reveals them', async () => {
     creating: true,
   });
   expect(matrix.byClass('todo-task-name').map(matrix.text)).toEqual(['今天的行动']);
-  matrix.button('显示已完成任务')!.props.onClick();
+  matrix.button('更多')!.props.onClick();
+  await tick();
+  const completed = () => matrix.all().find((node) => node.tag === 'input' && node.parent && matrix.text(node.parent) === '显示已完成任务')!;
+  completed().props.onChange({ target: { checked: true } });
   await tick();
   expect(matrix.byClass('todo-task-name').map(matrix.text)).toContain('已完成的阅读');
-  matrix.button('隐藏已完成任务')!.props.onClick();
+  completed().props.onChange({ target: { checked: false } });
   await tick();
   expect(matrix.byClass('todo-task-name').map(matrix.text)).not.toContain('已完成的阅读');
 });

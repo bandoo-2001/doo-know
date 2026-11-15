@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, useId } from 'vue';
 import { Button as AButton, Checkbox as ACheckbox, Tag as ATag } from 'ant-design-vue';
 import type { ToDooItem } from '../../to-doo-workbench';
+import type { ToDooDisplayFields } from '../../to-doo-display-preferences';
 import {
   toDooDisplayTime,
   toDooLocalDate,
@@ -9,6 +10,7 @@ import {
   toDooDeadlineOverdue,
 } from '../../to-doo-workbench';
 import { toDooDateLabel } from '../../to-doo-presentation';
+import ToDooIcon from './ToDooIcon.vue';
 const props = withDefaults(
   defineProps<{
     item: ToDooItem;
@@ -16,7 +18,10 @@ const props = withDefaults(
     selected?: boolean;
     selecting?: boolean;
     hideList?: boolean;
+    displayFields?: Partial<ToDooDisplayFields>;
     readOnly?: boolean;
+    listNavigation?: boolean;
+    rowContextActions?: boolean;
     today?: string;
     timeZone?: string;
   }>(),
@@ -28,13 +33,49 @@ const emit = defineEmits<{
   select: [id: string];
   child: [id: string];
 }>();
+const rowId = useId();
+function openFromRow(event: MouseEvent) {
+  if (event.defaultPrevented || event.button !== 0) return;
+  const row = event.currentTarget as HTMLElement;
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  const control = target.closest('button, a, label, input, select, textarea, summary, [contenteditable], [role="button"], [role="checkbox"]');
+  if (control && !control.classList.contains('todo-task-body')) return;
+  const selection = row.ownerDocument.getSelection();
+  if (event.detail > 0 && selection && !selection.isCollapsed &&
+      (row.contains(selection.anchorNode) || row.contains(selection.focusNode))) return;
+  if (!control) row.querySelector<HTMLButtonElement>('button.todo-task-body')?.focus({ preventScroll: true });
+  event.stopPropagation();
+  emit('open', props.item);
+}
+function openRowActions(event: MouseEvent | KeyboardEvent) {
+  const target = event.target;
+  if (!(target instanceof Element) || target.closest('input, textarea, select, [contenteditable]')) return;
+  const row = event.currentTarget as HTMLElement;
+  if (event instanceof KeyboardEvent) {
+    if (!target.matches('.todo-task-body') || event.isComposing || event.keyCode === 229 ||
+        event.altKey || event.ctrlKey || event.metaKey ||
+        !(event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey))) return;
+  } else if (!props.rowContextActions) {
+    // The list and board already position their context menus at the pointer.
+    const body = row.querySelector<HTMLButtonElement>('button.todo-task-body');
+    body?.focus({ preventScroll: true });
+    return;
+  }
+  const button = row.querySelector<HTMLButtonElement>('button.todo-task-menu-trigger');
+  if (event.defaultPrevented || !button || button.disabled) return;
+  event.preventDefault();
+  event.stopPropagation();
+  if (!(event instanceof KeyboardEvent)) button.focus({ preventScroll: true });
+  if (button.getAttribute('aria-expanded') !== 'true') button.click();
+}
 const hasMetadata = computed(() => {
   const { item, hideList } = props;
   return (
-    item.task.priority !== 'none' ||
-    (!!item.list && !hideList) ||
-    item.task.noteRefs.length > 0 ||
-    !!item.task.recurrence ||
+    (props.displayFields?.priority !== false && item.task.priority !== 'none') ||
+    (props.displayFields?.list !== false && !!item.list && !hideList) ||
+    (props.displayFields?.resources !== false && item.task.noteRefs.length > 0) ||
+    (props.displayFields?.recurrence !== false && !!item.task.recurrence) ||
     ['blocked', 'cancelled', 'skipped'].includes(item.status) ||
     item.status === 'unavailable'
   );
@@ -78,6 +119,9 @@ const dates = computed(() => {
       ['todo-priority-' + item.task.priority]: true,
     }"
     :style="{ '--depth': Math.min(item.depth, 5) }"
+    @click="openFromRow"
+    @contextmenu="openRowActions"
+    @keydown="openRowActions"
   >
     <ACheckbox
       v-if="selecting"
@@ -92,37 +136,40 @@ const dates = computed(() => {
       :class="{ 'is-checked': item.status === 'done' }"
       :disabled="readOnly || !item.occurrence"
       :aria-label="(item.status === 'done' ? '重新打开 ' : '完成 ') + item.title"
+      :aria-pressed="item.status === 'done'"
       @click="emit('complete', item)"
       type="text"
     >
-      {{ item.status === 'done' ? '✓' : '' }}
+      <span class="todo-check-indicator" aria-hidden="true"><ToDooIcon name="check" :size="14" /></span>
     </AButton>
     <AButton
       html-type="button"
       class="todo-task-body"
+      :data-task-key="item.key"
+      :aria-keyshortcuts="listNavigation ? 'ArrowUp ArrowDown Home End Enter Shift+F10' : 'Shift+F10'"
       :aria-label="item.title"
+      :aria-describedby="[hasMetadata && rowId + '-meta', dates.length > 0 && rowId + '-dates'].filter(Boolean).join(' ') || undefined"
       :aria-current="active ? 'true' : undefined"
-      @click="emit('open', item)"
       type="text"
     >
-      <span class="todo-task-name">{{ item.title }}</span>
-      <small v-if="hasMetadata" class="todo-task-meta">
+      <span class="todo-task-name" :title="item.title">{{ item.title }}</span>
+      <small v-if="hasMetadata" :id="rowId + '-meta'" class="todo-task-meta">
         <ATag
-          v-if="item.task.priority !== 'none'"
+          v-if="displayFields?.priority !== false && item.task.priority !== 'none'"
           class="todo-priority-label"
           :aria-label="'优先级：' + toDooPriorityLabels[item.task.priority]"
           >{{ toDooPriorityLabels[item.task.priority] }}优先级</ATag
         >
-        <span v-if="item.list && !hideList" class="todo-row-list">{{ item.list.name }}</span>
-        <span v-if="item.task.noteRefs.length">▤ {{ item.task.noteRefs.length }}</span>
-        <span v-if="item.task.recurrence" title="重复任务">↻</span>
+        <span v-if="displayFields?.list !== false && item.list && !hideList" class="todo-row-list" :title="item.list.name"><span>{{ item.list.name }}</span></span>
+        <span v-if="displayFields?.resources !== false && item.task.noteRefs.length" class="todo-row-symbol" role="img" :aria-label="'关联资料 ' + item.task.noteRefs.length + ' 份'"><ToDooIcon name="attachment" :size="14" />{{ item.task.noteRefs.length }}</span>
+        <span v-if="displayFields?.recurrence !== false && item.task.recurrence" class="todo-row-symbol" role="img" title="重复任务" aria-label="重复任务"><ToDooIcon name="repeat" :size="14" /></span>
         <span v-if="item.status === 'blocked'">受阻</span>
         <span v-if="item.status === 'cancelled'">已取消</span>
         <span v-if="item.status === 'skipped'">已跳过</span>
         <span v-if="item.status === 'unavailable'">执行记录尚未载入</span>
       </small>
     </AButton>
-    <span v-if="dates.length" class="todo-task-dates">
+    <span v-if="dates.length" :id="rowId + '-dates'" class="todo-task-dates">
       <span
         v-for="date in dates"
         :key="date.kind"
@@ -156,3 +203,19 @@ const dates = computed(() => {
     >
   </div>
 </template>
+<style scoped>
+.todo-task-row {
+  cursor: pointer;
+}
+.todo-row-symbol {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--todo-space-4);
+}
+.todo-row-list > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>

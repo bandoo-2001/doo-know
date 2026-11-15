@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onBeforeUnmount, defineAsyncComponent, defineComponent, h } from 'vue';
+import { computed, ref, watch, provide, onMounted, onBeforeUnmount, defineAsyncComponent, defineComponent, h } from 'vue';
 import { NConfigProvider, NModal, NAlert, NButton, darkTheme } from 'naive-ui';
 import { ConfigProvider as AConfigProvider, theme as antAlgorithms } from 'ant-design-vue';
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import { antTheme } from './ant-design';
-import { platformAntTokens, platformNaiveOverrides } from './platform-theme';
+import { platformAntTokens, platformNaiveOverrides, applyPlatformCssVariables } from './platform-theme';
 import type { PlatformStatus } from '../../shared/platform-contracts';
 import { api, ApiError, refreshCsrf, resetCsrf } from './api';
 import { clearPluginDrafts, hasUnsavedPluginDrafts } from './plugin-drafts';
@@ -77,7 +77,11 @@ const workspaceServiceUnavailable = computed(() =>
     : '',
 );
 const ownerId = ref('');
+provide('dooknow.owner-id', ownerId);
 const username = ref('');
+if (typeof document !== 'undefined') {
+  watch(resolvedTheme, mode => applyPlatformCssVariables(document.documentElement, mode), { immediate: true });
+}
 const activeAntTheme = computed(() => ({
   ...antTheme,
   algorithm:

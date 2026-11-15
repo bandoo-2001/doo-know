@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
 import { expandToDooGroup, fillToDooDate, selectToDooOption } from '../support/to-doo-ant-controls';
+import { completeToDooDetailProperty, openToDooDetailProperty } from '../support/to-doo-detail-controls';
 
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
@@ -40,7 +41,9 @@ test('moving a task to another list clears its old section and saves successfull
   });
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all&task=' + result.ids[0]);
   const detail = page.getByRole('complementary', { name: '任务详情' });
-  await selectToDooOption(detail, '所属目标或清单', '新清单 ' + suffix);
+  const listsProperty = await openToDooDetailProperty(page, 'list');
+  await selectToDooOption(listsProperty, '所属目标或清单', '新清单 ' + suffix);
+  await completeToDooDetailProperty(page);
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   await expect(
     page.getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('status'),
@@ -63,16 +66,20 @@ test('invalid typed deadline prevents saving an unrelated title change', async (
       writes.push(request.postDataJSON());
   });
   await detail.getByLabel('任务标题', { exact: true }).fill(title + ' 已改');
-  await detail.getByRole('button', { name: '编辑截止日期', exact: true }).click();
-  const date = detail.getByLabel('截止日期', { exact: true });
+  const deadline = await openToDooDetailProperty(page, 'due');
+  const date = deadline.getByLabel('截止日期', { exact: true });
   await date.click();
   await date.fill('2026-99-99');
   await date.press('Tab');
+  await deadline.locator('.ant-modal-close').click();
+  await expect(deadline).not.toBeVisible();
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
-  await expect(detail).toContainText('请检查');
+  await expect(deadline).toBeVisible();
+  await expect(deadline).toContainText('请检查');
   expect(writes).toEqual([]);
   await expect(detail).toContainText('未保存的更改');
   await fillToDooDate(date, '2026-11-13');
+  await completeToDooDetailProperty(page);
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   await expect(
     page.getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('status'),
@@ -131,14 +138,19 @@ test('optional detail fields stay folded and remain editable when requested', as
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: info.outputPath('detail-compact.png'), fullPage: true });
   await detail.screenshot({ path: info.outputPath('detail-reader.png'), animations: 'disabled' });
-  await detail.getByRole('button', { name: '编辑截止日期', exact: true }).click();
-  await expect(detail.getByLabel('截止日期', { exact: true })).toBeVisible();
-  await expandToDooGroup(detail, '四象限归类');
-  await expect(detail.getByRole('combobox', { name: '重要程度', exact: true })).toBeVisible();
-  await selectToDooOption(detail, '重要程度', '重要');
-  await expandToDooGroup(detail, '重复规则');
-  await selectToDooOption(detail, '重复', '每天');
-  await expect(detail.getByLabel('开始日期', { exact: true })).toBeVisible();
+  const deadline = await openToDooDetailProperty(page, 'due');
+  await expect(deadline.getByLabel('截止日期', { exact: true })).toBeVisible();
+  await completeToDooDetailProperty(page);
+  const classification = await openToDooDetailProperty(page, 'classification');
+  await expect(classification.getByRole('combobox', { name: '重要程度', exact: true })).toBeVisible();
+  await selectToDooOption(classification, '重要程度', '重要');
+  await completeToDooDetailProperty(page);
+  const repeat = await openToDooDetailProperty(page, 'repeat');
+  await selectToDooOption(repeat, '重复', '每天');
+  await expect(repeat.getByLabel('开始日期', { exact: true })).not.toBeVisible();
+  await expect(repeat.getByRole('combobox', { name: '修改范围', exact: true })).toBeVisible();
+  await expandToDooGroup(repeat, '高级重复规则');
+  await expect(repeat.getByLabel('开始日期', { exact: true })).toBeVisible();
   await page.screenshot({ path: info.outputPath('detail-expanded.png'), fullPage: true });
 });
 
@@ -152,7 +164,8 @@ test('320px dark detail keeps its fields and footer inside the screen', async ({
   const detail = page.getByRole('complementary', { name: '任务详情' });
   await expect(detail.getByLabel('任务标题', { exact: true })).toBeVisible();
   await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
-  const selectedContrast = await detail
+  const listProperty = await openToDooDetailProperty(page, 'list');
+  const selectedContrast = await listProperty
     .locator('.ant-select-selection-item')
     .first()
     .evaluate((item) => {
@@ -173,6 +186,7 @@ test('320px dark detail keeps its fields and footer inside the screen', async ({
       return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
     });
   expect(selectedContrast).toBeGreaterThanOrEqual(4.5);
+  await completeToDooDetailProperty(page);
   await detail
     .getByLabel('任务标题', { exact: true })
     .fill('窄屏深色任务详情 已修改 ' + info.project.name);
@@ -185,8 +199,8 @@ test('320px dark detail keeps its fields and footer inside the screen', async ({
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: info.outputPath('detail-320-dark.png'), fullPage: true });
-  await expandToDooGroup(detail, '更多选项：标签、提醒、依赖与来源');
-  await expect(detail.getByRole('combobox', { name: '标签', exact: true })).toBeVisible();
+  const properties = await openToDooDetailProperty(page, 'properties');
+  await expect(properties.getByRole('combobox', { name: '标签', exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
@@ -202,9 +216,16 @@ test('narrow task detail contains keyboard focus and Escape keeps its draft', as
   const dialog = page.getByRole('dialog', { name: '任务编辑', exact: true });
   await expect(dialog).toBeVisible();
   const detail = dialog.getByRole('complementary', { name: '任务详情' });
-  await expect(detail.getByLabel('任务标题', { exact: true })).toBeFocused();
+  const touch = await page.evaluate(() => matchMedia('(pointer: coarse)').matches);
+  await expect(touch ? detail : detail.getByLabel('任务标题', { exact: true })).toBeFocused();
   await detail.getByLabel('任务标题', { exact: true }).fill(title + ' 草稿');
   const last = detail.getByRole('button', { name: '保存任务', exact: true });
+  if (touch) {
+    // The read-first panel itself receives focus when the software keyboard is idle.
+    await detail.focus();
+    await page.keyboard.press('Shift+Tab');
+    await expect(last).toBeFocused();
+  }
   await last.focus();
   await page.keyboard.press('Tab');
   await expect(detail.getByRole('button', { name: '关闭任务详情', exact: true })).toBeFocused();

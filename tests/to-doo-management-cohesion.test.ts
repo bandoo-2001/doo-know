@@ -230,6 +230,58 @@ test('preset statistics keep dates out of the toolbar until custom is selected',
   expect(view.visible(field())).toBe(false);
 });
 
+test('statistics content switches without reloading or removing history and goal bridges', async () => {
+  const value = model(), view = mount('ToDooReview', value, 'stats');
+  const panel = (id: string) => view.all().find(node => node.props.id === id)!;
+  const tabs = view.all().find(node => String(node.props.class).includes('todo-review-view-tabs'))!;
+  expect(view.visible(panel('to-doo-stats-overview'))).toBe(true);
+  expect(view.visible(panel('to-doo-stats-goals'))).toBe(false);
+  expect(view.visible(panel('to-doo-stats-reviews'))).toBe(false);
+  tabs.props.onChange('goals');
+  await Vue.nextTick();
+  expect(view.visible(panel('to-doo-stats-overview'))).toBe(false);
+  expect(view.visible(panel('to-doo-stats-goals'))).toBe(true);
+  tabs.props.onChange('reviews');
+  await Vue.nextTick();
+  expect(view.visible(panel('to-doo-stats-reviews'))).toBe(true);
+  expect(view.button('新增推进记录') || view.button('＋ 新增推进记录')).toBeDefined();
+  expect(value.load).not.toHaveBeenCalled();
+});
+
+test('additional notification states preserve applied search and dates while replacing pagination', async () => {
+  const value = model();
+  value.state.query = { view: 'notifications', reminderStates: ['unread'], from: '2026-10-01', to: '2026-10-30', filter: { query: '报告' }, cursor: 'second-page' };
+  const view = mount('ToDooReview', value, 'notifications');
+  const menu = view.all().find(node => node.props.role === 'menu' && node.props['aria-label'] === '其他通知状态')!;
+  await menu.props.onClick({ key: 'snoozed' });
+  await Vue.nextTick();
+  expect(value.load).toHaveBeenLastCalledWith({
+    view: 'notifications', reminderStates: ['snoozed'], from: '2026-10-01', to: '2026-10-30', filter: { query: '报告' }, cursor: undefined,
+  });
+  expect(view.text(view.button('其他通知状态'))).toContain('稍后');
+});
+
+test('pasted import content opens on demand and remains a protected draft across settings categories', async () => {
+  const view = mount('ToDooSettings', model());
+  await settleSettings();
+  view.instance.activeTab = 'data';
+  await Vue.nextTick();
+  const content = () => view.all().find(node => node.tag === 'textarea' && node.props.placeholder === '粘贴 JSON、CSV 或 ICS 内容')!;
+  expect(view.visible(content())).toBe(false);
+  view.button('粘贴文件内容').props.onClick();
+  await Vue.nextTick();
+  expect(view.visible(content())).toBe(true);
+  content().props.onInput({ target: { value: '{"tasks":[]}' } });
+  await Vue.nextTick();
+  view.instance.activeTab = 'connections';
+  await Vue.nextTick();
+  view.instance.activeTab = 'data';
+  await Vue.nextTick();
+  expect(content().props.value).toBe('{"tasks":[]}');
+  expect(view.visible(content())).toBe(true);
+  expect(view.instance.hasUnsavedChanges()).toBe(true);
+});
+
 test('existing outcomes do not display an empty-review illustration or zero evidence', () => {
   const value = model();
   value.state.snapshot.outcomes = [
@@ -264,7 +316,8 @@ test('filtered notifications keep primary actions while secondary read stays rea
   ).toHaveLength(0);
   expect(view.button('查看任务')).toBeDefined();
   expect(view.button('确认提醒')).toBeDefined();
-  expect(view.text()).toContain('不会自动完成');
+  expect(view.button('确认提醒').props.title).toContain('不会自动完成');
+  expect(view.button('确认提醒').props['aria-description']).toContain('不会自动完成');
   expect(view.button('标为已读')?.props.role).toBe('menuitem');
 });
 
@@ -363,12 +416,16 @@ test('zero completion days render the number zero without a positive bar', () =>
     completedByDay: { '2026-10-30': 2 },
     byList: {},
   };
-  const view = mount('ToDooReview', value, 'stats');
+  const completed = vi.fn();
+  const view = mount('ToDooReview', value, 'stats', { onCompleted: completed });
   const zero = view.all().find((row) => row.props.title === '2026-10-29：0项')!;
   expect(zero).toBeDefined();
   expect(zero.children.find((row) => row.tag === 'span')?.text).toBe('0');
   expect(zero.children.find((row) => row.tag === 'i')?.props.style.height).toBe('0px');
-  expect(view.text()).toContain('归档');
+  const tasks = view.button('查看全部已完成任务');
+  expect(tasks).toBeDefined();
+  tasks.props.onClick();
+  expect(completed).toHaveBeenCalledTimes(1);
 });
 
 test('date preferences are folded and invalid timezone reveals them before saving', async () => {

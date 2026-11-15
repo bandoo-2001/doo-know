@@ -7,6 +7,7 @@ import * as vueuse from '@vueuse/core';
 import * as clock from '../apps/web/to-doo-time';
 import * as focusSync from '../apps/web/to-doo-focus-history-sync';
 import * as workbench from '../apps/web/to-doo-workbench';
+import * as actionGuards from '../apps/web/to-doo-action-guard';
 import * as reminders from '../apps/web/to-doo-reminders';
 import * as habits from '../shared/to-doo-habits';
 import * as habitPresentation from '../apps/web/to-doo-habit-presentation';
@@ -74,6 +75,7 @@ function component(name: string): Vue.Component {
       if (id === '../../to-doo-time') return clock;
       if (id === '../../to-doo-focus-history-sync') return focusSync;
       if (id === '../../to-doo-workbench') return workbench;
+      if (id === '../../to-doo-action-guard') return actionGuards;
       if (id === '../../to-doo-reminders') return reminders;
       if (id === '../../../../shared/to-doo-habits') return habits;
       if (id === '../../to-doo-habit-presentation') return habitPresentation;
@@ -374,7 +376,7 @@ test('a lunar anniversary distinguishes its original lunar date from the next Gr
       }),
     ],
   });
-  const view = mount('ToDooRhythm', { model: value, section: 'anniversaries' });
+  const view = mount('ToDooRhythm', { model: value, section: 'anniversaries', context: 'all' });
   const content = view
     .all()
     .map((node) => node.text)
@@ -625,7 +627,7 @@ test.each(['exclude_today', 'include_today'] as const)(
         }),
       ),
     });
-    const view = mount('ToDooRhythm', { model: value, section: 'anniversaries' });
+    const view = mount('ToDooRhythm', { model: value, section: 'anniversaries', context: 'all' });
     const cards = view.all().filter((n) => n.tag === 'article');
     expect(view.text(cards.find((n) => view.text(n).includes('纪念日0'))!)).toContain('就是今天');
     const past = view.text(cards.find((n) => view.text(n).includes('纪念日1'))!);

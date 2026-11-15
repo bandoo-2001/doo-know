@@ -1,29 +1,34 @@
 <script setup lang="ts">
-import { toDooAdditionalFilters, toDooFilterSummary } from '../../to-doo-presentation';
+import { toDooAdditionalFilters, toDooFilterSummary, toDooTaskScopeIcon } from '../../to-doo-presentation';
 import ToDooDisclosure from './ToDooDisclosure.vue';
 import ToDooTaskOverviewSummary from './ToDooTaskOverviewSummary.vue';
 import { useToDooConfirm } from '../../to-doo-controls';
+import { guardToDooTaskAction } from '../../to-doo-action-guard';
+import { readToDooDisplayFields, writeToDooDisplayFields, type ToDooDisplayFields } from '../../to-doo-display-preferences';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
 import ToDooPageToolbar from './ToDooPageToolbar.vue';
 
-import { computed, ref } from 'vue';
+import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue';
 import {
   Button as AButton,
   Card as ACard,
   Empty as AEmpty,
   Progress as AProgress,
   Checkbox as ACheckbox,
-  Dropdown as ADropdown,
   Menu as AMenu,
   MenuItem as AMenuItem,
+  SubMenu as ASubMenu,
+  Popover as APopover,
+  Modal as AModal,
+  Alert as AAlert,
   Input as AInput,
   Tag as ATag,
 } from 'ant-design-vue';
 import type { TreeEntry } from '../../../../shared/contracts';
 import ToDooFilterGroup from './ToDooFilterGroup.vue';
 import type { ToDooAppSection } from '../../navigation';
-import type { ToDooEntityKind } from '../../../../shared/to-doo-contracts';
+import type { ToDooEntityKind, ToDooFilter } from '../../../../shared/to-doo-contracts';
 import {
   toDooLocalDate,
   toDooDisplayTime,
@@ -52,8 +57,10 @@ const props = withDefaults(
     quickView?: ToDooQuickFilter;
     scopeListId?: string;
     creating?: boolean;
+    density?: 'comfortable' | 'compact';
+    toolbarTarget?: HTMLElement;
   }>(),
-  { quickView: 'all' },
+  { quickView: 'all', density: 'comfortable' },
 );
 const emit = defineEmits<{
   open: [item: ToDooItem];
@@ -67,6 +74,7 @@ const emit = defineEmits<{
   'search-all': [];
   'task-created': [value: ToDooTaskPlacement];
   habits: [listId: string];
+  'update:density': [value: 'comfortable' | 'compact'];
 }>();
 const viewOptions = [
   { value: 'tasks', label: '列表' },
@@ -75,8 +83,10 @@ const viewOptions = [
   { value: 'timeline', label: '时间线' },
 ];
 function chooseView(value: string | number) {
-  if (value === 'tasks' || value === 'board' || value === 'matrix' || value === 'timeline')
+  if (value === 'tasks' || value === 'board' || value === 'matrix' || value === 'timeline') {
+    displayOpen.value = false;
     emit('navigate', value);
+  }
 }
 const quadrants = [
   { name: '重要且紧急', action: '立即行动', tone: 'do', empty: '优先处理影响大、时间紧的任务。' },
@@ -96,6 +106,128 @@ const quadrants = [
 ];
 const advancedFilters = ref(false);
 const toolsOpen = ref(false);
+const displayOpen = ref(false);
+const templatesOpen = ref(false);
+const toolbarActive = ref(true);
+onActivated(() => { toolbarActive.value = true; });
+onDeactivated(() => {
+  // KeepAlive stores the view body, while Teleport would leave its controls in
+  // the shared header. Only the active page owns that header and its popups.
+  toolbarActive.value = false;
+  toolsOpen.value = false;
+  filterOpen.value = false;
+  displayOpen.value = false;
+  advancedFilters.value = false;
+  templatesOpen.value = false;
+});
+const displayFields = ref(readToDooDisplayFields());
+const displayFieldOptions = [
+  { key: 'list', label: '清单' }, { key: 'priority', label: '优先级' },
+  { key: 'recurrence', label: '重复' }, { key: 'resources', label: '关联资料' },
+] as const;
+function setDisplayField(field: keyof ToDooDisplayFields, checked: boolean) {
+  displayFields.value = { ...displayFields.value, [field]: checked };
+  writeToDooDisplayFields(displayFields.value);
+}
+const advancedDraft = ref<NonNullable<ToDooFilter['group']>>({ operator: 'and', conditions: [] });
+const searchTrigger = ref<any>(), filterTrigger = ref<any>(), displayTrigger = ref<any>();
+const searchForm = ref<HTMLFormElement>();
+const quickAdd = ref<InstanceType<typeof ToDooQuickAdd>>();
+watch([toolsOpen, searchForm], ([open, form], _, cleanup) => {
+  if (!open || !form || typeof ResizeObserver === 'undefined') return;
+  const field = form.querySelector<HTMLInputElement>('input');
+  if (!field) return;
+  const observer = new ResizeObserver(() => {
+    if (!field.getClientRects().length) return;
+    field.focus();
+    if (document.activeElement === field) observer.disconnect();
+  });
+  observer.observe(field);
+  cleanup(() => observer.disconnect());
+}, { flush: 'post' });
+
+function hasOpenPopup() {
+  const surfaces = document.querySelectorAll<HTMLElement>(
+    '[role="dialog"], [aria-modal="true"], .ant-dropdown, .ant-popover, .ant-select-dropdown, .ant-picker-dropdown, .ant-menu-submenu-popup',
+  );
+  return Array.from(surfaces).some((element) =>
+    element.getClientRects().length > 0 && !element.closest('[aria-hidden="true"]') &&
+    !element.matches('[class*="-leave-active"]') &&
+    getComputedStyle(element).visibility === 'visible',
+  );
+}
+function plainKey(event: KeyboardEvent) {
+  return !event.defaultPrevented && !event.isComposing && event.keyCode !== 229 &&
+    !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey;
+}
+function taskShortcut(event: KeyboardEvent) {
+  const key = event.key.toLowerCase();
+  if ((key !== 'q' && key !== '/') || !plainKey(event) || !toolbarActive.value || event.repeat) return;
+  if (toolsOpen.value || filterOpen.value || displayOpen.value || advancedFilters.value || templatesOpen.value) return;
+  const searchButton = searchTrigger.value?.$el as HTMLButtonElement | undefined;
+  const workspace = searchButton?.closest('.to-doo-workspace');
+  if (!workspace || !searchButton?.getClientRects().length || workspace.classList.contains('todo-has-detail')) return;
+  const target = event.target;
+  if (target instanceof Element && target !== document.body && (
+    !workspace.contains(target) || target.closest('form, input, textarea, select, [contenteditable], [role="textbox"], [role="combobox"], [role="menu"]')
+  )) return;
+  if (hasOpenPopup()) return;
+  if (key === 'q') {
+    if (quickAdd.value?.focusInput()) event.preventDefault();
+  } else {
+    event.preventDefault();
+    toolsOpen.value = true;
+  }
+}
+onMounted(() => { if (typeof window !== 'undefined') window.addEventListener('keydown', taskShortcut); });
+onBeforeUnmount(() => { if (typeof window !== 'undefined') window.removeEventListener('keydown', taskShortcut); });
+
+function moveRowFocus(event: KeyboardEvent) {
+  if (!plainKey(event) || !['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
+  const current = event.target;
+  if (!(current instanceof HTMLButtonElement) || !current.matches('.todo-task-body') || hasOpenPopup()) return;
+  const list = event.currentTarget as HTMLElement;
+  const buttons = Array.from(list.querySelectorAll<HTMLButtonElement>('button.todo-task-body'));
+  const index = buttons.indexOf(current);
+  if (index < 0) return;
+  let next = index;
+  if (event.key === 'ArrowUp') next = Math.max(0, index - 1);
+  if (event.key === 'ArrowDown') next = Math.min(buttons.length - 1, index + 1);
+  if (event.key === 'Home') next = 0;
+  if (event.key === 'End') next = buttons.length - 1;
+  event.preventDefault();
+  buttons[next].focus();
+}
+function reorderByKey(event: KeyboardEvent, item: ToDooItem) {
+  if (!event.altKey || event.shiftKey || event.ctrlKey || event.metaKey || event.defaultPrevented ||
+      event.isComposing || event.keyCode === 229 || !['ArrowUp', 'ArrowDown'].includes(event.key)) return;
+  if (event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable]')) return;
+  if (hasOpenPopup()) return;
+  event.preventDefault();
+  void reorderStep(item, event.key === 'ArrowUp' ? -1 : 1);
+}
+function closePopup(kind: 'search' | 'filter' | 'display') {
+  if (kind === 'search') toolsOpen.value = false;
+  if (kind === 'filter') filterOpen.value = false;
+  if (kind === 'display') displayOpen.value = false;
+  nextTick(() => ({ search: searchTrigger, filter: filterTrigger, display: displayTrigger })[kind].value?.$el?.focus?.());
+}
+function openAdvancedFilters() {
+  advancedDraft.value = JSON.parse(JSON.stringify(state.filter.group || { operator: 'and', conditions: [] }));
+  filterOpen.value = false;
+  advancedFilters.value = true;
+}
+async function applyAdvancedFilters() {
+  state.filter.group = JSON.parse(JSON.stringify(advancedDraft.value));
+  await filterChanged();
+  advancedFilters.value = false;
+}
+async function applyTemplate(templateId: string) {
+  const result = await props.model.execute({ action: 'apply_template', payload: {
+    templateId, listId: state.filter.listIds?.[0] || null, titlePrefix: '',
+  } });
+  if (result) templatesOpen.value = false;
+}
 const filterOpen = ref(false),
   showCompleted = ref(false);
 const builtin = computed({
@@ -132,7 +264,6 @@ const visibleItems = computed(() =>
     return true;
   }),
 );
-const completedItems = computed(() => visibleItems.value.filter((i) => i.status === 'done'));
 const outlineItems = computed(() =>
   visibleItems.value.filter(
     (i) =>
@@ -234,6 +365,10 @@ const expandedBoardCards = ref<string[]>([]);
 const effectiveSections = computed(() => taskSectionIds(props.model.taskDefinitions()));
 const sectionIds = computed(() => new Set(sections.value.map((section) => section.id)));
 const groupCollapsed = (id: string) => state.collapsedTaskGroups.includes(id);
+const orderedListTasks = computed(() => props.section === 'tasks'
+  ? outlineGroups.value.filter(group => !groupCollapsed(group.id)).flatMap(group => group.items)
+  : []);
+defineExpose({ orderedListTasks });
 function toggleGroup(id: string) {
   state.collapsedTaskGroups = groupCollapsed(id)
     ? state.collapsedTaskGroups.filter((value) => value !== id)
@@ -314,6 +449,8 @@ async function changeStatus(
   status: NonNullable<ToDooItem['occurrence']>['status'],
 ) {
   if (!item.occurrence) return;
+  if (!(await guardToDooTaskAction(props.model, [item.task.id], confirmAction))) return;
+  item = items.value.find((entry) => entry.task.id === item.task.id && entry.occurrence?.id === item.occurrence?.id) || item;
   const children = status === 'done' ? await props.model.statusChildCount(item.task.id) : 0;
   if (children === null) return;
   if (
@@ -322,7 +459,7 @@ async function changeStatus(
     !(await confirmAction(`这个任务有 ${children} 个子任务，是否一并完成？`))
   )
     return;
-  await props.model.setStatus(item.occurrence.id, status, status === 'done' && children > 0);
+  if (item.occurrence) await props.model.setStatus(item.occurrence.id, status, status === 'done' && children > 0);
 }
 async function complete(item: ToDooItem) {
   return changeStatus(item, item.status === 'done' ? 'todo' : 'done');
@@ -369,13 +506,15 @@ function drag(event: DragEvent, item: ToDooItem) {
 }
 async function drop(event: DragEvent, column: string) {
   event.preventDefault();
-  const item = items.value.find(
+  let item = items.value.find(
     (i) => i.key === event.dataTransfer?.getData('application/x-to-doo-item'),
   );
   if (!item) return;
   if (boardBy.value === 'status') {
     await changeStatus(item, column as any);
   } else {
+    if (!(await guardToDooTaskAction(props.model, [item.task.id], confirmAction))) return;
+    item = items.value.find((entry) => entry.key === item!.key) || item;
     const patch =
       boardBy.value === 'priority'
         ? { priority: column as any }
@@ -420,14 +559,22 @@ async function dropQuadrant(event: DragEvent, index: number) {
   if (item) await setQuadrant(item, index);
 }
 async function setQuadrant(item: ToDooItem, index: number) {
+  if (!(await guardToDooTaskAction(props.model, [item.task.id], confirmAction, { includeDescendants: false }))) return;
+  const task = state.snapshot?.tasks.find((entry) => entry.id === item.task.id);
+  if (!task) return;
   await props.model.execute({
     action: 'update_task',
     payload: {
       id: item.task.id,
-      expectedRevision: item.task.revision,
+      expectedRevision: task.revision,
       patch: { importance: index < 2 ? 'important' : 'normal', urgentOverride: index % 2 === 0 },
     },
   });
+}
+async function resetQuadrant(item: ToDooItem) {
+  if (!(await guardToDooTaskAction(props.model, [item.task.id], confirmAction, { includeDescendants: false }))) return;
+  const task = state.snapshot?.tasks.find((entry) => entry.id === item.task.id);
+  if (task) await props.model.execute({ action: 'update_task', payload: { id: task.id, expectedRevision: task.revision, patch: { urgentOverride: null } } });
 }
 async function bulk(
   operation:
@@ -441,6 +588,9 @@ async function bulk(
     | 'priority',
 ) {
   const selection = [...state.selectedIds].sort().join('\n');
+  if (!(await guardToDooTaskAction(props.model, [...state.selectedIds], confirmAction, {
+    current: () => [...state.selectedIds].sort().join('\n') === selection,
+  }))) return;
   if (
     operation === 'delete' &&
     !(await confirmAction(`将选中的 ${state.selectedIds.length} 项及其子任务移入回收站？`))
@@ -459,6 +609,11 @@ async function bulk(
   );
 }
 async function bulkDue() {
+  const selection = [...state.selectedIds].sort().join('\n');
+  if (!(await guardToDooTaskAction(props.model, [...state.selectedIds], confirmAction, {
+    includeDescendants: false,
+    current: () => [...state.selectedIds].sort().join('\n') === selection,
+  }))) return;
   const occurrences =
     state.snapshot?.occurrences.filter(
       (o) => state.selectedIds.includes(o.taskId) && !o.deletedAt,
@@ -488,6 +643,10 @@ async function bulkDue() {
   );
 }
 async function indent(outdent = false) {
+  const selection = [...state.selectedIds].sort().join('\n');
+  if (!(await guardToDooTaskAction(props.model, [...state.selectedIds], confirmAction, {
+    current: () => [...state.selectedIds].sort().join('\n') === selection,
+  }))) return;
   const id = state.selectedIds[0],
     task = state.snapshot?.tasks.find((t) => t.id === id);
   if (!task) return;
@@ -506,6 +665,10 @@ async function reorderBefore(event: DragEvent, target: ToDooItem) {
   await reorder(moved, target);
 }
 async function reorder(moved: ToDooItem, target: ToDooItem) {
+  const affected = items.value.filter((item) => item.task.parentTaskId === target.task.parentTaskId && item.task.listId === target.task.listId).map((item) => item.task.id);
+  if (!(await guardToDooTaskAction(props.model, affected, confirmAction, { includeDescendants: false }))) return;
+  moved = items.value.find((item) => item.task.id === moved.task.id) || moved;
+  target = items.value.find((item) => item.task.id === target.task.id) || target;
   if (
     moved.task.parentTaskId !== target.task.parentTaskId ||
     moved.task.listId !== target.task.listId
@@ -619,8 +782,11 @@ function saveView() {
           ><ToDooIcon name="plus" :size="18"
         /></AButton>
       </div>
-      <div class="todo-overview-action-list">
+      <div class="todo-overview-action-list" @keydown="moveRowFocus">
         <ToDooTaskRow
+          row-context-actions
+          list-navigation
+          :display-fields="displayFields"
           v-for="item in todayItems.slice(0, 12)"
           :key="item.key"
           :item="item"
@@ -873,200 +1039,88 @@ function saveView() {
     </details>
   </div>
   <template v-else>
+    <Teleport v-if="toolbarActive" :to="toolbarTarget || 'body'" :disabled="!toolbarTarget" defer>
     <ToDooPageToolbar
       class="todo-task-toolbar"
       :class="{ 'todo-task-list-toolbar': section === 'tasks' }"
       aria-label="任务视图与筛选"
     >
-      <ToDooSelect
+
+      <APopover v-model:open="toolsOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-search-popup">
+        <AButton ref="searchTrigger" type="text" @keydown.esc.stop.prevent="closePopup('search')" class="todo-task-tools-toggle todo-toolbar-tool" aria-label="搜索任务" title="搜索任务 (/)" aria-keyshortcuts="/" :aria-expanded="toolsOpen" :class="{ 'is-active': toolsOpen || state.filter.query }"><ToDooIcon name="search" :size="17" /><span class="todo-tool-label">搜索</span></AButton>
+        <template #content><form ref="searchForm" class="todo-task-search-form" role="search" @submit.prevent="filterChanged" @keydown.esc.stop.prevent="closePopup('search')">
+          <label>搜索任务<AInput v-model:value="state.filter.query" :placeholder="searchPlaceholder" aria-label="搜索任务" allow-clear /></label>
+          <div class="todo-actions"><AButton html-type="submit" type="primary" aria-label="执行搜索">搜索</AButton><AButton v-if="canSearchAll" type="link" @click="emit('search-all'); closePopup('search')">在所有任务中搜索</AButton><AButton v-if="state.filter.query" type="text" @click="state.filter.query = ''; filterChanged()">清除搜索</AButton><AButton type="text" @click="closePopup('search')">关闭</AButton></div>
+        </form></template>
+      </APopover>
+      <APopover v-model:open="filterOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-filter-popup">
+        <AButton ref="filterTrigger" html-type="button" @keydown.esc.stop.prevent="closePopup('filter')" class="todo-filter-toggle todo-toolbar-tool" :class="{ 'is-active': filterOpen || filterCount }" :aria-label="filterCount ? '筛选 (' + filterCount + ')' : '筛选'" title="筛选" :aria-expanded="filterOpen" type="text"><ToDooIcon name="filter" :size="17" /><span class="todo-tool-label">筛选</span><small v-if="filterCount">{{ filterCount }}</small></AButton>
+        <template #content><form class="todo-task-filter-form" @submit.prevent="filterChanged" @keydown.esc.stop.prevent="closePopup('filter')">
+          <label>优先级<ToDooSelect :value="state.filter.priorities?.length === 1 ? state.filter.priorities[0] : ''" aria-label="筛选优先级" @change="state.filter.priorities = $event ? [$event] : []; filterChanged()"><option value="">全部优先级</option><option v-for="(label, value) in toDooPriorityLabels" :key="value" :value="value">{{ label }}</option></ToDooSelect></label>
+          <label>标签<ToDooSelect :value="state.filter.tagIds?.[0] || ''" aria-label="筛选标签" @change="state.filter.tagIds = $event ? [$event] : []; filterChanged()"><option value="">全部标签</option><option v-for="tag in state.snapshot?.tags.filter((t) => !t.deletedAt)" :key="tag.id" :value="tag.id">{{ tag.name }}</option></ToDooSelect></label>
+          <div class="todo-actions"><AButton @click="openAdvancedFilters">更多筛选条件</AButton><AButton type="link" @click="emit('clear-filters')">清除筛选</AButton><AButton type="text" @click="closePopup('filter')">关闭</AButton></div>
+        </form></template>
+      </APopover>
+      <APopover v-model:open="displayOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-display-popup">
+        <AButton ref="displayTrigger" type="text" @keydown.esc.stop.prevent="closePopup('display')" class="todo-toolbar-tool todo-display-tool" :class="{ 'is-active': displayOpen }" aria-label="任务显示与管理" title="任务显示与管理" :aria-expanded="displayOpen"><ToDooIcon name="more" :size="19" /><span class="todo-tool-label">更多</span></AButton>
+        <template #content><div class="todo-task-display-form" @keydown.esc.stop.prevent="closePopup('display')">
+          <div class="todo-task-display-options"><label>展示方式      <ToDooSelect
         class="todo-view-picker"
         aria-label="任务展示方式"
         :value="section"
         :show-search="false"
         :options="viewOptions"
         @change="chooseView"
-      />
-      <AButton
-        type="text"
-        class="todo-task-tools-toggle"
-        aria-label="搜索任务"
-        :aria-expanded="toolsOpen"
-        @click="toolsOpen = !toolsOpen"
-        ><ToDooIcon name="search" :size="16" /><span>搜索</span></AButton
-      >
-      <form
-        class="todo-toolbar-search todo-task-secondary-tools"
-        :class="{ 'is-open': toolsOpen }"
-        role="search"
-        @submit.prevent="filterChanged"
-      >
-        <label class="todo-search"
-          ><AInput
-            v-model:value="state.filter.query"
-            :placeholder="searchPlaceholder"
-            aria-label="搜索任务" /><AButton html-type="submit" aria-label="执行搜索" type="text">
-            <ToDooIcon name="search" :size="16" /></AButton
-        ></label>
-      </form>
-      <ToDooSelect
-        v-if="section === 'board'"
-        v-model="boardBy"
-        class="todo-board-group-picker"
-        aria-label="看板分组"
-      >
-        <option value="status">按状态</option>
-        <option value="list">按清单</option>
-        <option value="priority">按优先级</option>
-        <option value="section">按分组</option>
-        <option value="tag">按标签</option>
-      </ToDooSelect>
-      <AButton
-        html-type="button"
-        class="todo-button todo-filter-toggle"
-        :class="{ 'is-active': filterOpen || filterCount }"
-        :aria-expanded="filterOpen"
-        @click="filterOpen = !filterOpen"
-        type="default"
-      >
-        <ToDooIcon name="filter" :size="16" />筛选<small v-if="filterCount">{{
-          filterCount
-        }}</small>
-      </AButton>
-      <ADropdown :trigger="['click']" placement="bottomRight">
-        <AButton type="text" aria-label="任务管理" class="todo-task-more"
-          ><ToDooIcon name="more" :size="18"
-        /></AButton>
-        <template #overlay
-          ><AMenu>
-            <AMenuItem
-              key="select"
-              @click="
-                selecting = !selecting;
-                state.selectedIds = [];
-              "
-              >{{ selecting ? '结束多选' : '多选' }}</AMenuItem
-            >
-            <AMenuItem key="save-view" @click="saveView">保存视图</AMenuItem>
-            <AMenuItem key="section" @click="newSection">＋ 分组</AMenuItem>
-            <AMenuItem key="tag" @click="emit('edit', 'tag')">＋ 标签</AMenuItem>
-            <AMenuItem key="template" @click="emit('edit', 'template')">＋ 模板</AMenuItem>
-          </AMenu></template
-        >
-      </ADropdown>
+      /></label>
+          <label>排序<ToDooSelect v-model="state.sort" aria-label="任务排序"><option value="manual">手动顺序</option><option value="due">截止日期</option><option value="priority">优先级</option><option value="created">最近创建</option><option value="title">标题</option></ToDooSelect></label>
+          <label v-if="section === 'board'">分组<ToDooSelect v-model="boardBy" aria-label="看板分组"><option value="status">按状态</option><option value="list">按清单</option><option value="priority">按优先级</option><option value="section">按分组</option><option value="tag">按标签</option></ToDooSelect></label>
+          <label>密度<ToDooSelect :value="density" aria-label="任务密度" @change="emit('update:density', $event as 'comfortable' | 'compact')"><option value="comfortable">舒适</option><option value="compact">紧凑</option></ToDooSelect></label>
+          <ACheckbox v-model:checked="showCompleted">显示已完成任务</ACheckbox>
+          <fieldset class="todo-task-display-fields" aria-label="任务行显示字段">
+            <legend>显示字段</legend>
+            <ACheckbox v-for="field in displayFieldOptions" :key="field.key" :checked="displayFields[field.key]" @change="setDisplayField(field.key, $event.target.checked)">{{ field.label }}</ACheckbox>
+          </fieldset>
+          <div v-if="state.snapshot?.views.some((v) => !v.deletedAt)" class="todo-saved-views"><span>保存的视图</span><div v-for="v in state.snapshot.views.filter((v) => !v.deletedAt)" :key="v.id" class="todo-actions"><AButton type="link" @click="applyView(v); closePopup('display')">{{ v.name }}</AButton><AButton type="text" :aria-label="'编辑视图 ' + v.name" @click="emit('edit', 'view', v)">⋯</AButton></div></div>
+          <div class="todo-task-management-options"><AMenu :selectable="false" trigger-sub-menu-action="click" aria-label="任务管理" @click="displayOpen = false">
+        <AMenuItem key="select" @click="selecting = !selecting; state.selectedIds = []">{{ selecting ? '结束多选' : '选择任务' }}</AMenuItem>
+        <ASubMenu key="organize" title="组织清单"><AMenuItem v-if="scopeListId" key="edit-list" @click="emit('edit', 'list', lists.find((l) => l.id === scopeListId))">编辑当前清单</AMenuItem><AMenuItem v-if="scopeListId" key="list-habits" @click="emit('habits', scopeListId)">清单习惯</AMenuItem><AMenuItem key="section" @click="newSection">新建分组</AMenuItem><AMenuItem key="tag" @click="emit('edit', 'tag')">新建标签</AMenuItem></ASubMenu>
+        <ASubMenu key="templates" title="模板"><AMenuItem v-if="state.snapshot?.templates.some((t) => !t.deletedAt)" key="apply-template" @click="templatesOpen = true">从模板新建</AMenuItem><AMenuItem key="new-template" @click="emit('edit', 'template')">新建模板</AMenuItem></ASubMenu>
+      </AMenu></div>
+          </div>
+          <div class="todo-actions todo-task-display-footer"><AButton @click="saveView(); displayOpen = false">保存当前视图</AButton><AButton type="text" @click="closePopup('display')">关闭</AButton></div>
+        </div></template>
+      </APopover>
+
     </ToDooPageToolbar>
-    <form v-if="filterOpen" class="todo-filters todo-filter-panel" @submit.prevent="filterChanged">
-      <label
-        >优先级<ToDooSelect
-          :value="state.filter.priorities?.length === 1 ? state.filter.priorities[0] : ''"
-          aria-label="筛选优先级"
-          @change="
-            state.filter.priorities = $event ? [$event] : [];
-            filterChanged();
-          "
+    </Teleport>
+    <AModal v-model:open="templatesOpen" title="从模板新建" :footer="null">
+      <AAlert v-if="state.error" type="error" :message="state.error" show-icon />
+
+        <div
+          v-for="t in state.snapshot?.templates.filter((t) => !t.deletedAt)"
+          :key="t.id"
+          class="todo-actions"
         >
-          <option value="">全部优先级</option>
-          <option v-for="(label, value) in toDooPriorityLabels" :key="value" :value="value">
-            {{ label }}
-          </option>
-        </ToDooSelect></label
-      >
-      <label
-        >标签<ToDooSelect
-          :value="state.filter.tagIds?.[0] || ''"
-          aria-label="筛选标签"
-          @change="
-            state.filter.tagIds = $event ? [$event] : [];
-            filterChanged();
-          "
-        >
-          <option value="">全部标签</option>
-          <option
-            v-for="tag in state.snapshot?.tags.filter((t) => !t.deletedAt)"
-            :key="tag.id"
-            :value="tag.id"
+          <AButton
+            class="todo-link"
+            html-type="button"
+            :disabled="state.busy || !!state.pendingMutation"
+            @click="applyTemplate(t.id)"
+            type="link"
           >
-            {{ tag.name }}
-          </option>
-        </ToDooSelect></label
-      >
-      <label
-        >排序<ToDooSelect v-model="state.sort" aria-label="任务排序">
-          <option value="manual">手动顺序</option>
-          <option value="due">截止日期</option>
-          <option value="priority">优先级</option>
-          <option value="created">最近创建</option>
-          <option value="title">标题</option>
-        </ToDooSelect></label
-      >
-      <AButton
-        html-type="button"
-        class="todo-button"
-        @click="
-          advancedFilters = !advancedFilters;
-          if (advancedFilters && !state.filter.group)
-            state.filter.group = { operator: 'and', conditions: [] };
-        "
-        type="default"
-      >
-        更多筛选条件
-      </AButton>
-      <AButton
-        html-type="button"
-        class="todo-link"
-        @click="
-          advancedFilters = false;
-          emit('clear-filters');
-        "
-        type="link"
-      >
-        清除筛选
-      </AButton>
-    </form>
-    <div v-if="advancedFilters && state.filter.group" class="todo-panel todo-filter-builder">
-      <ToDooFilterGroup v-model="state.filter.group" :model="model" />
-      <div class="todo-actions">
-        <AButton
-          class="todo-button todo-primary"
-          html-type="button"
-          @click="filterChanged"
-          type="primary"
-        >
-          应用条件组</AButton
-        ><AButton
-          class="todo-link"
-          html-type="button"
-          @click="
-            delete state.filter.group;
-            advancedFilters = false;
-            filterChanged();
-          "
-          type="link"
-        >
-          清除条件组
-        </AButton>
-      </div>
-    </div>
-    <div v-if="state.snapshot?.views.some((v) => !v.deletedAt)" class="todo-saved-views">
-      <span>保存的视图</span>
-      <div
-        v-for="v in state.snapshot.views.filter((v) => !v.deletedAt)"
-        :key="v.id"
-        class="todo-actions"
-      >
-        <AButton html-type="button" class="todo-link" @click="applyView(v)" type="link">{{
-          v.name
-        }}</AButton
-        ><AButton
-          html-type="button"
-          class="todo-icon-button"
-          :aria-label="'编辑视图 ' + v.name"
-          @click="emit('edit', 'view', v)"
-          type="text"
-        >
-          ⋯
-        </AButton>
-      </div>
-    </div>
+            {{ t.name }}</AButton
+          ><AButton
+            class="todo-icon-button"
+            html-type="button"
+            :aria-label="'编辑模板 ' + t.name"
+            @click="emit('edit', 'template', t)"
+            type="text"
+          >
+            ⋯
+          </AButton>
+        </div>
+    </AModal>
+    <AModal v-model:open="advancedFilters" title="高级筛选" :width="640" :footer="null" :destroy-on-close="true"><ToDooFilterGroup v-model="advancedDraft" :model="model" /><div class="todo-actions todo-top-gap"><AButton type="primary" @click="applyAdvancedFilters">应用条件组</AButton><AButton @click="advancedFilters = false">取消</AButton><AButton type="link" @click="delete state.filter.group; advancedFilters = false; filterChanged()">清除条件组</AButton></div></AModal>
     <div v-if="selecting" class="todo-batch">
       <label class="todo-checkbox"
         ><ACheckbox
@@ -1210,6 +1264,7 @@ function saveView() {
       class="todo-task-list-capture"
     >
       <ToDooQuickAdd
+        ref="quickAdd"
         :model="model"
         :list-id="state.filter.listIds?.[0]"
         :default-date="builtin === 'today' || builtin === 'upcoming' ? today : undefined"
@@ -1218,36 +1273,8 @@ function saveView() {
         @created="emit('task-created', $event)"
       />
     </div>
-    <div v-if="section === 'tasks'" class="todo-panel todo-tree todo-task-list-panel">
-      <div class="todo-panel-header todo-task-list-heading">
-        <h2>
-          {{ taskListTitle }}
-          <small>{{ outlineItems.length }} 项</small>
-        </h2>
-        <AButton
-          v-if="scopeListId"
-          type="text"
-          aria-label="查看清单习惯"
-          @click="emit('habits', scopeListId)"
-          ><ToDooIcon name="habits" :size="16" />清单习惯</AButton
-        >
-        <AButton
-          v-if="state.filter.listIds?.[0]"
-          html-type="button"
-          class="todo-icon-button"
-          aria-label="编辑当前清单"
-          @click="
-            emit(
-              'edit',
-              'list',
-              lists.find((l) => l.id === state.filter.listIds?.[0]),
-            )
-          "
-          type="text"
-        >
-          <ToDooIcon name="more" :size="16" />
-        </AButton>
-      </div>
+    <div v-if="section === 'tasks'" class="todo-panel todo-tree todo-task-list-panel" role="region" :aria-label="taskListTitle" @keydown="moveRowFocus">
+
       <section v-for="group in outlineGroups" :key="group.id" class="todo-task-group">
         <header v-if="group.showHeader" class="todo-task-group-heading">
           <AButton
@@ -1294,8 +1321,7 @@ function saveView() {
               @dragstart="drag($event, item)"
               @dragover.prevent
               @drop="reorderBefore($event, item)"
-              @keydown.alt.up.prevent="reorderStep(item, -1)"
-              @keydown.alt.down.prevent="reorderStep(item, 1)"
+              @keydown="reorderByKey($event, item)"
             >
               <AButton
                 v-if="
@@ -1309,6 +1335,8 @@ function saveView() {
                 >{{ collapsed.includes(item.task.id) ? '›' : '⌄' }}</AButton
               >
               <ToDooTaskRow
+                list-navigation
+                :display-fields="displayFields"
                 :item="item"
                 :hide-list="!!state.filter.listIds?.length"
                 :style="{ '--task-list-color': item.list?.color || 'var(--todo-accent)' }"
@@ -1343,28 +1371,12 @@ function saveView() {
           >
         </div>
       </section>
-      <AButton
-        v-if="
-          completedItems.length &&
-          !['done', 'trash', 'archived'].includes(builtin) &&
-          !state.filter.query
-        "
-        html-type="button"
-        class="todo-completed-toggle"
-        :aria-label="showCompleted ? '隐藏已完成任务' : '显示已完成任务'"
-        :aria-expanded="showCompleted"
-        @click="showCompleted = !showCompleted"
-        type="text"
-      >
-        <span>{{ showCompleted ? '⌄' : '›' }}</span
-        >已完成 <small>{{ completedItems.length }}</small>
-      </AButton>
       <div v-if="!items.length" class="todo-empty">
         <span class="todo-empty-check" aria-hidden="true"
-          ><ToDooIcon name="check" :size="28"
+          ><ToDooIcon :name="filterCount ? 'search' : toDooTaskScopeIcon(builtin, scopeListId)" :size="24"
         /></span>
         <h2>{{ emptyTitle }}</h2>
-        <AButton v-if="canSearchAll" type="default" @click="emit('search-all')"
+        <AButton v-if="canSearchAll && !toolsOpen" type="default" @click="emit('search-all')"
           >在所有任务中搜索</AButton
         >
         <AButton
@@ -1377,41 +1389,7 @@ function saveView() {
           清除筛选
         </AButton>
       </div>
-      <div v-if="state.snapshot?.templates.some((t) => !t.deletedAt)" class="todo-panel-footer">
-        <span>从模板创建</span>
-        <div
-          v-for="t in state.snapshot.templates.filter((t) => !t.deletedAt)"
-          :key="t.id"
-          class="todo-actions"
-        >
-          <AButton
-            class="todo-link"
-            html-type="button"
-            :disabled="state.busy"
-            @click="
-              model.execute({
-                action: 'apply_template',
-                payload: {
-                  templateId: t.id,
-                  listId: state.filter.listIds?.[0] || null,
-                  titlePrefix: '',
-                },
-              })
-            "
-            type="link"
-          >
-            {{ t.name }}</AButton
-          ><AButton
-            class="todo-icon-button"
-            html-type="button"
-            :aria-label="'编辑模板 ' + t.name"
-            @click="emit('edit', 'template', t)"
-            type="text"
-          >
-            ⋯
-          </AButton>
-        </div>
-      </div>
+
     </div>
     <template v-else-if="section === 'board'">
       <nav class="todo-task-jumps" aria-label="看板列概览">
@@ -1461,6 +1439,7 @@ function saveView() {
               @dragstart="drag($event, card.item)"
             >
               <ToDooTaskRow
+                :display-fields="displayFields"
                 :item="card.item"
                 :active="active(card.item)"
                 :hide-list="!!activeListId || boardBy === 'list'"
@@ -1504,6 +1483,7 @@ function saveView() {
                     @dragstart.stop="drag($event, child)"
                   >
                     <ToDooTaskRow
+                      :display-fields="displayFields"
                       :item="child"
                       :active="active(child)"
                       hide-list
@@ -1555,22 +1535,6 @@ function saveView() {
       </div></template
     >
     <template v-else-if="section === 'matrix'">
-      <div
-        v-if="items.some((item) => item.status === 'done') && !matrixIncludesCompleted"
-        class="todo-matrix-completed"
-      >
-        <AButton
-          html-type="button"
-          type="text"
-          :aria-label="showCompleted ? '隐藏已完成任务' : '显示已完成任务'"
-          :aria-expanded="showCompleted"
-          @click="showCompleted = !showCompleted"
-        >
-          {{ showCompleted ? '隐藏已完成' : '显示已完成' }}
-          <small>{{ items.filter((item) => item.status === 'done').length }}</small>
-        </AButton>
-      </div>
-
       <nav class="todo-task-jumps" aria-label="象限概览">
         <AButton
           v-for="(zone, index) in quadrants"
@@ -1608,6 +1572,8 @@ function saveView() {
               @dragstart="drag($event, item)"
             >
               <ToDooTaskRow
+                row-context-actions
+                :display-fields="displayFields"
                 :item="item"
                 :active="active(item)"
                 :today="today"
@@ -1624,43 +1590,15 @@ function saveView() {
                     :item="item"
                     @open="emit('open', $event)"
                     @child="emit('create', $event)"
-                    @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)" /></template
+                    @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)"
+                    ><template #additional>
+                      <ASubMenu key="quadrant" title="归类象限" :disabled="state.busy || !!state.pendingMutation">
+                        <AMenuItem v-for="(target, targetIndex) in quadrants" :key="'quadrant-' + targetIndex" @click="setQuadrant(item, targetIndex)">{{ target.name }}{{ index === targetIndex ? ' ✓' : '' }}</AMenuItem>
+                        <AMenuItem v-if="item.task.urgentOverride !== null" key="automatic-quadrant" :aria-label="'恢复自动紧急判断 ' + item.title" @click="resetQuadrant(item)">恢复自动判断</AMenuItem>
+                      </ASubMenu>
+                    </template></ToDooTaskMenu></template
               ></ToDooTaskRow>
-              <div class="todo-matrix-classification">
-                <ToDooSelect
-                  :value="String(index)"
-                  :aria-label="'设置象限 ' + item.title"
-                  :disabled="state.busy || !!state.pendingMutation"
-                  @change="setQuadrant(item, Number($event))"
-                  ><option
-                    v-for="(target, targetIndex) in quadrants"
-                    :key="target.tone"
-                    :value="String(targetIndex)"
-                  >
-                    {{ target.name }}
-                  </option></ToDooSelect
-                >
-                <template v-if="item.task.urgentOverride !== null"
-                  ><ATag>{{ item.task.urgentOverride ? '手动紧急' : '手动不紧急' }}</ATag
-                  ><AButton
-                    type="link"
-                    :aria-label="'恢复自动紧急判断 ' + item.title"
-                    :disabled="state.busy || !!state.pendingMutation"
-                    @click="
-                      model.execute({
-                        action: 'update_task',
-                        payload: {
-                          id: item.task.id,
-                          expectedRevision: item.task.revision,
-                          patch: { urgentOverride: null },
-                        },
-                      })
-                    "
-                    >恢复自动</AButton
-                  ></template
-                >
-                <span v-else class="todo-muted todo-small">自动判断紧急性</span>
-              </div>
+
             </div>
             <div v-if="!matrixItems.some((i) => quadrant(i, index))" class="todo-empty">
               <p>{{ zone.empty }}</p>
@@ -1672,6 +1610,20 @@ function saveView() {
   </template>
 </template>
 <style scoped>
+.todo-task-display-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+  margin: 0;
+  padding: var(--todo-space-8) 0;
+  border: 0;
+  gap: var(--todo-space-8);
+}
+.todo-task-display-fields legend {
+  margin-bottom: var(--todo-space-4);
+  color: var(--todo-muted);
+  font-size: var(--todo-caption-size);
+}
 /* Task content uses the shared type scale while retaining its own layout. */
 .todo-goal-overview {
   display: grid;
@@ -1704,18 +1656,11 @@ function saveView() {
 }
 .todo-overview-action-list :deep(.todo-task-row),
 .todo-task-list-panel :deep(.todo-task-row) {
-  min-height: var(--todo-row-min-height, 60px);
-  padding-block: var(--todo-row-padding-block, 8px);
+  min-height: var(--todo-row-min-height);
+  padding-block: var(--todo-row-padding-block, 4px);
   gap: 10px;
 }
-.todo-overview-action-list :deep(.todo-check),
-.todo-task-list-panel :deep(.todo-check) {
-  width: 20px;
-  min-width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border-color: color-mix(in srgb, var(--todo-muted) 65%, var(--todo-line));
-}
+
 .todo-overview-action-list :deep(.todo-row-list),
 .todo-task-list-panel :deep(.todo-row-list) {
   display: inline-flex;
@@ -1751,6 +1696,10 @@ function saveView() {
 .todo-overview-action-list :deep(.todo-task-row.is-active),
 .todo-task-list-panel :deep(.todo-task-row.is-active) {
   background: var(--todo-tint);
+}
+.todo-overview-action-list :deep(.todo-task-row:has(.todo-task-body:focus-visible):not(.is-active, .is-selected)),
+.todo-task-list-panel :deep(.todo-task-row:has(.todo-task-body:focus-visible):not(.is-active, .is-selected)) {
+  background: var(--todo-soft);
 }
 .todo-overview-action-list :deep(.todo-task-row.is-active)::before,
 .todo-task-list-panel :deep(.todo-task-row.is-active)::before {
@@ -1983,9 +1932,12 @@ function saveView() {
   margin-bottom: 0;
 }
 .todo-task-list-capture :deep(.todo-quick-add) {
-  background: var(--todo-soft);
-  border-radius: 8px;
-  margin: 12px 0 18px;
+  background: color-mix(in srgb, var(--todo-soft) 72%, var(--todo-paper));
+  border-radius: var(--todo-control-radius);
+  margin: var(--todo-space-8) 0 var(--todo-space-8);
+}
+.todo-task-list-capture :deep(.todo-quick-add:focus-within) {
+  background: var(--todo-paper);
 }
 .todo-task-list-panel > .todo-task-list-heading {
   padding: 0 10px;
@@ -1993,6 +1945,16 @@ function saveView() {
   border: 0;
   border-radius: 6px;
   background: var(--todo-soft);
+}
+@container (min-width: 1280px) {
+  .todo-task-list-panel :deep(.todo-task-row:has(> .todo-task-dates)) {
+    display: grid;
+    grid-template-columns: var(--todo-icon-button-size) minmax(0, 2fr) minmax(0, 1fr) var(--todo-icon-button-size);
+  }
+  .todo-task-list-panel :deep(.todo-task-row > .todo-task-dates) {
+    justify-content: flex-start;
+    max-width: 100%;
+  }
 }
 .todo-task-list-panel > .todo-task-list-heading h2 {
   color: var(--todo-ink);
@@ -2064,11 +2026,11 @@ function saveView() {
   }
   .todo-overview-action-list :deep(.todo-task-row),
   .todo-task-list-panel :deep(.todo-task-row) {
-    grid-template-columns: 22px minmax(0, 1fr) 28px;
+    grid-template-columns: var(--todo-icon-button-size) minmax(0, 1fr) var(--todo-icon-button-size);
     gap: 4px 10px;
     padding-inline-start: calc(8px + var(--depth, 0) * 15px);
     padding-inline-end: 8px;
-    min-height: var(--todo-row-min-height, 60px);
+    min-height: var(--todo-row-min-height);
   }
   .todo-overview-action-list :deep(.todo-task-meta),
   .todo-task-list-panel :deep(.todo-task-meta) {
@@ -2085,12 +2047,7 @@ function saveView() {
   .todo-task-list-panel :deep(.todo-task-date-value small) {
     font-size: 12px;
   }
-  .todo-overview-action-list :deep(.todo-check),
-  .todo-task-list-panel :deep(.todo-check) {
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
-  }
+
 }
 .todo-matrix-completed {
   display: flex;

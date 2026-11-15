@@ -19,6 +19,12 @@ async function command(page: Page, action: string, payload: Record<string, unkno
 const shift = (date: string, days: number) =>
   new Date(Date.parse(date + 'T12:00:00Z') + days * 86400000).toISOString().slice(0, 10);
 
+async function openListHabits(page: Page) {
+  await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await page.locator('.todo-task-management-options').getByText('组织清单', { exact: true }).click();
+  await page.getByRole('menuitem', { name: '清单习惯', exact: true }).click();
+}
+
 test.beforeEach(async ({ context, page }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const state = await (await page.request.get('/api/to-doo/state')).json();
@@ -56,7 +62,7 @@ test('a habit links to its task list and check-in or undo never completes those 
   await card.getByRole('button', { name: '查看 ' + listName + ' 的任务', exact: true }).click();
   await expect(page.locator('.todo-page h1')).toHaveText(listName);
   await expect(page.getByRole('button', { name: taskTitle, exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '查看清单习惯', exact: true }).click();
+  await openListHabits(page);
   await expect.poll(() => new URL(page.url()).searchParams.get('list')).toBe(list.ids[0]);
   await expect(page.getByLabel('当前习惯范围', { exact: true })).toContainText(listName);
   await card.getByRole('button', { name: '打卡 ' + name, exact: true }).click();
@@ -96,10 +102,10 @@ test('creating a habit from a list retains that list and can return to all habit
     entity: { name: otherName, listId: otherList.ids[0], startDate: date, goalMode: 'checkin' },
   });
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&list=' + list.ids[0]);
-  await page.getByRole('button', { name: '查看清单习惯', exact: true }).click();
+  await openListHabits(page);
   const empty = page.locator('.todo-habit-cards .ant-empty');
   await expect(empty).toContainText('这个清单还没有关联习惯');
-  await empty.getByRole('button', { name: '新建习惯', exact: true }).click();
+  await page.locator('.todo-page-heading').getByRole('button', { name: /新建习惯/ }).click();
   const editor = page.getByRole('dialog', { name: '新建习惯', exact: true });
   await expectToDooSelection(editor, '关联目标或清单', listName);
   const name = '晚饭后散步 ' + suffix;

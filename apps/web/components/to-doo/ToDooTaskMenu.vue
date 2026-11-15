@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useSlots } from 'vue';
+import { computed, nextTick, useId, useSlots, watch } from 'vue';
 import {
   Button as AButton,
   Dropdown as ADropdown,
@@ -16,6 +16,7 @@ import {
 } from '../../to-doo-workbench';
 import { useToDooConfirm } from '../../to-doo-controls';
 import { useToDooMenu } from '../../to-doo-menu';
+import { guardToDooTaskAction } from '../../to-doo-action-guard';
 import ToDooIcon from './ToDooIcon.vue';
 const props = defineProps<{
   model: ToDooWorkbench;
@@ -34,11 +35,84 @@ const emit = defineEmits<{
 const slots = useSlots();
 const confirm = useToDooConfirm();
 const { open: menuOpen, trigger } = useToDooMenu();
+const menuId = 'todo-task-actions-' + useId();
+const menuItemSelector = '[role="menuitem"], [aria-haspopup][aria-controls]';
+let pendingFocus: MutationObserver | undefined;
+function menuItems(menu: Element) {
+  return Array.from(menu.querySelectorAll<HTMLElement>(menuItemSelector))
+    .filter(item => item.closest('ul') === menu && item.getAttribute('aria-disabled') !== 'true');
+}
+function focusMenu(id: string) {
+  pendingFocus?.disconnect();
+  const focus = () => {
+    if (!menuOpen.value) return;
+    const menu = Array.from(document.querySelectorAll<HTMLElement>('ul#' + CSS.escape(id)))
+      .find(element => element.getClientRects().length && getComputedStyle(element).visibility === 'visible');
+    const first = menu && menuItems(menu)[0];
+    if (!first) return;
+    first.focus();
+    if (document.activeElement === first) pendingFocus?.disconnect();
+  };
+  // A portal can mount before its dropdown is displayed. Wait for the actual menu to accept focus.
+  pendingFocus = new MutationObserver(focus);
+  pendingFocus.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['style', 'class'] });
+  void nextTick(focus);
+}
+function triggerClick(event: MouseEvent) {
+  const source = event.detail === 0 ? document.activeElement : event.currentTarget;
+  if (source instanceof HTMLElement) trigger.value = { $el: source };
+  if (!menuOpen.value && event.detail === 0) focusMenu(menuId);
+}
+function menuKey(event: KeyboardEvent) {
+  if (event.defaultPrevented || event.isComposing || event.keyCode === 229 ||
+      event.altKey || event.metaKey || event.ctrlKey) return;
+  const item = event.target;
+  if (!(item instanceof HTMLElement) || !item.matches(menuItemSelector)) return;
+  const menu = item.closest('ul');
+  const root = document.getElementById(menuId);
+  if (!menu || !root) return;
+  // Ant renders submenus in portals; use their aria-controls relationship to find their owner.
+  const parent = menu !== root && Array.from(root.querySelectorAll<HTMLElement>('[aria-controls]'))
+    .find(title => title.getAttribute('aria-controls') === menu.id);
+  if (menu !== root && !parent) return;
+  const submenu = item.getAttribute('aria-controls');
+  if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+    const items = menuItems(menu);
+    const index = items.indexOf(item);
+    if (index < 0) return;
+    let next = event.key === 'Home' ? 0 : items.length - 1;
+    if (event.key === 'ArrowDown') next = (index + 1) % items.length;
+    if (event.key === 'ArrowUp') next = (index + items.length - 1) % items.length;
+    items[next].focus();
+  } else if (submenu && ['Enter', ' ', 'ArrowRight'].includes(event.key)) {
+    if (item.getAttribute('aria-expanded') !== 'true') item.click();
+    focusMenu(submenu);
+  } else if (event.key === 'ArrowLeft' && parent) {
+    parent.click();
+    parent.focus();
+  } else if (event.key === ' ' && !submenu) {
+    item.click();
+  } else if (event.key === 'Tab') {
+    menuOpen.value = false;
+    trigger.value?.$el?.focus({ preventScroll: true });
+    return;
+  } else return;
+  event.preventDefault();
+  event.stopPropagation();
+}
+watch(menuOpen, (open, _, cleanup) => {
+  if (!open || typeof document === 'undefined') return;
+  if (props.contextMenu) focusMenu(menuId);
+  document.addEventListener('keydown', menuKey, true);
+  cleanup(() => {
+    document.removeEventListener('keydown', menuKey, true);
+    pendingFocus?.disconnect();
+  });
+});
 const blocked = computed(
   () =>
     props.model.state.busy ||
-    !!props.model.state.pendingMutation ||
-    (props.model.state.selectedTaskId === props.item.task.id && props.model.dirty()),
+    !!props.model.state.pendingMutation,
 );
 const lists = computed(() => props.model.taskLists().filter((list) => !list.archivedAt));
 async function run(
@@ -50,18 +124,21 @@ async function run(
   if (target.task.deletedAt && operation !== 'restore') return;
   if (operation === 'restore' && !target.task.deletedAt) return;
   if (operation === 'unarchive' && !target.task.archivedAt) return;
+  if (!(await guardToDooTaskAction(props.model, [target.task.id], confirm, {
+    current: () => props.item.task.id === target.task.id,
+  }))) return;
   if (operation === 'delete') {
     if (props.parentDelete) {
       return props.removeTask?.();
     }
     if (!(await confirm(`将「${target.title}」及其子任务移入回收站？`, { danger: true }))) return;
   }
-  const result = await props.model.batchTasks(
+  const result = operation === 'move'
+    ? await props.model.moveTasks([target.task.id], listId ?? null)
+    : await props.model.batchTasks(
     [target.task.id],
     operation === 'archive' || operation === 'unarchive' ? 'patch' : operation,
-    operation === 'move'
-      ? { listId: listId ?? null }
-      : operation === 'archive'
+    operation === 'archive'
         ? { patch: { archivedAt: new Date().toISOString() } }
         : operation === 'unarchive'
           ? { patch: { archivedAt: null } }
@@ -74,6 +151,9 @@ async function run(
 async function status(value: keyof typeof toDooStatusLabels) {
   if (blocked.value || !props.item.occurrence) return;
   const target = props.item;
+  if (!(await guardToDooTaskAction(props.model, [target.task.id], confirm, {
+    current: () => props.item.task.id === target.task.id,
+  }))) return;
   const children = value === 'done' ? await props.model.statusChildCount(target.task.id) : 0;
   if (children === null) return;
   if (
@@ -82,16 +162,21 @@ async function status(value: keyof typeof toDooStatusLabels) {
     !(await confirm(`这个任务有 ${children} 个子任务，是否一并完成？`))
   )
     return;
+  if (props.item.task.id !== target.task.id || props.item.occurrence?.id !== target.occurrence?.id) return;
   await props.model.setStatus(target.occurrence!.id, value, value === 'done' && children > 0);
 }
 async function priority(value: string) {
   if (blocked.value) return;
+  const taskId = props.item.task.id;
+  if (!(await guardToDooTaskAction(props.model, [taskId], confirm, { includeDescendants: false }))) return;
+  const task = props.model.taskDefinitions().find(value => value.id === taskId);
+  if (!task) return;
   await props.model.execute(
     {
       action: 'update_task',
       payload: {
-        id: props.item.task.id,
-        expectedRevision: props.item.task.revision,
+        id: taskId,
+        expectedRevision: task.revision,
         patch: { priority: value as typeof props.item.task.priority },
       },
     },
@@ -103,6 +188,7 @@ async function priority(value: string) {
 <template>
   <ADropdown
     v-model:open="menuOpen"
+    :disabled="model.state.busy"
     :trigger="contextMenu ? ['contextmenu'] : ['click']"
     placement="bottomRight"
     overlay-class-name="todo-task-menu-popup todo-ant-popup"
@@ -111,16 +197,18 @@ async function priority(value: string) {
     <slot v-if="slots.default" />
     <AButton
       v-else
-      ref="trigger"
       type="text"
       class="todo-icon-button todo-task-menu-trigger"
       :aria-label="label || '任务操作 ' + item.title"
+      aria-haspopup="menu"
+      :aria-expanded="menuOpen"
+      :aria-controls="menuOpen ? menuId : undefined"
       :disabled="model.state.busy"
-      @click.stop
+      @click.stop="triggerClick"
       ><ToDooIcon name="more" :size="16"
     /></AButton>
     <template #overlay
-      ><AMenu :selectable="false" trigger-sub-menu-action="click" @click="menuOpen = false">
+      ><AMenu :id="menuId" :selectable="false" trigger-sub-menu-action="click" @click="menuOpen = false">
         <AMenuItem v-if="blocked && !model.state.busy" disabled
           >先保存更改或核对待处理操作</AMenuItem
         >
@@ -128,8 +216,6 @@ async function priority(value: string) {
           >恢复任务</AMenuItem
         >
         <template v-else>
-          <AMenuItem @click="emit('open', item)">打开任务详情</AMenuItem>
-          <AMenuItem @click="emit('child', item.task.id)">添加子任务</AMenuItem>
           <AMenuItem
             :disabled="blocked || !item.occurrence"
             @click="
@@ -156,6 +242,9 @@ async function priority(value: string) {
               ></AMenuItem
             >
           </ASubMenu>
+          <slot name="additional" />
+          <AMenuItem @click="emit('open', item)">打开任务详情</AMenuItem>
+          <AMenuItem @click="emit('child', item.task.id)">添加子任务</AMenuItem>
           <ASubMenu
             key="status"
             title="状态"

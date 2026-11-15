@@ -1,0 +1,31 @@
+ToDoo 两层主菜单改造验证
+日期：2026-11-16
+基于上一轮交付71494e0；本轮功能源码冻结e129e4b17ca948f76abf27e4e0a28685dd85f4ac。
+
+本轮修正：
+- 全局模块主栏56px；任务目录200px，仅在任务/看板/四象限/时间线显示。日历、习惯、专注等页面只保留模块栏。
+- 任务范围与清单分开滚动，清单获得剩余高度，通知/设置固定在主栏底部，空清单仅一个新建入口。
+- 兼容原v1固定偏好，模块与任务范围分层展示；手动折叠保留清单/视图/草稿，1080详情自动收起目录并通过抽屉选清单。
+- 矮桌面固定全部范围仍至少保留一行清单、归档及回收入口；长页面在main内部滚动，顶部菜单不随表单溢出而离屏。
+- 新图标与更多菜单复用原未保存/非法输入/设置离开守卫；Esc关闭与回焦、resize清理浮层、手机单一底栏/抽屉均保留。
+
+同功能提交实际验证：
+npm run typecheck：通过。
+npm run build：通过，保留既有构建警告。
+完整相关Vitest：74文件1041项全部通过（257.80秒），其中定向6文件127项包含在1041项内。
+最终桌面25项、移动28项E2E全部通过，无失败、无重试。每端包含8个新菜单场景；另覆盖四尺寸、两种主题、原生控件、长导入确认及真实统计捕获。
+
+新菜单8场景：空目录剩余高度；31条中文长名称真实清单独立滚动；1440×480并固定全部任务范围；全模块与低频范围可达；折叠/展开保留选中清单；1080 dock内容净宽>=440；键盘/Esc/草稿不隐式保存；390单一底栏与完整抽屉。
+原生预览1280×720、coarse pointer：主栏56px，目录约199.2px，清单分区299.2px、内部滚动区251.2px，无横向溢出。未把与用户不同尺寸的截图写成同条件增幅对照。
+
+复现命令：
+npx vitest run to-doo platform-theme tests/workspace-save-recovery.test.ts tests/workspace-markdown-navigation.test.ts tests/web-drafts.test.ts tests/editor-image-navigation.test.ts
+npm run test:e2e -- tests/e2e/to-doo-main-navigation.spec.ts tests/e2e/to-doo-refinement-layout.spec.ts tests/e2e/to-doo-style-consistency.spec.ts tests/e2e/to-doo-two-level-windows.spec.ts --project=desktop --retries=1
+移动批次：相同四文件另加 tests/e2e/to-doo-large-list.spec.ts tests/e2e/to-doo-editing-safety.spec.ts:145 tests/e2e/to-doo-settings-boundaries.spec.ts:139，使用--project=mobile。
+测试仍使用全新临时owner、目录和4179端口，不对本地用户5173/3010实例自动写入。
+
+中间失败处理：
+31清单fixture的ID改ASCII，中文显示名与滚动断言不变；成果fixture映射新增theme模块，原10项业务断言不变；复盘使用真实日期区间统计基线+1，精确核对界面与服务器三指标；长导入原菜单/确认可达断言不变，由产品滚动边界修复通过。
+
+边界：1041项为相关套件通过，不表示全仓全绿；上一轮在基线复现的4项MCP/授权失败未在本轮修复。真机推送、长期后台计时和物理软键盘仍需设备验收。上一轮93场景/端为历史分批证据，不与本轮数字重复累加。
+现行规范：docs/ToDoo界面组件.md。详细日志、预览及本轮报告位于工作区父目录outputs/todoo-navigation和outputs/ToDoo主菜单调整与验证-2026-11-16.txt。

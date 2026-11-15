@@ -1,0 +1,99 @@
+/* Review chooses a content panel; notifications keep filters out of list flow. */
+.todo-review .todo-review-tabs-content {
+  display: block;
+}
+.todo-review .todo-review-tabs-content > .todo-panel {
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+}
+.todo-review .todo-review-statistics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--todo-space-16);
+  margin-bottom: var(--todo-space-12);
+}
+.todo-review .todo-review-statistics .ant-statistic {
+  padding: var(--todo-space-8) 0;
+  border: 0;
+  background: transparent;
+}
+.todo-review .todo-review-statistics .ant-statistic-title {
+  font-size: var(--todo-caption-size);
+}
+.todo-review .todo-progress-row {
+  padding: var(--todo-space-12) 0;
+  font-size: var(--todo-font-size);
+}
+.todo-review .todo-notification-toolbar.todo-page-toolbar {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: var(--todo-space-8);
+}
+.todo-review .todo-notification-tabs {
+  flex: 0 1 auto;
+  min-width: 112px;
+}
+.todo-review .todo-notification-tabs .ant-tabs-nav {
+  margin-bottom: 0;
+}
+.todo-review .todo-notification-tools {
+  flex: 0 0 auto;
+  margin-inline-start: auto;
+  gap: var(--todo-space-8);
+}
+.todo-review .todo-notification-group > .todo-notification {
+  margin-bottom: 0;
+  padding: var(--todo-space-12) 0;
+  border: 0;
+  border-bottom: 1px solid var(--todo-line);
+  border-radius: 0;
+  background: transparent;
+}
+.todo-review .todo-notification-icon {
+  width: var(--todo-space-24);
+  height: var(--todo-space-24);
+  background: transparent;
+}
+.todo-review .todo-notification-heading h2 {
+  font-size: var(--todo-font-size);
+  line-height: var(--todo-body-line-height);
+  font-weight: 500;
+}
+.todo-review .todo-notification-actions {
+  margin-top: var(--todo-space-8);
+}
+.todo-notification-filter-form {
+  display: grid;
+  width: min(336px, calc(100vw - 2 * var(--todo-space-24)));
+  gap: var(--todo-space-16);
+}
+.todo-notification-filter-form label {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+  gap: var(--todo-space-4);
+  font-size: var(--todo-caption-size);
+}
+.todo-notification-filter-form .todo-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--todo-space-12);
+}
+.todo-notification-filter-form .todo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--todo-space-8);
+}
+.todo-notification-filter-form .todo-ant-date {
+  width: 100%;
+}
+@media (max-width: 600px) {
+  .todo-review .todo-notification-tools {
+    gap: var(--todo-space-4);
+  }
+  .todo-review .todo-notification-tools > .ant-btn {
+    padding-inline: var(--todo-space-8);
+  }
+}

@@ -9,6 +9,7 @@ import {
   defineAsyncComponent,
   defineComponent,
   h,
+  inject,
   nextTick,
   onBeforeUnmount,
   reactive,
@@ -16,16 +17,17 @@ import {
   watch,
   type AsyncComponentLoader,
   type Component,
+  type Ref,
 } from 'vue';
 import {
   Button as AButton,
+  ConfigProvider as AConfigProvider,
   Drawer as ADrawer,
   Dropdown as ADropdown,
   Menu as AMenu,
   MenuItem as AMenuItem,
   Modal as AModal,
   Popover as APopover,
-  Segmented as ASegmented,
 } from 'ant-design-vue';
 import type { TreeEntry } from '../../../shared/contracts';
 import type {
@@ -36,6 +38,9 @@ import type {
   ToDooReminderSource,
 } from '../../../shared/to-doo-contracts';
 import { api } from '../api';
+import { resolvedTheme } from '../preferences';
+import { toDooAntTheme } from '../ant-design';
+import { toDooUiScale, type ToDooDensity } from '../platform-theme';
 import type { ToDooAppSection } from '../navigation';
 import {
   createToDooWorkbench,
@@ -61,6 +66,7 @@ import ToDooPageLoadError from './to-doo/ToDooPageLoadError.vue';
 import {
   toDooQuickFilter,
   toDooQuickViews,
+  toDooTaskScopeIcon,
   toDooFilterSummary,
   toDooAdditionalFilters,
   toDooDateLabel,
@@ -72,6 +78,7 @@ import '../to-doo.css';
 import '../to-doo-tokens.css';
 import '../to-doo-priority.css';
 import '../to-doo-task-detail.css';
+import '../to-doo-navigation.css';
 const props = withDefaults(
   defineProps<{
     section: ToDooAppSection;
@@ -86,6 +93,7 @@ const emit = defineEmits<{
   'open-note': [id: string];
   back: [];
   'note-created': [id: string];
+  'open-plugin-settings': [];
 }>();
 const pageAttempts = reactive({ calendar: 0, rhythm: 0, review: 0, settings: 0 });
 function asyncPage<T extends Component>(
@@ -108,14 +116,66 @@ const ToDooCalendar = asyncPage('calendar', () => import('./to-doo/ToDooCalendar
 const ToDooRhythm = asyncPage('rhythm', () => import('./to-doo/ToDooRhythm.vue'));
 const ToDooReview = asyncPage('review', () => import('./to-doo/ToDooReview.vue'));
 const ToDooSettings = asyncPage('settings', () => import('./to-doo/ToDooSettings.vue'));
-const model = createToDooWorkbench(api),
+const ownerId = inject<Ref<string> | undefined>('dooknow.owner-id', undefined);
+const model = createToDooWorkbench(api, { recoveryScope: ownerId?.value }),
   state = model.state,
   creating = ref(false),
   parentId = ref<string>(),
   creatingListId = ref<string>(),
   detailOpen = ref(false),
   focusOccurrence = ref(''),
-  density = ref('comfortable');
+  density = ref<ToDooDensity>(readDensity());
+function readDensity(): ToDooDensity {
+  try {
+    return localStorage.getItem('dooknow.to-doo.density') === 'compact' ? 'compact' : 'comfortable';
+  } catch {
+    return 'comfortable';
+  }
+}
+watch(density, value => {
+  try { localStorage.setItem('dooknow.to-doo.density', value); } catch { /* The current preference still works. */ }
+});
+const activeToDooTheme = computed(() => toDooAntTheme(resolvedTheme.value, density.value));
+let noticeTimer: ReturnType<typeof setTimeout> | undefined;
+let completionTimer: ReturnType<typeof setTimeout> | undefined;
+let completionDeadline = 0, completionRemaining = 6000;
+let completionHovered = false, completionFocused = false;
+function pauseCompletion() {
+  if (!completionTimer) return;
+  clearTimeout(completionTimer);
+  completionTimer = undefined;
+  completionRemaining = Math.max(0, completionDeadline - Date.now());
+}
+function resumeCompletion() {
+  if (completionTimer || completionHovered || completionFocused || !state.completionFeedback) return;
+  completionDeadline = Date.now() + completionRemaining;
+  completionTimer = setTimeout(() => { state.completionFeedback = null; }, completionRemaining);
+}
+function completionInteraction(kind: 'hover' | 'focus', inside: boolean) {
+  if (kind === 'hover') completionHovered = inside;
+  else completionFocused = inside;
+  if (inside) pauseCompletion(); else resumeCompletion();
+}
+function completionFocusOut(event: FocusEvent) {
+  completionInteraction('focus', event.relatedTarget instanceof Node &&
+    (event.currentTarget as HTMLElement).contains(event.relatedTarget));
+}
+watch(() => state.completionFeedback, value => {
+  clearTimeout(completionTimer);
+  completionTimer = undefined;
+  if (!value) completionHovered = completionFocused = false;
+  if (value) { completionRemaining = 6000; resumeCompletion(); }
+});
+watch(() => state.notice, notice => {
+  clearTimeout(noticeTimer);
+  if (notice && !state.pendingMutation && !state.conflict)
+    noticeTimer = setTimeout(() => { if (state.notice === notice) state.notice = ''; }, 3000);
+});
+watch(() => props.section, () => {
+  state.notice = '';
+  state.completionFeedback = null;
+});
+onBeforeUnmount(() => { clearTimeout(noticeTimer); clearTimeout(completionTimer); });
 const focusHistoryRequest = ref(0),
   habitHistoryRequest = ref(0);
 const focusHistoryRange = ref<{ from: string; to: string }>();
@@ -135,6 +195,7 @@ watch(
 );
 const reviewRef = ref<InstanceType<typeof ToDooReview>>();
 const detailRef = ref<InstanceType<typeof ToDooTaskDetail>>(),
+  taskViewsRef = ref<InstanceType<typeof ToDooTaskViews>>(),
   editorRef = ref<InstanceType<typeof ToDooEntityEditor>>(),
   settingsRef = ref<InstanceType<typeof ToDooSettings>>();
 const editor = ref<{
@@ -153,7 +214,31 @@ const createdNoteId = ref(''),
   createdNoteTaskId = ref('');
 const bulkOpen = ref(false);
 const taskDraftsOpen = ref(false);
+const draftManagerOpen = ref(false);
+const taskToolbarTarget = ref<HTMLElement>();
 const retainedTaskDrafts = computed(() => model.retainedNewTaskDrafts());
+const retainedEdits = computed(() => model.retainedTaskDrafts());
+async function continueTaskDraft(key: string) {
+  const entry = retainedEdits.value.find(value => value.key === key);
+  if (!entry) return;
+  taskDraftsOpen.value = false;
+  draftManagerOpen.value = false;
+  await selectTask(entry.taskId, entry.occurrenceId || undefined);
+}
+async function discardTaskDraft(key: string) {
+  const entry = retainedEdits.value.find(value => value.key === key);
+  if (!entry || !(await confirmation.ask(`放弃「${entry.title}」的未保存修改？`, { danger: true }))) return;
+  model.discardTaskDraft(key);
+}
+async function discardNewTaskDraft(key: string) {
+  const entry = retainedTaskDrafts.value.find(value => value.key === key);
+  if (!entry || !(await confirmation.ask(`放弃「${entry.draft.title || '未命名任务'}」的新建草稿？`, { danger: true }))) return;
+  model.clearNewTaskDraft(entry.parentTaskId || undefined, entry.listId || '');
+}
+async function recoverLegacyDrafts() {
+  if (!(await confirmation.ask('发现此资料库的旧版本地恢复记录。请确认这些记录属于当前账号，再恢复到当前账号的草稿中。', { title: '确认旧草稿归属' }))) return;
+  await model.adoptLegacyRecovery();
+}
 const taskDestination = ref<{
   message: string;
   label: string;
@@ -183,43 +268,81 @@ const pageContext = computed(() =>
   props.selection.appPage ? resolveToDooContext(props.section, props.selection.appPage) : undefined,
 );
 function changePageContext(value: string) {
+  if (!allowDetailTransition()) return;
   if (toDooContextEntries(props.section).some((entry) => entry.id === value))
     navigate(props.section, { ...props.selection, appPage: value });
 }
 const workspaceRef = ref<HTMLElement>();
 const detailLayer = ref<HTMLElement>();
-const detailOverlay = ref(window.innerWidth < 1280);
+const adjacentTasks = computed(() => {
+  if (!detailOpen.value || creating.value || props.section !== 'tasks') return;
+  const rows = taskViewsRef.value?.orderedListTasks;
+  if (!rows || rows.length < 2) return;
+  const index = rows.findIndex(item => item.task.id === state.selectedTaskId &&
+    (item.occurrence?.id || '') === state.selectedOccurrenceId);
+  if (index < 0) return;
+  return { previous: rows[index - 1], next: rows[index + 1] };
+});
+const viewportWidth = ref(window.innerWidth);
+const detailOverlay = computed(() => viewportWidth.value < 960);
+const hasTaskDirectory = computed(() => ['tasks', 'board', 'matrix', 'timeline'].includes(props.section));
+const directoryCollapsed = ref(false);
+const automaticCondensedNavigation = computed(() => detailOpen.value && !detailOverlay.value &&
+  viewportWidth.value < toDooUiScale.collapsedNavWidth + toDooUiScale.navWidth +
+    toDooUiScale.detailMinWidth + toDooUiScale.listMinWidth + 3 * toDooUiScale.pagePadding);
+const condensedNavigation = computed(() => hasTaskDirectory.value &&
+  (directoryCollapsed.value || automaticCondensedNavigation.value));
+watch(() => [props.section, props.selection.list, props.selection.taskFilter, props.selection.appPage], () => {
+  const main = workspaceRef.value?.querySelector?.<HTMLElement>('.todo-main');
+  if (main) main.scrollTop = 0;
+}, { flush: 'post' });
 let detailOpener: HTMLElement | undefined;
+let lastSidebarControl: HTMLElement | undefined;
+function rememberSidebarFocus(event: FocusEvent) {
+  lastSidebarControl = event.target instanceof HTMLElement ? event.target : undefined;
+}
+function forgetVisibleSidebarFocus(event: FocusEvent) {
+  if (event.relatedTarget || lastSidebarControl?.getClientRects().length) lastSidebarControl = undefined;
+}
 function resizeDetail() {
-  detailOverlay.value = window.innerWidth < 1280;
+  viewportWidth.value = window.innerWidth;
   const compactNavigation = window.matchMedia?.(
     '(max-width: 1000px), (max-width: 1100px) and (orientation: portrait), (max-width: 1366px) and (orientation: portrait) and (pointer: coarse)',
   ).matches;
-  if (compactNavigation === false && navigationOpen.value) {
+  const prior = lastSidebarControl;
+  if (prior) void nextTick(() => {
+    if (prior.getClientRects().length || (document.activeElement !== document.body && document.activeElement !== prior)) return;
+    const selector = compactNavigation ? '.todo-topbar .todo-navigation-trigger' : '.todo-sidebar button[aria-label="展开清单导航"]';
+    const opener = workspaceRef.value?.querySelector<HTMLElement>(selector);
+    lastSidebarControl = undefined;
+    if (opener?.getClientRects().length) opener.focus({ preventScroll: true });
+  });
+  if (compactNavigation === false && !automaticCondensedNavigation.value && navigationOpen.value) {
     const restoreNavigationFocus = navigationDialog.value?.contains(document.activeElement);
+    navigationCycleActive = false;
     navigationOpen.value = false;
     if (restoreNavigationFocus)
-      void nextTick(() =>
-        workspaceRef.value
-          ?.querySelector<HTMLElement>(
-            '.todo-sidebar nav [aria-current="page"], .todo-sidebar nav button',
-          )
-          ?.focus({ preventScroll: true }),
-      );
+      void nextTick(() => {
+        const sidebar = workspaceRef.value?.querySelector('.todo-sidebar');
+        const current = sidebar?.querySelector<HTMLElement>('.todo-task-directory [aria-current="page"]');
+        const fallback = sidebar?.querySelector<HTMLElement>('nav [aria-current="page"], nav button');
+        (current?.getClientRects().length ? current : fallback)?.focus({ preventScroll: true });
+      });
   }
 }
 window.addEventListener('resize', resizeDetail);
 onBeforeUnmount(() => window.removeEventListener('resize', resizeDetail));
-watch([detailOpen, detailOverlay], ([open, overlay], previous) => {
+watch([detailOpen, detailOverlay, creating], ([open, overlay, isNew], previous) => {
   if (typeof document === 'undefined') return;
   if (open && !previous?.[0]) detailOpener = document.activeElement as HTMLElement;
-  if (open && overlay) {
+  if (open && (overlay || isNew)) {
     void nextTick(() => {
-      detailLayer.value
-        ?.querySelector<HTMLElement>(
-          '.todo-title-input input, .todo-title-input textarea, .todo-create-fields input',
-        )
-        ?.focus({ preventScroll: true });
+      const layer = detailLayer.value;
+      if (!layer || (previous?.[0] && previous[2] === isNew && layer.contains(document.activeElement))) return;
+      const touchReader = !isNew && window.matchMedia?.('(pointer: coarse)')?.matches;
+      const selector = touchReader ? '.todo-document-detail' :
+        '.todo-title-input input, .todo-title-input textarea, .todo-create-fields input';
+      layer.querySelector<HTMLElement>(selector)?.focus({ preventScroll: true });
     });
   } else if (
     !open &&
@@ -232,13 +355,13 @@ watch([detailOpen, detailOverlay], ([open, overlay], previous) => {
   }
 });
 function detailKeydown(event: KeyboardEvent) {
-  if (!detailOverlay.value || event.defaultPrevented || event.isComposing) return;
+  if (event.defaultPrevented || event.isComposing || event.keyCode === 229) return;
   if (event.key === 'Escape') {
     // Let the active picker, selection popup or confirmation consume Escape first.
     if (
       [
         ...document.querySelectorAll<HTMLElement>(
-          '.ant-select-dropdown, .ant-picker-dropdown, .ant-popover, .ant-modal-wrap',
+          '.ant-select-dropdown, .ant-picker-dropdown, .ant-dropdown, .ant-popover, .ant-modal-wrap, .ant-drawer-open',
         ),
       ].some((element) => element.getClientRects().length > 0)
     )
@@ -246,7 +369,7 @@ function detailKeydown(event: KeyboardEvent) {
     event.preventDefault();
     event.stopPropagation();
     closeDetail();
-  } else if (event.key === 'Tab') {
+  } else if (event.key === 'Tab' && detailOverlay.value) {
     const controls = [
       ...(detailLayer.value?.querySelectorAll<HTMLElement>(
         '.todo-detail button:not([disabled]), .todo-detail input:not([disabled]), .todo-detail textarea:not([disabled]), .todo-detail a[href], .todo-detail [tabindex]:not([tabindex="-1"])',
@@ -260,13 +383,18 @@ function detailKeydown(event: KeyboardEvent) {
     if (
       first &&
       last &&
-      ((event.shiftKey && document.activeElement === first) ||
+      (!controls.includes(document.activeElement as HTMLElement) ||
+        (event.shiftKey && document.activeElement === first) ||
         (!event.shiftKey && document.activeElement === last))
     ) {
       event.preventDefault();
       (event.shiftKey ? last : first).focus();
     }
   }
+}
+function closeFromTaskRow(event: KeyboardEvent) {
+  if (detailOpen.value && !detailOverlay.value && event.target instanceof Element &&
+      event.target.matches('.todo-task-body')) detailKeydown(event);
 }
 const navigationDialog = ref<HTMLElement>();
 let navigationOpener: HTMLElement | undefined;
@@ -275,6 +403,16 @@ function openNavigation(event: MouseEvent) {
   navigationOpener = event.currentTarget as HTMLElement;
   navigationCycleActive = true;
   navigationOpen.value = true;
+}
+function toggleDirectory(event: MouseEvent) {
+  if (automaticCondensedNavigation.value) {
+    openNavigation(event);
+    return;
+  }
+  directoryCollapsed.value = !directoryCollapsed.value;
+  const label = directoryCollapsed.value ? '展开清单导航' : '折叠清单导航';
+  void nextTick(() => workspaceRef.value?.querySelector<HTMLElement>(`button[aria-label="${label}"]`)
+    ?.focus({ preventScroll: true }));
 }
 function focusNavigationStart() {
   const dialog = navigationDialog.value;
@@ -447,17 +585,18 @@ const nav: [ToDooAppSection, string, string][] = [
   ['notifications', '通知中心', '♧'],
   ['settings', '设置', '⚙'],
 ];
+const selectedList = computed(() => lists.value.find(list => list.id === props.selection.list));
 const title = computed(() =>
   props.selection.list &&
   ['tasks', 'board', 'matrix', 'calendar', 'timeline'].includes(props.section)
-    ? lists.value.find((l) => l.id === props.selection.list)?.name || '当前清单'
+    ? selectedList.value?.name || '当前清单'
     : props.section === 'tasks'
-      ? lists.value.find((l) => l.id === props.selection.list)?.name ||
-        toDooQuickViews.find((v) => v.id === quickView.value)?.name ||
+      ? toDooQuickViews.find((v) => v.id === quickView.value)?.name ||
         '所有任务'
       : nav.find((n) => n[0] === props.section)?.[1] || '目标总览',
 );
 async function chooseQuickView(value: ToDooQuickFilter) {
+  if (!allowDetailTransition()) return;
   navigationOpen.value = false;
   state.filter = toDooQuickFilter({}, value, calendarToday.value);
   if (props.section === 'tasks' && !props.selection.list && props.selection.taskFilter === value)
@@ -471,6 +610,7 @@ async function chooseQuickView(value: ToDooQuickFilter) {
   else navigate('tasks', { taskFilter: value });
 }
 function chooseList(id: string) {
+  if (!allowDetailTransition()) return;
   navigationOpen.value = false;
   state.filter = { listIds: [id] };
   navigate('tasks', { list: id, taskFilter: 'all' });
@@ -479,14 +619,17 @@ function changeTaskView(section: ToDooAppSection) {
   navigate(section, { ...props.selection });
 }
 function chooseDestination(section: ToDooAppSection) {
+  if (!allowDetailTransition()) return;
   state.filter = {};
   navigate(section);
 }
 function openListHabits(id: string) {
+  if (!allowDetailTransition()) return;
   state.filter = {};
   navigate('habits', { list: id });
 }
 function openActivityHistory(section: 'focus' | 'habits', range: { from: string; to: string }) {
+  if (!allowDetailTransition()) return;
   if (section === 'focus') {
     focusOccurrence.value = '';
     focusHistoryRange.value = range;
@@ -498,6 +641,7 @@ function openActivityHistory(section: 'focus' | 'habits', range: { from: string;
   chooseDestination(section);
 }
 async function searchAllTasks() {
+  if (!allowDetailTransition()) return;
   const query = state.filter.query?.trim();
   state.filter = query ? { query } : {};
   if (props.section === 'tasks' && !props.selection.list && quickView.value === 'all')
@@ -575,6 +719,7 @@ function taskSaved(value: ToDooTaskPlacement) {
   }
 }
 function openTaskDestination() {
+  if (!allowDetailTransition()) return;
   const target = taskDestination.value;
   if (!target) return;
   state.filter = {};
@@ -622,6 +767,7 @@ const scopeFilters = computed(() =>
   ),
 );
 async function clearScopeFilters() {
+  if (!allowDetailTransition()) return;
   if (props.selection.list && quickView.value !== 'all') {
     state.filter = { listIds: [props.selection.list] };
     navigate(props.section, { ...props.selection, taskFilter: 'all' });
@@ -686,6 +832,7 @@ const moreCollections = computed(() =>
   sectionKinds[props.section].filter((kind) => state.snapshot?.collectionPages?.[kind]?.nextCursor),
 );
 function navigate(section: ToDooAppSection, selection: ToDooSelection = {}) {
+  if (!allowDetailTransition()) return;
   navigationOpen.value = false;
   if (props.section === 'settings' && section !== 'settings') {
     void requestSectionLeave(section).then((allowed) => {
@@ -703,6 +850,7 @@ function createPageTask(seed?: ToDooCreateSeed) {
   );
 }
 function create(parent?: string, sectionId?: string | null, seed?: ToDooCreateSeed) {
+  if (!allowDetailTransition()) return;
   const context: ToDooCreateSeed = {
     initialStatus: 'todo',
     priority: 'none',
@@ -725,6 +873,10 @@ function create(parent?: string, sectionId?: string | null, seed?: ToDooCreateSe
   detailOpen.value = true;
 }
 function open(item: ToDooItem) {
+  if (!allowDetailTransition()) return false;
+  if (detailOpen.value && document.activeElement &&
+      !detailLayer.value?.contains(document.activeElement) &&
+      workspaceRef.value?.contains?.(document.activeElement)) detailOpener = document.activeElement as HTMLElement;
   model.selectTask(item.task.id, item.occurrence?.id);
   detailOpen.value = true;
   creating.value = false;
@@ -733,8 +885,28 @@ function open(item: ToDooItem) {
     task: item.task.id,
     occurrence: item.occurrence?.id,
   });
+  return true;
+}
+async function stepDetail(direction: 'previous' | 'next') {
+  const target = adjacentTasks.value?.[direction];
+  if (!target || state.busy || state.pendingMutation || !open(target)) return;
+  await nextTick();
+  if (!detailOpen.value || state.selectedTaskId !== target.task.id ||
+      state.selectedOccurrenceId !== (target.occurrence?.id || '')) return;
+  const button = workspaceRef.value?.querySelector<HTMLElement>(
+    '.todo-task-list-panel .todo-task-body[data-task-key="' + CSS.escape(target.key) + '"]',
+  );
+  if (button) {
+    detailOpener = button;
+    button.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
+  const header = detailLayer.value?.querySelector('header');
+  const control = header?.querySelector<HTMLElement>('[data-step="' + direction + '"]:not(:disabled)') ||
+    header?.querySelector<HTMLElement>('[data-step]:not(:disabled)');
+  control?.focus({ preventScroll: true });
 }
 async function selectTask(id: string, occurrence?: string) {
+  if ((id !== state.selectedTaskId || occurrence !== state.selectedOccurrenceId) && !allowDetailTransition()) return;
   if (!state.snapshot?.tasks.some((t) => t.id === id)) await model.ensureTask(id);
   model.selectTask(id, occurrence);
   creating.value = false;
@@ -746,6 +918,11 @@ async function selectTask(id: string, occurrence?: string) {
   });
 }
 function continueNewDraft(key: string) {
+  if (!allowDetailTransition()) {
+    taskDraftsOpen.value = false;
+    draftManagerOpen.value = false;
+    return;
+  }
   const retained = retainedTaskDrafts.value.find((entry) => entry.key === key);
   if (!retained) return;
   taskDraftsOpen.value = false;
@@ -756,10 +933,25 @@ function continueNewDraft(key: string) {
   creatingListId.value = retained.listId || '';
   detailOpen.value = true;
 }
+function allowDetailTransition() {
+  if (!detailOpen.value || !detailRef.value?.hasInvalidInput?.()) return true;
+  navigationOpen.value = false;
+  taskDraftsOpen.value = false;
+  draftManagerOpen.value = false;
+  detailRef.value.validate?.();
+  return false;
+}
 function closeDetail() {
+  if (!allowDetailTransition()) return;
   creating.value = false;
   detailOpen.value = false;
   navigate(props.section, { ...props.selection, task: undefined, occurrence: undefined });
+}
+function startTaskFocus(occurrenceId?: string) {
+  if (!allowDetailTransition()) return;
+  focusOccurrence.value = occurrenceId || '';
+  detailOpen.value = false;
+  chooseDestination('focus');
 }
 function openReminderSource(source: ToDooReminderSource) {
   navigate(source.section, {
@@ -769,7 +961,18 @@ function openReminderSource(source: ToDooReminderSource) {
   });
 }
 let reviewViewBeforeEditor: ToDooSnapshot | undefined;
-function edit(kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>) {
+async function edit(kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>) {
+  const linkedOccurrence = kind === 'timeBlock' ? entity?.occurrenceId || seed?.occurrenceId : undefined;
+  if (linkedOccurrence) {
+    const occurrence = state.snapshot?.occurrences.find(value => value.id === linkedOccurrence);
+    if (occurrence) {
+      await model.ensureTask(occurrence.taskId);
+      await selectTask(occurrence.taskId, occurrence.id);
+      await nextTick();
+      detailRef.value?.openProperty('plan');
+      return;
+    }
+  }
   reviewViewBeforeEditor =
     props.section === 'stats' && state.snapshot?.statistics.scope === 'period'
       ? JSON.parse(JSON.stringify(state.snapshot))
@@ -877,6 +1080,7 @@ function hasUnsavedChanges() {
     bulkOpen.value ||
     model.hasUnsavedChanges() ||
     !!detailRef.value?.hasUnsavedChanges() ||
+    !!detailRef.value?.hasInvalidInput?.() ||
     !!editorRef.value?.hasUnsavedChanges() ||
     !!settingsRef.value?.hasUnsavedChanges?.()
   );
@@ -895,6 +1099,7 @@ async function requestLeave(): Promise<boolean> {
   return new Promise((resolve) => (leaveResolver = resolve));
 }
 async function requestSectionLeave(nextSection: ToDooAppSection): Promise<boolean> {
+  if (!allowDetailTransition()) return false;
   if (props.section !== 'settings' || nextSection === 'settings') return true;
   if (!state.busy && !settingsRef.value?.hasUnsavedChanges?.()) return true;
   return requestLeave();
@@ -903,7 +1108,9 @@ function finishLeave(answer: boolean) {
   leaving.value = false;
   if (answer) {
     if (props.section === 'settings') settingsVersion.value++;
-    Object.keys(state.drafts).forEach((k) => delete state.drafts[k]);
+    Object.keys(state.drafts).forEach(key => model.discardTaskDraft(key));
+    for (const entry of retainedTaskDrafts.value)
+      model.clearNewTaskDraft(entry.parentTaskId || undefined, entry.listId || '');
     editor.value = undefined;
     bulkOpen.value = false;
     outcomeNote.value = undefined;
@@ -912,6 +1119,17 @@ function finishLeave(answer: boolean) {
     detailOpen.value = false;
   }
   leaveResolver?.(answer);
+  leaveResolver = undefined;
+}
+function hasNonRecoverableChanges() {
+  return !!outcomeRef.value?.hasUnsavedChanges() || bulkOpen.value ||
+    !!editorRef.value?.hasUnsavedChanges() || !!settingsRef.value?.hasUnsavedChanges?.() ||
+    !!detailRef.value?.hasInvalidInput?.();
+}
+function keepDraftsAndLeave() {
+  if (hasNonRecoverableChanges() || !model.flushRecovery()) return;
+  leaving.value = false;
+  leaveResolver?.(true);
   leaveResolver = undefined;
 }
 function openOutcomeNote() {
@@ -982,7 +1200,8 @@ async function back() {
   if (props.hostedNavigation || (await requestLeave())) emit('back');
 }
 function beforeUnload(event: BeforeUnloadEvent) {
-  if (hasUnsavedChanges()) {
+  const retained = model.flushRecovery();
+  if (hasUnsavedChanges() && (hasNonRecoverableChanges() || !retained)) {
     event.preventDefault();
     event.returnValue = '';
   }
@@ -1089,15 +1308,21 @@ watch(
 defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
 </script>
 <template>
+  <AConfigProvider :theme="activeToDooTheme">
   <section
     ref="workspaceRef"
-    class="to-doo-workspace"
+    class="to-doo-workspace todo-two-level-navigation"
     :class="{
       'todo-compact': density === 'compact',
       'todo-has-detail': detailOpen,
+      'todo-detail-docked': detailOpen && !detailOverlay,
+      'todo-navigation-condensed': condensedNavigation,
+      'todo-task-navigation': hasTaskDirectory,
       'todo-hosted-navigation': hostedNavigation,
       'todo-task-page': section === 'tasks' || section === 'overview',
       'todo-task-overview-page': section === 'overview',
+      'todo-page-calendar': section === 'calendar',
+      'todo-page-timeline': section === 'timeline',
     }"
     aria-label="To Doo 行动工作空间"
   >
@@ -1122,15 +1347,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       <APopover trigger="click" placement="bottomRight">
         <template #content
           ><div class="todo-ant-density">
-            <span>界面密度</span
-            ><ASegmented
-              v-model:value="density"
-              aria-label="界面密度"
-              :options="[
-                { label: '舒展', value: 'comfortable' },
-                { label: '紧凑', value: 'compact' },
-              ]"
-            /><AButton type="text" :disabled="state.loading || state.busy" @click="model.load()"
+            <AButton type="text" :disabled="state.loading || state.busy" @click="model.load()"
               >刷新内容</AButton
             >
           </div></template
@@ -1138,8 +1355,10 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         <AButton type="text" size="small" aria-label="显示选项"><ToDooIcon name="more" /></AButton>
       </APopover>
     </div>
-    <aside class="todo-sidebar" aria-label="To Doo 侧栏">
+    <aside class="todo-sidebar" aria-label="To Doo 侧栏" @focusin="rememberSidebarFocus" @focusout="forgetVisibleSidebarFocus">
       <ToDooNavigation
+        layout="split"
+        :directory-collapsed="condensedNavigation"
         :hosted-navigation="hostedNavigation"
         :date="calendarDate"
         :today="calendarToday"
@@ -1161,6 +1380,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
           edit('list', undefined, { kind: 'list' });
         "
         @load-lists="loadLists(!!listCursor && !listError)"
+        @toggle-directory="toggleDirectory"
         @back="
           navigationOpen = false;
           back();
@@ -1222,7 +1442,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         />
       </div>
     </ADrawer>
-    <main class="todo-main" :aria-busy="state.loading">
+    <main class="todo-main" :aria-busy="state.loading" @keydown.esc="closeFromTaskRow">
       <div
         v-if="state.loading && state.snapshot"
         class="todo-refresh-progress"
@@ -1232,8 +1452,20 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       >
         <span class="todo-loading-sr-only">正在载入…</span>
       </div>
-      <div class="todo-page" :class="{ 'todo-page-matrix': section === 'matrix' }">
+      <div class="todo-page" :class="{
+        'todo-page-matrix': section === 'matrix',
+        'todo-page-tasks': section === 'tasks',
+        'todo-page-focus': section === 'focus',
+      }">
         <ToDooPageHeader :title="showTaskScope ? scopeTitle : title">
+          <template v-if="section === 'tasks'" #title>
+            <span class="todo-task-heading">
+              <span class="todo-task-scope-icon" :style="{ '--scope-color': selectedList?.color || undefined }">
+                <ToDooIcon :name="toDooTaskScopeIcon(quickView, selection.list)" :size="18" />
+              </span>
+              <span class="todo-task-heading-name">{{ scopeTitle }}</span>
+            </span>
+          </template>
           <template
             v-if="
               taskSections.includes(section) ||
@@ -1267,14 +1499,6 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               @click="edit('list', undefined, { kind: 'goal' })"
               >＋ 新建目标</AButton
             >
-            <AButton
-              v-if="section === 'focus'"
-              type="default"
-              class="todo-button"
-              aria-label="新建专注项目"
-              @click="edit('focusTopic')"
-              >＋ 新建项目</AButton
-            >
             <div
               v-if="
                 ['tasks', 'board', 'matrix', 'calendar', 'timeline'].includes(section) &&
@@ -1282,26 +1506,29 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               "
               class="todo-task-create-actions"
               :class="{
-                'todo-has-drafts': showTaskScope && retainedTaskDrafts.length && !creating,
+                'todo-has-drafts': showTaskScope && (retainedTaskDrafts.length || retainedEdits.length || state.legacyRecoveryAvailable) && !creating,
+                'todo-task-list-create': section === 'tasks',
               }"
             >
               <AButton
-                type="primary"
-                class="todo-button todo-primary"
+                :type="section === 'tasks' ? 'default' : 'primary'"
+                class="todo-button"
+                :class="{ 'todo-primary': section !== 'tasks' }"
                 aria-label="新建任务"
                 @click="createPageTask()"
                 >＋ 新建任务</AButton
               >
               <ADropdown
-                v-if="showTaskScope && retainedTaskDrafts.length && !creating"
+                v-if="showTaskScope && (retainedTaskDrafts.length || retainedEdits.length || state.legacyRecoveryAvailable) && !creating"
                 v-model:open="taskDraftsOpen"
                 :trigger="['click']"
                 placement="bottomRight"
                 overlay-class-name="todo-ant-popup todo-task-drafts-popup"
               >
                 <AButton
-                  type="primary"
-                  class="todo-button todo-primary todo-task-drafts-trigger"
+                  :type="section === 'tasks' ? 'default' : 'primary'"
+                  class="todo-button todo-task-drafts-trigger"
+                  :class="{ 'todo-primary': section !== 'tasks' }"
                   aria-label="任务草稿"
                   title="任务草稿"
                   aria-haspopup="menu"
@@ -1310,6 +1537,10 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
                 /></AButton>
                 <template #overlay>
                   <AMenu :selectable="false" aria-label="任务草稿">
+                    <AMenuItem v-for="entry in retainedEdits" :key="'edit:' + entry.key" @click="continueTaskDraft(entry.key)">
+                      <span class="todo-task-draft-title">{{ entry.title || '未命名任务' }}</span>
+                      <span class="todo-task-draft-context">{{ entry.recovered ? '恢复的修改' : '未保存修改' }}</span>
+                    </AMenuItem>
                     <AMenuItem
                       v-for="entry in retainedTaskDrafts"
                       :key="entry.key"
@@ -1330,10 +1561,12 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
                         }}</span
                       >
                     </AMenuItem>
+                    <AMenuItem key="manage-drafts" @click="draftManagerOpen = true">管理任务草稿…</AMenuItem>
                   </AMenu>
                 </template>
               </ADropdown>
             </div>
+            <div v-if="showTaskScope && section !== 'overview'" ref="taskToolbarTarget" class="todo-header-task-toolbar" />
             <AButton
               v-if="section === 'habits'"
               type="primary"
@@ -1386,33 +1619,20 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
           </details>
         </div>
 
-        <div v-if="state.error" class="todo-error todo-alert" role="alert">
+        <div v-if="state.error && !state.conflict && !detailOpen" class="todo-error todo-alert" role="alert">
           {{ state.error
           }}<AButton html-type="button" class="todo-link" @click="state.error = ''" type="link"
             >关闭提示</AButton
           >
         </div>
+        <div v-if="state.conflict && !detailOpen" class="todo-error todo-alert" role="alert">
+          <span>这份任务有更新需要比较，本地修改仍保留。</span>
+          <AButton type="link" @click="detailOpen = true">打开任务核对</AButton>
+        </div>
         <div v-if="taskDestination" class="todo-action-feedback" role="status">
           <span>{{ taskDestination.message }}</span
           ><AButton type="link" @click="openTaskDestination">{{ taskDestination.label }}</AButton>
         </div>
-        <div v-else-if="state.completionFeedback" class="todo-action-feedback" role="status">
-          <span>已完成「{{ state.completionFeedback.title }}」</span>
-          <AButton
-            v-if="state.completionFeedback.undoable"
-            type="link"
-            :disabled="state.busy"
-            @click="model.undoCompletion()"
-            >撤销</AButton
-          >
-          <AButton
-            v-if="section !== 'tasks' || quickView !== 'done'"
-            type="link"
-            @click="chooseQuickView('done')"
-            >查看已完成</AButton
-          >
-        </div>
-        <p v-else-if="state.notice" class="todo-notice" role="status">{{ state.notice }}</p>
         <AButton
           v-if="createdNoteId && !detailOpen"
           class="todo-link todo-open-output"
@@ -1424,6 +1644,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
           打开成果笔记 ↗
         </AButton>
         <p v-if="state.localWarning" class="todo-warning" role="alert">{{ state.localWarning }}</p>
+        <p v-if="state.recoveryStatus === 'unavailable'" class="todo-warning" role="alert">此浏览器暂时无法保存恢复记录，请保存任务后再离开。</p>
         <div
           v-if="state.pendingMutation && !state.busy"
           class="todo-panel todo-pad todo-pending-request"
@@ -1457,6 +1678,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         >
           <KeepAlive
             ><ToDooTaskViews
+              ref="taskViewsRef"
+              :toolbar-target="taskToolbarTarget"
               v-if="taskSections.includes(section)"
               :model="model"
               :tree="tree"
@@ -1464,6 +1687,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               :quick-view="quickView"
               :scope-list-id="selection.list"
               :creating="creating"
+              v-model:density="density"
               @quick-filter="chooseQuickView"
               @clear-filters="clearScopeFilters"
               @search-all="searchAllTasks"
@@ -1525,6 +1749,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               :context="pageContext"
               @context-change="changePageContext"
               @resume-outcome="resumeOutcome"
+              @task-scope="chooseQuickView"
+              @open-plugin-settings="emit('open-plugin-settings')"
               @open-note="emit('open-note', $event)"
               @edit="edit"
           /></KeepAlive>
@@ -1549,6 +1775,14 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         </div>
       </div>
     </main>
+    <div v-if="!taskDestination && state.completionFeedback" class="todo-action-feedback todo-transient-feedback" role="status"
+      @mouseenter="completionInteraction('hover', true)" @mouseleave="completionInteraction('hover', false)"
+      @focusin="completionInteraction('focus', true)" @focusout="completionFocusOut">
+      <span>已完成「{{ state.completionFeedback.title }}」</span>
+      <AButton v-if="state.completionFeedback.undoable" type="link" :disabled="state.busy" @click="model.undoCompletion()">撤销</AButton>
+      <AButton v-if="section !== 'tasks' || quickView !== 'done'" type="link" @click="chooseQuickView('done')">查看已完成</AButton>
+    </div>
+    <p v-else-if="!taskDestination && state.notice" class="todo-notice todo-transient-notice" role="status">{{ state.notice }}</p>
     <nav class="todo-bottom-navigation" aria-label="To Doo 快捷导航">
       <AButton
         type="text"
@@ -1611,23 +1845,22 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         :model="model"
         :tree="tree"
         :creating="creating"
+        :adjacent-tasks="adjacentTasks"
         :parent-task-id="parentId"
         :list-id="creating ? creatingListId : selection.list"
         :created-note-id="state.selectedTaskId === createdNoteTaskId ? createdNoteId : undefined"
         @close="closeDetail"
+        @step="stepDetail"
         @created="created"
         @list-created="loadLists()"
         @saved="taskSaved"
+        @retry="retryOriginal"
         @select="selectTask"
         @edit="edit"
         @open-note="emit('open-note', $event)"
         @child="create"
         @outcome-note="openOutcomeNote"
-        @focus="
-          focusOccurrence = $event || '';
-          detailOpen = false;
-          chooseDestination('focus');
-        "
+        @focus="startTaskFocus"
       />
     </div>
     <ToDooOutcomeNote
@@ -1668,6 +1901,22 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       @close="closeEditor"
       @open-note="emit('open-note', $event)"
     />
+    <AModal :open="draftManagerOpen" title="任务草稿" :footer="null" wrap-class-name="todo-ant-modal" @cancel="draftManagerOpen = false">
+      <p class="todo-muted">草稿保留在此浏览器，点击保存任务后才会提交到服务器。</p>
+      <div v-if="state.legacyRecoveryAvailable" class="todo-alert todo-warning" role="status">
+        <span>发现旧版本地恢复记录，需确认账号归属后恢复。</span><AButton type="link" :disabled="state.busy" @click="recoverLegacyDrafts">检查并恢复</AButton>
+      </div>
+      <div v-for="entry in retainedEdits" :key="entry.key" class="todo-draft-manager-row">
+        <span>{{ entry.title || '未命名任务' }}<small>{{ entry.recovered ? '恢复的修改' : '未保存修改' }}</small><small v-if="state.unavailableDrafts[entry.key]">{{ state.unavailableDrafts[entry.key] }}</small></span>
+        <AButton @click="continueTaskDraft(entry.key)">继续编辑</AButton><AButton danger type="text" :disabled="state.busy || !!state.pendingMutation" @click="discardTaskDraft(entry.key)">放弃</AButton>
+      </div>
+      <div v-for="entry in retainedTaskDrafts" :key="entry.key" class="todo-draft-manager-row">
+        <span>{{ entry.draft.title || '未命名任务' }}<small>新建草稿</small></span>
+        <AButton @click="draftManagerOpen = false; continueNewDraft(entry.key)">继续编辑</AButton>
+        <AButton danger type="text" :disabled="state.busy || !!state.pendingMutation" @click="discardNewTaskDraft(entry.key)">放弃</AButton>
+      </div>
+      <p v-if="!retainedEdits.length && !retainedTaskDrafts.length" class="todo-muted">没有未保存的任务草稿</p>
+    </AModal>
     <AModal
       :open="leaving"
       title="尚有未保存内容"
@@ -1678,9 +1927,10 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       wrap-class-name="todo-ant-modal todo-leave-modal"
       @cancel="finishLeave(false)"
     >
-      <p>可以继续编辑，或明确放弃尚未提交的表单后离开。</p>
+      <p>尚有内容没有保存到服务器。</p>
       <div class="todo-ant-modal-actions">
         <AButton type="primary" @click="finishLeave(false)">继续编辑</AButton>
+        <AButton v-if="!hasNonRecoverableChanges()" @click="keepDraftsAndLeave">保留草稿并离开</AButton>
         <AButton danger @click="finishLeave(true)">放弃更改并离开</AButton>
       </div>
     </AModal>
@@ -1699,4 +1949,27 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       <p>{{ confirmRequest?.content }}</p>
     </AModal>
   </section>
+  </AConfigProvider>
 </template>
+<style src="../to-doo-planning-layout.css"></style>
+<style scoped>
+.todo-transient-notice, .todo-transient-feedback {
+  grid-row: 2;
+  grid-column: var(--todo-main-grid-column, 2);
+  place-self: end;
+  margin: 0 var(--todo-space-16) var(--todo-space-16);
+  position: relative;
+  z-index: 20;
+  max-width: min(440px, calc(100% - 32px));
+  padding: 10px 16px;
+  color: var(--todo-ink);
+  background: var(--todo-paper);
+  border: 1px solid var(--todo-line);
+  border-radius: var(--todo-radius);
+  box-shadow: var(--todo-shadow);
+}
+.todo-transient-notice { pointer-events: none; }
+.todo-draft-manager-row { display: flex; align-items: center; gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--todo-line); }
+.todo-draft-manager-row > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.todo-draft-manager-row small { display: block; color: var(--todo-muted); }
+</style>

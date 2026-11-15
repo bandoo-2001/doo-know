@@ -85,6 +85,7 @@ test('clearing a search keeps the Today scope and removes only extra filters', a
 
   await expect.poll(() => new URL(page.url()).searchParams.get('taskFilter')).toBe('today');
   await expect(page.locator('.todo-page h1')).toHaveText('今天');
+  await openToDooTaskTools(page);
   await expect(search).toHaveValue('');
   await expect(filters).toHaveCount(0);
 });
