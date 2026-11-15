@@ -83,6 +83,24 @@ const propertyFields = ref<HTMLElement>();
 type DetailPanel = 'due' | 'priority' | 'list' | 'plan' | 'repeat' | 'reminders' | 'resources' | 'classification' | 'attachments' | 'results' | 'properties' | 'records' | 'history';
 const detailPanel = ref<DetailPanel>();
 const propertyOpen = ref(false);
+let propertyTrigger: HTMLElement | null = null;
+watch(propertyOpen, open => {
+  if (!open || typeof document === 'undefined') return;
+  const active = document.activeElement as HTMLElement | null;
+  propertyTrigger = active?.closest?.('.todo-ant-popup')
+    ? detailElement.value?.querySelector<HTMLElement>('[aria-label="更多任务属性"]') ?? null
+    : active;
+}, { flush: 'sync' });
+function restorePropertyFocus() {
+  if (propertyOpen.value) return;
+  const trigger = propertyTrigger;
+  propertyTrigger = null;
+  const active = document.activeElement;
+  if (trigger?.isConnected && trigger.getClientRects().length &&
+    (active === document.body || active?.closest('.todo-property-modal'))) {
+    trigger.focus({ preventScroll: true });
+  }
+}
 const panelLabels: Record<DetailPanel, string> = {
   due: '截止日期', priority: '优先级', list: '所属清单', plan: '时间安排', repeat: '重复规则', reminders: '任务提醒', resources: '关联资料', classification: '四象限归类',
   attachments: '任务附件', results: '完成标准与成果', properties: '其他属性', records: '推进记录', history: '操作历史',
@@ -319,6 +337,24 @@ function shortcut(event: KeyboardEvent) {
   event.stopPropagation();
   if (propertyOpen.value) completeProperty();
   else void (props.creating ? create() : save());
+}
+let pickerEscape: KeyboardEvent | undefined;
+function capturePickerEscape(event: KeyboardEvent) {
+  if (event.target instanceof Element && event.target.closest('.ant-picker')) {
+    const popup = document.querySelector<HTMLElement>(
+      '.ant-picker-dropdown:not(.ant-picker-dropdown-hidden):not([class*="-leave"])',
+    );
+    // Ant starts its exit animation in the input handler, before this key bubbles back.
+    if (popup?.getClientRects().length) pickerEscape = event;
+  }
+}
+function propertyKeydown(event: KeyboardEvent) {
+  if (event === pickerEscape) {
+    pickerEscape = undefined;
+    event.stopPropagation();
+    return;
+  }
+  shortcut(event);
 }
 function changeList(listId: string | null) {
   if (!form.value) return;
@@ -1066,8 +1102,10 @@ defineExpose({
           </AMenu></template>
         </ADropdown>
         </div>
-        <AModal :open="propertyOpen" :title="detailPanel ? panelLabels[detailPanel] : ''" :width="560" wrap-class-name="todo-ant-modal todo-property-modal" @cancel="closeProperty">
-          <fieldset ref="propertyFields" class="todo-form todo-create-fields todo-detail-options" :disabled="state.busy" @keydown="shortcut">
+        <AModal :open="propertyOpen" :title="detailPanel ? panelLabels[detailPanel] : ''" :width="560"
+          wrap-class-name="todo-ant-modal todo-property-modal" :after-close="restorePropertyFocus" @cancel="closeProperty">
+          <fieldset ref="propertyFields" class="todo-form todo-create-fields todo-detail-options" :disabled="state.busy"
+            @keydown.esc.capture="capturePickerEscape" @keydown="propertyKeydown">
             <p v-if="validationError" class="todo-danger" role="alert">{{ validationError }}</p>
             <section v-if="detailPanel === 'list'" class="todo-form">
         <div class="todo-document-meta">

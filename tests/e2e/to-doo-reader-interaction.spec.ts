@@ -72,6 +72,26 @@ test('read adjacent tasks in list order, keep the unsaved note and return to the
   expect(saved.tasks.find(task => task.id === firstId)?.description).toBe('');
 });
 
+test('Escape dismisses the calendar and the property dialog one at a time and restores focus', async ({ page }) => {
+  const rows = await openTaskList(page);
+  await rows.first().click();
+  const reader = page.getByRole('complementary', { name: '任务详情', exact: true });
+  const edit = reader.getByRole('button', { name: '编辑截止日期' });
+  await edit.click();
+  const property = page.getByRole('dialog', { name: '截止日期', exact: true });
+  const date = property.getByLabel('截止日期', { exact: true });
+  await date.click();
+  const calendar = page.locator('.ant-picker-dropdown:visible');
+  await expect(calendar).toBeVisible();
+  await date.press('Escape');
+  await expect(calendar).toBeHidden();
+  await expect(date).toBeFocused();
+  await date.press('Escape');
+  await expect(property).toBeHidden();
+  await expect(edit).toBeFocused();
+  await expect(reader).toBeVisible();
+});
+
 test('an invalid date stays with its task when trying to advance from the reader', async ({ page }) => {
   const rows = await openTaskList(page);
   await rows.nth(0).click();
