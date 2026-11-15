@@ -89,14 +89,14 @@ for (const viewport of [
         await expect(heading.locator('h1')).toBeVisible();
         const metrics = await heading.evaluate((element) => {
           const title = getComputedStyle(element.querySelector('h1')!);
-          const action = element.querySelector<HTMLElement>('.todo-actions > .ant-btn')!;
-          const actionStyle = getComputedStyle(action);
+          const action = [...element.querySelectorAll<HTMLElement>('.todo-actions .ant-btn')].find(button => button.getBoundingClientRect().height > 0);
+          const actionStyle = action ? getComputedStyle(action) : undefined;
           return {
             titleFont: title.fontSize,
             titleWeight: title.fontWeight,
             titleColor: title.color,
-            actionHeight: action.getBoundingClientRect().height,
-            actionFont: actionStyle.fontSize,
+            actionHeight: action?.getBoundingClientRect().height || 0,
+            actionFont: actionStyle?.fontSize || '',
           };
         });
         if (!reference) {
@@ -111,10 +111,12 @@ for (const viewport of [
         expect.soft(metrics.titleFont, section + ': title font').toBe(reference.titleFont);
         expect.soft(metrics.titleWeight, section + ': title weight').toBe(reference.titleWeight);
         expect.soft(metrics.titleColor, section + ': title color').toBe(reference.titleColor);
-        expect
-          .soft(metrics.actionHeight, section + ': main action height')
-          .toBeCloseTo(reference.actionHeight, 0);
-        expect.soft(metrics.actionFont, section + ': main action font').toBe(reference.actionFont);
+        if (section === 'focus') {
+          expect.soft(metrics.actionHeight, 'focus keeps its action with the timer').toBe(0);
+        } else {
+          expect.soft(metrics.actionHeight, section + ': main action height').toBeCloseTo(reference.actionHeight, 0);
+          expect.soft(metrics.actionFont, section + ': main action font').toBe(reference.actionFont);
+        }
 
         // Page actions and the first toolbar share one visual priority level.
         const primaryCount = await app
