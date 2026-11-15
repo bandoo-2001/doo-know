@@ -67,7 +67,7 @@ test('board scope remains visible and column creation saves initial status and c
   expect(data.timeBlocks.find((b: any) => b.occurrenceId === first.id).start.time).toBeNull();
 });
 
-test('matrix direct editor identifies a manual override and restores automatic urgency', async ({
+test('matrix menu identifies the current classification and restores automatic urgency', async ({
   page,
 }, info) => {
   const title = '象限直接配置 ' + info.project.name + '-' + crypto.randomUUID();
@@ -86,11 +86,16 @@ test('matrix direct editor identifies a manual override and restores automatic u
   const item = app(page)
     .locator('.todo-quadrant-item')
     .filter({ has: page.getByRole('button', { name: title, exact: true }) });
-  await expect(item).toContainText('手动不紧急');
-  await selectToDooOption(item, '设置象限 ' + title, '紧急不重要');
+  await expect(item.locator('.todo-matrix-classification')).toHaveCount(0);
+  await item.getByRole('button', { name: '任务操作 ' + title, exact: true }).click();
+  await page.getByRole('menuitem', { name: '归类象限', exact: true }).click();
+  await expect(page.getByRole('menuitem', { name: '重要不紧急 ✓', exact: true })).toBeVisible();
+  await page.getByRole('menuitem', { name: '紧急不重要', exact: true }).click();
   await expect(app(page).locator('.todo-quadrant-delegate')).toContainText(title);
-  await item.getByRole('button', { name: '恢复自动紧急判断 ' + title, exact: true }).click();
-  await expect(item).not.toContainText('手动紧急');
+  await item.getByRole('button', { name: '任务操作 ' + title, exact: true }).click();
+  await page.getByRole('menuitem', { name: '归类象限', exact: true }).click();
+  await page.getByRole('menuitem', { name: '恢复自动紧急判断 ' + title, exact: true }).click();
+  await expect(app(page).locator('.todo-quadrant-later')).toContainText(title);
   const data = await (
     await page.request.get(
       '/api/to-doo/state?filter=' + encodeURIComponent(JSON.stringify({ query: title })),
@@ -103,7 +108,7 @@ test('matrix direct editor identifies a manual override and restores automatic u
   });
 });
 
-test('mobile task tools and dates stay readable with board and quadrant overview jumps', async ({
+test('mobile task tools and dates stay readable with board jumps and four visible quadrants', async ({
   page,
 }, info) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -120,9 +125,9 @@ test('mobile task tools and dates stay readable with board and quadrant overview
   await page.goto('/?view=apps&app=to-doo&appSection=board&list=' + list.ids[0]);
   const tools = app(page).getByRole('button', { name: '搜索任务', exact: true });
   await expect(tools).toBeVisible();
-  await expect(app(page).getByRole('textbox', { name: '搜索任务', exact: true })).not.toBeVisible();
+  await expect(page.getByRole('textbox', { name: '搜索任务', exact: true })).not.toBeVisible();
   await tools.click();
-  await expect(app(page).getByRole('textbox', { name: '搜索任务', exact: true })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: '搜索任务', exact: true })).toBeVisible();
   await tools.click();
   await expect(
     app(page).getByRole('navigation', { name: '看板列概览', exact: true }),
@@ -150,11 +155,10 @@ test('mobile task tools and dates stay readable with board and quadrant overview
     animations: 'disabled',
   });
   await selectToDooTaskView(page, '四象限');
-  await expect(app(page).getByRole('navigation', { name: '象限概览', exact: true })).toBeVisible();
-  await app(page)
-    .getByRole('navigation', { name: '象限概览', exact: true })
-    .getByRole('button', { name: /不紧急不重要/ })
-    .click();
+  await expect(app(page).getByRole('navigation', { name: '象限概览', exact: true })).not.toBeVisible();
+  const quadrants = app(page).locator('.todo-quadrant');
+  await expect(quadrants).toHaveCount(4);
+  for (let index = 0; index < 4; index++) await expect(quadrants.nth(index)).toBeInViewport({ ratio: 1 });
   await page.screenshot({
     path: info.outputPath('mobile-matrix.png'),
     fullPage: true,
@@ -180,8 +184,8 @@ test('completing a filtered parent discovers its hidden child and supports cance
   await expect(app(page).locator('.todo-tree')).toBeVisible();
   const toggle = app(page).getByRole('button', { name: '搜索任务', exact: true });
   if (await toggle.isVisible()) await toggle.click();
-  await app(page).getByRole('textbox', { name: '搜索任务', exact: true }).fill(title);
-  await app(page).getByRole('button', { name: '执行搜索', exact: true }).click();
+  await page.getByRole('textbox', { name: '搜索任务', exact: true }).fill(title);
+  await page.getByRole('button', { name: '执行搜索', exact: true }).click();
   await expect(app(page).locator('.todo-task-row')).toHaveCount(1);
   await app(page)
     .getByRole('button', { name: '完成 ' + title, exact: true })

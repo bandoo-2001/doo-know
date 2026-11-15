@@ -6,6 +6,7 @@ import * as Vue from 'vue';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
+import * as displayPreferences from '../apps/web/to-doo-display-preferences';
 import * as calendarLayout from '../apps/web/to-doo-calendar-layout';
 import * as time from '../apps/web/to-doo-time';
 import * as groups from '../apps/web/to-doo-task-groups';
@@ -73,6 +74,7 @@ function component(name: string): Vue.Component {
       if (id.endsWith('/to-doo-anniversaries')) return anniversaries;
       if (id.endsWith('/to-doo-controls')) return controls;
       if (id.endsWith('/to-doo-action-guard')) return actionGuards;
+      if (id.endsWith('/to-doo-display-preferences')) return displayPreferences;
       if (id === 'ant-design-vue') return { ...toDooAntStubs, Popover: ControlledPopover };
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };
@@ -86,6 +88,7 @@ function component(name: string): Vue.Component {
           }),
         };
       if (id.endsWith('ToDooTaskRow.vue')) return { default: component('ToDooTaskRow') };
+      if (id.endsWith('ToDooTimeBlockFields.vue')) return { default: component('ToDooTimeBlockFields') };
       if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
 
       if (id.endsWith('ToDooPageToolbar.vue')) return { default: component('ToDooPageToolbar') };

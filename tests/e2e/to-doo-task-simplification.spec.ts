@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
+import { openToDooDetailProperty } from '../support/to-doo-detail-controls';
 
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
@@ -126,8 +127,8 @@ test('task details retain subtasks and provide direct reminder editing', async (
       animations: 'disabled',
     });
   }
-  await detail.getByRole('button', { name: '编辑任务提醒', exact: true }).click();
-  await expect(detail.getByRole('button', { name: '＋ 添加提醒', exact: true })).toBeInViewport();
+  const reminders = await openToDooDetailProperty(page, 'reminders');
+  await expect(reminders.getByRole('button', { name: '＋ 添加提醒', exact: true })).toBeInViewport();
 });
 
 test('context menu copy, priority and subtree move leave multi-selection untouched', async ({
@@ -142,8 +143,8 @@ test('context menu copy, priority and subtree move leave multi-selection untouch
   });
   await page.reload();
   await openToDooTaskTools(page);
-  await page.getByRole('button', { name: '任务管理', exact: true }).click();
-  await page.getByRole('menuitem', { name: '多选', exact: true }).click();
+  await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await page.getByRole('menuitem', { name: '选择任务', exact: true }).click();
   const selected = page.getByRole('checkbox', { name: '选择 ' + otherTitle, exact: true });
   await selected.check();
   const row = page
@@ -203,10 +204,13 @@ test('group creation and view switching preserve the group, list and selected ta
       await expect(
         page.getByRole('textbox', { name: '连续安排开始时间', exact: true }),
       ).not.toBeVisible();
-      await page.locator('.todo-plan-disclosure .ant-collapse-header').click();
+      await page.getByRole('button', { name: '日历工具', exact: true }).click();
+      await page.getByRole('menuitem', { name: '连续安排', exact: true }).click();
       await expect(
         page.getByRole('textbox', { name: '连续安排开始时间', exact: true }),
       ).toBeVisible();
+      await page.getByRole('dialog', { name: '连续安排', exact: true }).getByRole('button', { name: '取消', exact: true }).click();
+      await expect(page.getByRole('textbox', { name: '连续安排开始时间', exact: true })).not.toBeVisible();
     }
   }
   const stored = await (await page.request.get('/api/to-doo/state?kind=task&limit=1000')).json();

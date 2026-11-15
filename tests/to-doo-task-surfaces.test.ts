@@ -5,6 +5,7 @@ import ts from 'typescript';
 import * as Vue from 'vue';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
+import * as displayPreferences from '../apps/web/to-doo-display-preferences';
 import * as controls from '../apps/web/to-doo-controls';
 import * as actionGuards from '../apps/web/to-doo-action-guard';
 import * as groups from '../apps/web/to-doo-task-groups';
@@ -55,6 +56,7 @@ function component(name: string): Vue.Component {
       if (id === 'ant-design-vue') return toDooAntStubs;
       if (id.endsWith('/to-doo-controls')) return controls;
       if (id.endsWith('/to-doo-action-guard')) return actionGuards;
+      if (id.endsWith('/to-doo-display-preferences')) return displayPreferences;
       if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
 
       if (id.endsWith('ToDooPageToolbar.vue')) return { default: component('ToDooPageToolbar') };
@@ -374,6 +376,8 @@ describe('task surface controls', () => {
     expect(detail.text(shortcuts())).toContain('每周');
     expect(detail.text(shortcuts())).toContain('1 条');
     expect(detail.text(shortcuts())).toContain('1 份');
+    await detail.ref.value.openProperty('resources');
+    await Vue.nextTick();
     expect(
       detail.all().filter((node) => node.tag === 'summary' && detail.text(node) === '关联资料1'),
     ).toHaveLength(1);
@@ -1096,4 +1100,51 @@ test('capture keeps detailed creation available after focus without a redundant 
   expect(detailButtons()).toHaveLength(1);
   detailButtons()[0].props.onClick();
   expect(expand).toHaveBeenCalledOnce();
+});
+
+
+test('optional metadata switches preserve task status, plan and overdue deadline without changing entities', () => {
+  const value = model();
+  const base = value.items()[0];
+  const task = toDooEntitySchemas.task.parse({ ...base.task, listId: 'work', noteRefs: [{ noteId: 'note-a', role: 'material', title: '参考资料' }], recurrence: { id: 'rule-a', frequency: 'daily', anchorDate: '2026-10-29', timeZone: 'UTC' } });
+  const stamp = { revision: 'r1', createdAt: '2026-10-29T08:00:00Z', updatedAt: '2026-10-29T08:00:00Z' };
+  const item = { ...base, task, status: 'blocked' as const, list: toDooEntitySchemas.list.parse({ ...stamp, id: 'work', name: '工作' }),
+    occurrence: { ...base.occurrence!, status: 'blocked' as const, due: { date: '2026-10-28', time: null, timeZone: 'UTC' } },
+    blocks: [toDooEntitySchemas.timeBlock.parse({ ...stamp, id: 'block-a', occurrenceId: 'occ-a', start: { date: '2026-10-29', time: '10:00', timeZone: 'UTC' }, durationMinutes: 30 })],
+  };
+  const before = JSON.stringify(item);
+  const row = mount('ToDooTaskRow', { item, today: '2026-10-30', timeZone: 'UTC', displayFields: { list: false, priority: false, recurrence: false, resources: false } });
+  expect(row.byClass('todo-priority-label')).toHaveLength(0);
+  expect(row.byClass('todo-row-list')).toHaveLength(0);
+  expect(row.all().filter((node) => String(node.props['aria-label'] || '').startsWith('关联资料 '))).toHaveLength(0);
+  expect(row.all().filter((node) => node.props['aria-label'] === '重复任务')).toHaveLength(0);
+  expect(row.text(row.byClass('todo-task-meta')[0])).toContain('受阻');
+  expect(row.byClass('todo-task-date')).toHaveLength(2);
+  expect(row.text(row.byClass('todo-task-dates')[0])).toContain('计划');
+  expect(row.text(row.byClass('todo-task-dates')[0])).toContain('截止');
+  expect(row.byClass('todo-danger')).toHaveLength(1);
+  expect(JSON.stringify(item)).toBe(before);
+});
+
+
+test('display field choices survive remount and only hide the selected optional field', async () => {
+  const saved = new Map<string, string>();
+  vi.stubGlobal('localStorage', { getItem: (key: string) => saved.get(key) || null, setItem: (key: string, value: string) => saved.set(key, value), removeItem: (key: string) => saved.delete(key) });
+  const firstModel = model();
+  const originalTasks = JSON.stringify(firstModel.state.snapshot!.tasks);
+  const execute = vi.spyOn(firstModel, 'execute');
+  const first = mount('ToDooTaskViews', { model: firstModel, section: 'tasks', tree: [], creating: true });
+  expect(first.byClass('todo-priority-label')).toHaveLength(1);
+  const option = (view: ReturnType<typeof mount>, label: string) => view.all().find((node) => node.tag === 'input' && node.parent?.tag === 'label' && view.text(node.parent) === label)!;
+  option(first, '优先级').props.onChange({ target: { checked: false } });
+  await Vue.nextTick();
+  expect(first.byClass('todo-priority-label')).toHaveLength(0);
+  expect(option(first, '清单').props.checked).toBe(true);
+  expect(option(first, '重复').props.checked).toBe(true);
+  expect(JSON.stringify(firstModel.state.snapshot!.tasks)).toBe(originalTasks);
+  expect(execute).not.toHaveBeenCalled();
+  const restored = mount('ToDooTaskViews', { model: model(), section: 'tasks', tree: [], creating: true });
+  expect(option(restored, '优先级').props.checked).toBe(false);
+  expect(restored.byClass('todo-priority-label')).toHaveLength(0);
+  expect(restored.byClass('todo-task-dates')).toHaveLength(1);
 });

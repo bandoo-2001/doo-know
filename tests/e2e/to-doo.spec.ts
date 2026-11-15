@@ -16,8 +16,9 @@ async function expectToDooPageReady(app: Locator) {
 }
 
 async function showCompletedTasks(app: Locator) {
-  const show = app.getByRole('button', { name: '显示已完成任务', exact: true });
-  if (await show.isVisible()) await show.click();
+  await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await app.page().getByRole('checkbox', { name: '显示已完成任务', exact: true }).check();
+  await app.page().keyboard.press('Escape');
 }
 
 async function openTaskProperty(page: Page, detail: Locator, name: string) {

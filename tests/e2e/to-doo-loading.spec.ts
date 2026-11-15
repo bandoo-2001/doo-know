@@ -80,7 +80,7 @@ test('an initial task request shows Ant skeletons until the usable task list arr
     await expect(workspace(page).locator('.todo-tree')).toBeVisible();
     await openToDooTaskTools(page);
     await expect(
-      workspace(page).getByRole('textbox', { name: '搜索任务', exact: true }),
+      page.getByRole('textbox', { name: '搜索任务', exact: true }),
     ).toBeVisible();
     await expect(workspace(page).locator('.todo-main')).toHaveAttribute('aria-busy', 'false');
     await expect(loading).toHaveCount(0);
@@ -95,12 +95,13 @@ test('a failed refresh retains the task DOM, search focus and content position',
   await page.goto(tasksUrl);
   const app = workspace(page),
     main = app.locator('.todo-main'),
-    search = app.getByRole('textbox', { name: '搜索任务', exact: true }),
+    search = page.getByRole('textbox', { name: '搜索任务', exact: true }),
     tree = app.locator('.todo-tree');
   await expect(tree).toBeVisible();
   await expect(main).toHaveAttribute('aria-busy', 'false');
-  await openToDooTaskTools(page);
   await app.getByRole('button', { name: '显示选项', exact: true }).click();
+  await expect(page.getByRole('button', { name: '刷新内容', exact: true })).toBeVisible();
+  await openToDooTaskTools(page);
   await search.focus();
   const originalSearch = await search.elementHandle(),
     originalTree = await tree.elementHandle(),
@@ -114,7 +115,7 @@ test('a failed refresh retains the task DOM, search focus and content position',
   });
   try {
     // Trigger the same refresh action without moving keyboard focus to its button.
-    await page.getByRole('button', { name: '刷新内容', exact: true }).dispatchEvent('click');
+    await page.getByRole('button', { name: '刷新内容', exact: true, includeHidden: true }).dispatchEvent('click');
     await requested.promise;
     const refreshing = status(page, refreshLabel);
     await expect(refreshing).toBeVisible();

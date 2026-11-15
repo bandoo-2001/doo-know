@@ -142,6 +142,9 @@ export async function selectToDooTaskView(
   label: '列表' | '看板' | '四象限' | '时间线',
 ) {
   await expect(page.locator('.todo-task-toolbar')).toBeVisible();
+  const picker = page.getByRole('combobox', { name: '任务展示方式', exact: true });
+  if (!(await picker.isVisible()))
+    await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
   await selectToDooOption(page, '任务展示方式', label);
 }
 
@@ -156,6 +159,6 @@ export async function openToDooTaskTools(page: Page) {
     if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   }
-  await expect(toolbar.getByRole('textbox', { name: '搜索任务', exact: true })).toBeVisible();
-  await expect(toolbar.getByRole('button', { name: '任务管理', exact: true })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: '搜索任务', exact: true })).toBeVisible();
+  await expect(toolbar.getByRole('button', { name: '任务显示与管理', exact: true })).toBeVisible();
 }
