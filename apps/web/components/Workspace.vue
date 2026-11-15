@@ -21,11 +21,8 @@ import { knowledgeMarkdown } from '../../../shared/knowledge-markdown';
 
 import { defineAsyncComponent, ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { NModal, NAlert } from 'naive-ui';
-import { Button as AButton, Input as AInput, Alert as AAlert, Select as ASelect, Popover as APopover, Modal as AModal, ConfigProvider as AConfigProvider } from 'ant-design-vue';
-import { toDooAntTheme } from '../ant-design';
-import { resolvedTheme } from '../preferences';
-import '../to-doo-ant.css';
-import '../to-doo-tokens.css';
+import { Button as AButton, Input as AInput, Alert as AAlert, Select as ASelect, Popover as APopover } from 'ant-design-vue';
+import ToDooCaptureDialog from './to-doo/ToDooCaptureDialog.vue';
 import MarkdownIt from 'markdown-it';
 import { markdownStyles } from '../../../shared/markdown-styles';
 import DOMPurify from 'dompurify';
@@ -3642,8 +3639,7 @@ async function closeNotebookDrawer() {
       @moved="moved"
     />
     <NoteCopyDialog v-model:show="copyOpen" :note-id="copyTarget?.id" :relative-path="copyTarget?.path" :folders="folders" @copied="copied" />
-    <AConfigProvider :theme="toDooAntTheme(resolvedTheme)">
-    <AModal v-model:open="toDooCaptureOpen" :footer="null" wrap-class-name="todo-ant-modal" title="从资料创建任务" :mask-closable="!toDooCaptureBusy" :keyboard="!toDooCaptureBusy" :closable="!toDooCaptureBusy">
+    <ToDooCaptureDialog v-model:open="toDooCaptureOpen" :busy="toDooCaptureBusy">
       <form v-if="capturedTask" class="to-doo-capture-form" @submit.prevent="saveCapturedTask">
         <label>任务标题<AInput v-model:value="capturedTask.title" aria-label="任务标题" :maxlength="256" :disabled="toDooCaptureBusy" /></label>
         <label>目标或清单<ASelect v-model:value="capturedList" aria-label="目标或清单" :options="[{label:'收集箱',value:'inbox'},...captureLists.map(list=>({label:list.name,value:list.id}))]" :disabled="toDooCaptureBusy" /></label>
@@ -3652,8 +3648,7 @@ async function closeNotebookDrawer() {
         <AAlert v-if="toDooCaptureError" type="error" :message="toDooCaptureError" role="alert" />
         <div class="dialog-actions"><AButton :disabled="toDooCaptureBusy" @click="toDooCaptureOpen=false">取消</AButton><AButton type="primary" html-type="submit" :loading="toDooCaptureBusy" :disabled="!capturedTask.title.trim()">创建任务</AButton></div>
       </form>
-    </AModal>
-    </AConfigProvider>
+    </ToDooCaptureDialog>
     <NModal
       v-model:show="importOpen"
       preset="card"
