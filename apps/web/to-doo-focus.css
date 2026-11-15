@@ -14,9 +14,24 @@
   flex: 1;
   flex-direction: column;
   gap: var(--todo-space-16);
-  width: min(100%, 1040px);
+  width: 100%;
   min-width: 0;
 }
+.to-doo-workspace .todo-page-focus {
+  max-width: calc(var(--todo-desktop-work-width, 1200px) + 2 * var(--todo-page-padding));
+  margin-inline: auto;
+}
+.todo-focus-console,
+.todo-focus-library {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: inherit;
+}
+.todo-focus-library { container: focus-library / inline-size; flex: 1; }
+.todo-focus-overview { container: focus-overview / inline-size; }
+.todo-focus-log,
+.todo-focus-overview { min-width: 0; }
 .todo-focus-panels { flex: 1; min-width: 0; }
 
 /* Keep the clock, session context and transport controls together on the same baseline. */
@@ -150,6 +165,18 @@
   color: var(--todo-muted);
 }
 .todo-focus-mobile-panes { align-self: flex-start; max-width: 100%; }
+
+@container (min-width: 601px) {
+  .todo-focus-timer {
+    grid-template-areas: "dial context context" "dial task task" "dial actions settings";
+    grid-template-columns: var(--focus-dial-size) auto minmax(0, 1fr);
+    justify-content: start;
+  }
+  .todo-focus-timer:not(:has(.todo-focus-primary-task)) {
+    grid-template-areas: "dial context context" "dial actions settings";
+  }
+  .todo-focus-settings-toggle.ant-btn { justify-self: start; }
+}
 
 .todo-focus-projects,
 .todo-focus-records { min-width: 0; scroll-margin-block: var(--todo-space-16); }
@@ -421,6 +448,63 @@
   overflow: auto;
 }
 .todo-focus-settings-close { margin-top: var(--todo-space-24); }
+
+/* When the timer sits above the library, use the width for shorter project rows
+   and keep the record list in view while its overview expands. */
+@container focus-library (min-width: 960px) {
+  .todo-focus-projects:has(.todo-focus-topic:nth-of-type(4)) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    column-gap: var(--todo-space-24);
+  }
+  .todo-focus-projects > :not(.todo-focus-topic) { grid-column: 1 / -1; }
+  .todo-focus-topic + .todo-focus-topic { margin-top: 0; }
+  .todo-focus-projects { max-height: max(200px, calc(100dvh - 410px)); }
+  .todo-focus-records {
+    display: grid;
+    grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+    align-items: start;
+    column-gap: var(--todo-space-32);
+  }
+}
+
+/* Large monitors have room to keep the timer in place while the right pane
+   changes between the project list and the history. */
+@container (min-width: 1480px) {
+  .todo-focus-workspace {
+    display: grid;
+    grid-template-columns: minmax(340px, .58fr) minmax(0, 1fr);
+    align-items: start;
+    align-content: start;
+    column-gap: var(--todo-space-32);
+  }
+  .todo-focus-console {
+    position: sticky;
+    top: var(--todo-space-24);
+    padding-inline-end: var(--todo-space-32);
+    border-inline-end: 1px solid var(--todo-line);
+  }
+  .todo-focus-console .todo-focus-timer,
+  .todo-focus-console .todo-focus-timer:not(:has(.todo-focus-primary-task)) {
+    --focus-dial-size: 172px;
+    grid-template-areas: "dial" "context" "task" "actions";
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: var(--todo-space-12);
+    padding: var(--todo-space-12) 0 var(--todo-space-24);
+    border: 0;
+  }
+  .todo-focus-console .todo-focus-timer:not(:has(.todo-focus-primary-task)) {
+    grid-template-areas: "dial" "context" "actions";
+  }
+  .todo-focus-timer-context { max-width: 100%; text-align: center; }
+  .todo-focus-session-meta,
+  .todo-focus-timer-actions { justify-content: center; }
+  .todo-focus-primary-task { width: 100%; }
+  .todo-focus-settings-toggle.ant-btn { grid-area: dial; justify-self: end; align-self: start; }
+  .todo-focus-retained-note { grid-column: 1 / -1; }
+}
 
 @container (max-width: 600px) {
   .todo-focus-timer,

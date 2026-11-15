@@ -924,6 +924,7 @@ async function resolveNoteConflict(merge: boolean) {
 
 <template>
   <div ref="focusRoot" class="todo-focus-workspace">
+    <div class="todo-focus-console">
     <section
       class="todo-focus-timer"
       :data-status="active?.status ?? 'idle'"
@@ -1020,6 +1021,8 @@ async function resolveNoteConflict(merge: boolean) {
         >
       </div>
     </section>
+    </div>
+    <div class="todo-focus-library">
     <ASegmented
       v-if="!contextualNavigation"
       v-model:value="mobilePane"
@@ -1135,6 +1138,7 @@ async function resolveNoteConflict(merge: boolean) {
         class="todo-focus-records"
         aria-label="专注概览和历史"
       >
+        <div class="todo-focus-overview">
         <ToDooSectionHeader title="专注概览"
           ><AButton
             type="text"
@@ -1182,6 +1186,8 @@ async function resolveNoteConflict(merge: boolean) {
             suffix="分钟"
           />
         </div>
+        </div>
+        <div class="todo-focus-log">
         <ToDooSectionHeader title="专注记录"
           ><ToDooSelect
             :value="period"
@@ -1345,7 +1351,9 @@ async function resolveNoteConflict(merge: boolean) {
             }}
           </p>
         </div>
+        </div>
       </aside>
+    </div>
     </div>
     <section
       v-for="id in Object.keys(notes).filter((id) => id !== active?.id)"
