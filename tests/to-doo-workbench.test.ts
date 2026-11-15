@@ -875,6 +875,8 @@ describe('To Doo workbench', () => {
         start: { date: '2030-05-20' },
       });
       await model.rebaseDraft();
+      expect(model.state.draftConflicts).toMatchObject([{ kind: 'timeBlock', field: 'start' }]);
+      model.resolveAllDraftConflicts('local');
       model.draft()!.blocks[0]!.start.date = '2030-05-21';
       await model.saveTask();
       expect(model.state.error).toBe('');
@@ -2066,6 +2068,167 @@ for (const recovered of [false, true]) {
     },
   );
 }
+
+describe('versioned editing recovery and action guards', () => {
+  function storageFixture() {
+    const values = new Map<string, string>();
+    vi.stubGlobal('localStorage', { getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => values.set(key, value) });
+    return values;
+  }
+  test('restores an existing edit, empty title and a new unsaved plan without claiming server persistence', async () => {
+    const storage = storageFixture();
+    try {
+      const server = transport(), first = createToDooWorkbench(server.request);
+      await first.load(); first.selectTask('task-a');
+      first.draft()!.task.title = '';
+      first.draft()!.task.description = '刷新前的输入';
+      first.draft()!.blocks.push({ ...toDooEntitySchemas.timeBlock.parse({ ...stamp, id: 'local-plan',
+        occurrenceId: 'occ-a', start: { date: '2026-11-18' }, durationMinutes: 30 }), revision: '' });
+      expect(first.flushRecovery()).toBe(true);
+      expect(JSON.parse(storage.get('dooknow.to-doo.recovery:test')!).schemaVersion).toBe(2);
+      const second = createToDooWorkbench(server.request);
+      await second.load(); second.selectTask('task-a', 'occ-a');
+      expect(second.draft()?.task).toMatchObject({ title: '', description: '刷新前的输入' });
+      expect(second.draft()?.blocks[0]).toMatchObject({ id: 'local-plan', revision: '' });
+      expect(second.retainedTaskDrafts()).toMatchObject([{ recovered: true, key: 'task-a@occ-a' }]);
+      expect(server.data.tasks[0].description).toBe('');
+      expect(second.dirty()).toBe(true);
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('a restored conflicting field cannot be submitted until an explicit choice, even after another reload', async () => {
+    storageFixture();
+    try {
+      const server = transport(); let writes = 0;
+      const request = async (url: string, method = 'GET', body?: unknown) => {
+        if (method !== 'GET') writes++;
+        return server.request(url, method, body);
+      };
+      const first = createToDooWorkbench(request); await first.load(); first.selectTask('task-a');
+      first.draft()!.task.title = '本地标题'; first.flushRecovery();
+      server.data.tasks[0].title = '远端标题'; server.data.tasks[0].revision = 'remote-title';
+      const restored = createToDooWorkbench(request); await restored.load(); restored.selectTask('task-a', 'occ-a');
+      expect(await restored.rebaseDraft()).toBe(false);
+      expect(restored.state.draftConflicts).toMatchObject([{ kind: 'task', field: 'title', local: '本地标题', remote: '远端标题' }]);
+      await restored.saveTask(); expect(writes).toBe(0);
+      const third = createToDooWorkbench(request); await third.load(); third.selectTask('task-a', 'occ-a');
+      expect(await third.rebaseDraft()).toBe(false);
+      expect(third.state.conflictDraftKey).toBe('task-a@occ-a');
+      third.resolveAllDraftConflicts('local');
+      await third.saveTask();
+      expect(writes).toBe(1); expect(server.data.tasks[0].title).toBe('本地标题');
+      expect(third.dirty()).toBe(false);
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('legacy new-draft and pending records stay readable and are not discarded with an existing edit', async () => {
+    const storage = storageFixture();
+    try {
+      const source = createToDooWorkbench(transport().request); await source.load();
+      const newDraft = { ...source.newTaskDraft(), title: '旧新建草稿' };
+      const pending = { requestId: 'lost-request', action: 'create_task', payload: { title: '待核对' } };
+      storage.set('dooknow.to-doo.recovery:test', JSON.stringify({ drafts: { '@': newDraft }, pending }));
+      const restored = createToDooWorkbench(transport().request); await restored.load();
+      expect(restored.newTaskDraft().title).toBe('旧新建草稿');
+      expect(restored.state.pendingMutation).toMatchObject(pending);
+      restored.selectTask('task-a'); restored.draft()!.task.description = '待放弃';
+      restored.discardDraft();
+      expect(restored.state.pendingMutation).toMatchObject(pending);
+      expect(JSON.parse(storage.get('dooknow.to-doo.recovery:test')!).pending.requestId).toBe('lost-request');
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('failed or unreadable storage remains an explicit failure without erasing the recovery record', async () => {
+    const storage = storageFixture();
+    try {
+      const unknownRecord = JSON.stringify({ schemaVersion: 999, edits: { future: 'retain' } });
+      storage.set('dooknow.to-doo.recovery:test', unknownRecord);
+      const model = createToDooWorkbench(transport().request); await model.load(); model.selectTask('task-a');
+      model.draft()!.task.description = '仍在内存';
+      expect(model.flushRecovery()).toBe(false);
+      expect(model.state.recoveryStatus).toBe('unavailable');
+      expect(storage.get('dooknow.to-doo.recovery:test')).toBe(unknownRecord);
+      expect(model.hasUnsavedChanges()).toBe(true);
+      vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => { throw Error('quota'); } });
+      const quota = createToDooWorkbench(transport().request); await quota.load(); quota.selectTask('task-a');
+      quota.draft()!.task.description = '容量失败';
+      expect(quota.flushRecovery()).toBe(false); expect(quota.state.localWarning).toContain('不能保存恢复信息');
+      expect(quota.draft()!.task.description).toBe('容量失败');
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('account scopes and datasets cannot adopt another identity\'s existing drafts', async () => {
+    storageFixture();
+    try {
+      const data = transport(); const a = createToDooWorkbench(data.request, { recoveryScope: 'account-a' });
+      await a.load(); a.selectTask('task-a'); a.draft()!.task.description = 'A私有输入'; a.flushRecovery();
+      const b = createToDooWorkbench(data.request, { recoveryScope: 'account-b' });
+      await b.load(); expect(b.retainedTaskDrafts()).toEqual([]);
+      const aAgain = createToDooWorkbench(data.request, { recoveryScope: 'account-a' });
+      await aAgain.load(); expect(aAgain.retainedTaskDrafts()[0]?.draft.task.description).toBe('A私有输入');
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('action preparation finds hidden-period, descendant and not-yet-created child drafts', async () => {
+    const data = snapshot(), parent = data.tasks[0];
+    data.tasks.push({ ...parent, id: 'child', title: '后代任务', parentTaskId: parent.id });
+    data.occurrences.push({ ...data.occurrences[0], id: 'child-occ', taskId: 'child' },
+      { ...data.occurrences[0], id: 'another-period', cycleKey: 'later' });
+    const model = createToDooWorkbench(transport(data).request); await model.load();
+    model.selectTask('task-a', 'another-period'); model.draft()!.task.description = '隐藏周期输入';
+    model.selectTask('child', 'child-occ'); model.draft()!.task.title = '后代草稿';
+    model.newTaskDraft('child').title = '未创建后代'; model.selectTask('');
+    expect(await model.prepareTaskAction(['task-a'])).toMatchObject([
+      { key: 'task-a@another-period', kind: 'task' }, { key: 'child@child-occ', kind: 'task' },
+      { taskId: 'child', occurrenceId: '', title: '未创建后代', kind: 'new' },
+    ]);
+  });
+  test('saving a parent list change moves the frozen subtree without an invalid single-task list patch', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const first = f.service.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+        payload: { kind: 'list', entity: { name: '原清单' } } }).ids[0];
+      const second = f.service.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+        payload: { kind: 'list', entity: { name: '目标清单' } } }).ids[0];
+      const parent = f.create('父任务', { listId: first }), child = f.create('子任务', { listId: first, parentTaskId: parent.id });
+      const bodies: any[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'POST') bodies.push(structuredClone(body));
+        return f.request(url, method, body);
+      });
+      await model.load(); model.selectTask(parent.id);
+      model.draft()!.task.listId = second; model.draft()!.task.description = '移动同时修改正文';
+      await model.saveTask();
+      expect(model.state.error).toBe(''); expect(model.dirty()).toBe(false);
+      expect(bodies.find((body) => body.action === 'update_task').payload.patch).not.toHaveProperty('listId');
+      const move = bodies.find((body) => body.action === 'batch_tasks');
+      expect(move.payload).toMatchObject({ operation: 'move', includeDescendants: true, listId: second });
+      expect(move.payload.expectedRevisions[child.id]).toBeTruthy();
+      for (const id of [parent.id, child.id]) expect(f.service.getEntity('task', id)).toMatchObject({ listId: second, sectionId: null });
+      expect(f.service.getEntity('task', parent.id)).toMatchObject({ description: '移动同时修改正文' });
+    } finally { await f.close(); }
+  });
+  test('unknown subtree move retries its exact body and checkpoints the destination before another save', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const target = f.service.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+        payload: { kind: 'list', entity: { name: '目标' } } }).ids[0];
+      const parent = f.create('响应丢失的移动'), child = f.create('子项', { parentTaskId: parent.id });
+      const bodies: any[] = []; let lose = true;
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        const command = body as any, result = await f.request(url, method, body);
+        if (method === 'POST' && command.action === 'batch_tasks') {
+          bodies.push(structuredClone(body));
+          if (lose) { lose = false; throw Error('回复丢失'); }
+        }
+        return result;
+      });
+      await model.load(); model.selectTask(parent.id); model.draft()!.task.listId = target;
+      await model.saveTask(); expect(model.state.pendingMutation?.action).toBe('batch_tasks');
+      await model.retryPending(); expect(bodies).toHaveLength(2); expect(bodies[1]).toEqual(bodies[0]);
+      model.draft()!.task.description = '核对后继续编辑'; await model.saveTask();
+      expect(model.state.error).toBe(''); expect(model.dirty()).toBe(false);
+      expect(f.service.getEntity('task', child.id)).toMatchObject({ listId: target });
+      expect(f.service.getEntity('task', parent.id)).toMatchObject({ listId: target, description: '核对后继续编辑' });
+    } finally { await f.close(); }
+  });
+});
 
 describe('confirmed status records outside the reply window', () => {
   function withoutStatusRecords(result: ToDooSnapshot | ToDooCommandResult, omitTasks = false) {
