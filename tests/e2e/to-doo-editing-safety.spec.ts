@@ -158,8 +158,14 @@ test('invalid input blocks list changes and browser Back without changing the qu
   const date = property.getByLabel('截止日期', { exact: true });
   await date.fill('2030-99-99'); await date.press('Tab');
   await property.locator('.ant-modal-close').click();
-  const directory = await openToDooDirectory(page);
-  await directory.getByRole('button', { name: targetName, exact: true }).click();
+  if ((page.viewportSize()?.width || 0) < 960) {
+    // The mobile detail is a modal: background navigation is intentionally inert.
+    // Attempt the detail's own list change, then exercise browser Back below.
+    await detail(page).getByRole('button', { name: '收集箱 ⌄', exact: true }).click();
+  } else {
+    const directory = await openToDooDirectory(page);
+    await directory.getByRole('button', { name: targetName, exact: true }).click();
+  }
   await expect(property).toBeVisible(); await expect(page).toHaveURL(beforeURL);
   await expect(date).toHaveValue('2030-99-99'); expect(writes).toEqual([]);
   await property.locator('.ant-modal-close').click();
