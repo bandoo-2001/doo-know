@@ -176,7 +176,8 @@ async function add() {
   const payload = toDooDraftPayload(draft.value, state.snapshot?.settings.timeZone || 'UTC');
   const result = await props.model.createTask(payload);
   if (result) {
-    const taskId = result.ids.find((id) => result.snapshot.tasks.some((task) => task.id === id));
+    const taskId = result.ids.find((id) => result.snapshot.tasks.some((task) => task.id === id)) ||
+      result.changed.find(entry => entry.kind === 'task' && result.ids.includes(entry.id))?.id;
     if (taskId)
       emit('created', {
         taskId,

@@ -11,6 +11,8 @@ import {
 } from '../apps/web/to-doo-workbench';
 import { toDooAnniversaryDate as nextToDooAnniversary } from '../shared/to-doo-anniversaries';
 import { toDooDraftPayload } from '../apps/web/to-doo-presentation';
+import { saveTaskSection } from '../apps/web/to-doo-task-groups';
+import { toDooCaptureFromNote } from '../apps/web/to-doo-capture';
 import {
   TO_DOO_COLLECTIONS,
   toDooEntitySchemas,
@@ -3084,5 +3086,213 @@ describe('confirmed task records outside the reply window', () => {
       expect(f.service.getEntity('task', task.id)).toMatchObject({ description: 'Typed after commit while verification was pending', revision: receiptRevision });
       expect(model.draft()?.task.revision).toBe(receiptRevision);
     } finally { release(); await f.close(); }
+  });
+  test('general command receipts preserve scoped trees, hydrate copies and captures, and remove moved rows beyond the global reply window', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const createList = (name: string) => f.service.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+        payload: { kind: 'list', entity: { name } } }).ids[0];
+      const backgroundList = createList('Global rows before the active list');
+      const listId = createList('Current scoped command list');
+      const movedList = createList('Moved tree destination');
+      const create = (title: string, extra: Record<string, unknown> = {}) => {
+        const id = f.service.command({ requestId: crypto.randomUUID(), action: 'create_task',
+          payload: { title, ...extra } }).ids[0];
+        return toDooEntitySchemas.task.parse(f.service.getEntity('task', id));
+      };
+      const backgroundIds = new Set<string>();
+      for (let index = 1; index <= 205; index++)
+        backgroundIds.add(create('Global command row ' + String(index).padStart(3, '0'), { listId: backgroundList }).id);
+      const originalSection = f.service.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+        payload: { kind: 'section', entity: { name: 'Original group', listId } } }).ids[0];
+      const parent = create('Scoped command parent', { listId, sectionId: originalSection });
+      const child = create('Scoped command child', { listId, parentTaskId: parent.id });
+      const originalIds = [parent.id, child.id];
+      const calls: { method: string; url: string }[] = [];
+      const commands: ReturnType<typeof toDooCommandSchema.parse>[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        calls.push({ method, url });
+        const result = await f.request(url, method, body);
+        if (method === 'POST') {
+          const command = toDooCommandSchema.parse(body);
+          commands.push(command);
+          if (!('snapshot' in result)) throw Error('Expected a real command receipt');
+          expect(result.snapshot.tasks).toHaveLength(200);
+          expect(result.snapshot.tasks.every(task => backgroundIds.has(task.id))).toBe(true);
+          if (command.action === 'batch_tasks' && command.payload.operation === 'copy' || command.action === 'create_task')
+            expect(result.ids.every(id => !result.snapshot.tasks.some(task => task.id === id))).toBe(true);
+        }
+        return result;
+      });
+      const filter = { listIds: [listId] };
+      model.state.filter = filter;
+      await model.load({ view: 'tasks', limit: 200, filter }); model.selectTask(parent.id);
+      const originalQuery = JSON.parse(JSON.stringify(model.state.query));
+      const assertScopedRows = (expectedIds: string[]) => {
+        const tasks = model.state.snapshot!.tasks;
+        expect(tasks.map(task => task.id).sort()).toEqual([...expectedIds].sort());
+        expect(tasks.every(task => task.listId === listId && !task.deletedAt)).toBe(true);
+        expect(tasks.some(task => backgroundIds.has(task.id))).toBe(false);
+        expect(model.state.query).toEqual(originalQuery);
+        expect(model.state.filter).toEqual(filter);
+      };
+      const assertExactTaskReads = (expectedIds: string[], after: number) => {
+        const readIds = new Set(calls.slice(after).filter(call => call.method === 'GET').flatMap(call => {
+          const params = new URL(call.url, 'https://local').searchParams;
+          if (params.get('kind') !== 'task' && !params.get('kinds')?.split(',').includes('task')) return [];
+          return (params.get('ids') || params.get('taskIds') || '').split(',').filter(Boolean);
+        }));
+        for (const id of expectedIds) expect(readIds.has(id)).toBe(true);
+      };
+      assertScopedRows(originalIds);
+      const inserted = await saveTaskSection(model, { name: 'Inserted group', listId }, { beforeId: originalSection });
+      expect(inserted).toBeTruthy(); expect(commands.at(-1)?.action).toBe('import_entities');
+      assertScopedRows(originalIds);
+      const insertedSection = model.state.snapshot!.sections.find(section => section.name === 'Inserted group')!;
+      expect(insertedSection).toBeTruthy();
+      expect(f.service.getEntity('section', insertedSection.id)).toMatchObject({ listId, name: 'Inserted group', deletedAt: null });
+      const deleted = await model.removeEntity('section', insertedSection);
+      expect(deleted).toBeTruthy(); assertScopedRows(originalIds);
+      expect(f.service.getEntity('section', insertedSection.id)?.deletedAt).not.toBeNull();
+      expect(model.state.snapshot!.sections.some(section => section.id === insertedSection.id && !section.deletedAt)).toBe(false);
+
+      model.state.selectedIds = [child.id];
+      const copyReadStart = calls.length;
+      const copied = await model.batchTasks([parent.id], 'copy');
+      expect(copied).toBeTruthy(); expect(copied!.ids).toHaveLength(2);
+      const copiedIds = copied!.ids;
+      assertExactTaskReads(copiedIds, copyReadStart);
+      assertScopedRows([...originalIds, ...copiedIds]);
+      expect(model.state.selectedIds).toEqual([child.id]);
+      const copiedParent = copied!.snapshot.tasks.find(task => copiedIds.includes(task.id) && !task.parentTaskId)!;
+      const copiedChild = copied!.snapshot.tasks.find(task => copiedIds.includes(task.id) && task.parentTaskId === copiedParent.id)!;
+      expect(copiedParent).toMatchObject({ title: parent.title + ' 副本', listId });
+      expect(copiedChild).toMatchObject({ title: child.title + ' 副本', listId, parentTaskId: copiedParent.id });
+      for (const id of copiedIds) {
+        const task = toDooEntitySchemas.task.parse(f.service.getEntity('task', id));
+        const occurrence = f.service.snapshot({ taskIds: [id] }).occurrences.find(row => row.taskId === id && !row.deletedAt)!;
+        expect(occurrence).toBeTruthy();
+        expect(copied!.snapshot.tasks.find(row => row.id === id)?.revision).toBe(task.revision);
+        expect(model.state.snapshot!.tasks.find(row => row.id === id)?.revision).toBe(task.revision);
+        expect(copied!.snapshot.occurrences.find(row => row.id === occurrence.id)).toMatchObject({ taskId: id, revision: occurrence.revision });
+        expect(model.state.snapshot!.occurrences.find(row => row.id === occurrence.id)).toMatchObject({ taskId: id, revision: occurrence.revision });
+      }
+
+      const priorityReadStart = calls.length;
+      const currentParent = model.state.snapshot!.tasks.find(task => task.id === parent.id)!;
+      const prioritized = await model.execute({ action: 'update_task', payload: { id: parent.id,
+        expectedRevision: currentParent.revision, patch: { priority: 'high' } } });
+      expect(prioritized).toBeTruthy(); assertExactTaskReads([parent.id], priorityReadStart);
+      assertScopedRows([...originalIds, ...copiedIds]);
+      expect(model.state.snapshot!.tasks.find(task => task.id === parent.id)?.priority).toBe('high');
+      expect(f.service.getEntity('task', parent.id)).toMatchObject({ priority: 'high', listId });
+      expect(model.state.selectedIds).toEqual([child.id]);
+
+      const moved = await model.moveTasks([parent.id], movedList);
+      expect(moved).toBeTruthy(); assertScopedRows(copiedIds);
+      for (const id of originalIds) {
+        expect(f.service.getEntity('task', id)).toMatchObject({ listId: movedList, sectionId: null });
+        expect(model.state.snapshot!.tasks.some(task => task.id === id)).toBe(false);
+        expect(model.items().some(item => item.task.id === id)).toBe(false);
+      }
+      expect(f.service.getEntity('task', child.id)).toMatchObject({ parentTaskId: parent.id });
+
+      const composer = model.newTaskDraft(undefined, listId);
+      composer.title = 'Created inside the active task list';
+      composer.description = 'Submitted through the ordinary task composer';
+      const taskCreateStart = calls.length;
+      const created = await model.createTask(toDooDraftPayload(composer, 'UTC'));
+      expect(created).toBeTruthy();
+      const createdId = created!.ids[0];
+      assertExactTaskReads([createdId], taskCreateStart); assertScopedRows([...copiedIds, createdId]);
+      expect(model.state.selectedTaskId).toBe(createdId);
+      expect(model.draft()?.task).toMatchObject({ id: createdId, title: composer.title, listId });
+      const createdOccurrence = f.service.snapshot({ taskIds: [createdId] }).occurrences.find(row => row.taskId === createdId && !row.deletedAt)!;
+      expect(model.state.selectedOccurrenceId).toBe(createdOccurrence.id);
+      expect(created!.snapshot.tasks.find(task => task.id === createdId)).toMatchObject({ title: composer.title, listId });
+      expect(created!.snapshot.occurrences.find(row => row.id === createdOccurrence.id)).toMatchObject({ taskId: createdId });
+      expect(model.retainedNewTaskDrafts()).toEqual([]);
+
+      model.state.filter = {};
+      await model.load({ view: 'workspace', limit: 200 });
+      const workspaceIds = model.state.snapshot!.tasks.map(task => task.id);
+      const capture = toDooCaptureFromNote({ noteId: 'capture-source-note', title: 'Source material',
+        markdown: 'Check the captured source material', savedMarkdown: 'Check the captured source material',
+        selection: { anchor: 0, head: 34 }, contentHash: 'capture-content-hash' });
+      const captureReadStart = calls.length;
+      const captured = await model.createTask({ ...capture, listId });
+      expect(captured).toBeTruthy();
+      const capturedId = captured!.ids[0];
+      assertExactTaskReads([capturedId], captureReadStart);
+      expect(model.state.query).toMatchObject({ view: 'workspace', limit: 200 });
+      expect(model.state.selectedTaskId).toBe(capturedId);
+      expect(model.state.snapshot!.tasks.map(task => task.id).sort()).toEqual([...workspaceIds, capturedId].sort());
+      const capturedOccurrence = f.service.snapshot({ taskIds: [capturedId] }).occurrences.find(row => row.taskId === capturedId && !row.deletedAt)!;
+      expect(model.state.selectedOccurrenceId).toBe(capturedOccurrence.id);
+      for (const data of [model.state.snapshot!, captured!.snapshot]) {
+        expect(data.tasks.find(task => task.id === capturedId)).toMatchObject({ id: capturedId, title: capture.title,
+          listId, noteRefs: [{ noteId: 'capture-source-note', role: 'source' }], source: { noteId: 'capture-source-note', quote: capture.description } });
+        expect(data.occurrences.find(row => row.id === capturedOccurrence.id)).toMatchObject({ taskId: capturedId, revision: capturedOccurrence.revision });
+      }
+      expect(f.service.getEntity('task', capturedId)).toMatchObject({ title: capture.title, listId, source: { noteId: 'capture-source-note' } });
+      expect(model.state.pendingMutation).toBeNull(); expect(model.state.error).toBe('');
+      expect(commands.map(command => command.action)).toEqual([
+        'import_entities', 'delete_entity', 'batch_tasks', 'update_task', 'batch_tasks', 'create_task', 'create_task',
+      ]);
+    } finally { await f.close(); }
+  }, 45000);
+  test('a confirmed create with a failed entity read clears only the submitted composer and recovers by GET without creating twice', async () => {
+    const f = await domainStatusFixture();
+    try {
+      let createdId = '', createWrites = 0, failedReads = 0;
+      const calls: { method: string; url: string }[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        calls.push({ method, url });
+        if (method === 'GET' && createdId && isExactTaskRead(url, createdId) && failedReads === 0) {
+          failedReads++;
+          throw Error('The confirmed task cannot be read back yet');
+        }
+        const result = await f.request(url, method, body);
+        if (method === 'POST' && toDooCommandSchema.parse(body).action === 'create_task') {
+          createWrites++;
+          if (!('snapshot' in result)) throw Error('Expected the real confirmed creation receipt');
+          createdId = result.ids.find(id => result.changed.some(row => row.kind === 'task' && row.id === id))!;
+          return withoutTaskRecord(result, createdId);
+        }
+        return result;
+      });
+      await model.load({ view: 'workspace', limit: 200 });
+      const composer = model.newTaskDraft();
+      composer.title = 'Confirmed creation despite a missing reply-window entity';
+      composer.description = 'A second Enter must not create this task again';
+      const result = await model.createTask(toDooDraftPayload(composer, 'UTC'));
+      expect(result).toBeTruthy(); expect(createdId).toBeTruthy();
+      expect(result!.ids).toContain(createdId);
+      expect(result!.changed).toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'task', id: createdId })]));
+      expect(createWrites).toBe(1); expect(failedReads).toBe(1);
+      expect(f.service.getEntity('task', createdId)).toMatchObject({ title: composer.title, description: composer.description });
+      expect(f.service.snapshot({ all: true }).tasks).toHaveLength(1);
+      expect(model.state.newTaskDrafts).toEqual({});
+      expect(model.retainedNewTaskDrafts()).toEqual([]); expect(model.hasNewTaskDraft()).toBe(false);
+      expect(model.state.selectedTaskId).toBe(createdId);
+      expect(model.draft()).toBeUndefined();
+      expect(model.state.snapshot!.tasks.some(task => task.id === createdId)).toBe(false);
+      expect(result!.snapshot.tasks.some(task => task.id === createdId)).toBe(false);
+      expect(model.state.localWarning).toMatch(/已保存|已创建/);
+      expect(model.state.localWarning).toMatch(/核对|读取|刷新/);
+      expect(model.state.pendingMutation).toBeNull();
+      const readStart = calls.length;
+      const recovered = await model.ensureTask(model.state.selectedTaskId);
+      expect(recovered).toBeTruthy();
+      const reads = calls.slice(readStart);
+      expect(reads.length).toBeGreaterThan(0); expect(reads.every(call => call.method === 'GET')).toBe(true);
+      expect(reads.some(call => new URL(call.url, 'https://local').searchParams.get('taskIds') === createdId)).toBe(true);
+      const stored = toDooEntitySchemas.task.parse(f.service.getEntity('task', createdId));
+      const occurrence = f.service.snapshot({ taskIds: [createdId] }).occurrences.find(row => row.taskId === createdId && !row.deletedAt)!;
+      expect(model.state.snapshot!.tasks.find(task => task.id === createdId)).toMatchObject({ title: composer.title, revision: stored.revision });
+      expect(model.state.snapshot!.occurrences.find(row => row.id === occurrence.id)).toMatchObject({ taskId: createdId, revision: occurrence.revision });
+      expect(model.state.selectedTaskId).toBe(createdId); expect(model.hasNewTaskDraft()).toBe(false);
+      expect(createWrites).toBe(1); expect(f.service.snapshot({ all: true }).tasks).toHaveLength(1);
+    } finally { await f.close(); }
   });
 });

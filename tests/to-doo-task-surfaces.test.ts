@@ -1018,6 +1018,19 @@ describe('light task controls and recoverable capture', () => {
     form.props.onSubmit({ preventDefault() {} });
     expect(create).toHaveBeenCalledOnce();
   });
+  test('a confirmed creation still exposes its real task identity when the detail read is unavailable', async () => {
+    const { value, create } = capture();
+    value.newTaskDraft().title = '已确认但详情读取暂不可用';
+    create.mockResolvedValue({ transactionId: null, replayed: false, ids: ['created-task'],
+      changed: [{ kind: 'task', id: 'created-task', revision: 'confirmed-revision' }],
+      snapshot: { ...value.state.snapshot!, tasks: [] } });
+    const created = vi.fn();
+    const view = mount('ToDooQuickAdd', { model: value, onCreated: created });
+    await view.all().find(node => node.tag === 'form')!.props.onSubmit({ preventDefault() {} });
+    expect(created).toHaveBeenCalledWith({ taskId: 'created-task', title: '已确认但详情读取暂不可用', listId: null, planDates: [] });
+    expect(value.state.snapshot!.tasks.map(task => task.id)).toEqual(['task-a']);
+    expect(create).toHaveBeenCalledOnce();
+  });
 });
 
 
