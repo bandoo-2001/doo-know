@@ -68,7 +68,11 @@ test('task tools stay reachable beside long titles, and capture hints follow the
   await expect(heading).toBeInViewport();
   await expect(more).toBeInViewport();
   await expect(main.locator('.todo-filter-toggle .todo-tool-label')).toBeHidden();
+  const labelBox = (await main.locator('.todo-task-heading-name').boundingBox())!;
+  const createBox = (await main.getByRole('button', { name: '新建任务', exact: true }).boundingBox())!;
+  expect(labelBox.width).toBeGreaterThan(0);
+  expect(labelBox.x + labelBox.width <= createBox.x + 1 || labelBox.y + labelBox.height <= createBox.y + 1).toBe(true);
   expect(await main.evaluate(el => el.scrollWidth)).toBeLessThanOrEqual(320);
   await more.click();
-  await expect(page.getByLabel('任务密度', { exact: true })).toBeVisible();
+  await expect(page.getByRole('combobox', { name: '任务密度', exact: true })).toBeVisible();
 });
