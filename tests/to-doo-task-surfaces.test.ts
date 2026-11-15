@@ -1064,6 +1064,7 @@ test('a property can finish with an empty recoverable title while whole-task val
   expect(detail.all().filter(node => node.props.role === 'dialog')).toHaveLength(0);
   expect(detail.ref.value.hasInvalidInput()).toBe(false);
   expect(value.validateTaskDraft()).toBe(false);
+  await Vue.nextTick();
   expect(detail.all().filter(node => node.props.role === 'alert').some(node => detail.text(node).includes('任务标题'))).toBe(true);
 });
 
