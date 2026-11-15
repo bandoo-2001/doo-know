@@ -64,6 +64,7 @@ export type ToDooCreateSeed = {
   planDate?: string;
 };
 export type ToDooNewTaskDraft = {
+  literalTitle?: boolean;
   initialStatus: ToDooOccurrence['status'];
   priority: ToDooTask['priority'];
   reminders: ToDooTask['reminders'];
@@ -575,6 +576,8 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     recoveredDraftKeys: [] as string[],
     unavailableDrafts: {} as Record<string, string>,
     recoveryStatus: 'idle' as 'idle' | 'saved' | 'unavailable',
+    legacyRecoveryAvailable: false,
+    legacyRecoverySummary: null as { newDrafts: number; taskDrafts: number; pending: boolean } | null,
     newTaskDrafts: {} as Record<string, ToDooNewTaskDraft>,
     pendingMutation: null as ToDooCommand | null,
     pendingOperations: [] as ToDooEntityMap['operation'][],
@@ -595,6 +598,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     query: { limit: 200 } as ToDooQuery,
     loading: false,
     busy: false,
+    preparingTaskAction: false,
     error: '',
     conflict: false,
     conflictDraftKey: '',
@@ -608,6 +612,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
   const newSaved = new Map<string, string>();
   let restoringRecovery = false;
   let recoveryReadBlocked = false;
+  let legacySourceFingerprint = '';
   const recoveryWriteWarning = '浏览器暂时不能保存恢复信息，请在当前页面核对提交结果后再离开。';
   const recoveryReadWarning = '本地恢复信息无法读取，当前服务器内容仍可正常访问。';
   const recoveryKey = (datasetId: string) => 'dooknow.to-doo.recovery:' +
@@ -638,6 +643,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       }
     | undefined;
   const newDefaults = (parentTaskId: string | null, listId: string | null): ToDooNewTaskDraft => ({
+    literalTitle: false,
     title: '',
     description: '',
     criteria: '',
@@ -674,6 +680,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
         recoveryKey(state.snapshot.datasetId),
         JSON.stringify({ schemaVersion: 2, datasetId: state.snapshot.datasetId,
           scope: options.recoveryScope || '', pending: state.pendingMutation,
+          legacySourceFingerprint,
           drafts: state.newTaskDrafts, edits,
           planCheckpoints: [...pendingPlanCheckpoints.entries()],
           statusReceipts: [...pendingStatusReceipts.entries()] }),
@@ -688,16 +695,18 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       return false;
     }
   }
-  function restoreRecovery(datasetId: string) {
+  function restoreRecovery(datasetId: string, imported?: unknown) {
     try {
       if (typeof localStorage === 'undefined') return;
-      const raw = JSON.parse(
+      const raw = imported === undefined ? JSON.parse(
         localStorage.getItem(recoveryKey(datasetId)) || 'null',
-      );
+      ) : imported as any;
       if (raw && (raw.schemaVersion && raw.schemaVersion !== 2 ||
         raw.datasetId && raw.datasetId !== datasetId ||
         raw.scope && raw.scope !== (options.recoveryScope || '')))
         throw Error('恢复信息版本或资料库不匹配');
+      legacySourceFingerprint = typeof raw?.legacySourceFingerprint === 'string'
+        ? raw.legacySourceFingerprint : '';
       const parsed = toDooCommandSchema.safeParse(raw?.pending);
       if (raw?.pending && !parsed.success) throw Error('未决请求无法读取');
       if (parsed.success) state.pendingMutation = parsed.data;
@@ -794,7 +803,109 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       recoveryReadBlocked = true;
       state.recoveryStatus = 'unavailable';
       state.localWarning = recoveryReadWarning;
+    } finally {
+      detectLegacyRecovery(datasetId);
     }
+  }
+  function legacyFingerprint(value: string) {
+    // A change detector, not an authorization or integrity check.
+    let result = 2166136261;
+    for (let index = 0; index < value.length; index++)
+      result = Math.imul(result ^ value.charCodeAt(index), 16777619);
+    return value.length + ':' + (result >>> 0).toString(16);
+  }
+  function detectLegacyRecovery(datasetId: string) {
+    state.legacyRecoveryAvailable = false;
+    state.legacyRecoverySummary = null;
+    if (!options.recoveryScope) return;
+    try {
+      const text = localStorage.getItem('dooknow.to-doo.recovery:' + datasetId);
+      if (!text || legacyFingerprint(text) === legacySourceFingerprint) return;
+      const raw = JSON.parse(text);
+      if (!raw || raw.scope || raw.datasetId && raw.datasetId !== datasetId ||
+        raw.schemaVersion && raw.schemaVersion !== 2) return;
+      const summary = { newDrafts: Object.keys(raw.drafts || {}).length,
+        taskDrafts: Object.keys(raw.edits || {}).length, pending: !!raw.pending };
+      if (!summary.newDrafts && !summary.taskDrafts && !summary.pending) return;
+      state.legacyRecoveryAvailable = true;
+      state.legacyRecoverySummary = summary;
+    } catch { /* An unreadable legacy record never changes the scoped recovery state. */ }
+  }
+  /** Call only after the user explicitly confirms ownership of the legacy browser drafts. */
+  function adoptLegacyRecovery(): boolean {
+    const datasetId = state.snapshot?.datasetId;
+    if (!datasetId || !options.recoveryScope || state.busy || state.pendingMutation || state.preparingTaskAction) {
+      state.error = '请先等待保存或核对当前账号的原操作，再恢复旧版草稿';
+      return false;
+    }
+    if (!persistRecovery()) {
+      state.error = '当前账号的恢复信息尚不能可靠保存，旧版记录仍保留';
+      return false;
+    }
+    const before = {
+      drafts: clone(state.drafts), newDrafts: clone(state.newTaskDrafts),
+      pending: clone(state.pendingMutation), conflicts: clone(state.draftConflicts),
+      recovered: [...state.recoveredDraftKeys], unavailable: { ...state.unavailableDrafts },
+      saved: [...saved], newSaved: [...newSaved], plans: [...pendingPlanCheckpoints], statuses: [...pendingStatusReceipts],
+      source: legacySourceFingerprint, blocked: recoveryReadBlocked,
+    };
+    const restoreBefore = () => {
+      state.drafts = before.drafts; state.newTaskDrafts = before.newDrafts; state.pendingMutation = before.pending;
+      state.draftConflicts = before.conflicts; state.recoveredDraftKeys = before.recovered;
+      state.unavailableDrafts = before.unavailable;
+      saved.clear(); before.saved.forEach(([key, value]) => saved.set(key, value));
+      newSaved.clear(); before.newSaved.forEach(([key, value]) => newSaved.set(key, value));
+      pendingPlanCheckpoints.clear(); before.plans.forEach(([key, value]) => pendingPlanCheckpoints.set(key, value));
+      pendingStatusReceipts.clear(); before.statuses.forEach(([key, value]) => pendingStatusReceipts.set(key, value));
+      legacySourceFingerprint = before.source; recoveryReadBlocked = before.blocked;
+      syncSelectedConflict();
+    };
+    try {
+      const text = localStorage.getItem('dooknow.to-doo.recovery:' + datasetId);
+      if (!text) throw Error('旧版恢复信息已不可用，当前账号草稿未改变');
+      const legacy = JSON.parse(text), current = JSON.parse(localStorage.getItem(recoveryKey(datasetId)) || 'null');
+      if (!legacy || legacy.scope || legacy.datasetId && legacy.datasetId !== datasetId ||
+        legacy.schemaVersion && legacy.schemaVersion !== 2) throw Error('旧版恢复信息的范围或版本不匹配');
+      if (legacy.pending && current?.pending) throw Error('两份记录均有待核对操作，请先处理当前操作');
+      for (const [key, value] of Object.entries(legacy.drafts || {})) {
+        if (state.newTaskDrafts[key] && newSaved.get(key) !== fingerprint(state.newTaskDrafts[key]) &&
+          !sameToDooDraftValue(state.newTaskDrafts[key], value))
+          throw Error('当前账号已有同位置的新建草稿，请先处理后再恢复旧版记录');
+      }
+      for (const [key, entry] of Object.entries(legacy.edits || {})) {
+        const local = state.drafts[key];
+        if (local && saved.get(key) !== fingerprint(local) &&
+          !sameToDooDraftValue(local, (entry as { draft?: unknown })?.draft))
+          throw Error('当前账号已有同任务的编辑草稿，请先处理后再恢复旧版记录');
+      }
+      const merged = { ...current, schemaVersion: 2, datasetId, scope: options.recoveryScope,
+        drafts: { ...legacy.drafts, ...current?.drafts }, edits: { ...legacy.edits, ...current?.edits },
+        pending: current?.pending || legacy.pending || null,
+        planCheckpoints: [...new Map([...(legacy.planCheckpoints || []), ...(current?.planCheckpoints || [])]).entries()],
+        statusReceipts: [...new Map([...(legacy.statusReceipts || []), ...(current?.statusReceipts || [])]).entries()],
+        legacySourceFingerprint: legacyFingerprint(text) };
+      // Untouched placeholders may adopt the confirmed older content; edited scoped drafts always win.
+      for (const [key, value] of Object.entries(legacy.drafts || {}))
+        if (state.newTaskDrafts[key] && newSaved.get(key) === fingerprint(state.newTaskDrafts[key]))
+          merged.drafts[key] = value;
+      restoringRecovery = true;
+      state.drafts = {}; state.newTaskDrafts = {}; state.draftConflicts = []; state.recoveredDraftKeys = [];
+      saved.clear(); newSaved.clear(); pendingPlanCheckpoints.clear(); pendingStatusReceipts.clear();
+      recoveryReadBlocked = false;
+      legacySourceFingerprint = '';
+      restoreRecovery(datasetId, merged);
+      if (recoveryReadBlocked) throw Error('旧版草稿有无法读取的内容，原记录仍保留');
+      restoringRecovery = false;
+      if (!persistRecovery()) throw Error('旧版草稿尚未可靠保存到当前账号，原记录仍保留');
+      detectLegacyRecovery(datasetId); syncSelectedConflict();
+      state.notice = '旧版草稿已保留到当前账号；原记录仍保留，编辑内容需要核对并显式保存';
+      return true;
+    } catch (cause) {
+      restoreBefore();
+      state.error = cause instanceof Error ? cause.message : String(cause);
+      detectLegacyRecovery(datasetId);
+      return false;
+    } finally { restoringRecovery = false; }
   }
   function newTaskDraft(parent?: string, list?: string | null, seed?: ToDooCreateSeed) {
     const listId =
@@ -858,6 +969,8 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     state.conflict = state.conflictDraftKeys.includes(key()) ||
       state.draftConflicts.some((entry) => entry.draftKey === key());
     state.conflictDraftKey = state.conflict ? key() : '';
+    state.rebasedFields = [...new Set(state.draftConflicts.filter((entry) => entry.draftKey === key())
+      .map((entry) => entry.label))];
   }
   function markDraftConflict(draftKey: string) {
     if (state.drafts[draftKey] && !state.conflictDraftKeys.includes(draftKey))
@@ -1042,6 +1155,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       persistRecovery();
       restoringRecovery = true;
       recoveryReadBlocked = false;
+      legacySourceFingerprint = '';
       if (state.completionFeedback) state.notice = '';
       state.completionFeedback = null;
       completionUndo = undefined;
@@ -1425,7 +1539,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     return accepted;
   }
   async function execute(input: ToDooInput, notice = '已保存') {
-    if (state.busy) return;
+    if (state.busy || state.preparingTaskAction) return;
     // Only the latest write can offer an undo; this state is never recovery data.
     state.completionFeedback = null;
     completionUndo = undefined;
@@ -2161,7 +2275,9 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     return field === '$entity' ? entity : entity && (entity as unknown as Record<string, unknown>)[field];
   }
   function retainedTaskDrafts() {
-    return Object.entries(state.drafts).filter(([draftKey, value]) => saved.get(draftKey) !== fingerprint(value))
+    return Object.entries(state.drafts).filter(([draftKey, value]) => saved.get(draftKey) !== fingerprint(value) ||
+      state.conflictDraftKeys.includes(draftKey) || state.draftConflicts.some((entry) => entry.draftKey === draftKey) ||
+      !!state.unavailableDrafts[draftKey])
       .map(([draftKey, value]) => ({ key: draftKey, taskId: value.task.id,
         occurrenceId: value.occurrence?.id || '', title: value.task.title,
         kind: 'task' as const, recovered: state.recoveredDraftKeys.includes(draftKey),
@@ -2205,7 +2321,12 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
         const data = await request('/api/to-doo/state?' + query) as ToDooSnapshot;
         if (ticket !== generation || state.snapshot?.datasetId !== datasetId || data.datasetId !== datasetId)
           throw Error('资料库或任务范围已变化，请重新执行操作');
-        adoptDetail(data);
+        // Preparation loads metadata, not additional result rows into the visible filtered list.
+        for (const task of data.tasks) state.taskAncestors[task.id] = clone(task);
+        if (state.snapshot) {
+          const fresh = new Map(data.tasks.map((task) => [task.id, task]));
+          state.snapshot.tasks = state.snapshot.tasks.map((task) => clone(fresh.get(task.id) || task));
+        }
         cursor = data.collectionPages?.task?.nextCursor || data.page.nextCursor || undefined;
         if (cursor && (visited.has(cursor) || visited.size >= 20)) throw Error('当前子树较大，请分批处理');
         if (cursor) visited.add(cursor);
@@ -2213,15 +2334,22 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     }
   }
   async function prepareTaskAction(taskIds: readonly string[], includeDescendants = true): Promise<ToDooActionDraft[] | null> {
-    if (state.busy || state.pendingMutation) {
+    if (state.busy || state.pendingMutation || state.preparingTaskAction) {
       state.error = state.pendingMutation ? '请先核对结果待确认的原操作' : '正在保存，请稍后再试';
       return null;
     }
+    state.preparingTaskAction = true;
     try {
       await readActionTasks(taskIds, includeDescendants);
+      if (state.busy || state.pendingMutation) {
+        state.error = '操作状态已变化，请先等待保存或核对原操作';
+        return null;
+      }
       return actionDrafts(taskIds, { includeDescendants });
     } catch (cause) {
       state.error = cause instanceof Error ? cause.message : String(cause); return null;
+    } finally {
+      state.preparingTaskAction = false;
     }
   }
   async function moveTasks(taskIds: readonly string[], listId: string | null, moveOptions: {
@@ -2364,6 +2492,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     moveTasks,
     discardTaskDraft,
     flushRecovery: persistRecovery,
+    adoptLegacyRecovery,
     resolveDraftConflict,
     resolveAllDraftConflicts,
     retainedNewTaskDraft: () => retainedNewTaskDrafts()[0],

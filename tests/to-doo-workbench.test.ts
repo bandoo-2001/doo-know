@@ -2125,6 +2125,7 @@ describe('versioned editing recovery and action guards', () => {
     try {
       const source = createToDooWorkbench(transport().request); await source.load();
       const newDraft = { ...source.newTaskDraft(), title: '旧新建草稿' };
+      await (await import('vue')).nextTick();
       const pending = { requestId: 'lost-request', action: 'create_task', payload: { title: '待核对' } };
       storage.set('dooknow.to-doo.recovery:test', JSON.stringify({ drafts: { '@': newDraft }, pending }));
       const restored = createToDooWorkbench(transport().request); await restored.load();
@@ -2154,6 +2155,62 @@ describe('versioned editing recovery and action guards', () => {
       expect(quota.draft()!.task.description).toBe('容量失败');
     } finally { vi.unstubAllGlobals(); }
   });
+  test('legacy recovery reveals only a summary and migrates after explicit adoption without deleting the source', async () => {
+    const storage = storageFixture();
+    try {
+      const server = transport(), legacy = createToDooWorkbench(server.request);
+      await legacy.load(); legacy.newTaskDraft().title = '不能在归属确认前展示的标题';
+      legacy.selectTask('task-a'); legacy.draft()!.task.description = '旧版编辑';
+      legacy.state.pendingMutation = { requestId: 'legacy-unknown', action: 'create_task', payload: { title: '待核对创建' } } as any;
+      legacy.flushRecovery(); await (await import('vue')).nextTick();
+      const original = storage.get('dooknow.to-doo.recovery:test');
+      const scoped = createToDooWorkbench(server.request, { recoveryScope: 'account-a' }); await scoped.load();
+      expect(scoped.state.legacyRecoveryAvailable).toBe(true);
+      expect(scoped.state.legacyRecoverySummary).toEqual({ newDrafts: 1, taskDrafts: 1, pending: true });
+      expect(scoped.retainedTaskDrafts()).toEqual([]); expect(scoped.state.pendingMutation).toBeNull();
+      expect(scoped.adoptLegacyRecovery()).toBe(true);
+      expect(scoped.retainedTaskDrafts()[0]?.draft.task.description).toBe('旧版编辑');
+      expect(scoped.state.pendingMutation?.requestId).toBe('legacy-unknown');
+      expect(scoped.state.legacyRecoveryAvailable).toBe(false);
+      expect(storage.get('dooknow.to-doo.recovery:test')).toBe(original);
+      const again = createToDooWorkbench(server.request, { recoveryScope: 'account-a' }); await again.load();
+      expect(again.state.legacyRecoveryAvailable).toBe(false);
+      expect(again.state.pendingMutation?.requestId).toBe('legacy-unknown');
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('legacy adoption refuses same-task input collisions and preserves both account and legacy records', async () => {
+    const storage = storageFixture();
+    try {
+      const server = transport(), legacy = createToDooWorkbench(server.request); await legacy.load(); legacy.selectTask('task-a');
+      legacy.draft()!.task.description = '旧版内容'; legacy.flushRecovery(); await (await import('vue')).nextTick();
+      const original = storage.get('dooknow.to-doo.recovery:test');
+      const scoped = createToDooWorkbench(server.request, { recoveryScope: 'account-a' }); await scoped.load(); scoped.selectTask('task-a');
+      scoped.draft()!.task.description = '当前账号内容'; scoped.flushRecovery();
+      expect(scoped.adoptLegacyRecovery()).toBe(false);
+      expect(scoped.state.error).toContain('同任务');
+      expect(scoped.draft()!.task.description).toBe('当前账号内容');
+      expect(storage.get('dooknow.to-doo.recovery:test')).toBe(original);
+      expect(scoped.state.legacyRecoveryAvailable).toBe(true);
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('legacy adoption cannot replace a scoped pending request or report success when scoped writes fail', async () => {
+    const storage = storageFixture();
+    try {
+      const legacy = createToDooWorkbench(transport().request); await legacy.load(); legacy.newTaskDraft().title = '旧新建';
+      legacy.flushRecovery(); await (await import('vue')).nextTick();
+      const original = storage.get('dooknow.to-doo.recovery:test');
+      const scoped = createToDooWorkbench(transport().request, { recoveryScope: 'account-a' }); await scoped.load();
+      scoped.state.pendingMutation = { requestId: 'current-unknown', action: 'create_task', payload: { title: '当前待核对' } } as any;
+      expect(scoped.adoptLegacyRecovery()).toBe(false); expect(scoped.state.pendingMutation?.requestId).toBe('current-unknown');
+      scoped.state.pendingMutation = null;
+      vi.stubGlobal('localStorage', { getItem: (key: string) => storage.get(key) ?? null,
+        setItem: () => { throw Error('quota'); } });
+      expect(scoped.adoptLegacyRecovery()).toBe(false);
+      expect(scoped.state.recoveryStatus).toBe('unavailable');
+      expect(storage.get('dooknow.to-doo.recovery:test')).toBe(original);
+      expect(scoped.retainedNewTaskDrafts()).toEqual([]);
+    } finally { vi.unstubAllGlobals(); }
+  });
   test('account scopes and datasets cannot adopt another identity\'s existing drafts', async () => {
     storageFixture();
     try {
@@ -2179,6 +2236,15 @@ describe('versioned editing recovery and action guards', () => {
       { taskId: 'child', occurrenceId: '', title: '未创建后代', kind: 'new' },
     ]);
   });
+  test('preparing a subtree action hydrates metadata without adding children to filtered result rows', async () => {
+    const visible = snapshot(), tree = structuredClone(visible);
+    tree.tasks.push({ ...tree.tasks[0], id: 'unmatched-child', title: '未命中筛选的子项', parentTaskId: 'task-a' });
+    const model = createToDooWorkbench(async (url) => url.includes('kind=task') ? structuredClone(tree) : structuredClone(visible));
+    await model.load();
+    expect(await model.prepareTaskAction(['task-a'])).toEqual([]);
+    expect(model.state.snapshot?.tasks.map((task) => task.id)).toEqual(['task-a']);
+    expect(model.taskDefinitions().some((task) => task.id === 'unmatched-child')).toBe(true);
+  });
   test('saving a parent list change moves the frozen subtree without an invalid single-task list patch', async () => {
     const f = await domainStatusFixture();
     try {
@@ -2189,7 +2255,7 @@ describe('versioned editing recovery and action guards', () => {
       const parent = f.create('父任务', { listId: first }), child = f.create('子任务', { listId: first, parentTaskId: parent.id });
       const bodies: any[] = [];
       const model = createToDooWorkbench(async (url, method = 'GET', body) => {
-        if (method === 'POST') bodies.push(structuredClone(body));
+        if (method === 'POST') bodies.push(JSON.parse(JSON.stringify(body)));
         return f.request(url, method, body);
       });
       await model.load(); model.selectTask(parent.id);
@@ -2212,16 +2278,20 @@ describe('versioned editing recovery and action guards', () => {
       const parent = f.create('响应丢失的移动'), child = f.create('子项', { parentTaskId: parent.id });
       const bodies: any[] = []; let lose = true;
       const model = createToDooWorkbench(async (url, method = 'GET', body) => {
-        const command = body as any, result = await f.request(url, method, body);
+        const command = body as any;
+        if (method === 'POST' && command.action === 'batch_tasks')
+          bodies.push(JSON.parse(JSON.stringify(body)));
+        const result = await f.request(url, method, body);
         if (method === 'POST' && command.action === 'batch_tasks') {
-          bodies.push(structuredClone(body));
           if (lose) { lose = false; throw Error('回复丢失'); }
         }
         return result;
       });
       await model.load(); model.selectTask(parent.id); model.draft()!.task.listId = target;
       await model.saveTask(); expect(model.state.pendingMutation?.action).toBe('batch_tasks');
-      await model.retryPending(); expect(bodies).toHaveLength(2); expect(bodies[1]).toEqual(bodies[0]);
+      expect(await model.retryPending()).toBeDefined();
+      expect(model.state.error).toBe('');
+      expect(bodies).toHaveLength(2); expect(bodies[1]).toEqual(bodies[0]);
       model.draft()!.task.description = '核对后继续编辑'; await model.saveTask();
       expect(model.state.error).toBe(''); expect(model.dirty()).toBe(false);
       expect(f.service.getEntity('task', child.id)).toMatchObject({ listId: target });
