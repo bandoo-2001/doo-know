@@ -341,11 +341,11 @@ function shortcut(event: KeyboardEvent) {
 let pickerEscape: KeyboardEvent | undefined;
 function capturePickerEscape(event: KeyboardEvent) {
   if (event.target instanceof Element && event.target.closest('.ant-picker')) {
-    const popup = document.querySelector<HTMLElement>(
+    const popups = document.querySelectorAll<HTMLElement>(
       '.ant-picker-dropdown:not(.ant-picker-dropdown-hidden):not([class*="-leave"])',
     );
     // Ant starts its exit animation in the input handler, before this key bubbles back.
-    if (popup?.getClientRects().length) pickerEscape = event;
+    if (Array.from(popups).some(popup => popup.getClientRects().length)) pickerEscape = event;
   }
 }
 function propertyKeydown(event: KeyboardEvent) {
