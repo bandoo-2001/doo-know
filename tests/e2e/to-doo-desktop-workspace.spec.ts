@@ -35,6 +35,7 @@ async function openList(page: Page) {
   ]) await command('create_task', { listId, title });
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&list=' + listId);
   const main = page.locator('.todo-main');
+  await expect(main).toHaveAttribute('aria-busy', 'false', { timeout: 20000 });
   await expect(main.getByRole('button', { name: taskTitle, exact: true })).toBeVisible();
   return main;
 }
