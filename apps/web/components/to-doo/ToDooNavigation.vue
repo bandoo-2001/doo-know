@@ -63,6 +63,7 @@ const moduleMoreTrigger = ref<any>(), scopeMoreTrigger = ref<any>();
 const split = computed(() => props.layout === 'split');
 const listsExpanded = useSessionStorage('to-doo.navigation-lists-expanded.v1', true, { writeDefaults: false });
 const listItemsId = 'todo-directory-lists-' + useId();
+const unreadId = 'todo-navigation-unread-' + useId();
 
 // A single label serves both rail sections. Render it outside the independently scrolling rail.
 const railHint = ref<{ label: string; left: number; top: number }>();
@@ -178,14 +179,14 @@ const moreActive = computed(
       <div class="todo-module-primary">
         <AButton type="text" aria-label="任务"
           :class="{ active: taskSection }" :aria-current="taskSection ? 'page' : undefined"
-          @click="!taskSection && chooseModule('tasks')"><ToDooIcon name="tasks" :size="20" /></AButton>
+          @click="!taskSection && chooseModule('tasks')"><ToDooIcon name="taskModule" :size="22" /></AButton>
         <AButton v-if="taskSection && directoryCollapsed" type="text" class="todo-directory-toggle"
           aria-label="展开清单导航" :aria-expanded="false"
-          @click="emit('toggle-directory', $event)"><ToDooIcon name="menu" :size="18" /></AButton>
+          @click="emit('toggle-directory', $event)"><ToDooIcon name="sidebar" :size="20" /></AButton>
         <AButton v-for="item in tools" :key="item[0]" type="text"
           :aria-label="item[1]" :class="{ active: section === item[0] }"
           :aria-current="section === item[0] ? 'page' : undefined"
-          @click="chooseModule(item[0])"><ToDooIcon :name="item[0]" :size="20" /></AButton>
+          @click="chooseModule(item[0])"><ToDooIcon :name="item[0]" :size="22" /></AButton>
         <APopover v-model:open="moduleMoreOpen" trigger="click" placement="rightTop" overlay-class-name="todo-ant-popup">
           <AButton ref="moduleMoreTrigger" type="text" aria-label="更多模块" :aria-expanded="moduleMoreOpen"
             @keydown.esc.stop.prevent="closeModuleMore"
@@ -195,8 +196,8 @@ const moreActive = computed(
               <AButton v-for="item in more" :key="item[0]" type="text" :aria-label="item[1]"
                 :class="{ active: section === item[0] }" :aria-current="section === item[0] ? 'page' : undefined"
                 @click="chooseModule(item[0])"><ToDooIcon :name="item[0]" :size="18" />{{ item[1] }}</AButton>
-              <AButton ref="pinTrigger" type="text" aria-label="自定义常用入口" :aria-expanded="pinOpen"
-                @click="pinOpen = !pinOpen" @keydown.esc.stop.prevent="closePins">自定义常用入口</AButton>
+              <AButton ref="pinTrigger" type="text" class="todo-module-customize" aria-label="自定义常用入口" :aria-expanded="pinOpen"
+                @click="pinOpen = !pinOpen" @keydown.esc.stop.prevent="closePins"><ToDooIcon name="filter" :size="18" />自定义常用入口</AButton>
               <div v-if="pinOpen" class="todo-navigation-pin-options" @keydown.esc.stop.prevent="closePins">
                 <span class="todo-nav-label">固定到主菜单</span>
                 <ACheckbox v-for="item in pinOptions" :key="item[0]" :checked="pins.includes(item[0])" @change="togglePin(item[0])">{{ item[1] }}</ACheckbox>
@@ -209,12 +210,12 @@ const moreActive = computed(
         </APopover>
       </div>
       <div class="todo-module-utilities">
-        <AButton type="text" aria-label="通知" :class="{ active: section === 'notifications' }"
+        <AButton type="text" aria-label="通知" :class="{ active: section === 'notifications' }" :aria-describedby="unread ? unreadId : undefined"
           :aria-current="section === 'notifications' ? 'page' : undefined" @click="chooseModule('notifications')">
-          <ToDooIcon name="notifications" :size="20" /><span v-if="unread" class="todo-module-unread" :aria-label="`${unread} 条未读`">{{ unread > 99 ? '99+' : unread }}</span>
+          <ToDooIcon name="notifications" :size="21" /><span v-if="unread" :id="unreadId" class="todo-module-unread" :aria-label="`${unread} 条未读`">{{ unread > 99 ? '99+' : unread }}</span>
         </AButton>
         <AButton type="text" aria-label="设置" :class="{ active: section === 'settings' }"
-          :aria-current="section === 'settings' ? 'page' : undefined" @click="chooseModule('settings')"><ToDooIcon name="settings" :size="20" /></AButton>
+          :aria-current="section === 'settings' ? 'page' : undefined" @click="chooseModule('settings')"><ToDooIcon name="settings" :size="21" /></AButton>
       </div>
     </nav>
     <Teleport v-if="railHint" to="body">
@@ -225,7 +226,7 @@ const moreActive = computed(
       <div v-if="split" class="todo-directory-heading">
         <span>任务</span>
         <AButton type="text" class="todo-directory-toggle" aria-label="折叠清单导航" title="折叠清单导航" :aria-expanded="true"
-          @click="emit('toggle-directory', $event)"><ToDooIcon name="menu" :size="18" /></AButton>
+          @click="emit('toggle-directory', $event)"><ToDooIcon name="sidebar" :size="18" /></AButton>
       </div>
       <div :class="{ 'todo-task-scope-items': split }">
       <section class="todo-navigation-group" aria-label="我的待办">
@@ -235,11 +236,12 @@ const moreActive = computed(
           type="text"
           block
           :class="{ active: taskSection && !listId && quickView === view.id }"
+          :data-scope="view.id"
           :aria-label="view.name"
           :title="view.name"
           :aria-current="taskSection && !listId && quickView === view.id ? 'page' : undefined"
           @click="emit('quick', view.id)"
-          ><ToDooIcon :name="view.icon" :size="18" /><span>{{ view.name }}</span></AButton
+          ><ToDooIcon :name="view.id === 'done' ? 'completed' : view.icon" :size="18" /><span>{{ view.name }}</span></AButton
         >
       </section>
       <section v-if="split && pinnedTaskScopes.length" class="todo-navigation-group todo-pinned-task-scopes" aria-label="固定任务范围">
@@ -254,7 +256,7 @@ const moreActive = computed(
         <div class="todo-nav-section-heading">
           <AButton type="text" class="todo-list-disclosure" aria-label="我的清单" :aria-expanded="listsExpanded"
             :aria-controls="listItemsId" @click="listsExpanded = !listsExpanded">
-            <ToDooIcon name="chevron" :size="15" /><span>我的清单</span>
+            <ToDooIcon name="chevron" :size="14" /><span class="todo-nav-label">我的清单</span>
           </AButton>
           <AButton type="text" size="small" aria-label="新建清单" title="新建清单" @click="emit('new-list')"
             ><ToDooIcon name="plus" :size="16"
@@ -271,11 +273,9 @@ const moreActive = computed(
             :title="list.name"
             :aria-current="taskSection && listId === list.id ? 'page' : undefined"
             @click="emit('list', list.id)"
-            ><span
-              class="todo-list-dot"
-              :style="{ background: list.color || 'var(--todo-accent)' }"
-            ></span
-            ><span class="todo-nav-list-name">{{ list.name }}</span></AButton
+            ><ToDooIcon name="list" :size="18" class="todo-nav-list-icon"
+              :style="{ '--todo-list-color': list.color || 'var(--todo-muted)' }" />
+            <span class="todo-nav-list-name">{{ list.name }}</span></AButton
           >
           <AButton
             v-if="!split && !lists.length"
@@ -285,22 +285,27 @@ const moreActive = computed(
             @click="emit('new-list')"
             ><ToDooIcon name="plus" :size="16" />新建清单</AButton
           >
-          <p v-if="split && !lists.length && !listLoading && !listError" class="todo-directory-empty">暂无清单</p>
-          <p v-if="split && !lists.length && listLoading" class="todo-directory-empty" role="status">正在载入清单…</p>
+          <p v-if="split && !lists.length && !listLoading && !listError" class="todo-directory-empty">
+            <ToDooIcon name="list" :size="18" />暂无清单
+          </p>
+          <p v-if="split && !lists.length && listLoading" class="todo-directory-empty" role="status">
+            <ToDooIcon name="more" :size="18" />正在载入清单…
+          </p>
           <AButton
             v-if="hasMoreLists || listError"
+            class="todo-nav-load-lists"
             type="text"
             block
             :loading="listLoading"
             @click="emit('load-lists')"
-            >{{ listError ? '重试载入清单' : '更多清单' }}</AButton
+            ><ToDooIcon v-if="!listLoading" :name="listError ? 'refresh' : 'more'" :size="18" />{{ listError ? '重试载入清单' : '更多清单' }}</AButton
           >
         </div>
       </section>
       <section v-if="!split" class="todo-navigation-group" aria-label="计划与执行">
         <div class="todo-nav-section-heading"><span class="todo-nav-label">常用入口</span>
           <APopover v-model:open="pinOpen" trigger="click" title="固定常用入口" placement="rightTop" overlay-class-name="todo-ant-popup">
-            <AButton ref="pinTrigger" type="text" @keydown.esc.stop.prevent="closePins" size="small" aria-label="自定义常用入口" title="自定义常用入口" :aria-expanded="pinOpen">⋯</AButton>
+            <AButton ref="pinTrigger" type="text" @keydown.esc.stop.prevent="closePins" size="small" aria-label="自定义常用入口" title="自定义常用入口" :aria-expanded="pinOpen"><ToDooIcon name="more" :size="18" /></AButton>
             <template #content><div class="todo-navigation-pin-options" @keydown.esc.stop.prevent="closePins">
               <span class="todo-nav-label">模块</span>
               <ACheckbox v-for="item in pinOptions" :key="item[0]" :checked="pins.includes(item[0])" @change="togglePin(item[0])">{{ item[1] }}</ACheckbox>

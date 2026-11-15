@@ -33,6 +33,14 @@ export const toDooQuickViews = [
   { id: 'done', name: '已完成', icon: 'check' },
 ] as const;
 
+export function toDooTaskScopeIcon(view: ToDooQuickFilter, listId?: string) {
+  if (listId) return 'list';
+  const standard = toDooQuickViews.find(entry => entry.id === view);
+  if (standard) return standard.icon;
+  const other = { overdue: 'calendar', unscheduled: 'inbox', blocked: 'tasks', archived: 'archive', trash: 'trash' };
+  return view in other ? other[view as keyof typeof other] : 'tasks';
+}
+
 export function toDooQuickFilter(
   current: ToDooFilter,
   value: ToDooQuickFilter,

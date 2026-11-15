@@ -10,6 +10,7 @@ import {
   toDooDeadlineOverdue,
 } from '../../to-doo-workbench';
 import { toDooDateLabel } from '../../to-doo-presentation';
+import ToDooIcon from './ToDooIcon.vue';
 const props = withDefaults(
   defineProps<{
     item: ToDooItem;
@@ -138,7 +139,7 @@ const dates = computed(() => {
       @click="emit('complete', item)"
       type="text"
     >
-      <span class="todo-check-indicator" aria-hidden="true">{{ item.status === 'done' ? '✓' : '' }}</span>
+      <span class="todo-check-indicator" aria-hidden="true"><ToDooIcon name="check" :size="14" /></span>
     </AButton>
     <AButton
       html-type="button"
@@ -157,9 +158,9 @@ const dates = computed(() => {
           :aria-label="'优先级：' + toDooPriorityLabels[item.task.priority]"
           >{{ toDooPriorityLabels[item.task.priority] }}优先级</ATag
         >
-        <span v-if="displayFields?.list !== false && item.list && !hideList" class="todo-row-list">{{ item.list.name }}</span>
-        <span v-if="displayFields?.resources !== false && item.task.noteRefs.length" :aria-label="'关联资料 ' + item.task.noteRefs.length + ' 份'">▤ {{ item.task.noteRefs.length }}</span>
-        <span v-if="displayFields?.recurrence !== false && item.task.recurrence" title="重复任务" aria-label="重复任务">↻</span>
+        <span v-if="displayFields?.list !== false && item.list && !hideList" class="todo-row-list" :title="item.list.name"><span>{{ item.list.name }}</span></span>
+        <span v-if="displayFields?.resources !== false && item.task.noteRefs.length" class="todo-row-symbol" :aria-label="'关联资料 ' + item.task.noteRefs.length + ' 份'"><ToDooIcon name="attachment" :size="14" />{{ item.task.noteRefs.length }}</span>
+        <span v-if="displayFields?.recurrence !== false && item.task.recurrence" class="todo-row-symbol" title="重复任务" aria-label="重复任务"><ToDooIcon name="repeat" :size="14" /></span>
         <span v-if="item.status === 'blocked'">受阻</span>
         <span v-if="item.status === 'cancelled'">已取消</span>
         <span v-if="item.status === 'skipped'">已跳过</span>
@@ -203,5 +204,16 @@ const dates = computed(() => {
 <style scoped>
 .todo-task-row {
   cursor: pointer;
+}
+.todo-row-symbol {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--todo-space-4);
+}
+.todo-row-list > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

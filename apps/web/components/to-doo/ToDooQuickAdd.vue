@@ -222,7 +222,7 @@ async function add() {
     @focusout="leaveFocus"
   >
     <div class="todo-quick-add-line">
-      <ToDooIcon name="plus" :size="19" />
+      <ToDooIcon name="plus" :size="17" />
       <AInput
         v-model:value="draft.title"
         aria-label="快速添加任务"
@@ -234,6 +234,7 @@ async function add() {
         @compositionend="composing = false"
         @keydown.enter="enter"
       />
+      <kbd v-if="!expanded && !draft.title && !waitingForReceipt" class="todo-capture-shortcut" aria-hidden="true">Q</kbd>
       <AButton
         v-if="draft.title.trim()"
         html-type="submit"
@@ -330,6 +331,24 @@ async function add() {
 </template>
 
 <style scoped>
+.todo-capture-shortcut {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .to-doo-workspace:not(.todo-has-detail) .todo-capture-shortcut {
+    display: inline-grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    border: 1px solid var(--todo-line);
+    border-radius: 4px;
+    color: var(--todo-muted);
+    background: var(--todo-paper);
+    font: inherit;
+    font-size: var(--todo-caption-size);
+    line-height: 1;
+  }
+}
 .todo-capture-feedback > span {
   display: block;
   padding: 0 12px 6px;

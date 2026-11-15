@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toDooAdditionalFilters, toDooFilterSummary } from '../../to-doo-presentation';
+import { toDooAdditionalFilters, toDooFilterSummary, toDooTaskScopeIcon } from '../../to-doo-presentation';
 import ToDooDisclosure from './ToDooDisclosure.vue';
 import ToDooTaskOverviewSummary from './ToDooTaskOverviewSummary.vue';
 import { useToDooConfirm } from '../../to-doo-controls';
@@ -1047,14 +1047,14 @@ function saveView() {
     >
 
       <APopover v-model:open="toolsOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-search-popup">
-        <AButton ref="searchTrigger" type="text" @keydown.esc.stop.prevent="closePopup('search')" class="todo-task-tools-toggle" aria-label="搜索任务" title="搜索任务 (/)" aria-keyshortcuts="/" :aria-expanded="toolsOpen" :class="{ 'is-active': state.filter.query }"><ToDooIcon name="search" :size="16" /><span>搜索</span></AButton>
+        <AButton ref="searchTrigger" type="text" @keydown.esc.stop.prevent="closePopup('search')" class="todo-task-tools-toggle todo-toolbar-tool" aria-label="搜索任务" title="搜索任务 (/)" aria-keyshortcuts="/" :aria-expanded="toolsOpen" :class="{ 'is-active': toolsOpen || state.filter.query }"><ToDooIcon name="search" :size="17" /><span class="todo-tool-label">搜索</span></AButton>
         <template #content><form ref="searchForm" class="todo-task-search-form" role="search" @submit.prevent="filterChanged" @keydown.esc.stop.prevent="closePopup('search')">
           <label>搜索任务<AInput v-model:value="state.filter.query" :placeholder="searchPlaceholder" aria-label="搜索任务" allow-clear /></label>
           <div class="todo-actions"><AButton html-type="submit" type="primary" aria-label="执行搜索">搜索</AButton><AButton v-if="canSearchAll" type="link" @click="emit('search-all'); closePopup('search')">在所有任务中搜索</AButton><AButton v-if="state.filter.query" type="text" @click="state.filter.query = ''; filterChanged()">清除搜索</AButton><AButton type="text" @click="closePopup('search')">关闭</AButton></div>
         </form></template>
       </APopover>
       <APopover v-model:open="filterOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-filter-popup">
-        <AButton ref="filterTrigger" html-type="button" @keydown.esc.stop.prevent="closePopup('filter')" class="todo-button todo-filter-toggle" :class="{ 'is-active': filterOpen || filterCount }" :aria-expanded="filterOpen" type="default"><ToDooIcon name="filter" :size="16" />筛选<small v-if="filterCount">{{ filterCount }}</small></AButton>
+        <AButton ref="filterTrigger" html-type="button" @keydown.esc.stop.prevent="closePopup('filter')" class="todo-filter-toggle todo-toolbar-tool" :class="{ 'is-active': filterOpen || filterCount }" :aria-label="filterCount ? '筛选 (' + filterCount + ')' : '筛选'" title="筛选" :aria-expanded="filterOpen" type="text"><ToDooIcon name="filter" :size="17" /><span class="todo-tool-label">筛选</span><small v-if="filterCount">{{ filterCount }}</small></AButton>
         <template #content><form class="todo-task-filter-form" @submit.prevent="filterChanged" @keydown.esc.stop.prevent="closePopup('filter')">
           <label>优先级<ToDooSelect :value="state.filter.priorities?.length === 1 ? state.filter.priorities[0] : ''" aria-label="筛选优先级" @change="state.filter.priorities = $event ? [$event] : []; filterChanged()"><option value="">全部优先级</option><option v-for="(label, value) in toDooPriorityLabels" :key="value" :value="value">{{ label }}</option></ToDooSelect></label>
           <label>标签<ToDooSelect :value="state.filter.tagIds?.[0] || ''" aria-label="筛选标签" @change="state.filter.tagIds = $event ? [$event] : []; filterChanged()"><option value="">全部标签</option><option v-for="tag in state.snapshot?.tags.filter((t) => !t.deletedAt)" :key="tag.id" :value="tag.id">{{ tag.name }}</option></ToDooSelect></label>
@@ -1062,7 +1062,7 @@ function saveView() {
         </form></template>
       </APopover>
       <APopover v-model:open="displayOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-display-popup">
-        <AButton ref="displayTrigger" type="text" @keydown.esc.stop.prevent="closePopup('display')" aria-label="任务显示与管理" :aria-expanded="displayOpen">更多</AButton>
+        <AButton ref="displayTrigger" type="text" @keydown.esc.stop.prevent="closePopup('display')" class="todo-toolbar-tool todo-display-tool" :class="{ 'is-active': displayOpen }" aria-label="任务显示与管理" title="任务显示与管理" :aria-expanded="displayOpen"><ToDooIcon name="more" :size="19" /><span class="todo-tool-label">更多</span></AButton>
         <template #content><div class="todo-task-display-form" @keydown.esc.stop.prevent="closePopup('display')"><label>展示方式      <ToDooSelect
         class="todo-view-picker"
         aria-label="任务展示方式"
@@ -1371,7 +1371,7 @@ function saveView() {
       </section>
       <div v-if="!items.length" class="todo-empty">
         <span class="todo-empty-check" aria-hidden="true"
-          ><ToDooIcon name="check" :size="28"
+          ><ToDooIcon :name="filterCount ? 'search' : toDooTaskScopeIcon(builtin, scopeListId)" :size="24"
         /></span>
         <h2>{{ emptyTitle }}</h2>
         <AButton v-if="canSearchAll && !toolsOpen" type="default" @click="emit('search-all')"
@@ -1930,9 +1930,12 @@ function saveView() {
   margin-bottom: 0;
 }
 .todo-task-list-capture :deep(.todo-quick-add) {
-  background: var(--todo-soft);
-  border-radius: 8px;
-  margin: var(--todo-space-8) 0 var(--todo-space-4);
+  background: color-mix(in srgb, var(--todo-soft) 72%, var(--todo-paper));
+  border-radius: var(--todo-control-radius);
+  margin: var(--todo-space-8) 0 var(--todo-space-8);
+}
+.todo-task-list-capture :deep(.todo-quick-add:focus-within) {
+  background: var(--todo-paper);
 }
 .todo-task-list-panel > .todo-task-list-heading {
   padding: 0 10px;

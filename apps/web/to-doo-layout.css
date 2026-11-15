@@ -28,6 +28,26 @@
   letter-spacing: normal;
   overflow-wrap: anywhere;
 }
+.todo-task-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--todo-space-8);
+}
+.todo-task-scope-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  color: color-mix(in srgb, var(--scope-color, var(--todo-accent)) 78%, var(--todo-ink));
+  background: color-mix(in srgb, var(--scope-color, var(--todo-accent)) 11%, var(--todo-paper));
+}
+.todo-task-heading-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .to-doo-workspace .todo-page-heading p {
   margin: var(--todo-space-4) 0 0;
   color: var(--todo-muted);
@@ -56,6 +76,36 @@
   gap: var(--todo-space-8);
   min-width: 0;
   margin-bottom: var(--todo-space-8);
+}
+.to-doo-workspace .todo-page-heading .todo-task-list-create .ant-btn {
+  color: var(--todo-accent);
+  border-color: color-mix(in srgb, var(--todo-accent) 28%, var(--todo-line));
+  background: var(--todo-paper);
+  box-shadow: none;
+}
+.to-doo-workspace .todo-page-heading .todo-task-list-create .ant-btn:hover {
+  border-color: var(--todo-accent);
+  background: var(--todo-tint);
+}
+.to-doo-workspace .todo-page-heading .todo-toolbar-tool.ant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--todo-space-4);
+  width: auto;
+  min-width: var(--todo-control-height);
+  padding-inline: var(--todo-space-8);
+  color: var(--todo-muted);
+}
+.to-doo-workspace .todo-page-heading .todo-toolbar-tool:is(:hover, :focus-visible, .is-active) {
+  color: var(--todo-accent);
+  background: var(--todo-tint);
+}
+.to-doo-workspace .todo-display-tool .todo-tool-label { display: none; }
+@container (max-width: 740px) {
+  .to-doo-workspace .todo-page-heading .todo-toolbar-tool { padding-inline: var(--todo-space-4); }
+  .todo-task-toolbar .todo-tool-label { display: none; }
+  .to-doo-workspace .todo-page-heading-copy:has(.todo-task-heading) { flex-basis: 5em; }
 }
 .to-doo-workspace .todo-page-toolbar > .todo-actions {
   min-width: 0;

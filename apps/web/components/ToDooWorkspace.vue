@@ -66,6 +66,7 @@ import ToDooPageLoadError from './to-doo/ToDooPageLoadError.vue';
 import {
   toDooQuickFilter,
   toDooQuickViews,
+  toDooTaskScopeIcon,
   toDooFilterSummary,
   toDooAdditionalFilters,
   toDooDateLabel,
@@ -569,13 +570,13 @@ const nav: [ToDooAppSection, string, string][] = [
   ['notifications', '通知中心', '♧'],
   ['settings', '设置', '⚙'],
 ];
+const selectedList = computed(() => lists.value.find(list => list.id === props.selection.list));
 const title = computed(() =>
   props.selection.list &&
   ['tasks', 'board', 'matrix', 'calendar', 'timeline'].includes(props.section)
-    ? lists.value.find((l) => l.id === props.selection.list)?.name || '当前清单'
+    ? selectedList.value?.name || '当前清单'
     : props.section === 'tasks'
-      ? lists.value.find((l) => l.id === props.selection.list)?.name ||
-        toDooQuickViews.find((v) => v.id === quickView.value)?.name ||
+      ? toDooQuickViews.find((v) => v.id === quickView.value)?.name ||
         '所有任务'
       : nav.find((n) => n[0] === props.section)?.[1] || '目标总览',
 );
@@ -1438,6 +1439,14 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       </div>
       <div class="todo-page" :class="{ 'todo-page-matrix': section === 'matrix' }">
         <ToDooPageHeader :title="showTaskScope ? scopeTitle : title">
+          <template v-if="section === 'tasks'" #title>
+            <span class="todo-task-heading">
+              <span class="todo-task-scope-icon" :style="{ '--scope-color': selectedList?.color || undefined }">
+                <ToDooIcon :name="toDooTaskScopeIcon(quickView, selection.list)" :size="18" />
+              </span>
+              <span class="todo-task-heading-name">{{ scopeTitle }}</span>
+            </span>
+          </template>
           <template
             v-if="
               taskSections.includes(section) ||
@@ -1479,11 +1488,13 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               class="todo-task-create-actions"
               :class="{
                 'todo-has-drafts': showTaskScope && (retainedTaskDrafts.length || retainedEdits.length || state.legacyRecoveryAvailable) && !creating,
+                'todo-task-list-create': section === 'tasks',
               }"
             >
               <AButton
-                type="primary"
-                class="todo-button todo-primary"
+                :type="section === 'tasks' ? 'default' : 'primary'"
+                class="todo-button"
+                :class="{ 'todo-primary': section !== 'tasks' }"
                 aria-label="新建任务"
                 @click="createPageTask()"
                 >＋ 新建任务</AButton
@@ -1496,8 +1507,9 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
                 overlay-class-name="todo-ant-popup todo-task-drafts-popup"
               >
                 <AButton
-                  type="primary"
-                  class="todo-button todo-primary todo-task-drafts-trigger"
+                  :type="section === 'tasks' ? 'default' : 'primary'"
+                  class="todo-button todo-task-drafts-trigger"
+                  :class="{ 'todo-primary': section !== 'tasks' }"
                   aria-label="任务草稿"
                   title="任务草稿"
                   aria-haspopup="menu"

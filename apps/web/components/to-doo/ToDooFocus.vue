@@ -22,6 +22,7 @@ import {
   Modal as AModal,
   Segmented as ASegmented,
   Statistic as AStatistic,
+  Tag as ATag,
 } from 'ant-design-vue';
 import type {
   ToDooEntityKind,
@@ -331,6 +332,13 @@ const taskOptions = computed(() => [
     }),
 ]);
 const elapsed = computed(() => (active.value ? focusElapsed(active.value, now.value) : 0));
+// A countdown shows the remaining share. An open-ended stopwatch has no percentage.
+const dialRemaining = computed(() => {
+  if ((active.value?.mode ?? mode.value) === 'stopwatch') return null;
+  const minutes = Number(active.value ? active.value.targetMinutes : target.value);
+  if (!(minutes > 0)) return 0;
+  return Math.max(0, Math.min(100, 100 * (1 - elapsed.value / (minutes * 60))));
+});
 const display = computed(() => {
   const seconds = active.value
     ? active.value.targetMinutes === null
@@ -399,7 +407,7 @@ function timeRange(session: Session) {
           ? toDooLocalDate(new Date(end), history.value?.timeZone) + ' '
           : '') +
         format(end)
-      : ' · ' + statusLabel(session.status))
+      : '')
   );
 }
 function query() {
@@ -918,19 +926,29 @@ async function resolveNoteConflict(merge: boolean) {
   <div ref="focusRoot" class="todo-focus-workspace">
     <section
       class="todo-focus-timer"
-      :class="{ 'has-focus-task-picker': !active }"
+      :data-status="active?.status ?? 'idle'"
+      :data-mode="active?.mode ?? mode"
       aria-label="专注计时器"
     >
+      <div class="todo-focus-dial">
+        <svg class="todo-focus-ring" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+          <circle class="todo-focus-track" cx="60" cy="60" r="55" />
+          <circle v-if="dialRemaining !== null && dialRemaining > 0" class="todo-focus-remaining"
+            cx="60" cy="60" r="55" pathLength="100" :stroke-dasharray="dialRemaining + ' 100'"
+            transform="rotate(-90 60 60)" />
+        </svg>
+        <span class="todo-focus-timer-clock" :class="{ 'is-long': display.length > 5 }"
+          role="timer" aria-label="专注计时">{{ display }}</span>
+      </div>
       <div class="todo-focus-timer-context">
-        <ToDooIcon name="focus" :size="24" />
-        <div>
-          <strong>{{ active ? sessionName(active) : selected?.name || '自由专注' }}</strong
-          ><small
-            >{{
+        <div class="todo-focus-current">
+          <strong>{{ active ? sessionName(active) : selected?.name || '自由专注' }}</strong>
+          <div class="todo-focus-session-meta">
+            <span class="todo-focus-state">{{
               active ? statusLabel(active.status) : selected?.archivedAt ? '项目已归档' : '准备开始'
-            }}
-            · {{ timerSummary }}</small
-          >
+            }}</span>
+            <span>{{ timerSummary }}</span>
+          </div>
           <small
             v-if="active && linkedAction && linkedAction !== sessionName(active)"
             class="todo-focus-linked-action"
@@ -955,20 +973,18 @@ async function resolveNoteConflict(merge: boolean) {
           :disabled="state.busy || focusBusy"
         />
       </label>
-      <span class="todo-focus-timer-clock" role="timer" aria-label="专注计时">{{ display }}</span>
       <AButton
         type="text"
         class="todo-focus-settings-toggle"
         aria-label="计时设置"
         :aria-expanded="timerSettings"
         @click="timerSettings = true"
-        >{{ active ? '记录与设置' : '设置' }}</AButton
+        ><ToDooIcon name="settings" :size="16" /><span>{{ active ? '记录与设置' : '设置' }}</span></AButton
       >
       <div class="todo-focus-timer-actions">
         <template v-if="active"
           ><AButton
             type="primary"
-            class="todo-button todo-primary"
             :disabled="state.busy || focusBusy"
             @click="control(active.status === 'paused' ? 'resume' : 'pause')"
             >{{ active.status === 'paused' ? '继续' : '暂停' }}</AButton
@@ -980,7 +996,6 @@ async function resolveNoteConflict(merge: boolean) {
         ><AButton
           v-else
           type="primary"
-          class="todo-button todo-primary"
           :disabled="
             startUnavailable ||
             (!!selected?.archivedAt && !(mode === 'break' && target === 0))
@@ -1023,12 +1038,12 @@ async function resolveNoteConflict(merge: boolean) {
         aria-label="专注项目"
       >
         <ToDooPageToolbar>
-          <span class="todo-focus-project-label">{{ archived === 'archived' ? '已归档项目' : '选择项目' }}</span>
-          <AButton type="text" :disabled="!!active" :aria-pressed="!selectedTopic && !chosen" @click="freeFocus"
+          <h2 class="todo-focus-project-label">{{ archived === 'archived' ? '已归档项目' : '专注项目' }}</h2>
+          <AButton type="text" class="todo-focus-free" :disabled="!!active" :aria-pressed="!selectedTopic && !chosen" @click="freeFocus"
             >自由专注</AButton
           >
           <ADropdown :trigger="['click']" overlay-class-name="todo-ant-popup">
-            <AButton type="text" aria-label="专注项目更多"><ToDooIcon name="more" :size="16" /></AButton>
+            <AButton type="text" class="todo-icon-button" aria-label="专注项目更多"><ToDooIcon name="more" :size="16" /></AButton>
             <template #overlay>
               <AMenu :selectable="false">
                 <AMenuItem :disabled="state.busy" @click="emit('edit', 'focusTopic')">新建项目</AMenuItem>
@@ -1060,21 +1075,21 @@ async function resolveNoteConflict(merge: boolean) {
             :disabled="!!active || state.busy || focusBusy"
             @click="chooseTopic(topic)"
             ><span class="todo-focus-topic-icon" :style="{ color: topic.color }"
-              ><ToDooIcon name="focus" :size="22" /></span
+              ><ToDooIcon name="focus" :size="16" /></span
             ><span>{{ topic.name }}</span></AButton
           >
           <AButton
             type="text"
             class="todo-focus-topic-total"
             :aria-label="'查看累计 ' + topic.name"
+            :title="'查看累计 ' + topic.name"
             @click="viewTopicHistory(topic)"
           >
-            <span>{{ duration(totals?.byTopic[topic.id]?.lifetime.minutes) }}</span
-            ><small>查看累计</small>
+            <small>累计</small><span>{{ duration(totals?.byTopic[topic.id]?.lifetime.minutes) }}</span>
           </AButton>
           <div class="todo-focus-topic-actions">
             <ADropdown :trigger="['click']" overlay-class-name="todo-ant-popup"
-              ><AButton type="text" class="todo-focus-topic-menu" :aria-label="'专注项目操作 ' + topic.name"
+              ><AButton type="text" class="todo-icon-button todo-focus-topic-menu" :aria-label="'专注项目操作 ' + topic.name"
                 ><ToDooIcon name="more" :size="17" /></AButton
               ><template #overlay
                 ><AMenu
@@ -1089,23 +1104,25 @@ async function resolveNoteConflict(merge: boolean) {
             <AButton
               v-if="!active && !topic.archivedAt && mode !== 'break'"
               type="text"
+              shape="circle"
               class="todo-focus-topic-start"
               :aria-label="'开始项目专注 ' + topic.name"
               :title="'开始项目专注 ' + topic.name"
               :disabled="startUnavailable"
               @click="start(topic)"
-              ><ToDooIcon name="play" :size="17" /></AButton>
+              ><ToDooIcon name="play" :size="15" /></AButton>
           </div>
         </article>
         <AEmpty
           v-if="!topics.length"
+          :image="AEmpty.PRESENTED_IMAGE_SIMPLE"
           :description="archived === 'archived' ? '暂无归档项目' : '还没有专注项目'"
           class="todo-focus-empty"
           ><AButton
             v-if="archived !== 'archived'"
             type="default"
             @click="emit('edit', 'focusTopic')"
-            >创建专注项目</AButton
+            ><ToDooIcon name="plus" :size="14" />创建专注项目</AButton
           ></AEmpty
         >
         <AButton v-if="topicCursor" block :loading="topicLoading" @click="loadTopics(true)"
@@ -1215,22 +1232,22 @@ async function resolveNoteConflict(merge: boolean) {
               :key="session.id"
               class="todo-focus-history-item"
               :data-session-id="session.id"
+              :data-status="session.status"
+              :data-mode="session.mode"
             >
               <ToDooIcon name="focus" :size="17" />
               <div class="todo-focus-history-copy">
-                <div class="todo-between">
+                <div class="todo-focus-history-title">
                   <strong>{{ sessionName(session) }}</strong
-                  ><span
-                    >{{ duration(focusElapsed(session, now) / 60)
-                    }}<small v-if="session.correctedMinutes !== null" class="todo-focus-corrected"
-                      >已修正</small
-                    ></span
-                  >
+                  ><span>{{ duration(focusElapsed(session, now) / 60) }}
+                    <ATag v-if="session.correctedMinutes !== null" :bordered="false" class="todo-focus-corrected">已修正</ATag>
+                  </span>
                 </div>
-                <small
-                  >{{ timeRange(session) }} ·
-                  {{ session.mode === 'break' ? '休息' : statusLabel(session.status) }}</small
-                >
+                <div class="todo-focus-history-meta">
+                  <span>{{ timeRange(session) }}</span>
+                  <span v-if="session.mode === 'break'">休息</span>
+                  <span class="todo-focus-state">{{ statusLabel(session.status) }}</span>
+                </div>
                 <p v-if="session.taskTitle && session.topicName" class="todo-muted">
                   {{ session.taskTitle }}
                 </p>
@@ -1295,7 +1312,8 @@ async function resolveNoteConflict(merge: boolean) {
               </div>
             </article>
           </section>
-          <AEmpty v-if="history && !items.length" description="这个范围内还没有专注记录" />
+          <AEmpty v-if="history && !items.length" class="todo-focus-empty"
+            :image="AEmpty.PRESENTED_IMAGE_SIMPLE" description="这个范围内还没有专注记录" />
         </div>
         <p v-if="pageError" class="todo-focus-page-error" role="alert">{{ pageError }}</p>
         <div class="todo-focus-history-footer">
