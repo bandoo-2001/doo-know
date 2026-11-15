@@ -198,6 +198,8 @@ function model() {
   });
   return {
     state,
+    ensureListCatalog: vi.fn(async () => {}),
+    taskLists: () => (state.snapshot as any).lists || [],
     execute: vi.fn(async () => ({})),
     removeEntity: vi.fn(),
     request: async (url: string) =>
@@ -375,7 +377,7 @@ test('anniversaries keep lunar origins visible and place additional content in a
       }),
     ],
   });
-  const view = mount('ToDooRhythm', { model: value, section: 'anniversaries' });
+  const view = mount('ToDooRhythm', { model: value, section: 'anniversaries', context: 'all' });
   const lunar = view.all().find((n) => n.tag === 'article' && view.text(n).includes('中秋'))!;
   const solar = view.all().find((n) => n.tag === 'article' && view.text(n).includes('见面'))!;
   const original = view
@@ -391,4 +393,25 @@ test('anniversaries keep lunar origins visible and place additional content in a
   expect(view.text(solar)).not.toContain('重要日子');
   expect(view.text(solar)).not.toContain('公历原日期：');
   expect(view.text(solar)).toContain('下次公历：2026-11-05');
+});
+
+test('default anniversaries include today and the next thirty days without discarding the all range', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-10-30T12:00:00Z'));
+  const value = model();
+  (value.state.snapshot as any).anniversaries = [
+    ['today', '2026-10-30'], ['soon', '2026-11-05'], ['later', '2026-12-05'], ['past', '2026-10-01'],
+  ].map(([name, date]) => toDooEntitySchemas.anniversary.parse({
+    id: name, name, date, repeatYearly: false, revision: 'r1',
+    createdAt: '2026-10-30T12:00:00Z', updatedAt: '2026-10-30T12:00:00Z',
+  }));
+  const view = mount('ToDooRhythm', { model: value, section: 'anniversaries' });
+  const cards = () => view.all().filter(node => node.tag === 'article').map(node => view.text(node));
+  expect(cards()).toHaveLength(2);
+  expect(cards().some(text => text.includes('today') && text.includes('就是今天'))).toBe(true);
+  expect(cards().some(text => text.includes('soon'))).toBe(true);
+  const ranges = view.all().find(node => node.props['aria-label'] === '纪念日范围')!;
+  ranges.props['onUpdate:value']('all');
+  await Vue.nextTick();
+  expect(cards()).toHaveLength(4);
 });

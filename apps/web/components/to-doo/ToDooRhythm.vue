@@ -63,9 +63,6 @@ const habits = computed(
 );
 const habitList = (habit: ToDooEntityMap['habit']) =>
   lists.value.find((list) => list.id === habit.listId);
-function createHabit() {
-  emit('edit', 'habit', undefined, props.listId ? { listId: props.listId } : undefined);
-}
 const localHabitPane = ref('today');
 const habitPane = computed({
   get: () =>
@@ -81,7 +78,7 @@ const habitPane = computed({
 });
 const habitHistory = ref<HTMLElement>();
 let appliedHistoryRequest = 0;
-const localAnniversaryFilter = ref('all');
+const localAnniversaryFilter = ref('upcoming');
 const anniversaryFilter = computed({
   get: () =>
     props.context === undefined
@@ -275,7 +272,7 @@ const filteredAnniversaries = computed(() =>
     if (!next) return false;
     if (anniversaryFilter.value === 'today') return next === today.value;
     if (anniversaryFilter.value === 'past') return next < today.value;
-    return next > today.value && next <= shiftToDooDate(today.value, 30);
+    return next >= today.value && next <= shiftToDooDate(today.value, 30);
   }),
 );
 const anniversaryGroups = computed(() => {
@@ -290,7 +287,7 @@ const anniversaryGroups = computed(() => {
           ? 'soon'
           : 'later';
   return [
-    { id: 'soon', label: '未来 30 天' },
+    { id: 'soon', label: '今天及未来 30 天' },
     { id: 'later', label: '更远的日子' },
     { id: 'past', label: '已经过去' },
     { id: 'invalid', label: '待核对日期' },
@@ -577,10 +574,7 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
           { label: '历史', value: 'history' },
         ]"
       />
-      <span v-if="habitPane === 'today'" class="todo-muted">{{ today }}</span>
-      <span v-if="habitPane === 'today'" class="todo-muted">{{
-        state.snapshot?.settings.timeZone
-      }}</span>
+      <span v-if="habitPane === 'today'" class="todo-muted todo-habit-date">{{ today }} · {{ state.snapshot?.settings.timeZone }}</span>
       <div v-else class="todo-actions">
         <AButton type="text" class="todo-icon-button" aria-label="上一周" @click="weekOffset--">
           ‹
@@ -649,13 +643,11 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
           @list="emit('list', $event)"
         />
       </section>
-      <AEmpty v-if="!habits.length" :description="listId ? '这个清单还没有关联习惯' : '还没有习惯'">
-        <AButton @click="createHabit">新建习惯</AButton>
-      </AEmpty>
+      <AEmpty v-if="!habits.length && !habitLoading && !habitError" :image="AEmpty.PRESENTED_IMAGE_SIMPLE" :description="listId ? '这个清单还没有关联习惯' : '还没有习惯'" />
     </div>
     <template v-else>
       <section ref="habitHistory" class="todo-panel todo-habit-table">
-        <div class="todo-habit-row head">
+        <div v-if="habits.length" class="todo-habit-row head">
           <span>习惯</span
           ><span v-for="d in days" :key="d"
             >{{
@@ -732,9 +724,7 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
             </button>
           </div>
         </div>
-        <AEmpty v-if="!habits.length" class="todo-empty" description="还没有习惯记录">
-          <AButton type="default" class="todo-button" @click="createHabit">新建习惯</AButton>
-        </AEmpty>
+        <AEmpty v-if="!habits.length && !habitLoading && !habitError" class="todo-empty" :image="AEmpty.PRESENTED_IMAGE_SIMPLE" description="还没有习惯记录" />
       </section></template
     ></template
   >
@@ -744,12 +734,13 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
         v-model:value="anniversaryFilter"
         aria-label="纪念日范围"
         :options="[
-          { label: '全部', value: 'all' },
           { label: '即将到来', value: 'upcoming' },
           { label: '今天', value: 'today' },
+          { label: '全部', value: 'all' },
           { label: '已过去', value: 'past' },
         ]"
       />
+      <AButton v-if="anniversaries.some(a => !a.next) && anniversaryFilter !== 'all'" type="text" @click="anniversaryFilter = 'all'">{{ anniversaries.filter(a => !a.next).length }} 项日期待核对</AButton>
     </ToDooPageToolbar>
     <section v-for="group in anniversaryGroups" :key="group.id" class="todo-anniversary-group">
       <ToDooSectionHeader v-if="group.label" :title="group.label" />
@@ -762,18 +753,10 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
           :data-card-palette="a.entity.appearance?.palette || 'rose'"
           :aria-label="'纪念日 ' + a.entity.name"
         >
-          <div class="todo-between todo-anniversary-heading">
-            <span v-if="a.entity.category" class="todo-badge">{{ a.entity.category }}</span
-            ><AButton
-              type="text"
-              class="todo-icon-button"
-              :aria-label="'编辑 ' + a.entity.name"
-              @click="emit('edit', 'anniversary', a.entity)"
-            >
-              ⋯
-            </AButton>
+          <div v-if="a.entity.category" class="todo-between todo-anniversary-heading">
+            <span class="todo-badge">{{ a.entity.category }}</span>
           </div>
-          <h2>{{ a.entity.name }}</h2>
+          <h2><AButton type="text" class="todo-anniversary-title" :aria-label="'编辑 ' + a.entity.name" @click="emit('edit', 'anniversary', a.entity)">{{ a.entity.name }}</AButton></h2>
           <p v-if="a.next === today" class="todo-anniversary-today">就是今天</p>
           <p class="todo-days" v-else-if="a.next">
             <small>{{ a.next >= today ? '还有' : '已经' }}</small
@@ -827,16 +810,14 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
     </section>
     <AEmpty
       v-if="!anniversaries.length"
-      class="todo-empty todo-panel"
+      class="todo-empty"
+      :image="AEmpty.PRESENTED_IMAGE_SIMPLE"
       description="记得重要日子，也为它做好准备"
-    >
-      <AButton type="default" class="todo-button" @click="emit('edit', 'anniversary')">
-        新建纪念日
-      </AButton>
-    </AEmpty>
+    />
     <AEmpty
       v-else-if="!filteredAnniversaries.length"
-      class="todo-empty todo-panel"
+      class="todo-empty"
+      :image="AEmpty.PRESENTED_IMAGE_SIMPLE"
       description="这个范围内还没有纪念日"
     >
       <AButton @click="anniversaryFilter = 'all'">查看全部纪念日</AButton>
@@ -1019,10 +1000,10 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
 }
 .todo-life-toolbar {
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--todo-space-12);
 }
 .todo-life-toolbar h2 {
-  font-size: 15px;
+  font-size: var(--todo-font-size);
   overflow-wrap: anywhere;
 }
 .todo-life-toolbar .todo-actions {
@@ -1033,13 +1014,10 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 10px;
-  margin: -4px 0 16px;
-  padding: 8px 12px;
-  background: var(--todo-soft);
-  border-radius: 6px;
+  gap: var(--todo-space-4) var(--todo-space-12);
+  margin: 0 0 var(--todo-space-16);
   color: var(--todo-muted);
-  font-size: 13px;
+  font-size: var(--todo-caption-size);
 }
 .todo-habit-scope > span {
   min-width: 0;
@@ -1047,12 +1025,12 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
 }
 .todo-habit-scope .ant-btn {
   height: auto;
-  padding: 3px 0;
-  font-size: 13px;
+  padding: var(--todo-space-4) 0;
+  font-size: var(--todo-font-size);
 }
 .todo-habit-today-group {
   display: grid;
-  gap: 12px;
+  gap: var(--todo-space-12);
   min-width: 0;
 }
 .todo-habit-today-heading {
@@ -1066,13 +1044,26 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
   font-size: var(--todo-caption-size);
   font-weight: 400;
 }
-.todo-anniversary-heading > .ant-btn {
-  margin-left: auto;
+.todo-habit-date {
+  margin-inline-start: auto;
+  font-size: var(--todo-caption-size);
+}
+.todo-anniversary-title.ant-btn {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  padding: 0;
+  font-size: inherit;
+  font-weight: 600;
+  line-height: inherit;
+  white-space: normal;
+  text-align: start;
+  overflow-wrap: anywhere;
 }
 .todo-anniversary-details {
   margin-top: auto;
   color: var(--todo-muted);
-  font-size: 12px;
+  font-size: var(--todo-caption-size);
 }
 .todo-anniversary-details summary {
   cursor: pointer;
@@ -1085,9 +1076,9 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
 }
 .todo-anniversary-details-content {
   display: grid;
-  gap: 10px;
-  margin-top: 12px;
-  padding-top: 12px;
+  gap: var(--todo-space-8);
+  margin-top: var(--todo-space-12);
+  padding-top: var(--todo-space-12);
   border-top: 1px solid var(--todo-line);
   color: var(--todo-ink);
 }
@@ -1099,9 +1090,9 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
 }
 .todo-anniversary-today {
   color: var(--todo-accent);
-  font-size: 28px;
-  font-weight: 650;
-  padding-block: 12px;
+  font-size: var(--todo-heading-line-height);
+  font-weight: 600;
+  padding-block: var(--todo-space-12);
 }
 .todo-habit-check {
   width: auto;

@@ -374,7 +374,7 @@ test('a lunar anniversary distinguishes its original lunar date from the next Gr
       }),
     ],
   });
-  const view = mount('ToDooRhythm', { model: value, section: 'anniversaries' });
+  const view = mount('ToDooRhythm', { model: value, section: 'anniversaries', context: 'all' });
   const content = view
     .all()
     .map((node) => node.text)
@@ -625,7 +625,7 @@ test.each(['exclude_today', 'include_today'] as const)(
         }),
       ),
     });
-    const view = mount('ToDooRhythm', { model: value, section: 'anniversaries' });
+    const view = mount('ToDooRhythm', { model: value, section: 'anniversaries', context: 'all' });
     const cards = view.all().filter((n) => n.tag === 'article');
     expect(view.text(cards.find((n) => view.text(n).includes('纪念日0'))!)).toContain('就是今天');
     const past = view.text(cards.find((n) => view.text(n).includes('纪念日1'))!);

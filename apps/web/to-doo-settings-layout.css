@@ -1,0 +1,51 @@
+/* Settings is already a management destination; do not wrap each group in a card. */
+.todo-settings.todo-settings-simplified > .todo-panel,
+.todo-settings.todo-settings-simplified .todo-settings-structures > .todo-panel {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+}
+.todo-settings.todo-settings-simplified .todo-panel-header {
+  padding-inline: 0;
+  border: 0;
+}
+.todo-settings.todo-settings-simplified .todo-settings-preferences-form {
+  padding: 0;
+}
+.todo-settings.todo-settings-simplified .todo-preference-card {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.todo-settings.todo-settings-simplified .todo-preference-daily {
+  padding: 0 0 var(--todo-space-8);
+}
+.todo-settings.todo-settings-simplified .todo-preference-card .ant-collapse-header {
+  padding: var(--todo-space-12) 0;
+  font-size: var(--todo-font-size);
+}
+.todo-settings.todo-settings-simplified .todo-preference-card .ant-collapse-content-box {
+  padding: 0 0 var(--todo-space-16);
+}
+.todo-settings.todo-settings-simplified .todo-settings-preferences-form .todo-form-fields {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--todo-space-8);
+}
+.todo-settings.todo-settings-simplified .todo-preference-card {
+  grid-column: 1 / -1;
+  grid-row: auto;
+}
+.todo-settings.todo-settings-simplified .todo-setting-row {
+  padding-inline: 0;
+}
+.todo-settings.todo-settings-simplified .todo-setting-row h3 {
+  font-size: var(--todo-font-size);
+}
+.todo-settings.todo-settings-simplified .todo-setting-row p {
+  font-size: var(--todo-caption-size);
+  line-height: var(--todo-caption-line-height);
+}
+.todo-settings.todo-settings-simplified .todo-connection-disclosure .ant-collapse-header {
+  padding-inline: 0;
+}

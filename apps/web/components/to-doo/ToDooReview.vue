@@ -5,6 +5,7 @@ import {
   Button as AButton,
   Dropdown as ADropdown,
   Menu as AMenu,
+  Popover as APopover,
   Empty as AEmpty,
   Input as AInput,
   Progress as AProgress,
@@ -49,6 +50,18 @@ const state = props.model.state,
   from = ref(shiftToDooDate(today.value, -6)),
   to = ref(today.value);
 const customRange = ref(false);
+const localStatisticsView = ref('overview');
+const statisticsView = computed(() =>
+  props.context === undefined
+    ? localStatisticsView.value
+    : ['goals', 'reviews'].includes(props.context) ? props.context : 'overview',
+);
+function selectStatisticsView(value: string | number) {
+  const next = String(value);
+  if (!['overview', 'goals', 'reviews'].includes(next)) return;
+  localStatisticsView.value = next;
+  if (props.context !== undefined) emit('context-change', next);
+}
 const periodPreset = computed(() =>
   customRange.value
     ? 'custom'
@@ -83,13 +96,15 @@ onUnmounted(() => {
 });
 type ReminderState = ToDooEntityMap['reminderEvent']['userState'];
 const notificationTabs: { value: ReminderState | 'all'; label: string }[] = [
-  { value: 'all', label: '全部' },
   { value: 'unread', label: '未读' },
+  { value: 'all', label: '全部' },
   { value: 'read', label: '已读' },
   { value: 'acknowledged', label: '已确认' },
   { value: 'snoozed', label: '稍后' },
   { value: 'dismissed', label: '忽略' },
 ];
+const primaryNotificationTabs = notificationTabs.slice(0, 2);
+const additionalNotificationStates = notificationTabs.slice(2);
 const notificationFilter = computed<ReminderState | 'all'>(() => {
   if (props.context === undefined) return state.query.reminderStates?.[0] ?? 'all';
   return notificationTabs.find((tab) => tab.value === props.context)?.value ?? 'all';
@@ -97,6 +112,32 @@ const notificationFilter = computed<ReminderState | 'all'>(() => {
 const notificationSearch = ref(state.query.filter?.query ?? '');
 const notificationFrom = ref(state.query.from ?? '');
 const notificationTo = ref(state.query.to ?? '');
+const notificationFiltersOpen = ref(false);
+const notificationFilterTrigger = ref<InstanceType<typeof AButton>>();
+const notificationFilterPanel = ref<HTMLFormElement>();
+const notificationFilterError = ref('');
+const notificationFilterCount = computed(() =>
+  [state.query.filter?.query, state.query.from, state.query.to].filter(Boolean).length,
+);
+function closeNotificationFilters(restoreFocus = false) {
+  notificationFiltersOpen.value = false;
+  if (restoreFocus) void nextTick(() => notificationFilterTrigger.value?.$el?.focus?.());
+}
+async function notificationFiltersChanged(open: boolean) {
+  notificationFiltersOpen.value = open;
+  if (open) {
+    await nextTick();
+    notificationFilterPanel.value?.querySelector?.<HTMLInputElement>('input')?.focus?.();
+  }
+}
+function notificationFilterKeydown(event: KeyboardEvent) {
+  if (event.key !== 'Escape' || event.defaultPrevented) return;
+  // Give the nested calendar its first Escape before closing the filter host.
+  if (typeof document !== 'undefined' && document.querySelector('.ant-picker-dropdown:not(.ant-picker-dropdown-hidden)')) return;
+  event.preventDefault();
+  event.stopPropagation();
+  closeNotificationFilters(true);
+}
 watch(
   () => state.query.filter?.query,
   (value) => {
@@ -125,10 +166,11 @@ async function applyNotificationFilters() {
     notificationTo.value &&
     notificationFrom.value > notificationTo.value
   ) {
-    state.error = '结束日期不能早于开始日期';
+    notificationFilterError.value = state.error = '结束日期不能早于开始日期';
     return;
   }
   ++sourceRequest;
+  notificationFilterError.value = '';
   await props.model.load({
     ...state.query,
     from: notificationFrom.value || undefined,
@@ -136,6 +178,8 @@ async function applyNotificationFilters() {
     filter: { ...state.query.filter, query: notificationSearch.value.trim() || undefined },
     cursor: undefined,
   });
+  notificationFilterError.value = state.error;
+  if (!state.error) closeNotificationFilters(true);
 }
 async function clearNotificationFilters() {
   notificationSearch.value = '';
@@ -416,7 +460,18 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
 </script>
 <template>
   <template v-if="section === 'stats'"
-    ><ToDooPageToolbar
+    ><ATabs
+      v-if="!contextualNavigation"
+      class="todo-review-view-tabs"
+      aria-label="统计内容"
+      :active-key="statisticsView"
+      @change="selectStatisticsView"
+    >
+      <ATabPane key="overview" tab="概览" />
+      <ATabPane key="goals" tab="目标进展" />
+      <ATabPane key="reviews" tab="历史复盘" />
+    </ATabs>
+    <ToDooPageToolbar
       tag="form"
       class="todo-calendar-toolbar"
       aria-label="统计区间"
@@ -455,6 +510,7 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
       </div>
     </ToDooPageToolbar>
     <div
+      v-show="statisticsView === 'overview'"
       id="to-doo-stats-overview"
       ref="statisticsOverview"
       class="todo-review-statistics todo-review-anchor"
@@ -469,7 +525,7 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
       />
       <AStatistic title="沉淀成果" :value="state.snapshot?.statistics.outcomes || 0" suffix="份" />
     </div>
-    <nav class="todo-review-sources" aria-label="查看复盘资料">
+    <nav v-show="statisticsView === 'overview'" class="todo-review-sources" aria-label="查看复盘资料">
       <AButton type="link" @click="emit('completed')">查看全部已完成任务</AButton>
       <AButton type="link" @click="emit('history', 'focus', { from: appliedFrom, to: appliedTo })"
         >查看专注记录</AButton
@@ -479,8 +535,8 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
       >
     </nav>
 
-    <div class="todo-review-grid">
-      <section class="todo-panel todo-review-trend">
+    <div class="todo-review-grid todo-review-tabs-content">
+      <section v-show="statisticsView === 'overview'" class="todo-panel todo-review-trend">
         <ToDooSectionHeader title="完成趋势"><small>单位：项</small></ToDooSectionHeader>
         <div class="todo-completion-chart" role="img" :aria-label="trendDescription">
           <div
@@ -506,6 +562,7 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
         </div>
       </section>
       <section
+        v-show="statisticsView === 'goals'"
         id="to-doo-stats-goals"
         ref="statisticsGoals"
         class="todo-panel todo-review-goals todo-review-anchor"
@@ -537,6 +594,7 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
         </AEmpty>
       </section>
       <section
+        v-show="statisticsView === 'reviews'"
         id="to-doo-stats-reviews"
         ref="statisticsReviews"
         class="todo-panel todo-review-records todo-review-anchor"
@@ -574,11 +632,6 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
           class="todo-empty"
           description="还没有复盘记录"
         >
-          <AButton
-            :disabled="state.loading || state.busy || state.snapshot?.statistics.scope !== 'period'"
-            @click="createReview"
-            >写第一篇复盘</AButton
-          >
         </AEmpty>
         <AButton
           type="text"
@@ -611,32 +664,60 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
   >
   <template v-else
     ><ToDooPageToolbar
-      tag="form"
       class="todo-calendar-toolbar todo-notification-toolbar"
-      aria-label="通知筛选"
-      @submit.prevent="applyNotificationFilters"
+      aria-label="通知范围与筛选"
     >
       <ATabs
         v-if="!contextualNavigation"
         class="todo-notification-tabs"
-        :active-key="notificationFilter"
+        :active-key="['unread', 'all'].includes(notificationFilter) ? notificationFilter : ''"
         @change="notificationFilterChanged"
         ><ATabPane
-          v-for="tab in notificationTabs"
+          v-for="tab in primaryNotificationTabs"
           :key="tab.value"
           :tab="tab.label"
           :disabled="markingAll || state.loading || !!actingReminder"
       /></ATabs>
-      <div class="todo-notification-query-controls">
-        <AInput
-          v-model:value="notificationSearch"
-          type="search"
-          class="todo-notification-search"
-          aria-label="搜索通知"
-          placeholder="搜索通知…"
-          :maxlength="500"
-          :disabled="state.loading || markingAll || !!actingReminder"
-        />
+      <div class="todo-actions todo-notification-tools">
+        <ADropdown v-if="!contextualNavigation" :trigger="['click']" overlay-class-name="todo-ant-popup">
+          <AButton :disabled="state.loading || markingAll || !!actingReminder" aria-label="其他通知状态">
+            {{ additionalNotificationStates.find(tab => tab.value === notificationFilter)?.label || '其他状态' }}
+          </AButton>
+          <template #overlay>
+            <AMenu aria-label="其他通知状态" :selected-keys="[notificationFilter]" @click="notificationFilterChanged($event.key)">
+              <AMenuItem v-for="tab in additionalNotificationStates" :key="tab.value">{{ tab.label }}</AMenuItem>
+            </AMenu>
+          </template>
+        </ADropdown>
+        <APopover
+          :open="notificationFiltersOpen"
+          :trigger="['click']"
+          placement="bottomRight"
+          overlay-class-name="todo-ant-popup todo-notification-filter-popup"
+          @open-change="notificationFiltersChanged"
+        >
+          <AButton ref="notificationFilterTrigger" aria-label="打开通知筛选" :aria-expanded="notificationFiltersOpen">
+            <ToDooIcon name="filter" :size="16" />筛选{{ notificationFilterCount ? ' · ' + notificationFilterCount : '' }}
+          </AButton>
+          <template #content>
+            <form
+              ref="notificationFilterPanel"
+              class="todo-notification-filter-form todo-form"
+              aria-label="通知筛选"
+              @submit.prevent="applyNotificationFilters"
+              @keydown="notificationFilterKeydown"
+            >
+              <AAlert v-if="notificationFilterError" type="error" :message="notificationFilterError" show-icon />
+              <label>搜索<AInput
+                v-model:value="notificationSearch"
+                type="search"
+                class="todo-notification-search"
+                aria-label="搜索通知"
+                placeholder="搜索通知…"
+                :maxlength="500"
+                :disabled="state.loading || markingAll || !!actingReminder"
+              /></label>
+              <div class="todo-form-grid">
         <label class="todo-inline-label"
           >从<ToDooDateField
             v-model="notificationFrom"
@@ -653,7 +734,9 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
             :min="notificationFrom || undefined"
             :disabled="state.loading || markingAll || !!actingReminder"
         /></label>
-        <AButton html-type="submit" :disabled="state.loading || markingAll || !!actingReminder"
+              </div>
+              <div class="todo-actions">
+        <AButton type="primary" html-type="submit" :disabled="state.loading || markingAll || !!actingReminder"
           >筛选通知</AButton
         >
         <AButton
@@ -664,6 +747,11 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
           @click="clearNotificationFilters"
           >清除通知筛选</AButton
         >
+              <AButton html-type="button" @click="closeNotificationFilters(true)">关闭</AButton>
+              </div>
+            </form>
+          </template>
+        </APopover>
       </div>
     </ToDooPageToolbar>
     <section
@@ -788,17 +876,18 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
   >
 </template>
 <style src="../../to-doo-management-layout.css"></style>
+<style src="../../to-doo-review-layout.css"></style>
 <style scoped>
 .todo-review-sources {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 20px;
-  margin: 0 0 12px;
+  gap: var(--todo-space-4) var(--todo-space-16);
+  margin: 0 0 var(--todo-space-12);
 }
 .todo-review-sources .ant-btn {
   height: auto;
-  padding: 3px 0;
-  font-size: 13px;
+  padding: var(--todo-space-4) 0;
+  font-size: var(--todo-font-size);
 }
 .todo-review-goal-link.ant-btn {
   height: auto;
@@ -822,8 +911,8 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
 }
 .todo-review-next-task.ant-btn {
   height: auto;
-  margin: 0 16px 12px;
-  padding: 3px 0;
-  font-size: 13px;
+  margin: 0 var(--todo-space-16) var(--todo-space-12);
+  padding: var(--todo-space-4) 0;
+  font-size: var(--todo-font-size);
 }
 </style>

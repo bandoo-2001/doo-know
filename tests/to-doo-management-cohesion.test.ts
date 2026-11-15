@@ -230,6 +230,58 @@ test('preset statistics keep dates out of the toolbar until custom is selected',
   expect(view.visible(field())).toBe(false);
 });
 
+test('statistics content switches without reloading or removing history and goal bridges', async () => {
+  const value = model(), view = mount('ToDooReview', value, 'stats');
+  const panel = (id: string) => view.all().find(node => node.props.id === id)!;
+  const tabs = view.all().find(node => String(node.props.class).includes('todo-review-view-tabs'))!;
+  expect(view.visible(panel('to-doo-stats-overview'))).toBe(true);
+  expect(view.visible(panel('to-doo-stats-goals'))).toBe(false);
+  expect(view.visible(panel('to-doo-stats-reviews'))).toBe(false);
+  tabs.props.onChange('goals');
+  await Vue.nextTick();
+  expect(view.visible(panel('to-doo-stats-overview'))).toBe(false);
+  expect(view.visible(panel('to-doo-stats-goals'))).toBe(true);
+  tabs.props.onChange('reviews');
+  await Vue.nextTick();
+  expect(view.visible(panel('to-doo-stats-reviews'))).toBe(true);
+  expect(view.button('新增推进记录') || view.button('＋ 新增推进记录')).toBeDefined();
+  expect(value.load).not.toHaveBeenCalled();
+});
+
+test('additional notification states preserve applied search and dates while replacing pagination', async () => {
+  const value = model();
+  value.state.query = { view: 'notifications', reminderStates: ['unread'], from: '2026-10-01', to: '2026-10-30', filter: { query: '报告' }, cursor: 'second-page' };
+  const view = mount('ToDooReview', value, 'notifications');
+  const menu = view.all().find(node => node.props.role === 'menu' && node.props['aria-label'] === '其他通知状态')!;
+  await menu.props.onClick({ key: 'snoozed' });
+  await Vue.nextTick();
+  expect(value.load).toHaveBeenLastCalledWith({
+    view: 'notifications', reminderStates: ['snoozed'], from: '2026-10-01', to: '2026-10-30', filter: { query: '报告' }, cursor: undefined,
+  });
+  expect(view.text(view.button('其他通知状态'))).toContain('稍后');
+});
+
+test('pasted import content opens on demand and remains a protected draft across settings categories', async () => {
+  const view = mount('ToDooSettings', model());
+  await settleSettings();
+  view.instance.activeTab = 'data';
+  await Vue.nextTick();
+  const content = () => view.all().find(node => node.tag === 'textarea' && node.props.placeholder === '粘贴 JSON、CSV 或 ICS 内容')!;
+  expect(view.visible(content())).toBe(false);
+  view.button('粘贴文件内容').props.onClick();
+  await Vue.nextTick();
+  expect(view.visible(content())).toBe(true);
+  content().props.onInput({ target: { value: '{"tasks":[]}' } });
+  await Vue.nextTick();
+  view.instance.activeTab = 'connections';
+  await Vue.nextTick();
+  view.instance.activeTab = 'data';
+  await Vue.nextTick();
+  expect(content().props.value).toBe('{"tasks":[]}');
+  expect(view.visible(content())).toBe(true);
+  expect(view.instance.hasUnsavedChanges()).toBe(true);
+});
+
 test('existing outcomes do not display an empty-review illustration or zero evidence', () => {
   const value = model();
   value.state.snapshot.outcomes = [
