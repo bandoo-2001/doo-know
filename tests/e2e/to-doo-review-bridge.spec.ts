@@ -195,6 +195,7 @@ test('opening an ordinary inbox task first does not discard the next review task
   );
   const detail = page.getByRole('complementary', { name: '任务详情', exact: true });
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(existingTitle);
+  await detail.getByRole('button', { name: '＋ 添加说明', exact: true }).click();
   await expect(detail.getByLabel('任务说明', { exact: true })).toHaveValue('');
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   await goToToDooSection(page, 'stats');
