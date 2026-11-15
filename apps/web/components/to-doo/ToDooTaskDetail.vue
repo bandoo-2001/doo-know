@@ -598,6 +598,7 @@ async function uploadAsset(event: Event) {
   }
   const taskId = form.value.task.id, occurrenceId = state.selectedOccurrenceId,
     datasetId = state.snapshot?.datasetId;
+  const receiptContext = props.model.captureCommandResultContext();
   const data = new FormData();
   data.set('file', file);
   data.set('requestId', crypto.randomUUID());
@@ -611,7 +612,7 @@ async function uploadAsset(event: Event) {
       'POST',
       data,
     );
-    if (!(await props.model.acceptCommandResult(result))) return;
+    if (!(await props.model.acceptCommandResult(result, receiptContext))) return;
     if (currentDetail(taskId, occurrenceId)) state.notice = '附件已上传';
   } catch (e) {
     if (state.snapshot?.datasetId === datasetId) state.error = e instanceof Error ? e.message : String(e);
@@ -627,6 +628,7 @@ async function removeAsset(hash: string) {
   }
   const taskId = form.value.task.id, occurrenceId = state.selectedOccurrenceId,
     datasetId = state.snapshot?.datasetId;
+  const receiptContext = props.model.captureCommandResultContext();
   state.busy = true;
   state.error = '';
   state.notice = '';
@@ -635,7 +637,7 @@ async function removeAsset(hash: string) {
       requestId: crypto.randomUUID(),
       expectedRevision: form.value.task.revision,
     });
-    if (!(await props.model.acceptCommandResult(result))) return;
+    if (!(await props.model.acceptCommandResult(result, receiptContext))) return;
     if (currentDetail(taskId, occurrenceId)) {
       if (previewAsset.value === hash) previewAsset.value = '';
       state.notice = '附件关联已移除';

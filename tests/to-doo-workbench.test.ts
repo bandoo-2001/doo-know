@@ -3366,13 +3366,14 @@ describe('confirmed task records outside the reply window', () => {
         relative === 'apps/to-doo/assets/' + hash ? bytes : originalRead(root, relative));
       restoreAssetRead = () => assetRead.mockRestore();
       const attachment = { hash, name: 'receipt-proof.txt', mime: 'text/plain', size: bytes.length };
+      const commandContext = model.captureCommandResultContext();
       const result = f.service.command({ requestId: crypto.randomUUID(), action: 'attach_asset',
         payload: { taskId, expectedRevision: model.draft()!.task.revision, attachment } });
       expect(result.snapshot.tasks).toHaveLength(200);
       expect(result.snapshot.tasks.some(task => task.id === taskId)).toBe(false);
       const revision = result.changed.find(row => row.kind === 'task' && row.id === taskId)!.revision;
       const readStart = calls.length;
-      expect(await model.acceptCommandResult(result)).toBe(true);
+      expect(await model.acceptCommandResult(result, commandContext)).toBe(true);
       const reads = calls.slice(readStart);
       expect(reads.length).toBeGreaterThan(0); expect(reads.every(call => call.method === 'GET')).toBe(true);
       expect(calls.every(call => call.method === 'GET')).toBe(true);
@@ -3385,9 +3386,51 @@ describe('confirmed task records outside the reply window', () => {
       expect(f.service.getEntity('task', taskId)).toMatchObject({ revision, attachments: [attachment] });
       expect(model.dirty()).toBe(false);
       const beforeForeign = JSON.stringify(model.state);
-      expect(await model.acceptCommandResult({ ...result, snapshot: { ...result.snapshot, datasetId: 'foreign-attachment-library' } })).toBe(false);
+      const foreignContext = model.captureCommandResultContext();
+      expect(await model.acceptCommandResult({ ...result, snapshot: { ...result.snapshot, datasetId: 'foreign-attachment-library' } }, foreignContext)).toBe(false);
       expect(JSON.stringify(model.state)).toBe(beforeForeign);
       expect(calls.every(call => call.method === 'GET')).toBe(true);
     } finally { restoreAssetRead(); await f.close(); }
   }, 30000);
+  test('an old external attachment response cannot replace a newer task read after its POST was captured', async () => {
+    const f = await domainStatusFixture();
+    let restoreAssetRead = () => {};
+    try {
+      const task = f.create('Before the delayed external attachment response');
+      const calls: { method: string; url: string }[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        calls.push({ method, url }); return f.request(url, method, body);
+      });
+      await model.load({ view: 'tasks', limit: 200 }); model.selectTask(task.id);
+      const bytes = Buffer.from('Delayed external receipt proof');
+      const { createHash } = await import('node:crypto');
+      const hash = createHash('sha256').update(bytes).digest('hex');
+      const knowledgeData = await import('../packages/core/knowledge-data');
+      const originalRead = knowledgeData.readKnowledgeDataFile;
+      const assetRead = vi.spyOn(knowledgeData, 'readKnowledgeDataFile').mockImplementation((root, relative) =>
+        relative === 'apps/to-doo/assets/' + hash ? bytes : originalRead(root, relative));
+      restoreAssetRead = () => assetRead.mockRestore();
+      const attachment = { hash, name: 'delayed-proof.txt', mime: 'text/plain', size: bytes.length };
+      const postedContext = model.captureCommandResultContext();
+      const delayed = f.service.command({ requestId: crypto.randomUUID(), action: 'attach_asset',
+        payload: { taskId: task.id, expectedRevision: model.draft()!.task.revision, attachment } });
+      const attached = toDooEntitySchemas.task.parse(f.service.getEntity('task', task.id));
+      expect(delayed.changed).toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'task', id: task.id, revision: attached.revision })]));
+      f.service.command({ requestId: crypto.randomUUID(), action: 'update_task', payload: {
+        id: task.id, expectedRevision: attached.revision,
+        patch: { title: 'Newer task title from another writer', description: 'The later read must remain authoritative', priority: 'high' },
+      } });
+      await model.load({ view: 'tasks', limit: 200 });
+      const current = toDooEntitySchemas.task.parse(f.service.getEntity('task', task.id));
+      expect(current.revision).not.toBe(attached.revision);
+      expect(model.draft()?.task).toMatchObject({ title: current.title, description: current.description,
+        priority: 'high', revision: current.revision, attachments: [attachment] });
+      const before = JSON.stringify(model.state), readCount = calls.length;
+      expect(await model.acceptCommandResult(delayed, postedContext)).toBe(false);
+      expect(JSON.stringify(model.state)).toBe(before);
+      expect(calls).toHaveLength(readCount); expect(calls.every(call => call.method === 'GET')).toBe(true);
+      expect(f.service.getEntity('task', task.id)).toMatchObject({ title: 'Newer task title from another writer',
+        description: 'The later read must remain authoritative', priority: 'high', revision: current.revision, attachments: [attachment] });
+    } finally { restoreAssetRead(); await f.close(); }
+  });
 });

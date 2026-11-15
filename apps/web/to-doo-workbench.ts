@@ -1347,9 +1347,14 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     for (const task of outside) state.taskAncestors[task.id] = clone(task);
     result.snapshot = completed;
   }
-  async function acceptCommandResult(result: ToDooCommandResult): Promise<boolean> {
-    const before = state.snapshot, ticket = generation;
-    if (!before || result.snapshot.datasetId !== before.datasetId) return false;
+  function captureCommandResultContext() {
+    return { generation, datasetId: state.snapshot?.datasetId };
+  }
+  async function acceptCommandResult(result: ToDooCommandResult,
+    context: ReturnType<typeof captureCommandResultContext>): Promise<boolean> {
+    const before = state.snapshot, ticket = context.generation;
+    if (!before || ticket !== generation || context.datasetId !== before.datasetId ||
+      result.snapshot.datasetId !== context.datasetId) return false;
     const datasetId = before.datasetId;
     await adoptCommandWorkset(result, clone(before), ticket);
     if (ticket !== generation || state.snapshot?.datasetId !== datasetId) return false;
@@ -2821,6 +2826,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       else adopt(data);
       if (state.selectedTaskId) selectTask(state.selectedTaskId, state.selectedOccurrenceId);
     },
+    captureCommandResultContext,
     acceptCommandResult,
     execute,
     createTask,
