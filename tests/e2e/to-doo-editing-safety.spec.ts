@@ -96,6 +96,10 @@ test('closing a task with invalid property input keeps the input until explicit 
   await date.fill('2030-99-99'); await date.press('Tab');
   await property.locator('.ant-modal-close').click();
   await expect(property).not.toBeVisible();
+  await detail(page).getByRole('button', { name: '标记完成', exact: true }).click();
+  await expect(property).toBeVisible();
+  expect(writes).toEqual([]);
+  await property.locator('.ant-modal-close').click();
   await detail(page).getByRole('button', { name: '关闭任务详情', exact: true }).click();
   await expect(property).toBeVisible();
   await expect(date).toHaveValue('2030-99-99');

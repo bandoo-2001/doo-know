@@ -241,6 +241,16 @@ function transport(initial = snapshot()) {
     },
   };
 }
+test('active editor validation protects non-serializable input from an indirect save', async () => {
+  const server = transport(), model = createToDooWorkbench(server.request);
+  await model.load(); model.selectTask('task-a');
+  model.draft()!.task.title = '仍在编辑';
+  const release = model.registerTaskDraftValidator('task-a@' + model.state.selectedOccurrenceId, () => false);
+  expect(await model.saveTask()).toBeUndefined();
+  expect(server.data.tasks[0].title).not.toBe('仍在编辑'); expect(model.dirty()).toBe(true);
+  release(); await model.saveTask();
+  expect(server.data.tasks[0].title).toBe('仍在编辑'); expect(model.dirty()).toBe(false);
+});
 async function domainStatusFixture() {
   const { mkdtemp, mkdir, rm } = await import('node:fs/promises'),
     { tmpdir } = await import('node:os'),

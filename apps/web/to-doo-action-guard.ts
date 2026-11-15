@@ -31,6 +31,7 @@ export async function guardToDooTaskAction(
   if (!current()) return false;
   const blockers = await model.prepareTaskAction(affectedIds, options.includeDescendants ?? true);
   if (!blockers || !current()) return false;
+  if (scopeKey().split('\0').includes(taskId) && !model.validateTaskDraft()) return false;
   if (!blockers.length) return true;
   const originalScope = scopeKey();
   const only = blockers[0];

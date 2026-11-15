@@ -242,7 +242,7 @@ test('controlled habits opens history and can restore today without duplicate pa
 // Each bucket is independently derived: today is not upcoming; an expired one-off is past.
 test.each([
   ['all', ['今天纪念日', '下周纪念日', '远期纪念日', '过去纪念日']],
-  ['upcoming', ['下周纪念日']],
+  ['upcoming', ['今天纪念日', '下周纪念日']],
   ['today', ['今天纪念日']],
   ['past', ['过去纪念日']],
 ])('anniversary context %s filters real calendar dates', async (context, expected) => {

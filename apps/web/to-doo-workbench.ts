@@ -609,6 +609,14 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     preview: null as ToDooCommandResult['preview'] | null,
   });
   const saved = new Map<string, string>();
+  const draftValidators = new Map<string, () => boolean>();
+  function registerTaskDraftValidator(draftKey: string, validate: () => boolean) {
+    draftValidators.set(draftKey, validate);
+    return () => { if (draftValidators.get(draftKey) === validate) draftValidators.delete(draftKey); };
+  }
+  function validateTaskDraft(draftKey = key()) {
+    return draftValidators.get(draftKey)?.() ?? true;
+  }
   const newSaved = new Map<string, string>();
   let restoringRecovery = false;
   let recoveryReadBlocked = false;
@@ -1825,7 +1833,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
   }
   async function saveTask(scope: 'all' | 'future' = 'all') {
     let value = draft();
-    if (!value) return;
+    if (!value || !validateTaskDraft()) return;
     const draftKey = key(),
       datasetId = state.snapshot?.datasetId;
     if (state.recoveredDraftKeys.includes(draftKey)) {
@@ -2507,6 +2515,8 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
   }
   return {
     state,
+    registerTaskDraftValidator,
+    validateTaskDraft,
     request,
     load,
     nextPage,

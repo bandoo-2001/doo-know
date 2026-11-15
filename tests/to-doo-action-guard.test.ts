@@ -8,6 +8,7 @@ function fixture() {
     state: { selectedTaskId: 'task', selectedOccurrenceId: 'occ', error: '' },
     prepareTaskAction: vi.fn().mockResolvedValue([]),
     saveTask: vi.fn().mockResolvedValue(true), dirty: vi.fn().mockReturnValue(false),
+    validateTaskDraft: vi.fn().mockReturnValue(true),
     taskDefinitions: vi.fn<() => { id: string; parentTaskId: string | null; deletedAt?: string | null }[]>().mockReturnValue([{ id: 'task', parentTaskId: null }]),
   };
   return { model, typed: model as unknown as ToDooWorkbench, blockers, confirm: vi.fn().mockResolvedValue(true) };
@@ -24,6 +25,11 @@ describe('task actions preserve affected editing contexts', () => {
     const f = fixture(); f.model.prepareTaskAction.mockResolvedValue(f.blockers); f.confirm.mockResolvedValue(false);
     expect(await guardToDooTaskAction(f.typed, ['task'], f.confirm)).toBe(false);
     expect(f.model.saveTask).not.toHaveBeenCalled();
+  });
+  test('invalid raw editor input blocks even an otherwise clean action before confirmation', async () => {
+    const f = fixture(); f.model.validateTaskDraft.mockReturnValue(false);
+    expect(await guardToDooTaskAction(f.typed, ['task'], f.confirm)).toBe(false);
+    expect(f.confirm).not.toHaveBeenCalled(); expect(f.model.saveTask).not.toHaveBeenCalled();
   });
   test('a hidden occurrence or child draft is never implicitly saved', async () => {
     for (const context of [{ occurrenceId: 'another-period' }, { taskId: 'child' }, { kind: 'new' }]) {

@@ -195,6 +195,10 @@ async function revealDetail(section: DetailPanel) {
   (firstInput || propertyFields.value?.querySelector<HTMLElement>('button:not([disabled]), [tabindex="0"]'))?.focus?.({ preventScroll: true });
 }
 const validationError = ref('');
+const releaseDraftValidation = props.creating ? () => {} : props.model.registerTaskDraftValidator(
+  state.selectedTaskId + '@' + state.selectedOccurrenceId, () => validateDetail(),
+);
+onBeforeUnmount(releaseDraftValidation);
 function validateDetail(propertyOnly = false) {
   const invalid = (!propertyOnly && detailElement.value?.querySelector<HTMLInputElement>(
     'input:invalid, textarea:invalid, [aria-invalid="true"]',
