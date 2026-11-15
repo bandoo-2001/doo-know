@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
 import { expectToDooSelection } from '../support/to-doo-ant-controls';
 import { selectToDooList } from '../support/to-doo-navigation';
+import { completeToDooDetailProperty, openToDooDetailProperty } from '../support/to-doo-detail-controls';
 
 test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -64,7 +65,9 @@ test('a new task creates its list in place without submitting the task or losing
   await expect(page.getByRole('button', { name: title, exact: true })).toBeVisible();
   await page.reload();
   await page.getByRole('button', { name: title, exact: true }).click();
-  await expectToDooSelection(taskDetail(page), '所属目标或清单', listName);
+  const restoredList = await openToDooDetailProperty(page, 'list');
+  await expectToDooSelection(restoredList, '所属目标或清单', listName);
+  await completeToDooDetailProperty(page);
   await expect(taskDetail(page).getByLabel('任务说明', { exact: true })).toHaveValue(description);
 });
 
@@ -80,13 +83,16 @@ test('an existing task keeps unsaved edits while creating and selecting a new li
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=inbox&task=' + taskId);
   const detail = taskDetail(page);
   await detail.getByLabel('任务标题', { exact: true }).fill(edited);
+  await detail.getByRole('button', { name: '＋ 添加说明', exact: true }).click();
   await detail
     .getByLabel('任务说明', { exact: true })
     .fill('这段尚未保存的内容不能因新建清单而丢失。');
-  await detail.getByRole('button', { name: '在任务中创建清单', exact: true }).click();
-  await detail.getByRole('textbox', { name: '新清单名称', exact: true }).fill(listName);
-  await detail.getByRole('button', { name: '创建清单', exact: true }).click();
-  await expectToDooSelection(detail, '所属目标或清单', listName);
+  const lists = await openToDooDetailProperty(page, 'list');
+  await lists.getByRole('button', { name: '在任务中创建清单', exact: true }).click();
+  await lists.getByRole('textbox', { name: '新清单名称', exact: true }).fill(listName);
+  await lists.getByRole('button', { name: '创建清单', exact: true }).click();
+  await expectToDooSelection(lists, '所属目标或清单', listName);
+  await completeToDooDetailProperty(page);
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(edited);
   await expect(detail.getByText('未保存的更改', { exact: true })).toBeVisible();
   const unsaved = await (
@@ -100,7 +106,9 @@ test('an existing task keeps unsaved edits while creating and selecting a new li
   await expect(detail.getByText('已保存', { exact: true })).toBeVisible();
   await page.reload();
   await expect(taskDetail(page).getByLabel('任务标题', { exact: true })).toHaveValue(edited);
-  await expectToDooSelection(taskDetail(page), '所属目标或清单', listName);
+  const restoredList = await openToDooDetailProperty(page, 'list');
+  await expectToDooSelection(restoredList, '所属目标或清单', listName);
+  await completeToDooDetailProperty(page);
 });
 
 test('retrying a list creation with a lost response does not create a second list', async ({

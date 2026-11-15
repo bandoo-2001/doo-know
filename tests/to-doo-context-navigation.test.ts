@@ -8,7 +8,9 @@ describe('ToDoo contextual destinations', () => {
     expect(resolveToDooContext('settings', 'history')).toBe('preferences');
     expect(resolveToDooContext('habits', 'history')).toBe('history');
     expect(resolveToDooContext('notifications', 'acknowledged')).toBe('acknowledged');
-    expect(resolveToDooContext('notifications', 'preferences')).toBe('all');
+    expect(resolveToDooContext('notifications', 'preferences')).toBe('unread');
+    expect(resolveToDooContext('notifications', 'all')).toBe('all');
+    expect(resolveToDooContext('anniversaries')).toBe('upcoming');
     expect(resolveToDooContext('calendar', 'history')).toBeUndefined();
     expect(toDooContextEntries('settings').map((entry) => entry.id)).toEqual([
       'preferences',

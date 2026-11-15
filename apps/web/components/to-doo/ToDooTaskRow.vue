@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { Button as AButton, Checkbox as ACheckbox, Tag as ATag } from 'ant-design-vue';
 import type { ToDooItem } from '../../to-doo-workbench';
+import type { ToDooDisplayFields } from '../../to-doo-display-preferences';
 import {
   toDooDisplayTime,
   toDooLocalDate,
@@ -16,6 +17,7 @@ const props = withDefaults(
     selected?: boolean;
     selecting?: boolean;
     hideList?: boolean;
+    displayFields?: Partial<ToDooDisplayFields>;
     readOnly?: boolean;
     today?: string;
     timeZone?: string;
@@ -31,10 +33,10 @@ const emit = defineEmits<{
 const hasMetadata = computed(() => {
   const { item, hideList } = props;
   return (
-    item.task.priority !== 'none' ||
-    (!!item.list && !hideList) ||
-    item.task.noteRefs.length > 0 ||
-    !!item.task.recurrence ||
+    (props.displayFields?.priority !== false && item.task.priority !== 'none') ||
+    (props.displayFields?.list !== false && !!item.list && !hideList) ||
+    (props.displayFields?.resources !== false && item.task.noteRefs.length > 0) ||
+    (props.displayFields?.recurrence !== false && !!item.task.recurrence) ||
     ['blocked', 'cancelled', 'skipped'].includes(item.status) ||
     item.status === 'unavailable'
   );
@@ -109,14 +111,14 @@ const dates = computed(() => {
       <span class="todo-task-name">{{ item.title }}</span>
       <small v-if="hasMetadata" class="todo-task-meta">
         <ATag
-          v-if="item.task.priority !== 'none'"
+          v-if="displayFields?.priority !== false && item.task.priority !== 'none'"
           class="todo-priority-label"
           :aria-label="'优先级：' + toDooPriorityLabels[item.task.priority]"
           >{{ toDooPriorityLabels[item.task.priority] }}优先级</ATag
         >
-        <span v-if="item.list && !hideList" class="todo-row-list">{{ item.list.name }}</span>
-        <span v-if="item.task.noteRefs.length">▤ {{ item.task.noteRefs.length }}</span>
-        <span v-if="item.task.recurrence" title="重复任务">↻</span>
+        <span v-if="displayFields?.list !== false && item.list && !hideList" class="todo-row-list">{{ item.list.name }}</span>
+        <span v-if="displayFields?.resources !== false && item.task.noteRefs.length" :aria-label="'关联资料 ' + item.task.noteRefs.length + ' 份'">▤ {{ item.task.noteRefs.length }}</span>
+        <span v-if="displayFields?.recurrence !== false && item.task.recurrence" title="重复任务" aria-label="重复任务">↻</span>
         <span v-if="item.status === 'blocked'">受阻</span>
         <span v-if="item.status === 'cancelled'">已取消</span>
         <span v-if="item.status === 'skipped'">已跳过</span>

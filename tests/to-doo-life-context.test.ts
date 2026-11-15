@@ -207,7 +207,8 @@ function model(count = 1) {
       },
     };
   });
-  return { state, execute: vi.fn(async () => ({})), request, data };
+  return { state, execute: vi.fn(async () => ({})), request, data,
+    ensureListCatalog: vi.fn(async () => undefined), taskLists: () => state.snapshot.lists };
 }
 async function settle() {
   for (let i = 0; i < 20; i++) await Vue.nextTick();
@@ -306,7 +307,7 @@ test('focus context is forwarded through Rhythm to the mobile pane and internal 
   expect(pane('专注计时器')).toBeDefined();
 });
 
-// On desktop both panes remain available; context changes select a real section anchor.
+// Desktop uses the same controlled pane state; routing preserves the independent live timer.
 test('desktop focus navigation scrolls to a real section and leaves the timer project independent', async () => {
   const view = mount('ToDooRhythm', {
     model: model(),
@@ -320,6 +321,9 @@ test('desktop focus navigation scrolls to a real section and leaves the timer pr
   await settle();
   const records = view.all().find((n) => n.props['aria-label'] === '专注概览和历史')! as any;
   expect(records.scrollIntoView).toHaveBeenCalled();
+  expect(records.style.display).not.toBe('none');
+  const projects = view.all().find((n) => n.props['aria-label'] === '专注项目')! as any;
+  expect(projects.style.display).toBe('none');
   const select = view
     .all()
     .find((n) => n.tag === 'select' && n.props['aria-label'] === '专注记录项目')!;

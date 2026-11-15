@@ -1,12 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import type { Locator, Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
-import { showMainMenu } from '../support/settings-navigation';
+import { returnFromToDoo } from '../support/to-doo-navigation';
 import {
-  expandToDooGroup,
   expectToDooSelection,
   selectToDooOption,
 } from '../support/to-doo-ant-controls';
+import { completeToDooDetailProperty, openToDooDetailProperty } from '../support/to-doo-detail-controls';
 
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
@@ -81,16 +81,19 @@ test('real Ant Select saves null, false, two tag identifiers and numeric zero', 
   const detail = app.getByRole('complementary', { name: '任务详情' });
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
 
-  await selectToDooOption(detail, '所属目标或清单', listName);
-  await expectToDooSelection(detail, '所属目标或清单', listName);
-  await selectToDooOption(detail, '所属目标或清单', '收集箱');
-  await expectToDooSelection(detail, '所属目标或清单', '收集箱');
-  await expandToDooGroup(detail, '四象限归类');
-  await selectToDooOption(detail, '紧急程度', '设为不紧急');
-  await expectToDooSelection(detail, '紧急程度', '设为不紧急');
-  await expandToDooGroup(detail, '更多选项：标签、提醒、依赖与来源');
-  for (const name of tagNames) await selectAnotherTag(page, detail, name);
-  const selectedTags = detail
+  const listsProperty = await openToDooDetailProperty(page, 'list');
+  await selectToDooOption(listsProperty, '所属目标或清单', listName);
+  await expectToDooSelection(listsProperty, '所属目标或清单', listName);
+  await selectToDooOption(listsProperty, '所属目标或清单', '收集箱');
+  await expectToDooSelection(listsProperty, '所属目标或清单', '收集箱');
+  await completeToDooDetailProperty(page);
+  const classification = await openToDooDetailProperty(page, 'classification');
+  await selectToDooOption(classification, '紧急程度', '设为不紧急');
+  await expectToDooSelection(classification, '紧急程度', '设为不紧急');
+  await completeToDooDetailProperty(page);
+  const properties = await openToDooDetailProperty(page, 'properties');
+  for (const name of tagNames) await selectAnotherTag(page, properties, name);
+  const selectedTags = properties
     .getByRole('combobox', { name: '标签', exact: true })
     .locator(
       'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " ant-select ")][1]',
@@ -98,8 +101,9 @@ test('real Ant Select saves null, false, two tag identifiers and numeric zero', 
     .locator('.ant-select-selection-item');
   await expect(selectedTags).toHaveCount(2);
   for (const name of tagNames) await expect(selectedTags.filter({ hasText: name })).toBeVisible();
-  await detail.getByLabel('预计分钟', { exact: true }).fill('0');
-  await detail.getByLabel('预计分钟', { exact: true }).press('Tab');
+  await properties.getByLabel('预计分钟', { exact: true }).fill('0');
+  await properties.getByLabel('预计分钟', { exact: true }).press('Tab');
+  await completeToDooDetailProperty(page);
   await saveDetail(page, detail, taskId);
 
   let saved = (await taskState(page, taskId)).tasks.find((task: any) => task.id === taskId);
@@ -108,8 +112,10 @@ test('real Ant Select saves null, false, two tag identifiers and numeric zero', 
   expect(saved.estimateMinutes).toBe(0);
   expect([...saved.tagIds].sort()).toEqual([...tags].sort());
 
-  await selectToDooOption(detail, '紧急程度', '根据截止时间判断');
-  await expectToDooSelection(detail, '紧急程度', '根据截止时间判断');
+  const autoClassification = await openToDooDetailProperty(page, 'classification');
+  await selectToDooOption(autoClassification, '紧急程度', '根据截止时间判断');
+  await expectToDooSelection(autoClassification, '紧急程度', '根据截止时间判断');
+  await completeToDooDetailProperty(page);
   await saveDetail(page, detail, taskId);
   saved = (await taskState(page, taskId)).tasks.find((task: any) => task.id === taskId);
   expect(saved.urgentOverride).toBeNull();
@@ -146,8 +152,8 @@ test('closing the portaled outcome Modal hides it and reopening preserves the un
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
   const detail = app.getByRole('complementary', { name: '任务详情' });
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
-  await expandToDooGroup(detail, '完成标准与成果');
-  const open = detail.getByRole('button', { name: '创建成果笔记并关联', exact: true });
+  const results = await openToDooDetailProperty(page, 'results');
+  const open = results.getByRole('button', { name: '创建成果笔记并关联', exact: true });
   await open.click();
   const outcome = page.getByRole('dialog', { name: '创建成果笔记', exact: true });
   await expect(outcome).toBeVisible();
@@ -165,12 +171,9 @@ test('closing the portaled outcome Modal hides it and reopening preserves the un
   await outcome.getByRole('button', { name: '收起并保留输入', exact: true }).click();
   await expect(outcome).not.toBeVisible();
 
+  await completeToDooDetailProperty(page);
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
-  await showMainMenu(page);
-  await page
-    .locator('.workspace-footer')
-    .getByRole('button', { name: '返回 DooKnow', exact: true })
-    .click();
+  await returnFromToDoo(page);
   const leave = page.getByRole('dialog', { name: '尚有未保存内容', exact: true });
   await expect(leave).toBeVisible();
   await leave.getByRole('button', { name: '放弃更改并离开', exact: true }).click();

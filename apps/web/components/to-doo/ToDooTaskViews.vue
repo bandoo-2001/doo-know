@@ -4,6 +4,7 @@ import ToDooDisclosure from './ToDooDisclosure.vue';
 import ToDooTaskOverviewSummary from './ToDooTaskOverviewSummary.vue';
 import { useToDooConfirm } from '../../to-doo-controls';
 import { guardToDooTaskAction } from '../../to-doo-action-guard';
+import { readToDooDisplayFields, writeToDooDisplayFields, type ToDooDisplayFields } from '../../to-doo-display-preferences';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
 import ToDooPageToolbar from './ToDooPageToolbar.vue';
@@ -107,6 +108,15 @@ const advancedFilters = ref(false);
 const toolsOpen = ref(false);
 const displayOpen = ref(false);
 const templatesOpen = ref(false);
+const displayFields = ref(readToDooDisplayFields());
+const displayFieldOptions = [
+  { key: 'list', label: '清单' }, { key: 'priority', label: '优先级' },
+  { key: 'recurrence', label: '重复' }, { key: 'resources', label: '关联资料' },
+] as const;
+function setDisplayField(field: keyof ToDooDisplayFields, checked: boolean) {
+  displayFields.value = { ...displayFields.value, [field]: checked };
+  writeToDooDisplayFields(displayFields.value);
+}
 const advancedDraft = ref<NonNullable<ToDooFilter['group']>>({ operator: 'and', conditions: [] });
 const searchTrigger = ref<any>(), filterTrigger = ref<any>(), displayTrigger = ref<any>();
 const searchInput = ref<any>();
@@ -684,6 +694,7 @@ function saveView() {
       </div>
       <div class="todo-overview-action-list">
         <ToDooTaskRow
+          :display-fields="displayFields"
           v-for="item in todayItems.slice(0, 12)"
           :key="item.key"
           :item="item"
@@ -972,8 +983,12 @@ function saveView() {
           <label v-if="section === 'board'">分组<ToDooSelect v-model="boardBy" aria-label="看板分组"><option value="status">按状态</option><option value="list">按清单</option><option value="priority">按优先级</option><option value="section">按分组</option><option value="tag">按标签</option></ToDooSelect></label>
           <label>密度<ToDooSelect :value="density" aria-label="任务密度" @change="emit('update:density', $event as 'comfortable' | 'compact')"><option value="comfortable">舒适</option><option value="compact">紧凑</option></ToDooSelect></label>
           <ACheckbox v-model:checked="showCompleted">显示已完成任务</ACheckbox>
+          <fieldset class="todo-task-display-fields" aria-label="任务行显示字段">
+            <legend>显示字段</legend>
+            <ACheckbox v-for="field in displayFieldOptions" :key="field.key" :checked="displayFields[field.key]" @change="setDisplayField(field.key, $event.target.checked)">{{ field.label }}</ACheckbox>
+          </fieldset>
           <div v-if="state.snapshot?.views.some((v) => !v.deletedAt)" class="todo-saved-views"><span>保存的视图</span><div v-for="v in state.snapshot.views.filter((v) => !v.deletedAt)" :key="v.id" class="todo-actions"><AButton type="link" @click="applyView(v); closePopup('display')">{{ v.name }}</AButton><AButton type="text" :aria-label="'编辑视图 ' + v.name" @click="emit('edit', 'view', v)">⋯</AButton></div></div>
-          <div class="todo-task-management-options"><AMenu :selectable="false" aria-label="任务管理" @click="displayOpen = false">
+          <div class="todo-task-management-options"><AMenu :selectable="false" trigger-sub-menu-action="click" aria-label="任务管理" @click="displayOpen = false">
         <AMenuItem key="select" @click="selecting = !selecting; state.selectedIds = []">{{ selecting ? '结束多选' : '选择任务' }}</AMenuItem>
         <ASubMenu key="organize" title="组织清单"><AMenuItem v-if="scopeListId" key="edit-list" @click="emit('edit', 'list', lists.find((l) => l.id === scopeListId))">编辑当前清单</AMenuItem><AMenuItem v-if="scopeListId" key="list-habits" @click="emit('habits', scopeListId)">清单习惯</AMenuItem><AMenuItem key="section" @click="newSection">新建分组</AMenuItem><AMenuItem key="tag" @click="emit('edit', 'tag')">新建标签</AMenuItem></ASubMenu>
         <ASubMenu key="templates" title="模板"><AMenuItem v-if="state.snapshot?.templates.some((t) => !t.deletedAt)" key="apply-template" @click="templatesOpen = true">从模板新建</AMenuItem><AMenuItem key="new-template" @click="emit('edit', 'template')">新建模板</AMenuItem></ASubMenu>
@@ -1226,6 +1241,7 @@ function saveView() {
                 >{{ collapsed.includes(item.task.id) ? '›' : '⌄' }}</AButton
               >
               <ToDooTaskRow
+                :display-fields="displayFields"
                 :item="item"
                 :hide-list="!!state.filter.listIds?.length"
                 :style="{ '--task-list-color': item.list?.color || 'var(--todo-accent)' }"
@@ -1328,6 +1344,7 @@ function saveView() {
               @dragstart="drag($event, card.item)"
             >
               <ToDooTaskRow
+                :display-fields="displayFields"
                 :item="card.item"
                 :active="active(card.item)"
                 :hide-list="!!activeListId || boardBy === 'list'"
@@ -1371,6 +1388,7 @@ function saveView() {
                     @dragstart.stop="drag($event, child)"
                   >
                     <ToDooTaskRow
+                      :display-fields="displayFields"
                       :item="child"
                       :active="active(child)"
                       hide-list
@@ -1459,6 +1477,7 @@ function saveView() {
               @dragstart="drag($event, item)"
             >
               <ToDooTaskRow
+                :display-fields="displayFields"
                 :item="item"
                 :active="active(item)"
                 :today="today"
@@ -1495,6 +1514,20 @@ function saveView() {
   </template>
 </template>
 <style scoped>
+.todo-task-display-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+  margin: 0;
+  padding: var(--todo-space-8) 0;
+  border: 0;
+  gap: var(--todo-space-8);
+}
+.todo-task-display-fields legend {
+  margin-bottom: var(--todo-space-4);
+  color: var(--todo-muted);
+  font-size: var(--todo-caption-size);
+}
 /* Task content uses the shared type scale while retaining its own layout. */
 .todo-goal-overview {
   display: grid;

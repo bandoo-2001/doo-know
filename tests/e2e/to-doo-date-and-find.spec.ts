@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 import { fillToDooDate } from '../support/to-doo-ant-controls';
 import { openToDooTaskTools, selectToDooQuickView } from '../support/to-doo-navigation';
+import { completeToDooDetailProperty, openToDooDetailPlan, setToDooDetailPlanDate } from '../support/to-doo-detail-controls';
 
 test.beforeEach(async ({ context, page }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -18,13 +19,15 @@ test('rescheduling a Today task needs only a date and explains where it went', a
   const task = page.getByRole('button', { name: title, exact: true });
   await task.click();
   const detail = page.getByRole('complementary', { name: '任务详情', exact: true });
-  const date = detail.getByLabel('计划日期', { exact: true });
+  const plan = await openToDooDetailPlan(page);
+  const date = plan.getByLabel('日期', { exact: true });
   const tomorrow = await date
     .inputValue()
     .then((value) =>
       new Date(Date.parse(value + 'T12:00:00Z') + 86400000).toISOString().slice(0, 10),
     );
   await fillToDooDate(date, tomorrow);
+  await completeToDooDetailProperty(page);
   await expect(page.getByRole('dialog', { name: /时间安排/ })).toHaveCount(0);
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
@@ -54,16 +57,20 @@ test('a date can be added, cleared and reloaded without inventing a start time',
   await page.getByRole('button', { name: '添加任务', exact: true }).click();
   await page.getByRole('button', { name: title, exact: true }).click();
   const detail = page.getByRole('complementary', { name: '任务详情', exact: true });
-  await fillToDooDate(detail.getByLabel('计划日期', { exact: true }), '2030-05-17');
+  await setToDooDetailPlanDate(page, '2030-05-17');
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
   await page.reload();
-  await expect(detail.getByLabel('计划日期', { exact: true })).toHaveValue('2030-05-17');
-  await fillToDooDate(detail.getByLabel('计划日期', { exact: true }), '');
+  const plan = await openToDooDetailPlan(page);
+  await expect(plan.getByLabel('日期', { exact: true })).toHaveValue('2030-05-17');
+  await expect(plan.getByLabel('时间', { exact: true })).toHaveValue('');
+  await setToDooDetailPlanDate(page, '');
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
   await page.reload();
-  await expect(detail.getByLabel('计划日期', { exact: true })).toHaveValue('');
+  const cleared = await openToDooDetailPlan(page);
+  await expect(cleared.locator('.todo-plan-editor')).toHaveCount(0);
+  await completeToDooDetailProperty(page);
 });
 
 test('a local search can find a completed task in another scope without losing the words', async ({

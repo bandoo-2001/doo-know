@@ -2155,6 +2155,26 @@ describe('versioned editing recovery and action guards', () => {
       expect(quota.draft()!.task.description).toBe('容量失败');
     } finally { vi.unstubAllGlobals(); }
   });
+  test('headless clean reads and untouched composers need no recovery storage but real edits still report failure', async () => {
+    vi.stubGlobal('localStorage', undefined);
+    try {
+      const model = createToDooWorkbench(transport().request); await model.load();
+      model.newTaskDraft(); await (await import('vue')).nextTick();
+      expect(model.state.recoveryStatus).toBe('idle');
+      expect(model.state.localWarning).toBe('');
+      expect(model.flushRecovery()).toBe(true);
+      model.newTaskDraft().title = '需要恢复的真实内容';
+      await (await import('vue')).nextTick();
+      expect(model.state.recoveryStatus).toBe('unavailable');
+      expect(model.flushRecovery()).toBe(false);
+      model.clearNewTaskDraft();
+      expect(model.state.recoveryStatus).toBe('idle');
+      expect(model.flushRecovery()).toBe(true);
+      model.selectTask('task-a'); model.draft()!.task.description = '既有任务的未保存修改';
+      expect(model.flushRecovery()).toBe(false);
+      expect(model.state.recoveryStatus).toBe('unavailable');
+    } finally { vi.unstubAllGlobals(); }
+  });
   test('legacy recovery reveals only a summary and migrates after explicit adoption without deleting the source', async () => {
     const storage = storageFixture();
     try {

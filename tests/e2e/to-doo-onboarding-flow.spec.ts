@@ -8,6 +8,7 @@ import {
   selectToDooQuickView,
 } from '../support/to-doo-navigation';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
+import { completeToDooDetailProperty, openToDooDetailProperty } from '../support/to-doo-detail-controls';
 
 test.beforeEach(async ({ context, page }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -45,7 +46,9 @@ test('a new user can capture today, organise a task and find it after completing
 
   await task.click();
   const detail = page.getByRole('complementary', { name: '任务详情', exact: true });
-  await selectToDooOption(detail, '所属目标或清单', listName);
+  const listProperty = await openToDooDetailProperty(page, 'list');
+  await selectToDooOption(listProperty, '所属目标或清单', listName);
+  await completeToDooDetailProperty(page);
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   await expect(detail.getByText('已保存', { exact: true })).toBeVisible();
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
@@ -122,6 +125,9 @@ test('one navigation reaches the main tools and Today always returns to its task
     await expect(page.locator('.todo-main')).toHaveAttribute('aria-busy', 'false');
     const directory = await openToDooDirectory(page);
     await expect(directory).toHaveCount(1);
+    const more = directory.locator('details.todo-navigation-more');
+    if (!(await directory.getByRole('button', { name: '已完成', exact: true }).isVisible()))
+      await more.locator('summary').click();
     for (const name of ['今天', '收集箱', '近七天', '所有任务', '已完成'])
       await expect(directory.getByRole('button', { name, exact: true })).toBeVisible();
     await closeToDooDirectory(page);

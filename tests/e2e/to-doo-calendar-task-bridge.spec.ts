@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
+import { completeToDooDetailProperty, openToDooDetailPlan } from '../support/to-doo-detail-controls';
 
 test.beforeEach(async ({ context, page }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -47,7 +48,9 @@ test('calendar schedules an existing task, opens its details and reflects comple
   await event.click();
   const detail = app.getByRole('complementary', { name: '任务详情', exact: true });
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
-  await expect(detail.getByLabel('计划日期', { exact: true })).toHaveValue(date);
+  const plan = await openToDooDetailPlan(page);
+  await expect(plan.getByLabel('日期', { exact: true })).toHaveValue(date);
+  await completeToDooDetailProperty(page);
   await expect(page.getByRole('dialog', { name: /编辑时间安排/ })).toHaveCount(0);
   await detail.getByRole('button', { name: '标记完成', exact: true }).click();
   await expect(detail.getByRole('button', { name: '重新打开', exact: true })).toBeVisible();

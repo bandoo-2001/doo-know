@@ -827,6 +827,8 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
                 v-if="r.userState === 'unread' || r.userState === 'read'"
                 type="link"
                 class="todo-link"
+                title="确认仅处理提醒，不会自动完成对应事项。"
+                aria-description="确认仅处理提醒，不会自动完成对应事项。"
                 :disabled="state.loading || markingAll || !!actingReminder"
                 @click="reminder(r.id, 'acknowledge')"
                 >确认提醒</AButton

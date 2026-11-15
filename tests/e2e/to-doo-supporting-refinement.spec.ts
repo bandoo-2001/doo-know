@@ -76,3 +76,19 @@ test('settings keeps connection creation and pasted imports behind their explici
   await expect(content).toHaveValue('{"tasks":[]}');
   await content.fill('');
 });
+
+test('plugin management navigation protects unsaved To Doo preferences', async ({ page }) => {
+  await openSection(page, 'settings');
+  const app = workspace(page);
+  await app.getByPlaceholder('Asia/Shanghai', { exact: true }).fill('Asia/Tokyo');
+  await app.getByRole('tab', { name: '提醒与连接', exact: true }).click();
+  await app.getByRole('button', { name: '打开 MCP 与插件管理', exact: true }).click();
+  const leaving = page.getByRole('dialog', { name: '尚有未保存内容', exact: true });
+  await expect(leaving).toBeVisible();
+  await leaving.getByRole('button', { name: '继续编辑', exact: true }).click();
+  await expect(app).toBeVisible();
+  await app.getByRole('button', { name: '打开 MCP 与插件管理', exact: true }).click();
+  await leaving.getByRole('button', { name: '放弃更改并离开', exact: true }).click();
+  await expect(page).toHaveURL(/view=settings.*section=plugins/);
+  await expect(page.getByRole('heading', { name: '功能设置', exact: true })).toBeVisible();
+});

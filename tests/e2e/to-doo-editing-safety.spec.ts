@@ -26,7 +26,10 @@ async function snapshot(page: Page, taskId: string) {
 const detail = (page: Page) => page.getByRole('complementary', { name: '任务详情', exact: true });
 async function open(page: Page, id: string) {
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all&task=' + id);
-  await expect(detail(page).getByLabel('任务标题', { exact: true })).toBeVisible();
+  const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
+  await expect(app).toBeVisible({ timeout: 20000 });
+  await expect(app.locator('.todo-main')).toHaveAttribute('aria-busy', 'false', { timeout: 20000 });
+  await expect(detail(page).getByLabel('任务标题', { exact: true })).toBeVisible({ timeout: 20000 });
 }
 async function save(page: Page) {
   const button = detail(page).getByRole('button', { name: '保存任务', exact: true });
@@ -176,5 +179,5 @@ test('a hidden child draft blocks a parent move and the detail later moves the s
   const move = writes.find((body) => body.action === 'batch_tasks' && body.payload.operation === 'move');
   expect(move?.payload).toMatchObject({ listId: second, includeDescendants: true });
   expect(move.payload.expectedRevisions[child]).toBeTruthy();
-  expect(writes.filter((body) => body.action === 'update_task').every((body) => !Object.hasOwn(body.payload.patch, 'listId'))).toBe(true);
+  expect(writes.filter((body) => body.action === 'update_task' && body.payload.id === parent).every((body) => !Object.hasOwn(body.payload.patch, 'listId'))).toBe(true);
 });

@@ -99,6 +99,8 @@ function component(path: string, request: (...args: any[]) => Promise<any>) {
       if (id.endsWith('/to-doo-controls')) return controls;
       if (id.endsWith('/to-doo-time')) return clock;
       if (id === '../api') return { api: request };
+      if (id === '../preferences') return { resolvedTheme: Vue.ref('light') };
+      if (id === '../ant-design') return { toDooAntTheme: () => ({}) };
       if (id === 'ant-design-vue' || id.endsWith('.vue') || id.endsWith('.css')) return {};
       throw Error('Unexpected component dependency: ' + id);
     },

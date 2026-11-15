@@ -337,14 +337,20 @@ test('empty focus history omits loaded-count chrome while keeping today and cumu
   value.state.snapshot.focusSessions = [];
   const view = mount('ToDooRhythm', { model: value, section: 'focus' });
   await settle();
+  const panes = view.all().find(node => node.props['aria-label'] === '专注页面')!;
+  panes.props['onUpdate:value']('history');
+  await settle();
+  const records = view.all().find(node => node.props['aria-label'] === '专注概览和历史')! as Node & { style: { display?: string } };
+  expect(records.style.display).not.toBe('none');
   expect(view.all().filter((n) => n.tag === 'Statistic')).toHaveLength(4);
   expect(view.all().filter((n) => n.tag === 'p' && view.text(n).includes('已载入'))).toHaveLength(
     0,
   );
-  const policy = view
-    .all()
-    .find((n) => n.tag === 'p' && view.text(n).includes('完成次数按开始日计算'))!;
-  expect(ancestor(policy, 'details')).toBeDefined();
+  for (const title of ['今日次数', '今日时长', '累计次数', '累计时长']) {
+    const statistic = view.all(records).find(node => node.tag === 'Statistic' && node.props.title === title)!;
+    expect(statistic, title).toBeDefined();
+    expect(statistic.props.value, title).toBe(0);
+  }
 });
 
 test('anniversaries keep lunar origins visible and place additional content in a nonempty disclosure', () => {

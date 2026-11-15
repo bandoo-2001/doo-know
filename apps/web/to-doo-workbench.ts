@@ -668,6 +668,15 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     if (recoveryReadBlocked) return false;
     try {
       if (typeof localStorage === 'undefined') {
+        const needsRecovery = !!state.pendingMutation || pendingPlanCheckpoints.size > 0 ||
+          pendingStatusReceipts.size > 0 || Object.entries(state.drafts)
+            .some(([key, value]) => saved.get(key) !== fingerprint(value)) ||
+          Object.entries(state.newTaskDrafts)
+            .some(([key, value]) => newSaved.get(key) !== fingerprint(value));
+        if (!needsRecovery) {
+          state.recoveryStatus = 'idle';
+          return true;
+        }
         state.recoveryStatus = 'unavailable';
         return false;
       }
