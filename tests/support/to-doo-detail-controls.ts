@@ -32,7 +32,7 @@ export async function openToDooDetailProperty(page: Page, panel: ToDooDetailProp
 
 /** Applying a field only changes the detail draft; callers explicitly save the task later. */
 export async function completeToDooDetailProperty(page: Page) {
-  const modal = page.locator('.todo-property-modal').getByRole('dialog');
+  const modal = page.locator('.todo-property-modal');
   await modal.getByRole('button', { name: '完成设置', exact: true }).click();
   await expect(modal).not.toBeVisible();
 }
