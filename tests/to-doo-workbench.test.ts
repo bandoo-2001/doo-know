@@ -10,7 +10,7 @@ import {
   focusElapsed,
 } from '../apps/web/to-doo-workbench';
 import { toDooAnniversaryDate as nextToDooAnniversary } from '../shared/to-doo-anniversaries';
-import { toDooDraftPayload } from '../apps/web/to-doo-presentation';
+import { prepareToDooQuickDraft, toDooDraftPayload } from '../apps/web/to-doo-presentation';
 import { saveTaskSection } from '../apps/web/to-doo-task-groups';
 import { toDooCaptureFromNote } from '../apps/web/to-doo-capture';
 import {
@@ -114,6 +114,68 @@ const stamp = {
   createdAt: '2026-10-29T08:00:00.000Z',
   updatedAt: '2026-10-29T08:00:00.000Z',
 };
+
+test.each(['unchanged', 'edited', 'replaced'] as const)(
+  'a recovered quick capture receipt clears only its exact original draft (%s)', async (change) => {
+    const storage = new Map<string, string>();
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => storage.set(key, value),
+    });
+    try {
+      const data = snapshot(), server = transport(data);
+      const scope = { recoveryScope: 'capture-owner' };
+      const first = createToDooWorkbench(async () => { throw Error('response lost'); }, scope);
+      first.acceptSnapshot(data);
+      const source = first.newTaskDraft(undefined, 'list-A');
+      source.title = '明天 核对账单';
+      const prepared = prepareToDooQuickDraft(source, '2026-10-29', []);
+      const payload = toDooDraftPayload(prepared, 'UTC');
+      // Two saved drafts may point to the same editable destination.
+      const other = first.newTaskDraft(undefined, 'list-B');
+      Object.assign(other, prepared);
+      await first.createTask(payload, source);
+      const originalId = first.state.pendingMutation!.requestId;
+      expect(source.title).toBe('明天 核对账单');
+      const second = createToDooWorkbench(async (url, method, body) => {
+        if (method === 'POST') expect(toDooCommandSchema.parse(body).requestId).toBe(originalId);
+        return server.request(url, method, body);
+      }, scope);
+      second.acceptSnapshot(data);
+      if (change === 'replaced') {
+        second.clearNewTaskDraft(undefined, 'list-A');
+        second.newTaskDraft(undefined, 'list-A').title = source.title;
+      }
+      if (change === 'edited') second.newTaskDraft(undefined, 'list-A').criteria = '补充核对要求';
+      expect(await second.retryPending()).toBeDefined();
+      expect(second.newTaskDraft(undefined, 'list-A').title).toBe(change === 'unchanged' ? '' : source.title);
+      expect(second.newTaskDraft(undefined, 'list-B').title).toBe(payload.title);
+      expect(second.state.pendingQuickCapture).toBeNull();
+    } finally { vi.unstubAllGlobals(); }
+  },
+);
+
+test('a late quick capture receipt keeps the draft and selection in the newly opened dataset', async () => {
+  const data = snapshot();
+  let finish!: () => void;
+  const wait = new Promise<void>((resolve) => { finish = resolve; });
+  const server = transport(data);
+  const model = createToDooWorkbench(async (url, method, body) => {
+    if (method === 'POST') await wait;
+    return server.request(url, method, body);
+  });
+  model.acceptSnapshot(data);
+  const source = model.newTaskDraft();
+  source.title = '核对账单';
+  const saving = model.createTask(toDooDraftPayload(source, 'UTC'), source);
+  model.acceptSnapshot({ ...data, datasetId: 'another-dataset' });
+  model.newTaskDraft().title = source.title;
+  finish();
+  await saving;
+  expect(model.newTaskDraft().title).toBe(source.title);
+  expect(model.state.selectedTaskId).toBe('');
+});
+
 function snapshot(): ToDooSnapshot {
   const collections: ToDooCollections = {
     lists: [],
