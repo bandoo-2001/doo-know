@@ -851,7 +851,8 @@ defineExpose({
         >
         <div class="todo-detail-property-chips" role="group" aria-label="任务安排">
           <AButton type="text" aria-label="编辑计划日期" :disabled="state.busy || !form.occurrence" @click="revealDetail('plan')"><ToDooIcon name="calendar" :size="15" />{{ planSummary }}</AButton>
-          <AButton type="text" aria-label="编辑截止日期" :class="{ 'is-overdue': deadlineOverdue }" :disabled="state.busy || !form.occurrence" @click="revealDetail('due')"><ToDooIcon name="today" :size="15" />{{ deadlineSummary }}</AButton>
+          <AButton type="text" aria-label="编辑截止日期" :aria-describedby="deadlineSummaryId" :class="{ 'is-overdue': deadlineOverdue }" :disabled="state.busy || !form.occurrence" @click="revealDetail('due')"><ToDooIcon name="today" :size="15" />{{ deadlineSummary }}</AButton>
+          <span :id="deadlineSummaryId" class="todo-accessible-label">{{ deadlineSummary }}</span>
           <AButton type="text" aria-label="编辑优先级" :class="'todo-priority-' + form.task.priority" :disabled="state.busy" @click="revealDetail('priority')">{{ form.task.priority === 'none' ? '设置优先级' : toDooPriorityLabels[form.task.priority] + '优先级' }}</AButton>
         </div>
         <AButton v-if="!form.task.description && !descriptionOpen" type="text" class="todo-add-property" @click="descriptionOpen = true">＋ 添加说明</AButton>
@@ -906,6 +907,12 @@ defineExpose({
             @click="emit('open-note', note.noteId)"
             >{{ note.title || '关联资料' }} ↗</AButton
           >
+        </section>
+        <section v-if="form.task.tagIds.length || form.task.dependencies.length || form.task.criteria || form.task.attachments.length" class="todo-detail-value-summary" aria-label="任务补充信息">
+          <AButton v-if="form.task.tagIds.length" type="text" @click="revealDetail('properties')">标签：{{ form.task.tagIds.map(id => state.snapshot?.tags.find(tag => tag.id === id)?.name || '标签').join('、') }}</AButton>
+          <AButton v-if="form.task.dependencies.length" type="text" @click="revealDetail('properties')">前置任务：{{ form.task.dependencies.map(entry => model.taskDefinitions().find(task => task.id === entry.taskId)?.title || '关联任务').join('、') }}</AButton>
+          <AButton v-if="form.task.attachments.length" type="text" @click="revealDetail('attachments')">附件 {{ form.task.attachments.length }} 份</AButton>
+          <AButton v-if="form.task.criteria" type="text" class="todo-detail-criteria-summary" @click="revealDetail('results')">完成标准：{{ form.task.criteria }}</AButton>
         </section>
         <div class="todo-detail-shortcuts" role="group" aria-label="任务快捷设置">
           <AButton

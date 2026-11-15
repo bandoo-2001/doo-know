@@ -40,6 +40,7 @@ const emit = defineEmits<{
   'task-scope': [value: 'archived' | 'trash'];
   'resume-outcome': [operation: ToDooEntityMap['operation']];
   'open-note': [id: string];
+  'open-plugin-settings': [];
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
 }>();
 const confirmAction = useToDooConfirm();
@@ -1387,6 +1388,10 @@ defineExpose({
           >
         </div>
       </div>
+    </section>
+    <section v-show="activeTab === 'connections'" class="todo-panel">
+      <div class="todo-panel-header"><h2>MCP 与插件</h2></div>
+      <div class="todo-pad todo-form"><p class="todo-muted">管理 AI 工具连接、知识访问范围和 To Doo 授权。</p><AButton @click="emit('open-plugin-settings')">打开 MCP 与插件管理</AButton></div>
     </section>
     <section v-show="activeTab === 'connections'" class="todo-panel">
       <div class="todo-panel-header">

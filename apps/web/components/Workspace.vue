@@ -3605,6 +3605,7 @@ async function closeNotebookDrawer() {
         @navigate="navigateApp"
         @return-app="returnFromApp"
         @menu-select="drawer = false"
+        @open-plugin-settings="settings('plugins')"
         @open-note="openBlogNote"
         @note-created="run(refresh)"
       />

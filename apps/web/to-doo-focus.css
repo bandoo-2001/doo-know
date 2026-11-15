@@ -81,7 +81,6 @@
   .todo-focus-topic-total,
   .todo-focus-topic-actions {
     opacity: 0;
-    pointer-events: none;
     transition: opacity var(--todo-motion-fast);
   }
   .todo-focus-topic:hover .todo-focus-topic-total,
@@ -89,7 +88,6 @@
   .todo-focus-topic:focus-within .todo-focus-topic-total,
   .todo-focus-topic:focus-within .todo-focus-topic-actions {
     opacity: 1;
-    pointer-events: auto;
   }
 }
 .to-doo-workspace .todo-focus-topic-select.ant-btn {

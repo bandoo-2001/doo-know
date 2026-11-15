@@ -19,6 +19,9 @@
 .todo-detail-property-chips .ant-btn { display: inline-flex; align-items: center; gap: var(--todo-space-4); padding-inline: var(--todo-space-8); max-width: 100%; overflow: hidden; text-overflow: ellipsis; color: var(--todo-muted); }
 .todo-detail-property-chips .ant-btn.is-overdue { color: var(--todo-danger-text); }
 .todo-property-modal .todo-document-meta { display: block; }
+.todo-detail-value-summary { display: flex; flex-wrap: wrap; gap: var(--todo-space-4); }
+.todo-detail-value-summary .ant-btn { height: auto; max-width: 100%; padding-inline: 0; color: var(--todo-muted); overflow: hidden; text-overflow: ellipsis; text-align: left; }
+.todo-detail-value-summary .todo-detail-criteria-summary { white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 .to-doo-workspace .todo-readable-list-content {
   width: 100%;
   max-width: none;

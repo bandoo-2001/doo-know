@@ -106,6 +106,7 @@ function mount(name: string, initial: Record<string, any>) {
     scrollTop: 0,
   });
   const renderer = Vue.createRenderer<Node, Node>({
+    querySelector: () => null,
     createElement: (tag) => node(tag),
     createText: (text) => node('#text', text),
     createComment: () => node('#comment'),
@@ -302,10 +303,13 @@ test('matrix hides completed rows until the user reveals them', async () => {
     creating: true,
   });
   expect(matrix.byClass('todo-task-name').map(matrix.text)).toEqual(['今天的行动']);
-  matrix.button('显示已完成任务')!.props.onClick();
+  matrix.button('更多')!.props.onClick();
+  await tick();
+  const completed = () => matrix.all().find((node) => node.tag === 'input' && node.parent && matrix.text(node.parent) === '显示已完成任务')!;
+  completed().props.onChange({ target: { checked: true } });
   await tick();
   expect(matrix.byClass('todo-task-name').map(matrix.text)).toContain('已完成的阅读');
-  matrix.button('隐藏已完成任务')!.props.onClick();
+  completed().props.onChange({ target: { checked: false } });
   await tick();
   expect(matrix.byClass('todo-task-name').map(matrix.text)).not.toContain('已完成的阅读');
 });

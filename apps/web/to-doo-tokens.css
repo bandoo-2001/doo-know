@@ -10,7 +10,8 @@
   --todo-motion-panel: var(--todo-motion-panel-base);
 }
 
-.todo-compact {
+.todo-compact,
+body:has(.to-doo-workspace.todo-compact) :is(.todo-ant-modal, .todo-ant-popup) {
   --todo-control-height: var(--todo-compact-control-height);
   --todo-row-min-height: var(--todo-compact-row-height);
   --todo-row-padding-block: var(--todo-compact-row-padding);
@@ -33,7 +34,8 @@
 }
 
 @media (pointer: coarse) {
-  :is(.to-doo-workspace, .todo-ant-modal, .todo-ant-popup) {
+  :is(.to-doo-workspace, .todo-ant-modal, .todo-ant-popup),
+  body:has(.to-doo-workspace.todo-compact) :is(.todo-ant-modal, .todo-ant-popup) {
     --todo-icon-button-size: var(--todo-touch-target);
     --todo-row-min-height: var(--todo-touch-target);
     --todo-row-padding-block: 0px;

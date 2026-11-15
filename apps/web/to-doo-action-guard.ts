@@ -9,14 +9,30 @@ export async function guardToDooTaskAction(
   confirm: ConfirmTaskAction,
   options: { includeDescendants?: boolean; current?: () => boolean; save?: () => Promise<unknown> } = {},
 ): Promise<boolean> {
+  const affectedIds = [...taskIds];
+  const scopeKey = () => {
+    const ids = new Set(affectedIds);
+    if (options.includeDescendants !== false) {
+      let added = true;
+      while (added) {
+        added = false;
+        for (const task of model.taskDefinitions())
+          if (!task.deletedAt && task.parentTaskId && ids.has(task.parentTaskId) && !ids.has(task.id)) {
+            ids.add(task.id); added = true;
+          }
+      }
+    }
+    return [...ids].sort().join('\0');
+  };
   const taskId = model.state.selectedTaskId;
   const occurrenceId = model.state.selectedOccurrenceId;
   const current = () => model.state.selectedTaskId === taskId &&
     model.state.selectedOccurrenceId === occurrenceId && (options.current?.() ?? true);
   if (!current()) return false;
-  const blockers = await model.prepareTaskAction(taskIds, options.includeDescendants ?? true);
+  const blockers = await model.prepareTaskAction(affectedIds, options.includeDescendants ?? true);
   if (!blockers || !current()) return false;
   if (!blockers.length) return true;
+  const originalScope = scopeKey();
   const only = blockers[0];
   if (blockers.length !== 1 || only.kind !== 'task' ||
       only.taskId !== taskId || only.occurrenceId !== occurrenceId) {
@@ -32,6 +48,10 @@ export async function guardToDooTaskAction(
   if (!result || !current() || model.dirty()) return false;
   // The save can change both revisions and the affected subtree. Resolve again
   // rather than executing an action against the pre-save editing snapshot.
-  const remaining = await model.prepareTaskAction(taskIds, options.includeDescendants ?? true);
+  const remaining = await model.prepareTaskAction(affectedIds, options.includeDescendants ?? true);
+  if (remaining && scopeKey() !== originalScope) {
+    model.state.error = '子任务范围已改变，请重新发起操作并确认。';
+    return false;
+  }
   return !!remaining && !remaining.length && current();
 }

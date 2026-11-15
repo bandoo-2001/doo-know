@@ -2193,6 +2193,20 @@ describe('versioned editing recovery and action guards', () => {
       expect(scoped.state.legacyRecoveryAvailable).toBe(true);
     } finally { vi.unstubAllGlobals(); }
   });
+  test('adopting legacy new drafts keeps the currently open clean detail available', async () => {
+    storageFixture();
+    try {
+      const server = transport(), legacy = createToDooWorkbench(server.request); await legacy.load();
+      legacy.newTaskDraft().title = '旧版新建内容'; legacy.flushRecovery(); await (await import('vue')).nextTick();
+      const scoped = createToDooWorkbench(server.request, { recoveryScope: 'account-a' });
+      await scoped.load(); scoped.selectTask('task-a');
+      expect(scoped.adoptLegacyRecovery()).toBe(true);
+      expect(scoped.state.selectedTaskId).toBe('task-a');
+      expect(scoped.draft()?.task.id).toBe('task-a');
+      expect(scoped.dirty()).toBe(false);
+      expect(scoped.retainedNewTaskDrafts()[0]?.draft.title).toBe('旧版新建内容');
+    } finally { vi.unstubAllGlobals(); }
+  });
   test('empty legacy composer placeholders stay quiet while confirmed receipts remain recoverable', async () => {
     const storage = storageFixture();
     try {
@@ -2237,6 +2251,25 @@ describe('versioned editing recovery and action guards', () => {
       await b.load(); expect(b.retainedTaskDrafts()).toEqual([]);
       const aAgain = createToDooWorkbench(data.request, { recoveryScope: 'account-a' });
       await aAgain.load(); expect(aAgain.retainedTaskDrafts()[0]?.draft.task.description).toBe('A私有输入');
+    } finally { vi.unstubAllGlobals(); }
+  });
+  test('a recovered edit of a remotely deleted task remains copyable and cannot silently restore it', async () => {
+    storageFixture();
+    try {
+      const server = transport(); let writes = 0;
+      const request = async (url: string, method = 'GET', body?: unknown) => {
+        if (method !== 'GET') writes++;
+        return server.request(url, method, body);
+      };
+      const first = createToDooWorkbench(request); await first.load(); first.selectTask('task-a');
+      first.draft()!.task.description = '删除前尚未提交的内容'; first.flushRecovery();
+      server.data.tasks[0].deletedAt = '2026-11-15T12:00:00Z'; server.data.tasks[0].revision = 'deleted-r';
+      const recovered = createToDooWorkbench(request); await recovered.load(); recovered.selectTask('task-a', 'occ-a');
+      expect(await recovered.saveTask()).toBeUndefined();
+      expect(writes).toBe(0); expect(recovered.draft()?.task.description).toBe('删除前尚未提交的内容');
+      expect(recovered.state.unavailableDrafts['task-a@occ-a']).toContain('已被移除');
+      expect(recovered.state.conflictDraftKey).toBe('task-a@occ-a');
+      expect(server.data.tasks[0].deletedAt).toBe('2026-11-15T12:00:00Z');
     } finally { vi.unstubAllGlobals(); }
   });
   test('action preparation finds hidden-period, descendant and not-yet-created child drafts', async () => {

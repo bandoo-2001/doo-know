@@ -86,6 +86,7 @@ function mount(name: string, props: Record<string, any>) {
     contains: () => false,
   });
   const renderer = Vue.createRenderer<Node, Node>({
+    querySelector: () => null,
     insertStaticContent(content, parent, anchor) {
       const child = node('#static', content);
       child.parent = parent;
@@ -1045,4 +1046,54 @@ test('completing a property keeps it in the explicit task draft without saving t
   expect(value.dirty()).toBe(true);
   expect(save).not.toHaveBeenCalled();
   expect(detail.byClass('todo-detail-save')[0].props.disabled).toBe(false);
+});
+
+
+test('one task More popup retains view rules, organization, templates and selection actions', async () => {
+  const value = model();
+  const stamp = { revision: 'r1', createdAt: '2026-10-29T08:00:00Z', updatedAt: '2026-10-29T08:00:00Z' };
+  value.state.snapshot!.lists.push(toDooEntitySchemas.list.parse({ ...stamp, id: 'work', name: '工作' }));
+  value.state.snapshot!.templates.push(toDooEntitySchemas.template.parse({ ...stamp, id: 'template-one', name: '检查模板', tasks: [{ key: 'first', title: '模板中的任务' }] }));
+  value.state.filter.listIds = ['work'];
+  const edit = vi.fn(), navigate = vi.fn();
+  const execute = vi.spyOn(value, 'execute').mockResolvedValue(undefined);
+  const view = mount('ToDooTaskViews', { model: value, section: 'board', tree: [], creating: true, scopeListId: 'work', onEdit: edit, onNavigate: navigate });
+  const toolbar = view.byClass('todo-task-toolbar')[0];
+  const triggers = view.all(toolbar).filter((node) => node.tag === 'details' && node.parent === toolbar).map((popup) => view.text(popup.children.find((node) => node.tag === 'summary')!));
+  expect(triggers).toEqual(['搜索', '筛选', '更多']);
+  const display = view.byClass('todo-task-display-form')[0];
+  for (const label of ['任务展示方式', '任务排序', '看板分组', '任务密度']) {
+    expect(view.all(display).filter((node) => node.tag === 'select' && node.props['aria-label'] === label)).toHaveLength(1);
+  }
+  const action = (label: string) => view.all(display).find((node) => node.tag === 'button' && view.text(node) === label)!;
+  for (const label of ['选择任务', '编辑当前清单', '清单习惯', '新建分组', '新建标签', '从模板新建', '新建模板', '保存当前视图']) expect(action(label)).toBeDefined();
+  action('新建标签').props.onClick();
+  expect(edit).toHaveBeenLastCalledWith('tag');
+  action('新建模板').props.onClick();
+  expect(edit).toHaveBeenLastCalledWith('template');
+  action('保存当前视图').props.onClick();
+  expect(edit).toHaveBeenLastCalledWith('view', undefined, expect.objectContaining({ mode: 'board', filter: { listIds: ['work'] } }));
+  action('选择任务').props.onClick();
+  await Vue.nextTick();
+  expect(view.byClass('todo-batch')).toHaveLength(1);
+  view.all(display).find((node) => node.tag === 'select' && node.props['aria-label'] === '任务展示方式')!.props.onChange({ target: { value: 'matrix' } });
+  expect(navigate).toHaveBeenLastCalledWith('matrix');
+  action('从模板新建').props.onClick();
+  await Vue.nextTick();
+  await view.all().find((node) => node.tag === 'button' && view.text(node).trim() === '检查模板')!.props.onClick();
+  expect(execute).toHaveBeenCalledWith({ action: 'apply_template', payload: { templateId: 'template-one', listId: 'work', titlePrefix: '' } });
+});
+
+test('capture keeps detailed creation available after focus without a redundant collapsed action', async () => {
+  vi.stubGlobal('window', { addEventListener() {}, removeEventListener() {} });
+  vi.stubGlobal('document', { addEventListener() {}, removeEventListener() {}, querySelectorAll: () => [] });
+  const expand = vi.fn();
+  const capture = mount('ToDooQuickAdd', { model: model(), onExpand: expand });
+  const detailButtons = () => capture.all().filter((node) => node.tag === 'button' && node.props['aria-label'] === '详细添加');
+  expect(detailButtons()).toHaveLength(0);
+  capture.all().find((node) => node.tag === 'form')!.props.onFocusin();
+  await Vue.nextTick();
+  expect(detailButtons()).toHaveLength(1);
+  detailButtons()[0].props.onClick();
+  expect(expand).toHaveBeenCalledOnce();
 });

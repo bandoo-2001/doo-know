@@ -8,6 +8,7 @@ function fixture() {
     state: { selectedTaskId: 'task', selectedOccurrenceId: 'occ', error: '' },
     prepareTaskAction: vi.fn().mockResolvedValue([]),
     saveTask: vi.fn().mockResolvedValue(true), dirty: vi.fn().mockReturnValue(false),
+    taskDefinitions: vi.fn<() => { id: string; parentTaskId: string | null; deletedAt?: string | null }[]>().mockReturnValue([{ id: 'task', parentTaskId: null }]),
   };
   return { model, typed: model as unknown as ToDooWorkbench, blockers, confirm: vi.fn().mockResolvedValue(true) };
 }
@@ -50,5 +51,14 @@ describe('task actions preserve affected editing contexts', () => {
   test('a new affected draft discovered after save blocks the action', async () => {
     const f = fixture(); f.model.prepareTaskAction.mockResolvedValueOnce(f.blockers).mockResolvedValueOnce([{ ...f.blockers[0], taskId: 'child' }]);
     expect(await guardToDooTaskAction(f.typed, ['task'], f.confirm)).toBe(false);
+  });
+  test('new descendants discovered during save require a fresh scope confirmation', async () => {
+    const f = fixture();
+    f.model.prepareTaskAction.mockResolvedValueOnce(f.blockers).mockImplementationOnce(async () => {
+      f.model.taskDefinitions.mockReturnValue([{ id: 'task', parentTaskId: null }, { id: 'child', parentTaskId: 'task' }]);
+      return [];
+    });
+    expect(await guardToDooTaskAction(f.typed, ['task'], f.confirm)).toBe(false);
+    expect(f.model.state.error).toContain('范围已改变');
   });
 });

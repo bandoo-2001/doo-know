@@ -905,6 +905,12 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       legacySourceFingerprint = '';
       restoreRecovery(datasetId, merged);
       if (recoveryReadBlocked) throw Error('旧版草稿有无法读取的内容，原记录仍保留');
+      for (const [key, value] of Object.entries(before.drafts)) {
+        if (state.drafts[key]) continue;
+        state.drafts[key] = value;
+        const baseline = before.saved.find(([entryKey]) => entryKey === key)?.[1];
+        if (baseline) saved.set(key, baseline);
+      }
       restoringRecovery = false;
       if (!persistRecovery()) throw Error('旧版草稿尚未可靠保存到当前账号，原记录仍保留');
       detectLegacyRecovery(datasetId); syncSelectedConflict();
@@ -2432,7 +2438,9 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       if (state.snapshot?.datasetId !== datasetId || !state.drafts[draftKey]) return false;
       if (!remote || remote.task.deletedAt || local.occurrence && (!remote.occurrence || remote.occurrence.deletedAt)) {
         const reason = '任务或本次执行已被移除，草稿仍保留；可复制内容或明确放弃草稿';
-        state.unavailableDrafts[draftKey] = reason; state.error = reason; return false;
+        state.unavailableDrafts[draftKey] = reason; state.error = reason;
+        markDraftConflict(draftKey);
+        return false;
       }
       const merged = mergeToDooTaskDraft(draftKey, state.drafts[draftKey], baseline, remote);
       const oldConflicts = state.draftConflicts.filter((entry) => entry.draftKey === draftKey);

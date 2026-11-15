@@ -143,7 +143,7 @@ const moreActive = computed(
       <section class="todo-navigation-group" aria-label="计划与执行">
         <div class="todo-nav-section-heading"><span class="todo-nav-label">常用模块</span>
           <APopover v-model:open="pinOpen" trigger="click" title="固定常用模块" placement="rightTop" overlay-class-name="todo-ant-popup">
-            <AButton ref="pinTrigger" type="text" size="small" aria-label="自定义常用模块" title="自定义常用模块" :aria-expanded="pinOpen">⋯</AButton>
+            <AButton ref="pinTrigger" type="text" @keydown.esc.stop.prevent="closePins" size="small" aria-label="自定义常用模块" title="自定义常用模块" :aria-expanded="pinOpen">⋯</AButton>
             <template #content><div class="todo-navigation-pin-options" @keydown.esc.stop.prevent="closePins">
               <ACheckbox v-for="item in pinOptions" :key="item[0]" :checked="pins.includes(item[0])" @change="togglePin(item[0])">{{ item[1] }}</ACheckbox>
               <AButton type="text" @click="closePins">完成</AButton>

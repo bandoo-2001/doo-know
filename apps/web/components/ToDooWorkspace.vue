@@ -91,6 +91,7 @@ const emit = defineEmits<{
   'open-note': [id: string];
   back: [];
   'note-created': [id: string];
+  'open-plugin-settings': [];
 }>();
 const pageAttempts = reactive({ calendar: 0, rhythm: 0, review: 0, settings: 0 });
 function asyncPage<T extends Component>(
@@ -1622,6 +1623,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               :context="pageContext"
               @context-change="changePageContext"
               @resume-outcome="resumeOutcome"
+              @task-scope="chooseQuickView"
+              @open-plugin-settings="emit('open-plugin-settings')"
               @open-note="emit('open-note', $event)"
               @edit="edit"
           /></KeepAlive>

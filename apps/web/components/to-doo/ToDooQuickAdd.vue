@@ -222,6 +222,7 @@ async function add() {
       </AButton>
       <AButton
         html-type="button"
+        v-if="expanded"
         class="todo-quick-details"
         aria-label="详细添加"
         title="填写任务详情"
@@ -235,28 +236,28 @@ async function add() {
     <div v-if="draft.title.trim()" class="todo-quick-add-hint" aria-label="任务输入属性">
       <span v-if="prepared.planDate" class="todo-capture-chip">
         <APopover :open="chipOpen === 'plan'" trigger="click" title="计划" overlay-class-name="todo-ant-popup" @open-change="(open: boolean) => setChipOpen('plan', open)">
-          <AButton type="text" @click="rememberChip" aria-label="纠正计划日期">计划 {{ toDooDateLabel(prepared.planDate, today) }} {{ prepared.planTime }}</AButton>
+          <AButton type="text" @click="rememberChip" @keydown.esc.stop.prevent="closeChip" aria-label="纠正计划日期">计划 {{ toDooDateLabel(prepared.planDate, today) }} {{ prepared.planTime }}</AButton>
           <template #content><div class="todo-capture-chip-editor" @keydown.esc.stop.prevent="closeChip"><label>计划日期<ToDooDateField v-model="draft.planDate" type="date" aria-label="纠正计划日期" /></label><label>计划时间<ToDooDateField v-model="draft.planTime" type="time" aria-label="纠正计划时间" /></label></div></template>
         </APopover>
         <AButton type="text" aria-label="移除计划识别" @click="removeDate('plan')">×</AButton>
       </span>
       <span v-if="prepared.dueDate" class="todo-capture-chip">
         <APopover :open="chipOpen === 'due'" trigger="click" title="截止" overlay-class-name="todo-ant-popup" @open-change="(open: boolean) => setChipOpen('due', open)">
-          <AButton type="text" @click="rememberChip" aria-label="纠正截止日期">截止 {{ toDooDateLabel(prepared.dueDate, today) }} {{ prepared.dueTime }}</AButton>
+          <AButton type="text" @click="rememberChip" @keydown.esc.stop.prevent="closeChip" aria-label="纠正截止日期">截止 {{ toDooDateLabel(prepared.dueDate, today) }} {{ prepared.dueTime }}</AButton>
           <template #content><div class="todo-capture-chip-editor" @keydown.esc.stop.prevent="closeChip"><label>截止日期<ToDooDateField v-model="draft.dueDate" type="date" aria-label="纠正截止日期" /></label><label>截止时间<ToDooDateField v-model="draft.dueTime" type="time" aria-label="纠正截止时间" /></label></div></template>
         </APopover>
         <AButton type="text" aria-label="移除截止识别" @click="removeDate('due')">×</AButton>
       </span>
       <span v-if="prepared.frequency" class="todo-capture-chip">
         <APopover :open="chipOpen === 'repeat'" trigger="click" title="重复" overlay-class-name="todo-ant-popup" @open-change="(open: boolean) => setChipOpen('repeat', open)">
-          <AButton type="text" @click="rememberChip" aria-label="纠正重复规则">{{ prepared.frequency === 'daily' ? '每天重复' : '每周' + '日一二三四五六'[prepared.weekdays[0] ?? 1] + '重复' }}</AButton>
+          <AButton type="text" @click="rememberChip" @keydown.esc.stop.prevent="closeChip" aria-label="纠正重复规则">{{ prepared.frequency === 'daily' ? '每天重复' : '每周' + '日一二三四五六'[prepared.weekdays[0] ?? 1] + '重复' }}</AButton>
           <template #content><div class="todo-capture-chip-editor" @keydown.esc.stop.prevent="closeChip"><label>重复<ToDooSelect :value="draft.frequency" aria-label="纠正重复规则" @change="correctRepeat"><option :value="null">不重复</option><option value="daily">每天</option><option value="weekly">每周</option></ToDooSelect></label><label v-if="draft.frequency === 'weekly'">星期<ToDooSelect :value="draft.weekdays[0] ?? 1" aria-label="重复星期" @change="draft.weekdays = [Number($event)]"><option v-for="(day, index) in ['日', '一', '二', '三', '四', '五', '六']" :key="index" :value="index">星期{{ day }}</option></ToDooSelect></label></div></template>
         </APopover>
         <AButton type="text" aria-label="移除重复识别" @click="removeRepeat">×</AButton>
       </span>
       <span v-for="id in prepared.tagIds" :key="id" class="todo-capture-chip">
         <APopover :open="chipOpen === 'tag-' + id" trigger="click" title="标签" overlay-class-name="todo-ant-popup" @open-change="(open: boolean) => setChipOpen('tag-' + id, open)">
-          <AButton type="text" :aria-label="'纠正标签 ' + (state.snapshot?.tags.find((tag) => tag.id === id)?.name || id)" @click="rememberChip">{{ state.snapshot?.tags.find((tag) => tag.id === id)?.name || '标签' }}</AButton>
+          <AButton type="text" :aria-label="'纠正标签 ' + (state.snapshot?.tags.find((tag) => tag.id === id)?.name || id)" @click="rememberChip" @keydown.esc.stop.prevent="closeChip">{{ state.snapshot?.tags.find((tag) => tag.id === id)?.name || '标签' }}</AButton>
           <template #content><div class="todo-capture-chip-editor" @keydown.esc.stop.prevent="closeChip"><label>标签<ToDooSelect :value="id" aria-label="纠正标签" @change="correctTag(id, $event)"><option v-for="tag in state.snapshot?.tags.filter((entry) => !entry.deletedAt)" :key="tag.id" :value="tag.id">{{ tag.name }}</option></ToDooSelect></label></div></template>
         </APopover>
         <AButton type="text" :aria-label="'移除标签 ' + (state.snapshot?.tags.find((tag) => tag.id === id)?.name || id)" @click="removeTag(id)">×</AButton>

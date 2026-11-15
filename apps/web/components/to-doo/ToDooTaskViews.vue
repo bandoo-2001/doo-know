@@ -15,12 +15,12 @@ import {
   Empty as AEmpty,
   Progress as AProgress,
   Checkbox as ACheckbox,
-  Dropdown as ADropdown,
   Menu as AMenu,
   MenuItem as AMenuItem,
   SubMenu as ASubMenu,
   Popover as APopover,
   Modal as AModal,
+  Alert as AAlert,
   Input as AInput,
   Tag as ATag,
 } from 'ant-design-vue';
@@ -82,8 +82,10 @@ const viewOptions = [
   { value: 'timeline', label: '时间线' },
 ];
 function chooseView(value: string | number) {
-  if (value === 'tasks' || value === 'board' || value === 'matrix' || value === 'timeline')
+  if (value === 'tasks' || value === 'board' || value === 'matrix' || value === 'timeline') {
+    displayOpen.value = false;
     emit('navigate', value);
+  }
 }
 const quadrants = [
   { name: '重要且紧急', action: '立即行动', tone: 'do', empty: '优先处理影响大、时间紧的任务。' },
@@ -124,6 +126,12 @@ async function applyAdvancedFilters() {
   await filterChanged();
   advancedFilters.value = false;
 }
+async function applyTemplate(templateId: string) {
+  const result = await props.model.execute({ action: 'apply_template', payload: {
+    templateId, listId: state.filter.listIds?.[0] || null, titlePrefix: '',
+  } });
+  if (result) templatesOpen.value = false;
+}
 const filterOpen = ref(false),
   showCompleted = ref(false);
 const builtin = computed({
@@ -160,7 +168,6 @@ const visibleItems = computed(() =>
     return true;
   }),
 );
-const completedItems = computed(() => visibleItems.value.filter((i) => i.status === 'done'));
 const outlineItems = computed(() =>
   visibleItems.value.filter(
     (i) =>
@@ -935,19 +942,12 @@ function saveView() {
       :class="{ 'todo-task-list-toolbar': section === 'tasks' }"
       aria-label="任务视图与筛选"
     >
-      <ToDooSelect
-        class="todo-view-picker"
-        aria-label="任务展示方式"
-        :value="section"
-        :show-search="false"
-        :options="viewOptions"
-        @change="chooseView"
-      />
+
       <APopover v-model:open="toolsOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-search-popup" @open-change="(open: boolean) => open && nextTick(() => searchInput?.focus?.())">
         <AButton ref="searchTrigger" type="text" @keydown.esc.stop.prevent="closePopup('search')" class="todo-task-tools-toggle" aria-label="搜索任务" :aria-expanded="toolsOpen" :class="{ 'is-active': state.filter.query }"><ToDooIcon name="search" :size="16" /><span>搜索</span></AButton>
         <template #content><form class="todo-task-search-form" role="search" @submit.prevent="filterChanged" @keydown.esc.stop.prevent="closePopup('search')">
           <label>搜索任务<AInput ref="searchInput" v-model:value="state.filter.query" :placeholder="searchPlaceholder" aria-label="搜索任务" allow-clear /></label>
-          <div class="todo-actions"><AButton html-type="submit" type="primary">搜索</AButton><AButton v-if="canSearchAll" type="link" @click="emit('search-all'); closePopup('search')">在所有任务中搜索</AButton><AButton v-if="state.filter.query" type="text" @click="state.filter.query = ''; filterChanged()">清除搜索</AButton><AButton type="text" @click="closePopup('search')">关闭</AButton></div>
+          <div class="todo-actions"><AButton html-type="submit" type="primary" aria-label="执行搜索">搜索</AButton><AButton v-if="canSearchAll" type="link" @click="emit('search-all'); closePopup('search')">在所有任务中搜索</AButton><AButton v-if="state.filter.query" type="text" @click="state.filter.query = ''; filterChanged()">清除搜索</AButton><AButton type="text" @click="closePopup('search')">关闭</AButton></div>
         </form></template>
       </APopover>
       <APopover v-model:open="filterOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-filter-popup">
@@ -959,24 +959,33 @@ function saveView() {
         </form></template>
       </APopover>
       <APopover v-model:open="displayOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-display-popup">
-        <AButton ref="displayTrigger" type="text" @keydown.esc.stop.prevent="closePopup('display')" aria-label="任务显示选项" :aria-expanded="displayOpen">显示选项</AButton>
-        <template #content><div class="todo-task-display-form" @keydown.esc.stop.prevent="closePopup('display')">
+        <AButton ref="displayTrigger" type="text" @keydown.esc.stop.prevent="closePopup('display')" aria-label="任务显示与管理" :aria-expanded="displayOpen">更多</AButton>
+        <template #content><div class="todo-task-display-form" @keydown.esc.stop.prevent="closePopup('display')"><label>展示方式      <ToDooSelect
+        class="todo-view-picker"
+        aria-label="任务展示方式"
+        :value="section"
+        :show-search="false"
+        :options="viewOptions"
+        @change="chooseView"
+      /></label>
           <label>排序<ToDooSelect v-model="state.sort" aria-label="任务排序"><option value="manual">手动顺序</option><option value="due">截止日期</option><option value="priority">优先级</option><option value="created">最近创建</option><option value="title">标题</option></ToDooSelect></label>
           <label v-if="section === 'board'">分组<ToDooSelect v-model="boardBy" aria-label="看板分组"><option value="status">按状态</option><option value="list">按清单</option><option value="priority">按优先级</option><option value="section">按分组</option><option value="tag">按标签</option></ToDooSelect></label>
           <label>密度<ToDooSelect :value="density" aria-label="任务密度" @change="emit('update:density', $event as 'comfortable' | 'compact')"><option value="comfortable">舒适</option><option value="compact">紧凑</option></ToDooSelect></label>
           <ACheckbox v-model:checked="showCompleted">显示已完成任务</ACheckbox>
           <div v-if="state.snapshot?.views.some((v) => !v.deletedAt)" class="todo-saved-views"><span>保存的视图</span><div v-for="v in state.snapshot.views.filter((v) => !v.deletedAt)" :key="v.id" class="todo-actions"><AButton type="link" @click="applyView(v); closePopup('display')">{{ v.name }}</AButton><AButton type="text" :aria-label="'编辑视图 ' + v.name" @click="emit('edit', 'view', v)">⋯</AButton></div></div>
-          <div class="todo-actions"><AButton @click="saveView">保存当前视图</AButton><AButton type="text" @click="closePopup('display')">关闭</AButton></div>
-        </div></template>
-      </APopover>
-      <ADropdown :trigger="['click']" placement="bottomRight" overlay-class-name="todo-ant-popup"><AButton type="text" aria-label="任务管理" class="todo-task-more"><ToDooIcon name="more" :size="18" /></AButton><template #overlay><AMenu :selectable="false">
+          <div class="todo-task-management-options"><AMenu :selectable="false" aria-label="任务管理" @click="displayOpen = false">
         <AMenuItem key="select" @click="selecting = !selecting; state.selectedIds = []">{{ selecting ? '结束多选' : '选择任务' }}</AMenuItem>
         <ASubMenu key="organize" title="组织清单"><AMenuItem v-if="scopeListId" key="edit-list" @click="emit('edit', 'list', lists.find((l) => l.id === scopeListId))">编辑当前清单</AMenuItem><AMenuItem v-if="scopeListId" key="list-habits" @click="emit('habits', scopeListId)">清单习惯</AMenuItem><AMenuItem key="section" @click="newSection">新建分组</AMenuItem><AMenuItem key="tag" @click="emit('edit', 'tag')">新建标签</AMenuItem></ASubMenu>
         <ASubMenu key="templates" title="模板"><AMenuItem v-if="state.snapshot?.templates.some((t) => !t.deletedAt)" key="apply-template" @click="templatesOpen = true">从模板新建</AMenuItem><AMenuItem key="new-template" @click="emit('edit', 'template')">新建模板</AMenuItem></ASubMenu>
-      </AMenu></template></ADropdown>
+      </AMenu></div>
+          <div class="todo-actions"><AButton @click="saveView(); displayOpen = false">保存当前视图</AButton><AButton type="text" @click="closePopup('display')">关闭</AButton></div>
+        </div></template>
+      </APopover>
+
     </ToDooPageToolbar>
     </Teleport>
     <AModal v-model:open="templatesOpen" title="从模板新建" :footer="null">
+      <AAlert v-if="state.error" type="error" :message="state.error" show-icon />
 
         <div
           v-for="t in state.snapshot?.templates.filter((t) => !t.deletedAt)"
@@ -986,17 +995,8 @@ function saveView() {
           <AButton
             class="todo-link"
             html-type="button"
-            :disabled="state.busy"
-            @click="
-              model.execute({
-                action: 'apply_template',
-                payload: {
-                  templateId: t.id,
-                  listId: state.filter.listIds?.[0] || null,
-                  titlePrefix: '',
-                },
-              })
-            "
+            :disabled="state.busy || !!state.pendingMutation"
+            @click="applyTemplate(t.id)"
             type="link"
           >
             {{ t.name }}</AButton
@@ -1260,22 +1260,6 @@ function saveView() {
           >
         </div>
       </section>
-      <AButton
-        v-if="
-          completedItems.length &&
-          !['done', 'trash', 'archived'].includes(builtin) &&
-          !state.filter.query
-        "
-        html-type="button"
-        class="todo-completed-toggle"
-        :aria-label="showCompleted ? '隐藏已完成任务' : '显示已完成任务'"
-        :aria-expanded="showCompleted"
-        @click="showCompleted = !showCompleted"
-        type="text"
-      >
-        <span>{{ showCompleted ? '⌄' : '›' }}</span
-        >已完成 <small>{{ completedItems.length }}</small>
-      </AButton>
       <div v-if="!items.length" class="todo-empty">
         <span class="todo-empty-check" aria-hidden="true"
           ><ToDooIcon name="check" :size="28"
@@ -1817,7 +1801,7 @@ function saveView() {
 .todo-task-list-capture :deep(.todo-quick-add) {
   background: var(--todo-soft);
   border-radius: 8px;
-  margin: var(--todo-space) 0;
+  margin: var(--todo-space-8) 0 var(--todo-space-4);
 }
 .todo-task-list-panel > .todo-task-list-heading {
   padding: 0 10px;
