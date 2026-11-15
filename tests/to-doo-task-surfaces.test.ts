@@ -1108,6 +1108,43 @@ test('removing an existing plan with invalid edits creates a valid recoverable d
 });
 
 
+test('recording an outcome asks to save criteria and aborts when the selected task changes', async () => {
+  const { value, writes } = confirmationModel();
+  const edit = vi.fn();
+  const save = vi.spyOn(value, 'saveTask');
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [], onEdit: edit });
+  await detail.ref.value.openProperty('results');
+  value.draft()!.task.criteria = '未保存的完成标准';
+  const action = detail.all().find(node => node.tag === 'button' && detail.text(node).trim() === '＋ 记录成果与证据')!;
+  const pending = action.props.onClick();
+  await vi.waitFor(() => expect(detail.confirmation.current.value).not.toBeNull());
+  expect(edit).not.toHaveBeenCalled();
+  value.selectTask('task-b', 'occ-b');
+  detail.confirmation.finish(true);
+  await pending;
+  expect(save).not.toHaveBeenCalled();
+  expect(edit).not.toHaveBeenCalled();
+  expect(writes).toHaveLength(0);
+});
+
+test('adding an execution record does not reopen its task after the user selects another one', async () => {
+  const { value } = confirmationModel();
+  value.state.snapshot!.occurrences = value.state.snapshot!.occurrences.filter(occurrence => occurrence.taskId !== 'task-a');
+  value.selectTask('task-a');
+  let finish!: (result: any) => void;
+  const execute = vi.spyOn(value, 'execute').mockImplementation(() => new Promise(resolve => { finish = resolve; }));
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+  const action = detail.all().find(node => node.tag === 'button' && detail.text(node).trim() === '添加本次任务记录')!;
+  const pending = action.props.onClick();
+  await vi.waitFor(() => expect(execute).toHaveBeenCalledOnce());
+  expect(execute).toHaveBeenCalledWith(expect.objectContaining({ action: 'materialize_occurrences', payload: expect.objectContaining({ taskId: 'task-a' }) }));
+  value.selectTask('task-b', 'occ-b');
+  finish({ ids: ['occ-new'] });
+  await pending;
+  expect(value.state.selectedTaskId).toBe('task-b');
+  expect(value.state.selectedOccurrenceId).toBe('occ-b');
+});
+
 test('one task More popup retains view rules, organization, templates and selection actions', async () => {
   const value = model();
   const stamp = { revision: 'r1', createdAt: '2026-10-29T08:00:00Z', updatedAt: '2026-10-29T08:00:00Z' };

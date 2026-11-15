@@ -546,7 +546,23 @@ async function status(value: string) {
   if (currentDetail(taskId, occurrenceId) && !props.model.dirty())
     props.model.selectTask(taskId, occurrenceId);
 }
-function makeOutcome() {
+async function materializeToday() {
+  if (!form.value || state.busy || state.pendingMutation) return;
+  const taskId = state.selectedTaskId, occurrenceId = state.selectedOccurrenceId;
+  if (!(await guardToDooTaskAction(props.model, [taskId], confirmAction, {
+    current: () => currentDetail(taskId, occurrenceId), save,
+  }))) return;
+  const today = toDooLocalDate(new Date(), zone.value);
+  const result = await props.model.execute({
+    action: 'materialize_occurrences', payload: { taskId, from: today, to: today },
+  });
+  if (result && currentDetail(taskId, occurrenceId)) props.model.selectTask(taskId);
+}
+async function makeOutcome() {
+  const taskId = state.selectedTaskId, occurrenceId = state.selectedOccurrenceId;
+  if (!(await guardToDooTaskAction(props.model, [taskId], confirmAction, {
+    current: () => currentDetail(taskId, occurrenceId), save,
+  }))) return;
   emit('edit', 'outcome', undefined, {
     occurrenceId: form.value?.occurrence?.id || null,
     listId: form.value?.task.listId || null,
@@ -894,19 +910,8 @@ defineExpose({
           v-if="!form.occurrence"
           html-type="button"
           class="todo-button"
-          :disabled="state.busy"
-          @click="
-            model
-              .execute({
-                action: 'materialize_occurrences',
-                payload: {
-                  taskId: form.task.id,
-                  from: toDooLocalDate(new Date(), zone),
-                  to: toDooLocalDate(new Date(), zone),
-                },
-              })
-              .then(() => model.selectTask(form!.task.id))
-          "
+          :disabled="state.busy || !!state.pendingMutation"
+          @click="materializeToday"
           type="default"
           >添加本次任务记录</AButton
         >

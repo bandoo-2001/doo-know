@@ -1,4 +1,5 @@
 import { test, expect } from '../support/browser-test';
+import { selectToDooOption } from '../support/to-doo-ant-controls';
 import {
   closeToDooDirectory,
   goToToDooSection,
@@ -240,14 +241,15 @@ test('compact task density reduces row height without shrinking task text', asyn
       font: getComputedStyle(element.querySelector('.todo-task-name')!).fontSize,
     }));
   const comfortable = await measure();
-  await app.getByRole('button', { name: '显示选项', exact: true }).click();
-  const density = page.locator('.todo-ant-density');
-  await density.getByText('紧凑', { exact: true }).click();
+  await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await selectToDooOption(page, '任务密度', '紧凑');
+  await page.keyboard.press('Escape');
   await expect(app).toHaveClass(/todo-compact/);
   const compact = await measure();
-  expect(compact.height).toBeLessThan(comfortable.height);
+  const touch = await page.evaluate(() => matchMedia('(pointer: coarse)').matches);
+  if (touch) expect(compact.height).toBe(comfortable.height);
+  else expect(compact.height).toBeLessThan(comfortable.height);
   expect(compact.font).toBe(comfortable.font);
-  await app.getByRole('button', { name: '显示选项', exact: true }).click();
   await page.screenshot({
     path: info.outputPath('1440-compact-tasks.png'),
     animations: 'disabled',
@@ -267,8 +269,9 @@ test('compact task density reduces row height without shrinking task text', asyn
     animations: 'disabled',
   });
   await goToToDooSection(page, 'tasks');
-  await app.getByRole('button', { name: '显示选项', exact: true }).click();
-  await density.getByText('舒展', { exact: true }).click();
+  await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await selectToDooOption(page, '任务密度', '舒适');
+  await page.keyboard.press('Escape');
   await expect(app).not.toHaveClass(/todo-compact/);
   expect((await measure()).height).toBeCloseTo(comfortable.height, 0);
 });

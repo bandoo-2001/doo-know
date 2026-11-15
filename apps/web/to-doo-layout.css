@@ -39,9 +39,10 @@
   flex: 0 0 auto;
   gap: var(--todo-space-8);
 }
-.to-doo-workspace .todo-page-heading > .todo-actions > .ant-btn {
+.to-doo-workspace .todo-page-heading > .todo-actions .ant-btn {
   min-height: var(--todo-control-height);
-  height: auto;
+  height: var(--todo-control-height);
+  padding-block: 0;
   padding-inline: var(--todo-space-12);
   font-size: var(--todo-font-size);
   line-height: var(--todo-body-line-height);
