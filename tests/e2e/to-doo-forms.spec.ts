@@ -200,7 +200,13 @@ test('all-day schedule hides irrelevant controls, restores the timed draft and p
 }, info) => {
   await page.setViewportSize({ width: 320, height: 844 });
   await page.goto('/?view=apps&app=to-doo&appSection=calendar');
-  await page.evaluate(() => (document.documentElement.dataset.theme = 'dark'));
+  await page.evaluate(async () => {
+    const modulePath = '/preferences.ts';
+    const preferences = await import(modulePath);
+    preferences.setEditorPreferences({ theme: 'dark' });
+    await document.fonts.ready;
+  });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.getByRole('button', { name: '＋ 预留时间', exact: true }).click();
   const editor = page.getByRole('dialog', { name: '新建时间安排', exact: true });
   await editor.getByLabel('安排标题', { exact: true }).fill('全天安排 ' + info.project.name);
@@ -249,7 +255,9 @@ test('changing list type does not erase its hidden goal fields', async ({ page }
   });
   const id = created.ids[0];
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&list=' + id);
-  await page.getByRole('button', { name: '编辑当前清单', exact: true }).click();
+  await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await page.locator('.todo-task-management-options').getByText('组织清单', { exact: true }).click();
+  await page.getByRole('menuitem', { name: '编辑当前清单', exact: true }).click();
   const editor = page.getByRole('dialog', { name: /^编辑(目标|清单)$/ });
   await expect(editor.getByLabel('说明', { exact: true })).not.toBeVisible();
   await expect(editor.getByLabel('目标日期', { exact: true })).not.toBeVisible();

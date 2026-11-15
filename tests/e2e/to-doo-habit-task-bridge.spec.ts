@@ -21,7 +21,7 @@ const shift = (date: string, days: number) =>
 
 async function openListHabits(page: Page) {
   await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
-  await page.getByRole('menuitem', { name: '组织清单', exact: true }).click();
+  await page.locator('.todo-task-management-options').getByText('组织清单', { exact: true }).click();
   await page.getByRole('menuitem', { name: '清单习惯', exact: true }).click();
 }
 
