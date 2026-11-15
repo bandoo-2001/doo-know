@@ -1,12 +1,27 @@
 <script setup lang="ts">
 import { Checkbox as ACheckbox, Input as AInput, InputNumber as AInputNumber } from 'ant-design-vue';
+import { watch } from 'vue';
 import type { ToDooEntityMap } from '../../../../shared/to-doo-contracts';
 import ToDooDateField from './ToDooDateField.vue';
 const props = defineProps<{ block: Pick<ToDooEntityMap['timeBlock'], 'title' | 'allDay' | 'start' | 'durationMinutes' | 'dateEndExclusive'>; disabled?: boolean }>();
+let timedTime = props.block.allDay ? null : props.block.start.time;
+let allDayEnd = props.block.allDay ? props.block.dateEndExclusive : null;
+watch(() => props.block, block => {
+  timedTime = block.allDay ? null : block.start.time;
+  allDayEnd = block.allDay ? block.dateEndExclusive : null;
+});
 function setAllDay(checked: boolean) {
+  if (checked === props.block.allDay) return;
+  if (checked) {
+    timedTime = props.block.start.time;
+    props.block.start.time = null;
+    props.block.dateEndExclusive = allDayEnd;
+  } else {
+    allDayEnd = props.block.dateEndExclusive;
+    props.block.dateEndExclusive = null;
+    props.block.start.time = timedTime;
+  }
   props.block.allDay = checked;
-  if (checked) props.block.start.time = null;
-  else props.block.dateEndExclusive = null;
 }
 </script>
 <template>
