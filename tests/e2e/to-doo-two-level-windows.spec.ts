@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
+import type { ToDooSnapshot } from '../../shared/to-doo-contracts';
 import { test, expect } from '../support/browser-test';
 import { expandToDooGroup, selectToDooOption } from '../support/to-doo-ant-controls';
 import { selectToDooContext } from '../support/to-doo-navigation';
@@ -69,28 +70,52 @@ test('a new tag exposes its real color field and persists the selected value', a
 test('review creation displays actual metrics and saves a server-captured snapshot', async ({
   page,
 }) => {
+  const library = await (await page.request.get('/api/to-doo/state?view=stats')).json() as ToDooSnapshot;
+  await page.clock.install({ time: new Date(library.now) });
+  const to = new Intl.DateTimeFormat('sv-SE', { timeZone: library.settings.timeZone }).format(new Date(library.now));
+  const from = new Date(Date.parse(to + 'T12:00:00Z') - 6 * 86400000).toISOString().slice(0, 10);
+  const query = '/api/to-doo/state?' + new URLSearchParams({ view: 'stats', from, to });
+  const before = await (await page.request.get(query)).json() as ToDooSnapshot;
   const created = await command(page, 'create_task', { title: '复盘事实 ' + crypto.randomUUID() });
-  const occurrence = created.snapshot.occurrences.find(
+  // A command's bounded default reply is not guaranteed to include this task.
+  const taskState = await (await page.request.get('/api/to-doo/state?taskIds=' + created.ids[0])).json() as ToDooSnapshot;
+  const occurrence = taskState.occurrences.find(
     (item: any) => item.taskId === created.ids[0],
-  );
+  )!;
+  expect(occurrence.status).toBe('todo');
   await command(page, 'set_occurrence_status', {
     id: occurrence.id,
     expectedRevision: occurrence.revision,
     status: 'done',
   });
+  const current = await (await page.request.get(query)).json() as ToDooSnapshot;
+  expect(current.statistics.completed).toBe(before.statistics.completed + 1);
   await page.goto('/?view=apps&app=to-doo&appSection=stats');
+  await expect(page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true })).toBeVisible({ timeout: 20000 });
+  await expect(page.locator('.todo-main')).toHaveAttribute('aria-busy', 'false', { timeout: 20000 });
   await page.getByRole('button', { name: '＋ 写一篇复盘', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '新建复盘', exact: true });
   const snapshot = dialog.getByRole('region', { name: '统计快照', exact: true });
   await expect(snapshot).toBeVisible();
-  await expect(snapshot).toContainText('1');
+  await expect(dialog.getByLabel('开始日期', { exact: true })).toHaveValue(from);
+  await expect(dialog.getByLabel('结束日期', { exact: true })).toHaveValue(to);
+  for (const [key, label, unit] of [['completed', '已完成', '项'], ['focusMinutes', '专注', '分钟'], ['outcomes', '成果', '项']] as const) {
+    const metric = snapshot.locator('dl > div').filter({ has: page.getByText(label, { exact: true }) });
+    await expect(metric).toHaveCount(1);
+    await expect(metric.locator('dd')).toHaveText(String(current.statistics[key]) + unit);
+  }
   const name = '统计快照验收 ' + crypto.randomUUID();
   await dialog.getByLabel('名称', { exact: true }).fill(name);
   await dialog.getByRole('button', { name: '保存', exact: true }).click();
   await expect(dialog).not.toBeVisible();
   const result = await (await page.request.get('/api/to-doo/state?kind=review&limit=200')).json();
   const saved = result.reviews.find((review: any) => review.name === name);
-  expect(saved.metrics.completed).toBe(1);
+  expect(saved.from).toBe(from); expect(saved.to).toBe(to);
+  expect(saved.metrics).toMatchObject({
+    completed: current.statistics.completed,
+    focusMinutes: current.statistics.focusMinutes,
+    outcomes: current.statistics.outcomes,
+  });
   expect(saved.capturedAt).toBeTruthy();
 });
 

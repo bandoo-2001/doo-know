@@ -265,9 +265,13 @@ const hasTaskDirectory = computed(() => ['tasks', 'board', 'matrix', 'timeline']
 const directoryCollapsed = ref(false);
 const automaticCondensedNavigation = computed(() => detailOpen.value && !detailOverlay.value &&
   viewportWidth.value < toDooUiScale.collapsedNavWidth + toDooUiScale.navWidth +
-    toDooUiScale.detailMinWidth + toDooUiScale.listMinWidth + 2 * toDooUiScale.pagePadding);
+    toDooUiScale.detailMinWidth + toDooUiScale.listMinWidth + 3 * toDooUiScale.pagePadding);
 const condensedNavigation = computed(() => hasTaskDirectory.value &&
   (directoryCollapsed.value || automaticCondensedNavigation.value));
+watch(() => [props.section, props.selection.list, props.selection.taskFilter, props.selection.appPage], () => {
+  const main = workspaceRef.value?.querySelector?.<HTMLElement>('.todo-main');
+  if (main) main.scrollTop = 0;
+}, { flush: 'post' });
 let detailOpener: HTMLElement | undefined;
 function resizeDetail() {
   viewportWidth.value = window.innerWidth;

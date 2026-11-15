@@ -2,6 +2,20 @@
 .to-doo-workspace.todo-two-level-navigation {
   --todo-current-directory-width: 0px;
   --todo-context-nav-width: calc(var(--todo-collapsed-nav-width) + var(--todo-current-directory-width));
+  height: calc(100dvh - var(--workspace-bottom-inset, 0px));
+  min-height: 0;
+}
+.to-doo-workspace.todo-two-level-navigation > .todo-main {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.to-doo-workspace.todo-two-level-navigation.todo-detail-docked {
+  /* Two page insets plus one inset of scrollbar budget keep 440px of content. */
+  --todo-current-detail-width: clamp(var(--todo-detail-min-width),
+    calc(100vw - var(--todo-context-nav-width) - var(--todo-list-min-width) - var(--todo-page-padding) - var(--todo-page-padding) - var(--todo-page-padding)),
+    var(--todo-detail-width));
 }
 .to-doo-workspace.todo-two-level-navigation.todo-task-navigation:not(.todo-navigation-condensed) {
   --todo-current-directory-width: var(--todo-directory-nav-width);
@@ -111,6 +125,14 @@
 .to-doo-workspace .todo-task-directory .todo-navigation-group {
   flex: 0 0 auto;
   margin-bottom: var(--todo-space-8);
+}
+.todo-task-scope-items {
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 40dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
 .to-doo-workspace .todo-task-directory .todo-navigation-lists {
   flex: 1 1 0;

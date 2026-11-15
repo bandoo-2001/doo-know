@@ -179,6 +179,7 @@ const moreActive = computed(
         <AButton type="text" class="todo-directory-toggle" aria-label="折叠清单导航" title="折叠清单导航" :aria-expanded="true"
           @click="emit('toggle-directory', $event)"><ToDooIcon name="menu" :size="18" /></AButton>
       </div>
+      <div :class="{ 'todo-task-scope-items': split }">
       <section class="todo-navigation-group" aria-label="我的待办">
         <AButton
           v-for="view in toDooQuickViews"
@@ -200,6 +201,7 @@ const moreActive = computed(
           <ToDooIcon :name="view.icon" :size="18" /><span>{{ view.name }}</span>
         </AButton>
       </section>
+      </div>
       <section class="todo-navigation-group todo-navigation-lists" aria-label="我的清单">
         <div class="todo-nav-section-heading">
           <span class="todo-nav-label">我的清单</span>

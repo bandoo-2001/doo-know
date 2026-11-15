@@ -9,6 +9,7 @@ import * as contextNavigation from '../apps/web/to-doo-context-navigation';
 import * as controls from '../apps/web/to-doo-controls';
 import * as actionGuards from '../apps/web/to-doo-action-guard';
 import * as clock from '../apps/web/to-doo-time';
+import * as platformTheme from '../apps/web/platform-theme';
 import { TO_DOO_COLLECTIONS, toDooCommandSchema, toDooEntitySchemas } from '../shared/to-doo-contracts';
 
 const cleanup: (() => void)[] = [];
@@ -103,6 +104,7 @@ function component(path: string, request: (...args: any[]) => Promise<any>) {
       if (id === '../api') return { api: request };
       if (id === '../preferences') return { resolvedTheme: Vue.ref('light') };
       if (id === '../ant-design') return { toDooAntTheme: () => ({}) };
+      if (id === '../platform-theme') return platformTheme;
       if (id === 'ant-design-vue' || id.endsWith('.vue') || id.endsWith('.css')) return {};
       throw Error('Unexpected component dependency: ' + id);
     },

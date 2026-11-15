@@ -78,8 +78,8 @@ test('an empty list catalogue reserves the remaining task directory space instea
 
 test('thirty-one real long-name lists scroll independently while task ranges and module utilities stay in place', async ({ page }, info) => {
   await page.setViewportSize({ width: 1440, height: 812 });
-  const prefix = '主菜单滚动-' + info.project.name + '-' + crypto.randomUUID().slice(0, 8);
-  const nameFor = (number: number) => prefix + ' ' + String(number).padStart(2, '0') + ' 长清单名称：保留完整可访问名称并核对独立滚动区域';
+  const prefix = 'main-nav-scroll-' + info.project.name + '-' + crypto.randomUUID().slice(0, 8);
+  const nameFor = (number: number) => '主菜单滚动 ' + prefix + ' ' + String(number).padStart(2, '0') + ' 长清单名称：保留完整可访问名称并核对独立滚动区域';
   const created = await command(page, 'save_entity', { kind: 'list', entity: { name: nameFor(1), kind: 'list' } });
   const seed = await (await page.request.get('/api/to-doo/state?kind=list&ids=' + created.ids[0])).json() as ToDooSnapshot;
   const seedList = seed.lists.find(list => list.id === created.ids[0])!;
@@ -118,6 +118,49 @@ test('thirty-one real long-name lists scroll independently while task ranges and
   await expect.poll(() => new URL(page.url()).searchParams.get('list')).toBe(prefix + '-list-31');
   await expect(directory(page).getByRole('button', { name: nameFor(31), exact: true })).toHaveAttribute('aria-current', 'page');
   await expect(app(page).getByRole('heading', { level: 1 })).toHaveText(nameFor(31));
+  await noHorizontalOverflow(page);
+});
+
+test('a short desktop with every pinned task scope keeps a usable list area and reachable archive and trash actions', async ({ page }, info) => {
+  await page.setViewportSize({ width: 1440, height: 480 });
+  // Exercise the saved pre-rail preference format, including all three extra
+  // ranges. None of these valid preferences may be dropped to make the layout fit.
+  await page.addInitScript(() => localStorage.setItem('to-doo.navigation-pins.v1',
+    JSON.stringify(['calendar', 'habits', 'focus', 'overdue', 'unscheduled', 'blocked'])));
+  const name = '矮窗口清单仍可用 ' + info.project.name + '-' + crypto.randomUUID().slice(0, 8);
+  await command(page, 'save_entity', { kind: 'list', entity: { name } });
+  await tasks(page);
+  await expect(rail(page)).toBeVisible();
+  await expect(directory(page)).toBeVisible();
+  const scopes = directory(page).locator('.todo-task-scope-items');
+  await expect(scopes).toBeVisible();
+  for (const label of ['今天', '收集箱', '近七天', '所有任务', '已完成', '逾期', '未安排', '受阻'])
+    await expect(scopes.getByRole('button', { name: label, exact: true })).toHaveCount(1);
+  expect(await scopes.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true);
+  const lists = directory(page).getByRole('region', { name: '我的清单', exact: true });
+  const listItems = lists.locator('.todo-navigation-list-items');
+  expect((await listItems.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  const more = directory(page).getByRole('button', { name: '更多任务范围', exact: true });
+  const before = await insideViewport(more, 480);
+  await scopes.getByRole('button', { name: '受阻', exact: true }).scrollIntoViewIfNeeded();
+  await expect(scopes.getByRole('button', { name: '受阻', exact: true })).toBeInViewport();
+  expect(await scopes.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
+  const list = listItems.getByRole('button', { name, exact: true });
+  await list.scrollIntoViewIfNeeded();
+  await expect(list).toBeInViewport();
+  expect((await more.boundingBox())!.y).toBeCloseTo(before.y, 0);
+  await insideViewport(rail(page).getByRole('button', { name: '设置', exact: true }), 480);
+  for (const [label, filter] of [['已归档', 'archived'], ['回收站', 'trash']] as const) {
+    await more.click();
+    const popup = page.getByRole('group', { name: '更多任务范围', exact: true });
+    await expect(popup.getByRole('button', { name: label, exact: true })).toBeVisible();
+    await popup.getByRole('button', { name: label, exact: true }).click();
+    await expect(popup).not.toBeVisible();
+    await expect.poll(() => new URL(page.url()).searchParams.get('taskFilter')).toBe(filter);
+    await ready(page);
+    await insideViewport(more, 480);
+    expect((await listItems.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  }
   await noHorizontalOverflow(page);
 });
 
