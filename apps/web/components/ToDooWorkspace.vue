@@ -316,16 +316,17 @@ function resizeDetail() {
 }
 window.addEventListener('resize', resizeDetail);
 onBeforeUnmount(() => window.removeEventListener('resize', resizeDetail));
-watch([detailOpen, detailOverlay], ([open, overlay], previous) => {
+watch([detailOpen, detailOverlay, creating], ([open, overlay, isNew], previous) => {
   if (typeof document === 'undefined') return;
   if (open && !previous?.[0]) detailOpener = document.activeElement as HTMLElement;
-  if (open && overlay) {
+  if (open && (overlay || isNew)) {
     void nextTick(() => {
-      detailLayer.value
-        ?.querySelector<HTMLElement>(
-          '.todo-title-input input, .todo-title-input textarea, .todo-create-fields input',
-        )
-        ?.focus({ preventScroll: true });
+      const layer = detailLayer.value;
+      if (!layer || (previous?.[0] && previous[2] === isNew && layer.contains(document.activeElement))) return;
+      const touchReader = !isNew && window.matchMedia?.('(pointer: coarse)')?.matches;
+      const selector = touchReader ? '.todo-document-detail' :
+        '.todo-title-input input, .todo-title-input textarea, .todo-create-fields input';
+      layer.querySelector<HTMLElement>(selector)?.focus({ preventScroll: true });
     });
   } else if (
     !open &&
@@ -373,6 +374,10 @@ function detailKeydown(event: KeyboardEvent) {
       (event.shiftKey ? last : first).focus();
     }
   }
+}
+function closeFromTaskRow(event: KeyboardEvent) {
+  if (detailOpen.value && !detailOverlay.value && event.target instanceof Element &&
+      event.target.matches('.todo-task-body')) detailKeydown(event);
 }
 const navigationDialog = ref<HTMLElement>();
 let navigationOpener: HTMLElement | undefined;
@@ -1420,7 +1425,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         />
       </div>
     </ADrawer>
-    <main class="todo-main" :aria-busy="state.loading">
+    <main class="todo-main" :aria-busy="state.loading" @keydown.esc="closeFromTaskRow">
       <div
         v-if="state.loading && state.snapshot"
         class="todo-refresh-progress"

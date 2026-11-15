@@ -16,6 +16,40 @@ test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
 });
 
+test('dates and row padding open the same task while selection and row controls keep their actions', async ({ page }) => {
+  const list = await command(page, 'save_entity', {
+    kind: 'list', entity: { name: '任务行点击 ' + crypto.randomUUID() },
+  });
+  const title = '点击日期打开任务';
+  const today = new Date().toISOString().slice(0, 10);
+  await command(page, 'create_task', { listId: list.ids[0], title, due: { date: today, timeZone: 'UTC' } });
+  await page.goto('/?view=apps&app=to-doo&appSection=tasks&list=' + list.ids[0]);
+  const row = page.locator('.todo-task-row').filter({ has: page.getByRole('button', { name: title, exact: true }) });
+  const date = row.locator('.todo-task-date-value');
+  const detail = page.getByLabel('任务标题', { exact: true });
+  await date.click();
+  await expect(detail).toHaveValue(title);
+  await page.getByRole('button', { name: '关闭任务详情', exact: true }).click();
+  await expect(row.getByRole('button', { name: title, exact: true })).toBeFocused();
+  const height = await row.evaluate(element => element.clientHeight);
+  await row.click({ position: { x: 2, y: Math.floor(height / 2) } });
+  await expect(detail).toHaveValue(title);
+  await page.getByRole('button', { name: '关闭任务详情', exact: true }).click();
+  await date.evaluate(element => {
+    const selection = window.getSelection()!;
+    selection.selectAllChildren(element);
+    element.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }));
+  });
+  await expect(detail).not.toBeVisible();
+  await row.getByRole('button', { name: '任务操作 ' + title, exact: true }).click();
+  await expect(page.getByRole('menuitem', { name: '安排时间', exact: true })).toBeVisible();
+  await expect(detail).not.toBeVisible();
+  await page.keyboard.press('Escape');
+  await row.getByRole('button', { name: '完成 ' + title, exact: true }).click();
+  await expect(row).toHaveCount(0);
+  await expect(detail).not.toBeVisible();
+});
+
 test('row keys follow visible groups and leave detail, inputs and IME in control', async ({ page }) => {
   const list = await command(page, 'save_entity', {
     kind: 'list', entity: { name: '键盘行导航 ' + crypto.randomUUID() },
@@ -83,7 +117,7 @@ test('matrix context and keyboard menus use the target row and keep the button a
   const actions = row.getByRole('button', { name: '任务操作 ' + title, exact: true });
   await name.click({ button: 'right' });
   await expect(actions).toHaveAttribute('aria-expanded', 'true');
-  await page.getByText('归类象限', { exact: true }).click();
+  await page.getByText('归类象限', { exact: true }).filter({ visible: true }).click();
   await page.getByRole('menuitem', { name: '紧急不重要', exact: true }).click();
   await expect(page.locator('.todo-quadrant-delegate')).toContainText(title);
   await name.press('Shift+F10');
@@ -98,7 +132,7 @@ test('matrix context and keyboard menus use the target row and keep the button a
   await page.keyboard.press('ArrowLeft');
   await expect(high).not.toBeVisible();
   await page.keyboard.press('Escape');
-  await expect(actions).toBeFocused();
+  await expect(name).toBeFocused();
   await actions.click();
   await expect(schedule).toBeVisible();
 });

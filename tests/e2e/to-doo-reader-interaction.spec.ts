@@ -60,6 +60,13 @@ test('read adjacent tasks in list order, keep the unsaved note and return to the
   await page.keyboard.press('Escape');
   await expect(reader).toBeHidden();
   await expect(rows.nth(1)).toBeFocused();
+  if (await page.evaluate(() => innerWidth >= 960)) {
+    await rows.nth(1).press('Enter');
+    await expect(reader).toBeVisible();
+    await rows.nth(1).press('Escape');
+    await expect(reader).toBeHidden();
+    await expect(rows.nth(1)).toBeFocused();
+  }
   expect(writes).toEqual([]);
   const saved: ToDooSnapshot = await (await page.request.get('/api/to-doo/state?taskIds=' + firstId)).json();
   expect(saved.tasks.find(task => task.id === firstId)?.description).toBe('');

@@ -123,7 +123,7 @@ test.each(['unchanged', 'edited', 'replaced'] as const)(
       setItem: (key: string, value: string) => storage.set(key, value),
     });
     try {
-      const data = snapshot(), server = transport(data);
+      const data = snapshot();
       const scope = { recoveryScope: 'capture-owner' };
       const first = createToDooWorkbench(async () => { throw Error('response lost'); }, scope);
       first.acceptSnapshot(data);
@@ -137,17 +137,21 @@ test.each(['unchanged', 'edited', 'replaced'] as const)(
       await first.createTask(payload, source);
       const originalId = first.state.pendingMutation!.requestId;
       expect(source.title).toBe('明天 核对账单');
-      const second = createToDooWorkbench(async (url, method, body) => {
-        if (method === 'POST') expect(toDooCommandSchema.parse(body).requestId).toBe(originalId);
-        return server.request(url, method, body);
+      const second = createToDooWorkbench(async (_url, method, body) => {
+        if (method !== 'POST') return data;
+        expect(toDooCommandSchema.parse(body).requestId).toBe(originalId);
+        return { snapshot: data, ids: ['task-a'], changed: [] };
       }, scope);
       second.acceptSnapshot(data);
+      expect(second.state.pendingMutation?.requestId).toBe(originalId);
       if (change === 'replaced') {
         second.clearNewTaskDraft(undefined, 'list-A');
         second.newTaskDraft(undefined, 'list-A').title = source.title;
       }
       if (change === 'edited') second.newTaskDraft(undefined, 'list-A').criteria = '补充核对要求';
-      expect(await second.retryPending()).toBeDefined();
+      const result = await second.retryPending();
+      expect(result, second.state.error).toBeDefined();
+      expect(second.state.selectedTaskId).toBe('');
       expect(second.newTaskDraft(undefined, 'list-A').title).toBe(change === 'unchanged' ? '' : source.title);
       expect(second.newTaskDraft(undefined, 'list-B').title).toBe(payload.title);
       expect(second.state.pendingQuickCapture).toBeNull();
@@ -159,10 +163,10 @@ test('a late quick capture receipt keeps the draft and selection in the newly op
   const data = snapshot();
   let finish!: () => void;
   const wait = new Promise<void>((resolve) => { finish = resolve; });
-  const server = transport(data);
-  const model = createToDooWorkbench(async (url, method, body) => {
-    if (method === 'POST') await wait;
-    return server.request(url, method, body);
+  const model = createToDooWorkbench(async (_url, method) => {
+    if (method !== 'POST') return data;
+    await wait;
+    return { snapshot: data, ids: ['task-a'], changed: [] };
   });
   model.acceptSnapshot(data);
   const source = model.newTaskDraft();

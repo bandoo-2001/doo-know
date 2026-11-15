@@ -105,3 +105,33 @@ test('a rejected entry keeps the original text ready for keyboard correction', a
   await input.press('Enter');
   await expect(form.locator('[aria-live="polite"]')).toContainText(`已添加「${title}」`);
 });
+
+test('quick capture beside an open task keeps its reader, URL and unsaved note', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.goto(tasksUrl + '&taskFilter=inbox');
+  const suffix = crypto.randomUUID().slice(0, 8);
+  const originalTitle = '核对账单 ' + suffix;
+  const nextTitle = '取回收据 ' + suffix;
+  const form = capture(page);
+  const input = form.getByRole('textbox', { name: '快速添加任务' });
+  await input.fill(originalTitle);
+  await input.press('Enter');
+  const row = page.getByRole('button', { name: originalTitle, exact: true });
+  await row.click();
+  const reader = page.getByRole('complementary', { name: '任务详情', exact: true });
+  const title = reader.getByRole('textbox', { name: '任务标题' });
+  await expect(title).toHaveValue(originalTitle);
+  await expect(page).toHaveURL(/[?&]task=[^&]+/);
+  const openedUrl = page.url();
+  await reader.getByRole('button', { name: '＋ 添加说明', exact: true }).click();
+  const note = reader.getByRole('textbox', { name: '任务说明' });
+  await note.fill('等待财务核对后再保存');
+  await input.fill(nextTitle);
+  await input.press('Enter');
+  await expect(form.locator('[aria-live="polite"]')).toContainText(`已添加「${nextTitle}」`);
+  await expect(page.getByRole('button', { name: nextTitle, exact: true })).toBeVisible();
+  await expect(page).toHaveURL(openedUrl);
+  await expect(title).toHaveValue(originalTitle);
+  await expect(note).toHaveValue('等待财务核对后再保存');
+  await expect(reader.getByRole('button', { name: '保存任务', exact: true })).toBeEnabled();
+});

@@ -37,17 +37,30 @@ const confirm = useToDooConfirm();
 const { open: menuOpen, trigger } = useToDooMenu();
 const menuId = 'todo-task-actions-' + useId();
 const menuItemSelector = '[role="menuitem"], [aria-haspopup][aria-controls]';
+let pendingFocus: MutationObserver | undefined;
 function menuItems(menu: Element) {
   return Array.from(menu.querySelectorAll<HTMLElement>(menuItemSelector))
     .filter(item => item.closest('ul') === menu && item.getAttribute('aria-disabled') !== 'true');
 }
 function focusMenu(id: string) {
-  void nextTick(() => requestAnimationFrame(() => {
-    const menu = document.getElementById(id);
-    if (menuOpen.value && menu) menuItems(menu)[0]?.focus();
-  }));
+  pendingFocus?.disconnect();
+  const focus = () => {
+    if (!menuOpen.value) return;
+    const menu = Array.from(document.querySelectorAll<HTMLElement>('ul#' + CSS.escape(id)))
+      .find(element => element.getClientRects().length && getComputedStyle(element).visibility === 'visible');
+    const first = menu && menuItems(menu)[0];
+    if (!first) return;
+    first.focus();
+    if (document.activeElement === first) pendingFocus?.disconnect();
+  };
+  // A portal can mount before its dropdown is displayed. Wait for the actual menu to accept focus.
+  pendingFocus = new MutationObserver(focus);
+  pendingFocus.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['style', 'class'] });
+  void nextTick(focus);
 }
 function triggerClick(event: MouseEvent) {
+  const source = event.detail === 0 ? document.activeElement : event.currentTarget;
+  if (source instanceof HTMLElement) trigger.value = { $el: source };
   if (!menuOpen.value && event.detail === 0) focusMenu(menuId);
 }
 function menuKey(event: KeyboardEvent) {
@@ -89,8 +102,12 @@ function menuKey(event: KeyboardEvent) {
 }
 watch(menuOpen, (open, _, cleanup) => {
   if (!open || typeof document === 'undefined') return;
+  if (props.contextMenu) focusMenu(menuId);
   document.addEventListener('keydown', menuKey, true);
-  cleanup(() => document.removeEventListener('keydown', menuKey, true));
+  cleanup(() => {
+    document.removeEventListener('keydown', menuKey, true);
+    pendingFocus?.disconnect();
+  });
 });
 const blocked = computed(
   () =>
@@ -180,7 +197,6 @@ async function priority(value: string) {
     <slot v-if="slots.default" />
     <AButton
       v-else
-      ref="trigger"
       type="text"
       class="todo-icon-button todo-task-menu-trigger"
       :aria-label="label || '任务操作 ' + item.title"

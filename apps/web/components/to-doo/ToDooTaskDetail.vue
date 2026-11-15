@@ -88,11 +88,11 @@ const panelLabels: Record<DetailPanel, string> = {
   attachments: '任务附件', results: '完成标准与成果', properties: '其他属性', records: '推进记录', history: '操作历史',
 };
 const descriptionOpen = ref(false);
-const descriptionInput = ref<InstanceType<typeof ATextarea>>();
+const descriptionLabel = ref<HTMLLabelElement>();
 async function editDescription() {
   descriptionOpen.value = true;
   await nextTick();
-  descriptionInput.value?.focus();
+  descriptionLabel.value?.querySelector('textarea')?.focus();
 }
 const showChildren = ref(false);
 let propertyBaseline: { key: string; task: Record<string, any>; occurrence: Record<string, any>; blocks?: any[]; scope: 'all' | 'future' } | undefined;
@@ -707,12 +707,13 @@ defineExpose({
     ref="detailElement"
     class="todo-detail"
     :class="{ 'todo-document-detail': !creating }"
+    tabindex="-1"
     aria-label="任务详情"
     @keydown="shortcut"
   >
     <header class="todo-between todo-reader-header">
       <AButton html-type="button" class="todo-icon-button" aria-label="关闭任务详情"
-        title="关闭任务详情 (Esc)" type="text" @click="close">×</AButton>
+        title="关闭任务详情 (Esc)" type="text" @click="close"><ToDooIcon name="close" :size="16" /></AButton>
       <span class="todo-muted">{{ creating ? '新建任务' : '任务详情' }}</span
       ><span
         v-if="!creating"
@@ -915,9 +916,9 @@ defineExpose({
           /></label>
         </div>
         <AButton v-if="!form.task.description && !descriptionOpen" type="text" class="todo-add-property" @click="editDescription">＋ 添加说明</AButton>
-        <label v-else class="todo-document-description">
+        <label v-else ref="descriptionLabel" class="todo-document-description">
           <span class="todo-accessible-label">任务说明</span>
-          <ATextarea ref="descriptionInput" aria-label="任务说明" v-model:value="form.task.description"
+          <ATextarea aria-label="任务说明" v-model:value="form.task.description"
             :auto-size="{ minRows: 1, maxRows: 12 }" :rows="1" placeholder="添加说明，或记下下一步…" />
         </label>
         <label v-if="form.task.recurrence || occurrences.length > 1"
@@ -1006,7 +1007,7 @@ defineExpose({
             aria-label="编辑重复规则"
             :title="repeatSummary"
             @click="revealDetail('repeat')"
-            ><span>重复</span><small :class="{ 'todo-accessible-label': !form.task.recurrence && !form.task.inheritRecurrence }">{{ repeatSummary }}</small></AButton
+            ><span>重复</span><small :class="{ 'todo-accessible-label': repeatSummary === '不重复' }">{{ repeatSummary }}</small></AButton
           >
           <AButton
             html-type="button"

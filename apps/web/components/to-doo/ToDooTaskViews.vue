@@ -131,10 +131,19 @@ function setDisplayField(field: keyof ToDooDisplayFields, checked: boolean) {
 }
 const advancedDraft = ref<NonNullable<ToDooFilter['group']>>({ operator: 'and', conditions: [] });
 const searchTrigger = ref<any>(), filterTrigger = ref<any>(), displayTrigger = ref<any>();
-const searchInput = ref<any>();
+const searchForm = ref<HTMLFormElement>();
 const quickAdd = ref<InstanceType<typeof ToDooQuickAdd>>();
-watch([toolsOpen, searchInput], ([open, input]) => {
-  if (open) input?.focus();
+watch([toolsOpen, searchForm], ([open, form], _, cleanup) => {
+  if (!open || !form || typeof ResizeObserver === 'undefined') return;
+  const field = form.querySelector<HTMLInputElement>('input');
+  if (!field) return;
+  const observer = new ResizeObserver(() => {
+    if (!field.getClientRects().length) return;
+    field.focus();
+    if (document.activeElement === field) observer.disconnect();
+  });
+  observer.observe(field);
+  cleanup(() => observer.disconnect());
 }, { flush: 'post' });
 
 function hasOpenPopup() {
@@ -143,6 +152,7 @@ function hasOpenPopup() {
   );
   return Array.from(surfaces).some((element) =>
     element.getClientRects().length > 0 && !element.closest('[aria-hidden="true"]') &&
+    !element.matches('[class*="-leave-active"]') &&
     getComputedStyle(element).visibility === 'visible',
   );
 }
@@ -153,6 +163,7 @@ function plainKey(event: KeyboardEvent) {
 function taskShortcut(event: KeyboardEvent) {
   const key = event.key.toLowerCase();
   if ((key !== 'q' && key !== '/') || !plainKey(event) || !toolbarActive.value || event.repeat) return;
+  if (toolsOpen.value || filterOpen.value || displayOpen.value || advancedFilters.value || templatesOpen.value) return;
   const searchButton = searchTrigger.value?.$el as HTMLButtonElement | undefined;
   const workspace = searchButton?.closest('.to-doo-workspace');
   if (!workspace || !searchButton?.getClientRects().length || workspace.classList.contains('todo-has-detail')) return;
@@ -1037,8 +1048,8 @@ function saveView() {
 
       <APopover v-model:open="toolsOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-search-popup">
         <AButton ref="searchTrigger" type="text" @keydown.esc.stop.prevent="closePopup('search')" class="todo-task-tools-toggle" aria-label="搜索任务" title="搜索任务 (/)" aria-keyshortcuts="/" :aria-expanded="toolsOpen" :class="{ 'is-active': state.filter.query }"><ToDooIcon name="search" :size="16" /><span>搜索</span></AButton>
-        <template #content><form class="todo-task-search-form" role="search" @submit.prevent="filterChanged" @keydown.esc.stop.prevent="closePopup('search')">
-          <label>搜索任务<AInput ref="searchInput" v-model:value="state.filter.query" :placeholder="searchPlaceholder" aria-label="搜索任务" allow-clear /></label>
+        <template #content><form ref="searchForm" class="todo-task-search-form" role="search" @submit.prevent="filterChanged" @keydown.esc.stop.prevent="closePopup('search')">
+          <label>搜索任务<AInput v-model:value="state.filter.query" :placeholder="searchPlaceholder" aria-label="搜索任务" allow-clear /></label>
           <div class="todo-actions"><AButton html-type="submit" type="primary" aria-label="执行搜索">搜索</AButton><AButton v-if="canSearchAll" type="link" @click="emit('search-all'); closePopup('search')">在所有任务中搜索</AButton><AButton v-if="state.filter.query" type="text" @click="state.filter.query = ''; filterChanged()">清除搜索</AButton><AButton type="text" @click="closePopup('search')">关闭</AButton></div>
         </form></template>
       </APopover>

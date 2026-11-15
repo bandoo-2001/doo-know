@@ -2068,7 +2068,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     if (datasetId && (state.snapshot?.datasetId !== datasetId || result && result.snapshot.datasetId !== datasetId)) return;
     const taskId = result?.ids.find((id) => result.snapshot.tasks.some((t) => t.id === id)) ||
       result?.ids.find((id) => result.changed.some(row => row.kind === 'task' && row.id === id));
-    if (taskId) selectTask(taskId);
+    if (taskId && !quickCapture) selectTask(taskId);
     if (result && !quickCapture) {
       for (const [key, d] of Object.entries(state.newTaskDrafts)) {
         if (

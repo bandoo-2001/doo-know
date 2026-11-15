@@ -216,7 +216,8 @@ test('narrow task detail contains keyboard focus and Escape keeps its draft', as
   const dialog = page.getByRole('dialog', { name: '任务编辑', exact: true });
   await expect(dialog).toBeVisible();
   const detail = dialog.getByRole('complementary', { name: '任务详情' });
-  await expect(detail.getByLabel('任务标题', { exact: true })).toBeFocused();
+  const touch = await page.evaluate(() => matchMedia('(pointer: coarse)').matches);
+  await expect(touch ? detail : detail.getByLabel('任务标题', { exact: true })).toBeFocused();
   await detail.getByLabel('任务标题', { exact: true }).fill(title + ' 草稿');
   const last = detail.getByRole('button', { name: '保存任务', exact: true });
   await last.focus();

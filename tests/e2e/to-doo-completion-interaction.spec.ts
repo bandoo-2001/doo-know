@@ -23,7 +23,8 @@ test('undo stays in view after completing the last row and stays available while
   const task = seed.tasks.find(t => t.id === seedId)!;
   const occurrence = seed.occurrences.find(o => o.taskId === seedId)!;
   const executionByTitle = new Map([[task.title, occurrence.id]]);
-  const entities = Array.from({ length: 31 }, (_, i) => {
+  // Even at compact density the list must extend by more than a full main viewport.
+  const entities = Array.from({ length: 47 }, (_, i) => {
     const key = prefix + '-' + String(i + 1).padStart(2, '0');
     const entry = toDooEntitySchemas.task.parse({ ...task, id: key, title: key, orderKey: key });
     const execution = toDooEntitySchemas.occurrence.parse({ ...occurrence, id: key + '-execution', taskId: key, scheduleRevision: crypto.randomUUID() });

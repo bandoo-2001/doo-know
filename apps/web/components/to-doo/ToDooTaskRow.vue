@@ -32,6 +32,20 @@ const emit = defineEmits<{
   select: [id: string];
   child: [id: string];
 }>();
+function openFromRow(event: MouseEvent) {
+  if (event.defaultPrevented || event.button !== 0) return;
+  const row = event.currentTarget as HTMLElement;
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  const control = target.closest('button, a, label, input, select, textarea, summary, [contenteditable], [role="button"], [role="checkbox"]');
+  if (control && !control.classList.contains('todo-task-body')) return;
+  const selection = row.ownerDocument.getSelection();
+  if (event.detail > 0 && selection && !selection.isCollapsed &&
+      (row.contains(selection.anchorNode) || row.contains(selection.focusNode))) return;
+  if (!control) row.querySelector<HTMLButtonElement>('button.todo-task-body')?.focus({ preventScroll: true });
+  event.stopPropagation();
+  emit('open', props.item);
+}
 function openRowActions(event: MouseEvent | KeyboardEvent) {
   const target = event.target;
   if (!(target instanceof Element) || target.closest('input, textarea, select, [contenteditable]')) return;
@@ -42,13 +56,15 @@ function openRowActions(event: MouseEvent | KeyboardEvent) {
         !(event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey))) return;
   } else if (!props.rowContextActions) {
     // The list and board already position their context menus at the pointer.
+    const body = row.querySelector<HTMLButtonElement>('button.todo-task-body');
+    body?.focus({ preventScroll: true });
     return;
   }
   const button = row.querySelector<HTMLButtonElement>('button.todo-task-menu-trigger');
   if (event.defaultPrevented || !button || button.disabled) return;
   event.preventDefault();
   event.stopPropagation();
-  button.focus({ preventScroll: true });
+  if (!(event instanceof KeyboardEvent)) button.focus({ preventScroll: true });
   if (button.getAttribute('aria-expanded') !== 'true') button.click();
 }
 const hasMetadata = computed(() => {
@@ -101,6 +117,7 @@ const dates = computed(() => {
       ['todo-priority-' + item.task.priority]: true,
     }"
     :style="{ '--depth': Math.min(item.depth, 5) }"
+    @click="openFromRow"
     @contextmenu="openRowActions"
     @keydown="openRowActions"
   >
@@ -130,7 +147,6 @@ const dates = computed(() => {
       :aria-keyshortcuts="listNavigation ? 'ArrowUp ArrowDown Home End Enter Shift+F10' : 'Shift+F10'"
       :aria-label="item.title"
       :aria-current="active ? 'true' : undefined"
-      @click="emit('open', item)"
       type="text"
     >
       <span class="todo-task-name">{{ item.title }}</span>
@@ -184,3 +200,8 @@ const dates = computed(() => {
     >
   </div>
 </template>
+<style scoped>
+.todo-task-row {
+  cursor: pointer;
+}
+</style>

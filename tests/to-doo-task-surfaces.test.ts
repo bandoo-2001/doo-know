@@ -992,7 +992,7 @@ describe('light task controls and recoverable capture', () => {
     button(view, '移除重复识别').props.onClick();
     await Vue.nextTick();
     view.all().find((node) => node.tag === 'form')!.props.onSubmit({ preventDefault() {} });
-    expect(create).toHaveBeenCalledWith(expect.objectContaining({ title: '整理', plan: null, recurrence: null }));
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ title: '整理', plan: null, recurrence: null }), value.newTaskDraft());
     expect(value.newTaskDraft().title).toBe('整理');
   });
   test('use original preserves recognized words as literal title without assigning parsed properties', async () => {
@@ -1003,7 +1003,7 @@ describe('light task controls and recoverable capture', () => {
     button(view, '按原文输入').props.onClick();
     await Vue.nextTick();
     view.all().find((node) => node.tag === 'form')!.props.onSubmit({ preventDefault() {} });
-    expect(create).toHaveBeenCalledWith(expect.objectContaining({ title, plan: null, recurrence: null }));
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ title, plan: null, recurrence: null }), value.newTaskDraft());
   });
   test('composition blocks form submission until the input composition finishes', async () => {
     const { value, create } = capture();
