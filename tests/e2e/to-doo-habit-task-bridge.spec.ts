@@ -105,7 +105,7 @@ test('creating a habit from a list retains that list and can return to all habit
   await openListHabits(page);
   const empty = page.locator('.todo-habit-cards .ant-empty');
   await expect(empty).toContainText('这个清单还没有关联习惯');
-  await empty.getByRole('button', { name: '新建习惯', exact: true }).click();
+  await page.locator('.todo-page-heading').getByRole('button', { name: /新建习惯/ }).click();
   const editor = page.getByRole('dialog', { name: '新建习惯', exact: true });
   await expectToDooSelection(editor, '关联目标或清单', listName);
   const name = '晚饭后散步 ' + suffix;
