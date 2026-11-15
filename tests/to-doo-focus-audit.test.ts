@@ -516,7 +516,7 @@ function completionFixture() {
   const value = model();
   const stamp = { revision: 'r1', createdAt: '2026-11-03T12:00:00Z', updatedAt: '2026-11-03T12:00:00Z' };
   const task = toDooEntitySchemas.task.parse({ ...stamp, id: 'task', title: '完成专注后的行动' });
-  const occurrence = toDooEntitySchemas.occurrence.parse({ ...stamp, id: 'occ', taskId: task.id });
+  const occurrence = toDooEntitySchemas.occurrence.parse({ ...stamp, id: 'occ', taskId: task.id, cycleKey: 'single', scheduleRevision: 's1' });
   const session = toDooEntitySchemas.focusSession.parse({ ...value.data.sessions[0], occurrenceId: occurrence.id });
   Object.assign(value.state, { selectedTaskId: task.id, selectedOccurrenceId: occurrence.id });
   Object.assign(value.state.snapshot, { datasetId: 'fixture', tasks: [task], occurrences: [occurrence] });

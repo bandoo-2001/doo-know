@@ -1267,6 +1267,136 @@ describe('To Doo workbench', () => {
       await f.close();
     }
   });
+  test.each(['added', 'deleted', 'moved'] as const)('a child %s while the descendant confirmation is open invalidates the frozen scope', async (change) => {
+    const f = await domainStatusFixture();
+    try {
+      const parent = f.create('Confirmed parent'), child = f.create('Confirmed child', { parentTaskId: parent.id });
+      const before = f.service.snapshot({ taskIds: [parent.id], includeTree: true });
+      const root = before.occurrences.find(o => o.taskId === parent.id)!;
+      const bodies: any[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'POST') bodies.push(JSON.parse(JSON.stringify(body)));
+        return f.request(url, method, body);
+      });
+      await model.load();
+      expect(await model.statusChildCount(parent.id)).toBe(1);
+      let extraId: string | undefined;
+      if (change === 'added') extraId = f.create('New unconfirmed child', { parentTaskId: parent.id }).id;
+      else f.service.command({ requestId: crypto.randomUUID(),
+        ...(change === 'deleted'
+          ? { action: 'delete_entity', payload: { kind: 'task', id: child.id, expectedRevision: child.revision, cascade: true } }
+          : { action: 'batch_tasks', payload: { ids: [child.id], expectedRevisions: { [child.id]: child.revision }, operation: 'move', parentTaskId: null, listId: null, includeDescendants: true } }),
+      });
+      await model.setStatus(root.id, 'done', true);
+      expect(model.state.error).toMatch(/版本|变化|冲突/);
+      expect(bodies).toHaveLength(1);
+      expect([...bodies[0].payload.expectedOccurrenceIds].sort()).toEqual(before.occurrences.map(o => o.id).sort());
+      const after = f.service.snapshot({ filter: { includeDeleted: true }, limit: 500 });
+      expect(after.occurrences.find(o => o.id === root.id)?.status).toBe('todo');
+      if (extraId) expect(after.occurrences.find(o => o.taskId === extraId)?.status).toBe('todo');
+    } finally { await f.close(); }
+  });
+
+  test('a child edited while the descendant confirmation is open keeps its frozen expected revision', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const parent = f.create('Parent confirmation'), child = f.create('Child confirmation', { parentTaskId: parent.id });
+      const before = f.service.snapshot({ taskIds: [parent.id], includeTree: true });
+      const root = before.occurrences.find(o => o.taskId === parent.id)!, leaf = before.occurrences.find(o => o.taskId === child.id)!;
+      const model = createToDooWorkbench(f.request);
+      await model.load();
+      expect(await model.statusChildCount(parent.id)).toBe(1);
+      f.service.command({ requestId: crypto.randomUUID(), action: 'set_occurrence_status',
+        payload: { id: leaf.id, expectedRevision: leaf.revision, status: 'doing' } });
+      await model.setStatus(root.id, 'done', true);
+      expect(model.state.error).toMatch(/版本|变化|冲突/);
+      const after = f.service.snapshot({ taskIds: [parent.id], includeTree: true });
+      expect(after.occurrences.find(o => o.id === root.id)?.status).toBe('todo');
+      expect(after.occurrences.find(o => o.id === leaf.id)?.status).toBe('doing');
+    } finally { await f.close(); }
+  });
+
+  test('a repeated count refreshes a cancelled confirmation baseline before the next cascade', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const parent = f.create('Reconfirmed parent'); f.create('Original child', { parentTaskId: parent.id });
+      const model = createToDooWorkbench(f.request);
+      await model.load();
+      const root = model.state.snapshot!.occurrences.find(o => o.taskId === parent.id)!;
+      expect(await model.statusChildCount(parent.id)).toBe(1);
+      f.create('Confirmed new child', { parentTaskId: parent.id });
+      expect(await model.statusChildCount(parent.id)).toBe(2);
+      expect(await model.setStatus(root.id, 'done', true)).toBeTruthy();
+      expect(model.state.error).toBe('');
+      expect(f.service.snapshot({ taskIds: [parent.id], includeTree: true }).occurrences.every(o => o.status === 'done')).toBe(true);
+    } finally { await f.close(); }
+  });
+
+  test('a non-cascading status consumes its count baseline and a later direct cascade reads fresh scope', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const parent = f.create('One-shot confirmation'); f.create('Original child', { parentTaskId: parent.id });
+      const model = createToDooWorkbench(f.request);
+      await model.load();
+      const root = model.state.snapshot!.occurrences.find(o => o.taskId === parent.id)!;
+      await model.statusChildCount(parent.id);
+      expect(await model.setStatus(root.id, 'doing', false)).toBeTruthy();
+      f.create('Direct API child', { parentTaskId: parent.id });
+      expect(await model.setStatus(root.id, 'done', true)).toBeTruthy();
+      expect(model.state.error).toBe('');
+      expect(f.service.snapshot({ taskIds: [parent.id], includeTree: true }).occurrences.every(o => o.status === 'done')).toBe(true);
+    } finally { await f.close(); }
+  });
+
+  test('a changed dataset cannot consume an old descendant confirmation or adopt its late graph read', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const parent = f.create('Dataset confirmation'); f.create('Child', { parentTaskId: parent.id });
+      const bodies: any[] = [];
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'POST') bodies.push(body);
+        return f.request(url, method, body);
+      });
+      await model.load();
+      const root = model.state.snapshot!.occurrences.find(o => o.taskId === parent.id)!;
+      await model.statusChildCount(parent.id);
+      model.acceptSnapshot({ ...f.service.snapshot(), datasetId: 'different-confirmation-dataset' });
+      await model.setStatus(root.id, 'done', true);
+      expect(bodies).toEqual([]);
+      expect(model.state.snapshot?.datasetId).toBe('different-confirmation-dataset');
+      expect(model.state.error).toMatch(/资料库|范围已变化/);
+      expect(f.service.snapshot({ taskIds: [parent.id] }).occurrences.find(o => o.id === root.id)?.status).toBe('todo');
+    } finally { await f.close(); }
+  });
+
+  test('an unknown cascade retries its original frozen request even after a newer count', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const parent = f.create('Receipt confirmation'); f.create('Original child', { parentTaskId: parent.id });
+      const bodies: any[] = []; let lost = true;
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        const result = await f.request(url, method, body);
+        if (method === 'POST') {
+          bodies.push(JSON.parse(JSON.stringify(body)));
+          if (lost) { lost = false; throw Error('confirmed cascade reply lost'); }
+        }
+        return result;
+      });
+      await model.load();
+      const root = model.state.snapshot!.occurrences.find(o => o.taskId === parent.id)!;
+      await model.statusChildCount(parent.id);
+      await model.setStatus(root.id, 'done', true);
+      expect(model.state.pendingMutation).not.toBeNull();
+      const added = f.create('Added after commit', { parentTaskId: parent.id });
+      await model.statusChildCount(parent.id);
+      await model.setStatus(root.id, 'done', true);
+      expect(bodies).toHaveLength(2);
+      expect(bodies[1]).toEqual(bodies[0]);
+      expect(model.state.pendingMutation).toBeNull();
+      expect(f.service.snapshot({ taskIds: [added.id] }).occurrences.find(o => o.taskId === added.id)?.status).toBe('todo');
+    } finally { await f.close(); }
+  });
+
   test('a normal subtree batch completes leaves then parents with one frozen version closure', async () => {
     const f = await domainStatusFixture();
     try {

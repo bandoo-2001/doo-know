@@ -16,7 +16,7 @@ async function fixture() {
     datasetId: 'picker', version: '1',
     settings: toDooEntitySchemas.settings.parse({ ...stamp, id: 'settings', timeZone: 'UTC' }),
     tasks: [toDooEntitySchemas.task.parse({ ...stamp, id: 'task', title: '待安排的任务' })],
-    occurrences: [toDooEntitySchemas.occurrence.parse({ ...stamp, id: 'occ', taskId: 'task' })],
+    occurrences: [toDooEntitySchemas.occurrence.parse({ ...stamp, id: 'occ', taskId: 'task', cycleKey: 'single', scheduleRevision: 's1' })],
     lists: [], page: { nextCursor: null },
   };
   const plan = toDooEntitySchemas.plan.parse({
@@ -106,10 +106,14 @@ test('a linked task draft discovered by the preview prevents applying that propo
   expect(f.setup.error).toContain('任务草稿');
 });
 
-test.each(['before-preview', 'after-preview'] as const)('saving a picker draft %s requires a refreshed selection instead of using stale revisions', async (phase) => {
+test.each(['before-preview', 'after-preview', 'changes-series-selection'] as const)('saving a picker draft %s requires a refreshed selection instead of using stale revisions', async (phase) => {
   const f = await fixture();
   const blocker = [{ key: 'task@occ', taskId: 'task', occurrenceId: 'occ', title: '任务', kind: 'task' }];
   if (phase === 'after-preview') f.model.prepareTaskAction.mockResolvedValueOnce([]);
+  if (phase === 'changes-series-selection') f.model.saveTask.mockImplementation(async () => {
+    f.state.selectedOccurrenceId = 'regenerated-period';
+    return true;
+  });
   f.model.prepareTaskAction.mockResolvedValueOnce(blocker).mockResolvedValueOnce([]);
   await f.setup.schedule();
   expect(f.model.saveTask).toHaveBeenCalledOnce();

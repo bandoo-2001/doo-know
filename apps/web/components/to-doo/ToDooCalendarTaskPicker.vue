@@ -121,8 +121,9 @@ async function schedule() {
   const selectedOccurrence = selected.value, requestedDate = date.value, ticket = epoch,
     datasetId = state.snapshot?.datasetId,
     detailTaskId = state.selectedTaskId, detailOccurrenceId = state.selectedOccurrenceId;
-  const current = () => ticket === epoch && state.snapshot?.datasetId === datasetId &&
-    selected.value === selectedOccurrence && date.value === requestedDate &&
+  const currentSurface = () => ticket === epoch && state.snapshot?.datasetId === datasetId &&
+    selected.value === selectedOccurrence && date.value === requestedDate;
+  const current = () => currentSurface() &&
     state.selectedTaskId === detailTaskId && state.selectedOccurrenceId === detailOccurrenceId;
   saving.value = true;
   error.value = '';
@@ -144,7 +145,7 @@ async function schedule() {
         // eligible tasks and require another explicit choice rather than using
         // the picker's old occurrence revisions or proposal.
         clearPreview();
-        if (current()) {
+        if (currentSurface()) {
           selected.value = '';
           await load();
           error.value = '任务草稿已保存，请重新选择任务并确认安排';

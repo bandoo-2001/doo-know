@@ -610,6 +610,10 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     preview: null as ToDooCommandResult['preview'] | null,
   });
   const saved = new Map<string, string>();
+  const statusConfirmationGraphs = new Map<string, {
+    datasetId: string;
+    graph: { tasks: ToDooTask[]; occurrences: ToDooOccurrence[] };
+  }>();
   const draftValidators = new Map<string, () => boolean>();
   function registerTaskDraftValidator(draftKey: string, validate: () => boolean) {
     draftValidators.set(draftKey, validate);
@@ -1197,6 +1201,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     if (changedDataset || state.snapshot?.version !== data.version) state.taskAncestors = {};
     if (changedDataset) state.listCatalog = [];
     if (changedDataset) {
+      statusConfirmationGraphs.clear();
       persistRecovery();
       restoringRecovery = true;
       recoveryReadBlocked = false;
@@ -2011,6 +2016,8 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     return result;
   }
   async function readStatusGraph(taskIds: string[]) {
+    const datasetId = state.snapshot?.datasetId, ticket = generation;
+    if (!datasetId) throw Error('请先载入任务工作区');
     const tasks = new Map<string, ToDooTask>(),
       occurrences = new Map<string, ToDooOccurrence>();
     for (let offset = 0; offset < taskIds.length; offset += 50) {
@@ -2027,6 +2034,8 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
           });
           if (cursor) params.set('cursor', cursor);
           const data = (await request('/api/to-doo/state?' + params.toString())) as ToDooSnapshot;
+          if (ticket !== generation || state.snapshot?.datasetId !== datasetId || data.datasetId !== datasetId)
+            throw Error('资料库或任务范围已变化，请重新确认子任务范围');
           data.tasks.forEach((task) => tasks.set(task.id, task));
           data.occurrences.forEach((occurrence) => occurrences.set(occurrence.id, occurrence));
           const outerPages = state.snapshot?.collectionPages;
@@ -2046,8 +2055,15 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     return { tasks: [...tasks.values()], occurrences: [...occurrences.values()] };
   }
   async function statusChildCount(taskId: string) {
+    statusConfirmationGraphs.delete(taskId);
+    const datasetId = state.snapshot?.datasetId;
     try {
       const graph = await readStatusGraph([taskId]);
+      if (!datasetId || state.snapshot?.datasetId !== datasetId)
+        throw Error('资料库已变化，请重新确认子任务范围');
+      // This is the graph described by the following descendant confirmation.
+      // Do not silently include children added while that confirmation is open.
+      statusConfirmationGraphs.set(taskId, { datasetId, graph: clone(graph) });
       return graph.tasks.filter((task) => !task.deletedAt && task.parentTaskId === taskId).length;
     } catch (cause) {
       state.error = cause instanceof Error ? cause.message : String(cause);
@@ -2062,6 +2078,8 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       pending.payload.status === status &&
       !!pending.payload.cascade === cascade
     ) {
+      const taskId = state.snapshot?.occurrences.find(occurrence => occurrence.id === id)?.taskId;
+      if (taskId) statusConfirmationGraphs.delete(taskId);
       const { requestId, ...input } = pending;
       return execute(input, status === 'done' ? '任务已完成' : '状态已更新');
     }
@@ -2070,10 +2088,15 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       state.error = '执行记录尚未载入，请刷新后重试';
       return;
     }
+    const confirmation = statusConfirmationGraphs.get(o.taskId);
+    // A count is a single action's baseline, including the no-children path.
+    statusConfirmationGraphs.delete(o.taskId);
     let closure: ReturnType<typeof resolveToDooStatusSelection> | undefined;
     if (cascade) {
       try {
-        closure = resolveToDooStatusSelection(await readStatusGraph([o.taskId]), {
+        if (confirmation && confirmation.datasetId !== state.snapshot?.datasetId)
+          throw Error('资料库已变化，请重新确认子任务范围');
+        closure = resolveToDooStatusSelection(confirmation?.graph || await readStatusGraph([o.taskId]), {
           occurrenceId: id,
           cascade: true,
           status,
