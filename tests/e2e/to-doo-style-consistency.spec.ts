@@ -218,14 +218,16 @@ test('compact task density reduces row height without shrinking task text', asyn
 }, info) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   const csrf = await (await page.request.get('/api/security/csrf')).json();
-  const title = '紧凑密度仍保持清晰的任务标题';
-  const listId = 'style-density-goal-' + crypto.randomUUID();
+  const suffix = crypto.randomUUID().slice(0, 8);
+  const title = '紧凑密度仍保持清晰的任务标题 ' + suffix;
+  const goalName = '紧凑目标卡片布局 ' + suffix;
+  const listId = 'style-density-goal-' + suffix;
   const goalResponse = await page.request.post('/api/to-doo/commands', {
     headers: { origin: String(info.project.use.baseURL), 'x-csrf-token': csrf.token },
     data: {
       requestId: crypto.randomUUID(),
       action: 'save_entity',
-      payload: { kind: 'list', entity: { id: listId, name: '紧凑目标卡片布局', kind: 'goal' } },
+      payload: { kind: 'list', entity: { id: listId, name: goalName, kind: 'goal' } },
     },
   });
   expect(goalResponse.ok()).toBe(true);
@@ -240,7 +242,7 @@ test('compact task density reduces row height without shrinking task text', asyn
   expect(response.ok()).toBe(true);
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
-  const row = app.locator('.todo-task-row').filter({ hasText: title }).last();
+  const row = app.locator('.todo-task-row').filter({ hasText: title });
   await expect(row).toBeVisible();
   const measure = () =>
     row.evaluate((element) => ({
@@ -262,7 +264,7 @@ test('compact task density reduces row height without shrinking task text', asyn
     animations: 'disabled',
   });
   await goToToDooSection(page, 'overview');
-  const goal = app.locator('.todo-goal').filter({ hasText: '紧凑目标卡片布局' });
+  const goal = app.locator('.todo-goal').filter({ hasText: goalName });
   await expect(goal).toBeVisible();
   const card = await goal.evaluate((element) => ({
     width: element.getBoundingClientRect().width,
