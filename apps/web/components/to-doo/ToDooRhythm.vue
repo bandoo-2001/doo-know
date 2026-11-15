@@ -756,7 +756,7 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
           <div v-if="a.entity.category" class="todo-between todo-anniversary-heading">
             <span class="todo-badge">{{ a.entity.category }}</span>
           </div>
-          <h2><AButton type="text" class="todo-anniversary-title" :aria-label="'编辑 ' + a.entity.name" @click="emit('edit', 'anniversary', a.entity)">{{ a.entity.name }}</AButton></h2>
+          <h2 :aria-label="a.entity.name"><AButton type="text" class="todo-anniversary-title" :aria-label="'编辑 ' + a.entity.name" @click="emit('edit', 'anniversary', a.entity)">{{ a.entity.name }}</AButton></h2>
           <p v-if="a.next === today" class="todo-anniversary-today">就是今天</p>
           <p class="todo-days" v-else-if="a.next">
             <small>{{ a.next >= today ? '还有' : '已经' }}</small
