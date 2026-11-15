@@ -177,7 +177,7 @@ test('scaled 1080p desktops keep popup controls and the reader within the CSS vi
   }
 });
 
-test('wide focus puts the timer beside projects and leaves calendar and matrix canvases full width', async ({ page }) => {
+test('wide focus, board, calendar and matrix use the desktop workspace on direct entry', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
   const timer = page.getByRole('region', { name: '专注计时器', exact: true });
@@ -194,6 +194,13 @@ test('wide focus puts the timer beside projects and leaves calendar and matrix c
   const laptopTimer = (await timer.boundingBox())!;
   expect(laptopTimer.y + laptopTimer.height).toBeLessThanOrEqual((await projects.boundingBox())!.y);
   await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto('/?view=apps&app=to-doo&appSection=board');
+  const boardActions = page.locator('.todo-board-column > button').filter({ hasText: '添加任务' });
+  await expect(boardActions.first()).toBeVisible();
+  const actionTops = await boardActions.evaluateAll(buttons => buttons.map(button => button.getBoundingClientRect().top));
+  expect(actionTops.length).toBeGreaterThan(1);
+  expect(Math.max(...actionTops) - Math.min(...actionTops)).toBeLessThanOrEqual(1);
+  expect((await page.locator('.todo-board-column').first().boundingBox())!.height).toBeGreaterThanOrEqual(230);
   for (const [section, selector] of [['calendar', '.todo-month-day'], ['matrix', '.todo-quadrant']]) {
     await page.goto('/?view=apps&app=to-doo&appSection=' + section);
     await expect(page.locator(selector).first()).toBeVisible();
