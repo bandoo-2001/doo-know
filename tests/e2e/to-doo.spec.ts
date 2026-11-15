@@ -1,7 +1,7 @@
 import { readFile, mkdir } from 'node:fs/promises';
 import type { Locator, Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
-import { goToToDooSection, selectToDooContext } from '../support/to-doo-navigation';
+import { goToToDooSection, openToDooTaskTools, selectToDooContext } from '../support/to-doo-navigation';
 import {
   confirmToDooAction,
   expandToDooGroup,
@@ -11,7 +11,8 @@ import {
 
 async function expectToDooPageReady(app: Locator) {
   const main = app.locator('.todo-main');
-  await expect(main).toHaveAttribute('aria-busy', 'false');
+  await expect(app).toBeVisible({ timeout: 20000 });
+  await expect(main).toHaveAttribute('aria-busy', 'false', { timeout: 20000 });
   await expect(main.getByRole('status', { name: '正在载入 To Doo…', exact: true })).toHaveCount(0);
 }
 
@@ -36,6 +37,7 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/?view=apps&app=to-doo&appSection=overview');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
+  await expectToDooPageReady(app);
   await expect(app.getByRole('heading', { name: '目标总览', exact: true })).toBeVisible();
   await app.getByRole('button', { name: '新建目标', exact: true }).click();
   const editor = page.getByRole('dialog');
@@ -53,7 +55,11 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
   );
   await expandToDooGroup(app.getByRole('complementary', { name: '任务详情' }), '更多选项');
   await app.getByLabel('完成标准', { exact: true }).fill('确认真实持久化与资料关联');
+  const createdTask = page.waitForResponse(response => response.request().method() === 'POST' &&
+    new URL(response.url()).pathname === '/api/to-doo/commands' &&
+    response.request().postDataJSON().action === 'create_task');
   await app.getByRole('button', { name: '创建任务', exact: true }).click();
+  expect((await createdTask).ok()).toBe(true);
   const detail = app.getByRole('complementary', { name: '任务详情' });
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(
     '验证真实任务持久保存 ' + name,
@@ -83,14 +89,14 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   for (const [section, label] of [
     ['tasks', '所有任务'],
-    ['board', '看板'],
-    ['matrix', '四象限'],
+    ['board', '所有任务'],
+    ['matrix', '所有任务'],
     ['overview', '目标总览'],
   ]) {
     await goToToDooSection(page, section!);
     await expect(app.getByRole('heading', { name: label!, exact: true })).toBeVisible();
     await expectToDooPageReady(app);
-    await showCompletedTasks(app);
+    if (section !== 'overview') await showCompletedTasks(app);
     const current = await (await page.request.get('/api/to-doo/state?taskIds=' + taskId)).json();
     expect(current.occurrences.find((o: any) => o.taskId === taskId)?.status).toBe('done');
     if (section === 'board')
@@ -133,14 +139,14 @@ test('all To Doo sections are reachable on narrow and dark workspaces without ov
   ];
   await page.goto('/?view=apps&app=to-doo&appSection=overview');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
-  await expect(app).toBeVisible();
+  await expectToDooPageReady(app);
   const labels = [
     '目标总览',
     '所有任务',
-    '看板',
+    '所有任务',
     '日历',
-    '时间线',
-    '四象限',
+    '所有任务',
+    '所有任务',
     '专注',
     '习惯',
     '纪念日',
@@ -150,13 +156,13 @@ test('all To Doo sections are reachable on narrow and dark workspaces without ov
   ];
   for (const [index, section] of sections.entries()) {
     await goToToDooSection(page, section);
+    await expectToDooPageReady(app);
     await expect(page.getByRole('region', { name: 'To Doo 行动工作空间' })).toBeVisible();
     await expect(page.locator('.todo-page h1')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
     if (['overview', 'board', 'calendar'].includes(section)) {
-      await expectToDooPageReady(app);
       await mkdir('.sdd/to-doo-full/screenshots', { recursive: true });
       const viewport = page.viewportSize();
       if (info.project.name === 'desktop')
@@ -168,13 +174,18 @@ test('all To Doo sections are reachable on narrow and dark workspaces without ov
       if (viewport) await page.setViewportSize(viewport);
     }
   }
-  await page.evaluate(() => (document.documentElement.dataset.theme = 'dark'));
+  await page.evaluate(async () => {
+    const modulePath = '/preferences.ts';
+    const preferences = await import(modulePath);
+    preferences.setEditorPreferences({ theme: 'dark' });
+    await document.fonts.ready;
+  });
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.setViewportSize({ width: 320, height: 844 });
   for (const [index, section] of sections.entries()) {
     await goToToDooSection(page, section);
-    await expect(page.locator('.todo-page h1')).toHaveText(labels[index]!);
     await expectToDooPageReady(app);
+    await expect(page.locator('.todo-page h1')).toHaveText(labels[index]!);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
@@ -193,8 +204,8 @@ test('focus, habit check-ins, anniversary and real CSV import/export use durable
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
-  await expect(app.getByRole('heading', { name: '专注', exact: true })).toBeVisible();
   await expectToDooPageReady(app);
+  await expect(app.getByRole('heading', { name: '专注', exact: true })).toBeVisible();
   await app.getByRole('button', { name: '开始专注', exact: true }).click();
   await app.getByRole('button', { name: '暂停', exact: true }).click();
   await app.getByRole('button', { name: '继续', exact: true }).click();
@@ -227,7 +238,8 @@ test('focus, habit check-ins, anniversary and real CSV import/export use durable
   await expect(habitCount).not.toBeVisible();
   await expect(
     app.getByRole('button', { name: name + ' ' + today + ' 打卡，当前 2 页', exact: true }),
-  ).toHaveText('✓');
+  ).toHaveText('2✓');
+  await expect(app.getByRole('button', { name: name + ' ' + today + ' 打卡，当前 2 页', exact: true }).getByLabel('已达标', { exact: true })).toBeVisible();
   await app.getByRole('button', { name, exact: true }).click();
   const habitEditor = page.getByRole('dialog', { name: '编辑习惯', exact: true });
   await expect(habitEditor).toBeVisible();
@@ -242,7 +254,8 @@ test('focus, habit check-ins, anniversary and real CSV import/export use durable
   await page.getByRole('dialog').getByRole('button', { name: '保存', exact: true }).click();
   await expect(
     app.getByRole('button', { name: name + ' ' + today + ' 打卡，当前 2 页', exact: true }),
-  ).toHaveText('✓');
+  ).toHaveText('2✓');
+  await expect(app.getByRole('button', { name: name + ' ' + today + ' 打卡，当前 2 页', exact: true }).getByLabel('已达标', { exact: true })).toBeVisible();
   await go('anniversaries', '纪念日');
   await app
     .getByRole('button', { name: /新建纪念日/ })
@@ -270,8 +283,9 @@ test('focus, habit check-ins, anniversary and real CSV import/export use durable
   await app.getByRole('button', { name: /确认导入 \d+ 项/ }).click();
   await expect(app.getByText('导入已保存', { exact: true })).toBeVisible();
   await go('tasks', '所有任务');
-  await app.getByRole('textbox', { name: '搜索任务', exact: true }).fill('Imported ' + name);
-  await app.getByRole('button', { name: '执行搜索', exact: true }).click();
+  await openToDooTaskTools(page);
+  await page.getByRole('textbox', { name: '搜索任务', exact: true }).fill('Imported ' + name);
+  await page.getByRole('button', { name: '执行搜索', exact: true }).click();
   await expect(app.getByRole('button', { name: 'Imported ' + name, exact: true })).toBeVisible();
 });
 
@@ -374,13 +388,16 @@ test.describe('To Doo source and evidence', () => {
       },
     });
     expect(pendingCreate.ok()).toBe(true);
-    const pendingData = await pendingCreate.json(),
-      pendingTask = pendingData.snapshot.tasks.find(
-        (t: any) => t.title === '恢复成果 ' + taskTitle,
-      ),
-      pendingOccurrence = pendingData.snapshot.occurrences.find(
+    const pendingReceipt = await pendingCreate.json();
+    const pendingRead = await page.request.get('/api/to-doo/state?taskIds=' + pendingReceipt.ids[0] + '&includeTree=true');
+    expect(pendingRead.ok()).toBe(true);
+    const pendingData = await pendingRead.json(),
+      pendingTask = pendingData.tasks.find((t: any) => t.id === pendingReceipt.ids[0]),
+      pendingOccurrence = pendingData.occurrences.find(
         (o: any) => o.taskId === pendingTask.id,
       );
+    expect(pendingTask).toMatchObject({ title: '恢复成果 ' + taskTitle });
+    expect(pendingOccurrence).toBeTruthy();
     const folder = '00-Inbox/outcome-recovery-' + Date.now(),
       pendingTitle = '中断后继续 ' + taskTitle;
     const failed = await page.request.post('/api/to-doo/outcome-note', {
@@ -410,6 +427,7 @@ test.describe('To Doo source and evidence', () => {
     });
     expect(createdFolder.ok()).toBe(true);
     await page.goto('/?view=apps&app=to-doo&appSection=settings');
+    await expectToDooPageReady(app);
     await app.getByRole('button', { name: '查看进度', exact: true }).click();
     const recovery = app
       .locator('.todo-setting-row')
@@ -450,7 +468,12 @@ test('bulk and cascade completion freeze execution membership and persist their 
     });
     expect(response.ok()).toBe(true);
     const data = await response.json();
-    return data.snapshot.tasks.find((t: any) => t.title === title);
+    const read = await page.request.get('/api/to-doo/state?taskIds=' + data.ids[0] + '&includeTree=true');
+    expect(read.ok()).toBe(true);
+    const stored = await read.json();
+    const task = stored.tasks.find((t: any) => t.id === data.ids[0]);
+    expect(task).toMatchObject({ title });
+    return task;
   };
   const parent = await seed('级联父项 ' + suffix);
   await seed('级联子项 ' + suffix, parent.id);
@@ -471,8 +494,8 @@ test('bulk and cascade completion freeze execution membership and persist their 
   expect(Object.keys(cascadeBody.payload.expectedRevisions)).toHaveLength(4);
   await expect(detail.getByRole('button', { name: '重新打开', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
-  await app.getByRole('button', { name: '任务管理', exact: true }).click();
-  await page.getByRole('menuitem', { name: '多选', exact: true }).click();
+  await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await page.getByRole('menuitem', { name: '选择任务', exact: true }).click();
   await app.getByRole('checkbox', { name: '选择 ' + batchParent.title, exact: true }).check();
   const batchRequest = page.waitForRequest(
     (r) => r.method() === 'POST' && r.url().endsWith('/api/to-doo/commands'),
