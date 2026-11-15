@@ -116,7 +116,13 @@ test('task details retain subtasks and provide direct reminder editing', async (
   await expect(detail).not.toContainText('未关联');
   await expect(detail).not.toContainText('未设置');
   for (const theme of ['light', 'dark']) {
-    await page.evaluate((theme) => (document.documentElement.dataset.theme = theme), theme);
+    await page.evaluate(async (theme) => {
+      const modulePath = '/preferences.ts';
+      const preferences = await import(modulePath);
+      preferences.setEditorPreferences({ theme });
+      await document.fonts.ready;
+    }, theme);
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
     await page.setViewportSize({ width: info.project.name === 'mobile' ? 320 : 1440, height: 960 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
@@ -142,7 +148,7 @@ test('context menu copy, priority and subtree move leave multi-selection untouch
     entity: { name: '工作 ' + f.suffix },
   });
   await page.reload();
-  await openToDooTaskTools(page);
+  await expect(page.locator('.todo-task-toolbar')).toBeVisible();
   await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
   await page.getByRole('menuitem', { name: '选择任务', exact: true }).click();
   const selected = page.getByRole('checkbox', { name: '选择 ' + otherTitle, exact: true });
