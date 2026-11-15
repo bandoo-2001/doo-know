@@ -17,10 +17,6 @@
   width: 100%;
   min-width: 0;
 }
-.to-doo-workspace .todo-page-focus {
-  max-width: calc(var(--todo-desktop-work-width, 1200px) + 2 * var(--todo-page-padding));
-  margin-inline: auto;
-}
 .todo-focus-console,
 .todo-focus-library {
   display: flex;
@@ -449,10 +445,9 @@
 }
 .todo-focus-settings-close { margin-top: var(--todo-space-24); }
 
-/* When the timer sits above the library, use the width for shorter project rows
-   and keep the record list in view while its overview expands. */
+/* A wide library can keep projects in two short columns and records alongside the overview. */
 @container focus-library (min-width: 960px) {
-  .todo-focus-projects:has(.todo-focus-topic:nth-of-type(4)) {
+  .todo-focus-projects:has(.todo-focus-topic) {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-content: start;
@@ -460,21 +455,33 @@
   }
   .todo-focus-projects > :not(.todo-focus-topic) { grid-column: 1 / -1; }
   .todo-focus-topic + .todo-focus-topic { margin-top: 0; }
-  .todo-focus-projects { max-height: max(200px, calc(100dvh - 410px)); }
+  .todo-focus-projects { max-height: var(--focus-pane-room, max(200px, calc(100dvh - 410px))); }
   .todo-focus-records {
     display: grid;
-    grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+    grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr);
     align-items: start;
     column-gap: var(--todo-space-32);
   }
+  .todo-focus-log {
+    display: flex;
+    flex-direction: column;
+    max-height: var(--focus-pane-room, none);
+  }
+  .todo-focus-log > :not(.todo-focus-history) { flex-shrink: 0; }
+  .todo-focus-log > .todo-focus-history { max-height: var(--focus-pane-room, max(200px, calc(100dvh - 470px))); }
 }
 
 /* Large monitors have room to keep the timer in place while the right pane
    changes between the project list and the history. */
 @container (min-width: 1480px) {
   .todo-focus-workspace {
+    /* Deduct the page header, padding and pane switch so that filters and the
+       record count share the available column height with the scrolling entries. */
+    --focus-pane-room: max(240px, calc(100dvh - var(--workspace-bottom-inset, 0px)
+      - var(--todo-global-header-height) - var(--todo-header-height) - 2 * var(--todo-page-padding)
+      - var(--todo-space-8) - var(--todo-control-height) - var(--todo-space-16)));
     display: grid;
-    grid-template-columns: minmax(340px, .58fr) minmax(0, 1fr);
+    grid-template-columns: clamp(340px, 26%, 420px) minmax(0, 1fr);
     align-items: start;
     align-content: start;
     column-gap: var(--todo-space-32);

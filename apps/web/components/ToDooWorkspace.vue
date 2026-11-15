@@ -1951,6 +1951,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
   </section>
   </AConfigProvider>
 </template>
+<style src="../to-doo-planning-layout.css"></style>
 <style scoped>
 .todo-transient-notice, .todo-transient-feedback {
   grid-row: 2;

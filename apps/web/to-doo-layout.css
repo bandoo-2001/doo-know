@@ -49,11 +49,14 @@
   white-space: nowrap;
 }
 @media (min-width: 1001px) and (orientation: landscape) {
-  .to-doo-workspace .todo-page-tasks {
+  .to-doo-workspace :is(.todo-page-tasks, .todo-page-focus) {
+    /* Base the gutter on the main pane. Opening the reader returns space to the list. */
+    --todo-work-gutter: clamp(var(--todo-page-padding), calc(var(--todo-page-padding) + (100cqi - 1280px) / 8), 80px);
     box-sizing: border-box;
     width: 100%;
-    max-width: calc(var(--todo-desktop-work-width) + 2 * var(--todo-page-padding));
+    max-width: calc(var(--todo-desktop-work-width) + 2 * var(--todo-work-gutter));
     margin-inline: auto;
+    padding-inline: var(--todo-work-gutter);
   }
   .to-doo-workspace .todo-page-tasks > .todo-page-heading {
     position: sticky;

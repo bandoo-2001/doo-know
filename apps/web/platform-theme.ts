@@ -42,7 +42,7 @@ export const toDooUiScale = {
   rowHeight: 40, compactRowHeight: 36, rowPadding: 4, compactRowPadding: 2,
   navHeight: 40, compactNavHeight: 36, navWidth: 200, collapsedNavWidth: 56,
   primaryNavWidth: 64, globalHeaderHeight: 56, detailWidth: 400, detailMinWidth: 360,
-  listMinWidth: 440, desktopWorkWidth: 1200, pagePadding: 24, narrowPagePadding: 16,
+  listMinWidth: 440, desktopWorkWidth: 1664, pagePadding: 24, narrowPagePadding: 16,
   headerHeight: 48, detailFooterHeight: 56, iconButtonSize: 32, iconSize: 18,
   iconSmallSize: 16, iconGap: 6, focusWidth: 2, focusOffset: 2,
   motionFast: 120, motionPanel: 180, popupBase: 1200,

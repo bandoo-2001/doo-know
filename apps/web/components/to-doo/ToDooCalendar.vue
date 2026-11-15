@@ -1320,7 +1320,6 @@ watch(
     </div>
   </AModal>
 </template>
-<style src="../../to-doo-planning-layout.css"></style>
 <style scoped>
 .todo-calendar-display-panel {
   display: flex;

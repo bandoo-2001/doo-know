@@ -1946,6 +1946,16 @@ function saveView() {
   border-radius: 6px;
   background: var(--todo-soft);
 }
+@container (min-width: 1280px) {
+  .todo-task-list-panel :deep(.todo-task-row:has(> .todo-task-dates)) {
+    display: grid;
+    grid-template-columns: var(--todo-icon-button-size) minmax(0, 2fr) minmax(0, 1fr) var(--todo-icon-button-size);
+  }
+  .todo-task-list-panel :deep(.todo-task-row > .todo-task-dates) {
+    justify-content: flex-start;
+    max-width: 100%;
+  }
+}
 .todo-task-list-panel > .todo-task-list-heading h2 {
   color: var(--todo-ink);
   font-weight: 550;

@@ -27,6 +27,7 @@ async function openList(page: Page) {
   const date = new Date().toISOString().slice(0, 10);
   await command('create_task', { listId, title: taskTitle, priority: 'high',
     plan: { date, time: '10:00', timeZone: 'UTC' },
+    due: { date, time: '17:30', timeZone: 'UTC' },
     description: '结合上周访谈整理首屏入口，与开发一起确认交互细节。' });
   for (const title of [
     '核对表单的错误提示', '整理首轮访谈笔记', '复核无障碍键盘操作', '同步本次评审结论',
@@ -50,7 +51,20 @@ test('PC list, task reader and header share readable widths across laptop, scale
     await expect(main.getByRole('button', { name: '任务显示与管理' })).toBeInViewport({ ratio: 1 });
     const input = (await capture.boundingBox())!;
     const header = (await main.locator('.todo-page-heading').boundingBox())!;
-    expect(input.width).toBeLessThanOrEqual(1201);
+    const pane = (await main.boundingBox())!;
+    expect(input.width).toBeLessThanOrEqual(1665);
+    if (width === 1920) {
+      expect(input.width).toBeGreaterThanOrEqual(pane.width * .88);
+      expect(input.x - pane.x).toBeLessThanOrEqual(96);
+      const task = main.locator('.todo-task-row').filter({ has: row });
+      const dates = task.locator('.todo-task-date');
+      await expect(dates).toHaveCount(2);
+      const firstDate = (await dates.first().boundingBox())!;
+      const secondDate = (await dates.last().boundingBox())!;
+      expect(firstDate.x - input.x).toBeLessThan(input.width * .77);
+      expect(secondDate.x).toBeGreaterThanOrEqual(firstDate.x + firstDate.width);
+    }
+    if (width === 2560) expect(input.width).toBeGreaterThanOrEqual(1600);
     expect(input.x).toBeCloseTo(header.x, 0);
     expect(input.width).toBeCloseTo(header.width, 0);
     expect(input.y + input.height).toBeLessThan(180);
@@ -172,6 +186,10 @@ test('wide focus puts the timer beside projects and leaves calendar and matrix c
   const wideTimer = (await timer.boundingBox())!;
   const wideProjects = (await projects.boundingBox())!;
   expect(wideTimer.x + wideTimer.width).toBeLessThanOrEqual(wideProjects.x);
+  const main = (await page.locator('.todo-main').boundingBox())!;
+  const focusArea = (await page.locator('.todo-focus-workspace').boundingBox())!;
+  expect(focusArea.width).toBeGreaterThanOrEqual(main.width * .85);
+  expect(focusArea.x - main.x).toBeLessThanOrEqual(112);
   await page.setViewportSize({ width: 1366, height: 768 });
   const laptopTimer = (await timer.boundingBox())!;
   expect(laptopTimer.y + laptopTimer.height).toBeLessThanOrEqual((await projects.boundingBox())!.y);

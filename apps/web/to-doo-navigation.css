@@ -18,7 +18,8 @@
     var(--todo-detail-width));
 }
 .to-doo-workspace.todo-two-level-navigation.todo-task-navigation:not(.todo-navigation-condensed) {
-  --todo-current-directory-width: var(--todo-directory-nav-width);
+  --todo-current-directory-width: clamp(var(--todo-directory-nav-width),
+    calc(var(--todo-directory-nav-width) + (100vw - 1600px) / 10), 256px);
 }
 .to-doo-workspace.todo-two-level-navigation > .todo-sidebar {
   padding: 0;
