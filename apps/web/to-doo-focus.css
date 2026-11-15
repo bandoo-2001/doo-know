@@ -195,8 +195,8 @@
 }
 .to-doo-workspace .todo-focus-topic-select.ant-btn:hover { background: transparent; }
 .todo-focus-topic-select > span:last-child { overflow-wrap: anywhere; font-weight: 500; }
+.todo-focus-topic-select.ant-btn > .todo-focus-topic-icon { display: grid; }
 .todo-focus-topic-icon {
-  display: grid;
   place-items: center;
   flex: 0 0 28px;
   height: 28px;
@@ -440,7 +440,7 @@
   .todo-focus-settings-toggle.ant-btn > span { display: none; }
   .todo-focus-primary-task { max-width: none; }
   .todo-focus-topic { gap: var(--todo-space-4); padding-inline: var(--todo-space-4); }
-  .todo-focus-topic-select.ant-btn { gap: var(--todo-space-8); }
+  .to-doo-workspace .todo-focus-topic-select.ant-btn { gap: var(--todo-space-8); }
   .todo-focus-topic-total small { display: none; }
   .todo-focus-statistics .ant-statistic { padding-inline: var(--todo-space-8); }
   .todo-focus-statistics .ant-statistic-content { font-size: var(--todo-heading-size); }
