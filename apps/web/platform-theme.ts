@@ -111,6 +111,7 @@ export function toDooCssVariables(mode: PlatformThemeMode): Record<string, strin
     '--todo-primary-nav-width': px(s.primaryNavWidth),
     '--todo-global-header-height': px(s.globalHeaderHeight),
     '--todo-context-nav-width': px(s.navWidth), '--todo-collapsed-nav-width': px(s.collapsedNavWidth),
+    '--todo-directory-nav-width': px(s.navWidth),
     '--todo-detail-width': px(s.detailWidth), '--todo-detail-min-width': px(s.detailMinWidth),
     '--todo-list-min-width': px(s.listMinWidth), '--todo-page-padding': px(s.pagePadding),
     '--todo-narrow-page-padding': px(s.narrowPagePadding),

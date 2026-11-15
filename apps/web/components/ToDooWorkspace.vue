@@ -40,7 +40,7 @@ import type {
 import { api } from '../api';
 import { resolvedTheme } from '../preferences';
 import { toDooAntTheme } from '../ant-design';
-import type { ToDooDensity } from '../platform-theme';
+import { toDooUiScale, type ToDooDensity } from '../platform-theme';
 import type { ToDooAppSection } from '../navigation';
 import {
   createToDooWorkbench,
@@ -77,6 +77,7 @@ import '../to-doo.css';
 import '../to-doo-tokens.css';
 import '../to-doo-priority.css';
 import '../to-doo-task-detail.css';
+import '../to-doo-navigation.css';
 const props = withDefaults(
   defineProps<{
     section: ToDooAppSection;
@@ -260,7 +261,13 @@ const workspaceRef = ref<HTMLElement>();
 const detailLayer = ref<HTMLElement>();
 const viewportWidth = ref(window.innerWidth);
 const detailOverlay = computed(() => viewportWidth.value < 960);
-const condensedNavigation = computed(() => detailOpen.value && !detailOverlay.value && viewportWidth.value < 1032);
+const hasTaskDirectory = computed(() => ['tasks', 'board', 'matrix', 'timeline'].includes(props.section));
+const directoryCollapsed = ref(false);
+const automaticCondensedNavigation = computed(() => detailOpen.value && !detailOverlay.value &&
+  viewportWidth.value < toDooUiScale.collapsedNavWidth + toDooUiScale.navWidth +
+    toDooUiScale.detailMinWidth + toDooUiScale.listMinWidth + 2 * toDooUiScale.pagePadding);
+const condensedNavigation = computed(() => hasTaskDirectory.value &&
+  (directoryCollapsed.value || automaticCondensedNavigation.value));
 let detailOpener: HTMLElement | undefined;
 function resizeDetail() {
   viewportWidth.value = window.innerWidth;
@@ -347,6 +354,16 @@ function openNavigation(event: MouseEvent) {
   navigationOpener = event.currentTarget as HTMLElement;
   navigationCycleActive = true;
   navigationOpen.value = true;
+}
+function toggleDirectory(event: MouseEvent) {
+  if (automaticCondensedNavigation.value) {
+    openNavigation(event);
+    return;
+  }
+  directoryCollapsed.value = !directoryCollapsed.value;
+  const label = directoryCollapsed.value ? '展开清单导航' : '折叠清单导航';
+  void nextTick(() => workspaceRef.value?.querySelector<HTMLElement>(`button[aria-label="${label}"]`)
+    ?.focus({ preventScroll: true }));
 }
 function focusNavigationStart() {
   const dialog = navigationDialog.value;
@@ -1223,12 +1240,13 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
   <AConfigProvider :theme="activeToDooTheme">
   <section
     ref="workspaceRef"
-    class="to-doo-workspace"
+    class="to-doo-workspace todo-two-level-navigation"
     :class="{
       'todo-compact': density === 'compact',
       'todo-has-detail': detailOpen,
       'todo-detail-docked': detailOpen && !detailOverlay,
       'todo-navigation-condensed': condensedNavigation,
+      'todo-task-navigation': hasTaskDirectory,
       'todo-hosted-navigation': hostedNavigation,
       'todo-task-page': section === 'tasks' || section === 'overview',
       'todo-task-overview-page': section === 'overview',
@@ -1268,6 +1286,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
     </div>
     <aside class="todo-sidebar" aria-label="To Doo 侧栏">
       <ToDooNavigation
+        layout="split"
+        :directory-collapsed="condensedNavigation"
         :hosted-navigation="hostedNavigation"
         :date="calendarDate"
         :today="calendarToday"
@@ -1289,6 +1309,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
           edit('list', undefined, { kind: 'list' });
         "
         @load-lists="loadLists(!!listCursor && !listError)"
+        @toggle-directory="toggleDirectory"
         @back="
           navigationOpen = false;
           back();
