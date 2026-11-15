@@ -60,7 +60,7 @@ test('ordinary habits create without quantities and complete with one click', as
     .getByRole('button', { name: '确认', exact: true })
     .click();
   await expect(history).not.toBeVisible();
-  await page.getByText('今天', { exact: true }).click();
+  await page.getByLabel('习惯视图', { exact: true }).getByText('今天', { exact: true }).click();
   await expect(card.getByRole('button', { name: '打卡 ' + name, exact: true })).toBeEnabled();
   await card.getByRole('button', { name: '打卡 ' + name, exact: true }).click();
   await expect(card).toContainText('已打卡');
