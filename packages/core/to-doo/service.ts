@@ -1165,10 +1165,11 @@ export function createToDooService(
           ];
         }
         case 'start_focus': {
-          if (
-            [...c.state.focusSession.values()].some((s) => !s.deletedAt && s.status === 'running')
-          )
-            toDooError('已有运行中的专注，请先暂停或接管');
+          const active = [...c.state.focusSession.values()].find((session) =>
+            !session.deletedAt && (session.status === 'running' || (p.requireIdle && session.status === 'paused')),
+          );
+          if (active?.status === 'running') toDooError('已有运行中的专注，请先暂停或接管');
+          if (active?.status === 'paused') toDooError('已有暂停的专注，请先继续或结束该会话');
           const occurrence = p.occurrenceId ? c.get('occurrence', p.occurrenceId) : undefined;
           const task = occurrence ? c.get('task', occurrence.taskId) : undefined;
           const topic = p.topicId ? c.get('focusTopic', p.topicId) : undefined;

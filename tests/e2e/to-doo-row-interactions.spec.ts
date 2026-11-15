@@ -31,8 +31,19 @@ test('dates and row padding open the same task while selection and row controls 
   await expect(detail).toHaveValue(title);
   await page.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   await expect(row.getByRole('button', { name: title, exact: true })).toBeFocused();
-  const height = await row.evaluate(element => element.clientHeight);
-  await row.click({ position: { x: 2, y: Math.floor(height / 2) } });
+  // The wider touch completion button can occupy the left edge. Hit the gap between
+  // visible cells and verify the browser treats that pixel as row background.
+  const gap = await row.evaluate(element => {
+    const box = element.getBoundingClientRect();
+    for (let y = 2; y < box.height - 1; y += 3) {
+      for (let x = 2; x < box.width - 1; x += 3) {
+        if (document.elementFromPoint(box.left + x, box.top + y) === element) return { x, y };
+      }
+    }
+    return null;
+  });
+  expect(gap).not.toBeNull();
+  await row.click({ position: gap! });
   await expect(detail).toHaveValue(title);
   await page.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   await date.evaluate(element => {

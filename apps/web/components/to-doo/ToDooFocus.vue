@@ -161,6 +161,10 @@ useEventListener(
   wake,
 );
 const active = computed(() => history.value?.active ?? null);
+const startUnavailable = computed(() =>
+  !history.value || !!active.value || state.busy || focusBusy.value ||
+  !!state.pendingMutation || (loading.value && !syncing.value),
+);
 const finishedTaskSession = ref<Session>();
 function consumeTaskContext() {
   if (!props.occurrenceId) return;
@@ -682,17 +686,15 @@ function periodChanged(value: string | number) {
   void load();
 }
 async function start(topic?: Topic) {
-  if (state.busy || active.value) return;
+  if (startUnavailable.value || (topic && (topic.archivedAt || mode.value === 'break'))) return;
   if (mode.value === 'break' && target.value === 0) {
     mode.value = 'pomodoro';
     target.value = state.snapshot?.settings.focusMinutes ?? 25;
-    if (!topic) {
-      state.notice = '已跳过休息';
-      return;
-    }
+    state.notice = '已跳过休息';
+    return;
   }
-  if (topic) selectedTopic.value = topic.id;
-  if (selected.value?.archivedAt) {
+  const project = topic ?? selected.value;
+  if (project?.archivedAt) {
     state.error = '请先恢复已归档的专注项目';
     return;
   }
@@ -708,22 +710,29 @@ async function start(topic?: Topic) {
   }
   const occurrence = state.snapshot?.occurrences.find((row) => row.id === chosen.value),
     task = state.snapshot?.tasks.find((row) => row.id === occurrence?.taskId);
-  const result = await props.model.execute(
-    {
-      action: 'start_focus',
-      payload: {
-        mode: mode.value,
-        targetMinutes: mode.value === 'stopwatch' ? null : Number(target.value),
-        topicId: selectedTopic.value || null,
-        occurrenceId: chosen.value || null,
-        listId: task ? task.listId : (selected.value?.listId ?? null),
+  focusBusy.value = true;
+  try {
+    const result = await props.model.execute(
+      {
+        action: 'start_focus',
+        payload: {
+          mode: mode.value,
+          targetMinutes: mode.value === 'stopwatch' ? null : Number(target.value),
+          topicId: topic?.id ?? (selectedTopic.value || null),
+          ...(topic ? { requireIdle: true } : {}),
+          occurrenceId: chosen.value || null,
+          listId: task ? task.listId : (project?.listId ?? null),
+        },
       },
-    },
-    '专注已开始',
-  );
-  if (result) {
-    finishedTaskSession.value = undefined;
+      '专注已开始',
+    );
+    if (result) {
+      if (topic) selectedTopic.value = topic.id;
+      finishedTaskSession.value = undefined;
+    }
     await load();
+  } finally {
+    focusBusy.value = false;
   }
 }
 async function control(
@@ -973,9 +982,7 @@ async function resolveNoteConflict(merge: boolean) {
           type="primary"
           class="todo-button todo-primary"
           :disabled="
-            state.busy ||
-            focusBusy ||
-            (loading && !syncing) ||
+            startUnavailable ||
             (!!selected?.archivedAt && !(mode === 'break' && target === 0))
           "
           @click="start()"
@@ -1067,7 +1074,7 @@ async function resolveNoteConflict(merge: boolean) {
           </AButton>
           <div class="todo-focus-topic-actions">
             <ADropdown :trigger="['click']" overlay-class-name="todo-ant-popup"
-              ><AButton type="text" :aria-label="'专注项目操作 ' + topic.name"
+              ><AButton type="text" class="todo-focus-topic-menu" :aria-label="'专注项目操作 ' + topic.name"
                 ><ToDooIcon name="more" :size="17" /></AButton
               ><template #overlay
                 ><AMenu
@@ -1079,6 +1086,15 @@ async function resolveNoteConflict(merge: boolean) {
                 ></template
               ></ADropdown
             >
+            <AButton
+              v-if="!active && !topic.archivedAt && mode !== 'break'"
+              type="text"
+              class="todo-focus-topic-start"
+              :aria-label="'开始项目专注 ' + topic.name"
+              :title="'开始项目专注 ' + topic.name"
+              :disabled="startUnavailable"
+              @click="start(topic)"
+              ><ToDooIcon name="play" :size="17" /></AButton>
           </div>
         </article>
         <AEmpty

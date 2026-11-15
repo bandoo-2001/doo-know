@@ -220,6 +220,12 @@ test('narrow task detail contains keyboard focus and Escape keeps its draft', as
   await expect(touch ? detail : detail.getByLabel('任务标题', { exact: true })).toBeFocused();
   await detail.getByLabel('任务标题', { exact: true }).fill(title + ' 草稿');
   const last = detail.getByRole('button', { name: '保存任务', exact: true });
+  if (touch) {
+    // The read-first panel itself receives focus when the software keyboard is idle.
+    await detail.focus();
+    await page.keyboard.press('Shift+Tab');
+    await expect(last).toBeFocused();
+  }
   await last.focus();
   await page.keyboard.press('Tab');
   await expect(detail.getByRole('button', { name: '关闭任务详情', exact: true })).toBeFocused();

@@ -367,7 +367,8 @@ function detailKeydown(event: KeyboardEvent) {
     if (
       first &&
       last &&
-      ((event.shiftKey && document.activeElement === first) ||
+      (!controls.includes(document.activeElement as HTMLElement) ||
+        (event.shiftKey && document.activeElement === first) ||
         (!event.shiftKey && document.activeElement === last))
     ) {
       event.preventDefault();

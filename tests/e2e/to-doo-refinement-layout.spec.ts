@@ -10,10 +10,11 @@ for (const size of [{ width: 1440, height: 900 }, { width: 1080, height: 812 }, 
   test(`task and planning content fits ${size.width}×${size.height}`, async ({ page }, info) => {
     test.setTimeout(120000);
     await page.setViewportSize(size);
+    const title = '布局验证 ' + info.project.name + '-' + size.width + '-' + crypto.randomUUID().slice(0, 8);
     const csrf = await (await page.request.get('/api/security/csrf')).json();
     const response = await page.request.post('/api/to-doo/commands', {
       headers: { origin: String(info.project.use.baseURL), 'x-csrf-token': csrf.token },
-      data: { requestId: crypto.randomUUID(), action: 'create_task', payload: { title: '布局验证 ' + info.project.name + '-' + size.width } },
+      data: { requestId: crypto.randomUUID(), action: 'create_task', payload: { title } },
     });
     expect(response.ok()).toBe(true);
     const created = await response.json();
@@ -26,11 +27,16 @@ for (const size of [{ width: 1440, height: 900 }, { width: 1080, height: 812 }, 
     expect(top).toBeLessThanOrEqual(size.width >= 1080 ? 180 : 216);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
     const touch = await page.evaluate(() => matchMedia('(pointer: coarse)').matches);
-    expect((await first.boundingBox())!.height).toBeCloseTo(touch ? 44 : 40, 0);
+    // Populated rows can wrap a date or list label on a narrow screen.
+    // The plain task created above measures the exact base height in either density.
+    const plain = app.locator('.todo-task-row').filter({ has: page.getByRole('button', { name: title, exact: true }) });
+    expect((await first.boundingBox())!.height).toBeGreaterThanOrEqual(touch ? 44 : 40);
+    expect((await plain.boundingBox())!.height).toBeCloseTo(touch ? 44 : 40, 0);
     await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
     await selectToDooOption(page, '任务密度', '紧凑');
     await page.keyboard.press('Escape');
-    expect((await first.boundingBox())!.height).toBeCloseTo(touch ? 44 : 36, 0);
+    expect((await first.boundingBox())!.height).toBeGreaterThanOrEqual(touch ? 44 : 36);
+    expect((await plain.boundingBox())!.height).toBeCloseTo(touch ? 44 : 36, 0);
     expect(await first.evaluate(element => getComputedStyle(element).fontSize)).toBe('14px');
     await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
     await selectToDooOption(page, '任务密度', '舒适');

@@ -8,6 +8,7 @@ import { noteService } from '../packages/core/notes';
 import { createToDooService } from '../packages/core/to-doo/service';
 import { createToDooAgentPort } from '../apps/server/to-doo/agent-port';
 import { createToDooInterop } from '../packages/core/to-doo/interop';
+import { toDooCommandSchema } from '../shared/to-doo-contracts';
 
 let root: string;
 let config: { knowledgeRoot: string; dataRoot: string; origin: string; secret: string };
@@ -36,6 +37,37 @@ afterEach(async () => {
   if (db?.open) db.close();
   vi.useRealTimers();
   await rm(root, { recursive: true, force: true });
+});
+
+it('keeps the start_focus idle guard optional in the shared command contract', () => {
+  const start = { requestId: 'focus-contract', action: 'start_focus', payload: { mode: 'pomodoro' } };
+  expect(toDooCommandSchema.parse(start).payload).not.toHaveProperty('requireIdle');
+  expect(toDooCommandSchema.parse({ ...start, payload: { ...start.payload, requireIdle: true } }).payload)
+    .toMatchObject({ requireIdle: true });
+  expect(toDooCommandSchema.safeParse({ ...start, payload: { ...start.payload, requireIdle: 'true' } }).success).toBe(false);
+});
+
+it('checks a stale project start against running and paused sessions across projects at write time', () => {
+  save('focusTopic', { id: 'reading', name: '阅读' });
+  save('focusTopic', { id: 'writing', name: '写作' });
+  expect(service.focusHistory({ topicId: 'writing' }).active).toBeNull();
+  const stale = {
+    requestId: randomUUID(), action: 'start_focus',
+    payload: { mode: 'pomodoro', topicId: 'writing', requireIdle: true, at: '2026-10-30T11:00:00Z' },
+  };
+  const started = command('start_focus', { mode: 'stopwatch', topicId: 'reading', requireIdle: true });
+  const running = service.getEntity('focusSession', started.ids[0])!;
+  expect(running.status).toBe('running');
+  expect(() => service.command(stale)).toThrow(/运行/);
+  expect(() => command('start_focus', { mode: 'pomodoro' })).toThrow(/运行/);
+  command('control_focus', { id: running.id, operation: 'pause', expectedRevision: running.revision });
+  const paused = service.getEntity('focusSession', running.id)!;
+  expect(() => service.command(stale)).toThrow(/暂停/);
+  expect(service.focusHistory().items).toHaveLength(1);
+  expect(service.getEntity('focusSession', running.id)).toEqual(paused);
+  const other = command('start_focus', { mode: 'pomodoro', topicId: 'writing' });
+  expect(service.getEntity('focusSession', other.ids[0])?.status).toBe('running');
+  expect(service.getEntity('focusSession', running.id)?.status).toBe('paused');
 });
 
 it('aggregates a complete project week independently of history filters, pagination and other projects', () => {

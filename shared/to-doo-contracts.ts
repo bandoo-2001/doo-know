@@ -1248,6 +1248,7 @@ export const toDooCommandSchema = z.discriminatedUnion('action', [
       payload: z
         .object({
           mode: z.enum(['pomodoro', 'stopwatch', 'break']),
+          requireIdle: z.boolean().optional(),
           occurrenceId: toDooId.nullable().default(null),
           listId: toDooId.nullable().default(null),
           topicId: toDooId.nullable().default(null),
