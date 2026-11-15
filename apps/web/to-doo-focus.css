@@ -157,6 +157,8 @@
   max-height: max(200px, calc(100dvh - 340px));
   overflow-y: auto;
   scrollbar-width: thin;
+  /* Leave room for the last row and its keyboard focus outline at the scroll limit. */
+  padding-block-end: calc(var(--todo-focus-width) + var(--todo-focus-offset));
 }
 .to-doo-workspace .todo-focus-projects > .todo-page-toolbar {
   gap: var(--todo-space-4);
