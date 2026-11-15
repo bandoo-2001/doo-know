@@ -276,6 +276,13 @@
   }
   .todo-focus-records .todo-focus-trend-footer { grid-area: footer; }
 }
+@container (max-width: 659px) {
+  .todo-focus-records .todo-focus-trend { padding: var(--todo-space-4) var(--todo-space-8); }
+  .todo-focus-records .todo-focus-trend-navigation { margin-block-start: 0; }
+  .todo-focus-records .todo-focus-trend .todo-focus-trend-chart { max-height: 84px; }
+  .todo-focus-records .todo-focus-trend-chart text { font-size: 13px; }
+  .todo-focus-records .todo-focus-trend-scope { font-size: var(--todo-caption-size); }
+}
 .todo-focus-statistics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
