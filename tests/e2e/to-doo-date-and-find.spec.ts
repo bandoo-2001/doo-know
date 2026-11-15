@@ -94,6 +94,7 @@ test('a local search can find a completed task in another scope without losing t
   await expect(page.locator('.todo-page h1')).toHaveText('所有任务');
   await openToDooTaskTools(page);
   await expect(search).toHaveValue(title);
+  await search.press('Escape');
   await expect(task).toBeVisible();
   await expect(page.locator('.todo-task-row').filter({ has: task })).toHaveClass(/is-done/);
   await page.getByRole('button', { name: '重新打开 ' + title, exact: true }).click();
