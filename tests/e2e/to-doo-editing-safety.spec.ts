@@ -84,6 +84,30 @@ test('an existing edit survives browser reload and remains local until the detai
   await expect(detail(page).getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
 });
 
+test('closing a task with invalid property input keeps the input until explicit cancellation', async ({ page }) => {
+  const title = '无效输入保护 ' + crypto.randomUUID();
+  const created = await command(page, 'create_task', { title, due: { date: '2030-05-17' } });
+  await open(page, created.ids[0]);
+  const writes = recordWrites(page);
+  await detail(page).getByLabel('任务标题', { exact: true }).fill(title + ' 草稿');
+  await detail(page).getByRole('button', { name: '编辑截止日期', exact: true }).click();
+  const property = page.getByRole('dialog', { name: '截止日期', exact: true });
+  const date = property.getByLabel('截止日期', { exact: true });
+  await date.fill('2030-99-99'); await date.press('Tab');
+  await property.locator('.ant-modal-close').click();
+  await expect(property).not.toBeVisible();
+  await detail(page).getByRole('button', { name: '关闭任务详情', exact: true }).click();
+  await expect(property).toBeVisible();
+  await expect(date).toHaveValue('2030-99-99');
+  await expect(property.getByRole('alert')).toContainText('请检查');
+  expect(writes).toEqual([]);
+  await property.getByRole('button', { name: '取消本次设置', exact: true }).click();
+  await expect(detail(page).getByLabel('任务标题', { exact: true })).toHaveValue(title + ' 草稿');
+  await detail(page).getByRole('button', { name: '关闭任务详情', exact: true }).click();
+  await expect(detail(page)).not.toBeVisible();
+  expect(writes).toEqual([]);
+});
+
 test('a real 409 requires comparison and honors explicit local and remote title choices', async ({ page }) => {
   for (const choice of ['local', 'remote'] as const) {
     const title = '冲突选择 ' + choice + ' ' + crypto.randomUUID();

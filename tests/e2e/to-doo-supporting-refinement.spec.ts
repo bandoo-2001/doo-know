@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
+import { expandToDooGroup } from '../support/to-doo-ant-controls';
 
 const workspace = (page: Page) => page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
 async function openSection(page: Page, section: string) {
@@ -80,6 +81,7 @@ test('settings keeps connection creation and pasted imports behind their explici
 test('plugin management navigation protects unsaved To Doo preferences', async ({ page }) => {
   await openSection(page, 'settings');
   const app = workspace(page);
+  await expandToDooGroup(app, '日期与提醒');
   await app.getByPlaceholder('Asia/Shanghai', { exact: true }).fill('Asia/Tokyo');
   await app.getByRole('tab', { name: '提醒与连接', exact: true }).click();
   await app.getByRole('button', { name: '打开 MCP 与插件管理', exact: true }).click();

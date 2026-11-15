@@ -603,8 +603,9 @@ async function remove() {
   if (r && detailAlive && (!state.selectedTaskId || state.selectedTaskId === taskId)) emit('close');
 }
 defineExpose({
+  validate: validateDetail,
   openProperty: revealDetail,
-  hasInvalidInput: () => !!(detailElement.value?.querySelector('input:invalid, textarea:invalid, [aria-invalid="true"]') || propertyFields.value?.querySelector('input:invalid, textarea:invalid, [aria-invalid="true"]')),
+  hasInvalidInput: () => !!(detailElement.value?.querySelector('input:invalid:not([data-todo-required-title]), textarea:invalid, [aria-invalid="true"]') || propertyFields.value?.querySelector('input:invalid, textarea:invalid, [aria-invalid="true"]')),
   hasUnsavedChanges: () =>
     (props.creating ? !!local.title || !!local.description : props.model.dirty()) ||
     !!detailElement.value?.querySelector('[aria-invalid="true"]'),
@@ -667,6 +668,7 @@ defineExpose({
         <label
           >任务标题<AInput
             v-model:value="local.title"
+            data-todo-required-title
             @update:value="local.literalTitle = false"
             required
             :maxlength="256"

@@ -757,6 +757,7 @@ const moreCollections = computed(() =>
   sectionKinds[props.section].filter((kind) => state.snapshot?.collectionPages?.[kind]?.nextCursor),
 );
 function navigate(section: ToDooAppSection, selection: ToDooSelection = {}) {
+  if (!allowDetailTransition()) return;
   navigationOpen.value = false;
   if (props.section === 'settings' && section !== 'settings') {
     void requestSectionLeave(section).then((allowed) => {
@@ -774,6 +775,7 @@ function createPageTask(seed?: ToDooCreateSeed) {
   );
 }
 function create(parent?: string, sectionId?: string | null, seed?: ToDooCreateSeed) {
+  if (!allowDetailTransition()) return;
   const context: ToDooCreateSeed = {
     initialStatus: 'todo',
     priority: 'none',
@@ -796,6 +798,7 @@ function create(parent?: string, sectionId?: string | null, seed?: ToDooCreateSe
   detailOpen.value = true;
 }
 function open(item: ToDooItem) {
+  if (!allowDetailTransition()) return;
   model.selectTask(item.task.id, item.occurrence?.id);
   detailOpen.value = true;
   creating.value = false;
@@ -806,6 +809,7 @@ function open(item: ToDooItem) {
   });
 }
 async function selectTask(id: string, occurrence?: string) {
+  if ((id !== state.selectedTaskId || occurrence !== state.selectedOccurrenceId) && !allowDetailTransition()) return;
   if (!state.snapshot?.tasks.some((t) => t.id === id)) await model.ensureTask(id);
   model.selectTask(id, occurrence);
   creating.value = false;
@@ -827,10 +831,22 @@ function continueNewDraft(key: string) {
   creatingListId.value = retained.listId || '';
   detailOpen.value = true;
 }
+function allowDetailTransition() {
+  if (!detailOpen.value || !detailRef.value?.hasInvalidInput?.()) return true;
+  detailRef.value.validate?.();
+  return false;
+}
 function closeDetail() {
+  if (!allowDetailTransition()) return;
   creating.value = false;
   detailOpen.value = false;
   navigate(props.section, { ...props.selection, task: undefined, occurrence: undefined });
+}
+function startTaskFocus(occurrenceId?: string) {
+  if (!allowDetailTransition()) return;
+  focusOccurrence.value = occurrenceId || '';
+  detailOpen.value = false;
+  chooseDestination('focus');
 }
 function openReminderSource(source: ToDooReminderSource) {
   navigate(source.section, {
@@ -1724,11 +1740,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         @open-note="emit('open-note', $event)"
         @child="create"
         @outcome-note="openOutcomeNote"
-        @focus="
-          focusOccurrence = $event || '';
-          detailOpen = false;
-          chooseDestination('focus');
-        "
+        @focus="startTaskFocus"
       />
     </div>
     <ToDooOutcomeNote
