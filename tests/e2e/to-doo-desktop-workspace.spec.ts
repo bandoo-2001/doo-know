@@ -126,3 +126,54 @@ test('resizing from desktop to drawer keeps keyboard focus, the task draft and o
   await overview.press('Escape');
   await expect(more).toBeFocused();
 });
+
+test('scaled 1080p desktops keep popup controls and the reader within the CSS viewport', async ({ browser, page }, info) => {
+  await openList(page);
+  for (const scale of [1.25, 1.5]) {
+    const viewport = { width: 1920 / scale, height: 1080 / scale };
+    const scaled = await browser.newContext({ viewport, deviceScaleFactor: scale });
+    try {
+      await authenticateVisualContext(scaled);
+      const tab = await scaled.newPage();
+      await tab.goto(page.url());
+      expect(await tab.evaluate(() => devicePixelRatio)).toBe(scale);
+      const task = tab.locator('.todo-task-list-panel').getByRole('button', { name: taskTitle, exact: true });
+      await task.click();
+      const reader = tab.getByRole('complementary', { name: '任务详情', exact: true });
+      await expect(reader.getByRole('button', { name: '保存任务' })).toBeInViewport({ ratio: 1 });
+      const more = tab.getByRole('button', { name: '任务显示与管理' });
+      await more.click();
+      const form = tab.locator('.todo-task-display-form:visible');
+      const bounds = (await form.boundingBox())!;
+      expect(bounds.x).toBeGreaterThanOrEqual(0);
+      expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width);
+      await expect(form.getByRole('button', { name: '关闭', exact: true })).toBeInViewport();
+      await form.getByRole('button', { name: '关闭', exact: true }).click();
+      await expect(more).toBeFocused();
+      await tab.screenshot({ path: info.outputPath('1080p-scale-' + scale + '.png'), animations: 'disabled' });
+    } finally {
+      await scaled.close();
+    }
+  }
+});
+
+test('wide focus puts the timer beside projects and leaves calendar and matrix canvases full width', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto('/?view=apps&app=to-doo&appSection=focus');
+  const timer = page.getByRole('region', { name: '专注计时器', exact: true });
+  await expect(timer).toBeVisible();
+  const projects = page.locator('.todo-focus-projects');
+  const wideTimer = (await timer.boundingBox())!;
+  const wideProjects = (await projects.boundingBox())!;
+  expect(wideTimer.x + wideTimer.width).toBeLessThanOrEqual(wideProjects.x);
+  await page.setViewportSize({ width: 1366, height: 768 });
+  const laptopTimer = (await timer.boundingBox())!;
+  expect(laptopTimer.y + laptopTimer.height).toBeLessThanOrEqual((await projects.boundingBox())!.y);
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  for (const [section, selector] of [['calendar', '.todo-month-day'], ['matrix', '.todo-quadrant']]) {
+    await page.goto('/?view=apps&app=to-doo&appSection=' + section);
+    await expect(page.locator(selector).first()).toBeVisible();
+    expect((await page.locator('.todo-content').boundingBox())!.width).toBeGreaterThan(1200);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1920);
+  }
+});
