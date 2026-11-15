@@ -65,9 +65,10 @@ test('saving a review retains the applied interval when the following refresh fa
   await expect(metric).toHaveText(String(expectedCompleted));
   await app.getByRole('button', { name: '＋ 写一篇复盘', exact: true }).click();
   const editor = page.getByRole('dialog', { name: '新建复盘', exact: true });
-  const name = '区间保持 ' + info.project.name;
+  const name = '区间保持 ' + info.project.name + ' ' + crypto.randomUUID();
+  const content = '保存后的统计仍应属于刚刚选择的区间。';
   await editor.getByLabel('名称', { exact: true }).fill(name);
-  await editor.getByLabel('复盘内容', { exact: true }).fill('保存后的统计仍应属于刚刚选择的区间。');
+  await editor.getByLabel('复盘内容', { exact: true }).fill(content);
   let failed = false;
   await page.route('**/api/to-doo/state?*', (route) => {
     if (!failed && new URL(route.request().url()).searchParams.get('view') === 'stats') {
@@ -88,5 +89,9 @@ test('saving a review retains the applied interval when the following refresh fa
   await page.getByRole('button', { name: '刷新内容', exact: true }).click();
   await expect(app.getByRole('alert')).not.toBeVisible();
   await expect(metric).toHaveText(String(expectedCompleted));
-  await expect(app.getByRole('button').filter({ hasText: name })).toBeVisible();
+  await app.getByRole('tab', { name: '历史复盘', exact: true }).click();
+  const saved = app.getByRole('button', { name: '打开复盘 ' + name, exact: true });
+  await expect(saved).toBeVisible();
+  await expect(saved).toContainText(from + ' — ' + to);
+  await expect(saved).toContainText(content);
 });
