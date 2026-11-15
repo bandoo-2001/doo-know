@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onBeforeUnmount, ref, useId, watch } from 'vue';
+import { useSessionStorage } from '@vueuse/core';
 import { Button as AButton, Checkbox as ACheckbox, Popover as APopover } from 'ant-design-vue';
 import type { ToDooAppSection } from '../../navigation';
 import type { ToDooEntityMap } from '../../../../shared/to-doo-contracts';
@@ -60,7 +61,45 @@ const pinOpen = ref(false), pinTrigger = ref<any>();
 const moduleMoreOpen = ref(false), scopeMoreOpen = ref(false);
 const moduleMoreTrigger = ref<any>(), scopeMoreTrigger = ref<any>();
 const split = computed(() => props.layout === 'split');
+const listsExpanded = useSessionStorage('to-doo.navigation-lists-expanded.v1', true, { writeDefaults: false });
+const listItemsId = 'todo-directory-lists-' + useId();
+
+// A single label serves both rail sections. Render it outside the independently scrolling rail.
+const railHint = ref<{ label: string; left: number; top: number }>();
+let hintTimer: ReturnType<typeof setTimeout> | undefined;
+function cancelHintTimer() { clearTimeout(hintTimer); }
+function hideRailHint() {
+  cancelHintTimer();
+  railHint.value = undefined;
+}
+function leaveRailHint() {
+  cancelHintTimer();
+  hintTimer = setTimeout(hideRailHint, 120);
+}
+function showRailHint(event: PointerEvent | FocusEvent) {
+  const button = (event.target as Element).closest<HTMLButtonElement>('button[aria-label]');
+  if (!button) { leaveRailHint(); return; }
+  if (moduleMoreOpen.value) return;
+  const pointer = 'pointerType' in event;
+  if (pointer && (event.pointerType === 'touch' || (event.relatedTarget instanceof Node && button.contains(event.relatedTarget)))) return;
+  if (!pointer && !button.matches(':focus-visible')) return;
+  const label = button.getAttribute('aria-label')!;
+  cancelHintTimer();
+  if (railHint.value?.label === label) return;
+  const show = () => {
+    const bounds = button.getBoundingClientRect();
+    if (bounds.height) railHint.value = { label, left: bounds.right, top: bounds.top + bounds.height / 2 };
+  };
+  if (pointer && !railHint.value) hintTimer = setTimeout(show, 260);
+  else show();
+}
+function dismissRailHint(event: KeyboardEvent) {
+  if (event.key !== 'Escape' || !railHint.value) return;
+  hideRailHint();
+  event.stopPropagation();
+}
 function closeTransientMenus() {
+  hideRailHint();
   moduleMoreOpen.value = false;
   scopeMoreOpen.value = false;
   pinOpen.value = false;
@@ -98,11 +137,14 @@ function togglePin(id: string) {
 }
 function syncPins() { pins.value = readPins(); }
 onMounted(() => {
+  window.addEventListener('keydown', dismissRailHint, true);
   window.addEventListener('storage', syncPins);
   window.addEventListener('to-doo-navigation-pins', syncPins);
   window.addEventListener('resize', closeTransientMenus);
 });
 onBeforeUnmount(() => {
+  hideRailHint();
+  window.removeEventListener('keydown', dismissRailHint, true);
   window.removeEventListener('storage', syncPins);
   window.removeEventListener('to-doo-navigation-pins', syncPins);
   window.removeEventListener('resize', closeTransientMenus);
@@ -130,20 +172,22 @@ const moreActive = computed(
 
 <template>
   <div class="todo-navigation-content" :class="{ 'todo-navigation-split': split }">
-    <nav v-if="split" class="todo-module-rail" aria-label="To Doo 主菜单">
+    <nav v-if="split" class="todo-module-rail" aria-label="To Doo 主菜单"
+      @focusin="showRailHint" @focusout="hideRailHint" @pointerover="showRailHint" @pointerleave="leaveRailHint"
+      @scroll.capture="hideRailHint" @click.capture="hideRailHint">
       <div class="todo-module-primary">
-        <AButton type="text" aria-label="任务" title="任务"
+        <AButton type="text" aria-label="任务"
           :class="{ active: taskSection }" :aria-current="taskSection ? 'page' : undefined"
           @click="!taskSection && chooseModule('tasks')"><ToDooIcon name="tasks" :size="20" /></AButton>
         <AButton v-if="taskSection && directoryCollapsed" type="text" class="todo-directory-toggle"
-          aria-label="展开清单导航" title="展开清单导航" :aria-expanded="false"
+          aria-label="展开清单导航" :aria-expanded="false"
           @click="emit('toggle-directory', $event)"><ToDooIcon name="menu" :size="18" /></AButton>
         <AButton v-for="item in tools" :key="item[0]" type="text"
-          :aria-label="item[1]" :title="item[1]" :class="{ active: section === item[0] }"
+          :aria-label="item[1]" :class="{ active: section === item[0] }"
           :aria-current="section === item[0] ? 'page' : undefined"
           @click="chooseModule(item[0])"><ToDooIcon :name="item[0]" :size="20" /></AButton>
         <APopover v-model:open="moduleMoreOpen" trigger="click" placement="rightTop" overlay-class-name="todo-ant-popup">
-          <AButton ref="moduleMoreTrigger" type="text" aria-label="更多模块" title="更多模块" :aria-expanded="moduleMoreOpen"
+          <AButton ref="moduleMoreTrigger" type="text" aria-label="更多模块" :aria-expanded="moduleMoreOpen"
             @keydown.esc.stop.prevent="closeModuleMore"
             :class="{ active: more.some(([id]) => id === section) }"><ToDooIcon name="more" :size="20" /></AButton>
           <template #content>
@@ -165,15 +209,19 @@ const moreActive = computed(
         </APopover>
       </div>
       <div class="todo-module-utilities">
-        <AButton type="text" aria-label="通知" title="通知" :class="{ active: section === 'notifications' }"
+        <AButton type="text" aria-label="通知" :class="{ active: section === 'notifications' }"
           :aria-current="section === 'notifications' ? 'page' : undefined" @click="chooseModule('notifications')">
           <ToDooIcon name="notifications" :size="20" /><span v-if="unread" class="todo-module-unread" :aria-label="`${unread} 条未读`">{{ unread > 99 ? '99+' : unread }}</span>
         </AButton>
-        <AButton type="text" aria-label="设置" title="设置" :class="{ active: section === 'settings' }"
+        <AButton type="text" aria-label="设置" :class="{ active: section === 'settings' }"
           :aria-current="section === 'settings' ? 'page' : undefined" @click="chooseModule('settings')"><ToDooIcon name="settings" :size="20" /></AButton>
       </div>
     </nav>
-    <nav v-if="!split || taskSection" :class="{ 'todo-task-directory': split }" :aria-label="split ? 'To Doo 任务导航' : 'To Doo 导航'">
+    <Teleport v-if="railHint" to="body">
+      <span role="tooltip" class="todo-module-hint" :style="{ left: railHint.left + 'px', top: railHint.top + 'px' }"
+        @pointerenter="cancelHintTimer" @pointerleave="leaveRailHint">{{ railHint.label }}</span>
+    </Teleport>
+    <nav v-if="!split || taskSection" :class="{ 'todo-task-directory': split, 'todo-list-group-folded': !listsExpanded }" :aria-label="split ? 'To Doo 任务导航' : 'To Doo 导航'">
       <div v-if="split" class="todo-directory-heading">
         <span>任务</span>
         <AButton type="text" class="todo-directory-toggle" aria-label="折叠清单导航" title="折叠清单导航" :aria-expanded="true"
@@ -204,12 +252,15 @@ const moreActive = computed(
       </div>
       <section class="todo-navigation-group todo-navigation-lists" aria-label="我的清单">
         <div class="todo-nav-section-heading">
-          <span class="todo-nav-label">我的清单</span>
-          <AButton type="text" size="small" aria-label="新建清单" @click="emit('new-list')"
+          <AButton type="text" class="todo-list-disclosure" aria-label="我的清单" :aria-expanded="listsExpanded"
+            :aria-controls="listItemsId" @click="listsExpanded = !listsExpanded">
+            <ToDooIcon name="chevron" :size="15" /><span>我的清单</span>
+          </AButton>
+          <AButton type="text" size="small" aria-label="新建清单" title="新建清单" @click="emit('new-list')"
             ><ToDooIcon name="plus" :size="16"
           /></AButton>
         </div>
-        <div class="todo-navigation-list-items">
+        <div :id="listItemsId" class="todo-navigation-list-items" :hidden="!listsExpanded">
           <AButton
             v-for="list in lists"
             :key="list.id"

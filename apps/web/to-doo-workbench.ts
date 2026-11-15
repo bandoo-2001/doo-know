@@ -581,6 +581,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     legacyRecoverySummary: null as { newDrafts: number; taskDrafts: number; pending: boolean; receipts: number } | null,
     newTaskDrafts: {} as Record<string, ToDooNewTaskDraft>,
     pendingMutation: null as ToDooCommand | null,
+    pendingQuickCapture: null as { requestId: string; draftKey: string; fingerprint: string } | null,
     pendingOperations: [] as ToDooEntityMap['operation'][],
     operationPage: null as ToDooSnapshot['page'] | null,
     operationLoading: false,
@@ -705,6 +706,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
         recoveryKey(state.snapshot.datasetId),
         JSON.stringify({ schemaVersion: 2, datasetId: state.snapshot.datasetId,
           scope: options.recoveryScope || '', pending: state.pendingMutation,
+          quickCapture: state.pendingQuickCapture,
           legacySourceFingerprint,
           drafts: state.newTaskDrafts, edits,
           planCheckpoints: [...pendingPlanCheckpoints.entries()],
@@ -736,6 +738,10 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       const parsed = toDooCommandSchema.safeParse(raw?.pending);
       if (raw?.pending && !parsed.success) throw Error('未决请求无法读取');
       if (parsed.success) state.pendingMutation = parsed.data;
+      const capture = raw?.quickCapture;
+      state.pendingQuickCapture = parsed.success && parsed.data.action === 'create_task' &&
+        capture?.requestId === parsed.data.requestId && typeof capture.draftKey === 'string' &&
+        typeof capture.fingerprint === 'string' ? capture : null;
       for (const [key, value] of Object.entries(raw?.drafts || {})) {
         const d = value as ToDooNewTaskDraft;
         if (
@@ -890,13 +896,14 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     }
     const before = {
       drafts: clone(state.drafts), scopes: clone(state.draftRecurrenceScopes), newDrafts: clone(state.newTaskDrafts),
-      pending: clone(state.pendingMutation), conflicts: clone(state.draftConflicts),
+      pending: clone(state.pendingMutation), quickCapture: clone(state.pendingQuickCapture), conflicts: clone(state.draftConflicts),
       recovered: [...state.recoveredDraftKeys], unavailable: { ...state.unavailableDrafts },
       saved: [...saved], newSaved: [...newSaved], plans: [...pendingPlanCheckpoints], tasks: [...pendingTaskCheckpoints], statuses: [...pendingStatusReceipts],
       source: legacySourceFingerprint, blocked: recoveryReadBlocked,
     };
     const restoreBefore = () => {
       state.drafts = before.drafts; state.newTaskDrafts = before.newDrafts; state.pendingMutation = before.pending;
+      state.pendingQuickCapture = before.quickCapture;
       state.draftRecurrenceScopes = before.scopes;
       state.draftConflicts = before.conflicts; state.recoveredDraftKeys = before.recovered;
       state.unavailableDrafts = before.unavailable;
@@ -929,6 +936,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       const merged = { ...current, schemaVersion: 2, datasetId, scope: options.recoveryScope,
         drafts: { ...legacy.drafts, ...current?.drafts }, edits: { ...legacy.edits, ...current?.edits },
         pending: current?.pending || legacy.pending || null,
+        quickCapture: current?.pending ? current.quickCapture : legacy.quickCapture,
         planCheckpoints: [...new Map([...(legacy.planCheckpoints || []), ...(current?.planCheckpoints || [])]).entries()],
         taskCheckpoints: [...new Map([...(legacy.taskCheckpoints || []), ...(current?.taskCheckpoints || [])]).entries()],
         statusReceipts: [...new Map([...(legacy.statusReceipts || []), ...(current?.statusReceipts || [])]).entries()],
@@ -1442,6 +1450,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     } else state.snapshot = data;
     if (changedDataset) {
       state.pendingMutation = null;
+      state.pendingQuickCapture = null;
       restoreRecovery(data.datasetId);
       restoringRecovery = false;
     }
@@ -1788,7 +1797,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
   }
   async function execute(input: ToDooInput, notice = '已保存', taskSaveWindow?: {
     snapshot: ToDooSnapshot; draftKey: string; submitted: ToDooTask;
-  }, deferred: readonly DeferredReadback[] = []) {
+  }, deferred: readonly DeferredReadback[] = [], captureDraft?: ToDooNewTaskDraft) {
     if (state.busy || state.preparingTaskAction) return;
     // Only the latest write can offer an undo; this state is never recovery data.
     state.completionFeedback = null;
@@ -1851,6 +1860,12 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
           !occurrence.parentOccurrenceId,
       };
     })();
+    if (!state.pendingMutation) {
+      const source = captureDraft && Object.entries(state.newTaskDrafts).find(([, entry]) => entry === captureDraft);
+      state.pendingQuickCapture = source
+        ? { requestId: command.requestId, draftKey: source[0], fingerprint: fingerprint(source[1]) }
+        : null;
+    }
     state.pendingMutation = command;
     persistRecovery();
     state.busy = true;
@@ -1861,6 +1876,17 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     state.loading = false;
     try {
       const result = (await request('/api/to-doo/commands', 'POST', command)) as ToDooCommandResult;
+      if (command.action === 'create_task' && commandWindow &&
+          (commandWindow.datasetId !== result.snapshot.datasetId || state.snapshot?.datasetId !== commandWindow.datasetId)) return;
+      const capture = state.pendingQuickCapture;
+      if (command.action === 'create_task' && capture?.requestId === command.requestId) {
+        // A confirmed receipt clears only the original, unedited text, even after a reload.
+        if (fingerprint(state.newTaskDrafts[capture.draftKey]) === capture.fingerprint) {
+          delete state.newTaskDrafts[capture.draftKey];
+          newSaved.delete(capture.draftKey);
+        }
+        state.pendingQuickCapture = null;
+      }
       if (taskSaveWindow && command.action === 'update_task' && result.snapshot.datasetId === taskSaveWindow.snapshot.datasetId) {
         const revision = result.changed.find(row => row.kind === 'task' && row.id === command.payload.id)?.revision;
         if (revision && state.snapshot?.datasetId === result.snapshot.datasetId) {
@@ -1995,9 +2021,11 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       }
       return result;
     } catch (e) {
+      if (command.action === 'create_task' && commandWindow && state.snapshot?.datasetId !== commandWindow.datasetId) return;
       state.error = e instanceof Error ? e.message : String(e);
       const status = (e as { status?: number }).status;
       if (status && status >= 400 && status < 500) {
+        if (state.pendingQuickCapture?.requestId === command.requestId) state.pendingQuickCapture = null;
         state.pendingMutation = null;
         persistRecovery();
       }
@@ -2030,15 +2058,18 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       `已撤销「${undo.title}」的完成`,
     );
   }
-  async function createTask(payload: Extract<ToDooCommand, { action: 'create_task' }>['payload']) {
+  async function createTask(payload: Extract<ToDooCommand, { action: 'create_task' }>['payload'], captureDraft?: ToDooNewTaskDraft) {
+    const quickCapture = !!captureDraft || !!state.pendingQuickCapture;
+    const datasetId = state.snapshot?.datasetId;
     const submittedDrafts = new Map(
       Object.entries(state.newTaskDrafts).map(([key, draft]) => [key, fingerprint(draft)]),
     );
-    const result = await execute({ action: 'create_task', payload }, '任务已创建');
+    const result = await execute({ action: 'create_task', payload }, captureDraft ? '' : '任务已创建', undefined, [], captureDraft);
+    if (datasetId && (state.snapshot?.datasetId !== datasetId || result && result.snapshot.datasetId !== datasetId)) return;
     const taskId = result?.ids.find((id) => result.snapshot.tasks.some((t) => t.id === id)) ||
       result?.ids.find((id) => result.changed.some(row => row.kind === 'task' && row.id === id));
     if (taskId) selectTask(taskId);
-    if (result) {
+    if (result && !quickCapture) {
       for (const [key, d] of Object.entries(state.newTaskDrafts)) {
         if (
           submittedDrafts.get(key) === fingerprint(d) &&

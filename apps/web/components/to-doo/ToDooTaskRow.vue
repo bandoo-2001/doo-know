@@ -19,6 +19,8 @@ const props = withDefaults(
     hideList?: boolean;
     displayFields?: Partial<ToDooDisplayFields>;
     readOnly?: boolean;
+    listNavigation?: boolean;
+    rowContextActions?: boolean;
     today?: string;
     timeZone?: string;
   }>(),
@@ -30,6 +32,25 @@ const emit = defineEmits<{
   select: [id: string];
   child: [id: string];
 }>();
+function openRowActions(event: MouseEvent | KeyboardEvent) {
+  const target = event.target;
+  if (!(target instanceof Element) || target.closest('input, textarea, select, [contenteditable]')) return;
+  const row = event.currentTarget as HTMLElement;
+  if (event instanceof KeyboardEvent) {
+    if (!target.matches('.todo-task-body') || event.isComposing || event.keyCode === 229 ||
+        event.altKey || event.ctrlKey || event.metaKey ||
+        !(event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey))) return;
+  } else if (!props.rowContextActions) {
+    // The list and board already position their context menus at the pointer.
+    return;
+  }
+  const button = row.querySelector<HTMLButtonElement>('button.todo-task-menu-trigger');
+  if (event.defaultPrevented || !button || button.disabled) return;
+  event.preventDefault();
+  event.stopPropagation();
+  button.focus({ preventScroll: true });
+  if (button.getAttribute('aria-expanded') !== 'true') button.click();
+}
 const hasMetadata = computed(() => {
   const { item, hideList } = props;
   return (
@@ -80,6 +101,8 @@ const dates = computed(() => {
       ['todo-priority-' + item.task.priority]: true,
     }"
     :style="{ '--depth': Math.min(item.depth, 5) }"
+    @contextmenu="openRowActions"
+    @keydown="openRowActions"
   >
     <ACheckbox
       v-if="selecting"
@@ -103,6 +126,8 @@ const dates = computed(() => {
     <AButton
       html-type="button"
       class="todo-task-body"
+      :data-task-key="item.key"
+      :aria-keyshortcuts="listNavigation ? 'ArrowUp ArrowDown Home End Enter Shift+F10' : 'Shift+F10'"
       :aria-label="item.title"
       :aria-current="active ? 'true' : undefined"
       @click="emit('open', item)"

@@ -37,12 +37,22 @@
   padding: var(--todo-space-8) var(--todo-detail-padding);
   border-bottom-color: transparent;
 }
-.to-doo-workspace .todo-detail > header > .todo-muted:first-child {
+.to-doo-workspace .todo-detail > .todo-reader-header {
+  display: flex;
+  justify-content: flex-start;
+  gap: var(--todo-space-8);
+}
+.to-doo-workspace .todo-detail > header > .todo-muted:not(.todo-small) {
+  flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.todo-reader-navigation { display: flex; align-items: center; }
+.todo-reader-navigation .ant-btn { display: inline-flex; align-items: center; justify-content: center; }
+.todo-detail-property-chips .todo-detail-context { max-width: 100%; min-width: 0; }
+.todo-detail-property-chips .todo-detail-context .ant-btn { display: block; }
 .to-doo-workspace .todo-detail > header > .todo-small,
 .to-doo-workspace .todo-detail > header > .todo-icon-button {
   flex-shrink: 0;
@@ -211,11 +221,10 @@
 }
 .to-doo-workspace .todo-detail .todo-detail-shortcuts .ant-btn {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+  align-items: center;
+  gap: var(--todo-space-4);
   color: var(--todo-muted);
-  padding: var(--todo-space-4) 0;
+  padding: var(--todo-space-4) var(--todo-space-8);
   min-height: var(--todo-control-height);
   border-radius: var(--todo-tag-radius);
 }
@@ -310,7 +319,8 @@
 .to-doo-workspace .todo-detail .todo-detail-shortcuts {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--todo-space-8) var(--todo-space-16);
+  align-items: center;
+  gap: var(--todo-space-4);
   margin-top: var(--todo-space-4);
 }
 .todo-plan-disclosure {

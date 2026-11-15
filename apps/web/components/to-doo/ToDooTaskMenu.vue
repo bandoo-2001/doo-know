@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useSlots } from 'vue';
+import { computed, nextTick, useId, useSlots, watch } from 'vue';
 import {
   Button as AButton,
   Dropdown as ADropdown,
@@ -35,6 +35,63 @@ const emit = defineEmits<{
 const slots = useSlots();
 const confirm = useToDooConfirm();
 const { open: menuOpen, trigger } = useToDooMenu();
+const menuId = 'todo-task-actions-' + useId();
+const menuItemSelector = '[role="menuitem"], [aria-haspopup][aria-controls]';
+function menuItems(menu: Element) {
+  return Array.from(menu.querySelectorAll<HTMLElement>(menuItemSelector))
+    .filter(item => item.closest('ul') === menu && item.getAttribute('aria-disabled') !== 'true');
+}
+function focusMenu(id: string) {
+  void nextTick(() => requestAnimationFrame(() => {
+    const menu = document.getElementById(id);
+    if (menuOpen.value && menu) menuItems(menu)[0]?.focus();
+  }));
+}
+function triggerClick(event: MouseEvent) {
+  if (!menuOpen.value && event.detail === 0) focusMenu(menuId);
+}
+function menuKey(event: KeyboardEvent) {
+  if (event.defaultPrevented || event.isComposing || event.keyCode === 229 ||
+      event.altKey || event.metaKey || event.ctrlKey) return;
+  const item = event.target;
+  if (!(item instanceof HTMLElement) || !item.matches(menuItemSelector)) return;
+  const menu = item.closest('ul');
+  const root = document.getElementById(menuId);
+  if (!menu || !root) return;
+  // Ant renders submenus in portals; use their aria-controls relationship to find their owner.
+  const parent = menu !== root && Array.from(root.querySelectorAll<HTMLElement>('[aria-controls]'))
+    .find(title => title.getAttribute('aria-controls') === menu.id);
+  if (menu !== root && !parent) return;
+  const submenu = item.getAttribute('aria-controls');
+  if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+    const items = menuItems(menu);
+    const index = items.indexOf(item);
+    if (index < 0) return;
+    let next = event.key === 'Home' ? 0 : items.length - 1;
+    if (event.key === 'ArrowDown') next = (index + 1) % items.length;
+    if (event.key === 'ArrowUp') next = (index + items.length - 1) % items.length;
+    items[next].focus();
+  } else if (submenu && ['Enter', ' ', 'ArrowRight'].includes(event.key)) {
+    if (item.getAttribute('aria-expanded') !== 'true') item.click();
+    focusMenu(submenu);
+  } else if (event.key === 'ArrowLeft' && parent) {
+    parent.click();
+    parent.focus();
+  } else if (event.key === ' ' && !submenu) {
+    item.click();
+  } else if (event.key === 'Tab') {
+    menuOpen.value = false;
+    trigger.value?.$el?.focus({ preventScroll: true });
+    return;
+  } else return;
+  event.preventDefault();
+  event.stopPropagation();
+}
+watch(menuOpen, (open, _, cleanup) => {
+  if (!open || typeof document === 'undefined') return;
+  document.addEventListener('keydown', menuKey, true);
+  cleanup(() => document.removeEventListener('keydown', menuKey, true));
+});
 const blocked = computed(
   () =>
     props.model.state.busy ||
@@ -114,6 +171,7 @@ async function priority(value: string) {
 <template>
   <ADropdown
     v-model:open="menuOpen"
+    :disabled="model.state.busy"
     :trigger="contextMenu ? ['contextmenu'] : ['click']"
     placement="bottomRight"
     overlay-class-name="todo-task-menu-popup todo-ant-popup"
@@ -126,12 +184,15 @@ async function priority(value: string) {
       type="text"
       class="todo-icon-button todo-task-menu-trigger"
       :aria-label="label || '任务操作 ' + item.title"
+      aria-haspopup="menu"
+      :aria-expanded="menuOpen"
+      :aria-controls="menuOpen ? menuId : undefined"
       :disabled="model.state.busy"
-      @click.stop
+      @click.stop="triggerClick"
       ><ToDooIcon name="more" :size="16"
     /></AButton>
     <template #overlay
-      ><AMenu :selectable="false" trigger-sub-menu-action="click" @click="menuOpen = false">
+      ><AMenu :id="menuId" :selectable="false" trigger-sub-menu-action="click" @click="menuOpen = false">
         <AMenuItem v-if="blocked && !model.state.busy" disabled
           >先保存更改或核对待处理操作</AMenuItem
         >
@@ -139,9 +200,6 @@ async function priority(value: string) {
           >恢复任务</AMenuItem
         >
         <template v-else>
-          <slot name="additional" />
-          <AMenuItem @click="emit('open', item)">打开任务详情</AMenuItem>
-          <AMenuItem @click="emit('child', item.task.id)">添加子任务</AMenuItem>
           <AMenuItem
             :disabled="blocked || !item.occurrence"
             @click="
@@ -168,6 +226,9 @@ async function priority(value: string) {
               ></AMenuItem
             >
           </ASubMenu>
+          <slot name="additional" />
+          <AMenuItem @click="emit('open', item)">打开任务详情</AMenuItem>
+          <AMenuItem @click="emit('child', item.task.id)">添加子任务</AMenuItem>
           <ASubMenu
             key="status"
             title="状态"

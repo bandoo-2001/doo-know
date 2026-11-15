@@ -138,18 +138,31 @@ const activeToDooTheme = computed(() => toDooAntTheme(resolvedTheme.value, densi
 let noticeTimer: ReturnType<typeof setTimeout> | undefined;
 let completionTimer: ReturnType<typeof setTimeout> | undefined;
 let completionDeadline = 0, completionRemaining = 6000;
+let completionHovered = false, completionFocused = false;
 function pauseCompletion() {
+  if (!completionTimer) return;
   clearTimeout(completionTimer);
+  completionTimer = undefined;
   completionRemaining = Math.max(0, completionDeadline - Date.now());
 }
 function resumeCompletion() {
-  clearTimeout(completionTimer);
-  if (!state.completionFeedback) return;
+  if (completionTimer || completionHovered || completionFocused || !state.completionFeedback) return;
   completionDeadline = Date.now() + completionRemaining;
   completionTimer = setTimeout(() => { state.completionFeedback = null; }, completionRemaining);
 }
+function completionInteraction(kind: 'hover' | 'focus', inside: boolean) {
+  if (kind === 'hover') completionHovered = inside;
+  else completionFocused = inside;
+  if (inside) pauseCompletion(); else resumeCompletion();
+}
+function completionFocusOut(event: FocusEvent) {
+  completionInteraction('focus', event.relatedTarget instanceof Node &&
+    (event.currentTarget as HTMLElement).contains(event.relatedTarget));
+}
 watch(() => state.completionFeedback, value => {
   clearTimeout(completionTimer);
+  completionTimer = undefined;
+  if (!value) completionHovered = completionFocused = false;
   if (value) { completionRemaining = 6000; resumeCompletion(); }
 });
 watch(() => state.notice, notice => {
@@ -181,6 +194,7 @@ watch(
 );
 const reviewRef = ref<InstanceType<typeof ToDooReview>>();
 const detailRef = ref<InstanceType<typeof ToDooTaskDetail>>(),
+  taskViewsRef = ref<InstanceType<typeof ToDooTaskViews>>(),
   editorRef = ref<InstanceType<typeof ToDooEntityEditor>>(),
   settingsRef = ref<InstanceType<typeof ToDooSettings>>();
 const editor = ref<{
@@ -259,6 +273,15 @@ function changePageContext(value: string) {
 }
 const workspaceRef = ref<HTMLElement>();
 const detailLayer = ref<HTMLElement>();
+const adjacentTasks = computed(() => {
+  if (!detailOpen.value || creating.value || props.section !== 'tasks') return;
+  const rows = taskViewsRef.value?.orderedListTasks;
+  if (!rows || rows.length < 2) return;
+  const index = rows.findIndex(item => item.task.id === state.selectedTaskId &&
+    (item.occurrence?.id || '') === state.selectedOccurrenceId);
+  if (index < 0) return;
+  return { previous: rows[index - 1], next: rows[index + 1] };
+});
 const viewportWidth = ref(window.innerWidth);
 const detailOverlay = computed(() => viewportWidth.value < 960);
 const hasTaskDirectory = computed(() => ['tasks', 'board', 'matrix', 'timeline'].includes(props.section));
@@ -315,13 +338,13 @@ watch([detailOpen, detailOverlay], ([open, overlay], previous) => {
   }
 });
 function detailKeydown(event: KeyboardEvent) {
-  if (!detailOverlay.value || event.defaultPrevented || event.isComposing) return;
+  if (event.defaultPrevented || event.isComposing || event.keyCode === 229) return;
   if (event.key === 'Escape') {
     // Let the active picker, selection popup or confirmation consume Escape first.
     if (
       [
         ...document.querySelectorAll<HTMLElement>(
-          '.ant-select-dropdown, .ant-picker-dropdown, .ant-popover, .ant-modal-wrap',
+          '.ant-select-dropdown, .ant-picker-dropdown, .ant-dropdown, .ant-popover, .ant-modal-wrap, .ant-drawer-open',
         ),
       ].some((element) => element.getClientRects().length > 0)
     )
@@ -329,7 +352,7 @@ function detailKeydown(event: KeyboardEvent) {
     event.preventDefault();
     event.stopPropagation();
     closeDetail();
-  } else if (event.key === 'Tab') {
+  } else if (event.key === 'Tab' && detailOverlay.value) {
     const controls = [
       ...(detailLayer.value?.querySelectorAll<HTMLElement>(
         '.todo-detail button:not([disabled]), .todo-detail input:not([disabled]), .todo-detail textarea:not([disabled]), .todo-detail a[href], .todo-detail [tabindex]:not([tabindex="-1"])',
@@ -828,7 +851,10 @@ function create(parent?: string, sectionId?: string | null, seed?: ToDooCreateSe
   detailOpen.value = true;
 }
 function open(item: ToDooItem) {
-  if (!allowDetailTransition()) return;
+  if (!allowDetailTransition()) return false;
+  if (detailOpen.value && document.activeElement &&
+      !detailLayer.value?.contains(document.activeElement) &&
+      workspaceRef.value?.contains?.(document.activeElement)) detailOpener = document.activeElement as HTMLElement;
   model.selectTask(item.task.id, item.occurrence?.id);
   detailOpen.value = true;
   creating.value = false;
@@ -837,6 +863,25 @@ function open(item: ToDooItem) {
     task: item.task.id,
     occurrence: item.occurrence?.id,
   });
+  return true;
+}
+async function stepDetail(direction: 'previous' | 'next') {
+  const target = adjacentTasks.value?.[direction];
+  if (!target || state.busy || state.pendingMutation || !open(target)) return;
+  await nextTick();
+  if (!detailOpen.value || state.selectedTaskId !== target.task.id ||
+      state.selectedOccurrenceId !== (target.occurrence?.id || '')) return;
+  const button = workspaceRef.value?.querySelector<HTMLElement>(
+    '.todo-task-list-panel .todo-task-body[data-task-key="' + CSS.escape(target.key) + '"]',
+  );
+  if (button) {
+    detailOpener = button;
+    button.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
+  const header = detailLayer.value?.querySelector('header');
+  const control = header?.querySelector<HTMLElement>('[data-step="' + direction + '"]:not(:disabled)') ||
+    header?.querySelector<HTMLElement>('[data-step]:not(:disabled)');
+  control?.focus({ preventScroll: true });
 }
 async function selectTask(id: string, occurrence?: string) {
   if ((id !== state.selectedTaskId || occurrence !== state.selectedOccurrenceId) && !allowDetailTransition()) return;
@@ -1551,23 +1596,6 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
           <span>{{ taskDestination.message }}</span
           ><AButton type="link" @click="openTaskDestination">{{ taskDestination.label }}</AButton>
         </div>
-        <div v-else-if="state.completionFeedback" class="todo-action-feedback todo-transient-feedback" role="status" @mouseenter="pauseCompletion" @mouseleave="resumeCompletion" @focusin="pauseCompletion" @focusout="resumeCompletion">
-          <span>已完成「{{ state.completionFeedback.title }}」</span>
-          <AButton
-            v-if="state.completionFeedback.undoable"
-            type="link"
-            :disabled="state.busy"
-            @click="model.undoCompletion()"
-            >撤销</AButton
-          >
-          <AButton
-            v-if="section !== 'tasks' || quickView !== 'done'"
-            type="link"
-            @click="chooseQuickView('done')"
-            >查看已完成</AButton
-          >
-        </div>
-        <p v-else-if="state.notice" class="todo-notice todo-transient-notice" role="status">{{ state.notice }}</p>
         <AButton
           v-if="createdNoteId && !detailOpen"
           class="todo-link todo-open-output"
@@ -1613,6 +1641,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         >
           <KeepAlive
             ><ToDooTaskViews
+              ref="taskViewsRef"
               :toolbar-target="taskToolbarTarget"
               v-if="taskSections.includes(section)"
               :model="model"
@@ -1709,6 +1738,14 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         </div>
       </div>
     </main>
+    <div v-if="!taskDestination && state.completionFeedback" class="todo-action-feedback todo-transient-feedback" role="status"
+      @mouseenter="completionInteraction('hover', true)" @mouseleave="completionInteraction('hover', false)"
+      @focusin="completionInteraction('focus', true)" @focusout="completionFocusOut">
+      <span>已完成「{{ state.completionFeedback.title }}」</span>
+      <AButton v-if="state.completionFeedback.undoable" type="link" :disabled="state.busy" @click="model.undoCompletion()">撤销</AButton>
+      <AButton v-if="section !== 'tasks' || quickView !== 'done'" type="link" @click="chooseQuickView('done')">查看已完成</AButton>
+    </div>
+    <p v-else-if="!taskDestination && state.notice" class="todo-notice todo-transient-notice" role="status">{{ state.notice }}</p>
     <nav class="todo-bottom-navigation" aria-label="To Doo 快捷导航">
       <AButton
         type="text"
@@ -1771,10 +1808,12 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         :model="model"
         :tree="tree"
         :creating="creating"
+        :adjacent-tasks="adjacentTasks"
         :parent-task-id="parentId"
         :list-id="creating ? creatingListId : selection.list"
         :created-note-id="state.selectedTaskId === createdNoteTaskId ? createdNoteId : undefined"
         @close="closeDetail"
+        @step="stepDetail"
         @created="created"
         @list-created="loadLists()"
         @saved="taskSaved"
@@ -1877,8 +1916,11 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
 </template>
 <style scoped>
 .todo-transient-notice, .todo-transient-feedback {
-  position: absolute;
-  inset: auto 16px 16px auto;
+  grid-row: 2;
+  grid-column: var(--todo-main-grid-column, 2);
+  place-self: end;
+  margin: 0 var(--todo-space-16) var(--todo-space-16);
+  position: relative;
   z-index: 20;
   max-width: min(440px, calc(100% - 32px));
   padding: 10px 16px;

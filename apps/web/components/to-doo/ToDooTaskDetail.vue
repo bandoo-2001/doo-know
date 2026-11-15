@@ -53,9 +53,11 @@ const props = defineProps<{
   parentTaskId?: string;
   listId?: string;
   createdNoteId?: string;
+  adjacentTasks?: { previous?: ToDooItem; next?: ToDooItem };
 }>();
 const emit = defineEmits<{
   close: [];
+  step: [direction: 'previous' | 'next'];
   created: [id: string];
   select: [id: string, occurrence?: string];
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
@@ -86,6 +88,12 @@ const panelLabels: Record<DetailPanel, string> = {
   attachments: '任务附件', results: '完成标准与成果', properties: '其他属性', records: '推进记录', history: '操作历史',
 };
 const descriptionOpen = ref(false);
+const descriptionInput = ref<InstanceType<typeof ATextarea>>();
+async function editDescription() {
+  descriptionOpen.value = true;
+  await nextTick();
+  descriptionInput.value?.focus();
+}
 const showChildren = ref(false);
 let propertyBaseline: { key: string; task: Record<string, any>; occurrence: Record<string, any>; blocks?: any[]; scope: 'all' | 'future' } | undefined;
 const propertyTaskFields: Partial<Record<DetailPanel, string[]>> = {
@@ -702,22 +710,28 @@ defineExpose({
     aria-label="任务详情"
     @keydown="shortcut"
   >
-    <header class="todo-between">
+    <header class="todo-between todo-reader-header">
+      <AButton html-type="button" class="todo-icon-button" aria-label="关闭任务详情"
+        title="关闭任务详情 (Esc)" type="text" @click="close">×</AButton>
       <span class="todo-muted">{{ creating ? '新建任务' : '任务详情' }}</span
       ><span
         v-if="!creating"
         class="todo-small"
         :class="model.dirty() ? 'todo-warning' : 'todo-muted'"
         >{{ savingTask ? '保存中…' : model.dirty() ? '未保存的更改' : '已保存' }}</span
-      ><AButton
-        html-type="button"
-        class="todo-icon-button"
-        aria-label="关闭任务详情"
-        @click="close"
-        type="text"
       >
-        ×
-      </AButton>
+      <div v-if="adjacentTasks" class="todo-reader-navigation" role="group" aria-label="按列表顺序浏览">
+        <AButton type="text" class="todo-icon-button" data-step="previous" aria-label="上一个任务"
+          :title="adjacentTasks.previous ? '上一个：' + adjacentTasks.previous.title : '已是第一项'"
+          :disabled="state.busy || !!state.pendingMutation || !adjacentTasks.previous" @click="emit('step', 'previous')">
+          <ToDooIcon name="back" :size="16" />
+        </AButton>
+        <AButton type="text" class="todo-icon-button" data-step="next" aria-label="下一个任务"
+          :title="adjacentTasks.next ? '下一个：' + adjacentTasks.next.title : '已是最后一项'"
+          :disabled="state.busy || !!state.pendingMutation || !adjacentTasks.next" @click="emit('step', 'next')">
+          <ToDooIcon name="chevron" :size="16" />
+        </AButton>
+      </div>
     </header>
     <p v-if="validationError" class="todo-detail-validation todo-danger" role="alert">
       {{ validationError }}
@@ -900,10 +914,12 @@ defineExpose({
               "
           /></label>
         </div>
-        <div class="todo-detail-context">
-          <AButton type="text" :disabled="state.busy" @click="revealDetail('list')">{{ currentListName }} ⌄</AButton>
-          <span v-if="form.occurrence && !['todo', 'done'].includes(form.occurrence.status)" class="todo-muted">{{ toDooStatusLabels[form.occurrence.status] }}</span>
-        </div>
+        <AButton v-if="!form.task.description && !descriptionOpen" type="text" class="todo-add-property" @click="editDescription">＋ 添加说明</AButton>
+        <label v-else class="todo-document-description">
+          <span class="todo-accessible-label">任务说明</span>
+          <ATextarea ref="descriptionInput" aria-label="任务说明" v-model:value="form.task.description"
+            :auto-size="{ minRows: 1, maxRows: 12 }" :rows="1" placeholder="添加说明，或记下下一步…" />
+        </label>
         <label v-if="form.task.recurrence || occurrences.length > 1"
           >重复任务记录<ToDooSelect
             aria-label="重复任务记录"
@@ -924,21 +940,15 @@ defineExpose({
           >添加本次任务记录</AButton
         >
         <div class="todo-detail-property-chips" role="group" aria-label="任务安排">
+          <div class="todo-detail-context">
+            <AButton type="text" :disabled="state.busy" @click="revealDetail('list')">{{ currentListName }} ⌄</AButton>
+            <span v-if="form.occurrence && !['todo', 'done'].includes(form.occurrence.status)" class="todo-muted">{{ toDooStatusLabels[form.occurrence.status] }}</span>
+          </div>
           <AButton type="text" aria-label="编辑计划日期" :disabled="state.busy || !form.occurrence" @click="revealDetail('plan')"><ToDooIcon name="calendar" :size="15" />{{ planSummary }}</AButton>
           <AButton type="text" aria-label="编辑截止日期" :aria-describedby="deadlineSummaryId" :class="{ 'is-overdue': deadlineOverdue }" :disabled="state.busy || !form.occurrence" @click="revealDetail('due')"><ToDooIcon name="today" :size="15" />{{ deadlineSummary }}</AButton>
           <span :id="deadlineSummaryId" class="todo-accessible-label">{{ deadlineSummary }}</span>
           <AButton type="text" aria-label="编辑优先级" :class="'todo-priority-' + form.task.priority" :disabled="state.busy" @click="revealDetail('priority')">{{ form.task.priority === 'none' ? '设置优先级' : toDooPriorityLabels[form.task.priority] + '优先级' }}</AButton>
         </div>
-        <AButton v-if="!form.task.description && !descriptionOpen" type="text" class="todo-add-property" @click="descriptionOpen = true">＋ 添加说明</AButton>
-        <label v-else class="todo-document-description"
-          ><span class="todo-accessible-label">任务说明</span
-          ><ATextarea
-            aria-label="任务说明"
-            v-model:value="form.task.description"
-            :auto-size="{ minRows: 1, maxRows: 12 }"
-            :rows="1"
-            placeholder="添加说明，或记下下一步…"
-        /></label>
         <AButton v-if="!children.length && !showChildren" type="text" class="todo-add-property" @click="emit('child', form.task.id)">＋ 添加子任务</AButton>
         <ToDooDisclosure v-else class="todo-disclosure todo-primary-children" :open="!!children.length">
           <template #header
@@ -994,8 +1004,9 @@ defineExpose({
             html-type="button"
             type="text"
             aria-label="编辑重复规则"
+            :title="repeatSummary"
             @click="revealDetail('repeat')"
-            ><span>重复</span><small>{{ repeatSummary }}</small></AButton
+            ><span>重复</span><small :class="{ 'todo-accessible-label': !form.task.recurrence && !form.task.inheritRecurrence }">{{ repeatSummary }}</small></AButton
           >
           <AButton
             html-type="button"
@@ -1017,13 +1028,13 @@ defineExpose({
               >{{ form.task.noteRefs.length }} 份</small
             ></AButton
           >
-        </div>
         <ADropdown :trigger="['click']" overlay-class-name="todo-ant-popup">
-          <AButton type="text" class="todo-add-property" aria-label="更多任务属性">··· 更多属性</AButton>
+          <AButton type="text" aria-label="更多任务属性" title="更多属性"><ToDooIcon name="more" :size="16" />更多</AButton>
           <template #overlay><AMenu :selectable="false">
             <AMenuItem v-for="(label, key) in panelLabels" :key="key" @click="revealDetail(key)">{{ label }}</AMenuItem>
           </AMenu></template>
         </ADropdown>
+        </div>
         <AModal :open="propertyOpen" :title="detailPanel ? panelLabels[detailPanel] : ''" :footer="null" :width="560" wrap-class-name="todo-ant-modal todo-property-modal" @cancel="closeProperty">
           <fieldset ref="propertyFields" class="todo-form todo-create-fields todo-detail-options" :disabled="state.busy" @keydown="shortcut">
             <p v-if="validationError" class="todo-danger" role="alert">{{ validationError }}</p>

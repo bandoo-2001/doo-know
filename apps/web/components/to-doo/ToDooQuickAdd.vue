@@ -3,8 +3,8 @@ import ToDooDateField from './ToDooDateField.vue';
 import { Button as AButton, Input as AInput, Popover as APopover } from 'ant-design-vue';
 import ToDooSelect from './ToDooSelect.vue';
 
-import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue';
-import type { ToDooWorkbench, ToDooCreateSeed } from '../../to-doo-workbench';
+import { computed, nextTick, onMounted, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
+import type { ToDooWorkbench, ToDooCreateSeed, ToDooNewTaskDraft } from '../../to-doo-workbench';
 import { parseToDooQuickEntry, shiftToDooDate, toDooLocalDate } from '../../to-doo-workbench';
 import {
   prepareToDooQuickDraft,
@@ -24,12 +24,38 @@ const captureForm = ref<HTMLFormElement>();
 function captureInput() {
   return captureForm.value?.querySelector<HTMLInputElement>('input[aria-label="快速添加任务"]');
 }
+function focusInput() {
+  const input = captureInput();
+  if (!input || input.disabled || input.readOnly || !input.getClientRects().length) return false;
+  input.focus();
+  return document.activeElement === input;
+}
+defineExpose({ focusInput });
 const focused = ref(false);
 let pointerDown = false,
   pendingBlur = false;
 let blurTimer: ReturnType<typeof setTimeout> | undefined;
 const state = props.model.state;
 const draft = computed(() => props.model.newTaskDraft(undefined, props.listId, props.seed));
+const listName = computed(() => props.model.taskLists().find((list) => list.id === draft.value.listId)?.name);
+const pendingCapture = computed(() => {
+  const pending = state.pendingMutation;
+  const capture = state.pendingQuickCapture;
+  return pending?.action === 'create_task' && capture?.requestId === pending.requestId &&
+    state.newTaskDrafts[capture.draftKey] === draft.value ? pending : null;
+});
+const submitting = shallowRef<ToDooNewTaskDraft>();
+const waitingForReceipt = computed(() => !!state.pendingMutation ||
+  (state.busy && (!submitting.value || submitting.value === draft.value)));
+const submitBlocked = computed(() => !!submitting.value || state.busy || state.preparingTaskAction ||
+  (!!state.pendingMutation && !pendingCapture.value));
+const feedback = ref('');
+let feedbackTimer: ReturnType<typeof setTimeout> | undefined;
+function clearFeedback() {
+  clearTimeout(feedbackTimer);
+  feedback.value = '';
+}
+watch([() => draft.value.title, () => props.listId, () => props.defaultDate, () => state.snapshot?.datasetId], clearFeedback);
 const literalTitle = computed({ get: () => !!draft.value.literalTitle, set: (value: boolean) => { draft.value.literalTitle = value; } });
 const composing = ref(false);
 const chipOpen = ref<string | null>(null);
@@ -44,8 +70,8 @@ function closeChip() {
   nextTick(() => chipOpener?.isConnected && chipOpener.focus());
 }
 const originalDraft = ref<{ title: string; draft: typeof draft.value } | null>(null);
-watch(() => draft.value.title, () => {
-  literalTitle.value = false;
+watch(() => [draft.value, draft.value.title] as const, ([current], [previous]) => {
+  if (current === previous) literalTitle.value = false;
   originalDraft.value = null;
 }, { flush: 'sync' });
 const today = computed(() => toDooLocalDate(new Date(), state.snapshot?.settings.timeZone));
@@ -126,68 +152,64 @@ function endPointer() {
   // Collapsing between pointerdown and click moves the toolbar away from the pointer.
   if (pendingBlur) blurTimer = setTimeout(collapseCapture, 0);
 }
-function quickFocus(event: KeyboardEvent) {
-  if (
-    event.key.toLowerCase() !== 'q' ||
-    event.ctrlKey ||
-    event.metaKey ||
-    event.altKey ||
-    event.isComposing ||
-    event.defaultPrevented
-  )
-    return;
-  const target = event.target;
-  if (
-    target instanceof Element &&
-    target.closest('input, textarea, select, [contenteditable], [role="textbox"]')
-  )
-    return;
-  const modalOpen = [
-    ...document.querySelectorAll<HTMLElement>('[role="dialog"], [aria-modal="true"]'),
-  ].some(
-    (element) =>
-      element.getClientRects().length &&
-      getComputedStyle(element).visibility !== 'hidden' &&
-      !element.closest('[aria-hidden="true"]'),
-  );
-  if (modalOpen) return;
-  const element = captureInput();
-  if (!element || element.disabled || !element.getClientRects().length) return;
-  event.preventDefault();
-  element.focus();
-}
 onMounted(() => {
-  window.addEventListener('keydown', quickFocus);
   document.addEventListener('pointerdown', beginPointer, true);
   document.addEventListener('pointerup', endPointer, true);
   document.addEventListener('pointercancel', endPointer, true);
 });
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', quickFocus);
   document.removeEventListener('pointerdown', beginPointer, true);
   document.removeEventListener('pointerup', endPointer, true);
   document.removeEventListener('pointercancel', endPointer, true);
   clearTimeout(blurTimer);
+  clearTimeout(feedbackTimer);
+  clearTimeout(compositionTimer);
 });
-async function add() {
-  if (composing.value || !draft.value.title.trim() || state.busy || state.pendingMutation) return;
-  // Normalize into the persisted draft so a retried request can also clear it.
-  Object.assign(draft.value, prepared.value);
-  const payload = toDooDraftPayload(draft.value, state.snapshot?.settings.timeZone || 'UTC');
-  const result = await props.model.createTask(payload);
-  if (result) {
-    const taskId = result.ids.find((id) => result.snapshot.tasks.some((task) => task.id === id)) ||
-      result.changed.find(entry => entry.kind === 'task' && result.ids.includes(entry.id))?.id;
-    if (taskId)
-      emit('created', {
-        taskId,
-        title: payload.title,
-        listId: payload.listId || null,
-        planDates: payload.plan?.date ? [payload.plan.date] : [],
-      });
-    await nextTick();
-    captureInput()?.focus();
+let compositionEnter = false;
+let compositionTimer: ReturnType<typeof setTimeout> | undefined;
+function enter(event: KeyboardEvent) {
+  if (composing.value || event.isComposing || event.keyCode === 229) {
+    // Let the IME accept its candidate, while ignoring an implicit form submit from the same key.
+    compositionEnter = true;
+    clearTimeout(compositionTimer);
+    compositionTimer = setTimeout(() => { compositionEnter = false; }, 0);
+    return;
   }
+  event.preventDefault();
+  if (!event.repeat) void add();
+}
+async function add() {
+  if (composing.value || compositionEnter || !draft.value.title.trim() || submitBlocked.value) return;
+  const payload = pendingCapture.value?.payload || toDooDraftPayload(prepared.value, state.snapshot?.settings.timeZone || 'UTC');
+  const scope = props.listId;
+  const dataset = state.snapshot?.datasetId;
+  clearFeedback();
+  captureInput()?.focus();
+  submitting.value = draft.value;
+  try {
+    const result = await props.model.createTask(payload, draft.value);
+    if (!captureForm.value || props.listId !== scope || state.snapshot?.datasetId !== dataset) return;
+    if (result) {
+      const taskId = result.ids.find((id) => result.snapshot.tasks.some((task) => task.id === id)) ||
+        result.changed.find(entry => entry.kind === 'task' && result.ids.includes(entry.id))?.id;
+      if (taskId)
+        emit('created', {
+          taskId,
+          title: payload.title,
+          listId: payload.listId || null,
+          planDates: payload.plan?.date ? [payload.plan.date] : [],
+        });
+      feedback.value = `已添加「${payload.title}」`;
+      feedbackTimer = setTimeout(clearFeedback, 5000);
+    } else if (!pendingCapture.value) {
+      feedback.value = '输入已保留，可修改后再次添加';
+    }
+  } finally {
+    submitting.value = undefined;
+  }
+  await nextTick();
+  if (pendingCapture.value && captureForm.value?.contains(document.activeElement))
+    captureForm.value.querySelector<HTMLButtonElement>('button[type="submit"]')?.focus();
 }
 </script>
 <template>
@@ -204,22 +226,22 @@ async function add() {
       <AInput
         v-model:value="draft.title"
         aria-label="快速添加任务"
-        placeholder="添加任务…"
+        :placeholder="listName ? `添加任务至「${listName}」` : '添加任务…'"
         :maxlength="256"
         autocomplete="off"
-        :disabled="state.busy || !!state.pendingMutation"
+        :readonly="waitingForReceipt"
         @compositionstart="composing = true"
         @compositionend="composing = false"
-        @keydown.enter="(($event as KeyboardEvent).isComposing || composing) && $event.preventDefault()"
+        @keydown.enter="enter"
       />
       <AButton
         v-if="draft.title.trim()"
         html-type="submit"
         class="todo-button todo-primary"
-        :disabled="state.busy || !!state.pendingMutation"
+        :disabled="submitBlocked"
         type="primary"
       >
-        {{ state.busy ? '添加中…' : '添加任务' }}
+        {{ submitting ? '添加中…' : pendingCapture ? '重试添加' : '添加任务' }}
       </AButton>
       <AButton
         html-type="button"
@@ -227,12 +249,17 @@ async function add() {
         class="todo-quick-details"
         aria-label="详细添加"
         title="填写任务详情"
-        :disabled="state.busy"
+        :disabled="state.busy || !!state.pendingMutation"
         @click="emit('expand')"
         type="text"
       >
         详情
       </AButton>
+    </div>
+    <div class="todo-capture-feedback" aria-live="polite" aria-atomic="true">
+      <span v-if="feedback || (pendingCapture && !state.busy)" :title="feedback || undefined">
+        {{ feedback || '添加结果待核对，原输入已保留' }}
+      </span>
     </div>
     <div v-if="draft.title.trim()" class="todo-quick-add-hint" aria-label="任务输入属性">
       <span v-if="prepared.planDate" class="todo-capture-chip">
@@ -301,3 +328,15 @@ async function add() {
     </div>
   </form>
 </template>
+
+<style scoped>
+.todo-capture-feedback > span {
+  display: block;
+  padding: 0 12px 6px;
+  color: var(--todo-muted);
+  font-size: var(--todo-caption-size);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+</style>

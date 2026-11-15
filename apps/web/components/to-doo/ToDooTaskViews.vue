@@ -9,7 +9,7 @@ import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
 import ToDooPageToolbar from './ToDooPageToolbar.vue';
 
-import { computed, nextTick, onActivated, onDeactivated, ref } from 'vue';
+import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue';
 import {
   Button as AButton,
   Card as ACard,
@@ -132,6 +132,69 @@ function setDisplayField(field: keyof ToDooDisplayFields, checked: boolean) {
 const advancedDraft = ref<NonNullable<ToDooFilter['group']>>({ operator: 'and', conditions: [] });
 const searchTrigger = ref<any>(), filterTrigger = ref<any>(), displayTrigger = ref<any>();
 const searchInput = ref<any>();
+const quickAdd = ref<InstanceType<typeof ToDooQuickAdd>>();
+watch([toolsOpen, searchInput], ([open, input]) => {
+  if (open) input?.focus();
+}, { flush: 'post' });
+
+function hasOpenPopup() {
+  const surfaces = document.querySelectorAll<HTMLElement>(
+    '[role="dialog"], [aria-modal="true"], .ant-dropdown, .ant-popover, .ant-select-dropdown, .ant-picker-dropdown, .ant-menu-submenu-popup',
+  );
+  return Array.from(surfaces).some((element) =>
+    element.getClientRects().length > 0 && !element.closest('[aria-hidden="true"]') &&
+    getComputedStyle(element).visibility === 'visible',
+  );
+}
+function plainKey(event: KeyboardEvent) {
+  return !event.defaultPrevented && !event.isComposing && event.keyCode !== 229 &&
+    !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey;
+}
+function taskShortcut(event: KeyboardEvent) {
+  const key = event.key.toLowerCase();
+  if ((key !== 'q' && key !== '/') || !plainKey(event) || !toolbarActive.value || event.repeat) return;
+  const searchButton = searchTrigger.value?.$el as HTMLButtonElement | undefined;
+  const workspace = searchButton?.closest('.to-doo-workspace');
+  if (!workspace || !searchButton?.getClientRects().length || workspace.classList.contains('todo-has-detail')) return;
+  const target = event.target;
+  if (target instanceof Element && target !== document.body && (
+    !workspace.contains(target) || target.closest('form, input, textarea, select, [contenteditable], [role="textbox"], [role="combobox"], [role="menu"]')
+  )) return;
+  if (hasOpenPopup()) return;
+  if (key === 'q') {
+    if (quickAdd.value?.focusInput()) event.preventDefault();
+  } else {
+    event.preventDefault();
+    toolsOpen.value = true;
+  }
+}
+onMounted(() => { if (typeof window !== 'undefined') window.addEventListener('keydown', taskShortcut); });
+onBeforeUnmount(() => { if (typeof window !== 'undefined') window.removeEventListener('keydown', taskShortcut); });
+
+function moveRowFocus(event: KeyboardEvent) {
+  if (!plainKey(event) || !['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
+  const current = event.target;
+  if (!(current instanceof HTMLButtonElement) || !current.matches('.todo-task-body') || hasOpenPopup()) return;
+  const list = event.currentTarget as HTMLElement;
+  const buttons = Array.from(list.querySelectorAll<HTMLButtonElement>('button.todo-task-body'));
+  const index = buttons.indexOf(current);
+  if (index < 0) return;
+  let next = index;
+  if (event.key === 'ArrowUp') next = Math.max(0, index - 1);
+  if (event.key === 'ArrowDown') next = Math.min(buttons.length - 1, index + 1);
+  if (event.key === 'Home') next = 0;
+  if (event.key === 'End') next = buttons.length - 1;
+  event.preventDefault();
+  buttons[next].focus();
+}
+function reorderByKey(event: KeyboardEvent, item: ToDooItem) {
+  if (!event.altKey || event.shiftKey || event.ctrlKey || event.metaKey || event.defaultPrevented ||
+      event.isComposing || event.keyCode === 229 || !['ArrowUp', 'ArrowDown'].includes(event.key)) return;
+  if (event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable]')) return;
+  if (hasOpenPopup()) return;
+  event.preventDefault();
+  void reorderStep(item, event.key === 'ArrowUp' ? -1 : 1);
+}
 function closePopup(kind: 'search' | 'filter' | 'display') {
   if (kind === 'search') toolsOpen.value = false;
   if (kind === 'filter') filterOpen.value = false;
@@ -291,6 +354,10 @@ const expandedBoardCards = ref<string[]>([]);
 const effectiveSections = computed(() => taskSectionIds(props.model.taskDefinitions()));
 const sectionIds = computed(() => new Set(sections.value.map((section) => section.id)));
 const groupCollapsed = (id: string) => state.collapsedTaskGroups.includes(id);
+const orderedListTasks = computed(() => props.section === 'tasks'
+  ? outlineGroups.value.filter(group => !groupCollapsed(group.id)).flatMap(group => group.items)
+  : []);
+defineExpose({ orderedListTasks });
 function toggleGroup(id: string) {
   state.collapsedTaskGroups = groupCollapsed(id)
     ? state.collapsedTaskGroups.filter((value) => value !== id)
@@ -704,8 +771,10 @@ function saveView() {
           ><ToDooIcon name="plus" :size="18"
         /></AButton>
       </div>
-      <div class="todo-overview-action-list">
+      <div class="todo-overview-action-list" @keydown="moveRowFocus">
         <ToDooTaskRow
+          row-context-actions
+          list-navigation
           :display-fields="displayFields"
           v-for="item in todayItems.slice(0, 12)"
           :key="item.key"
@@ -966,8 +1035,8 @@ function saveView() {
       aria-label="任务视图与筛选"
     >
 
-      <APopover v-model:open="toolsOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-search-popup" @open-change="(open: boolean) => open && nextTick(() => searchInput?.focus?.())">
-        <AButton ref="searchTrigger" type="text" @keydown.esc.stop.prevent="closePopup('search')" class="todo-task-tools-toggle" aria-label="搜索任务" :aria-expanded="toolsOpen" :class="{ 'is-active': state.filter.query }"><ToDooIcon name="search" :size="16" /><span>搜索</span></AButton>
+      <APopover v-model:open="toolsOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-search-popup">
+        <AButton ref="searchTrigger" type="text" @keydown.esc.stop.prevent="closePopup('search')" class="todo-task-tools-toggle" aria-label="搜索任务" title="搜索任务 (/)" aria-keyshortcuts="/" :aria-expanded="toolsOpen" :class="{ 'is-active': state.filter.query }"><ToDooIcon name="search" :size="16" /><span>搜索</span></AButton>
         <template #content><form class="todo-task-search-form" role="search" @submit.prevent="filterChanged" @keydown.esc.stop.prevent="closePopup('search')">
           <label>搜索任务<AInput ref="searchInput" v-model:value="state.filter.query" :placeholder="searchPlaceholder" aria-label="搜索任务" allow-clear /></label>
           <div class="todo-actions"><AButton html-type="submit" type="primary" aria-label="执行搜索">搜索</AButton><AButton v-if="canSearchAll" type="link" @click="emit('search-all'); closePopup('search')">在所有任务中搜索</AButton><AButton v-if="state.filter.query" type="text" @click="state.filter.query = ''; filterChanged()">清除搜索</AButton><AButton type="text" @click="closePopup('search')">关闭</AButton></div>
@@ -1182,6 +1251,7 @@ function saveView() {
       class="todo-task-list-capture"
     >
       <ToDooQuickAdd
+        ref="quickAdd"
         :model="model"
         :list-id="state.filter.listIds?.[0]"
         :default-date="builtin === 'today' || builtin === 'upcoming' ? today : undefined"
@@ -1190,7 +1260,7 @@ function saveView() {
         @created="emit('task-created', $event)"
       />
     </div>
-    <div v-if="section === 'tasks'" class="todo-panel todo-tree todo-task-list-panel" role="region" :aria-label="taskListTitle">
+    <div v-if="section === 'tasks'" class="todo-panel todo-tree todo-task-list-panel" role="region" :aria-label="taskListTitle" @keydown="moveRowFocus">
 
       <section v-for="group in outlineGroups" :key="group.id" class="todo-task-group">
         <header v-if="group.showHeader" class="todo-task-group-heading">
@@ -1238,8 +1308,7 @@ function saveView() {
               @dragstart="drag($event, item)"
               @dragover.prevent
               @drop="reorderBefore($event, item)"
-              @keydown.alt.up.prevent="reorderStep(item, -1)"
-              @keydown.alt.down.prevent="reorderStep(item, 1)"
+              @keydown="reorderByKey($event, item)"
             >
               <AButton
                 v-if="
@@ -1253,6 +1322,7 @@ function saveView() {
                 >{{ collapsed.includes(item.task.id) ? '›' : '⌄' }}</AButton
               >
               <ToDooTaskRow
+                list-navigation
                 :display-fields="displayFields"
                 :item="item"
                 :hide-list="!!state.filter.listIds?.length"
@@ -1489,6 +1559,7 @@ function saveView() {
               @dragstart="drag($event, item)"
             >
               <ToDooTaskRow
+                row-context-actions
                 :display-fields="displayFields"
                 :item="item"
                 :active="active(item)"
@@ -1612,6 +1683,10 @@ function saveView() {
 .todo-overview-action-list :deep(.todo-task-row.is-active),
 .todo-task-list-panel :deep(.todo-task-row.is-active) {
   background: var(--todo-tint);
+}
+.todo-overview-action-list :deep(.todo-task-row:has(.todo-task-body:focus-visible):not(.is-active, .is-selected)),
+.todo-task-list-panel :deep(.todo-task-row:has(.todo-task-body:focus-visible):not(.is-active, .is-selected)) {
+  background: var(--todo-soft);
 }
 .todo-overview-action-list :deep(.todo-task-row.is-active)::before,
 .todo-task-list-panel :deep(.todo-task-row.is-active)::before {
