@@ -18,7 +18,11 @@ test('task tools stay reachable beside long titles, and capture hints follow the
   }
   const list = await command('save_entity', { kind: 'list', entity: { name: listName, color: '#467e72', kind: 'list' } });
   const title = '整理首轮访谈，确认首页的信息层级';
-  await command('create_task', { listId: list, title, priority: 'high', description: '对照访谈笔记，整理用户进入首页后最先想做的三件事。' });
+  const date = new Date().toISOString().slice(0, 10);
+  await command('create_task', {
+    listId: list, title, priority: 'high', plan: { date, time: '10:00', timeZone: 'Asia/Shanghai' },
+    description: '对照访谈笔记，整理用户进入首页后最先想做的三件事。',
+  });
   for (const task of ['复核移动端的交互细节', '更新产品说明中的界面截图', '整理周五评审的反馈']) {
     await command('create_task', { listId: list, title: task });
   }

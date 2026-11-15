@@ -403,8 +403,9 @@ function displaySchedule(value: ToDooDateTime) {
   const shown = toDooDisplayTime(value, zone.value);
   return toDooDateLabel(shown.date, today.value) + (shown.time ? ' ' + shown.time : '');
 }
+const scheduledBlocks = computed(() => form.value?.blocks.filter(value => !value.deletedAt) || []);
 const planSummary = computed(() => {
-  const blocks = form.value?.blocks.filter(value => !value.deletedAt) || [];
+  const blocks = scheduledBlocks.value;
   if (!blocks.length) return '添加计划';
   return displaySchedule(blocks[0].start) + (blocks.length > 1 ? ' 等' + blocks.length + '段' : '');
 });
@@ -953,14 +954,16 @@ defineExpose({
             <span v-if="form.occurrence && !['todo', 'done'].includes(form.occurrence.status)" class="todo-muted">{{ toDooStatusLabels[form.occurrence.status] }}</span>
           </div>
           <AButton type="text" aria-label="编辑计划日期" :title="planSummary"
-            :class="{ 'is-empty': !form.blocks.some(block => !block.deletedAt) }"
+            :class="{ 'is-empty': !scheduledBlocks.length }"
             :disabled="state.busy || !form.occurrence" @click="revealDetail('plan')">
-            <ToDooIcon name="calendar" :size="16" /><span class="todo-detail-property-value">{{ planSummary }}</span>
+            <ToDooIcon name="calendar" :size="16" />
+            <span class="todo-detail-property-value"><template v-if="scheduledBlocks.length">计划 </template>{{ planSummary }}</span>
           </AButton>
           <AButton type="text" aria-label="编辑截止日期" :aria-describedby="deadlineSummaryId"
             :title="deadlineSummary" :class="{ 'is-empty': !form.occurrence?.due, 'is-overdue': deadlineOverdue }"
             :disabled="state.busy || !form.occurrence" @click="revealDetail('due')">
-            <ToDooIcon name="today" :size="16" /><span class="todo-detail-property-value">{{ deadlineSummary }}</span>
+            <ToDooIcon name="calendar" :size="16" />
+            <span class="todo-detail-property-value"><template v-if="form.occurrence?.due">截止 </template>{{ deadlineSummary }}</span>
           </AButton>
           <span :id="deadlineSummaryId" class="todo-accessible-label">{{ deadlineSummary }}</span>
           <AButton type="text" aria-label="编辑优先级" :class="'todo-priority-' + form.task.priority"
@@ -1026,7 +1029,7 @@ defineExpose({
             aria-label="编辑重复规则"
             :title="repeatSummary"
             @click="revealDetail('repeat')"
-            ><ToDooIcon name="refresh" :size="16" /><span>重复</span><small :class="{ 'todo-accessible-label': repeatSummary === '不重复' }">{{ repeatSummary }}</small></AButton
+            ><ToDooIcon name="repeat" :size="16" /><span>重复</span><small :class="{ 'todo-accessible-label': repeatSummary === '不重复' }">{{ repeatSummary }}</small></AButton
           >
           <AButton
             html-type="button"

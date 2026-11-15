@@ -390,6 +390,17 @@
 .to-doo-workspace .todo-detail .todo-primary-children {
   border: 0;
 }
+.to-doo-workspace .todo-primary-children .ant-collapse-header {
+  align-items: center;
+  min-height: var(--todo-row-min-height);
+}
+.to-doo-workspace .todo-primary-children .todo-disclosure-content { gap: var(--todo-space-4); }
+.to-doo-workspace .todo-primary-children .todo-link {
+  align-self: flex-start;
+  min-height: var(--todo-row-min-height);
+  padding-inline: var(--todo-space-12);
+  font-size: var(--todo-font-size);
+}
 .to-doo-workspace .todo-primary-children .todo-saved-row.ant-btn {
   min-height: var(--todo-row-min-height);
   padding: var(--todo-space-8) var(--todo-space-12);
@@ -506,5 +517,10 @@
 @media (max-width: 600px) {
   .to-doo-workspace .todo-detail .todo-form-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 380px) {
+  .to-doo-workspace .todo-detail .todo-detail-shortcuts .ant-btn {
+    padding-inline: var(--todo-space-4);
   }
 }

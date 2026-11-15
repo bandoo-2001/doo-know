@@ -238,6 +238,8 @@
 .todo-focus-empty.ant-empty { margin: var(--todo-space-32) auto; }
 .todo-focus-empty .ant-empty-image { height: 40px; }
 .todo-focus-empty .ant-empty-description { color: var(--todo-muted); }
+.todo-focus-empty .ant-btn-default:enabled { color: var(--todo-ink); }
+.todo-focus-empty .ant-btn-default:enabled:hover { color: var(--todo-accent); }
 
 .todo-focus-records { display: flex; flex-direction: column; min-height: 0; }
 .todo-focus-records > * { flex-shrink: 0; }
@@ -250,6 +252,29 @@
 .to-doo-workspace .todo-focus-records .todo-section-header .todo-ant-select {
   width: 136px;
   max-width: 45%;
+}
+/* The plot's viewBox is 420 × 106: do not scale its axis labels with the full page width. */
+.todo-focus-records .todo-focus-trend .todo-focus-trend-chart {
+  width: 100%;
+  max-height: 92px;
+}
+@container (min-width: 660px) {
+  .todo-focus-records .todo-focus-trend:has(.todo-focus-trend-chart) {
+    display: grid;
+    grid-template-columns: minmax(240px, 32%) minmax(0, 1fr);
+    grid-template-areas: "period plot" "scope plot" "nav plot" "footer footer";
+    align-items: center;
+    gap: var(--todo-space-4) var(--todo-space-24);
+    padding: var(--todo-space-12) var(--todo-space-16);
+  }
+  .todo-focus-records .todo-focus-trend-heading { grid-area: period; }
+  .todo-focus-records .todo-focus-trend-scope { grid-area: scope; }
+  .todo-focus-records .todo-focus-trend-navigation { grid-area: nav; }
+  .todo-focus-records .todo-focus-trend .todo-focus-trend-chart {
+    grid-area: plot;
+    max-height: 128px;
+  }
+  .todo-focus-records .todo-focus-trend-footer { grid-area: footer; }
 }
 .todo-focus-statistics {
   display: grid;

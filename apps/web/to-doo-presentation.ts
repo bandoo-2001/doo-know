@@ -35,10 +35,10 @@ export const toDooQuickViews = [
 
 export function toDooTaskScopeIcon(view: ToDooQuickFilter, listId?: string) {
   if (listId) return 'list';
-  const standard = toDooQuickViews.find(entry => entry.id === view);
-  if (standard) return standard.icon;
-  const other = { overdue: 'calendar', unscheduled: 'inbox', blocked: 'tasks', archived: 'archive', trash: 'trash' };
-  return view in other ? other[view as keyof typeof other] : 'tasks';
+  const additionalIcons: Partial<Record<ToDooQuickFilter, string>> = {
+    overdue: 'calendar', unscheduled: 'inbox', blocked: 'tasks', archived: 'archive', trash: 'trash',
+  };
+  return toDooQuickViews.find(entry => entry.id === view)?.icon ?? additionalIcons[view] ?? 'tasks';
 }
 
 export function toDooQuickFilter(

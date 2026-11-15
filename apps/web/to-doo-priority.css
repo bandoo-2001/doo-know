@@ -30,6 +30,7 @@
 }
 
 .to-doo-workspace .todo-task-row .todo-check:not(.is-checked) .todo-check-indicator {
+  color: var(--todo-priority-color);
   border-color: var(--todo-priority-color);
   background: color-mix(in srgb, var(--todo-priority-color) 6%, var(--todo-paper));
 }
