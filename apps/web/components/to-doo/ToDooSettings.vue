@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ToDooDisclosure from './ToDooDisclosure.vue';
 import ToDooFormLayout from './ToDooFormLayout.vue';
+import ToDooWatchPairing from './ToDooWatchPairing.vue';
 import {
   Alert as AAlert,
   Button as AButton,
@@ -1351,6 +1352,7 @@ defineExpose({
         </div>
       </div>
     </section>
+    <ToDooWatchPairing v-if="activeTab === 'connections'" :request="model.request" />
     <section v-show="activeTab === 'connections'" class="todo-panel">
       <div class="todo-panel-header">
         <h2>桌面提醒</h2>

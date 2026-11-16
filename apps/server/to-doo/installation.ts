@@ -17,6 +17,7 @@ export function resetToDooLocalConnections(db: AppDatabase) {
   const localTables = [
     'to_doo_push_config',
     'to_doo_push_devices',
+    'to_doo_watch_devices',
     'to_doo_push_outbox',
     'to_doo_push_seen',
     'to_doo_reminder_actions',

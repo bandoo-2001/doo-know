@@ -1,0 +1,351 @@
+<template>
+  <div class="page">
+    <text class="back" if="{{canGoBack}}" onclick="goBack">‹ 返回</text>
+    <text class="brand" else>To-Doo</text>
+    <text class="heading">{{heading}}</text>
+    <list class="content" if="{{ready && !pending}}">
+      <list-item type="notice" if="{{notice}}" class="notice" onclick="refresh">
+        <text class="small">{{notice}}</text>
+      </list-item>
+      <list-item type="row" class="row" for="{{rows}}" tid="key" onclick="choose($item.key)">
+        <div class="copy">
+          <text class="label">{{$item.label}}</text>
+          <text class="detail" if="{{$item.detail}}">{{$item.detail}}</text>
+        </div>
+        <text class="mark">{{$item.mark}}</text>
+      </list-item>
+      <list-item type="bottom" class="bottom"><text> </text></list-item>
+    </list>
+    <div class="center" else>
+      <text if="{{pairCode}}" class="code">{{pairCode}}</text>
+      <text class="message">{{message}}</text>
+      <text class="button" if="{{cta}}" onclick="retry">{{cta}}</text>
+    </div>
+  </div>
+</template>
+
+<script>
+import { loadSession, request, saveSession } from '../../common/client'
+
+function row(key, label, detail, mark) {
+  return { key, label, detail: detail || '', mark: mark || '' }
+}
+
+function clock(seconds) {
+  const value = Math.max(0, Math.floor(seconds))
+  const minutes = Math.floor(value / 60)
+  return (minutes < 10 ? '0' : '') + minutes + ':' + ('0' + value % 60).slice(-2)
+}
+
+export default {
+  private: {
+    heading: '连接手表', canGoBack: false, ready: false, notice: '', message: '',
+    cta: '', pairCode: '', rows: [], pending: false
+  },
+  onInit() {
+    this.screen = 'home'
+    this.session = {}
+    this.offsets = { list: 0, task: 0, habit: 0 }
+    this.listId = ''
+    this.todayOnly = false
+    this.listName = '全部待办'
+    this.loaded = false
+    this.busy = false
+  },
+  onShow() {
+    this.refresh()
+    this.stopClock()
+    this.timer = setInterval(() => {
+      if (!this.ready && this.session.pair && Date.now() >= this.nextPoll) this.refresh()
+      if (this.screen === 'focus' && this.ready) this.updateRows()
+    }, 1000)
+  },
+  onHide() { this.stopClock() },
+  onDestroy() { this.stopClock() },
+  stopClock() { if (this.timer) { clearInterval(this.timer); this.timer = null } },
+  onBackPress() {
+    if (!this.canGoBack) return false
+    this.goBack()
+    return true
+  },
+  goBack() {
+    if (this.busy) return
+    const parent = { tasks: 'lists', task: 'tasks', habit: 'habits' }
+    this.screen = parent[this.screen] || 'home'
+    this.updateRows()
+  },
+  async persist(next) {
+    await saveSession(next)
+    this.session = next
+    this.pending = !!next.command
+  },
+  async run(job) {
+    if (this.busy) return
+    this.busy = true
+    this.cta = ''
+    try {
+      await job()
+    } catch (error) {
+      if (error && error.status === 401 && this.session.token) {
+        this.snapshot = null
+        this.ready = false
+        this.session = {}
+        this.pending = false
+        this.screen = 'home'
+        try { await this.persist({}) } catch (ignored) { this.loaded = false }
+        this.notice = ''
+        this.canGoBack = false
+        this.heading = '重新配对'
+        this.message = '手表授权已失效'
+        this.cta = '获取配对码'
+      } else {
+        const status = error && error.status
+        const reason = error && error.storage ? '手表存储失败' : status === 429 ? '请求较多，请稍后重试' :
+          status === 404 ? '服务或记录不可用' : status ? '请求失败（' + status + '）' : '未能连接，请检查手机网络'
+        if (this.pending) {
+          this.heading = '待确认操作'
+          this.message = reason
+          this.cta = '重试同一操作'
+        } else if (!this.ready) {
+          this.message = reason
+          this.cta = '重试'
+        } else {
+          this.notice = reason + ' · 点此刷新'
+        }
+      }
+    } finally {
+      this.busy = false
+    }
+  },
+  refresh() {
+    return this.run(async () => {
+      if (!this.loaded) {
+        this.session = await loadSession()
+        this.pending = !!this.session.command
+        this.loaded = true
+      }
+      if (!this.session.token) return this.pair()
+      if (this.pending) {
+        this.heading = '待确认操作'
+        this.message = '上次提交尚未确认'
+        this.cta = '重试同一操作'
+        return
+      }
+      return this.sync()
+    })
+  },
+  async pair() {
+    this.canGoBack = false
+    let pair = this.session.pair
+    if (!pair || Date.now() >= pair.deadline) {
+      this.pairCode = ''
+      this.heading = '连接手表'
+      this.message = '正在获取配对码'
+      const info = await request('pair/start', '', {})
+      pair = { userCode: info.userCode, deviceCode: info.deviceCode, deadline: Date.now() + info.expiresIn * 1000 }
+      await this.persist({ pair })
+    }
+    this.pairCode = pair.userCode
+    this.heading = '手表配对'
+    this.message = '在 To-Doo 的设置中打开「提醒与连接」，输入此码'
+    this.nextPoll = Date.now() + 5000
+    let claim
+    try {
+      claim = await request('pair/claim', '', { deviceCode: pair.deviceCode })
+    } catch (error) {
+      if (error.status === 404 || error.status === 410 || error.status === 401) {
+        await this.persist({})
+        this.pairCode = ''
+        this.message = '配对码已失效'
+        this.cta = '获取新配对码'
+        return
+      }
+      throw error
+    }
+    if (claim.status !== 'paired') return
+    await this.persist({ token: claim.token })
+    this.pairCode = ''
+    await this.sync()
+  },
+  async sync() {
+    this.fresh = false
+    this.notice = '正在同步'
+    if (!this.ready) this.message = '正在读取 To-Doo'
+    const query = 'listOffset=' + this.offsets.list + '&taskOffset=' + this.offsets.task +
+      '&habitOffset=' + this.offsets.habit + (this.listId ? '&listId=' + encodeURIComponent(this.listId) : '') + (this.todayOnly ? '&today=1' : '')
+    this.snapshot = await request('state?' + query, this.session.token)
+    this.receivedAt = Date.now()
+    this.ready = true
+    this.fresh = true
+    this.notice = ''
+    this.updateRows()
+  },
+  retry() {
+    if (this.pending) return this.run(() => this.sendPending())
+    this.refresh()
+  },
+  async sendPending() {
+    const command = this.session.command
+    if (!command) return
+    this.heading = '正在提交'
+    this.message = '等待 To-Doo 确认'
+    this.canGoBack = false
+    try {
+      await request('command', this.session.token, command)
+    } catch (error) {
+      if ([400, 403, 404, 409, 422].indexOf(error.status) < 0) throw error
+      await this.persist({ token: this.session.token })
+      this.screen = 'home'
+      await this.sync()
+      this.notice = '操作未执行，请查看最新状态'
+      return
+    }
+    await this.persist({ token: this.session.token })
+    if (command.action === 'checkin_habit') this.screen = 'habits'
+    if (command.action === 'set_occurrence_status') this.screen = 'tasks'
+    if (command.action === 'start_focus' || command.action === 'control_focus') this.screen = 'focus'
+    await this.sync()
+  },
+  act(action, payload) {
+    if (!this.fresh || this.pending) return this.refresh()
+    return this.run(async () => {
+      const requestId = 'watch-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12)
+      await this.persist({ token: this.session.token, command: { requestId, action, payload } })
+      await this.sendPending()
+    })
+  },
+  updateRows() {
+    const s = this.snapshot
+    if (!s || this.pending) return
+    const screen = this.screen
+    this.canGoBack = screen !== 'home'
+    let rows = []
+    if (screen === 'home') {
+      this.heading = '今天'
+      rows = [row('lists', '清单', '', '›'), row('focus', '专注', s.focus ? s.focus.title : '', '›'),
+        row('habits', '习惯打卡', '', '›'), row('sync', '刷新', s.date, '↻')]
+    } else if (screen === 'lists') {
+      this.heading = '清单'
+      if (!this.offsets.list) rows.push(row('today', '今日待办', '', '›'), row('all', '全部待办', '', '›'))
+      rows = rows.concat(s.lists.map(item => row('list:' + item.id, item.name, '', '›')))
+      this.addPages(rows, 'list', s.hasMore.lists)
+    } else if (screen === 'tasks') {
+      this.heading = this.listName
+      rows = s.tasks.map(item => row('task:' + item.id, item.title, item.dueDate, '›'))
+      if (!rows.length) rows.push(row('sync', '没有未完成任务', '点击刷新'))
+      this.addPages(rows, 'task', s.hasMore.tasks)
+    } else if (screen === 'task') {
+      const task = s.tasks.find(item => item.id === this.selected)
+      if (!task) { this.screen = 'tasks'; this.updateRows(); return }
+      this.heading = '任务'
+      rows = [row('info', task.title, task.dueDate), row('complete', '标为完成', '', '✓')]
+      if (!s.focus) rows.push(row('taskfocus', '为此任务开始专注', s.focusMinutes + ' 分钟', '›'))
+    } else if (screen === 'habits') {
+      this.heading = '习惯打卡'
+      rows = s.habits.map(item => row('habit:' + item.id, item.name,
+        item.mode === 'quantity' ? item.amount + ' / ' + item.target + ' ' + (item.unit || '') :
+        item.checked ? '今天已打卡' : '今天待打卡', item.checked ? '✓' : '›'))
+      if (!rows.length) rows.push(row('sync', '今天没有待办习惯', '点击刷新'))
+      this.addPages(rows, 'habit', s.hasMore.habits)
+    } else if (screen === 'habit') {
+      const habit = s.habits.find(item => item.id === this.selected)
+      if (!habit) { this.screen = 'habits'; this.updateRows(); return }
+      this.heading = '习惯'
+      rows = [row('info', habit.name, habit.date)]
+      if (habit.mode === 'quantity') {
+        rows.push(row('add', '记录 1 ' + (habit.unit || '次'), '本周期已记录 ' + habit.amount, '+'))
+        if (habit.target - habit.amount > 1) rows.push(row('remaining', '记录剩余 ' + (habit.target - habit.amount) + ' ' + (habit.unit || ''), '', '+'))
+      } else {
+        rows.push(habit.checked ? row('info', '今天已打卡', '', '✓') : row('add', '今天打卡', '', '✓'))
+      }
+    } else if (screen === 'focus') {
+      this.heading = '专注'
+      const focus = s.focus
+      if (focus) {
+        const elapsed = focus.elapsedSeconds + (focus.status === 'running' ? Math.max(0, (Date.now() - this.receivedAt) / 1000) : 0)
+        const remaining = focus.mode !== 'stopwatch' && focus.targetMinutes ? focus.targetMinutes * 60 - elapsed : elapsed
+        rows = [row('info', clock(remaining), focus.title || '自由专注'),
+          row(focus.status === 'running' ? 'pause' : 'resume', focus.status === 'running' ? '暂停' : '继续'),
+          row('finish', '结束专注')]
+      } else rows = [row('pomodoro', '开始番茄钟', s.focusMinutes + ' 分钟', '›'), row('stopwatch', '开始正计时', '', '›')]
+    }
+    this.rows = rows
+  },
+  addPages(rows, kind, more) {
+    if (this.offsets[kind]) rows.push(row('prev:' + kind, '上一页', '', '‹'))
+    if (more) rows.push(row('next:' + kind, '下一页', '', '›'))
+  },
+  choose(key) {
+    if (this.busy || !this.snapshot || key === 'info') return
+    const s = this.snapshot
+    const split = key.indexOf(':')
+    const type = split < 0 ? key : key.slice(0, split)
+    const id = split < 0 ? '' : key.slice(split + 1)
+    if (type === 'sync') return this.refresh()
+    if (type === 'prev' || type === 'next') {
+      return this.run(async () => {
+        const old = this.offsets[id]
+        this.offsets[id] = Math.max(0, old + (type === 'next' ? 12 : -12))
+        try { await this.sync() } catch (e) { this.offsets[id] = old; throw e }
+      })
+    }
+    if (type === 'list' || type === 'all' || type === 'today') {
+      const list = s.lists.find(item => item.id === id)
+      const nextName = type === 'today' ? '今日待办' : type === 'all' ? '全部待办' : list.name
+      return this.run(async () => {
+        const old = [this.listId, this.listName, this.offsets.task, this.todayOnly]
+        this.todayOnly = type === 'today'
+        this.listId = id
+        this.listName = nextName
+        this.offsets.task = 0
+        try { await this.sync() } catch (e) {
+          this.listId = old[0]; this.listName = old[1]; this.offsets.task = old[2]; this.todayOnly = old[3]
+          throw e
+        }
+        this.screen = 'tasks'
+        this.updateRows()
+      })
+    }
+    if (type === 'complete' || type === 'taskfocus') {
+      const task = s.tasks.find(item => item.id === this.selected)
+      if (!task) return this.refresh()
+      if (type === 'complete') return this.act('set_occurrence_status', { id: task.id, expectedRevision: task.revision, status: 'done' })
+      return this.act('start_focus', { mode: 'pomodoro', targetMinutes: s.focusMinutes, occurrenceId: task.id })
+    }
+    if (type === 'pomodoro' || type === 'stopwatch') {
+      const payload = { mode: type }
+      if (type === 'pomodoro') payload.targetMinutes = s.focusMinutes
+      return this.act('start_focus', payload)
+    }
+    if (type === 'pause' || type === 'resume' || type === 'finish') {
+      if (!s.focus) return this.refresh()
+      return this.act('control_focus', { id: s.focus.id, expectedRevision: s.focus.revision, operation: type })
+    }
+    if (type === 'add' || type === 'remaining') {
+      const habit = s.habits.find(item => item.id === this.selected)
+      if (!habit || (habit.mode !== 'quantity' && habit.checked)) return this.refresh()
+      return this.act('checkin_habit', { habitId: habit.id, localDate: habit.date, amount: type === 'add' ? 1 : habit.target - habit.amount })
+    }
+    this.selected = id
+    this.screen = type
+    this.updateRows()
+  }
+}
+</script>
+
+<style>
+.page { width: 466px; height: 466px; flex-direction: column; align-items: center; background-color: #080e0d; padding-top: 36px; }
+.brand, .back { color: #96e6bd; font-size: 23px; height: 36px; text-align: center; width: 180px; }
+.heading { font-size: 39px; color: #f1f9f4; font-weight: bold; text-align: center; width: 330px; height: 64px; lines: 1; text-overflow: ellipsis; }
+.content { width: 346px; height: 315px; }
+.row, .notice { width: 346px; min-height: 76px; padding: 10px 22px; margin-bottom: 6px; align-items: center; background-color: #182822; border-radius: 24px; }
+.copy { flex: 1; flex-direction: column; }
+.label { font-size: 27px; color: #f1f9f4; lines: 2; text-overflow: ellipsis; }
+.mark { color: #96e6bd; font-size: 29px; }
+.detail, .small { font-size: 20px; color: #acd0bb; lines: 2; text-overflow: ellipsis; }
+.bottom { height: 64px; }
+.center { width: 326px; height: 270px; align-items: center; justify-content: center; flex-direction: column; }
+.code { font-size: 48px; color: #96e6bd; text-align: center; }
+.message { font-size: 25px; text-align: center; color: #d3e2d7; margin: 12px 0; }
+.button { font-size: 24px; color: #0c271a; background-color: #96e6bd; border-radius: 28px; text-align: center; padding: 11px 26px; }
+</style>

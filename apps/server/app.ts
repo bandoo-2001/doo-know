@@ -64,6 +64,7 @@ import type { GitExec } from './git/transport.js';
 import { pluginInstallJobs, registerPluginInstallRoutes } from './plugins/install-jobs.js';
 import { registerBlogRoutes } from './blog/routes.js';
 import { registerToDooRoutes } from './to-doo/routes.js';
+import { registerWatchRoutes, watchDeviceRoutes } from './to-doo/watch-routes.js';
 import { registerToDooInteropRoutes } from './to-doo/interop-routes.js';
 import { registerToDooPushRoutes } from './to-doo/push-routes.js';
 import { ZodError } from 'zod';
@@ -151,6 +152,11 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     )
       return;
     if (req.url.startsWith('/api/agent/v1/')) return;
+    if (watchDeviceRoutes.has(req.routeOptions.url ?? '')) {
+      if ((db.prepare('SELECT active FROM maintenance WHERE id=1').get() as { active: number }).active)
+        return reply.code(503).send({ error: '维护中，请稍后重试' });
+      return;
+    }
     const session = await auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
     if (!session) return reply.code(401).send({ error: '请登录后访问' });
     (req as any).ownerId = session.user.id;
@@ -244,6 +250,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     return createOutcomeNoteService(runtime.config, db, runtime.notes, runtime.toDoo);
   });
   registerToDooInteropRoutes(app, () => platform.get().toDooInterop);
+  registerWatchRoutes(app, db, () => platform.get());
   registerToDooPushRoutes(app, () => platform.get().toDooNotifications, () => platform.get().toDoo, { db });
   registerToDooAssetRoutes(app, () => {
     const runtime = platform.get();
