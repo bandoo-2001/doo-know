@@ -398,15 +398,26 @@ const topicOptions = computed(() => [
       ]
     : []),
 ]);
-const taskOptions = computed(() => [
+const taskOptions = computed(() => {
+  const tasks = new Map<string, ToDooEntityMap['task']>();
+  for (const task of state.snapshot?.tasks || [])
+    if (!task.deletedAt && !tasks.has(task.id)) tasks.set(task.id, task);
+  let lists: Map<string, ToDooEntityMap['list']> | undefined;
+  const findList = (id: string) => {
+    if (!lists) {
+      lists = new Map();
+      for (const list of props.model.taskLists())
+        if (!lists.has(list.id)) lists.set(list.id, list);
+    }
+    return lists.get(id);
+  };
+  return [
   { value: '', label: '不关联任务' },
   ...(state.snapshot?.occurrences ?? [])
     .filter((row) => !row.deletedAt && !['done', 'cancelled', 'skipped'].includes(row.status))
     .flatMap((row) => {
-      const task = state.snapshot?.tasks.find((task) => task.id === row.taskId && !task.deletedAt);
-      const list = task?.listId
-        ? props.model.taskLists().find((list) => list.id === task.listId)
-        : undefined;
+      const task = tasks.get(row.taskId);
+      const list = task?.listId ? findList(task.listId) : undefined;
       return task && !task.archivedAt
         ? [
             {
@@ -419,7 +430,8 @@ const taskOptions = computed(() => [
           ]
         : [];
     }),
-]);
+];
+});
 const elapsed = computed(() => (active.value ? focusElapsed(active.value, now.value) : 0));
 // A countdown shows the remaining share. An open-ended stopwatch has no percentage.
 const dialRemaining = computed(() => {
