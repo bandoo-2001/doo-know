@@ -368,6 +368,22 @@ export function deriveToDooItems(
   filter: ToDooFilter = {},
   sort = 'manual',
 ): ToDooItem[] {
+  const occurrencesByTask = new Map<string, ToDooOccurrence[]>();
+  for (const occurrence of data.occurrences) {
+    if (occurrence.deletedAt && !filter.includeDeleted && filter.taskScope !== 'trash') continue;
+    let bucket = occurrencesByTask.get(occurrence.taskId);
+    if (!bucket) occurrencesByTask.set(occurrence.taskId, bucket = []);
+    bucket.push(occurrence);
+  }
+  const blocksByOccurrence = new Map<string | null | undefined, ToDooEntityMap['timeBlock'][]>();
+  for (const block of data.timeBlocks) {
+    if (block.deletedAt) continue;
+    let bucket = blocksByOccurrence.get(block.occurrenceId);
+    if (!bucket) blocksByOccurrence.set(block.occurrenceId, bucket = []);
+    bucket.push(block);
+  }
+  const listsById = new Map<string | null | undefined, ToDooEntityMap['list']>();
+  for (const list of data.lists) if (!listsById.has(list.id)) listsById.set(list.id, list);
   const tasks = data.tasks.filter(
     (t) => filter.taskScope === 'trash'
       ? !!t.deletedAt
@@ -378,12 +394,9 @@ export function deriveToDooItems(
   const taskMap = new Map(tasks.map((t) => [t.id, t]));
   const rows = tasks
     .flatMap((task) => {
-      const occurrences = data.occurrences.filter(
-        (o) => o.taskId === task.id && (!o.deletedAt || filter.includeDeleted || filter.taskScope === 'trash'),
-      );
+      const occurrences = occurrencesByTask.get(task.id) ?? [];
       return (occurrences.length ? occurrences : [null]).map((occurrence) => {
-        const blocks = data.timeBlocks
-          .filter((b) => !b.deletedAt && b.occurrenceId === occurrence?.id)
+        const blocks = (blocksByOccurrence.get(occurrence?.id) ?? [])
           .map((b) => ({
             ...b,
             start: b.allDay ? b.start : toDooDisplayTime(b.start, data.settings.timeZone),
@@ -406,7 +419,7 @@ export function deriveToDooItems(
           task,
           occurrence,
           blocks,
-          list: data.lists.find((l) => l.id === task.listId),
+          list: listsById.get(task.listId),
           title: occurrence?.titleOverride || task.title,
           status: occurrence?.status || 'unavailable',
           date:
