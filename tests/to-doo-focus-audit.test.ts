@@ -781,6 +781,31 @@ test.each(['all', 'project'] as const)(
   },
 );
 
+test.each(['all', 'project'] as const)(
+  'an explicit %s history action navigates without a DOM and keeps focus optional',
+  async (action) => {
+    expect(typeof document).toBe('undefined');
+    const onContextChange = vi.fn();
+    const f = isolatedFocus(undefined, 2, { context: 'projects', onContextChange });
+    const projects = { contains: vi.fn(() => false) };
+    const records = { contains: vi.fn(() => false), setAttribute: vi.fn(), focus: vi.fn() };
+    f.setup.projectsSection = projects;
+    f.setup.recordsSection = records;
+    await settle();
+    if (action === 'all') f.setup.viewAllHistory();
+    else f.setup.viewTopicHistory({ id: 'topic' });
+    await settle();
+    expect(onContextChange).toHaveBeenLastCalledWith('history');
+    expect(f.setup.topicFilter).toBe(action === 'all' ? '' : 'topic');
+    f.setContext('history');
+    await settle();
+    expect(f.setup.mobilePane).toBe('history');
+    expect(projects.contains).not.toHaveBeenCalled();
+    expect(records.focus).not.toHaveBeenCalled();
+    expect(f.subject.execute).not.toHaveBeenCalled();
+  },
+);
+
 test('an external pane update keeps focus on a control outside the leaving pane', async () => {
   const f = focusNavigationFixture();
   await settle();

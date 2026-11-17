@@ -99,6 +99,10 @@ async function revealContext() {
 let historyActionFocus: { origin: Element | null } | undefined;
 function focusRequestedHistory(request: NonNullable<typeof historyActionFocus>) {
   if (historyActionFocus !== request) return;
+  if (typeof document === 'undefined') {
+    historyActionFocus = undefined;
+    return;
+  }
   const current = document.activeElement;
   // Keep a delayed navigation from stealing focus after the user has moved on.
   if (
@@ -116,19 +120,20 @@ function focusRequestedHistory(request: NonNullable<typeof historyActionFocus>) 
   recordsSection.value?.focus?.({ preventScroll: true });
 }
 async function showHistoryFromAction() {
-  const request = (historyActionFocus = { origin: document.activeElement });
+  const request = (historyActionFocus =
+    typeof document === 'undefined' ? undefined : { origin: document.activeElement });
   mobilePane.value = 'history';
   await nextTick();
   // Dropdown items are portalled outside the pane being left. A successful
   // controlled context may be acknowledged after this first render tick.
-  focusRequestedHistory(request);
+  if (request) focusRequestedHistory(request);
   if (mobilePane.value === 'history') await revealContext();
 }
 watch(
   () => props.context,
   async (_context, previous) => {
     const leaving = previous === 'history' ? recordsSection.value : projectsSection.value;
-    const moveFocus = leaving?.contains?.(document.activeElement);
+    const moveFocus = typeof document !== 'undefined' && leaving?.contains?.(document.activeElement);
     const actionRequest = historyActionFocus;
     await nextTick();
     if (actionRequest) focusRequestedHistory(actionRequest);
