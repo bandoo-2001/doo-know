@@ -96,13 +96,43 @@ async function revealContext() {
   const target = mobilePane.value === 'history' ? recordsSection.value : projectsSection.value;
   target?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
 }
+let historyActionFocus: { origin: Element | null } | undefined;
+function focusRequestedHistory(request: NonNullable<typeof historyActionFocus>) {
+  if (historyActionFocus !== request) return;
+  const current = document.activeElement;
+  // Keep a delayed navigation from stealing focus after the user has moved on.
+  if (
+    !visible.value ||
+    (current !== request.origin &&
+      current !== document.body &&
+      !projectsSection.value?.contains(current))
+  ) {
+    historyActionFocus = undefined;
+    return;
+  }
+  if (mobilePane.value !== 'history') return;
+  historyActionFocus = undefined;
+  recordsSection.value?.setAttribute?.('tabindex', '-1');
+  recordsSection.value?.focus?.({ preventScroll: true });
+}
+async function showHistoryFromAction() {
+  const request = (historyActionFocus = { origin: document.activeElement });
+  mobilePane.value = 'history';
+  await nextTick();
+  // Dropdown items are portalled outside the pane being left. A successful
+  // controlled context may be acknowledged after this first render tick.
+  focusRequestedHistory(request);
+  if (mobilePane.value === 'history') await revealContext();
+}
 watch(
   () => props.context,
   async (_context, previous) => {
     const leaving = previous === 'history' ? recordsSection.value : projectsSection.value;
     const moveFocus = leaving?.contains?.(document.activeElement);
+    const actionRequest = historyActionFocus;
     await nextTick();
-    if (moveFocus) {
+    if (actionRequest) focusRequestedHistory(actionRequest);
+    else if (moveFocus) {
       const target = mobilePane.value === 'history' ? recordsSection.value : projectsSection.value;
       target?.setAttribute?.('tabindex', '-1');
       target?.focus?.({ preventScroll: true });
@@ -681,6 +711,7 @@ function activate() {
 function deactivate() {
   activityEpoch++;
   visible.value = false;
+  historyActionFocus = undefined;
   timerSettings.value = false;
   if (!active.value) chosen.value = '';
   finishedTaskSession.value = undefined;
@@ -779,7 +810,7 @@ function chooseTopic(topic: Topic) {
 function viewTopicHistory(topic: Topic) {
   sourceSessionId.value = '';
   topicFilter.value = topic.id;
-  mobilePane.value = 'history';
+  void showHistoryFromAction();
 }
 function openTrend(topic: Topic) {
   viewTopicHistory(topic);
@@ -824,7 +855,7 @@ function viewAllHistory() {
   const hadSource = !!sourceSessionId.value;
   sourceSessionId.value = '';
   topicFilter.value = '';
-  mobilePane.value = 'history';
+  void showHistoryFromAction();
   if (hadSource && !changed) void load();
 }
 async function start(topic?: Topic) {

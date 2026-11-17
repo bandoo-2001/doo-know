@@ -1,5 +1,5 @@
 import { expect, it, vi } from 'vitest';
-import { mkdir, readFile, readlink, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readlink, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { createServer } from 'node:http';
 import Database from 'better-sqlite3';
@@ -7,6 +7,9 @@ import { createFixture } from './support/fixture.js';
 import { acquireInstance } from '../apps/server/platform/instance.js';
 import { rollbackPlatform } from '../apps/server/platform/updates.js';
 import { noteService } from '../packages/core/notes.js';
+import { createToDooService } from '../packages/core/to-doo/service.js';
+import { entityPath } from '../packages/core/to-doo/store.js';
+import { knowledgeDataDirectory } from '../packages/core/knowledge-data-path.js';
 
 // Exercise real rollback, database snapshot and candidate execution. Only the host's
 // systemd boundary is substituted; these tests must never control a real unit.
@@ -122,4 +125,29 @@ it('rejects generation-four diagram data rollback to the generation-three releas
     expect(await f.actions()).not.toMatch(/stop|start/);
     await f.unchanged();
   } finally { await f.close(); }
+});
+
+it('refuses generation-seven To Doo rollback to legacy generation six before stopping or writing management/data state', async () => {
+  const f = await rollbackFixture(true, 7, 6);
+  const db = new Database(join(f.config.dataRoot, 'app.sqlite'));
+  const todo = createToDooService(f.config, db, noteService(f.config, db));
+  try {
+    const root = todo.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+      payload: { kind: 'list', entity: { name: 'Root', icon: 'folder' } } }).ids[0];
+    const child = todo.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+      payload: { kind: 'list', entity: { name: 'Child', parentId: root, icon: '🎨' } } }).ids[0];
+    const anniversary = todo.command({ requestId: crypto.randomUUID(), action: 'save_entity',
+      payload: { kind: 'anniversary', entity: { name: 'Pixel', date: '2026-11-17',
+        appearance: { style: 'pixel', palette: 'ocean' } } } }).ids[0];
+    const paths = [entityPath('list', child), entityPath('anniversary', anniversary)]
+      .map(path => join(knowledgeDataDirectory(f.config.knowledgeRoot), path));
+    const bytes = await Promise.all(paths.map(path => readFile(path)));
+    const rows = db.prepare('SELECT * FROM todo_entities ORDER BY kind,id').all();
+    await expect(rollbackPlatform(f.config)).rejects.toThrow('此迁移不支持普通代码回退');
+    expect(await f.actions()).not.toMatch(/stop|start/);
+    await expect(stat(join(f.installRoot, 'management.sqlite'))).rejects.toMatchObject({ code: 'ENOENT' });
+    expect(db.prepare('SELECT * FROM todo_entities ORDER BY kind,id').all()).toEqual(rows);
+    expect(await Promise.all(paths.map(path => readFile(path)))).toEqual(bytes);
+    await f.unchanged();
+  } finally { todo.close(); db.close(); await f.close(); }
 });

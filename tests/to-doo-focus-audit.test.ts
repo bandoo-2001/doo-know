@@ -693,6 +693,7 @@ test('cancelling the descendant confirmation leaves the focused task incomplete'
 function isolatedFocus(
   confirm = vi.fn<(_: string) => Promise<boolean>>().mockResolvedValue(true),
   count = 2,
+  extraProps: Record<string, any> = {},
 ) {
   const subject = Object.assign(model(count), { saveEntity: vi.fn(async () => ({})) });
   subject.state.snapshot.datasetId = 'fixture';
@@ -714,13 +715,124 @@ function isolatedFocus(
     render: () => null,
   };
   const onTask = vi.fn();
-  const app = renderer.createApp(implementation, { model: subject, onTask });
+  const app = renderer.createApp(implementation, { ...extraProps, model: subject, onTask });
   const instance = app.mount({});
   cleanups.push(() => app.unmount());
   const setup = (instance.$ as any).setupState;
   setup.visible = true;
-  return { subject, setup, confirm, onTask };
+  return {
+    subject,
+    setup,
+    confirm,
+    onTask,
+    setContext: (value: string) => {
+      (instance.$ as any).props.context = value;
+    },
+  };
 }
+
+function focusNavigationFixture(acknowledgeImmediately = true) {
+  const portalItem = {},
+    projectButton = {},
+    outside = {};
+  const document = {
+    activeElement: portalItem,
+    visibilityState: 'visible',
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  };
+  vi.stubGlobal('document', document);
+  let fixture: ReturnType<typeof isolatedFocus>;
+  fixture = isolatedFocus(undefined, 2, {
+    context: 'projects',
+    contextualNavigation: true,
+    onContextChange: (value: string) => {
+      if (acknowledgeImmediately) fixture.setContext(value);
+    },
+  });
+  fixture.setup.narrowTimer = true;
+  const projects = { contains: vi.fn((element: unknown) => element === projectButton) };
+  const records = {
+    setAttribute: vi.fn(),
+    focus: vi.fn(() => {
+      document.activeElement = records;
+    }),
+    contains: vi.fn(() => false),
+  };
+  fixture.setup.projectsSection = projects;
+  fixture.setup.recordsSection = records;
+  return { ...fixture, document, portalItem, projectButton, outside, projects, records };
+}
+
+test.each(['all', 'project'] as const)(
+  'an explicit %s history action focuses its visible pane even when the menu item is portalled',
+  async (action) => {
+    const f = focusNavigationFixture();
+    await settle();
+    expect(f.projects.contains(f.document.activeElement)).toBe(false);
+    if (action === 'all') f.setup.viewAllHistory();
+    else f.setup.viewTopicHistory({ id: 'topic' });
+    await settle();
+    expect(f.setup.mobilePane).toBe('history');
+    expect(f.records.setAttribute).toHaveBeenCalledWith('tabindex', '-1');
+    expect(f.records.focus).toHaveBeenCalledOnce();
+    expect(f.records.focus).toHaveBeenCalledWith({ preventScroll: true });
+    expect(f.subject.execute).not.toHaveBeenCalled();
+  },
+);
+
+test('an external pane update keeps focus on a control outside the leaving pane', async () => {
+  const f = focusNavigationFixture();
+  await settle();
+  f.document.activeElement = f.outside;
+  f.setContext('history');
+  await settle();
+  expect(f.setup.mobilePane).toBe('history');
+  expect(f.records.focus).not.toHaveBeenCalled();
+  expect(f.document.activeElement).toBe(f.outside);
+});
+
+test('a portal navigation keeps its explicit focus request until the controlled context is acknowledged', async () => {
+  const f = focusNavigationFixture(false);
+  await settle();
+  f.setup.viewAllHistory();
+  await settle();
+  expect(f.setup.mobilePane).toBe('projects');
+  expect(f.records.focus).not.toHaveBeenCalled();
+  f.setContext('history');
+  await settle();
+  expect(f.records.focus).toHaveBeenCalledOnce();
+});
+
+test('a delayed context acknowledgement cannot take focus after the user moves to another control', async () => {
+  const f = focusNavigationFixture(false);
+  await settle();
+  f.setup.viewAllHistory();
+  await settle();
+  f.document.activeElement = f.outside;
+  f.setContext('history');
+  await settle();
+  expect(f.records.focus).not.toHaveBeenCalled();
+  expect(f.document.activeElement).toBe(f.outside);
+});
+
+test('an external pane update still moves focus when it would otherwise remain in hidden content', async () => {
+  const f = focusNavigationFixture();
+  await settle();
+  f.document.activeElement = f.projectButton;
+  f.setContext('history');
+  await settle();
+  expect(f.records.focus).toHaveBeenCalledOnce();
+});
+
+test('a history action that is followed by deactivation cannot take focus later', async () => {
+  const f = focusNavigationFixture();
+  await settle();
+  f.setup.viewAllHistory();
+  f.setup.visible = false;
+  await settle();
+  expect(f.records.focus).not.toHaveBeenCalled();
+});
 
 async function loadedFocus(confirm?: ReturnType<typeof vi.fn<(_: string) => Promise<boolean>>>) {
   const fixture = isolatedFocus(confirm);

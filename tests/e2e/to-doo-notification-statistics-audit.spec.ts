@@ -1,3 +1,4 @@
+import { readToDooTaskContext } from '../support/to-doo-task-fixture';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
@@ -190,9 +191,8 @@ test('archiving preserves the displayed historical completion and zero days have
   page,
 }) => {
   const created = await command(page, 'create_task', { title: '归档后保留的历史完成' });
-  const occurrence = created.snapshot.occurrences.find(
-    (value: any) => value.taskId === created.ids[0],
-  );
+  const createdContext = await readToDooTaskContext(page, created.ids[0]);
+  const occurrence = createdContext.occurrences.find(value => value.taskId === created.ids[0])!;
   await command(page, 'set_occurrence_status', {
     id: occurrence.id,
     expectedRevision: occurrence.revision,

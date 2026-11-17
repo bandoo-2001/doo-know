@@ -1,5 +1,7 @@
 import { selectToDooContext } from '../support/to-doo-navigation';
 import { readFile } from 'node:fs/promises';
+import type { Page } from '@playwright/test';
+import type { ToDooSnapshot } from '../../shared/to-doo-contracts';
 import { test, expect } from '../support/browser-test';
 import { fillToDooDate, selectToDooOption } from '../support/to-doo-ant-controls';
 import {
@@ -7,6 +9,82 @@ import {
   readHabitTestEntities,
   revealHabitTestCard,
 } from '../support/to-doo-habit-fixture';
+
+async function dismissOwnedHabitReminders(
+  page: Page,
+  habitId: string,
+  datasetId: string,
+  ruleIds: ReadonlySet<string>,
+) {
+  const csrf = await (await page.request.get('/api/security/csrf')).json();
+  const headers = { origin: String(test.info().project.use.baseURL), 'x-csrf-token': csrf.token };
+  const read = async (query: URLSearchParams) => {
+    const response = await page.request.get('/api/to-doo/state?' + query);
+    expect(response.ok(), await response.text()).toBe(true);
+    const snapshot = (await response.json()) as ToDooSnapshot;
+    expect(snapshot.datasetId).toBe(datasetId);
+    return snapshot;
+  };
+  const ownHabit = async () => (await read(new URLSearchParams({ kind: 'habit', ids: habitId })))
+    .habits.find(habit => habit.id === habitId);
+  // Stop only this case's rules before retiring events, so the scheduler cannot
+  // legitimately create another delivery after the case has finished.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const habit = await ownHabit();
+    if (!habit || !habit.reminders.some(rule => ruleIds.has(rule.id))) break;
+    const response = await page.request.post('/api/to-doo/commands', {
+      headers,
+      data: { requestId: crypto.randomUUID(), action: 'save_entity', payload: {
+        kind: 'habit', expectedRevision: habit.revision,
+        entity: { ...habit, reminders: habit.reminders.filter(rule => !ruleIds.has(rule.id)) },
+      } },
+    });
+    if (response.status() === 409 && attempt < 2) continue;
+    expect(response.ok(), await response.text()).toBe(true);
+    break;
+  }
+  expect((await ownHabit())?.reminders.some(rule => ruleIds.has(rule.id)) ?? false).toBe(false);
+  const ownedEvents = async () => {
+    const events: ToDooSnapshot['reminderEvents'] = [];
+    const seen = new Set<string>();
+    let cursor: string | undefined;
+    do {
+      const query = new URLSearchParams({ kind: 'reminderEvent', sort: 'recent', limit: '500' });
+      if (cursor) query.set('cursor', cursor);
+      const snapshot = await read(query);
+      events.push(...snapshot.reminderEvents.filter(event =>
+        event.sourceType === 'habit' && event.sourceId === habitId && !event.deletedAt));
+      cursor = snapshot.page.nextCursor || undefined;
+      if (cursor) {
+        expect(seen.has(cursor)).toBe(false);
+        seen.add(cursor);
+      }
+    } while (cursor);
+    return events.filter(event => ['unread', 'snoozed'].includes(event.userState));
+  };
+  // A second bounded sweep also catches a delivery already being reconciled
+  // when its rule was removed. Never act on another case's source or event.
+  for (let sweep = 0; sweep < 2; sweep++) {
+    const pending = await ownedEvents();
+    if (!pending.length) break;
+    for (const owned of pending) {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const snapshot = await read(new URLSearchParams({ kind: 'reminderEvent', ids: owned.id }));
+        const event = snapshot.reminderEvents.find(value => value.id === owned.id &&
+          value.sourceType === 'habit' && value.sourceId === habitId && !value.deletedAt);
+        if (!event || !['unread', 'snoozed'].includes(event.userState)) break;
+        const response = await page.request.post('/api/to-doo/reminders/' + event.id + '/action', {
+          headers,
+          data: { action: 'dismiss', requestId: crypto.randomUUID(), expectedRevision: event.revision },
+        });
+        if (response.status() === 409 && attempt < 2) continue;
+        expect(response.ok(), await response.text()).toBe(true);
+        break;
+      }
+    }
+  }
+  expect(await ownedEvents()).toHaveLength(0);
+}
 
 test.beforeEach(async ({ page, context }, info) => {
   await isolateHabitTestReminderOverlays(context);
@@ -112,38 +190,42 @@ test('editing a basic reminder retains the existing custom reminder rules', asyn
     new Date(serverState.now),
   );
   const csrf = await (await page.request.get('/api/security/csrf')).json();
-  const created = await page.request.post('/api/to-doo/commands', {
-    headers: { origin: String(test.info().project.use.baseURL), 'x-csrf-token': csrf.token },
-    data: {
-      requestId: crypto.randomUUID(),
-      action: 'save_entity',
-      payload: {
-        kind: 'habit',
-        entity: { id, name, startDate, timeZone, reminders },
+  try {
+    const created = await page.request.post('/api/to-doo/commands', {
+      headers: { origin: String(test.info().project.use.baseURL), 'x-csrf-token': csrf.token },
+      data: {
+        requestId: crypto.randomUUID(),
+        action: 'save_entity',
+        payload: {
+          kind: 'habit',
+          entity: { id, name, startDate, timeZone, reminders },
+        },
       },
-    },
-  });
-  expect(created.ok()).toBe(true);
-  await page.reload();
-  await revealHabitTestCard(page, name);
-  await page.getByRole('button', { name, exact: true }).click();
-  await page
-    .getByRole('region', { name: '习惯详情 ' + name, exact: true })
-    .getByRole('button', { name: '编辑习惯', exact: true })
-    .click();
-  const editor = page.getByRole('dialog', { name: '编辑习惯', exact: true });
-  await fillToDooDate(editor.getByLabel('提醒时间 1', { exact: true }), '10:30');
-  await expect(editor.getByText('自定义提醒', { exact: true })).toBeVisible();
-  await editor.getByRole('button', { name: '保存', exact: true }).click();
-  await expect(editor).not.toBeVisible();
-  const response = await page.request.get('/api/to-doo/state?kind=habit&ids=' + id);
-  expect(response.ok()).toBe(true);
-  const state = await response.json();
-  expect(state.habits[0].reminders).toMatchObject([
-    { ...reminders[0], allDayTime: '10:30' },
-    reminders[1],
-    reminders[2],
-  ]);
+    });
+    expect(created.ok()).toBe(true);
+    await page.reload();
+    await revealHabitTestCard(page, name);
+    await page.getByRole('button', { name, exact: true }).click();
+    await page
+      .getByRole('region', { name: '习惯详情 ' + name, exact: true })
+      .getByRole('button', { name: '编辑习惯', exact: true })
+      .click();
+    const editor = page.getByRole('dialog', { name: '编辑习惯', exact: true });
+    await fillToDooDate(editor.getByLabel('提醒时间 1', { exact: true }), '10:30');
+    await expect(editor.getByText('自定义提醒', { exact: true })).toBeVisible();
+    await editor.getByRole('button', { name: '保存', exact: true }).click();
+    await expect(editor).not.toBeVisible();
+    const response = await page.request.get('/api/to-doo/state?kind=habit&ids=' + id);
+    expect(response.ok()).toBe(true);
+    const state = await response.json();
+    expect(state.habits[0].reminders).toMatchObject([
+      { ...reminders[0], allDayTime: '10:30' },
+      reminders[1],
+      reminders[2],
+    ]);
+  } finally {
+    await dismissOwnedHabitReminders(page, id, serverState.datasetId, new Set(reminders.map(rule => rule.id)));
+  }
 });
 
 test('converting a restricted weekly quantity shows its allowed dates and a reachable day target', async ({

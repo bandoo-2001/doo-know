@@ -141,7 +141,7 @@ test('an unstarted goal creates its first action in that goal', async ({ page })
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
   await expect(card).toContainText('0 / 1');
   const snapshot = (await (
-    await page.request.get('/api/to-doo/state?kind=task&limit=1000')
+    await page.request.get('/api/to-doo/state?kind=task&listIds=' + listId)
   ).json()) as ToDooSnapshot;
   expect(snapshot.tasks.find((task) => task.title === title)).toMatchObject({ listId });
 });
@@ -192,7 +192,7 @@ test('narrow task lists retain keyboard details and quick capture in both themes
   await expect(page.getByRole('button', { name: quickTitle, exact: true })).toBeVisible();
   await expect(capture).toHaveValue('');
   const snapshot = (await (
-    await page.request.get('/api/to-doo/state?kind=task&limit=1000')
+    await page.request.get('/api/to-doo/state?kind=task&listIds=' + listId)
   ).json()) as ToDooSnapshot;
   expect(snapshot.tasks.find((task) => task.title === quickTitle)).toMatchObject({ listId });
 });

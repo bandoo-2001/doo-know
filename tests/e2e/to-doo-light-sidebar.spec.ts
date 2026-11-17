@@ -1,3 +1,4 @@
+import { readToDooTaskContext } from '../support/to-doo-task-fixture';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import type { ToDooCommandResult, ToDooSnapshot } from '../../shared/to-doo-contracts';
@@ -144,7 +145,8 @@ test('deadline editing updates the summary and stays closed after reopening or c
   const otherTitle = '保留阅读状态 ' + suffix;
   await command(page, 'create_task', { title: otherTitle, listId: list.ids[0] });
   const taskId = created.ids[0];
-  const occurrenceId = created.snapshot.occurrences.find((item) => item.taskId === taskId)!.id;
+  const createdContext = await readToDooTaskContext(page, taskId);
+  const occurrenceId = createdContext.occurrences.find(item => item.taskId === taskId)!.id;
   await page.goto(
     '/?view=apps&app=to-doo&appSection=tasks&list=' + list.ids[0] + '&task=' + taskId,
   );
@@ -159,7 +161,8 @@ test('deadline editing updates the summary and stays closed after reopening or c
   const response = await saved;
   expect(response.ok()).toBe(true);
   const receipt = (await response.json()) as ToDooCommandResult;
-  expect(receipt.snapshot.occurrences.find((item) => item.id === occurrenceId)?.due).toMatchObject({
+  const persistedContext = await readToDooTaskContext(page, taskId);
+  expect(persistedContext.occurrences.find(item => item.id === occurrenceId)?.due).toMatchObject({
     date: '2031-04-19',
     time: '14:35',
   });
@@ -199,7 +202,8 @@ test('completion saves pending description after confirmation and later edits ke
   const title = '保留完成时的草稿 ' + info.project.name + '-' + crypto.randomUUID();
   const created = await command(page, 'create_task', { title, description: '原说明' });
   const taskId = created.ids[0];
-  const occurrenceId = created.snapshot.occurrences.find((item) => item.taskId === taskId)!.id;
+  const createdContext = await readToDooTaskContext(page, taskId);
+  const occurrenceId = createdContext.occurrences.find(item => item.taskId === taskId)!.id;
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all&task=' + taskId);
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   const detail = app.getByRole('complementary', { name: '任务详情', exact: true });
@@ -216,7 +220,7 @@ test('completion saves pending description after confirmation and later edits ke
   expect(completion.ok()).toBe(true);
   const completionReceipt = (await completion.json()) as ToDooCommandResult;
   expect(
-    completionReceipt.snapshot.occurrences.find((item) => item.id === occurrenceId)?.status,
+    (await readToDooTaskContext(page, taskId)).occurrences.find(item => item.id === occurrenceId)?.status,
   ).toBe('done');
   const persisted = await (await page.request.get('/api/to-doo/state?taskIds=' + taskId)).json();
   expect(persisted.tasks.find((task: { id: string }) => task.id === taskId)?.description).toBe(

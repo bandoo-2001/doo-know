@@ -168,8 +168,9 @@ try {
     builtAt: new Date().toISOString(),
     sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     dirty: !!execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim(),
-    // Older releases cannot safely write the migrated storage namespaces.
-    databaseCompatibility: 6,
+    // Legacy To Doo writers reject list hierarchy/icons and anniversary themes/images.
+    // Refuse code-only rollback before it can stop the current service or touch data.
+    databaseCompatibility: 7,
   };
   writeFileSync(join(stage, 'release.json'), JSON.stringify(release, null, 2) + '\n');
   const name = `dooknow-${version}-linux-x64.tar.gz`;

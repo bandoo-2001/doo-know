@@ -133,12 +133,17 @@ function preloadSection(section: ToDooAppSection) {
   if (key) void pageLoaders[key]().catch(() => undefined);
 }
 const ownerId = inject<Ref<string> | undefined>('dooknow.owner-id', undefined);
-const model = createToDooWorkbench(api, { recoveryScope: ownerId?.value }),
+const detailOpen = ref(false);
+const focusContextPending = ref(false);
+const model = createToDooWorkbench(api, {
+  recoveryScope: ownerId?.value,
+  taskContextVisible: () => detailOpen.value || !!props.selection.task ||
+    props.section === 'focus' && focusContextPending.value,
+}),
   state = model.state,
   creating = ref(false),
   parentId = ref<string>(),
   creatingListId = ref<string>(),
-  detailOpen = ref(false),
   focusOccurrence = ref(''),
   density = ref<ToDooDensity>(readDensity());
 function readDensity(): ToDooDensity {
@@ -437,35 +442,16 @@ function focusNavigationStart() {
   if (dialog && !dialog.contains(document.activeElement))
     dialog.querySelector<HTMLElement>('button:not([disabled])')?.focus({ preventScroll: true });
 }
+let detailSelectionIntent = 0;
 async function selectLinkedTask(id: string, occurrenceId?: string) {
-  await model.ensureTask(id);
-  if (props.selection.task !== id || props.selection.occurrence !== occurrenceId) return false;
-  if (
-    occurrenceId &&
-    !state.snapshot?.occurrences.some((o) => o.id === occurrenceId && o.taskId === id)
-  ) {
-    try {
-      const data = await model.request(
-        '/api/to-doo/state?kind=occurrence&ids=' + encodeURIComponent(occurrenceId),
-      );
-      if (props.selection.task !== id || props.selection.occurrence !== occurrenceId) return false;
-      if (
-        !data.occurrences.some(
-          (o: { id: string; taskId: string }) => o.id === occurrenceId && o.taskId === id,
-        )
-      ) {
-        state.error = '对应的任务执行记录已变化，请在通知中心核对';
-        return false;
-      }
-      model.acceptSnapshot(data, true);
-    } catch (cause) {
-      state.error = cause instanceof Error ? cause.message : String(cause);
-      return false;
-    }
-  }
+  const intent = ++detailSelectionIntent;
+  const current = () => intent === detailSelectionIntent && props.selection.task === id &&
+    props.selection.occurrence === occurrenceId;
+  const execution = occurrenceId || (state.selectedTaskId === id ? state.selectedOccurrenceId : undefined);
+  if (!await model.ensureTaskContext(id, execution, current, true) || !current()) return false;
   model.selectTask(
     id,
-    occurrenceId || (state.selectedTaskId === id ? state.selectedOccurrenceId : undefined),
+    execution,
   );
   detailOpen.value = true;
   return true;
@@ -958,7 +944,11 @@ async function stepDetail(direction: 'previous' | 'next') {
 }
 async function selectTask(id: string, occurrence?: string) {
   if ((id !== state.selectedTaskId || occurrence !== state.selectedOccurrenceId) && !allowDetailTransition()) return;
-  if (!state.snapshot?.tasks.some((t) => t.id === id)) await model.ensureTask(id);
+  const intent = ++detailSelectionIntent, section = props.section;
+  const routeTask = props.selection.task, routeOccurrence = props.selection.occurrence;
+  const current = () => intent === detailSelectionIntent && props.section === section &&
+    props.selection.task === routeTask && props.selection.occurrence === routeOccurrence;
+  if (!await model.ensureTaskContext(id, occurrence, current) || !current() || !allowDetailTransition()) return;
   model.selectTask(id, occurrence);
   creating.value = false;
   detailOpen.value = true;
@@ -1001,8 +991,13 @@ function closeDetail() {
 function startTaskFocus(occurrenceId?: string) {
   if (!allowDetailTransition()) return;
   focusOccurrence.value = occurrenceId || '';
+  focusContextPending.value = !!occurrenceId;
   detailOpen.value = false;
   chooseDestination('focus');
+}
+function consumeFocusTaskContext() {
+  focusOccurrence.value = '';
+  if (!state.loading) focusContextPending.value = false;
 }
 function openReminderSource(source: ToDooReminderSource) {
   navigate(source.section, {
@@ -1295,6 +1290,7 @@ watch(
       live = false;
     });
     const initialRange = currentDateRange();
+    if (props.section !== 'focus') focusContextPending.value = false;
     preloadSection(props.section);
     if (!previous || previous[4] !== props.selection.taskFilter)
       state.filter = toDooQuickFilter(
@@ -1315,6 +1311,7 @@ watch(
         : undefined,
     });
     if (!live) return;
+    if (props.section === 'focus') focusContextPending.value = false;
     const resolvedRange = currentDateRange();
     if (
       state.query.view === props.section &&
@@ -1783,7 +1780,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               @open-note="emit('open-note', $event)"
               @focus-session="openHabitFocusSession"
               @all-habits="chooseDestination('habits')"
-              @task-context-consumed="focusOccurrence = ''"
+              @task-context-consumed="consumeFocusTaskContext"
               @task="selectTask" /><ToDooReview
               v-else-if="section === 'stats' || section === 'notifications'"
               :key="'review:' + pageAttempts.review"

@@ -1,3 +1,4 @@
+import { readToDooTaskContext } from '../support/to-doo-task-fixture';
 import { selectToDooContext } from '../support/to-doo-navigation';
 import { readFile } from 'node:fs/promises';
 import type { Locator, Page, Request } from '@playwright/test';
@@ -98,9 +99,8 @@ test('period statistics and progress follow real seven-day, thirty-day and custo
     listId: list.ids[0],
     due: { date: today, timeZone: initial.settings.timeZone },
   });
-  const occurrence = created.snapshot.occurrences.find(
-    (item: any) => item.taskId === created.ids[0],
-  );
+  const createdContext = await readToDooTaskContext(page, created.ids[0]);
+  const occurrence = createdContext.occurrences.find(item => item.taskId === created.ids[0])!;
   await command(page, 'set_occurrence_status', {
     id: occurrence.id,
     expectedRevision: occurrence.revision,
@@ -248,7 +248,8 @@ test('focus and habit quantity modals cancel without writes and persist explicit
     today = dateInZone(initial.settings.timeZone);
   const name = 'Ant 数字记录 ' + info.project.name + '-' + crypto.randomUUID();
   const task = await command(page, 'create_task', { title: name });
-  const occurrence = task.snapshot.occurrences.find((item: any) => item.taskId === task.ids[0]);
+  const taskContext = await readToDooTaskContext(page, task.ids[0]);
+  const occurrence = taskContext.occurrences.find(item => item.taskId === task.ids[0])!;
   const now = new Date().toISOString();
   const session = await command(page, 'save_entity', {
     kind: 'focusSession',

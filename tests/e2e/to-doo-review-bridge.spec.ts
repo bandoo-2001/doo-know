@@ -1,3 +1,4 @@
+import { readToDooTaskContext } from '../support/to-doo-task-fixture';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
@@ -129,9 +130,8 @@ test('review goal progress and completion totals lead to real task destinations'
     title: '已完成的阅读行动 ' + suffix,
     listId: list.ids[0],
   });
-  const occurrence = finished.snapshot.occurrences.find(
-    (row: any) => row.taskId === finished.ids[0],
-  );
+  const finishedContext = await readToDooTaskContext(page, finished.ids[0]);
+  const occurrence = finishedContext.occurrences.find(row => row.taskId === finished.ids[0])!;
   await command(page, 'set_occurrence_status', {
     id: occurrence.id,
     expectedRevision: occurrence.revision,

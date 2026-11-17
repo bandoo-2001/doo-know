@@ -50,29 +50,42 @@ async function mockStatistics(page: import('@playwright/test').Page, populated: 
       ),
   });
   let writes = 0;
+  const aborted = new WeakSet<import('@playwright/test').Request>();
+  page.on('requestfailed', (request) => {
+    if (request.failure()?.errorText === 'net::ERR_ABORTED') aborted.add(request);
+  });
   await page.route('**/api/**', async (route) => {
     if (!['GET', 'HEAD', 'OPTIONS'].includes(route.request().method())) {
       writes++;
       return route.abort();
     }
     if (new URL(route.request().url()).pathname !== '/api/to-doo/state') return route.continue();
-    const response = await route.fetch();
-    const data = await response.json();
-    data.lists = [
-      ...(data.lists || []).filter((list: any) => list.kind !== 'goal'),
-      ...(populated ? goals : []),
-    ];
-    data.reviews = populated ? [review] : [];
-    data.outcomes = [];
-    data.statistics = {
-      ...data.statistics,
-      byList: {
-        ...(data.statistics?.byList || {}),
-        [goals[0].id]: { completed: 8, total: 12 },
-        [goals[1].id]: { completed: 0, total: 0 },
-      },
-    };
-    await route.fulfill({ response, json: data });
+    const request = route.request();
+    try {
+      const response = await route.fetch();
+      const data = await response.json();
+      data.lists = [
+        ...(data.lists || []).filter((list: any) => list.kind !== 'goal'),
+        ...(populated ? goals : []),
+      ];
+      data.reviews = populated ? [review] : [];
+      data.outcomes = [];
+      data.statistics = {
+        ...data.statistics,
+        byList: {
+          ...(data.statistics?.byList || {}),
+          [goals[0].id]: { completed: 8, total: 12 },
+          [goals[1].id]: { completed: 0, total: 0 },
+        },
+      };
+      await route.fulfill({ response, json: data });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      const confirmedAbort =
+        aborted.has(request) || request.failure()?.errorText === 'net::ERR_ABORTED';
+      if (confirmedAbort && /(?:net::ERR_ABORTED|Route is already handled!?)/.test(message)) return;
+      throw error;
+    }
   });
   return { goals, review, writes: () => writes };
 }

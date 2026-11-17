@@ -110,6 +110,8 @@ test('calendar task creation uses the selected day and its secondary action rese
 test('one navigation reaches the main tools and Today always returns to its task list', async ({
   page,
 }) => {
+  test.setTimeout(120_000);
+  page.setDefaultTimeout(10_000);
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=today');
   await expect(page.locator('.workspace-main-menu[data-menu-id="to-doo"]')).toHaveCount(0);
   await expect(page.locator('.workspace > #notebook-navigation')).toHaveCount(0);

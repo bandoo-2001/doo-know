@@ -223,7 +223,7 @@ test('group creation and view switching preserve the group, list and selected ta
       await expect(page.getByRole('textbox', { name: '连续安排开始时间', exact: true })).not.toBeVisible();
     }
   }
-  const stored = await (await page.request.get('/api/to-doo/state?kind=task&limit=1000')).json();
+  const stored = await (await page.request.get('/api/to-doo/state?kind=task&listIds=' + f.listId)).json();
   expect(stored.tasks.find((task: any) => task.title === title)).toMatchObject({
     listId: f.listId,
     sectionId: f.secondGroupId,
@@ -264,7 +264,7 @@ test('switching a new task to another list clears its original group', async ({ 
   await selectToDooOption(detail, '目标或清单', destinationName);
   await detail.getByRole('button', { name: '创建任务', exact: true }).click();
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
-  const stored = await (await page.request.get('/api/to-doo/state?kind=task&limit=1000')).json();
+  const stored = await (await page.request.get('/api/to-doo/state?kind=task&listIds=' + destination.ids[0])).json();
   expect(stored.tasks.find((task: any) => task.title === title)).toMatchObject({
     listId: destination.ids[0],
     sectionId: null,

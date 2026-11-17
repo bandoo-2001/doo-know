@@ -100,7 +100,11 @@ test('desktop pages keep one navigation and stable layout boundaries', async ({ 
     if (['tasks', 'board', 'matrix', 'timeline'].includes(section)) {
       await expect(taskNavigation).toBeVisible();
       const taskBounds = (await taskNavigation.boundingBox())!;
-      expect.soft(directory!.width, section + ': rail and task directory').toBeCloseTo(rail.width + taskBounds.width, 0);
+      const borders = await sidebar.evaluate(element => {
+        const style = getComputedStyle(element);
+        return parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth);
+      });
+      expect.soft(directory!.width, section + ': rail and task directory').toBeCloseTo(rail.width + taskBounds.width + borders, 0);
     } else {
       await expect(taskNavigation).toHaveCount(0);
       expect.soft(directory!.width, section + ': module rail').toBeCloseTo(rail.width, 0);

@@ -1,3 +1,4 @@
+import { readToDooTaskContext } from '../support/to-doo-task-fixture';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
@@ -52,7 +53,7 @@ test('a task enters focus and finishing saves time before an explicit task compl
   );
   await timer.getByRole('button', { name: '开始专注', exact: true }).click();
   expect((await started).postDataJSON().payload.occurrenceId).toBe(
-    created.snapshot.occurrences.find((row: any) => row.taskId === taskId).id,
+    (await readToDooTaskContext(page, taskId)).occurrences.find(row => row.taskId === taskId)!.id,
   );
   await expect(timer.getByRole('button', { name: '暂停', exact: true })).toBeVisible();
   await timer.getByRole('button', { name: '结束并保存', exact: true }).click();
@@ -130,7 +131,8 @@ test('the task picker distinguishes the same task title in different lists befor
   });
   await command(page, 'create_task', { title, listId: listA.ids[0] });
   const second = await command(page, 'create_task', { title, listId: listB.ids[0] });
-  const occurrence = second.snapshot.occurrences.find((row: any) => row.taskId === second.ids[0]);
+  const secondContext = await readToDooTaskContext(page, second.ids[0]);
+  const occurrence = secondContext.occurrences.find(row => row.taskId === second.ids[0])!;
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
   const timer = page.getByRole('region', { name: '专注计时器', exact: true });
   await selectToDooOption(timer, '专注任务', title + ' · 个人阅读 ' + suffix);

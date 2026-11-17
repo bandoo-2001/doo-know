@@ -221,7 +221,7 @@ test('priority edits persist independently from visible matrix classification an
     await expect(row).toHaveClass(new RegExp('todo-priority-' + priority));
     const checkbox = row.getByRole('button', { name: '完成 ' + title, exact: true });
     await expect(checkbox).toBeVisible();
-    priorityColors.push(await checkbox.evaluate(element => getComputedStyle(element).borderColor));
+    priorityColors.push(await checkbox.locator('.todo-check-indicator').evaluate(element => getComputedStyle(element).borderColor));
   }
   expect(new Set(priorityColors).size).toBe(4);
   await page.screenshot({

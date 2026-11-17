@@ -583,7 +583,10 @@ export function focusElapsed(session: ToDooEntityMap['focusSession'], now = Date
         0,
       );
 }
-export function createToDooWorkbench(request: ToDooRequest, options: { recoveryScope?: string } = {}) {
+export function createToDooWorkbench(request: ToDooRequest, options: {
+  recoveryScope?: string;
+  taskContextVisible?: () => boolean;
+} = {}) {
   const state = reactive({
     snapshot: null as ToDooSnapshot | null,
     selectedTaskId: '',
@@ -1038,6 +1041,8 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
   watch(() => [state.newTaskDrafts, state.pendingMutation, state.drafts, state.draftConflicts, state.draftRecurrenceScopes],
     persistRecovery, { deep: true });
   let generation = 0;
+  let taskContextRead = 0;
+  const taskContextVisible = () => options.taskContextVisible?.() !== false;
   const key = () => state.selectedTaskId + '@' + state.selectedOccurrenceId;
   const draft = () => state.drafts[key()];
   const getDraftRecurrenceScope = (draftKey = key()): 'all' | 'future' =>
@@ -1383,7 +1388,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     const datasetId = before.datasetId;
     await adoptCommandWorkset(result, clone(before), ticket);
     if (ticket !== generation || state.snapshot?.datasetId !== datasetId) return false;
-    if (state.selectedTaskId) selectTask(state.selectedTaskId, state.selectedOccurrenceId);
+    await restoreSelectedTaskContext();
     return true;
   }
   const hasUnsavedChanges = () =>
@@ -1394,17 +1399,24 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     Object.values(state.externalDirty).some(Boolean) ||
     Object.entries(state.drafts).some(([k, v]) => saved.get(k) !== fingerprint(v));
   function selectTask(id: string, occurrenceId?: string) {
+    if (state.selectedTaskId !== id || occurrenceId !== undefined && state.selectedOccurrenceId !== occurrenceId)
+      taskContextRead++;
     state.selectedTaskId = id;
     const data = state.snapshot,
       task = data?.tasks.find((t) => t.id === id);
-    const occurrence =
-      data?.occurrences.find((o) => o.id === occurrenceId && o.taskId === id && !o.deletedAt) ||
-      data?.occurrences
-        .filter((o) => o.taskId === id && !o.deletedAt)
-        .sort((a, b) => (a.scheduledDate || '').localeCompare(b.scheduledDate || ''))[0] ||
-      null;
     const retained = occurrenceId && state.drafts[id + '@' + occurrenceId];
-    state.selectedOccurrenceId = retained ? occurrenceId : occurrence?.id || '';
+    const exact = data?.occurrences.find((o) => o.id === occurrenceId && o.taskId === id);
+    const foreign = occurrenceId && data?.occurrences.some(o => o.id === occurrenceId && o.taskId !== id);
+    const occurrence =
+      (exact && !exact.deletedAt ? exact : null) ||
+      // A bounded page omitting an execution is not evidence that it disappeared.
+      (!exact && retained && retained.occurrence?.id === occurrenceId && retained.occurrence.taskId === id &&
+        !retained.occurrence.deletedAt ? retained.occurrence : null) ||
+      ((!occurrenceId || foreign) ? data?.occurrences
+        .filter((o) => o.taskId === id && !o.deletedAt)
+        .sort((a, b) => (a.scheduledDate || '').localeCompare(b.scheduledDate || ''))[0] : null) ||
+      null;
+    state.selectedOccurrenceId = retained ? occurrenceId : occurrence?.id || (!foreign ? occurrenceId : '') || '';
     syncSelectedConflict();
     if (!task) return;
     if (state.drafts[key()] && dirty()) return;
@@ -1613,7 +1625,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
         }
         await hydrateTaskDefinitions(ticket);
         await hydrateTaskAncestors(ticket);
-        if (state.selectedTaskId) selectTask(state.selectedTaskId, state.selectedOccurrenceId);
+        await restoreSelectedTaskContext();
       }
       return data as ToDooSnapshot;
     } catch (e) {
@@ -1638,20 +1650,72 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       };
     }
   }
-  async function ensureTask(id: string, cursor?: string) {
-    const ticket = generation;
+  async function ensureTask(id: string, cursor?: string, current: () => boolean = () => true) {
+    const ticket = generation, datasetId = state.snapshot?.datasetId;
+    const owns = () => ticket === generation && state.snapshot?.datasetId === datasetId && current();
     try {
       const data = (await request(
         '/api/to-doo/state?taskIds=' +
           encodeURIComponent(id) +
           '&includeTree=true&limit=500' +
+          '&filter=' + encodeURIComponent(JSON.stringify({ includeArchived: true })) +
           (cursor ? '&cursor=' + encodeURIComponent(cursor) : ''),
       )) as ToDooSnapshot;
-      if (ticket === generation) adoptDetail(data, id);
+      if (!owns()) return;
+      if (datasetId && data.datasetId !== datasetId) throw Error('资料库已变化，请重新载入任务');
+      adoptDetail(data, id);
       return data;
     } catch (e) {
-      if (ticket === generation) state.error = e instanceof Error ? e.message : String(e);
+      if (owns()) state.error = e instanceof Error ? e.message : String(e);
     }
+  }
+  async function ensureTaskContext(id: string, occurrenceId?: string, current: () => boolean = () => true, force = false) {
+    const read = ++taskContextRead, ticket = generation, datasetId = state.snapshot?.datasetId;
+    const selection = key();
+    const owns = () => read === taskContextRead && ticket === generation &&
+      state.snapshot?.datasetId === datasetId && key() === selection && current();
+    const ready = () => !!state.snapshot?.tasks.some(task => task.id === id) &&
+      (occurrenceId ? !!state.snapshot?.occurrences.some(o => o.id === occurrenceId && o.taskId === id && !o.deletedAt)
+        : !!state.snapshot?.occurrences.some(o => o.taskId === id && !o.deletedAt));
+    if (!force && ready()) return owns();
+    const page = await ensureTask(id, undefined, owns);
+    if (!page || !owns()) return false;
+    if (!page.tasks.some(task => task.id === id)) {
+      state.error = '任务已变化或不可用，当前输入仍保留';
+      return false;
+    }
+    if (occurrenceId && !page.occurrences.some(o => o.id === occurrenceId && o.taskId === id && !o.deletedAt)) {
+      try {
+        const query = new URLSearchParams({ kind: 'occurrence', ids: occurrenceId,
+          filter: JSON.stringify({ includeDeleted: true, includeArchived: true }) });
+        const exact = await request('/api/to-doo/state?' + query) as ToDooSnapshot;
+        if (!owns()) return false;
+        if (exact.datasetId !== datasetId) throw Error('资料库已变化，请重新载入任务');
+        const occurrence = exact.occurrences.find(o => o.id === occurrenceId && o.taskId === id);
+        if (!occurrence) throw Error('对应的任务执行记录已变化，当前输入仍保留');
+        const outerPages = state.snapshot?.collectionPages;
+        // This single-ID lookup is entity metadata, not a replacement for the
+        // task graph's execution-history cursor or its collection totals.
+        adoptDetail(exact);
+        if (state.snapshot) state.snapshot.collectionPages = outerPages;
+        if (occurrence.deletedAt) {
+          if (state.selectedTaskId === id && state.selectedOccurrenceId === occurrenceId)
+            selectTask(id, occurrenceId);
+          throw Error('对应的任务执行记录已删除，当前输入仍保留');
+        }
+      } catch (cause) {
+        if (owns()) state.error = cause instanceof Error ? cause.message : String(cause);
+        return false;
+      }
+    }
+    return owns();
+  }
+  async function restoreSelectedTaskContext() {
+    const id = state.selectedTaskId, occurrenceId = state.selectedOccurrenceId;
+    if (!id || !taskContextVisible()) return;
+    const current = () => taskContextVisible() && state.selectedTaskId === id && state.selectedOccurrenceId === occurrenceId;
+    if (await ensureTaskContext(id, occurrenceId || undefined, current) && current())
+      selectTask(id, occurrenceId || undefined);
   }
   async function nextCollectionPage(kind: ToDooEntityKind, taskId?: string) {
     const meta = taskId
@@ -1660,7 +1724,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     if (!meta?.nextCursor || state.collectionLoading) return;
     const ticket = generation;
     const query: ToDooQuery = taskId
-      ? { taskIds: [taskId], includeTree: true, limit: 500 }
+      ? { taskIds: [taskId], includeTree: true, limit: 500, filter: { includeArchived: true } }
       : { ...state.query };
     delete query.kinds;
     Object.assign(query, { kind, limit: meta.limit, cursor: meta.nextCursor });
@@ -1690,7 +1754,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       if (state.snapshot && outerPage) state.snapshot.page = outerPage;
       await hydrateTaskAncestors(ticket);
       await hydrateTaskDefinitions(ticket);
-      if (state.selectedTaskId) selectTask(state.selectedTaskId, state.selectedOccurrenceId);
+      await restoreSelectedTaskContext();
       return data;
     } catch (e) {
       state.error = e instanceof Error ? e.message : String(e);
@@ -2281,12 +2345,13 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
     // Only committed input becomes the baseline; text typed during the save remains a draft.
     const current = state.drafts[draftKey];
     if (current && saved.get(draftKey) === fingerprint(current)) {
+      if (key() === draftKey && taskContextVisible() && !await ensureTaskContext(id, submitted.occurrence?.id,
+        () => key() === draftKey)) return result;
       delete state.drafts[draftKey];
       delete state.draftRecurrenceScopes[draftKey];
-      if (key() === draftKey) selectTask(id, submitted.occurrence?.id);
+      if (key() === draftKey && taskContextVisible()) selectTask(id, submitted.occurrence?.id);
     }
-    if (key() !== draftKey && !dirty())
-      selectTask(state.selectedTaskId, state.selectedOccurrenceId);
+    if (key() !== draftKey && !dirty()) await restoreSelectedTaskContext();
     state.rebasedFields = [];
     state.notice = '任务已保存';
     persistRecovery();
@@ -2866,13 +2931,17 @@ export function createToDooWorkbench(request: ToDooRequest, options: { recoveryS
       ),
     retryPending,
     ensureTask,
+    ensureTaskContext,
     nextCollectionPage,
     nextTaskCollectionPage: (id: string, kind: ToDooEntityKind) => nextCollectionPage(kind, id),
     nextTaskPage: (id: string) => ensureTask(id, state.detailPages[id]?.nextCursor || undefined),
     acceptSnapshot: (data: ToDooSnapshot, detail = false) => {
       if (detail) adoptDetail(data);
       else adopt(data);
-      if (state.selectedTaskId) selectTask(state.selectedTaskId, state.selectedOccurrenceId);
+      if (state.selectedTaskId) {
+        selectTask(state.selectedTaskId, state.selectedOccurrenceId);
+        return restoreSelectedTaskContext();
+      }
     },
     captureCommandResultContext,
     acceptCommandResult,

@@ -1,3 +1,4 @@
+import { readToDooTaskContext } from '../support/to-doo-task-fixture';
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 import { fillToDooDate } from '../support/to-doo-ant-controls';
@@ -23,8 +24,9 @@ test('saving a review retains the applied interval when the following refresh fa
     },
   });
   expect(created.ok()).toBe(true);
-  const initial = await created.json(),
-    occurrence = initial.snapshot.occurrences.find((row: any) => row.taskId === initial.ids[0]);
+  const initial = await created.json();
+  const createdContext = await readToDooTaskContext(page, initial.ids[0]);
+  const occurrence = createdContext.occurrences.find((row) => row.taskId === initial.ids[0])!;
   const completed = await page.request.post('/api/to-doo/commands', {
     headers,
     data: {
