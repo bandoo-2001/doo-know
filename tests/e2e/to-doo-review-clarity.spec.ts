@@ -49,6 +49,15 @@ async function mockStatistics(page: import('@playwright/test').Page, populated: 
         10,
       ),
   });
+  // Read controlled presentation fixtures before routing so a cancelled browser
+  // generation never leaves an awaited route.fetch running during teardown.
+  const baselines = new Map<string, any>();
+  for (const kind of ['', 'list', 'review']) {
+    const response = await page.request.get('/api/to-doo/state?view=stats' +
+      (kind ? '&kind=' + kind : ''));
+    expect(response.ok()).toBe(true);
+    baselines.set(kind, await response.json());
+  }
   let writes = 0;
   const aborted = new WeakSet<import('@playwright/test').Request>();
   page.on('requestfailed', (request) => {
@@ -62,8 +71,8 @@ async function mockStatistics(page: import('@playwright/test').Page, populated: 
     if (new URL(route.request().url()).pathname !== '/api/to-doo/state') return route.continue();
     const request = route.request();
     try {
-      const response = await route.fetch();
-      const data = await response.json();
+      const kind = new URL(request.url()).searchParams.get('kind') || '';
+      const data = structuredClone(baselines.get(kind) || baselines.get(''));
       data.lists = [
         ...(data.lists || []).filter((list: any) => list.kind !== 'goal'),
         ...(populated ? goals : []),
@@ -78,7 +87,17 @@ async function mockStatistics(page: import('@playwright/test').Page, populated: 
           [goals[1].id]: { completed: 0, total: 0 },
         },
       };
-      await route.fulfill({ response, json: data });
+      for (const [kind, rows] of [
+        ['list', data.lists], ['review', data.reviews], ['outcome', data.outcomes],
+      ] as const) {
+        if (data.collectionPages?.[kind]) data.collectionPages[kind] = {
+          ...data.collectionPages[kind], total: rows.length, truncated: false, nextCursor: null,
+        };
+        if (data.page?.kind === kind) data.page = {
+          ...data.page, total: rows.length, truncated: false, nextCursor: null,
+        };
+      }
+      await route.fulfill({ status: 200, contentType: 'application/json', json: data });
     } catch (error) {
       const message = error instanceof Error ? error.message : '';
       const confirmedAbort =
