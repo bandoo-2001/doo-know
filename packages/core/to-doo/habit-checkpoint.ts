@@ -43,7 +43,11 @@ function habitValue(habit: Habit) {
 /** Accept only a complete chain of authenticated internal metadata writes. */
 export function isHabitCheckpointContinuation(db: AppDatabase, habit: Habit, expectedRevision: string) {
   if (!db.inTransaction) return false;
-  const rows = db.prepare(`SELECT t.data FROM todo_transactions t WHERE EXISTS(
+  // Bound work by recent global history, not only by the number of matching
+  // habit rows. Older clients conservatively refresh instead of scanning a library.
+  const rows = db.prepare(`SELECT t.data FROM todo_transactions t WHERE t.sequence >= COALESCE(
+    (SELECT sequence FROM todo_transactions ORDER BY sequence DESC LIMIT 1 OFFSET 4095), 0
+  ) AND EXISTS(
     SELECT 1 FROM json_each(t.data,'$.members') m
     WHERE json_extract(m.value,'$.kind')='habit' AND json_extract(m.value,'$.id')=?
   ) ORDER BY t.sequence DESC LIMIT 65`).all(habit.id) as { data: string }[];

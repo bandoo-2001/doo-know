@@ -10,6 +10,8 @@ import { createToDooAgentPort } from '../apps/server/to-doo/agent-port';
 import { toDooEntitySchemas } from '../shared/to-doo-contracts';
 import { summarizeHabitPeriod } from '../shared/to-doo-habits';
 import { backfillHabitReminders } from '../packages/core/to-doo/notifications';
+import Database from 'better-sqlite3';
+import { isHabitCheckpointContinuation } from '../packages/core/to-doo/habit-checkpoint';
 let root: string;
 let db: ReturnType<typeof openDatabase>;
 let service: ReturnType<typeof createToDooService>;
@@ -141,7 +143,7 @@ it('keeps the checkpoint proof and check-in commit inside the same reserved SQLi
   peer.pragma('busy_timeout = 0');
   const prepare = db.prepare.bind(db); let observed = false;
   const spy = vi.spyOn(db, 'prepare').mockImplementation(((sql: string) => {
-    if (sql.includes('SELECT t.data FROM todo_transactions t WHERE EXISTS')) {
+    if (sql.includes('SELECT t.data FROM todo_transactions t')) {
       observed = true;
       expect(db.inTransaction).toBe(true);
       expect(() => peer.exec('BEGIN IMMEDIATE')).toThrow(/locked/);
@@ -152,6 +154,40 @@ it('keeps the checkpoint proof and check-in commit inside the same reserved SQLi
     expect(() => command('checkin_habit', habitWrite(habit))).not.toThrow();
     expect(observed).toBe(true);
   } finally { spy.mockRestore(); peer.close(); }
+});
+it('fails closed beyond the recent global transaction window even when matching habit history is sparse', () => {
+  const habit = reminderHabit();
+  backfillHabitReminders(service, new Date('2026-11-17T15:30:00Z'));
+  const current = toDooEntitySchemas.habit.parse(service.getEntity('habit', habit.id));
+  // This isolated in-memory cache exercises the query boundary only. Real
+  // checkpoint writes and rule guards above use the public domain service.
+  const memory = new Database(':memory:');
+  for (const table of ['todo_entities', 'todo_transactions']) {
+    const schema = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").get(table) as { sql: string };
+    memory.exec(schema.sql);
+    const rows = db.prepare('SELECT * FROM ' + table).all() as Record<string, unknown>[];
+    if (!rows.length) continue;
+    const columns = Object.keys(rows[0]);
+    const copy = memory.prepare('INSERT INTO ' + table + '(' + columns.join(',') + ') VALUES(' + columns.map(() => '?').join(',') + ')');
+    memory.transaction(() => { rows.forEach(row => copy.run(...columns.map(column => row[column]))); })();
+  }
+  const start = (memory.prepare('SELECT MAX(sequence) n FROM todo_transactions').get() as { n: number }).n;
+  const insert = memory.prepare('INSERT INTO todo_transactions VALUES(?,?,?,?,?,?)');
+  const unrelated = (index: number) => {
+    const id = 'unrelated-window-' + index;
+    insert.run(id, id, 'opaque-fingerprint', JSON.stringify({ format: 1, id, parentId: null,
+      requestId: id, fingerprint: 'opaque-fingerprint', at: '2026-11-17T15:30:00Z', members: [], ids: [] }),
+    'cache-only-query-fixture', start + index);
+  };
+  try {
+    memory.transaction(() => { for (let index = 1; index <= 4094; index++) unrelated(index); })();
+    const proof = memory.transaction(() => isHabitCheckpointContinuation(memory, current, habit.revision));
+    expect(proof.immediate()).toBe(true);
+    unrelated(4095);
+    expect(proof.immediate()).toBe(false);
+    unrelated(4096);
+    expect(proof.immediate()).toBe(false);
+  } finally { memory.close(); }
 });
 it('counts decimal quantities consistently through saved entries and shared attainment rules', () => {
   const first = seed();
