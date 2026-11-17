@@ -59,7 +59,7 @@ test('first article detail read shows pending, exposes a failed read and retries
     const actual = await (await page.request.get('/api/blog/posts/' + post.id)).json();
     expect(actual.sourceContent).toBe('# ' + title);
     await page.screenshot({
-      path: `logs.local/blog-ui-polish-20261026/${info.project.name}-detail-retry.jpg`,
+      path: `.local/browser-evidence/blog-ui-polish-20261026/${info.project.name}-detail-retry.jpg`,
       type: 'jpeg',
       quality: 65,
       fullPage: true,
@@ -134,7 +134,7 @@ test('filtered empty articles can be reset and destructive confirmation supports
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({
-    path: `logs.local/blog-ui-polish-20261026/${info.project.name}-article-actions.jpg`,
+    path: `.local/browser-evidence/blog-ui-polish-20261026/${info.project.name}-article-actions.jpg`,
     type: 'jpeg',
     quality: 65,
     fullPage: true,
