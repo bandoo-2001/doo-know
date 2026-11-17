@@ -187,6 +187,7 @@ test('completing a filtered parent discovers its hidden child and supports cance
   await page.getByRole('textbox', { name: '搜索任务', exact: true }).fill(title);
   await page.getByRole('button', { name: '执行搜索', exact: true }).click();
   await page.getByRole('textbox', { name: '搜索任务', exact: true }).press('Escape');
+  await expect(app(page).locator('.todo-main')).toHaveAttribute('aria-busy', 'false');
   await expect(app(page).locator('.todo-task-row')).toHaveCount(1);
   await app(page)
     .getByRole('button', { name: '完成 ' + title, exact: true })

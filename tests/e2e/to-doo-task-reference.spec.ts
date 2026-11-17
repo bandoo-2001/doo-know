@@ -94,21 +94,39 @@ test('goal cards show their own completed action progress and open the matching 
 });
 
 test('an empty overview keeps its first goal and action controls available', async ({ page }) => {
+  const response = await page.request.get('/api/to-doo/state?view=overview&limit=200');
+  expect(response.ok(), await response.text()).toBe(true);
+  const snapshot = (await response.json()) as ToDooSnapshot;
+  const kinds = ['list', 'task', 'occurrence', 'timeBlock', 'section'] as const;
+  const emptyPage = (value: ToDooSnapshot['page']) => ({
+    ...value,
+    total: 0,
+    nextCursor: null,
+    truncated: false,
+    counts: { ...value.counts, list: 0, task: 0, occurrence: 0, timeBlock: 0, section: 0 },
+  });
+  const collectionPages = { ...snapshot.collectionPages };
+  for (const kind of kinds) {
+    const pagination = collectionPages[kind];
+    if (pagination) collectionPages[kind] = emptyPage(pagination);
+  }
+  const empty: ToDooSnapshot = {
+    ...snapshot,
+    lists: [],
+    tasks: [],
+    occurrences: [],
+    timeBlocks: [],
+    sections: [],
+    page: emptyPage(snapshot.page),
+    collectionPages,
+    statistics: { ...snapshot.statistics, byList: {} },
+  };
   await page.route(/\/api\/to-doo\/state(?:\?|$)/, async (route) => {
-    const response = await route.fetch();
-    const snapshot = (await response.json()) as ToDooSnapshot;
+    const params = new URL(route.request().url()).searchParams;
+    const kind = kinds.find((kind) => kind === params.get('kind'));
+    if (params.has('kind') ? !kind : params.get('view') !== 'overview') return route.continue();
     await route.fulfill({
-      response,
-      json: {
-        ...snapshot,
-        lists: [],
-        tasks: [],
-        occurrences: [],
-        timeBlocks: [],
-        sections: [],
-        page: { ...snapshot.page, total: 0, nextCursor: null, truncated: false },
-        statistics: { ...snapshot.statistics, byList: {} },
-      },
+      json: { ...empty, page: kind ? collectionPages[kind] || empty.page : empty.page },
     });
   });
   await page.goto('/?view=apps&app=to-doo&appSection=overview');
