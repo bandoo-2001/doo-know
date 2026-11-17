@@ -19,6 +19,7 @@ import {
   type ToDooTask,
 } from '../../shared/to-doo-contracts';
 import { mergeToDooTaskDraft, sameToDooDraftValue, type ToDooDraftConflict } from './to-doo-draft-merge';
+import { checkedToDooQueryUrl, toDooIdQueryBatches, toDooQueryCursorReserve } from './to-doo-query-batches';
 export type { ToDooDraftConflict } from './to-doo-draft-merge';
 export type ToDooRequest = (url: string, method?: string, body?: unknown) => Promise<any>;
 export type ToDooSelection = {
@@ -1291,12 +1292,11 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
       // A different revision in a partial reply cannot stand in for this command's receipt.
       const missingIds = new Set(missing.map(receipt => receipt.id));
       (source[collection] as ToDooEntity[]) = (source[collection] as ToDooEntity[]).filter(row => !missingIds.has(row.id));
-      for (let offset = 0; offset < missing.length; offset += 100) {
-        const part = missing.slice(offset, offset + 100);
+      for (const { values: part, url } of toDooIdQueryBatches(missing, row => row.id, ids =>
+        '/api/to-doo/state?' + new URLSearchParams({ kind, ids: ids.join(','), limit: '100',
+          filter: JSON.stringify({ includeDeleted: true, includeArchived: true }) }), { maxCount: 100 })) {
         try {
-          const query = new URLSearchParams({ kind, ids: part.map(row => row.id).join(','), limit: '100',
-            filter: JSON.stringify({ includeDeleted: true, includeArchived: true }) });
-          const page = await request('/api/to-doo/state?' + query) as ToDooSnapshot;
+          const page = await request(url) as ToDooSnapshot;
           if (ticket !== generation || state.snapshot?.datasetId !== before.datasetId || page.datasetId !== before.datasetId) return;
           for (const receipt of part) {
             const remote = (page[collection] as ToDooEntity[]).find(row => row.id === receipt.id);
@@ -1321,12 +1321,11 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
     for (const task of source.tasks)
       if (knownIds.has(task.id) || changedIds.has(task.id) || returnedIds.has(task.id)) tasks.set(task.id, clone(task));
     const missing = before.tasks.filter(task => !changedIds.has(task.id) && !source.tasks.some(row => row.id === task.id)).map(task => task.id);
-    for (let offset = 0; offset < missing.length; offset += 100) {
-      const ids = missing.slice(offset, offset + 100);
+    for (const { values: ids, url } of toDooIdQueryBatches(missing, id => id, ids =>
+      '/api/to-doo/state?' + new URLSearchParams({ kind: 'task', ids: ids.join(','), limit: '100',
+        filter: JSON.stringify({ includeDeleted: true, includeArchived: true }) }), { maxCount: 100 })) {
       try {
-        const query = new URLSearchParams({ kind: 'task', ids: ids.join(','), limit: '100',
-          filter: JSON.stringify({ includeDeleted: true, includeArchived: true }) });
-        const page = await request('/api/to-doo/state?' + query) as ToDooSnapshot;
+        const page = await request(url) as ToDooSnapshot;
         if (ticket !== generation || state.snapshot?.datasetId !== before.datasetId || page.datasetId !== before.datasetId) return;
         for (const id of ids) {
           const remote = page.tasks.find(task => task.id === id);
@@ -1485,6 +1484,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
     }
   }
   async function hydrateTaskDefinitions(ticket: number) {
+    const datasetId = state.snapshot?.datasetId;
     const missing = [
       ...new Set(
         state.snapshot?.occurrences
@@ -1492,16 +1492,36 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
           .filter((id) => !state.snapshot?.tasks.some((t) => t.id === id)) || [],
       ),
     ];
-    for (let i = 0; i < missing.length; i += 200) {
-      const data = (await request(
-        '/api/to-doo/state?kind=task&ids=' +
-          encodeURIComponent(missing.slice(i, i + 200).join(',')) +
-          '&limit=200',
-      )) as ToDooSnapshot;
-      if (ticket !== generation) return;
-      const pages = { ...state.snapshot?.collectionPages };
-      adoptDetail(data);
-      if (state.snapshot) state.snapshot.collectionPages = pages;
+    for (const batch of toDooIdQueryBatches(missing, id => id,
+      ids => '/api/to-doo/state?kind=task&ids=' + encodeURIComponent(ids.join(',')) + '&limit=200',
+      { maxCount: 200 })) {
+      const data = await request(batch.url) as ToDooSnapshot;
+      if (ticket !== generation || state.snapshot?.datasetId !== datasetId) return;
+      if (data.datasetId !== datasetId) throw Error('资料库已变化，请重新载入任务');
+      adoptProjectionEntities(data);
+    }
+  }
+  function adoptProjectionEntities(data: ToDooSnapshot) {
+    const pages = state.snapshot?.collectionPages;
+    adoptDetail(data);
+    if (state.snapshot) state.snapshot.collectionPages = pages;
+  }
+  async function hydrateExecutionReferences(ticket: number) {
+    if (state.query.view && !['tasks', 'board', 'matrix', 'calendar', 'timeline', 'overview'].includes(state.query.view)) return;
+    const datasetId = state.snapshot?.datasetId;
+    const known = new Set(state.snapshot?.occurrences.map(row => row.id));
+    const missing = [...new Set(state.snapshot?.timeBlocks
+      .filter(block => !block.deletedAt && block.occurrenceId && !known.has(block.occurrenceId))
+      .map(block => block.occurrenceId!) ?? [])];
+    const visibility = { includeArchived: !!state.query.filter?.includeArchived,
+      includeDeleted: !!state.query.filter?.includeDeleted };
+    for (const batch of toDooIdQueryBatches(missing, id => id, ids => '/api/to-doo/state?' +
+      new URLSearchParams({ kind: 'occurrence', ids: ids.join(','), limit: '200', filter: JSON.stringify(visibility) }),
+      { maxCount: 200 })) {
+      const data = await request(batch.url) as ToDooSnapshot;
+      if (ticket !== generation || state.snapshot?.datasetId !== datasetId) return;
+      if (data.datasetId !== datasetId) throw Error('资料库已变化，请重新载入日程');
+      adoptProjectionEntities(data);
     }
   }
   function taskDefinitions() {
@@ -1557,6 +1577,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
     return catalogRead;
   }
   async function hydrateTaskAncestors(ticket: number) {
+    const datasetId = state.snapshot?.datasetId;
     if (
       state.query.view &&
       !['tasks', 'board', 'matrix', 'calendar', 'timeline', 'overview'].includes(state.query.view)
@@ -1576,12 +1597,12 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
       ];
       if (!missing.length) return;
       const version = state.snapshot?.version;
-      for (let start = 0; start < missing.length; start += 100) {
-        const part = missing.slice(start, start + 100);
-        const data = await request(
-          '/api/to-doo/state?kind=task&ids=' + encodeURIComponent(part.join(',')) + '&limit=100',
-        );
-        if (ticket !== generation) return;
+      for (const { values: part, url } of toDooIdQueryBatches(missing, id => id,
+        ids => '/api/to-doo/state?kind=task&ids=' + encodeURIComponent(ids.join(',')) + '&limit=100',
+        { maxCount: 100 })) {
+        const data = await request(url);
+        if (ticket !== generation || state.snapshot?.datasetId !== datasetId) return;
+        if (data.datasetId !== datasetId) throw Error('资料库已变化，请重新载入任务');
         if (data.version !== version) throw Error('任务分组有更新，请刷新后重试');
         part.forEach((id) => attempted.add(id));
         for (const task of data.tasks as ToDooTask[])
@@ -1623,8 +1644,12 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
           if (ticket !== generation) return data as ToDooSnapshot;
           mergeCommittedStatuses(records);
         }
+        await hydrateExecutionReferences(ticket);
+        if (ticket !== generation || state.snapshot?.datasetId !== data.datasetId) return data as ToDooSnapshot;
         await hydrateTaskDefinitions(ticket);
+        if (ticket !== generation || state.snapshot?.datasetId !== data.datasetId) return data as ToDooSnapshot;
         await hydrateTaskAncestors(ticket);
+        if (ticket !== generation || state.snapshot?.datasetId !== data.datasetId) return data as ToDooSnapshot;
         await restoreSelectedTaskContext();
       }
       return data as ToDooSnapshot;
@@ -1722,7 +1747,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
       ? state.detailCollectionPages[taskId]?.[kind]
       : state.snapshot?.collectionPages?.[kind];
     if (!meta?.nextCursor || state.collectionLoading) return;
-    const ticket = generation;
+    const ticket = generation, datasetId = state.snapshot?.datasetId;
     const query: ToDooQuery = taskId
       ? { taskIds: [taskId], includeTree: true, limit: 500, filter: { includeArchived: true } }
       : { ...state.query };
@@ -1740,7 +1765,8 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
     state.error = '';
     try {
       const data = (await request('/api/to-doo/state?' + params.toString())) as ToDooSnapshot;
-      if (ticket !== generation) return;
+      if (ticket !== generation || state.snapshot?.datasetId !== datasetId) return;
+      if (data.datasetId !== datasetId) throw Error('资料库已变化，请重新载入任务');
       const outerPage = state.snapshot?.page,
         outerPages = { ...state.snapshot?.collectionPages };
       adoptDetail(data);
@@ -1752,8 +1778,12 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
         if (state.snapshot) state.snapshot.collectionPages = outerPages;
       }
       if (state.snapshot && outerPage) state.snapshot.page = outerPage;
-      await hydrateTaskAncestors(ticket);
+      await hydrateExecutionReferences(ticket);
+      if (ticket !== generation || state.snapshot?.datasetId !== datasetId) return data;
       await hydrateTaskDefinitions(ticket);
+      if (ticket !== generation || state.snapshot?.datasetId !== datasetId) return data;
+      await hydrateTaskAncestors(ticket);
+      if (ticket !== generation || state.snapshot?.datasetId !== datasetId) return data;
       await restoreSelectedTaskContext();
       return data;
     } catch (e) {
@@ -1803,16 +1833,15 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
       if (row) records.set(id, clone(row));
       else missing.push([id, entry]);
     }
-    for (let offset = 0; offset < missing.length; offset += 50) {
-      const part = missing.slice(offset, offset + 50);
-      const query = new URLSearchParams({
+    for (const { values: part, url } of toDooIdQueryBatches(missing, ([id]) => id, ids =>
+      '/api/to-doo/state?' + new URLSearchParams({
         kinds: 'occurrence',
-        ids: part.map(([id]) => id).join(','),
+        ids: ids.join(','),
         filter: JSON.stringify({ includeDeleted: true, includeArchived: true }),
         limit: '50',
-      });
+      }), { maxCount: 50 })) {
       try {
-        const page = (await request('/api/to-doo/state?' + query)) as ToDooSnapshot;
+        const page = await request(url) as ToDooSnapshot;
         if (ticket !== generation || state.snapshot?.datasetId !== data.datasetId)
           return new Map<string, ToDooOccurrence>();
         if (page.datasetId !== data.datasetId)
@@ -2362,20 +2391,23 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
     if (!datasetId) throw Error('请先载入任务工作区');
     const tasks = new Map<string, ToDooTask>(),
       occurrences = new Map<string, ToDooOccurrence>();
-    for (let offset = 0; offset < taskIds.length; offset += 50) {
+    for (const { values: part } of toDooIdQueryBatches(taskIds, id => id, ids =>
+      '/api/to-doo/state?' + new URLSearchParams({ kind: 'occurrence', taskIds: ids.join(','),
+        includeTree: 'true', limit: '500', filter: JSON.stringify({ includeArchived: true }) }),
+      { maxCount: 50, field: 'taskIds', reserve: toDooQueryCursorReserve })) {
       for (const kind of ['task', 'occurrence'] as const) {
         let cursor: string | undefined;
         const visited = new Set<string>();
         do {
           const params = new URLSearchParams({
             kind,
-            taskIds: taskIds.slice(offset, offset + 50).join(','),
+            taskIds: part.join(','),
             includeTree: 'true',
             limit: '500',
             filter: JSON.stringify({ includeArchived: true }),
           });
           if (cursor) params.set('cursor', cursor);
-          const data = (await request('/api/to-doo/state?' + params.toString())) as ToDooSnapshot;
+          const data = await request(checkedToDooQueryUrl('/api/to-doo/state?' + params)) as ToDooSnapshot;
           if (ticket !== generation || state.snapshot?.datasetId !== datasetId || data.datasetId !== datasetId)
             throw Error('资料库或任务范围已变化，请重新确认子任务范围');
           data.tasks.forEach((task) => tasks.set(task.id, task));
@@ -2730,15 +2762,19 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
   async function readActionTasks(taskIds: readonly string[], includeDescendants = true) {
     const datasetId = state.snapshot?.datasetId, ticket = generation;
     if (!datasetId) throw Error('请先载入任务工作区');
-    for (let offset = 0; offset < taskIds.length; offset += 50) {
+    for (const { values: part } of toDooIdQueryBatches(taskIds, id => id, ids =>
+      '/api/to-doo/state?' + new URLSearchParams({ kind: 'task', taskIds: ids.join(','),
+        includeTree: String(includeDescendants), limit: '500',
+        filter: JSON.stringify({ includeArchived: true, includeDeleted: true }) }),
+      { maxCount: 50, field: 'taskIds', reserve: toDooQueryCursorReserve })) {
       let cursor: string | undefined;
       const visited = new Set<string>();
       do {
-        const query = new URLSearchParams({ kind: 'task', taskIds: taskIds.slice(offset, offset + 50).join(','),
+        const query = new URLSearchParams({ kind: 'task', taskIds: part.join(','),
           includeTree: String(includeDescendants), limit: '500',
           filter: JSON.stringify({ includeArchived: true, includeDeleted: true }) });
         if (cursor) query.set('cursor', cursor);
-        const data = await request('/api/to-doo/state?' + query) as ToDooSnapshot;
+        const data = await request(checkedToDooQueryUrl('/api/to-doo/state?' + query)) as ToDooSnapshot;
         if (ticket !== generation || state.snapshot?.datasetId !== datasetId || data.datasetId !== datasetId)
           throw Error('资料库或任务范围已变化，请重新执行操作');
         // Preparation loads metadata, not additional result rows into the visible filtered list.
