@@ -5,7 +5,10 @@ import { Button as AButton, Checkbox as ACheckbox, Popover as APopover } from 'a
 import type { ToDooAppSection } from '../../navigation';
 import type { ToDooEntityMap } from '../../../../shared/to-doo-contracts';
 import { toDooQuickViews, type ToDooQuickFilter } from '../../to-doo-presentation';
+import { toDooListRows } from '../../to-doo-list-tree';
+import '../../to-doo-list-tree.css';
 import ToDooIcon from './ToDooIcon.vue';
+import ToDooListIcon from './ToDooListIcon.vue';
 
 const props = defineProps<{
   section: ToDooAppSection;
@@ -62,6 +65,24 @@ const moduleMoreOpen = ref(false), scopeMoreOpen = ref(false);
 const moduleMoreTrigger = ref<any>(), scopeMoreTrigger = ref<any>();
 const split = computed(() => props.layout === 'split');
 const listsExpanded = useSessionStorage('to-doo.navigation-lists-expanded.v1', true, { writeDefaults: false });
+const collapsedLists = useSessionStorage<string[]>('to-doo.navigation-collapsed-lists.v1', [], { writeDefaults: false });
+const collapsedListIds = computed(() => Array.isArray(collapsedLists.value)
+  ? collapsedLists.value.filter((id): id is string => typeof id === 'string') : []);
+const allListRows = computed(() => toDooListRows(props.lists));
+const listRows = computed(() => toDooListRows(props.lists, { collapsedIds: new Set(collapsedListIds.value) }));
+function toggleList(id: string) {
+  collapsedLists.value = collapsedListIds.value.includes(id)
+    ? collapsedListIds.value.filter((value) => value !== id)
+    : [...collapsedListIds.value, id];
+}
+watch(() => [props.listId, props.lists] as const, () => {
+  const selected = allListRows.value.find((row) => row.list.id === props.listId);
+  if (!selected) return;
+  const ancestors = new Set(selected.ancestorIds);
+  if (collapsedListIds.value.some((id) => ancestors.has(id)))
+    collapsedLists.value = collapsedListIds.value.filter((id) => !ancestors.has(id));
+  if (!listsExpanded.value) listsExpanded.value = true;
+}, { immediate: true });
 const listItemsId = 'todo-directory-lists-' + useId();
 const unreadId = 'todo-navigation-unread-' + useId();
 
@@ -282,32 +303,41 @@ const moreActive = computed(
           /></AButton>
         </div>
         <div :id="listItemsId" class="todo-navigation-list-items" :hidden="!listsExpanded">
+          <div v-for="row in listRows" :key="row.list.id" class="todo-nav-list-row"
+            :class="{ active: taskSection && listId === row.list.id }"
+            :style="{ '--todo-list-depth': Math.min(row.depth, 7) }"
+            :data-list-id="row.list.id">
+            <AButton v-if="row.hasChildren" type="text" class="todo-nav-list-toggle"
+              :aria-label="(collapsedListIds.includes(row.list.id) ? '展开清单 ' : '折叠清单 ') + row.list.name"
+              :title="collapsedListIds.includes(row.list.id) ? '展开子清单' : '折叠子清单'"
+              :aria-expanded="!collapsedListIds.includes(row.list.id)" @click="toggleList(row.list.id)">
+              <ToDooIcon name="chevron" :size="12" />
+            </AButton>
+            <span v-else class="todo-nav-list-toggle-placeholder" aria-hidden="true" />
+            <AButton
+              type="text"
+              block
+              class="todo-nav-list-select"
+              :class="{ active: taskSection && listId === row.list.id }"
+              :aria-label="row.list.name"
+              :title="row.list.name"
+              :aria-current="taskSection && listId === row.list.id ? 'page' : undefined"
+              @click="emit('list', row.list.id)"
+              ><ToDooListIcon :list="row.list" :size="18" />
+              <span class="todo-nav-list-name">{{ row.list.name }}</span></AButton>
+          </div>
           <AButton
-            v-for="list in lists"
-            :key="list.id"
-            type="text"
-            block
-            :class="{ active: taskSection && listId === list.id }"
-            :aria-label="list.name"
-            :title="list.name"
-            :aria-current="taskSection && listId === list.id ? 'page' : undefined"
-            @click="emit('list', list.id)"
-            ><ToDooIcon name="list" :size="18" class="todo-nav-list-icon"
-              :style="{ '--todo-list-color': list.color || 'var(--todo-muted)' }" />
-            <span class="todo-nav-list-name">{{ list.name }}</span></AButton
-          >
-          <AButton
-            v-if="!split && !lists.length"
+            v-if="!split && !allListRows.length"
             type="text"
             block
             class="todo-nav-empty"
             @click="emit('new-list')"
             ><ToDooIcon name="plus" :size="16" />新建清单</AButton
           >
-          <p v-if="split && !lists.length && !listLoading && !listError" class="todo-directory-empty">
+          <p v-if="split && !allListRows.length && !listLoading && !listError" class="todo-directory-empty">
             <ToDooIcon name="list" :size="18" />暂无清单
           </p>
-          <p v-if="split && !lists.length && listLoading" class="todo-directory-empty" role="status">
+          <p v-if="split && !allListRows.length && listLoading" class="todo-directory-empty" role="status">
             <ToDooIcon name="more" :size="18" />正在载入清单…
           </p>
           <AButton

@@ -4,6 +4,7 @@ import { Select as ASelect } from 'ant-design-vue';
 import {
   prepareToDooSelectOptions,
   toDooSelectKey,
+  createToDooPopupEscapeBoundary,
   type ToDooControlOption,
 } from '../../to-doo-controls';
 defineOptions({ inheritAttrs: false });
@@ -28,6 +29,7 @@ const emit = defineEmits<{
 }>();
 const attrs = useAttrs(),
   slots = useSlots();
+const popupEscape = createToDooPopupEscapeBoundary();
 const generatedId = 'to-doo-select-' + useId();
 function inputId() {
   return String(attrs.id || generatedId);
@@ -113,6 +115,8 @@ function change(value: unknown, values: Map<string, unknown>) {
       option-filter-prop="label"
       dropdown-class-name="todo-ant-popup"
       @click.prevent
+      @keydown.capture="popupEscape.capture"
+      @keydown="popupEscape.bubble"
       @change="change($event, data.values)"
     />
   </template>

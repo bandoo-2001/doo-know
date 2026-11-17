@@ -2,7 +2,12 @@
 import { computed } from 'vue';
 import { Button as AButton, Input as AInput } from 'ant-design-vue';
 import ToDooSelect from './ToDooSelect.vue';
+import { createToDooPopupEscapeBoundary } from '../../to-doo-controls';
 import ToDooDateField from './ToDooDateField.vue';
+import ToDooTaskValueSelect from './ToDooTaskValueSelect.vue';
+import ToDooTaskValueMultiSelect from './ToDooTaskValueMultiSelect.vue';
+import ToDooListTreeSelect from './ToDooListTreeSelect.vue';
+import ToDooListTreeMultiSelect from './ToDooListTreeMultiSelect.vue';
 import {
   toDooLocalDate,
   toDooPriorityLabels,
@@ -142,9 +147,11 @@ function add(group = false) {
     ],
   });
 }
+const popupEscape = createToDooPopupEscapeBoundary();
 </script>
 <template>
-  <section class="todo-filter-group" :aria-label="'第 ' + depth + ' 层筛选条件组'">
+  <section class="todo-filter-group" :aria-label="'第 ' + depth + ' 层筛选条件组'"
+    @keydown.capture="popupEscape.capture" @keydown="popupEscape.bubble">
     <div class="todo-between">
       <label class="todo-inline-label"
         >满足<ToDooSelect
@@ -244,6 +251,21 @@ function add(group = false) {
             aria-label="筛选关键词"
             @update:value="replace(index, { ...condition, value: $event })"
           />
+          <template v-else-if="condition.field === 'status' || condition.field === 'priority'">
+            <ToDooTaskValueMultiSelect v-if="['in', 'not_in'].includes(condition.operator)"
+              :kind="condition.field" :value="Array.isArray(condition.value) ? condition.value as string[] : []"
+              aria-label="筛选选项" @change="replace(index, { ...condition, value: $event })" />
+            <ToDooTaskValueSelect v-else :kind="condition.field" :value="condition.value as string"
+              aria-label="筛选选项" @change="replace(index, { ...condition, value: $event })" />
+          </template>
+          <template v-else-if="condition.field === 'listId'">
+            <ToDooListTreeMultiSelect v-if="['in', 'not_in'].includes(condition.operator)"
+              :model="model" :value="Array.isArray(condition.value) ? condition.value as string[] : []"
+              :include-inbox="false" aria-label="筛选选项" @change="replace(index, { ...condition, value: $event })" />
+            <ToDooListTreeSelect v-else :model="model" :value="condition.value as string"
+              :include-inbox="false" :allow-create="false" aria-label="筛选选项"
+              @change="replace(index, { ...condition, value: $event || '' })" />
+          </template>
           <ToDooSelect
             v-else
             :multiple="['in', 'not_in'].includes(condition.operator)"

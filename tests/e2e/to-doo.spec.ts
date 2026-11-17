@@ -325,7 +325,8 @@ test.describe('To Doo source and evidence', () => {
     await expect(capture).toBeVisible();
     const taskTitle = '从资料推进 ' + Date.now();
     await capture.getByRole('textbox', { name: '任务标题', exact: true }).fill(taskTitle);
-    await capture.getByRole('button', { name: '创建任务', exact: true }).click();
+    await page.getByRole('dialog', { name: '从资料创建任务', exact: true })
+      .getByRole('button', { name: '创建任务', exact: true }).click();
     const app = page.getByRole('region', { name: 'To Doo 行动工作空间' }),
       detail = app.getByRole('complementary', { name: '任务详情' });
     await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(taskTitle);

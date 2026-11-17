@@ -1,3 +1,4 @@
+import * as popupControls from '../apps/web/to-doo-controls';
 import { readFileSync } from 'node:fs';
 import { compileScript, parse } from '@vue/compiler-sfc';
 import ts from 'typescript';
@@ -8,6 +9,7 @@ import * as reminders from '../apps/web/to-doo-reminders';
 import * as push from '../apps/web/to-doo-push';
 import * as clock from '../apps/web/to-doo-time';
 import * as contracts from '../shared/to-doo-contracts';
+import * as listTree from '../apps/web/to-doo-list-tree';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
 
 type Node = {
@@ -69,7 +71,8 @@ function component(name: string): Vue.Component {
       if (id === '../../to-doo-push') return push;
       if (id === '../../to-doo-time') return clock;
       if (id === '../../../../shared/to-doo-contracts') return contracts;
-      if (id === '../../to-doo-controls') return { useToDooConfirm: () => async () => true };
+      if (id === '../../to-doo-list-tree') return listTree;
+      if (id === '../../to-doo-controls') return { ...popupControls, useToDooConfirm: () => async () => true };
       if (id.endsWith('ToDooDisclosure.vue')) return { default: Disclosure };
       if (id.endsWith('ToDooFormLayout.vue')) return { default: Form };
       const boundary = toDooBoundaryStub(id);
@@ -197,6 +200,8 @@ function model() {
   return {
     state,
     load,
+    taskLists: () => state.snapshot.lists.filter((list: any) => !list.deletedAt),
+    ensureListCatalog: vi.fn(async () => {}),
     saveEntity: vi.fn(),
     loadPendingOperations: vi.fn(),
     request: vi.fn(
@@ -1071,7 +1076,7 @@ test('notification route contexts apply actual status queries and restore them o
   expect(view.text()).toContain('未读报告');
 });
 
-test('statistics contexts scroll to existing goal and review sections without reloading metrics', async () => {
+test('navigation statistics contexts reveal filters and results together without reloading metrics', async () => {
   const value = model();
   const view = mount('ToDooReview', value, 'stats', {
     context: 'overview',
@@ -1082,17 +1087,28 @@ test('statistics contexts scroll to existing goal and review sections without re
   const reviews = view.all().find((row) => row.props.id === 'to-doo-stats-reviews');
   expect(goals).toBeDefined();
   expect(reviews).toBeDefined();
-  const goalsScroll = vi.fn(),
-    reviewsScroll = vi.fn();
-  Object.assign(goals!, { scrollIntoView: goalsScroll });
-  Object.assign(reviews!, { scrollIntoView: reviewsScroll });
+  const surface = view.all().find((row) => row.props['aria-label'] === '统计结果');
+  const scroll = vi.fn();
+  Object.assign(surface!, { scrollIntoView: scroll });
   view.setProps({ context: 'goals' });
   await settleSettings();
-  expect(goalsScroll).toHaveBeenCalledWith({ block: 'start', behavior: 'auto' });
+  expect(scroll).toHaveBeenCalledWith({ block: 'start', behavior: 'auto' });
+  scroll.mockClear();
   view.setProps({ context: 'reviews' });
   await settleSettings();
-  expect(reviewsScroll).toHaveBeenCalledWith({ block: 'start', behavior: 'auto' });
+  expect(scroll).toHaveBeenCalledWith({ block: 'start', behavior: 'auto' });
   expect(value.load).not.toHaveBeenCalled();
+});
+
+test('statistics tabs keep their scroll position when changing the selected content', async () => {
+  const view = mount('ToDooReview', model(), 'stats', { context: 'goals', contextualNavigation: false });
+  await settleSettings();
+  const surface = view.all().find(row => row.props['aria-label'] === '统计结果')!;
+  const scroll = vi.fn();
+  Object.assign(surface, { scrollIntoView: scroll });
+  view.setProps({ context: 'reviews' });
+  await settleSettings();
+  expect(scroll).not.toHaveBeenCalled();
 });
 
 test('list management creates a list or goal with the selected type and preserves existing edit identity', async () => {

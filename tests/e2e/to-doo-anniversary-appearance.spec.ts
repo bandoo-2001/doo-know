@@ -12,7 +12,7 @@ test.beforeEach(async ({ page, context }, info) => {
 test('card appearance previews live, saves, survives reload and can be edited independently', async ({
   page,
 }, info) => {
-  await page.goto('/?view=apps&app=to-doo&appSection=anniversaries');
+  await page.goto('/?view=apps&app=to-doo&appSection=anniversaries&appPage=all');
   await page
     .getByRole('button', { name: /新建纪念日/ })
     .first()
@@ -99,7 +99,7 @@ test('legacy and artistic cards fit small screens with their dates and details i
     });
     expect(response.ok(), await response.text()).toBe(true);
   }
-  await page.goto('/?view=apps&app=to-doo&appSection=anniversaries');
+  await page.goto('/?view=apps&app=to-doo&appSection=anniversaries&appPage=all');
   for (const theme of ['light', 'dark'] as const) {
     await page.evaluate(async (theme) => {
       const modulePath = '/preferences.ts';

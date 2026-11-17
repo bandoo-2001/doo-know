@@ -1,3 +1,4 @@
+import * as popupControls from '../apps/web/to-doo-controls';
 import { readFileSync } from 'node:fs';
 import { compileScript, parse } from '@vue/compiler-sfc';
 import ts from 'typescript';
@@ -42,7 +43,7 @@ function calendar(
       if (id.endsWith('/to-doo-task-groups')) return groups;
       if (id.endsWith('/to-doo-anniversaries')) return anniversaries;
       if (id.endsWith('/to-doo-action-guard')) return actionGuards;
-      if (id.endsWith('/to-doo-controls')) return { useToDooConfirm: () => options.confirm || (async () => false) };
+      if (id.endsWith('/to-doo-controls')) return { ...popupControls, useToDooConfirm: () => options.confirm || (async () => false) };
       if (id === 'ant-design-vue' || id.endsWith('.vue')) return {};
       throw Error('Unexpected calendar dependency: ' + id);
     },
@@ -198,6 +199,64 @@ function block(id: string, time: string | null, durationMinutes: number, extra =
     ...extra,
   });
 }
+test('month tooltips retain full overnight times and distinguish unspecified times from all-day dates', () => {
+  const overnight = block('night', '23:30', 90);
+  const view = calendar(null, 'UTC', [overnight]);
+  expect(view.monthBlockLabel(overnight)).toContain('2026-11-02 23:30—2026-11-03 01:00');
+  expect(view.monthBlockLabel(block('unspecified', null, 60))).toContain('未指定时刻');
+  expect(view.monthBlockLabel(block('all-day', null, 1440, { allDay: true })))
+    .toContain('2026-11-02 全天 至 2026-11-03（结束日期不含）');
+  const mixed = event({
+    start: { date: '2026-11-02', time: '11:00', timeZone: 'Asia/Shanghai' },
+    end: { date: '2026-11-02', time: '04:00', timeZone: 'UTC' },
+  });
+  expect(view.monthExternalLabel(mixed)).toContain('2026-11-02 03:00—2026-11-02 04:00 · UTC · 只读');
+  expect(view.monthExternalLabel(event({ allDay: false }))).toContain('未指定时刻');
+  expect(view.monthExternalLabel(event({ allDay: false }))).not.toContain('全天');
+});
+
+test('month entries mix types by local time, put explicit all-day dates first, and preserve ties', () => {
+  const blocks = [
+    block('late', '18:00', 60),
+    block('all-day', null, 1440, { allDay: true }),
+    block('tie-first', '09:00', 60),
+    block('tie-second', '09:00', 60),
+    block('unspecified', null, 60),
+  ];
+  const events = [
+    event({ id: 'morning', start: { date: '2026-11-02', time: '16:30', timeZone: 'Asia/Shanghai' }, end: { date: '2026-11-02', time: '09:00', timeZone: 'UTC' } }),
+    event({ id: 'all-day', allDay: true, end: { date: '2026-11-03', time: null, timeZone: 'UTC' } }),
+    event({ id: 'unspecified', end: { date: '2026-11-03', time: null, timeZone: 'UTC' } }),
+  ];
+  const item = (id: string, time: string | null, priority = 'none') => ({
+    key: id, title: id, status: 'todo', task: { id, priority },
+    occurrence: { id, due: { date: '2026-11-02', time, timeZone: 'UTC' } },
+  } as unknown as workbench.ToDooItem);
+  const items = [item('early', '07:00'), item('low-first', '09:00', 'low'), item('high-second', '09:00', 'high'), item('no-time', null)];
+  const anniversary = toDooEntitySchemas.anniversary.parse({
+    id: 'special', revision: 'r1', createdAt: '2026-11-02T00:00:00Z', updatedAt: '2026-11-02T00:00:00Z', name: '纪念日', date: '2026-11-02',
+  });
+  const view = calendar(null, 'UTC', [], { model: {
+    state: Vue.reactive({ snapshot: { settings: { timeZone: 'UTC', weekStartsOn: 1 }, timeBlocks: blocks, calendarEvents: events, anniversaries: [anniversary] } }),
+    items: () => items,
+  } });
+  expect(view.monthEntries('2026-11-02').map((entry: { key: string }) => entry.key)).toEqual([
+    'block:all-day', 'external:all-day', 'anniversary:special', 'deadline:early', 'external:morning',
+    'block:tie-first', 'block:tie-second', 'deadline:low-first', 'deadline:high-second', 'block:late',
+    'block:unspecified', 'deadline:no-time', 'external:unspecified',
+  ]);
+});
+
+test('month entries sort overnight segments at the current day’s midnight', () => {
+  const values = [
+    block('morning', '01:00', 30, { start: { date: '2026-11-03', time: '01:00', timeZone: 'UTC' } }),
+    block('overnight', '23:30', 120),
+  ];
+  const view = calendar(event({ start: { date: '2026-11-02', time: '23:45', timeZone: 'UTC' }, end: { date: '2026-11-03', time: '02:00', timeZone: 'UTC' } }), 'UTC', values);
+  expect(view.monthEntries('2026-11-03').map((entry: { key: string }) => entry.key)).toEqual([
+    'block:overnight', 'external:external-event', 'block:morning',
+  ]);
+});
 test('ordinary overnight blocks are clipped on both days and retain the original entity for editing', () => {
   const original = block('overnight', '23:30', 90);
   const view = calendar(null, 'UTC', [original]);

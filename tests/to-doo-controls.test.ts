@@ -1,11 +1,12 @@
 import { h, Fragment } from 'vue';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import {
   prepareToDooSelectOptions,
   toDooSelectKey,
   normalizeToDooDateValue,
   validateToDooDateInput,
   createToDooConfirmation,
+  createToDooPopupEscapeBoundary,
 } from '../apps/web/to-doo-controls';
 
 describe('typed Ant selection boundary', () => {
@@ -37,6 +38,49 @@ describe('typed Ant selection boundary', () => {
       'life',
     ]);
   });
+});
+
+test('Escape consumed by an inner popup does not propagate after that popup has already closed', () => {
+  class ElementFixture {
+    closest() { return { matches: () => false, querySelector: () => null }; }
+  }
+  let visible = true;
+  const popup = { getClientRects: () => visible ? [{}] : [], matches: () => false, closest: () => null };
+  vi.stubGlobal('Element', ElementFixture);
+  vi.stubGlobal('document', { querySelectorAll: () => [popup] });
+  vi.stubGlobal('getComputedStyle', () => ({ visibility: 'visible' }));
+  try {
+    const boundary = createToDooPopupEscapeBoundary();
+    const stop = vi.fn();
+    const escape = { key: 'Escape', target: new ElementFixture(), stopPropagation: stop } as unknown as KeyboardEvent;
+    boundary.capture(escape);
+    visible = false;
+    boundary.bubble(escape);
+    expect(stop).toHaveBeenCalledOnce();
+    const outerStop = vi.fn();
+    const outerEscape = { ...escape, stopPropagation: outerStop } as KeyboardEvent;
+    boundary.capture(outerEscape);
+    boundary.bubble(outerEscape);
+    expect(outerStop).not.toHaveBeenCalled();
+  } finally { vi.unstubAllGlobals(); }
+});
+
+test('a newly expanded select consumes Escape before its dropdown portal has painted', () => {
+  let expanded = true;
+  class ElementFixture {
+    closest() { return { matches: () => expanded, querySelector: () => null }; }
+  }
+  vi.stubGlobal('Element', ElementFixture);
+  vi.stubGlobal('document', { querySelectorAll: () => [] });
+  try {
+    const boundary = createToDooPopupEscapeBoundary();
+    const stop = vi.fn();
+    const event = { key: 'Escape', target: new ElementFixture(), stopPropagation: stop } as unknown as KeyboardEvent;
+    boundary.capture(event);
+    expanded = false;
+    boundary.bubble(event);
+    expect(stop).toHaveBeenCalledOnce();
+  } finally { vi.unstubAllGlobals(); }
 });
 
 test('date boundary clears consistently and preserves user-local date and time strings', () => {

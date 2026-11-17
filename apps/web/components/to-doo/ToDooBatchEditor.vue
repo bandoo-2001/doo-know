@@ -7,6 +7,9 @@ import {
   Textarea as ATextarea,
 } from 'ant-design-vue';
 import ToDooSelect from './ToDooSelect.vue';
+import { createToDooPopupEscapeBoundary } from '../../to-doo-controls';
+import ToDooTaskValueSelect from './ToDooTaskValueSelect.vue';
+import ToDooIcon from './ToDooIcon.vue';
 import ToDooDateField from './ToDooDateField.vue';
 import { computed, onMounted, reactive, ref } from 'vue';
 import type { TreeEntry } from '../../../../shared/contracts';
@@ -18,6 +21,7 @@ const emit = defineEmits<{ close: []; 'open-note': [id: string] }>();
 const state = props.model.state,
   loading = ref(true),
   includeChildren = ref(true);
+const popupEscape = createToDooPopupEscapeBoundary();
 const enabled = reactive({
   priority: false,
   importance: false,
@@ -120,14 +124,15 @@ async function save() {
       html-type="button"
       aria-label="关闭批量编辑"
       @click="emit('close')"
-      >×</AButton
+      ><ToDooIcon name="close" :size="16" /></AButton
     >
     <p class="todo-form-help">
       选中 {{ state.selectedIds.length }} 项，将修改
       {{ affected.length }} 项。未勾选的字段保持原值。
     </p>
 
-    <form class="todo-form" @submit.prevent="save">
+    <form class="todo-form" @submit.prevent="save"
+      @keydown.capture="popupEscape.capture" @keydown="popupEscape.bubble">
       <ACheckbox class="todo-checkbox" v-model:checked="includeChildren"
         >同时处理全部后代任务</ACheckbox
       >
@@ -136,12 +141,7 @@ async function save() {
         <div class="todo-form-grid">
           <div class="todo-form">
             <ACheckbox class="todo-checkbox" v-model:checked="enabled.priority">优先级</ACheckbox>
-            <ToDooSelect v-if="enabled.priority" v-model="patch.priority" aria-label="批量优先级">
-              <option value="none">无优先级</option>
-              <option value="low">低</option>
-              <option value="normal">中</option>
-              <option value="high">高</option>
-            </ToDooSelect>
+            <ToDooTaskValueSelect v-if="enabled.priority" kind="priority" v-model="patch.priority" aria-label="批量优先级" />
           </div>
           <div class="todo-form">
             <ACheckbox class="todo-checkbox" v-model:checked="enabled.importance"

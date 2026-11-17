@@ -23,6 +23,31 @@ export type ToDooAntOption = {
 export function toDooSelectKey(value: unknown): string {
   return value === null ? 'null:' : typeof value + ':' + (JSON.stringify(value) ?? '');
 }
+/** Remember the popup before Ant closes it so Escape does not also dismiss its modal. */
+export function createToDooPopupEscapeBoundary() {
+  let innerEscape: KeyboardEvent | undefined;
+  return {
+    capture(event: KeyboardEvent) {
+      innerEscape = undefined;
+      if (event.key !== 'Escape' || event.isComposing || typeof document === 'undefined') return;
+      if (!(event.target instanceof Element)) return;
+      const control = event.target.closest('.ant-select, .ant-picker');
+      if (!control) return;
+      // Controlled popups may already be open before their portal has painted.
+      const expanded = control.matches('.ant-select-open') || !!control.querySelector('[aria-expanded="true"]');
+      const visible = [...document.querySelectorAll<HTMLElement>('.ant-select-dropdown, .ant-picker-dropdown')]
+        .some(popup => popup.getClientRects().length && getComputedStyle(popup).visibility === 'visible' &&
+          !popup.matches('.ant-select-dropdown-hidden, .ant-picker-dropdown-hidden, [class*="-leave"]') &&
+          !popup.closest('[aria-hidden="true"]'));
+      if (expanded || visible) innerEscape = event;
+    },
+    bubble(event: KeyboardEvent) {
+      if (event !== innerEscape) return;
+      innerEscape = undefined;
+      event.stopPropagation();
+    },
+  };
+}
 function text(node: any): string {
   if (Array.isArray(node)) return node.map(text).join('');
   if (node == null || typeof node === 'boolean') return '';

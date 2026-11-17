@@ -1,4 +1,5 @@
 import * as Vue from 'vue';
+import { toDooTaskValue, type ToDooTaskValueKind } from '../../apps/web/to-doo-task-values';
 
 // Keep real business components and workbench state in renderer tests. These
 // adapters replace browser-dependent controls at their public value/event edge.
@@ -112,6 +113,17 @@ function select(domain: boolean) {
 
 const Select = select(false);
 export const ToDooSelectStub = select(true);
+const ToDooMultiSelectStub = Vue.defineComponent({
+  inheritAttrs: false,
+  props: ['modelValue', 'value', 'options', 'disabled', 'placeholder'],
+  emits: ['update:modelValue', 'update:value', 'change'],
+  setup: (props, { attrs, slots, emit }) => () => Vue.h(ToDooSelectStub, {
+    ...attrs, ...props, multiple: true,
+    'onUpdate:modelValue': (value: unknown) => emit('update:modelValue', value),
+    'onUpdate:value': (value: unknown) => emit('update:value', value),
+    onChange: (value: unknown) => emit('change', value),
+  }, slots),
+});
 export const ToDooDateFieldStub = Vue.defineComponent({
   inheritAttrs: false,
   props: ['modelValue', 'value', 'type', 'disabled', 'required', 'min', 'max'],
@@ -515,7 +527,13 @@ export const toDooAntStubs = {
 };
 
 export function toDooBoundaryStub(path: string): Vue.Component | undefined {
-  if (path.endsWith('ToDooSelect.vue')) return ToDooSelectStub;
+  if (path.endsWith('ToDooListTreeMultiSelect.vue') || path.endsWith('ToDooTaskValueMultiSelect.vue')) return ToDooMultiSelectStub;
+  if (path.endsWith('ToDooTaskValueLabel.vue')) return Vue.defineComponent({
+    props: { kind: { type: String, required: true }, value: { type: String, required: true } },
+    setup: props => () => Vue.h('span', { class: 'todo-task-value-label', 'data-kind': props.kind, 'data-value': props.value },
+      toDooTaskValue(props.kind as ToDooTaskValueKind, props.value).label),
+  });
+  if (path.endsWith('ToDooSelect.vue') || path.endsWith('ToDooTaskValueSelect.vue') || path.endsWith('ToDooListTreeSelect.vue')) return ToDooSelectStub;
   if (path.endsWith('ToDooDateField.vue')) return ToDooDateFieldStub;
   if (path.endsWith('ToDooDisclosure.vue')) return ToDooDisclosureStub;
 }

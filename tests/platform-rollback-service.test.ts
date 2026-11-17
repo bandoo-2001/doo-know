@@ -39,7 +39,10 @@ async function rollbackFixture(active = true, generation = 2, previousGeneration
     if (action === 'is-active') {
       const value = fs.readFileSync(state, 'utf8'); console.log(value); process.exit(value === 'active' ? 0 : 3);
     }
-    if (action === 'show') console.log(${process.pid});
+    if (action === 'show') {
+      if (process.argv.includes('--property=FragmentPath')) { console.log('LoadState=loaded'); console.log('FragmentPath=' + ${JSON.stringify(join(configHome, 'systemd/user', config.serviceName))}); }
+      else console.log(${process.pid});
+    }
     if (action === 'stop') {
       fs.writeFileSync(state, 'inactive');
       const DB = require(${JSON.stringify(resolve('node_modules/better-sqlite3'))});

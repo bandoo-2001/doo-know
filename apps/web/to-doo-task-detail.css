@@ -77,6 +77,7 @@
   background: transparent;
 }
 .to-doo-workspace .todo-detail-body {
+  container: todo-detail-body / inline-size;
   scroll-padding-block: var(--todo-space-16);
   overflow-x: hidden;
   padding: var(--todo-space-12) var(--todo-detail-padding) var(--todo-space-24);
@@ -314,6 +315,24 @@
 .to-doo-workspace .todo-create-footer .todo-button {
   min-width: 88px;
 }
+.to-doo-workspace .todo-create-weekdays {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--todo-space-4) var(--todo-space-8);
+}
+.to-doo-workspace .todo-create-weekdays .ant-checkbox-wrapper {
+  min-height: var(--todo-control-height);
+  margin: 0;
+  gap: 0;
+  font-size: var(--todo-font-size);
+  white-space: nowrap;
+}
+@media (pointer: coarse) {
+  .to-doo-workspace .todo-create-weekdays .ant-checkbox-wrapper {
+    min-height: var(--todo-touch-target);
+  }
+}
 .to-doo-workspace .todo-quick-details.ant-btn {
   height: var(--todo-compact-control-height);
   padding: var(--todo-space-4) var(--todo-icon-gap);
@@ -393,6 +412,7 @@
   white-space: nowrap;
 }
 .todo-detail-property-chips :is(.is-empty, .todo-priority-none, .todo-list-chevron) { color: var(--todo-muted); }
+.todo-detail-property-chips .todo-list-chevron { transform: rotate(90deg); flex: 0 0 auto; }
 .todo-detail-property-chips .ant-btn[class*='todo-priority-'] > svg { color: var(--todo-priority-color); }
 .todo-detail-property-chips .ant-btn.is-overdue,
 .todo-detail-property-chips .ant-btn.is-overdue > svg { color: var(--todo-danger-text); }
@@ -422,12 +442,18 @@
 }
 .to-doo-workspace .todo-primary-children .todo-saved-row.ant-btn {
   min-height: var(--todo-row-min-height);
+  height: auto;
   padding: var(--todo-space-8) var(--todo-space-12);
   border-bottom: 1px solid var(--todo-line);
   gap: var(--todo-space-8);
 }
 .todo-primary-children .todo-saved-row > span:first-child {
+  flex: 1;
+  min-width: 0;
   overflow-wrap: anywhere;
+}
+.todo-primary-children .todo-saved-row > svg {
+  flex: 0 0 auto;
 }
 .todo-primary-children .todo-saved-row > span:last-child {
   flex: none;
@@ -484,6 +510,16 @@
   gap: var(--todo-space-4);
   padding-block-start: var(--todo-space-8);
   border-block-start: 1px solid var(--todo-line);
+}
+@container todo-detail-body (max-width: 400px) {
+  .to-doo-workspace .todo-detail .todo-detail-shortcuts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .to-doo-workspace .todo-detail .todo-detail-shortcuts .ant-btn {
+    width: 100%;
+    min-width: 0;
+  }
 }
 .todo-plan-disclosure {
   margin-top: 12px;

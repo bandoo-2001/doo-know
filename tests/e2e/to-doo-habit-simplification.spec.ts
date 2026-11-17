@@ -2,8 +2,14 @@ import { selectToDooContext } from '../support/to-doo-navigation';
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 import { fillToDooDate, selectToDooOption } from '../support/to-doo-ant-controls';
+import {
+  isolateHabitTestReminderOverlays,
+  readHabitTestEntities,
+  revealHabitTestCard,
+} from '../support/to-doo-habit-fixture';
 
 test.beforeEach(async ({ page, context }, info) => {
+  await isolateHabitTestReminderOverlays(context);
   if (info.project.name === 'mobile') await page.setViewportSize({ width: 320, height: 844 });
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.clock.install({ time: new Date('2026-11-01T12:00:00Z') });
@@ -45,9 +51,17 @@ test('ordinary habits create without quantities and complete with one click', as
   await expect(card.getByRole('spinbutton')).toHaveCount(0);
   await card.getByRole('button', { name: '打卡 ' + name, exact: true }).click();
   await expect(card.getByRole('button', { name: '打卡 ' + name, exact: true })).toBeDisabled();
-  await expect(card).toContainText('已打卡');
+  await expect(card.getByRole('button', { name: '打卡 ' + name, exact: true })).toHaveClass(
+    /is-complete/,
+  );
   await page.reload();
-  await expect(card).toContainText('已打卡');
+  await expect(
+    page.getByRole('article', { name: '习惯 ' + name, exact: true, includeHidden: true }),
+  ).toBeHidden();
+  await revealHabitTestCard(page, name);
+  await expect(card.getByRole('button', { name: '打卡 ' + name, exact: true })).toHaveClass(
+    /is-complete/,
+  );
   await selectToDooContext(page, '历史', '习惯目录');
   await page
     .getByRole('button', { name: name + ' 2026-11-01 打卡，当前 1 次', exact: true })
@@ -63,15 +77,14 @@ test('ordinary habits create without quantities and complete with one click', as
   await page.getByLabel('习惯视图', { exact: true }).getByText('今天', { exact: true }).click();
   await expect(card.getByRole('button', { name: '打卡 ' + name, exact: true })).toBeEnabled();
   await card.getByRole('button', { name: '打卡 ' + name, exact: true }).click();
-  await expect(card).toContainText('已打卡');
-  const state = await (
-    await page.request.get('/api/to-doo/state?kinds=habit,habitEntry&limit=1000')
-  ).json();
-  const habit = state.habits.find((h: any) => h.name === name);
+  await expect(card.getByRole('button', { name: '打卡 ' + name, exact: true })).toHaveClass(
+    /is-complete/,
+  );
+  const habits = await readHabitTestEntities(page, 'habit');
+  const savedEntries = await readHabitTestEntities(page, 'habitEntry');
+  const habit = habits.find((h) => h.name === name)!;
   expect(habit).toMatchObject({ goalMode: 'checkin', target: 1, unit: '次', icon: '🌙' });
-  expect(
-    state.habitEntries.filter((e: any) => e.habitId === habit.id && !e.deletedAt),
-  ).toHaveLength(1);
+  expect(savedEntries.filter((e) => e.habitId === habit.id && !e.deletedAt)).toHaveLength(1);
 });
 
 test('editing a basic reminder retains the existing custom reminder rules', async ({
@@ -112,7 +125,12 @@ test('editing a basic reminder retains the existing custom reminder rules', asyn
   });
   expect(created.ok()).toBe(true);
   await page.reload();
+  await revealHabitTestCard(page, name);
   await page.getByRole('button', { name, exact: true }).click();
+  await page
+    .getByRole('region', { name: '习惯详情 ' + name, exact: true })
+    .getByRole('button', { name: '编辑习惯', exact: true })
+    .click();
   const editor = page.getByRole('dialog', { name: '编辑习惯', exact: true });
   await fillToDooDate(editor.getByLabel('提醒时间 1', { exact: true }), '10:30');
   await expect(editor.getByText('自定义提醒', { exact: true })).toBeVisible();
@@ -154,7 +172,12 @@ test('converting a restricted weekly quantity shows its allowed dates and a reac
   });
   expect(created.ok()).toBe(true);
   await page.reload();
+  await revealHabitTestCard(page, name);
   await page.getByRole('button', { name, exact: true }).click();
+  await page
+    .getByRole('region', { name: '习惯详情 ' + name, exact: true })
+    .getByRole('button', { name: '编辑习惯', exact: true })
+    .click();
   const editor = page.getByRole('dialog', { name: '编辑习惯', exact: true });
   await selectToDooOption(editor, '目标', '完成后打卡');
   await expect(editor.getByRole('button', { name: '星期一', exact: true })).toHaveAttribute(
@@ -179,7 +202,7 @@ test('converting a restricted weekly quantity shows its allowed dates and a reac
   expect(stored.habits[0].ruleVersions[0].goalMode).toBeUndefined();
 });
 
-test('a quantitative target adds only the remaining amount and labels the input as an addition', async ({
+test('a quantitative target appends the remaining amount without replacing earlier records', async ({
   page,
 }, info) => {
   const name = '阅读 ' + info.project.name + crypto.randomUUID().slice(0, 6);
@@ -195,13 +218,13 @@ test('a quantitative target adds only the remaining amount and labels the input 
   await editor.getByRole('button', { name: '保存', exact: true }).click();
   const card = page.getByRole('article', { name: '习惯 ' + name, exact: true });
   const input = card.getByRole('spinbutton', { name: '记录数量 ' + name, exact: true });
-  await expect(card).toContainText('本次新增');
+  await expect(input).toBeEnabled();
   await input.fill('10');
   await card.getByRole('button', { name: '记录数量 ' + name, exact: true }).click();
-  await expect(card).toContainText('今天 10 / 20 页');
+  await expect(card.locator('.todo-habit-day-amount')).toHaveText(/10\s*\/\s*20\s*页/);
   await expect(input).toHaveValue('10');
   await card.getByRole('button', { name: '记录数量 ' + name, exact: true }).click();
-  await expect(card).toContainText('今天 20 / 20 页');
+  await expect(card.locator('.todo-habit-day-amount')).toHaveText(/20\s*\/\s*20\s*页/);
   await expect(card.getByRole('button', { name: '记录数量 ' + name, exact: true })).not.toHaveClass(
     /ant-btn-primary/,
   );
@@ -227,10 +250,11 @@ test('weekday and interval choices save an explicit schedule', async ({ page }, 
   await expect(editor).toContainText('每隔 3 天');
   await editor.getByRole('button', { name: '保存', exact: true }).click();
   const card = page.getByRole('article', { name: '习惯 ' + name, exact: true });
-  await expect(card).toContainText('今天无需记录');
+  await revealHabitTestCard(page, name);
+  await expect(card.getByRole('img', { name: '今天无需记录', exact: true })).toBeVisible();
   await expect(card.getByRole('button', { name: '打卡 ' + name, exact: true })).toBeDisabled();
-  const state = await (await page.request.get('/api/to-doo/state?kind=habit&limit=500')).json();
-  expect(state.habits.find((h: any) => h.name === name)).toMatchObject({
+  const habits = await readHabitTestEntities(page, 'habit');
+  expect(habits.find((h) => h.name === name)).toMatchObject({
     intervalDays: 3,
     weekdays: [],
     startDate: '2026-10-30',

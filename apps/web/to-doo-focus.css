@@ -9,6 +9,7 @@
   flex: 1;
   width: 100%;
 }
+.todo-content:has(.todo-focus-workspace) { container: focus-page / inline-size; }
 .todo-focus-workspace {
   display: flex;
   flex: 1;
@@ -472,9 +473,8 @@
   .todo-focus-log > .todo-focus-history { max-height: var(--focus-pane-room, max(200px, calc(100dvh - 470px))); }
 }
 
-/* Large monitors have room to keep the timer in place while the right pane
-   changes between the project list and the history. */
-@container (min-width: 1480px) {
+/* Large monitors keep a complete focus console beside the project or history workspace. */
+@container focus-page (min-width: 1480px) {
   .todo-focus-workspace {
     /* Deduct the page header, padding and pane switch so that filters and the
        record count share the available column height with the scrolling entries. */
@@ -490,27 +490,159 @@
   .todo-focus-console {
     position: sticky;
     top: var(--todo-space-24);
-    padding-inline-end: var(--todo-space-32);
-    border-inline-end: 1px solid var(--todo-line);
+    padding: var(--todo-space-24);
+    border: 1px solid var(--todo-line);
+    border-radius: var(--todo-radius);
+    background: var(--todo-paper);
   }
   .todo-focus-console .todo-focus-timer,
   .todo-focus-console .todo-focus-timer:not(:has(.todo-focus-primary-task)) {
-    --focus-dial-size: 172px;
-    grid-template-areas: "dial" "context" "task" "actions";
+    --focus-dial-size: 240px;
+    grid-template-areas: "header" "dial" "context" "setup" "task" "actions" "note";
     grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     gap: var(--todo-space-12);
-    padding: var(--todo-space-12) 0 var(--todo-space-24);
+    padding: 0;
     border: 0;
   }
   .todo-focus-console .todo-focus-timer:not(:has(.todo-focus-primary-task)) {
-    grid-template-areas: "dial" "context" "actions";
+    grid-template-areas: "header" "dial" "context" "actions" "note";
+  }
+  .todo-focus-timer-caption {
+    grid-area: header;
+    justify-self: start;
+    display: flex;
+    align-items: center;
+    min-height: var(--todo-icon-button-size);
+    color: var(--todo-muted);
+    font-size: var(--todo-caption-size);
+    font-weight: 600;
   }
   .todo-focus-timer-context { max-width: 100%; text-align: center; }
   .todo-focus-session-meta,
   .todo-focus-timer-actions { justify-content: center; }
-  .todo-focus-primary-task { width: 100%; }
-  .todo-focus-settings-toggle.ant-btn { grid-area: dial; justify-self: end; align-self: start; }
+  .todo-focus-primary-task {
+    width: 100%;
+    max-width: none;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .todo-focus-quick-settings {
+    grid-area: setup;
+    width: 100%;
+    min-width: 0;
+    margin-block: var(--todo-space-4);
+  }
+  .todo-focus-quick-settings .todo-focus-timer-fields { gap: var(--todo-space-12); }
+  .todo-focus-quick-settings .ant-segmented { width: 100%; }
+  .todo-focus-quick-settings .ant-segmented-group { display: flex; }
+  .todo-focus-quick-settings .ant-segmented-item { flex: 1; text-align: center; }
+  .todo-focus-quick-settings .todo-focus-target { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--todo-space-8); }
+  .todo-focus-quick-settings .todo-focus-target .ant-input-number-group-wrapper,
+  .todo-focus-quick-settings .todo-focus-target .ant-input-number { width: 100%; min-width: 0; }
+  .todo-focus-console .todo-focus-timer-actions { width: 100%; margin-top: var(--todo-space-4); }
+  .todo-focus-console .todo-focus-timer-actions .ant-btn-primary {
+    flex: 1;
+    min-height: var(--todo-touch-target);
+  }
+  .todo-focus-live-note {
+    grid-area: note;
+    display: grid;
+    gap: var(--todo-space-8);
+    width: 100%;
+    min-width: 0;
+    margin-top: var(--todo-space-4);
+    color: var(--todo-muted);
+    font-size: var(--todo-caption-size);
+    text-align: start;
+  }
+  :is(.todo-focus-quick-settings, .todo-focus-live-note)[aria-hidden="true"] { visibility: hidden; }
+  .todo-focus-today-summary {
+    margin-top: var(--todo-space-24);
+    padding-top: var(--todo-space-16);
+    border-top: 1px solid var(--todo-line);
+  }
+  .todo-focus-summary-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--todo-space-4) var(--todo-space-12);
+  }
+  .todo-focus-summary-heading h2 { margin: 0; font-size: var(--todo-font-size); font-weight: 600; }
+  .todo-focus-summary-scope {
+    min-width: 0;
+    color: var(--todo-muted);
+    font-size: var(--todo-caption-size);
+    overflow-wrap: anywhere;
+  }
+  .todo-focus-summary-values {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--todo-space-16);
+    margin-top: var(--todo-space-16);
+  }
+  .todo-focus-summary-values > div { min-width: 0; }
+  .todo-focus-summary-values > div + div { padding-inline-start: var(--todo-space-16); border-inline-start: 1px solid var(--todo-line); }
+  .todo-focus-summary-values strong {
+    font-size: var(--todo-heading-line-height);
+    font-weight: 600;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  .todo-focus-summary-values span,
+  .todo-focus-summary-values small { color: var(--todo-muted); font-size: var(--todo-caption-size); }
+  .todo-focus-summary-values span { margin-inline-start: var(--todo-space-4); }
+  .todo-focus-summary-values small { display: block; margin-top: var(--todo-space-4); }
+  .todo-focus-settings-toggle.ant-btn { grid-area: header; justify-self: end; align-self: start; padding-inline: var(--todo-space-4); }
+  .todo-focus-create.ant-btn { display: inline-flex; align-items: center; gap: var(--todo-icon-gap); }
+  .todo-focus-projects:has(.todo-focus-topic) { row-gap: var(--todo-space-8); }
+  .todo-focus-topic {
+    min-height: 76px;
+    padding: var(--todo-space-12);
+    border: 1px solid var(--todo-line);
+    border-radius: var(--todo-radius);
+    background: var(--todo-paper);
+  }
+  .todo-focus-topic.selected { border-color: var(--todo-accent); }
+  .todo-focus-projects .todo-focus-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--todo-space-12);
+    min-height: 320px;
+    margin: var(--todo-space-12) 0 0;
+    padding: var(--todo-space-32);
+    border: 1px dashed var(--todo-line);
+    border-radius: var(--todo-radius);
+    background: var(--todo-soft);
+  }
+  .todo-focus-projects .todo-focus-empty > div { margin: 0; }
+  .todo-focus-projects .todo-focus-empty .ant-empty-image { height: 56px; }
+  .todo-focus-projects .todo-focus-empty .ant-btn { min-height: var(--todo-touch-target); }
+  .todo-focus-records {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--todo-space-24);
+    max-height: var(--focus-pane-room);
+  }
+  .todo-focus-overview {
+    width: 100%;
+    padding: var(--todo-space-16) var(--todo-space-24);
+    border: 1px solid var(--todo-line);
+    border-radius: var(--todo-radius);
+    background: var(--todo-soft);
+  }
+  .todo-focus-statistics { margin-block: var(--todo-space-8) 0; }
+  .todo-focus-statistics .ant-statistic-content { font-size: var(--todo-heading-line-height); }
+  .todo-focus-log { flex: 1; width: 100%; min-height: 0; max-height: none; }
+  .todo-focus-log > .todo-focus-history { max-height: max(200px, calc(100dvh - 450px)); }
+  .todo-focus-records:has(.todo-focus-trend) .todo-focus-log > .todo-focus-history {
+    max-height: max(180px, calc(100dvh - 650px));
+  }
   .todo-focus-retained-note { grid-column: 1 / -1; }
 }
 

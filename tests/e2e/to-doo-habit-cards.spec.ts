@@ -1,6 +1,15 @@
 import { selectToDooContext } from '../support/to-doo-navigation';
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
+import {
+  isolateHabitTestReminderOverlays,
+  readHabitTestEntities,
+  revealHabitTestCard,
+} from '../support/to-doo-habit-fixture';
+
+test.beforeEach(async ({ context }) => {
+  await isolateHabitTestReminderOverlays(context);
+});
 
 test('a failed quantity write retains the input and retries the same request once', async ({
   page,
@@ -37,15 +46,11 @@ test('a failed quantity write retains the input and retries the same request onc
   await expect(page.getByRole('alert')).toContainText('数量暂时无法保存');
   await expect(field).toHaveValue('7');
   await card.getByRole('button', { name: '记录数量 ' + id, exact: true }).click();
-  await expect(card).toContainText('今天 7 / 1 次');
+  await expect(card.locator('.todo-habit-day-amount')).toHaveText(/7\s*\/\s*1\s*次/);
   expect(requestIds).toHaveLength(2);
   expect(requestIds[0]).toBe(requestIds[1]);
-  const saved = await (
-    await page.request.get('/api/to-doo/state?kind=habitEntry&limit=500')
-  ).json();
-  expect(saved.habitEntries.filter((entry: any) => entry.habitId === id)).toMatchObject([
-    { amount: 7 },
-  ]);
+  const saved = await readHabitTestEntities(page, 'habitEntry');
+  expect(saved.filter((entry) => entry.habitId === id)).toMatchObject([{ amount: 7 }]);
 });
 
 test('habit cards distinguish today from weekly achievement and include all pages before recording, skipping and pausing', async ({
@@ -118,53 +123,59 @@ test('habit cards distinguish today from weekly achievement and include all page
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   const readCard = app.getByRole('article', { name: '习惯 阅读 ' + suffix, exact: true });
   const exerciseCard = app.getByRole('article', { name: '习惯 运动 ' + suffix, exact: true });
-  await expect(readCard).toContainText('今天 250 / 300 页');
-  await expect(exerciseCard).toContainText('今天 0 次');
-  await expect(exerciseCard).toContainText('本周累计 3 / 3 次');
-  await expect(exerciseCard).toContainText('本周达标');
+  await expect(readCard.locator('.todo-habit-day-amount')).toHaveText(/250\s*\/\s*300\s*页/);
+  await expect(
+    page.getByRole('article', { name: '习惯 运动 ' + suffix, exact: true, includeHidden: true }),
+  ).toBeHidden();
+  await revealHabitTestCard(page, '运动 ' + suffix);
+  await expect(exerciseCard.locator('.todo-habit-day-amount')).toHaveCount(0);
+  await expect(exerciseCard.locator('.todo-habit-period-amount')).toHaveText(/3\s*\/\s*3\s*次/);
+  await expect(exerciseCard.getByRole('img', { name: '本周达标', exact: true })).toBeVisible();
   await readCard
     .getByRole('spinbutton', { name: '记录数量 阅读 ' + suffix, exact: true })
     .fill('0');
   await readCard.getByRole('button', { name: '记录数量 阅读 ' + suffix, exact: true }).click();
   await expect(readCard.getByRole('alert')).toHaveText('请输入大于 0 的数量');
-  await expect(readCard).toContainText('今天 250 / 300 页');
+  await expect(readCard.locator('.todo-habit-day-amount')).toHaveText(/250\s*\/\s*300\s*页/);
   await readCard
     .getByRole('spinbutton', { name: '记录数量 阅读 ' + suffix, exact: true })
     .fill('2');
   await readCard.getByRole('button', { name: '记录数量 阅读 ' + suffix, exact: true }).click();
-  await expect(readCard).toContainText('今天 252 / 300 页');
+  await expect(readCard.locator('.todo-habit-day-amount')).toHaveText(/252\s*\/\s*300\s*页/);
   const menu = exerciseCard.getByRole('button', { name: '习惯操作 运动 ' + suffix, exact: true });
   await menu.click();
   await page.getByRole('menuitem', { name: '跳过今天', exact: true }).click();
-  await expect(exerciseCard).toContainText('今天已跳过');
+  await expect(exerciseCard.getByRole('img', { name: '今天已跳过', exact: true })).toBeVisible();
   await menu.click();
   await page.getByRole('menuitem', { name: '撤销今天记录', exact: true }).click();
   const undo = page.getByRole('dialog', { name: '撤销习惯记录', exact: true });
   await expect(undo).toBeVisible();
   await undo.getByRole('button', { name: '确认', exact: true }).click();
   await expect(undo).not.toBeVisible();
-  await expect(exerciseCard).not.toContainText('今天已跳过');
-  await expect(exerciseCard).toContainText('本周累计 3 / 3 次');
+  await expect(exerciseCard.getByRole('img', { name: '今天已跳过', exact: true })).toHaveCount(0);
+  await expect(exerciseCard.locator('.todo-habit-period-amount')).toHaveText(/3\s*\/\s*3\s*次/);
   await menu.click();
   await page.getByRole('menuitem', { name: '今天休息', exact: true }).click();
-  await expect(exerciseCard).toContainText('今天休息');
+  await expect(exerciseCard.getByRole('img', { name: '今天休息', exact: true })).toBeVisible();
   await expect(
     exerciseCard.getByRole('button', { name: '记录数量 运动 ' + suffix, exact: true }),
   ).toBeDisabled();
   await page.reload();
-  await expect(readCard).toContainText('今天 252 / 300 页');
-  await expect(exerciseCard).toContainText('今天休息');
+  await revealHabitTestCard(page, '运动 ' + suffix);
+  await expect(readCard.locator('.todo-habit-day-amount')).toHaveText(/252\s*\/\s*300\s*页/);
+  await expect(exerciseCard.getByRole('img', { name: '今天休息', exact: true })).toBeVisible();
   await readCard.getByRole('button', { name: '习惯操作 阅读 ' + suffix, exact: true }).click();
   await page.getByRole('menuitem', { name: '连续记录', exact: true }).click();
-  const statistics = page.getByRole('dialog', {
-    name: '阅读 ' + suffix + ' · 连续记录',
+  const statistics = page.getByRole('region', {
+    name: '习惯详情 阅读 ' + suffix,
     exact: true,
   });
-  await expect(statistics).toContainText('已读取 451 条记录');
-  await statistics.getByRole('button', { name: 'Close', exact: true }).click();
+  await statistics.locator('.todo-habit-detail-statistics > summary').click();
+  await expect(statistics).toContainText('共 451 条记录');
+  await statistics.getByRole('button', { name: '关闭习惯详情', exact: true }).click();
   await selectToDooContext(page, '历史', '习惯目录');
   await expect(app.getByRole('button', { name: '上一周', exact: true })).toBeVisible();
-  await app.getByText('今天', { exact: true }).click();
+  await app.getByLabel('习惯视图', { exact: true }).getByText('今天', { exact: true }).click();
   await page.setViewportSize({ width: 320, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({

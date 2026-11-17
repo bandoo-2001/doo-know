@@ -14,6 +14,11 @@ import {
   Textarea as ATextarea,
 } from 'ant-design-vue';
 import ToDooSelect from './ToDooSelect.vue';
+import ToDooListTreeSelect from './ToDooListTreeSelect.vue';
+import ToDooListTreeMultiSelect from './ToDooListTreeMultiSelect.vue';
+import ToDooListIcon from './ToDooListIcon.vue';
+import ToDooIcon from './ToDooIcon.vue';
+import { toDooListRows } from '../../to-doo-list-tree';
 import ToDooDateField from './ToDooDateField.vue';
 import { useToDooConfirm } from '../../to-doo-controls';
 import {
@@ -44,6 +49,12 @@ const emit = defineEmits<{
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
 }>();
 const confirmAction = useToDooConfirm();
+const managedListRows = computed(() => {
+  const lists = props.model.taskLists();
+  const current = new Map(lists.map(list => [list.id, list]));
+  return toDooListRows(lists.map(list => ({ ...list, archivedAt: null })))
+    .map(row => ({ ...row, list: current.get(row.list.id)! }));
+});
 const settingsContexts = ['preferences', 'connections', 'data', 'lists'];
 const localTab = ref('preferences');
 const activeTab = computed<string>({
@@ -929,9 +940,10 @@ defineExpose({
       v-show="activeTab === 'preferences'"
       class="todo-panel todo-settings-preferences"
     >
-      <div class="todo-panel-header">
-        <h2>日常偏好</h2>
-        <span v-if="dirty" class="todo-warning todo-small">有未保存的更改</span>
+      <div class="todo-panel-header todo-settings-preferences-heading">
+        <h2 v-if="contextualNavigation">日常偏好</h2>
+        <p v-else class="todo-settings-preferences-help">调整常用的默认设置。</p>
+        <span v-if="dirty" class="todo-warning todo-small" role="status">有未保存的更改</span>
       </div>
       <ToDooFormLayout
         ref="preferencesForm"
@@ -1226,16 +1238,9 @@ defineExpose({
                 <option value="calendar">作为日历事件</option>
               </ToDooSelect></label
             ><label
-              >目标清单<ToDooSelect v-model="importList">
-                <option :value="null">使用原清单 / 收集箱</option>
-                <option
-                  v-for="l in state.snapshot?.lists.filter((l) => !l.deletedAt)"
-                  :key="l.id"
-                  :value="l.id"
-                >
-                  {{ l.name }}
-                </option>
-              </ToDooSelect></label
+              >目标清单<ToDooListTreeSelect v-model="importList" :model="model" :allow-create="false"
+                null-label="使用原清单 / 收集箱" aria-label="目标清单"
+              /></label
             >
           </div>
         </ToDooDisclosure>
@@ -1546,15 +1551,9 @@ defineExpose({
         <form class="todo-form todo-pad" @submit.prevent="createFeed">
           <label>订阅名称<AInput v-model:value="feedName" required /></label
           ><label
-            >包含的清单（不选表示全部）<ToDooSelect v-model="feedLists" multiple>
-              <option
-                v-for="l in state.snapshot?.lists.filter((l) => !l.deletedAt)"
-                :key="l.id"
-                :value="l.id"
-              >
-                {{ l.name }}
-              </option>
-            </ToDooSelect></label
+            >包含的清单（不选表示全部）<ToDooListTreeMultiSelect v-model="feedLists" :model="model"
+              aria-label="包含的清单（不选表示全部）" placeholder="全部清单"
+            /></label
           ><ACheckbox v-model:checked="feedDescription" class="todo-checkbox"
             >包含任务说明</ACheckbox
           >
@@ -1605,29 +1604,30 @@ defineExpose({
           <span>名称</span><span>类型</span><span>状态</span><span>操作</span>
         </div>
         <div
-          v-for="l in state.snapshot?.lists.filter((l) => !l.deletedAt)"
-          :key="l.id"
+          v-for="row in managedListRows"
+          :key="row.list.id"
           class="todo-setting-row todo-managed-list"
+          :style="{ '--todo-managed-depth': row.depth }"
         >
           <div class="todo-managed-list-name">
-            <strong>{{ l.name }}</strong>
-            <p v-if="l.description">{{ l.description }}</p>
+            <div class="todo-managed-list-title"><ToDooListIcon :list="row.list" :size="18" /><strong>{{ row.list.name }}</strong></div>
+            <p v-if="row.list.description">{{ row.list.description }}</p>
           </div>
-          <span class="todo-muted">{{ l.kind === 'goal' ? '目标' : '任务清单' }}</span>
-          <span class="todo-badge" :class="{ accent: !l.archivedAt }">{{
-            l.archivedAt ? '已归档' : '使用中'
+          <span class="todo-muted">{{ row.list.kind === 'goal' ? '目标' : '任务清单' }}</span>
+          <span class="todo-badge" :class="{ accent: !row.list.archivedAt }">{{
+            row.list.archivedAt ? '已归档' : '使用中'
           }}</span>
           <AButton
             class="todo-link"
             html-type="button"
-            :aria-label="'编辑清单：' + l.name"
-            @click="emit('edit', 'list', l)"
+            :aria-label="'编辑清单：' + row.list.name"
+            @click="emit('edit', 'list', row.list)"
             type="link"
             >编辑清单</AButton
           >
         </div>
         <AEmpty
-          v-if="!state.snapshot?.lists.some((l) => !l.deletedAt)"
+          v-if="!managedListRows.length"
           class="todo-empty"
           description="创建清单来组织任务，或用目标记录进展。"
         />
@@ -1687,14 +1687,14 @@ defineExpose({
           html-type="button"
           aria-label="查看已归档任务"
           @click="emit('task-scope', 'archived')"
-          ><span>已归档任务</span><span aria-hidden="true">›</span></AButton
+          ><span>已归档任务</span><ToDooIcon name="chevron" :size="17" /></AButton
         >
         <AButton
           type="text"
           html-type="button"
           aria-label="查看任务回收站"
           @click="emit('task-scope', 'trash')"
-          ><span>任务回收站</span><span aria-hidden="true">›</span></AButton
+          ><span>任务回收站</span><ToDooIcon name="chevron" :size="17" /></AButton
         >
       </section>
     </section>

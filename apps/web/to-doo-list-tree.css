@@ -1,0 +1,57 @@
+.to-doo-workspace .todo-navigation-list-items .todo-nav-list-row {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: center;
+  flex: 0 0 auto;
+  min-width: 0;
+  padding-inline-start: calc(2px + var(--todo-list-depth, 0) * 12px);
+  padding-inline-end: 4px;
+  border-radius: var(--todo-control-radius);
+}
+.to-doo-workspace .todo-navigation-list-items .todo-nav-list-row:hover {
+  background: color-mix(in srgb, var(--todo-ink) 5%, transparent);
+}
+.to-doo-workspace .todo-navigation-list-items .todo-nav-list-row.active {
+  background: color-mix(in srgb, var(--todo-accent) 10%, var(--todo-paper));
+  color: var(--todo-accent);
+}
+.to-doo-workspace .todo-navigation-list-items .todo-nav-list-row .todo-nav-list-select.ant-btn {
+  min-width: 0;
+  gap: var(--todo-space-8);
+  padding-inline: 4px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+}
+.to-doo-workspace .todo-navigation-list-items .todo-nav-list-row .todo-nav-list-toggle.ant-btn {
+  width: 20px;
+  min-width: 20px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  justify-content: center;
+  color: var(--todo-muted);
+}
+.todo-nav-list-toggle svg {
+  transition: transform var(--todo-motion-fast) ease;
+}
+.todo-nav-list-toggle[aria-expanded='true'] svg {
+  transform: rotate(90deg);
+}
+.todo-nav-list-toggle-placeholder {
+  width: 20px;
+}
+@media (pointer: coarse) {
+  .to-doo-workspace .todo-navigation-list-items .todo-nav-list-row {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+  .to-doo-workspace .todo-navigation-list-items .todo-nav-list-row .todo-nav-list-toggle.ant-btn {
+    width: 30px;
+    min-width: 30px;
+    height: var(--todo-touch-target);
+    min-height: var(--todo-touch-target);
+  }
+}

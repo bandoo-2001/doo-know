@@ -186,3 +186,11 @@
   .to-doo-workspace.todo-page-calendar .todo-month-day { padding: var(--todo-space-4) 2px; }
   .todo-page-calendar .todo-mobile-calendar-choice { flex: 0 0 auto; margin-bottom: var(--todo-space-8); }
 }
+@media (max-width: 720px) and (pointer: coarse) {
+  .to-doo-workspace.todo-page-calendar .todo-calendar-grid-scroll.is-mobile-grid:has(> .todo-month) {
+    overflow-y: auto;
+  }
+  .to-doo-workspace.todo-page-calendar .todo-calendar-grid-scroll.is-mobile-grid > .todo-month {
+    min-height: calc(var(--todo-icon-button-size) + 6 * (2 * var(--todo-touch-target) + 2 * var(--todo-space-4)));
+  }
+}

@@ -296,8 +296,8 @@ test('task settings shortcuts open the existing editors with one click', async (
   const detail = page.getByRole('complementary', { name: '任务详情' });
   await detail.getByRole('button', { name: '编辑任务提醒', exact: true }).click();
   const reminders = page.getByRole('dialog', { name: '任务提醒', exact: true });
-  await expect(reminders.getByRole('button', { name: '＋ 添加提醒', exact: true })).toBeInViewport();
-  await reminders.getByRole('button', { name: '＋ 添加提醒', exact: true }).click();
+  await expect(reminders.getByRole('button', { name: '添加提醒', exact: true })).toBeInViewport();
+  await reminders.getByRole('button', { name: '添加提醒', exact: true }).click();
   await expect(reminders.getByRole('combobox', { name: '提醒依据', exact: true })).toBeVisible();
   await reminders.getByRole('button', { name: '取消本次设置', exact: true }).click();
   await expect(reminders).not.toBeVisible();
@@ -320,7 +320,7 @@ test('task settings shortcuts open the existing editors with one click', async (
   await expect(repeat).not.toBeVisible();
   await detail.getByRole('button', { name: '编辑关联资料', exact: true }).click();
   const resources = page.getByRole('dialog', { name: '关联资料', exact: true });
-  await expect(resources.getByRole('button', { name: '+ 关联资料', exact: true })).toBeInViewport();
+  await expect(resources.getByRole('button', { name: '关联资料', exact: true })).toBeInViewport();
 });
 
 test('preference groups preserve folded values while saving a common setting', async ({ page }) => {

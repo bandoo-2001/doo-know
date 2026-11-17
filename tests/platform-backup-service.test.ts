@@ -76,7 +76,11 @@ async function runningBackupFixture() {
       const state = fs.readFileSync(${JSON.stringify(stateFile)}, 'utf8');
       console.log(state); process.exit(state === 'active' ? 0 : 3);
     }
-    if (action === 'show') { console.log(fs.readFileSync(${JSON.stringify(mainPidFile)}, 'utf8')); process.exit(0); }
+    if (action === 'show') {
+      if (process.argv.includes('--property=FragmentPath')) { console.log('LoadState=loaded'); console.log('FragmentPath=' + ${JSON.stringify(join(configHome, 'systemd/user', serviceName))}); }
+      else console.log(fs.readFileSync(${JSON.stringify(mainPidFile)}, 'utf8'));
+      process.exit(0);
+    }
     if (!['start','stop'].includes(action)) process.exit(2);
     fs.appendFileSync(${JSON.stringify(actionsFile)}, action + '\\n');
     fs.writeFileSync(${JSON.stringify(stateFile)}, action === 'stop' ? 'inactive' : 'active');

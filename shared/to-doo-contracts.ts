@@ -44,6 +44,24 @@ const base = {
   deletedAt: timestamp.nullable().default(null),
 };
 const title = text(256).min(1);
+export const toDooAnniversaryImageSchema = z
+  .object({
+    hash: z.string().regex(/^[a-f0-9]{64}$/),
+    name: text(256)
+      .min(1)
+      .refine((value) => !/[\x00-\x1f\x7f/\\]/.test(value)),
+    mime: z.enum(['image/png', 'image/jpeg', 'image/webp']),
+    size: z
+      .number()
+      .int()
+      .min(1)
+      .max(10 * 1024 * 1024),
+    x: z.number().finite().min(0).max(100).default(50),
+    y: z.number().finite().min(0).max(100).default(50),
+    zoom: z.number().finite().min(1).max(3).default(1),
+  })
+  .strict();
+export type ToDooAnniversaryImage = z.infer<typeof toDooAnniversaryImageSchema>;
 export const toDooStatusSchema = z.enum([
   'todo',
   'doing',
@@ -290,11 +308,14 @@ const settings = z
       .default(null),
   })
   .strict();
+export const TO_DOO_LIST_MAX_DEPTH = 8;
 const list = z
   .object({
     ...base,
     name: title,
     kind: z.enum(['list', 'goal']).default('list'),
+    parentId: toDooId.nullable().default(null),
+    icon: text(32).nullable().default(null),
     description: text().default(''),
     goalDate: toDooDate.nullable().default(null),
     criteria: text().default(''),
@@ -588,8 +609,19 @@ const schemas = {
       countMode: z.enum(['exclude_today', 'include_today']).default('exclude_today'),
       appearance: z
         .object({
-          style: z.enum(['bloom', 'landscape', 'orbit', 'minimal']),
+          style: z.enum([
+            'bloom',
+            'landscape',
+            'orbit',
+            'minimal',
+            'pixel',
+            'postcard',
+            'paper',
+            'night',
+            'photo',
+          ]),
           palette: z.enum(['rose', 'sage', 'lavender', 'amber', 'ocean']),
+          image: toDooAnniversaryImageSchema.optional(),
         })
         .strict()
         .optional(),
@@ -828,7 +860,9 @@ export const toDooFocusQuerySchema = z
     topicId: toDooId.optional(),
     unassigned: z.boolean().optional(),
     trendPeriod: z.enum(['week', 'month', 'year']).optional(),
-    trendDate: toDooDate.refine((date) => date >= '0100-01-01' && date <= '9998-12-31', '趋势日期超出范围').optional(),
+    trendDate: toDooDate
+      .refine((date) => date >= '0100-01-01' && date <= '9998-12-31', '趋势日期超出范围')
+      .optional(),
     listIds: z.array(toDooId).max(1000).optional(),
     cursor: z.string().max(2048).optional(),
     limit: z.number().int().min(1).max(100).default(50),
@@ -1281,6 +1315,7 @@ export const toDooCommandSchema = z.discriminatedUnion('action', [
       payload: z
         .object({
           habitId: toDooId,
+          expectedHabitRevision: toDooId.optional(),
           localDate: toDooDate,
           amount: z.number().nonnegative().max(1000000).default(1),
           note: text().default(''),

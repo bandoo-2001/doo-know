@@ -14,11 +14,12 @@ import {
 } from 'ant-design-vue';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
+import ToDooIcon from './ToDooIcon.vue';
 import ToDooPageToolbar from './ToDooPageToolbar.vue';
 import ToDooCalendarTaskPicker from './ToDooCalendarTaskPicker.vue';
 import { groupTaskItems } from '../../to-doo-task-groups';
 import { useToDooClock } from '../../to-doo-time';
-import { useToDooConfirm } from '../../to-doo-controls';
+import { createToDooPopupEscapeBoundary, useToDooConfirm } from '../../to-doo-controls';
 import { guardToDooTaskAction } from '../../to-doo-action-guard';
 import {
   toDooBlockSegment,
@@ -69,6 +70,16 @@ const state = props.model.state,
 const confirmAction = useToDooConfirm();
 const applyingPlan = ref(false);
 const displayTrigger = ref<any>();
+const displayEscape = createToDooPopupEscapeBoundary();
+const planEscape = createToDooPopupEscapeBoundary();
+function displayKeydown(event: KeyboardEvent) {
+  if (event.key !== 'Escape') return;
+  displayEscape.bubble(event);
+  if (event.cancelBubble) return;
+  event.preventDefault();
+  event.stopPropagation();
+  closeDisplay();
+}
 function closeDisplay() {
   displayOpen.value = false;
   nextTick(() => displayTrigger.value?.$el?.focus?.());
@@ -127,6 +138,20 @@ function toggleGroup(id: string) {
 }
 const hours = Array.from({ length: 24 }, (_, i) => i);
 const selectedExternal = ref<ToDooEntityMap['calendarEvent']>();
+const selectedExternalDisplay = computed(() => {
+  const event = selectedExternal.value;
+  if (!event) return;
+  const zone = state.snapshot?.settings.timeZone || event.start.timeZone;
+  const display = (value: ToDooEntityMap['calendarEvent']['start']) =>
+    event.allDay || !value.time
+      ? { ...value, time: null }
+      : toDooDisplayTime(value, zone);
+  return {
+    start: display(event.start),
+    end: event.end ? display(event.end) : null,
+    timeZone: !event.allDay && (event.start.time || event.end?.time) ? zone : null,
+  };
+});
 const label = (date: string) =>
   new Date(date + 'T12:00:00Z').toLocaleDateString('zh-CN', {
     month: 'numeric',
@@ -170,6 +195,35 @@ function deadline(item: ToDooItem) {
 function deadlineLabel(item: ToDooItem) {
   const value = deadline(item);
   return value ? value.date + ' ' + (value.time || '全天') : '';
+}
+function monthBlockLabel(block: ToDooEntityMap['timeBlock']) {
+  const item = itemFor(block.occurrenceId);
+  const title = item?.title || block.title || '时间安排';
+  const zone = state.snapshot!.settings.timeZone;
+  const start = block.allDay || !block.start.time ? block.start : toDooDisplayTime(block.start, zone);
+  let timing = start.date + ' ' + (block.allDay ? '全天' : start.time || '未指定时刻');
+  if (block.allDay) {
+    const end = block.dateEndExclusive || shiftToDooDate(start.date, Math.max(1, Math.ceil(block.durationMinutes / 1440)));
+    timing += ' 至 ' + end + '（结束日期不含）';
+  } else if (start.time) {
+    const end = new Date(toDooTimeInstant(block.start) + block.durationMinutes * 60000);
+    timing += '—' + toDooLocalDate(end, zone) + ' ' + toDooInstantTime(end.getTime(), zone) + ' · ' + zone;
+  }
+  return title + ' · ' + timing + (item?.status === 'done' ? ' · 已完成' : '');
+}
+function monthDeadlineLabel(item: ToDooItem) {
+  const value = deadline(item);
+  return item.title + (value ? ' · 截止 ' + value.date + ' ' + (value.time || '未指定时刻') : '') + (item.status === 'done' ? ' · 已完成' : '');
+}
+function monthExternalLabel(event: ToDooEntityMap['calendarEvent']) {
+  const zone = state.snapshot!.settings.timeZone;
+  const display = (value: ToDooEntityMap['calendarEvent']['start']) => {
+    const local = event.allDay || !value.time ? value : toDooDisplayTime(value, zone);
+    return local.date + ' ' + (event.allDay ? '全天' : local.time || '未指定时刻');
+  };
+  return event.title + ' · ' + display(event.start) + (event.end ? '—' + display(event.end) : '') +
+    (!event.allDay && (event.start.time || event.end?.time) ? ' · ' + zone : '') +
+    (event.readOnly ? ' · 只读' : ' · 外部');
 }
 function timelineBlocks(item: ToDooItem) {
   return item.blocks.flatMap((value) => {
@@ -363,6 +417,29 @@ const anniversaryOccurrences = computed(() => {
   return grouped;
 });
 const anniversaries = (date: string) => anniversaryOccurrences.value.get(date) ?? [];
+type MonthEntry = { key: string } & (
+  | { kind: 'block'; block: ToDooEntityMap['timeBlock'] }
+  | { kind: 'deadline'; item: ToDooItem }
+  | { kind: 'external'; event: ToDooEntityMap['calendarEvent'] }
+  | { kind: 'anniversary'; anniversary: ToDooEntityMap['anniversary'] }
+);
+function monthEntries(date: string): MonthEntry[] {
+  const entries: (MonthEntry & { timeOrder: number; sourceOrder: number })[] = [];
+  const append = (entry: MonthEntry, allDay: boolean, time?: string | null) => entries.push({
+    ...entry,
+    timeOrder: allDay ? -1 : time ? Number(time.slice(0, 2)) * 60 + Number(time.slice(3)) : 1440,
+    sourceOrder: entries.length,
+  });
+  for (const block of blocks(date))
+    append({ kind: 'block', key: 'block:' + block.id, block }, block.allDay, blockSegment(block, date)?.time);
+  for (const item of due(date))
+    append({ kind: 'deadline', key: 'deadline:' + item.key, item }, false, deadline(item)?.time);
+  for (const event of external(date))
+    append({ kind: 'external', key: 'external:' + event.id, event }, event.allDay, externalSegment(event, date)?.time);
+  for (const anniversary of anniversaries(date))
+    append({ kind: 'anniversary', key: 'anniversary:' + anniversary.id, anniversary }, true);
+  return entries.sort((left, right) => left.timeOrder - right.timeOrder || left.sourceOrder - right.sourceOrder);
+}
 const agendaDays = computed(() =>
   (props.view === 'week'
     ? weekDays.value
@@ -681,7 +758,7 @@ watch(
         @click="move(-1)"
         type="text"
       >
-        ‹
+        <ToDooIcon name="back" :size="16" />
       </AButton>
       <h2>
         {{
@@ -699,7 +776,7 @@ watch(
         @click="move(1)"
         type="text"
       >
-        ›</AButton
+        <ToDooIcon name="chevron" :size="16" /></AButton
       ><AButton
         class="todo-button"
         html-type="button"
@@ -722,7 +799,8 @@ watch(
       />
       <APopover v-model:open="displayOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-calendar-display-popup">
         <AButton ref="displayTrigger" html-type="button" @keydown.esc.stop.prevent="closeDisplay" type="default" class="todo-button" :aria-expanded="displayOpen">显示内容</AButton>
-        <template #content>  <div class="todo-calendar-options todo-calendar-display-panel" @keydown.esc.stop.prevent="closeDisplay">
+        <template #content>  <div class="todo-calendar-options todo-calendar-display-panel"
+          @keydown.capture="displayEscape.capture" @keydown="displayKeydown">
     <label class="todo-calendar-jump"
       >跳转日期<ToDooDateField
         type="date"
@@ -855,8 +933,10 @@ watch(
                 (state.collapsedTaskGroups.includes(group.id) ? '展开分组 ' : '折叠分组 ') +
                 group.name
               "
+              :aria-expanded="!state.collapsedTaskGroups.includes(group.id)"
               @click="toggleGroup(group.id)"
-              >{{ state.collapsedTaskGroups.includes(group.id) ? '›' : '⌄' }} {{ group.name }}
+              ><ToDooIcon name="chevron" class="todo-timeline-chevron"
+                :class="{ 'is-expanded': !state.collapsedTaskGroups.includes(group.id) }" :size="14" /><span>{{ group.name }}</span>
               <small>{{ group.items.length }}</small></AButton
             >
           </div>
@@ -961,48 +1041,45 @@ watch(
           >
             {{ day.slice(0, 7) !== anchor.slice(0, 7) ? Number(day.slice(5, 7)) + '/' : ''
             }}{{ Number(day.slice(-2)) }}</button
-          ><div class="todo-month-day-events"><button
-            v-for="b in blocks(day)"
-            :key="b.id"
+          ><div class="todo-month-day-events"><template v-for="entry in monthEntries(day)" :key="entry.key"><button
+            v-if="entry.kind === 'block'"
             type="button"
             draggable="true"
             class="todo-calendar-event"
-            :class="{ 'is-done': itemFor(b.occurrenceId)?.status === 'done' }"
-            :title="(blockSegment(b, day)?.time || (b.allDay ? '全天' : '未指定时刻')) + ' · ' + (itemFor(b.occurrenceId)?.title || b.title || '时间安排')"
-            @dragstart="drag($event, b.id)"
-            @click="openBlock(b)"
+            :class="{ 'is-done': itemFor(entry.block.occurrenceId)?.status === 'done' }"
+            :title="monthBlockLabel(entry.block)"
+            :aria-label="monthBlockLabel(entry.block)"
+            @dragstart="drag($event, entry.block.id)"
+            @click="openBlock(entry.block)"
           >
-            {{ itemFor(b.occurrenceId)?.status === 'done' ? '✓ ' : ''
-            }}{{ blockSegment(b, day)?.time || (b.allDay ? '全天' : '未指定时刻') }}
-            {{ itemFor(b.occurrenceId)?.title || b.title || '时间安排' }}</button
+            {{ itemFor(entry.block.occurrenceId)?.status === 'done' ? '✓ ' : ''
+            }}{{ itemFor(entry.block.occurrenceId)?.title || entry.block.title || '时间安排' }}</button
           ><button
-            v-for="item in due(day)"
-            :key="item.key"
+            v-else-if="entry.kind === 'deadline'"
             class="todo-calendar-event deadline"
-            :class="{ 'is-done': item.status === 'done' }"
-            :title="'截止 ' + deadlineLabel(item) + ' · ' + item.title"
+            :class="{ 'is-done': entry.item.status === 'done' }"
+            :title="monthDeadlineLabel(entry.item)"
+            :aria-label="monthDeadlineLabel(entry.item)"
             type="button"
-            @click="emit('open', item)"
+            @click="emit('open', entry.item)"
           >
-            ◆ {{ deadlineLabel(item) }} · {{ item.title }}</button
+            ◆ {{ entry.item.title }}</button
           ><button
-            v-for="e in external(day)"
-            :key="e.id"
+            v-else-if="entry.kind === 'external'"
             type="button"
             class="todo-calendar-event external"
-            :title="e.title + (e.readOnly ? ' · 只读' : '')"
-            @click="inspectExternal(e)"
+            :title="monthExternalLabel(entry.event)"
+            :aria-label="monthExternalLabel(entry.event)"
+            @click="inspectExternal(entry.event)"
           >
-            {{ externalSegment(e, day)?.time || '全天' }} {{ e.title }} ·
-            {{ e.readOnly ? '只读' : '外部' }}</button
+            {{ entry.event.title }}</button
           ><span
-            v-for="a in anniversaries(day)"
-            :key="a.id"
+            v-else
             class="todo-calendar-event anniversary"
-            :data-anniversary-id="a.id"
+            :data-anniversary-id="entry.anniversary.id"
             :data-date="day"
-            >◇ {{ a.name }}</span
-          >
+            >◇ {{ entry.anniversary.name }}</span
+          ></template>
           </div>
         </div>
       </div>
@@ -1278,29 +1355,31 @@ watch(
   <AModal
     :open="!!selectedExternal"
     title="外部日历事件"
-    :footer="null"
     :mask-closable="true"
     :focus-trigger-after-close="true"
+    wrap-class-name="todo-ant-modal todo-external-event-modal"
     @cancel="selectedExternal = undefined"
   >
-    <template v-if="selectedExternal">
+    <div v-if="selectedExternal && selectedExternalDisplay" class="todo-external-event-details">
       <h2>{{ selectedExternal.title }}</h2>
       <p>
-        {{ selectedExternal.start.date }} {{ selectedExternal.start.time || '全天' }} ·
-        {{ selectedExternal.start.timeZone }}
+        开始：{{ selectedExternalDisplay.start.date }} {{ selectedExternalDisplay.start.time || (selectedExternal.allDay ? '全天' : '') }}
       </p>
-      <p v-if="selectedExternal.end">
-        结束：{{ selectedExternal.end.date }} {{ selectedExternal.end.time || '全天' }}
+      <p v-if="selectedExternalDisplay.end">
+        结束：{{ selectedExternalDisplay.end.date }} {{ selectedExternalDisplay.end.time || (selectedExternal.allDay ? '全天' : '') }}
       </p>
-      <p>{{ selectedExternal.description || '来源未提供说明' }}</p>
+      <p v-if="selectedExternalDisplay.timeZone" class="todo-muted todo-small">
+        显示时区：{{ selectedExternalDisplay.timeZone }}
+      </p>
+      <p class="todo-external-event-description">{{ selectedExternal.description || '来源未提供说明' }}</p>
       <AAlert type="info" message="外部只读来源，变更需在原日历完成" show-icon />
-      <div class="todo-actions todo-top-gap">
-        <AButton html-type="button" @click="selectedExternal = undefined">关闭</AButton>
-      </div>
+    </div>
+    <template #footer>
+      <AButton html-type="button" @click="selectedExternal = undefined">关闭</AButton>
     </template>
   </AModal>
   <AModal v-model:open="planOpen" title="连续安排" :width="480" :footer="null" :mask-closable="!state.busy && !state.pendingMutation" :keyboard="!state.busy && !state.pendingMutation" :closable="!state.busy && !state.pendingMutation" wrap-class-name="todo-ant-modal">
-    <div class="todo-plan-tools">
+    <div class="todo-plan-tools" @keydown.capture="planEscape.capture" @keydown="planEscape.bubble">
       <AAlert v-if="state.error" type="error" :message="state.error" show-icon />
       <ACheckbox v-model:checked="includeDependents" class="todo-checkbox"
         >联动调整后续安排</ACheckbox
@@ -1321,6 +1400,17 @@ watch(
   </AModal>
 </template>
 <style scoped>
+.todo-external-event-details {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.todo-external-event-description {
+  white-space: pre-wrap;
+}
+.todo-timeline-group-heading .ant-btn { display: inline-flex; align-items: center; gap: 6px; }
+.todo-timeline-group-heading .ant-btn small { margin-inline-start: 0; }
+.todo-timeline-chevron { flex: 0 0 auto; transition: transform var(--todo-motion-fast) ease; }
+.todo-timeline-chevron.is-expanded { transform: rotate(90deg); }
 .todo-calendar-display-panel {
   display: flex;
   flex-direction: column;

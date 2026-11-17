@@ -249,13 +249,12 @@ export function parseToDooQuickEntry(
     recognized,
   };
 }
-export function toDooDisplayTime(
-  value: ToDooEntityMap['timeBlock']['start'],
-  zone: string,
-): ToDooEntityMap['timeBlock']['start'] {
-  if (value.time === null) return { ...value, timeZone: zone };
-  const parts = (at: number, timeZone: string) => {
-    const p = new Intl.DateTimeFormat('en-CA', {
+// Reuse the formatter, never its output: offsets still resolve for each actual date.
+const displayTimeFormatters = new Map<string, Intl.DateTimeFormat>();
+function displayTimeFormatter(timeZone: string) {
+  let formatter = displayTimeFormatters.get(timeZone);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat('en-CA', {
       timeZone,
       year: 'numeric',
       month: '2-digit',
@@ -263,7 +262,21 @@ export function toDooDisplayTime(
       hour: '2-digit',
       minute: '2-digit',
       hourCycle: 'h23',
-    }).formatToParts(new Date(at));
+    });
+    // Settings can visit many timezones over a long-lived browser session.
+    if (displayTimeFormatters.size >= 32)
+      displayTimeFormatters.delete(displayTimeFormatters.keys().next().value!);
+    displayTimeFormatters.set(timeZone, formatter);
+  }
+  return formatter;
+}
+export function toDooDisplayTime(
+  value: ToDooEntityMap['timeBlock']['start'],
+  zone: string,
+): ToDooEntityMap['timeBlock']['start'] {
+  if (value.time === null) return { ...value, timeZone: zone };
+  const parts = (at: number, timeZone: string) => {
+    const p = displayTimeFormatter(timeZone).formatToParts(new Date(at));
     const get = (name: string) => p.find((v) => v.type === name)?.value;
     return {
       date: get('year') + '-' + get('month') + '-' + get('day'),

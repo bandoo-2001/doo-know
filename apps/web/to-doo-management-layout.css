@@ -134,6 +134,20 @@
 .todo-managed-list-name strong {
   font-weight: 550;
 }
+.todo-managed-list-title {
+  display: flex;
+  align-items: center;
+  gap: var(--todo-space-8);
+  min-width: 0;
+  padding-inline-start: calc(var(--todo-managed-depth, 0) * 12px);
+}
+.todo-managed-list-title strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.todo-managed-list-name > p {
+  padding-inline-start: calc(var(--todo-managed-depth, 0) * 12px + 26px);
+}
 .todo-managed-list .todo-badge {
   justify-self: start;
 }

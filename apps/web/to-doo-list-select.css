@@ -1,0 +1,193 @@
+.todo-list-tree-select {
+  width: 100%;
+  min-width: 0;
+}
+.todo-list-tree-select .ant-select-selection-item {
+  display: flex;
+  align-items: center;
+}
+.todo-list-tree-select .todo-list-tree-selected-label {
+  min-height: 0;
+  width: 100%;
+}
+.todo-list-tree-selection {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-width: 0;
+}
+.todo-list-tree-selection > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.todo-list-tree-multi-select .ant-select-selection-overflow-item {
+  max-width: 100%;
+}
+.todo-list-tree-tag.ant-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  margin-block: 2px;
+  padding-inline: 6px;
+  border-color: var(--todo-line);
+  background: var(--todo-soft);
+  color: var(--todo-ink);
+}
+.todo-list-tree-tag > span:not(.todo-list-icon):not(.ant-tag-close-icon) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.todo-list-tree-multi-popup .ant-select-tree-checkbox {
+  align-self: center;
+  margin-top: 0;
+}
+.todo-list-tree-popup {
+  padding: 0;
+  max-width: calc(100vw - 24px);
+  overflow: hidden;
+}
+.todo-list-tree-popup .todo-list-tree-dropdown {
+  display: flex;
+  flex-direction: column;
+  max-height: min(560px, calc(100dvh - 24px));
+  color: var(--todo-ink);
+  background: var(--todo-paper);
+}
+.todo-list-tree-menu {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+}
+.todo-list-tree-popup .ant-select-tree {
+  padding: 0;
+  background: var(--todo-paper);
+  color: var(--todo-ink);
+}
+.todo-list-tree-popup .ant-select-tree-list {
+  max-height: min(260px, calc(100dvh - 230px));
+  overflow: auto;
+}
+.todo-list-tree-popup .ant-select-tree-treenode {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 34px;
+  align-items: center;
+  padding-bottom: 0;
+}
+.todo-list-tree-popup .ant-select-tree-switcher {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  width: 20px;
+  flex: 0 0 20px;
+}
+.todo-list-tree-popup .ant-select-tree-node-content-wrapper {
+  flex: 1;
+  min-width: 0;
+  padding: 0 5px;
+  border-radius: 6px;
+}
+.todo-list-tree-popup .ant-select-tree-title {
+  display: block;
+  width: 100%;
+}
+.todo-list-tree-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 34px;
+}
+.todo-list-tree-node-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.todo-list-tree-popup .todo-list-tree-add.ant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  min-width: 26px;
+  height: 26px;
+  padding: 0;
+  color: var(--todo-muted);
+  border-radius: 5px;
+}
+.todo-list-tree-popup .todo-list-tree-add.ant-btn:not(:disabled):hover {
+  color: var(--todo-accent);
+  background: var(--todo-tint);
+}
+.todo-list-tree-footer {
+  position: sticky;
+  bottom: 0;
+  flex-shrink: 0;
+  padding: 6px;
+  border-top: 1px solid var(--todo-line);
+  background: var(--todo-paper);
+}
+.todo-list-tree-footer .ant-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  color: var(--todo-accent);
+  min-height: 34px;
+  padding-inline: 12px;
+}
+.todo-list-tree-create {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--todo-line);
+  background: var(--todo-soft);
+}
+.todo-list-tree-create > label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12px;
+}
+.todo-list-tree-create-context {
+  color: var(--todo-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.todo-list-tree-create-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.todo-list-tree-error {
+  margin: 0;
+  color: var(--todo-danger);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+@media (pointer: coarse) {
+  .todo-list-tree-popup .ant-select-tree-treenode,
+  .todo-list-tree-node {
+    min-height: 42px;
+  }
+  .todo-list-tree-popup .todo-list-tree-add.ant-btn {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+  }
+  .todo-list-tree-footer .ant-btn {
+    min-height: 40px;
+  }
+}

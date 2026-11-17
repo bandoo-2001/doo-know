@@ -137,7 +137,7 @@ test('task details retain subtasks and provide direct reminder editing', async (
     });
   }
   const reminders = await openToDooDetailProperty(page, 'reminders');
-  await expect(reminders.getByRole('button', { name: '＋ 添加提醒', exact: true })).toBeInViewport();
+  await expect(reminders.getByRole('button', { name: '添加提醒', exact: true })).toBeInViewport();
 });
 
 test('context menu copy, priority and subtree move leave multi-selection untouched', async ({

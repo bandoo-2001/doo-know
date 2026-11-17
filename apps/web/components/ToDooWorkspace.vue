@@ -78,6 +78,7 @@ import '../to-doo.css';
 import '../to-doo-tokens.css';
 import '../to-doo-priority.css';
 import '../to-doo-task-detail.css';
+import '../to-doo-task-popups.css';
 import '../to-doo-navigation.css';
 const props = withDefaults(
   defineProps<{
@@ -112,10 +113,25 @@ function asyncPage<T extends Component>(
     }),
   });
 }
-const ToDooCalendar = asyncPage('calendar', () => import('./to-doo/ToDooCalendar.vue'));
-const ToDooRhythm = asyncPage('rhythm', () => import('./to-doo/ToDooRhythm.vue'));
-const ToDooReview = asyncPage('review', () => import('./to-doo/ToDooReview.vue'));
-const ToDooSettings = asyncPage('settings', () => import('./to-doo/ToDooSettings.vue'));
+const pageLoaders = {
+  calendar: () => import('./to-doo/ToDooCalendar.vue'),
+  rhythm: () => import('./to-doo/ToDooRhythm.vue'),
+  review: () => import('./to-doo/ToDooReview.vue'),
+  settings: () => import('./to-doo/ToDooSettings.vue'),
+};
+const ToDooCalendar = asyncPage('calendar', pageLoaders.calendar);
+const ToDooRhythm = asyncPage('rhythm', pageLoaders.rhythm);
+const ToDooReview = asyncPage('review', pageLoaders.review);
+const ToDooSettings = asyncPage('settings', pageLoaders.settings);
+function preloadSection(section: ToDooAppSection) {
+  const key = ['calendar', 'timeline'].includes(section) ? 'calendar'
+    : ['focus', 'habits', 'anniversaries'].includes(section) ? 'rhythm'
+    : ['stats', 'notifications'].includes(section) ? 'review'
+    : section === 'settings' ? 'settings' : undefined;
+  // Start the selected module alongside its data request; the async view still
+  // owns error display and retry, so a failed warm-up must not reject loading.
+  if (key) void pageLoaders[key]().catch(() => undefined);
+}
 const ownerId = inject<Ref<string> | undefined>('dooknow.owner-id', undefined);
 const model = createToDooWorkbench(api, { recoveryScope: ownerId?.value }),
   state = model.state,
@@ -179,6 +195,8 @@ onBeforeUnmount(() => { clearTimeout(noticeTimer); clearTimeout(completionTimer)
 const focusHistoryRequest = ref(0),
   habitHistoryRequest = ref(0);
 const focusHistoryRange = ref<{ from: string; to: string }>();
+const focusHistorySessionId = ref<string>();
+let habitFocusLinkEpoch = 0;
 const habitHistoryDate = ref<string>();
 const reviewRange = ref<{ from: string; to: string }>();
 watch(
@@ -620,6 +638,11 @@ function changeTaskView(section: ToDooAppSection) {
 }
 function chooseDestination(section: ToDooAppSection) {
   if (!allowDetailTransition()) return;
+  if (section === 'focus' && focusHistorySessionId.value) {
+    focusHistorySessionId.value = undefined;
+    focusHistoryRange.value = undefined;
+    focusHistoryRequest.value++;
+  }
   state.filter = {};
   navigate(section);
 }
@@ -632,6 +655,7 @@ function openActivityHistory(section: 'focus' | 'habits', range: { from: string;
   if (!allowDetailTransition()) return;
   if (section === 'focus') {
     focusOccurrence.value = '';
+    focusHistorySessionId.value = undefined;
     focusHistoryRange.value = range;
     focusHistoryRequest.value++;
   } else {
@@ -639,6 +663,33 @@ function openActivityHistory(section: 'focus' | 'habits', range: { from: string;
     habitHistoryRequest.value++;
   }
   chooseDestination(section);
+}
+async function openHabitFocusSession(id: string) {
+  if (!allowDetailTransition() || state.busy || props.section !== 'habits') return;
+  state.error = '';
+  const token = ++habitFocusLinkEpoch;
+  const datasetId = state.snapshot?.datasetId;
+  const selection = JSON.stringify(props.selection);
+  const current = () => token === habitFocusLinkEpoch && props.section === 'habits' &&
+    state.snapshot?.datasetId === datasetId && JSON.stringify(props.selection) === selection;
+  try {
+    const snapshot = await model.request('/api/to-doo/state?kind=focusSession&ids=' + encodeURIComponent(id));
+    if (!current()) return;
+    const session = snapshot.focusSessions.find((entry: ToDooEntityMap['focusSession']) => entry.id === id && !entry.deletedAt);
+    if (!session) {
+      state.error = '这条来源专注记录暂不可用。';
+      return;
+    }
+    if (!allowDetailTransition() || state.busy) return;
+    focusOccurrence.value = '';
+    focusHistoryRange.value = undefined;
+    focusHistorySessionId.value = session.id;
+    focusHistoryRequest.value++;
+    state.filter = {};
+    navigate('focus', { appPage: 'history' });
+  } catch (cause) {
+    if (current()) state.error = cause instanceof Error ? cause.message : String(cause);
+  }
 }
 async function searchAllTasks() {
   if (!allowDetailTransition()) return;
@@ -1244,6 +1295,7 @@ watch(
       live = false;
     });
     const initialRange = currentDateRange();
+    preloadSection(props.section);
     if (!previous || previous[4] !== props.selection.taskFilter)
       state.filter = toDooQuickFilter(
         state.filter,
@@ -1456,6 +1508,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         'todo-page-matrix': section === 'matrix',
         'todo-page-tasks': section === 'tasks',
         'todo-page-focus': section === 'focus',
+        'todo-page-habits': section === 'habits',
       }">
         <ToDooPageHeader :title="showTaskScope ? scopeTitle : title">
           <template v-if="section === 'tasks'" #title>
@@ -1505,6 +1558,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
                 !['done', 'archived', 'trash'].includes(quickView)
               "
               class="todo-task-create-actions"
+              role="group"
+              aria-label="新建任务与草稿"
               :class="{
                 'todo-has-drafts': showTaskScope && (retainedTaskDrafts.length || retainedEdits.length || state.legacyRecoveryAvailable) && !creating,
                 'todo-task-list-create': section === 'tasks',
@@ -1512,7 +1567,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
             >
               <AButton
                 :type="section === 'tasks' ? 'default' : 'primary'"
-                class="todo-button"
+                class="todo-button todo-task-create-primary"
                 :class="{ 'todo-primary': section !== 'tasks' }"
                 aria-label="新建任务"
                 @click="createPageTask()"
@@ -1720,10 +1775,13 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               :history-request="section === 'focus' ? focusHistoryRequest : habitHistoryRequest"
               :history-date="habitHistoryDate"
               :history-range="focusHistoryRange"
+              :history-session-id="focusHistorySessionId"
               :context="pageContext"
               @context-change="changePageContext"
               @edit="edit"
               @list="chooseList"
+              @open-note="emit('open-note', $event)"
+              @focus-session="openHabitFocusSession"
               @all-habits="chooseDestination('habits')"
               @task-context-consumed="focusOccurrence = ''"
               @task="selectTask" /><ToDooReview

@@ -18,6 +18,7 @@ import { useToDooConfirm } from '../../to-doo-controls';
 import { useToDooMenu } from '../../to-doo-menu';
 import { guardToDooTaskAction } from '../../to-doo-action-guard';
 import ToDooIcon from './ToDooIcon.vue';
+import ToDooTaskValueLabel from './ToDooTaskValueLabel.vue';
 const props = defineProps<{
   model: ToDooWorkbench;
   item: ToDooItem;
@@ -236,8 +237,7 @@ async function priority(value: string) {
               v-for="(name, value) in toDooPriorityLabels"
               :key="value"
               @click="priority(value)"
-              >{{ name }}{{ value === 'none' ? '' : '优先级'
-              }}<span v-if="item.task.priority === value" class="todo-menu-current"
+              ><ToDooTaskValueLabel kind="priority" :value="value" /><span v-if="item.task.priority === value" class="todo-menu-current"
                 >✓</span
               ></AMenuItem
             >
@@ -255,8 +255,7 @@ async function priority(value: string) {
               v-for="(name, value) in toDooStatusLabels"
               :key="value"
               @click="status(value)"
-              >{{ name
-              }}<span v-if="item.status === value" class="todo-menu-current">✓</span></AMenuItem
+              ><ToDooTaskValueLabel kind="status" :value="value" /><span v-if="item.status === value" class="todo-menu-current">✓</span></AMenuItem
             >
           </ASubMenu>
           <ASubMenu

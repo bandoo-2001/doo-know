@@ -24,6 +24,19 @@ const date = ref(props.date),
 const snapshot = ref<ToDooSnapshot>();
 const cursor = ref<string>();
 const prepared = ref<ToDooCommandResult['preview']>();
+let controlEscape: KeyboardEvent | undefined;
+function captureControlEscape(event: KeyboardEvent) {
+  if (event.key !== 'Escape' || !(event.target instanceof Element) ||
+    !event.target.closest('.ant-select, .ant-picker')) return;
+  const popups = document.querySelectorAll<HTMLElement>('.ant-select-dropdown, .ant-picker-dropdown');
+  if ([...popups].some(popup => popup.getClientRects().length && getComputedStyle(popup).visibility === 'visible'))
+    controlEscape = event;
+}
+function controlKeydown(event: KeyboardEvent) {
+  if (event !== controlEscape) return;
+  controlEscape = undefined;
+  event.stopPropagation();
+}
 let epoch = 0;
 onBeforeUnmount(() => {
   epoch++;
@@ -244,7 +257,7 @@ async function schedule() {
     wrap-class-name="todo-ant-modal todo-calendar-task-picker"
     @cancel="close"
   >
-    <div class="todo-calendar-pick-fields">
+    <div class="todo-calendar-pick-fields" @keydown.capture="captureControlEscape" @keydown="controlKeydown">
       <AAlert v-if="error" type="error" :message="error" show-icon />
       <label
         >安排日期<ToDooDateField
@@ -256,7 +269,8 @@ async function schedule() {
       /></label>
       <label v-if="options.length || loading"
         >待安排任务<ToDooSelect
-          v-model="selected"
+          :value="selected || undefined"
+          @change="selected = $event || ''"
           aria-label="待安排任务"
           placeholder="选择一个待办任务"
           :options="options"

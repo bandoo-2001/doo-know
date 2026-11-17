@@ -99,6 +99,135 @@ function snapshot(): ToDooSnapshot {
   } as ToDooSnapshot;
 }
 describe('portable JSON and TickTick mapping', () => {
+  it.each(['empty destination', 'same dataset'] as const)(
+    'copies list parents into their new hierarchy in an %s',
+    async (destination) => {
+      const source = await domain();
+      const target = destination === 'same dataset' ? source : await domain();
+      const command = (action: string, payload: unknown) =>
+        source.service.command({ requestId: randomUUID(), action, payload });
+      for (const entity of [
+        { id: 'folder', name: 'Work folder', icon: 'folder' },
+        { id: 'goal', name: 'Learning goal', kind: 'goal', parentId: 'folder', icon: '📚' },
+        { id: 'reading', name: 'Reading list', parentId: 'goal', icon: 'dot', color: '#4566c6' },
+      ])
+        command('save_entity', { kind: 'list', entity });
+      command('create_task', { id: 'reading-task', title: 'Read one chapter', listId: 'reading' });
+      const original = source.service.snapshot({ all: true });
+      const exporter = createToDooInterop(source.service, {
+        db: source.db,
+        dataRoot: source.config.dataRoot,
+      });
+      const importer = createToDooInterop(target.service, {
+        db: target.db,
+        dataRoot: target.config.dataRoot,
+      });
+      try {
+        const preview = importer.previewImport({
+          format: 'json',
+          content: exporter.exportJson(),
+          mergeMode: 'copy',
+        });
+        const result = importer.applyImport({
+          previewId: preview.id,
+          requestId: 'copy-list-hierarchy',
+        });
+        expect(
+          importer.applyImport({ previewId: preview.id, requestId: 'copy-list-hierarchy' })
+            .transactionId,
+        ).toBe(result.transactionId);
+        const after = target.service.snapshot({ all: true });
+        expect(after.lists).toHaveLength(destination === 'same dataset' ? 6 : 3);
+        const copied = after.lists.filter(
+          (list) => !original.lists.some((sourceList) => sourceList.id === list.id),
+        );
+        expect(copied).toHaveLength(3);
+        const folder = copied.find((list) => list.name === 'Work folder')!;
+        const goal = copied.find((list) => list.name === 'Learning goal')!;
+        const reading = copied.find((list) => list.name === 'Reading list')!;
+        expect(folder).toMatchObject({ parentId: null, icon: 'folder' });
+        expect(goal).toMatchObject({ parentId: folder.id, icon: '📚', kind: 'goal' });
+        expect(reading).toMatchObject({ parentId: goal.id, icon: 'dot', color: '#4566c6' });
+        expect(after.tasks.find((task) => task.id !== 'reading-task')).toMatchObject({
+          listId: reading.id,
+        });
+        if (destination === 'same dataset')
+          for (const list of original.lists)
+            expect(target.service.getEntity('list', list.id)).toEqual(list);
+      } finally {
+        await exporter.close();
+        await importer.close();
+      }
+    },
+  );
+  it('orders a child-first list package before applying real bounded batches over 500 entries', async () => {
+    const target = await domain();
+    const data = snapshot();
+    for (let index = 0; index < 501; index++)
+      data.lists.push(
+        toDooEntitySchemas.list.parse({
+          id: 'child-' + index,
+          name: 'Child ' + index,
+          parentId: 'root-folder',
+          icon: 'dot',
+          revision: 'revision-' + index,
+          createdAt: data.now,
+          updatedAt: data.now,
+        }),
+      );
+    // The parent deliberately arrives after the first batch's worth of children.
+    data.lists.push(
+      toDooEntitySchemas.list.parse({
+        id: 'root-folder',
+        name: 'Root folder',
+        icon: 'folder',
+        revision: 'root-revision',
+        createdAt: data.now,
+        updatedAt: data.now,
+      }),
+    );
+    const importer = createToDooInterop(target.service, {
+      db: target.db,
+      dataRoot: target.config.dataRoot,
+    });
+    try {
+      const preview = importer.previewImport({
+        format: 'json',
+        content: exportPortableJson(data),
+        mergeMode: 'copy',
+      });
+      expect(preview.batchSize).toBe(500);
+      expect(preview.batchCount).toBe(2);
+      expect(
+        importer.applyImport({ previewId: preview.id, requestId: 'copy-list-batches' }),
+      ).toMatchObject({ status: 'queued', completed: 0 });
+      await importer.processImportJobs();
+      expect(importer.importStatus(preview.id)).toMatchObject({
+        status: 'completed',
+        completed: preview.items.length,
+        error: null,
+      });
+      const after = target.service.snapshot({ all: true });
+      expect(after.lists).toHaveLength(502);
+      const parent = after.lists.find((list) => list.name === 'Root folder')!;
+      expect(parent.id).not.toBe('root-folder');
+      expect(
+        after.lists
+          .filter((list) => list.id !== parent.id)
+          .every((list) => list.parentId === parent.id),
+      ).toBe(true);
+      const batches = target.service
+        .exportCheckpoint()
+        .receipts.filter((receipt) => receipt.requestId.startsWith('import_batch_'));
+      expect(batches).toHaveLength(2);
+      expect(batches.every((receipt) => receipt.changed.length <= 500)).toBe(true);
+      expect(batches[0].changed).toContainEqual(
+        expect.objectContaining({ kind: 'list', id: parent.id }),
+      );
+    } finally {
+      await importer.close();
+    }
+  });
   it.each(['checkpoint', 'legacy', 'batched checkpoint'] as const)(
     'interrupts a running focus on %s JSON import while preserving measured time and receipts',
     async (format) => {

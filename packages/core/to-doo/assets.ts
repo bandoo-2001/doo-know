@@ -4,7 +4,11 @@ import type { AppDatabase } from '../db.js';
 import { HttpError } from '../errors.js';
 import { readKnowledgeDataFile, writeKnowledgeDataFile } from '../knowledge-data.js';
 import { workspaceWriteSync } from '../workspace/gate.js';
-import type { ToDooService, ToDooTask } from '../../../shared/to-doo-contracts.js';
+import type {
+  ToDooAnniversaryImage,
+  ToDooService,
+  ToDooTask,
+} from '../../../shared/to-doo-contracts.js';
 
 const MAX_BYTES = 10 * 1024 * 1024;
 const idPattern = /^[A-Za-z0-9_-]{1,128}$/;
@@ -63,6 +67,16 @@ function validateFile(name: string, mime: string, bytes: Buffer) {
   } else if (sniff(bytes) !== mime) throw new HttpError(400, '附件内容与声明类型不一致');
   return mime;
 }
+export type ToDooAnniversaryImageAsset = Pick<
+  ToDooAnniversaryImage,
+  'hash' | 'name' | 'mime' | 'size'
+>;
+export function validateToDooAnniversaryImage(name: string, mime: string, bytes: Buffer) {
+  const validated = validateFile(name, mime, bytes);
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(validated) || bytes.length === 0)
+    throw new HttpError(400, '纪念日图片仅支持 PNG、JPEG 和 WebP');
+  return validated as ToDooAnniversaryImageAsset['mime'];
+}
 export type ToDooAssetUpload = {
   taskId: string;
   name: string;
@@ -75,6 +89,25 @@ export function createToDooAssets(
   service: ToDooService,
   options: { knowledgeRoot: string; db: AppDatabase },
 ) {
+  function storeAsset(bytes: Buffer) {
+    const hash = hashBytes(bytes),
+      path = 'apps/to-doo/assets/' + hash;
+    workspaceWriteSync(options.db, { kind: 'to-doo.asset.upload' }, () => {
+      const existing = readKnowledgeDataFile(options.knowledgeRoot, path);
+      if (existing) {
+        if (hashBytes(existing) !== hash || !existing.equals(bytes))
+          throw new HttpError(409, '附件哈希校验失败，请核对同步冲突');
+        return;
+      }
+      try {
+        writeKnowledgeDataFile(options.knowledgeRoot, path, bytes, null);
+      } catch (error) {
+        const raced = readKnowledgeDataFile(options.knowledgeRoot, path);
+        if (!raced || !raced.equals(bytes)) throw error;
+      }
+    });
+    return hash;
+  }
   function task(id: string): ToDooTask {
     if (!idPattern.test(id)) throw new HttpError(404, '任务附件不存在');
     const entity = service.getEntity('task', id) as ToDooTask | undefined;
@@ -87,22 +120,7 @@ export function createToDooAssets(
     const name = input.name.normalize('NFC'),
       mime = validateFile(name, input.mime, input.bytes);
     task(input.taskId);
-    const hash = hashBytes(input.bytes),
-      path = 'apps/to-doo/assets/' + hash;
-    workspaceWriteSync(options.db, { kind: 'to-doo.asset.upload' }, () => {
-      const existing = readKnowledgeDataFile(options.knowledgeRoot, path);
-      if (existing) {
-        if (hashBytes(existing) !== hash || !existing.equals(input.bytes))
-          throw new HttpError(409, '附件哈希校验失败，请核对同步冲突');
-        return;
-      }
-      try {
-        writeKnowledgeDataFile(options.knowledgeRoot, path, input.bytes, null);
-      } catch (error) {
-        const raced = readKnowledgeDataFile(options.knowledgeRoot, path);
-        if (!raced || !raced.equals(input.bytes)) throw error;
-      }
-    });
+    const hash = storeAsset(input.bytes);
     // The immutable asset may outlive a failed CAS. Retrying never overwrites user data.
     return service.command({
       requestId: input.requestId,
@@ -146,6 +164,31 @@ export function createToDooAssets(
       payload: { taskId: input.taskId, hash: input.hash, expectedRevision: input.expectedRevision },
     });
   }
-  return { upload, get, remove };
+  function uploadAnniversaryImage(input: { name: string; mime: string; bytes: Buffer }) {
+    const name = input.name.normalize('NFC'),
+      mime = validateToDooAnniversaryImage(name, input.mime, input.bytes),
+      hash = storeAsset(input.bytes);
+    // Staging an immutable image lets a new anniversary preview it before its first save.
+    return { hash, name, mime, size: input.bytes.length } satisfies ToDooAnniversaryImageAsset;
+  }
+  function getAnniversaryImage(hash: string) {
+    if (!hashPattern.test(hash)) throw new HttpError(404, '纪念日图片不存在');
+    return workspaceWriteSync(options.db, { kind: 'to-doo.asset.read' }, () => {
+      const bytes = readKnowledgeDataFile(options.knowledgeRoot, 'apps/to-doo/assets/' + hash);
+      if (!bytes) throw new HttpError(404, '图片内容尚未同步或已缺失');
+      if (hashBytes(bytes) !== hash) throw new HttpError(409, '图片内容损坏或哈希校验失败');
+      const mime = sniff(bytes),
+        extensions: Record<string, string> = {
+          'image/png': 'png',
+          'image/jpeg': 'jpg',
+          'image/webp': 'webp',
+        },
+        extension = extensions[mime ?? ''];
+      if (!extension) throw new HttpError(400, '纪念日图片仅支持 PNG、JPEG 和 WebP');
+      const name = 'anniversary-image.' + extension;
+      return { hash, name, mime: validateToDooAnniversaryImage(name, mime!, bytes), bytes };
+    });
+  }
+  return { upload, get, remove, uploadAnniversaryImage, getAnniversaryImage };
 }
 export type ToDooAssets = ReturnType<typeof createToDooAssets>;

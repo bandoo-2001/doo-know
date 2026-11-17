@@ -64,6 +64,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@ant-design/icons-vue": "7.0.1",
     "@codemirror/commands": "^6.11.1",
     "@codemirror/lang-markdown": "^6.5.2",
     "@codemirror/language": "6.13.1",
@@ -74,7 +75,8 @@
     "@excalidraw/mermaid-to-excalidraw": "2.3.0",
     "@floating-ui/vue": "2.0.1",
     "@lezer/highlight": "1.2.5",
-    "@modelcontextprotocol/sdk": "1.32.1",
+    "@modelcontextprotocol/client": "2.4.0",
+    "@modelcontextprotocol/sdk": "1.32.2",
     "@playwright/test": "^1.64.0",
     "@tiptap/core": "3.32.0",
     "@tiptap/extension-code-block": "3.32.0",

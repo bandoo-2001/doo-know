@@ -34,7 +34,9 @@ it.each(['stopped','switched'])('recovers rollback SIGKILL after %s without repl
   if(point==='stopped')await writeFile(join(candidate,'dist/server/scripts/manage.js'),kill);
   else {
    f.config.serviceManaged=true;
-   await writeFile(join(f.bin,'systemctl'),`#!${process.execPath}\nif(process.argv[3]==='daemon-reload'){${kill}}else process.exit(3);`,{mode:0o700});
+   await writeFile(join(f.bin,'systemctl'),`#!${process.execPath}\nconst fs=require('node:fs'),path=require('node:path');
+    if(process.argv[3]==='show'){const unit=path.join(process.env.XDG_CONFIG_HOME,'systemd/user',process.argv[4]);const found=fs.existsSync(unit);console.log('LoadState='+(found?'loaded':'not-found'));console.log('FragmentPath='+(found?unit:''));process.exit(found?0:4);}
+    if(process.argv[3]==='daemon-reload'){${kill}}else if(process.argv[3]==='is-active')process.exit(3);`,{mode:0o700});
   }
   await writeFile(f.config.profileFile,JSON.stringify(f.config));
   const childFile=join(f.root,'rollback.mts');
@@ -46,7 +48,9 @@ it.each(['stopped','switched'])('recovers rollback SIGKILL after %s without repl
   expect(JSON.parse(await readFile(marker,'utf8')).parent).toBe(child.pid);
   const before=openDatabase(f.config.dataRoot);expect(before.prepare('SELECT active FROM maintenance').get()).toEqual({active:1});before.close();
   // Recovery uses a harmless systemd substitute even for the switch interruption.
-  await writeFile(join(f.bin,'systemctl'),'#!/bin/sh\n[ "$2" = "is-active" ] && exit 3\nexit 0\n',{mode:0o700});
+  await writeFile(join(f.bin,'systemctl'),`#!${process.execPath}\nconst fs=require('node:fs'),path=require('node:path');
+   if(process.argv[3]==='show'){const unit=path.join(process.env.XDG_CONFIG_HOME,'systemd/user',process.argv[4]);const found=fs.existsSync(unit);console.log('LoadState='+(found?'loaded':'not-found'));console.log('FragmentPath='+(found?unit:''));process.exit(found?0:4);}
+   if(process.argv[3]==='is-active')process.exit(3);`,{mode:0o700});
   process.env.PATH=f.bin+':'+oldPath;process.env.XDG_CONFIG_HOME=join(f.root,'config');
   await recoverTransaction(f.config);await recoverTransaction(f.config);
   const after=openDatabase(f.config.dataRoot);

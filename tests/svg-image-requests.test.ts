@@ -5,6 +5,11 @@ import { build } from 'esbuild';
 
 const svg =
   '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="32"><rect width="64" height="32" fill="#123456"/></svg>';
+const png = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aL1kAAAAASUVORK5CYII=',
+  'base64',
+);
+const anniversaryImage = '/api/to-doo/anniversary-images/' + 'a'.repeat(64);
 const paths: string[] = [];
 let server: Server, browser: Browser, context: BrowserContext, page: Page, origin: string;
 beforeAll(async () => {
@@ -15,8 +20,8 @@ beforeAll(async () => {
       import {trackImageRequest} from './apps/web/image-requests.ts';
       window.fixture = {load(source) {
         const image = document.createElement('img'); document.body.append(image);
-        const owner = {image, source, stop:undefined};
-        owner.stop = trackImageRequest(image, () => ({src:owner.source}));
+        const owner = {image, source, stop:undefined, failures:0};
+        owner.stop = trackImageRequest(image, () => ({src:owner.source}), {onError:() => owner.failures++});
         window.fixture.owner=owner; return image;
       }};
     `,
@@ -33,7 +38,14 @@ beforeAll(async () => {
       response.end(bundled.outputFiles[0].text);
     } else if (path.startsWith('/api/')) {
       paths.push(path);
-      if (path.includes('denied')) {
+      if (path.startsWith('/api/to-doo/anniversary-images/')) {
+        const denied = path.endsWith('b'.repeat(64));
+        const vector = path.endsWith('c'.repeat(64));
+        response.writeHead(denied ? 401 : 200, {
+          'content-type': vector ? 'image/svg+xml' : 'image/png',
+        });
+        response.end(vector ? svg : png);
+      } else if (path.includes('denied')) {
         response.writeHead(401, { 'content-type': 'image/svg+xml' });
         response.end(svg);
       } else if (path.includes('download')) {
@@ -117,6 +129,7 @@ it('rechecks the current source before publishing an older SVG response', async 
   await expect.poll(() => paths.includes('/api/assets/denied')).toBe(true);
   await page.waitForFunction(() => !document.querySelector('img')!.hasAttribute('aria-busy'));
   expect(await page.locator('img').getAttribute('src')).toBeNull();
+  expect(await page.evaluate(() => (window as any).fixture.owner.failures)).toBe(1);
 });
 
 it('releases an accepted SVG object URL after its final owner is disposed', async () => {
@@ -137,4 +150,58 @@ it('releases an accepted SVG object URL after its final owner is disposed', asyn
       }
     }, source),
   ).toBe(false);
+});
+
+it('loads private anniversary photos as disposable object URLs', async () => {
+  await page.evaluate((source) => (window as any).fixture.load(source), anniversaryImage);
+  await expect
+    .poll(() => page.locator('img').evaluate((image) => (image as HTMLImageElement).naturalWidth))
+    .toBe(1);
+  const source = await page.locator('img').getAttribute('src');
+  expect(source).toMatch(/^blob:/);
+  expect(paths).toEqual([anniversaryImage]);
+  await page.evaluate(() => (window as any).fixture.owner.stop());
+  expect(
+    await page.evaluate(async (source) => {
+      try {
+        await fetch(source!);
+        return true;
+      } catch {
+        return false;
+      }
+    }, source),
+  ).toBe(false);
+});
+
+it.each(['b', 'c'])(
+  'rejects unauthorized or vector anniversary photo responses: %s',
+  async (hash) => {
+    await page.evaluate(
+      (source) => (window as any).fixture.load(source),
+      '/api/to-doo/anniversary-images/' + hash.repeat(64),
+    );
+    await page.waitForFunction(() => !document.querySelector('img')!.hasAttribute('aria-busy'));
+    expect(await page.locator('img').getAttribute('src')).toBeNull();
+    expect(await page.evaluate(() => (window as any).fixture.owner.failures)).toBe(1);
+  },
+);
+
+it.each([
+  '/api/to-doo/anniversary-images/short',
+  anniversaryImage + '?download=1',
+  anniversaryImage + '?original=1',
+  'https://example.invalid' + anniversaryImage,
+])('does not request unsupported anniversary image paths: %s', async (source) => {
+  await page.evaluate((source) => (window as any).fixture.load(source), source);
+  await page.waitForFunction(() => !document.querySelector('img')!.hasAttribute('aria-busy'));
+  expect(paths).toEqual([]);
+  expect(await page.locator('img').getAttribute('src')).toBeNull();
+});
+
+it('does not report an aborted owner as a failed image', async () => {
+  await page.evaluate(() => (window as any).fixture.load('/api/assets/slow-old'));
+  await expect.poll(() => paths.includes('/api/assets/slow-old')).toBe(true);
+  await page.evaluate(() => (window as any).fixture.owner.stop());
+  expect(await page.evaluate(() => (window as any).fixture.owner.failures)).toBe(0);
+  expect(await page.locator('img').getAttribute('src')).toBeNull();
 });

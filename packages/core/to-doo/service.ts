@@ -3,10 +3,12 @@ import type { AppDatabase } from '../db.js';
 import { readKnowledgeDataFile, writeKnowledgeDataFile } from '../knowledge-data.js';
 import type { NoteService } from '../notes.js';
 import type { AppConfig } from '../../../shared/contracts.js';
+import { validateToDooAnniversaryImage } from './assets.js';
 import {
   toDooCommandSchema,
   toDooEntitySchemas,
   toDooHabitRuleSchema,
+  TO_DOO_LIST_MAX_DEPTH,
   resolveToDooStatusSelection,
   type ToDooStatusSelectionInput,
   type ToDooEntityKind,
@@ -52,6 +54,26 @@ export function interruptImportedToDooFocusSession<T extends Record<string, unkn
     status: 'interrupted' as const,
     segments: segments.map((part) => (part.end ? part : { ...part, end: part.start })),
   };
+}
+
+function validateListRelations(s: ToDooState) {
+  for (const list of s.list.values()) {
+    if (list.deletedAt) continue;
+    const seen = new Set([list.id]);
+    let current = list,
+      depth = 1;
+    while (current.parentId) {
+      const parent = s.list.get(current.parentId);
+      if (!parent || parent.deletedAt) toDooError('上级清单不存在或已删除，请先移动子清单', 400);
+      if (seen.has(parent.id)) toDooError('清单层级存在循环，不能选择自己或子清单作为上级', 400);
+      if (!list.archivedAt && parent.archivedAt)
+        toDooError('上级清单已归档，请先归档或移动子清单', 400);
+      seen.add(parent.id);
+      current = parent;
+      if (++depth > TO_DOO_LIST_MAX_DEPTH)
+        toDooError(`清单层级最多支持 ${TO_DOO_LIST_MAX_DEPTH} 层，请选择其他上级清单`, 400);
+    }
+  }
 }
 
 function validateRelations(s: ToDooState, changedIds?: Set<string>) {
@@ -119,6 +141,8 @@ export function createToDooService(
     const result = store.execute(requestId, input, (state) => {
       const ctx = context(state, requestId);
       const ids = operation(ctx);
+      if ([...ctx.changes.values()].some((change) => change.kind === 'list'))
+        validateListRelations(state);
       validateRelations(
         state,
         [...ctx.changes.values()].some((c) => c.kind === 'settings')
@@ -632,6 +656,28 @@ export function createToDooService(
       const existing = typeof value.id === 'string' ? state[kind].get(value.id) : undefined;
       if (existing && !expectedRevision) toDooError('修改既有实体需要预期版本', 400);
       if (existing) check(kind, existing.id, expectedRevision!);
+      if (kind === 'anniversary' && Object.hasOwn(value, 'appearance')) {
+        const image = toDooEntitySchemas.anniversary.shape.appearance.parse(
+            value.appearance,
+          )?.image,
+          previous = (existing as ToDooEntityMap['anniversary'] | undefined)?.appearance?.image;
+        if (
+          image &&
+          (!previous ||
+            (['hash', 'name', 'mime', 'size'] as const).some(
+              (field) => image[field] !== previous[field],
+            ))
+        ) {
+          const bytes = readKnowledgeDataFile(
+            config.knowledgeRoot,
+            'apps/to-doo/assets/' + image.hash,
+          );
+          if (!bytes) toDooError('纪念日图片尚未上传或尚未同步，请重新选择图片', 400);
+          if (bytes.length !== image.size || toDooHash(bytes) !== image.hash)
+            toDooError('纪念日图片内容损坏或哈希校验失败', 400);
+          validateToDooAnniversaryImage(image.name, image.mime, bytes);
+        }
+      }
       if (kind === 'task' && existing) {
         const task = existing as ToDooTask;
         if (
@@ -1143,6 +1189,11 @@ export function createToDooService(
             return tasks.map((t) => t.id);
           }
           if (p.kind === 'list') {
+            if (
+              !p.restore &&
+              [...c.state.list.values()].some((list) => list.parentId === p.id && !list.deletedAt)
+            )
+              toDooError('清单包含子清单，请先移动或移除子清单', 400);
             const tasks = [...c.state.task.values()].filter((t) => t.listId === p.id);
             if (tasks.length && !p.cascade) toDooError('清单包含任务，请选择级联处理或先移动');
             const marker = c.get('list', p.id).deletedAt;
@@ -1165,8 +1216,10 @@ export function createToDooService(
           ];
         }
         case 'start_focus': {
-          const active = [...c.state.focusSession.values()].find((session) =>
-            !session.deletedAt && (session.status === 'running' || (p.requireIdle && session.status === 'paused')),
+          const active = [...c.state.focusSession.values()].find(
+            (session) =>
+              !session.deletedAt &&
+              (session.status === 'running' || (p.requireIdle && session.status === 'paused')),
           );
           if (active?.status === 'running') toDooError('已有运行中的专注，请先暂停或接管');
           if (active?.status === 'paused') toDooError('已有暂停的专注，请先继续或结束该会话');
@@ -1199,8 +1252,15 @@ export function createToDooService(
           c.check('focusSession', p.id, p.expectedRevision);
           const old = c.get('focusSession', p.id),
             at = p.at ?? c.now;
+          if (
+            p.correctedMinutes !== undefined &&
+            ['pause', 'resume', 'takeover'].includes(p.operation)
+          )
+            toDooError('运行中的计时不能同时修正时长，请先结束专注', 400);
           const segments = old.segments.map((x) => ({ ...x }));
           if (p.operation === 'correct') {
+            if (old.status === 'running' || old.status === 'paused')
+              toDooError('请先结束专注，再修正时长', 400);
             if (p.correctedMinutes === undefined) toDooError('请填写修正分钟数', 400);
             return [c.put('focusSession', { ...old, correctedMinutes: p.correctedMinutes }).id];
           }
@@ -1217,6 +1277,8 @@ export function createToDooService(
           if (p.operation === 'resume') {
             if (old.status !== 'paused' && old.status !== 'interrupted')
               toDooError('该专注不能继续', 400);
+            if (old.correctedMinutes !== null)
+              toDooError('已修正的记录不能继续计时，请保留记录并开始新的专注', 400);
             if (
               [...c.state.focusSession.values()].some(
                 (x) => x.id !== old.id && x.status === 'running' && !x.deletedAt,
@@ -1269,19 +1331,31 @@ export function createToDooService(
         case 'checkin_habit': {
           const habit = c.get('habit', p.habitId);
           if (habit.deletedAt) toDooError('习惯已删除', 400);
+          if (p.expectedHabitRevision) c.check('habit', habit.id, p.expectedHabitRevision);
           const period = getHabitPeriod(habit, p.localDate);
+          if (p.localDate > localDate(new Date(c.now), period.rule.timeZone))
+            toDooError('不能提前记录未来日期的习惯', 400);
+          if (p.at && Date.parse(p.at) > Date.parse(c.now))
+            toDooError('记录时间不能晚于当前时间', 400);
           if (!period.scheduledDates.includes(p.localDate))
             toDooError('当天无需记录，请选择习惯安排内的日期', 400);
+          if (p.sourceSessionId && c.get('focusSession', p.sourceSessionId).deletedAt)
+            toDooError('来源专注记录已删除', 400);
+          const dayEntries = [...c.state.habitEntry.values()].filter(
+            (entry) =>
+              entry.habitId === habit.id && entry.localDate === p.localDate && !entry.deletedAt,
+          );
+          if (p.skipped) {
+            if (dayEntries.some((entry) => !entry.skipped && entry.amount > 0))
+              toDooError('当天已有记录，请先撤销后再跳过');
+            const skipped = dayEntries.find((entry) => entry.skipped);
+            if (skipped) return [skipped.id];
+          } else if (dayEntries.some((entry) => entry.skipped)) {
+            toDooError('当天已跳过，请先撤销跳过记录后再打卡');
+          }
           if (!p.skipped && getHabitGoalMode(period.rule) === 'checkin') {
             if (p.amount !== 1) toDooError('普通打卡每次记录一次完成', 400);
-            const recorded = [...c.state.habitEntry.values()].find(
-              (entry) =>
-                entry.habitId === habit.id &&
-                entry.localDate === p.localDate &&
-                !entry.deletedAt &&
-                !entry.skipped &&
-                entry.amount > 0,
-            );
+            const recorded = dayEntries.find((entry) => !entry.skipped && entry.amount > 0);
             if (recorded) return [recorded.id];
           }
           if (
@@ -1292,7 +1366,7 @@ export function createToDooService(
             )
           )
             toDooError('该专注已经计入习惯');
-          const { at, ...entry } = p;
+          const { at, expectedHabitRevision: _expectedHabitRevision, ...entry } = p;
           return [c.put('habitEntry', { ...entry, occurredAt: at ?? c.now }).id];
         }
         case 'apply_template': {
@@ -1433,6 +1507,28 @@ export function createToDooService(
     )
       toDooError('导入包校验失败', 400);
     for (const entry of checkpoint.entities) parseEntity(entry.kind, entry.entity);
+    // Asset arrival can follow entity synchronization. Validate any available image bytes,
+    // while retaining references whose blobs have not arrived yet, as for task attachments.
+    const importedAssets = new Map(checkpoint.assets.map((asset) => [asset.hash, asset.data]));
+    for (const entry of checkpoint.entities) {
+      if (entry.kind !== 'anniversary') continue;
+      const image = parseEntity('anniversary', entry.entity).appearance?.image;
+      if (!image) continue;
+      const encoded = importedAssets.get(image.hash);
+      if (
+        encoded !== undefined &&
+        (typeof encoded !== 'string' || encoded.length > 15 * 1024 * 1024)
+      )
+        toDooError('附件数据无效', 400);
+      const bytes =
+        encoded === undefined
+          ? readKnowledgeDataFile(config.knowledgeRoot, 'apps/to-doo/assets/' + image.hash)
+          : Buffer.from(encoded, 'base64');
+      if (!bytes) continue;
+      if (bytes.length !== image.size || toDooHash(bytes) !== image.hash)
+        toDooError('纪念日图片内容损坏或哈希校验失败', 400);
+      validateToDooAnniversaryImage(image.name, image.mime, bytes);
+    }
     for (const asset of checkpoint.assets) {
       if (
         !/^[a-f0-9]{64}$/.test(asset.hash) ||
@@ -1456,8 +1552,9 @@ export function createToDooService(
       },
       (c) =>
         checkpoint.entities.map(({ kind, entity: original }) => {
+          const normalized = parseEntity(kind, original);
           const entity =
-            kind === 'focusSession' ? interruptImportedToDooFocusSession(original) : original;
+            kind === 'focusSession' ? interruptImportedToDooFocusSession(normalized) : normalized;
           const existing = c.state[kind].get(entity.id),
             expected = options?.expectedRevisions?.[kind + ':' + entity.id];
           if (expected) {

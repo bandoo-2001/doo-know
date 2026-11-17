@@ -1899,6 +1899,13 @@ describe('To Doo workbench', () => {
       toDooDisplayTime({ date: '2026-03-08', time: '02:30', timeZone: 'America/New_York' }, 'UTC'),
     ).toEqual({ date: '2026-03-08', time: '07:00', timeZone: 'UTC' });
   });
+  test('reused display formatters resolve each date and timezone without retaining a previous offset', () => {
+    const display = (date: string, timeZone: string) => toDooDisplayTime({ date, time: '08:00', timeZone }, 'UTC');
+    expect(display('2026-01-15', 'America/New_York').time).toBe('13:00');
+    expect(display('2026-07-15', 'America/New_York').time).toBe('12:00');
+    expect(display('2026-07-15', 'Asia/Shanghai').time).toBe('00:00');
+    expect(display('2026-01-15', 'America/New_York').time).toBe('13:00');
+  });
   test('a subtree batch includes descendant revisions before submitting an atomic completion', async () => {
     const data = snapshot();
     data.tasks.push({ ...data.tasks[0]!, id: 'task-child', parentTaskId: 'task-a' });

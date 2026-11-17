@@ -7,6 +7,11 @@ import { guardToDooTaskAction } from '../../to-doo-action-guard';
 import { readToDooDisplayFields, writeToDooDisplayFields, type ToDooDisplayFields } from '../../to-doo-display-preferences';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
+import ToDooTaskValueSelect from './ToDooTaskValueSelect.vue';
+import ToDooTaskValueLabel from './ToDooTaskValueLabel.vue';
+import ToDooListTreeSelect from './ToDooListTreeSelect.vue';
+import ToDooListIcon from './ToDooListIcon.vue';
+import { toDooListRows } from '../../to-doo-list-tree';
 import ToDooPageToolbar from './ToDooPageToolbar.vue';
 
 import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue';
@@ -238,7 +243,7 @@ const state = props.model.state,
   selecting = ref(false),
   collapsed = ref<string[]>([]),
   boardBy = ref('status'),
-  bulkList = ref(''),
+  bulkList = ref<string | null>(null),
   bulkDate = ref(''),
   bulkPriority = ref<'none' | 'low' | 'normal' | 'high'>('normal');
 const today = computed(() => toDooLocalDate(new Date(), state.snapshot?.settings.timeZone));
@@ -322,10 +327,13 @@ const emptyTitle = computed(() => {
   );
 });
 const lists = computed(
-  () => state.snapshot?.lists.filter((l) => !l.deletedAt && !l.archivedAt) || [],
+  () => props.model.taskLists().filter((l) => !l.deletedAt && !l.archivedAt),
 );
+watch(() => props.section, section => { if (section === 'overview') void props.model.ensureListCatalog(); }, { immediate: true });
+const listById = computed(() => new Map(lists.value.map(list => [list.id, list])));
 const goals = computed(() => lists.value.filter((list) => list.kind === 'goal'));
 const ordinaryLists = computed(() => lists.value.filter((list) => list.kind !== 'goal'));
+const ordinaryListRows = computed(() => toDooListRows(lists.value).filter(row => row.list.kind !== 'goal'));
 const recentOutcomes = computed(
   () => state.snapshot?.outcomes.filter((outcome) => !outcome.deletedAt).slice(0, 3) ?? [],
 );
@@ -368,6 +376,36 @@ const groupCollapsed = (id: string) => state.collapsedTaskGroups.includes(id);
 const orderedListTasks = computed(() => props.section === 'tasks'
   ? outlineGroups.value.filter(group => !groupCollapsed(group.id)).flatMap(group => group.items)
   : []);
+const taskListPanel = ref<HTMLElement>();
+let outlineResize: ResizeObserver | undefined;
+function alignOutlineControls() {
+  const panel = taskListPanel.value;
+  if (!panel?.querySelectorAll) return;
+  for (const button of panel.querySelectorAll<HTMLElement>('.todo-collapse')) {
+    const row = button.closest<HTMLElement>('.todo-tree-row');
+    const completion = row?.querySelector<HTMLElement>('.todo-check, .ant-checkbox-wrapper');
+    if (!row || !completion) continue;
+    const bounds = row.getBoundingClientRect(), control = completion.getBoundingClientRect();
+    if (!control.height) continue;
+    const center = `${control.top - bounds.top + control.height / 2}px`;
+    if (button.style.getPropertyValue('--todo-collapse-center') !== center)
+      button.style.setProperty('--todo-collapse-center', center);
+  }
+}
+function observeOutlineControls() {
+  outlineResize?.disconnect();
+  if (!toolbarActive.value) return;
+  const panel = taskListPanel.value;
+  if (typeof ResizeObserver === 'undefined' || !panel?.querySelectorAll) return;
+  outlineResize ??= new ResizeObserver(alignOutlineControls);
+  for (const row of panel.querySelectorAll<HTMLElement>('.todo-tree-row:has(.todo-collapse)'))
+    outlineResize.observe(row);
+  alignOutlineControls();
+}
+watch([taskListPanel, orderedListTasks, selecting, () => props.density], observeOutlineControls, { flush: 'post' });
+onActivated(() => { void nextTick(observeOutlineControls); });
+onDeactivated(() => outlineResize?.disconnect());
+onBeforeUnmount(() => outlineResize?.disconnect());
 defineExpose({ orderedListTasks });
 function toggleGroup(id: string) {
   state.collapsedTaskGroups = groupCollapsed(id)
@@ -386,6 +424,13 @@ const todayItems = computed(() =>
       toDooPending(i.status),
   ),
 );
+const overviewParentTitles = computed(() =>
+  new Map(props.model.taskDefinitions().map(task => [task.id, task.title])),
+);
+function overviewParentTitle(item: ToDooItem) {
+  const parentId = item.task.parentTaskId;
+  return parentId ? overviewParentTitles.value.get(parentId) || '未载入的父任务' : undefined;
+}
 const materials = computed(() => {
   const refs = new Map<string, { title: string; task: ToDooItem }>();
   todayItems.value.forEach((i) =>
@@ -790,10 +835,11 @@ function saveView() {
           v-for="item in todayItems.slice(0, 12)"
           :key="item.key"
           :item="item"
+          :parent-title="overviewParentTitle(item)"
           :active="active(item)"
           :today="today"
           :time-zone="state.snapshot?.settings.timeZone"
-          :style="{ '--task-list-color': item.list?.color || 'var(--todo-accent)' }"
+          :style="{ '--depth': 0, '--task-list-color': item.list?.color || 'var(--todo-accent)' }"
           @open="emit('open', $event)"
           @complete="complete"
           @child="emit('create', $event)"
@@ -830,7 +876,7 @@ function saveView() {
       <div class="todo-goals">
         <ACard v-for="goal in goals" :key="goal.id" class="todo-goal" role="article">
           <header class="todo-goal-header">
-            <span class="todo-goal-icon"><ToDooIcon name="overview" :size="24" /></span>
+            <span class="todo-goal-icon"><ToDooListIcon :list="goal" :size="24" /></span>
             <div class="todo-goal-copy">
               <AButton
                 class="todo-goal-name"
@@ -963,14 +1009,15 @@ function saveView() {
               >＋</AButton
             >
           </div>
-          <div v-for="list in ordinaryLists" :key="list.id" class="todo-overview-list">
+          <div v-for="{ list, depth } in ordinaryListRows" :key="list.id" class="todo-overview-list"
+            :data-list-id="list.id" :style="{ '--todo-overview-list-depth': depth }">
             <AButton
               html-type="button"
               type="text"
               class="todo-saved-row todo-text-button"
               @click="emit('list', list.id)"
             >
-              <span
+              <ToDooListIcon :list="list" :size="18" /><span
                 >{{ list.name
                 }}<small v-if="list.description || list.criteria">{{
                   list.description || list.criteria
@@ -1056,7 +1103,7 @@ function saveView() {
       <APopover v-model:open="filterOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-filter-popup">
         <AButton ref="filterTrigger" html-type="button" @keydown.esc.stop.prevent="closePopup('filter')" class="todo-filter-toggle todo-toolbar-tool" :class="{ 'is-active': filterOpen || filterCount }" :aria-label="filterCount ? '筛选 (' + filterCount + ')' : '筛选'" title="筛选" :aria-expanded="filterOpen" type="text"><ToDooIcon name="filter" :size="17" /><span class="todo-tool-label">筛选</span><small v-if="filterCount">{{ filterCount }}</small></AButton>
         <template #content><form class="todo-task-filter-form" @submit.prevent="filterChanged" @keydown.esc.stop.prevent="closePopup('filter')">
-          <label>优先级<ToDooSelect :value="state.filter.priorities?.length === 1 ? state.filter.priorities[0] : ''" aria-label="筛选优先级" @change="state.filter.priorities = $event ? [$event] : []; filterChanged()"><option value="">全部优先级</option><option v-for="(label, value) in toDooPriorityLabels" :key="value" :value="value">{{ label }}</option></ToDooSelect></label>
+          <label>优先级<ToDooTaskValueSelect kind="priority" :value="state.filter.priorities?.length === 1 ? state.filter.priorities[0] : ''" empty-label="全部优先级" aria-label="筛选优先级" @change="state.filter.priorities = $event ? [$event as 'none' | 'low' | 'normal' | 'high'] : []; filterChanged()" /></label>
           <label>标签<ToDooSelect :value="state.filter.tagIds?.[0] || ''" aria-label="筛选标签" @change="state.filter.tagIds = $event ? [$event] : []; filterChanged()"><option value="">全部标签</option><option v-for="tag in state.snapshot?.tags.filter((t) => !t.deletedAt)" :key="tag.id" :value="tag.id">{{ tag.name }}</option></ToDooSelect></label>
           <div class="todo-actions"><AButton @click="openAdvancedFilters">更多筛选条件</AButton><AButton type="link" @click="emit('clear-filters')">清除筛选</AButton><AButton type="text" @click="closePopup('filter')">关闭</AButton></div>
         </form></template>
@@ -1064,6 +1111,7 @@ function saveView() {
       <APopover v-model:open="displayOpen" trigger="click" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-display-popup">
         <AButton ref="displayTrigger" type="text" @keydown.esc.stop.prevent="closePopup('display')" class="todo-toolbar-tool todo-display-tool" :class="{ 'is-active': displayOpen }" aria-label="任务显示与管理" title="任务显示与管理" :aria-expanded="displayOpen"><ToDooIcon name="more" :size="19" /><span class="todo-tool-label">更多</span></AButton>
         <template #content><div class="todo-task-display-form" @keydown.esc.stop.prevent="closePopup('display')">
+          <div class="todo-task-display-heading"><ToDooIcon name="settings" :size="19" /><div><strong>显示与管理</strong><span>调整当前任务视图</span></div></div>
           <div class="todo-task-display-options"><label>展示方式      <ToDooSelect
         class="todo-view-picker"
         aria-label="任务展示方式"
@@ -1075,13 +1123,13 @@ function saveView() {
           <label>排序<ToDooSelect v-model="state.sort" aria-label="任务排序"><option value="manual">手动顺序</option><option value="due">截止日期</option><option value="priority">优先级</option><option value="created">最近创建</option><option value="title">标题</option></ToDooSelect></label>
           <label v-if="section === 'board'">分组<ToDooSelect v-model="boardBy" aria-label="看板分组"><option value="status">按状态</option><option value="list">按清单</option><option value="priority">按优先级</option><option value="section">按分组</option><option value="tag">按标签</option></ToDooSelect></label>
           <label>密度<ToDooSelect :value="density" aria-label="任务密度" @change="emit('update:density', $event as 'comfortable' | 'compact')"><option value="comfortable">舒适</option><option value="compact">紧凑</option></ToDooSelect></label>
-          <ACheckbox v-model:checked="showCompleted">显示已完成任务</ACheckbox>
+          <ACheckbox v-model:checked="showCompleted" class="todo-display-completed">显示已完成任务</ACheckbox>
           <fieldset class="todo-task-display-fields" aria-label="任务行显示字段">
             <legend>显示字段</legend>
             <ACheckbox v-for="field in displayFieldOptions" :key="field.key" :checked="displayFields[field.key]" @change="setDisplayField(field.key, $event.target.checked)">{{ field.label }}</ACheckbox>
           </fieldset>
           <div v-if="state.snapshot?.views.some((v) => !v.deletedAt)" class="todo-saved-views"><span>保存的视图</span><div v-for="v in state.snapshot.views.filter((v) => !v.deletedAt)" :key="v.id" class="todo-actions"><AButton type="link" @click="applyView(v); closePopup('display')">{{ v.name }}</AButton><AButton type="text" :aria-label="'编辑视图 ' + v.name" @click="emit('edit', 'view', v)">⋯</AButton></div></div>
-          <div class="todo-task-management-options"><AMenu :selectable="false" trigger-sub-menu-action="click" aria-label="任务管理" @click="displayOpen = false">
+          <div class="todo-task-management-options"><h3 class="todo-task-display-section-label">任务管理</h3><AMenu :selectable="false" trigger-sub-menu-action="click" aria-label="任务管理" @click="displayOpen = false">
         <AMenuItem key="select" @click="selecting = !selecting; state.selectedIds = []">{{ selecting ? '结束多选' : '选择任务' }}</AMenuItem>
         <ASubMenu key="organize" title="组织清单"><AMenuItem v-if="scopeListId" key="edit-list" @click="emit('edit', 'list', lists.find((l) => l.id === scopeListId))">编辑当前清单</AMenuItem><AMenuItem v-if="scopeListId" key="list-habits" @click="emit('habits', scopeListId)">清单习惯</AMenuItem><AMenuItem key="section" @click="newSection">新建分组</AMenuItem><AMenuItem key="tag" @click="emit('edit', 'tag')">新建标签</AMenuItem></ASubMenu>
         <ASubMenu key="templates" title="模板"><AMenuItem v-if="state.snapshot?.templates.some((t) => !t.deletedAt)" key="apply-template" @click="templatesOpen = true">从模板新建</AMenuItem><AMenuItem key="new-template" @click="emit('edit', 'template')">新建模板</AMenuItem></ASubMenu>
@@ -1093,16 +1141,16 @@ function saveView() {
 
     </ToDooPageToolbar>
     </Teleport>
-    <AModal v-model:open="templatesOpen" title="从模板新建" :footer="null">
+    <AModal v-model:open="templatesOpen" title="从模板新建" :footer="null" wrap-class-name="todo-ant-modal todo-template-picker-modal">
       <AAlert v-if="state.error" type="error" :message="state.error" show-icon />
-
+      <div class="todo-template-picker">
         <div
           v-for="t in state.snapshot?.templates.filter((t) => !t.deletedAt)"
           :key="t.id"
-          class="todo-actions"
+          class="todo-template-option"
         >
           <AButton
-            class="todo-link"
+            class="todo-link todo-template-option-name"
             html-type="button"
             :disabled="state.busy || !!state.pendingMutation"
             @click="applyTemplate(t.id)"
@@ -1116,11 +1164,15 @@ function saveView() {
             @click="emit('edit', 'template', t)"
             type="text"
           >
-            ⋯
+            <ToDooIcon name="more" :size="18" />
           </AButton>
         </div>
+      </div>
     </AModal>
-    <AModal v-model:open="advancedFilters" title="高级筛选" :width="640" :footer="null" :destroy-on-close="true"><ToDooFilterGroup v-model="advancedDraft" :model="model" /><div class="todo-actions todo-top-gap"><AButton type="primary" @click="applyAdvancedFilters">应用条件组</AButton><AButton @click="advancedFilters = false">取消</AButton><AButton type="link" @click="delete state.filter.group; advancedFilters = false; filterChanged()">清除条件组</AButton></div></AModal>
+    <AModal v-model:open="advancedFilters" title="高级筛选" :width="640" :destroy-on-close="true" wrap-class-name="todo-ant-modal todo-advanced-filter-modal">
+      <ToDooFilterGroup v-model="advancedDraft" :model="model" />
+      <template #footer><div class="todo-actions todo-filter-dialog-actions"><AButton type="primary" @click="applyAdvancedFilters">应用条件组</AButton><AButton @click="advancedFilters = false">取消</AButton><AButton type="link" @click="delete state.filter.group; advancedFilters = false; filterChanged()">清除条件组</AButton></div></template>
+    </AModal>
     <div v-if="selecting" class="todo-batch">
       <label class="todo-checkbox"
         ><ACheckbox
@@ -1196,12 +1248,8 @@ function saveView() {
               type="default"
             >
               恢复</AButton
-            ><ToDooSelect v-model="bulkList" aria-label="移动到清单">
-              <option value="">收集箱</option>
-              <option v-for="l in lists" :key="l.id" :value="l.id">
-                {{ l.name }}
-              </option></ToDooSelect
-            ><AButton
+            ><ToDooListTreeSelect v-model="bulkList" :model="model" :allow-create="false" aria-label="移动到清单" />
+            <AButton
               class="todo-button"
               html-type="button"
               :disabled="state.busy"
@@ -1209,11 +1257,8 @@ function saveView() {
               type="default"
             >
               移动到</AButton
-            ><ToDooSelect v-model="bulkPriority" aria-label="批量优先级">
-              <option v-for="(n, k) in toDooPriorityLabels" :key="k" :value="k">
-                {{ n }}
-              </option></ToDooSelect
-            ><AButton
+            ><ToDooTaskValueSelect kind="priority" :value="bulkPriority" aria-label="批量优先级" @change="bulkPriority = $event as 'none' | 'low' | 'normal' | 'high'" />
+            <AButton
               class="todo-button"
               html-type="button"
               @click="bulk('priority')"
@@ -1273,7 +1318,7 @@ function saveView() {
         @created="emit('task-created', $event)"
       />
     </div>
-    <div v-if="section === 'tasks'" class="todo-panel todo-tree todo-task-list-panel" role="region" :aria-label="taskListTitle" @keydown="moveRowFocus">
+    <div v-if="section === 'tasks'" ref="taskListPanel" class="todo-panel todo-tree todo-task-list-panel" role="region" :aria-label="taskListTitle" @keydown="moveRowFocus">
 
       <section v-for="group in outlineGroups" :key="group.id" class="todo-task-group">
         <header v-if="group.showHeader" class="todo-task-group-heading">
@@ -1284,7 +1329,7 @@ function saveView() {
             :aria-expanded="!groupCollapsed(group.id)"
             @click="toggleGroup(group.id)"
           >
-            <span aria-hidden="true">{{ groupCollapsed(group.id) ? '›' : '⌄' }}</span>
+            <ToDooIcon name="chevron" :size="14" class="todo-outline-chevron" />
             <h2>{{ group.name }}</h2>
             <small>{{ group.items.length }}</small>
           </AButton>
@@ -1330,9 +1375,10 @@ function saveView() {
                 html-type="button"
                 class="todo-collapse"
                 :aria-label="(collapsed.includes(item.task.id) ? '展开 ' : '折叠 ') + item.title"
+                :aria-expanded="!collapsed.includes(item.task.id)"
                 @click="toggleTree(item.task.id)"
                 type="text"
-                >{{ collapsed.includes(item.task.id) ? '›' : '⌄' }}</AButton
+                ><ToDooIcon name="chevron" :size="14" class="todo-outline-chevron" /></AButton
               >
               <ToDooTaskRow
                 list-navigation
@@ -1398,7 +1444,7 @@ function saveView() {
           :key="column.id"
           type="text"
           @click="jumpTo('todo-board-' + boardBy + '-' + column.id)"
-          >{{ column.name }} {{ items.filter((i) => inColumn(i, column.id)).length }}</AButton
+          ><ToDooTaskValueLabel v-if="boardBy === 'status' || boardBy === 'priority'" :kind="boardBy" :value="column.id" /><template v-else><ToDooListIcon v-if="boardBy === 'list' && listById.has(column.id)" :list="listById.get(column.id)!" :size="16" />{{ column.name }}</template> {{ items.filter((i) => inColumn(i, column.id)).length }}</AButton
         >
       </nav>
       <div class="todo-board">
@@ -1412,7 +1458,7 @@ function saveView() {
           @drop="drop($event, column.id)"
         >
           <div class="todo-board-column-heading">
-            <h2>{{ column.name }}</h2>
+            <h2><ToDooTaskValueLabel v-if="boardBy === 'status' || boardBy === 'priority'" :kind="boardBy" :value="column.id" /><ToDooListIcon v-else-if="boardBy === 'list' && listById.has(column.id)" :list="listById.get(column.id)!" :size="18" /><ToDooIcon v-else-if="boardBy === 'list'" name="inbox" :size="18" /><template v-if="boardBy !== 'status' && boardBy !== 'priority'">{{ column.name }}</template></h2>
             <small>{{ items.filter((i) => inColumn(i, column.id)).length }}</small>
             <ToDooTaskGroupMenu
               v-if="boardBy === 'section' && columnSection(column.id)"
@@ -1610,6 +1656,34 @@ function saveView() {
   </template>
 </template>
 <style scoped>
+.todo-template-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.todo-template-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.todo-template-option-name.ant-btn {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  min-height: var(--todo-control-height);
+  height: auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: start;
+}
+.todo-template-option > .todo-icon-button {
+  flex: 0 0 auto;
+}
+.todo-filter-dialog-actions {
+  justify-content: flex-end;
+}
 .todo-task-display-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1683,15 +1757,6 @@ function saveView() {
 .todo-overview-action-list :deep(.todo-task-date-value small),
 .todo-task-list-panel :deep(.todo-task-date-value small) {
   font-size: 14px;
-}
-.todo-overview-action-list :deep(.todo-row-list)::before,
-.todo-task-list-panel :deep(.todo-row-list)::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  flex: 0 0 8px;
-  border-radius: 50%;
-  background: var(--task-list-color, var(--todo-accent));
 }
 .todo-overview-action-list :deep(.todo-task-row.is-active),
 .todo-task-list-panel :deep(.todo-task-row.is-active) {
@@ -1917,6 +1982,7 @@ function saveView() {
 .todo-overview-list {
   display: flex;
   align-items: center;
+  padding-inline-start: calc(var(--todo-overview-list-depth, 0) * 16px);
   padding-right: 9px;
   border-bottom: 1px solid var(--todo-line);
 }
@@ -1924,9 +1990,33 @@ function saveView() {
   border-bottom: 0;
 }
 .todo-overview-list > .todo-saved-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   flex: 1;
   min-width: 0;
   border: 0;
+}
+.todo-overview-list > .todo-saved-row > span:not(.todo-list-icon) {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.todo-overview-list > .todo-saved-row > small { flex: 0 0 auto; }
+.todo-board-column-heading h2 { display: flex; align-items: center; gap: 8px; }
+.todo-board-card {
+  --todo-board-row-gap: var(--todo-space-8);
+  --todo-board-text-inset: calc(var(--todo-icon-button-size) + var(--todo-board-row-gap));
+}
+.todo-board-card :deep(.todo-task-row) {
+  grid-template-columns: var(--todo-icon-button-size) minmax(0, 1fr) var(--todo-icon-button-size);
+  gap: var(--todo-board-row-gap);
+  padding: 0;
+}
+.todo-board-card :deep(.todo-check) { margin-top: 0; }
+.todo-board-card :deep(.todo-task-row)::after { display: none; }
+.todo-board-card > .todo-board-description {
+  margin-inline-start: var(--todo-board-text-inset) !important;
 }
 .todo-task-list-toolbar {
   margin-bottom: 0;
@@ -1952,7 +2042,7 @@ function saveView() {
     grid-template-columns: var(--todo-icon-button-size) minmax(0, 2fr) minmax(0, 1fr) var(--todo-icon-button-size);
   }
   .todo-task-list-panel :deep(.todo-task-row > .todo-task-dates) {
-    justify-content: flex-start;
+    justify-content: flex-end;
     max-width: 100%;
   }
 }

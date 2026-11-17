@@ -33,7 +33,11 @@ const control = (tag: string) =>
   });
 const controls = toDooAntStubs;
 const Input = controls.Input;
-function component(name: string, confirm: (message: string) => Promise<boolean> = async () => false, inlineTemplate = true): Vue.Component {
+function component(
+  name: string,
+  confirm: (message: string) => Promise<boolean> = async () => false,
+  inlineTemplate = true,
+): Vue.Component {
   const { descriptor } = parse(
     readFileSync(new URL(`../apps/web/components/to-doo/${name}.vue`, import.meta.url), 'utf8'),
   );
@@ -165,7 +169,8 @@ function model(count = 1) {
   });
   const data = { sessions, datasetId: 'fixture', revision: 'r1' };
   const request = vi.fn(async (url: string) => {
-    if (!url.includes('/focus/history')) return { focusTopics: topics, page: { nextCursor: null } };
+    if (!url.includes('/focus/history'))
+      return { focusTopics: topics, page: { nextCursor: null as string | null } };
     const query = new URL(url, 'http://fixture').searchParams;
     const rows = data.sessions.filter(
       (row) => !query.get('topicId') || row.topicId === query.get('topicId'),
@@ -280,30 +285,41 @@ test('clearing the timer project starts free focus without changing the history 
 });
 
 test('focus and history panes share one tab state while the live timer remains mounted', async () => {
-  const value = model(); value.data.sessions[0].status = 'running';
-  const view = mount('ToDooFocus', { model: value }); await settle();
-  const section = (label: string) => view.all().find((node) => node.props['aria-label'] === label) as Node & { style: Record<string, string> };
+  const value = model();
+  value.data.sessions[0].status = 'running';
+  const view = mount('ToDooFocus', { model: value });
+  await settle();
+  const section = (label: string) =>
+    view.all().find((node) => node.props['aria-label'] === label) as Node & {
+      style: Record<string, string>;
+    };
   expect(section('专注概览和历史').style.display).toBe('none');
   expect(section('专注项目').style.display).not.toBe('none');
   expect(button(view, '暂停')).toBeDefined();
-  button(view, '历史')!.props.onClick(); await settle();
+  button(view, '历史')!.props.onClick();
+  await settle();
   expect(section('专注概览和历史').style.display).not.toBe('none');
   expect(section('专注项目').style.display).toBe('none');
   expect(button(view, '暂停')).toBeDefined();
-  button(view, '专注')!.props.onClick(); await settle();
+  button(view, '专注')!.props.onClick();
+  await settle();
   expect(section('专注概览和历史').style.display).toBe('none');
   expect(button(view, '暂停')).toBeDefined();
   expect(value.execute).not.toHaveBeenCalled();
 });
 
 test('project creation and archive browsing remain reachable from project actions', async () => {
-  const value = model(), edit = vi.fn(), view = mount('ToDooFocus', { model: value, onEdit: edit });
+  const value = model(),
+    edit = vi.fn(),
+    view = mount('ToDooFocus', { model: value, onEdit: edit });
   await settle();
-  const menuItem = (text: string) => view.all().find((node) => node.tag === 'MenuItem' && view.text(node) === text)!;
+  const menuItem = (text: string) =>
+    view.all().find((node) => node.tag === 'MenuItem' && view.text(node) === text)!;
   expect(button(view, '专注项目更多')).toBeDefined();
   menuItem('新建项目').props.onClick();
   expect(edit).toHaveBeenCalledWith('focusTopic');
-  menuItem('已归档项目').props.onClick(); await settle();
+  menuItem('已归档项目').props.onClick();
+  await settle();
   expect(menuItem('进行中项目')).toBeDefined();
   expect(menuItem('查看全部记录')).toBeDefined();
 });
@@ -514,34 +530,76 @@ test('changing projects keeps the visible task choice while free focus clears bo
 
 function completionFixture() {
   const value = model();
-  const stamp = { revision: 'r1', createdAt: '2026-11-03T12:00:00Z', updatedAt: '2026-11-03T12:00:00Z' };
+  const stamp = {
+    revision: 'r1',
+    createdAt: '2026-11-03T12:00:00Z',
+    updatedAt: '2026-11-03T12:00:00Z',
+  };
   const task = toDooEntitySchemas.task.parse({ ...stamp, id: 'task', title: '完成专注后的行动' });
-  const occurrence = toDooEntitySchemas.occurrence.parse({ ...stamp, id: 'occ', taskId: task.id, cycleKey: 'single', scheduleRevision: 's1' });
-  const session = toDooEntitySchemas.focusSession.parse({ ...value.data.sessions[0], occurrenceId: occurrence.id });
+  const occurrence = toDooEntitySchemas.occurrence.parse({
+    ...stamp,
+    id: 'occ',
+    taskId: task.id,
+    cycleKey: 'single',
+    scheduleRevision: 's1',
+  });
+  const session = toDooEntitySchemas.focusSession.parse({
+    ...value.data.sessions[0],
+    occurrenceId: occurrence.id,
+  });
   Object.assign(value.state, { selectedTaskId: task.id, selectedOccurrenceId: occurrence.id });
-  Object.assign(value.state.snapshot, { datasetId: 'fixture', tasks: [task], occurrences: [occurrence] });
+  Object.assign(value.state.snapshot, {
+    datasetId: 'fixture',
+    tasks: [task],
+    occurrences: [occurrence],
+  });
   const events: string[] = [];
   const extra = {
-    ensureTask: vi.fn(async () => { events.push('ensure'); return true; }),
-    prepareTaskAction: vi.fn(async () => { events.push('prepare'); return [] as any[]; }),
-    saveTask: vi.fn(async () => { events.push('save'); return true; }),
+    ensureTask: vi.fn(async () => {
+      events.push('ensure');
+      return true;
+    }),
+    prepareTaskAction: vi.fn(async () => {
+      events.push('prepare');
+      return [] as any[];
+    }),
+    saveTask: vi.fn(async () => {
+      events.push('save');
+      return true;
+    }),
     dirty: vi.fn().mockReturnValue(false),
     validateTaskDraft: vi.fn().mockReturnValue(true),
     taskDefinitions: () => value.state.snapshot.tasks,
-    statusChildCount: vi.fn(async () => { events.push('count'); return 0 as number | null; }),
-    setStatus: vi.fn(async () => { events.push('status'); return {}; }),
+    statusChildCount: vi.fn(async () => {
+      events.push('count');
+      return 0 as number | null;
+    }),
+    setStatus: vi.fn(async () => {
+      events.push('status');
+      return {};
+    }),
   };
   const request = value.request;
-  value.request = vi.fn(async (url: string) => url.includes('kind=occurrence')
-    ? { datasetId: 'fixture', occurrences: [occurrence] } : request(url)) as typeof value.request;
+  value.request = vi.fn(async (url: string) =>
+    url.includes('kind=occurrence')
+      ? { datasetId: 'fixture', occurrences: [occurrence] }
+      : request(url),
+  ) as typeof value.request;
   const subjectModel = Object.assign(value, extra);
   const confirm = vi.fn().mockResolvedValue(true);
   const renderer = Vue.createRenderer<any, any>({
-    createComment: () => ({}), createElement: () => ({}), createText: () => ({}),
-    insert() {}, remove() {}, setText() {}, setElementText() {}, patchProp() {},
-    parentNode: () => null, nextSibling: () => null,
+    createComment: () => ({}),
+    createElement: () => ({}),
+    createText: () => ({}),
+    insert() {},
+    remove() {},
+    setText() {},
+    setElementText() {},
+    patchProp() {},
+    parentNode: () => null,
+    nextSibling: () => null,
   });
-  const subject = { ...component('ToDooFocus', confirm, false) as any, render: () => null };
+  const subject = { ...(component('ToDooFocus', confirm, false) as any), render: () => null };
   const app = renderer.createApp(subject, { model: subjectModel });
   const instance = app.mount({});
   cleanups.push(() => app.unmount());
@@ -553,7 +611,11 @@ function completionFixture() {
 
 test('focus completion checks the task draft before resolving the final child scope', async () => {
   const f = completionFixture();
-  f.model.prepareTaskAction.mockResolvedValueOnce([{ key: 'task@occ', taskId: 'task', occurrenceId: 'occ', title: '任务', kind: 'task' }]).mockResolvedValueOnce([]);
+  f.model.prepareTaskAction
+    .mockResolvedValueOnce([
+      { key: 'task@occ', taskId: 'task', occurrenceId: 'occ', title: '任务', kind: 'task' },
+    ])
+    .mockResolvedValueOnce([]);
   await f.setup.completeSessionTask(f.session);
   expect(f.model.prepareTaskAction).toHaveBeenCalledWith(['task'], true);
   expect(f.model.saveTask).toHaveBeenCalledOnce();
@@ -564,7 +626,15 @@ test('focus completion checks the task draft before resolving the final child sc
 
 test('a hidden child draft prevents completing a focus task and leaves its feedback available', async () => {
   const f = completionFixture();
-  f.model.prepareTaskAction.mockResolvedValue([{ key: 'child@other-occ', taskId: 'child', occurrenceId: 'other-occ', title: '子任务', kind: 'task' }]);
+  f.model.prepareTaskAction.mockResolvedValue([
+    {
+      key: 'child@other-occ',
+      taskId: 'child',
+      occurrenceId: 'other-occ',
+      title: '子任务',
+      kind: 'task',
+    },
+  ]);
   await f.setup.completeSessionTask(f.session);
   expect(f.model.saveTask).not.toHaveBeenCalled();
   expect(f.model.statusChildCount).not.toHaveBeenCalled();
@@ -573,14 +643,24 @@ test('a hidden child draft prevents completing a focus task and leaves its feedb
   expect(f.setup.finishedTaskSession.id).toBe(f.session.id);
 });
 
-test.each(['cancel', 'invalid', 'failed', 'new-selection', 'replaced-feedback', 'deactivated'] as const)('focus completion preserves the task for %s', async (reason) => {
+test.each([
+  'cancel',
+  'invalid',
+  'failed',
+  'new-selection',
+  'replaced-feedback',
+  'deactivated',
+] as const)('focus completion preserves the task for %s', async (reason) => {
   const f = completionFixture();
-  f.model.prepareTaskAction.mockResolvedValue([{ key: 'task@occ', taskId: 'task', occurrenceId: 'occ', title: '任务', kind: 'task' }]);
+  f.model.prepareTaskAction.mockResolvedValue([
+    { key: 'task@occ', taskId: 'task', occurrenceId: 'occ', title: '任务', kind: 'task' },
+  ]);
   if (reason === 'invalid') f.model.validateTaskDraft.mockReturnValue(false);
   if (reason === 'failed') f.model.saveTask.mockResolvedValue(false);
   f.confirm.mockImplementation(async () => {
     if (reason === 'new-selection') f.model.state.selectedOccurrenceId = 'other-occ';
-    if (reason === 'replaced-feedback') f.setup.finishedTaskSession = { ...f.session, id: 'other-session' };
+    if (reason === 'replaced-feedback')
+      f.setup.finishedTaskSession = { ...f.session, id: 'other-session' };
     if (reason === 'deactivated') f.setup.visible = false;
     return reason !== 'cancel';
   });
@@ -609,3 +689,281 @@ test('cancelling the descendant confirmation leaves the focused task incomplete'
   expect(f.confirm).toHaveBeenCalledWith(expect.stringContaining('2 个子任务'));
   expect(f.model.setStatus).not.toHaveBeenCalled();
 });
+
+function isolatedFocus(
+  confirm = vi.fn<(_: string) => Promise<boolean>>().mockResolvedValue(true),
+  count = 2,
+) {
+  const subject = Object.assign(model(count), { saveEntity: vi.fn(async () => ({})) });
+  subject.state.snapshot.datasetId = 'fixture';
+  subject.state.snapshot.version = 'same-version';
+  const renderer = Vue.createRenderer<any, any>({
+    createComment: () => ({}),
+    createElement: () => ({}),
+    createText: () => ({}),
+    insert() {},
+    remove() {},
+    setText() {},
+    setElementText() {},
+    patchProp() {},
+    parentNode: () => null,
+    nextSibling: () => null,
+  });
+  const implementation = {
+    ...(component('ToDooFocus', confirm, false) as any),
+    render: () => null,
+  };
+  const onTask = vi.fn();
+  const app = renderer.createApp(implementation, { model: subject, onTask });
+  const instance = app.mount({});
+  cleanups.push(() => app.unmount());
+  const setup = (instance.$ as any).setupState;
+  setup.visible = true;
+  return { subject, setup, confirm, onTask };
+}
+
+async function loadedFocus(confirm?: ReturnType<typeof vi.fn<(_: string) => Promise<boolean>>>) {
+  const fixture = isolatedFocus(confirm);
+  await fixture.setup.load();
+  await fixture.setup.loadTopics();
+  return fixture;
+}
+
+test('rounded history durations never display sixty leftover minutes', async () => {
+  const { setup } = await loadedFocus();
+  expect(setup.duration(119.6)).toBe('2 小时');
+  expect(setup.duration(59.5)).toBe('1 小时');
+  expect(setup.duration(60.4)).toBe('1 小时');
+  expect(setup.duration(61.4)).toBe('1 小时 1 分');
+});
+
+test('a removed selected project is verified and cleared before starting free focus', async () => {
+  const { subject, setup } = await loadedFocus();
+  setup.selectedTopic = 'topic';
+  const native = subject.request.getMockImplementation()!;
+  subject.request.mockImplementation(async (url) =>
+    url.includes('kind=focusTopic') ? { focusTopics: [], page: { nextCursor: null } } : native(url),
+  );
+  await setup.loadTopics();
+  expect(subject.request.mock.calls.some(([url]) => url.includes('ids=topic'))).toBe(true);
+  expect(setup.selectedTopic).toBe('');
+  await setup.start();
+  expect(subject.execute).toHaveBeenCalledWith(
+    expect.objectContaining({
+      action: 'start_focus',
+      payload: expect.objectContaining({ topicId: null }),
+    }),
+    expect.anything(),
+  );
+});
+
+test('a valid selected project on a later catalogue page remains selected after refresh', async () => {
+  const { subject, setup } = await loadedFocus();
+  const topic = { ...setup.allTopics[0], id: 'later-page-topic', name: '后面的项目' };
+  setup.selectedTopic = topic.id;
+  const native = subject.request.getMockImplementation()!;
+  subject.request.mockImplementation(async (url) => {
+    if (!url.includes('kind=focusTopic')) return native(url);
+    const query = new URL(url, 'http://fixture').searchParams;
+    return {
+      focusTopics: query.has('ids') ? [topic] : [],
+      page: { nextCursor: query.has('ids') ? null : 'more' },
+    };
+  });
+  await setup.loadTopics();
+  expect(setup.selectedTopic).toBe(topic.id);
+  expect(setup.selected.name).toBe(topic.name);
+  expect(setup.topicCursor).toBe('more');
+});
+
+test('background project creation never changes an explicit timer project or free-focus choice', async () => {
+  const { subject, setup } = await loadedFocus();
+  setup.selectedTopic = 'topic';
+  const original = setup.allTopics[0];
+  const native = subject.request.getMockImplementation()!;
+  subject.request.mockImplementation(async (url) =>
+    url.includes('kind=focusTopic')
+      ? {
+          focusTopics: [{ ...original, id: 'created-elsewhere', name: '其他窗口创建' }, original],
+          page: { nextCursor: null },
+        }
+      : native(url),
+  );
+  await setup.loadTopics();
+  expect(setup.selectedTopic).toBe('topic');
+  setup.freeFocus();
+  await setup.loadTopics();
+  expect(setup.selectedTopic).toBe('');
+});
+
+test('a dataset replacement reloads focus even when its version string is unchanged and isolates note drafts', async () => {
+  const { subject, setup } = await loadedFocus();
+  subject.data.sessions[0].status = 'running';
+  await setup.load();
+  setup.editActiveNote('原数据里未保存的输入');
+  const originalKey = setup.draftKey(subject.data.sessions[0].id);
+  setup.selectedTopic = 'topic';
+  setup.chosen = 'original-action';
+  setup.topicFilter = 'topic';
+  setup.sourceSessionId = 'source-only';
+  subject.data.sessions = [
+    { ...subject.data.sessions[0], revision: 'new-record', note: '新数据已有内容' },
+  ];
+  subject.data.datasetId = 'replacement';
+  subject.state.snapshot.datasetId = 'replacement';
+  await settle();
+  expect(setup.history.datasetId).toBe('replacement');
+  expect(setup.selectedTopic).toBe('');
+  expect(setup.chosen).toBe('');
+  expect(setup.topicFilter).toBe('');
+  expect(setup.sourceSessionId).toBe('');
+  expect(setup.sessionNote(setup.active)).toBe('新数据已有内容');
+  expect(setup.notes[originalKey]).toBe('原数据里未保存的输入');
+  expect(setup.draftIsCurrent(originalKey)).toBe(false);
+  await setup.saveRetainedNote(originalKey);
+  expect(subject.saveEntity).not.toHaveBeenCalled();
+  setup.editActiveNote('新数据自己的输入');
+  expect(Object.keys(setup.notes)).toHaveLength(2);
+});
+
+test('task navigation finishing after deactivation cannot redirect a later visit', async () => {
+  const { subject, setup, onTask } = await loadedFocus();
+  const session = { ...setup.items[0], occurrenceId: 'action' };
+  let release!: (value: any) => void;
+  const pending = new Promise<any>((resolve) => {
+    release = resolve;
+  });
+  const native = subject.request.getMockImplementation()!;
+  subject.request.mockImplementation((async (url) =>
+    url.includes('kind=occurrence') ? pending : native(url)) as typeof native);
+  const action = setup.viewSessionTask(session);
+  setup.deactivate();
+  setup.visible = true;
+  release({ datasetId: 'fixture', occurrences: [{ id: 'action', taskId: 'task' }] });
+  await action;
+  expect(onTask).not.toHaveBeenCalled();
+});
+
+test.each(['dataset', 'revision', 'visit'] as const)(
+  'a cancellation confirmation cannot write after its %s changes',
+  async (kind) => {
+    let approve!: (value: boolean) => void;
+    const decision = new Promise<boolean>((resolve) => {
+      approve = resolve;
+    });
+    const { subject, setup } = await loadedFocus(vi.fn(async () => decision));
+    subject.data.sessions[0].status = 'running';
+    await setup.load();
+    const cancellation = setup.control('cancel');
+    if (kind === 'dataset') {
+      subject.data.datasetId = 'replacement';
+      subject.state.snapshot.datasetId = 'replacement';
+      await settle();
+    } else if (kind === 'revision')
+      setup.history.active = { ...setup.active, revision: 'changed-elsewhere' };
+    else {
+      setup.deactivate();
+      setup.visible = true;
+    }
+    approve(true);
+    await cancellation;
+    expect(subject.execute).not.toHaveBeenCalled();
+  },
+);
+
+test('saving a correction locks its inputs, close action and replacement editor until the command finishes', async () => {
+  const { subject, setup } = await loadedFocus();
+  setup.correct(setup.items[0]);
+  const id = setup.correction.id;
+  setup.correctedMinutes = 12;
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  subject.execute.mockImplementation(async () => {
+    await gate;
+    return {};
+  });
+  const saving = setup.saveCorrection();
+  expect(setup.focusBusy).toBe(true);
+  setup.closeCorrection();
+  setup.correct(setup.items[1]);
+  expect(setup.correction.id).toBe(id);
+  await setup.saveCorrection();
+  expect(subject.execute).toHaveBeenCalledTimes(1);
+  release();
+  await saving;
+  expect(setup.correction).toBeUndefined();
+});
+
+test('a correction from another dataset remains readable but cannot be submitted there', async () => {
+  const { subject, setup } = await loadedFocus();
+  setup.correct(setup.items[0]);
+  setup.correctedMinutes = 42;
+  subject.data.datasetId = 'replacement';
+  subject.state.snapshot.datasetId = 'replacement';
+  await settle();
+  expect(setup.correctionCurrent).toBe(false);
+  await setup.saveCorrection();
+  expect(subject.execute).not.toHaveBeenCalled();
+  expect(setup.correctedMinutes).toBe(42);
+  expect(setup.correctionError).toContain('输入仍保留');
+});
+
+test('a retained-note read from an earlier dataset cannot save into its replacement', async () => {
+  const { subject, setup } = await loadedFocus();
+  subject.data.sessions[0].status = 'running';
+  await setup.load();
+  const original = setup.active;
+  setup.editActiveNote('原来的草稿');
+  const key = setup.draftKey(original.id);
+  let release!: (value: any) => void;
+  const gate = new Promise<any>((resolve) => {
+    release = resolve;
+  });
+  const native = subject.request.getMockImplementation()!;
+  subject.request.mockImplementation((async (url) =>
+    url.includes('kind=focusSession') ? gate : native(url)) as typeof native);
+  const saving = setup.saveRetainedNote(key);
+  subject.data.datasetId = 'replacement';
+  subject.state.snapshot.datasetId = 'replacement';
+  await settle();
+  release({ datasetId: 'fixture', focusSessions: [original] });
+  await saving;
+  expect(subject.saveEntity).not.toHaveBeenCalled();
+  expect(setup.notes[key]).toBe('原来的草稿');
+});
+
+test('a selected history project outside the catalogue head keeps its readable option on refresh', async () => {
+  const { subject, setup } = await loadedFocus();
+  const topic = { ...setup.allTopics[0], id: 'later-history-project', name: '历史筛选项目' };
+  setup.topicFilter = topic.id;
+  const native = subject.request.getMockImplementation()!;
+  subject.request.mockImplementation(async (url) => {
+    if (!url.includes('kind=focusTopic')) return native(url);
+    return {
+      focusTopics: new URL(url, 'http://fixture').searchParams.has('ids') ? [topic] : [],
+      page: { nextCursor: null },
+    };
+  });
+  await setup.loadTopics();
+  expect(setup.topicFilter).toBe(topic.id);
+  expect(
+    setup.topicOptions.find((option: { value: string }) => option.value === topic.id)?.label,
+  ).toBe(topic.name);
+  expect(setup.selectedTopic).toBe('');
+});
+
+test.each(['paused', 'interrupted'] as const)(
+  'a corrected %s session cannot restart counting or discard its manual correction',
+  async (status) => {
+    const { subject, setup } = await loadedFocus();
+    subject.data.sessions[0].status = status;
+    subject.data.sessions[0].correctedMinutes = 20;
+    await setup.load();
+    await setup.control('resume', setup.items[0]);
+    expect(subject.execute).not.toHaveBeenCalled();
+    expect(subject.state.error).toContain('已修正');
+    expect(setup.items[0].correctedMinutes).toBe(20);
+  },
+);

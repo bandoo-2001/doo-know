@@ -482,13 +482,13 @@ async function main() {
   if (command === 'uninstall') {
     await managementLock(config, async () => {
       const purge = values.purge ? prepareUninstallPurge(config) : undefined;
-      const unit = join(
+      let unit = join(
         process.env.XDG_CONFIG_HOME || join(homedir(), '.config'),
         'systemd/user',
         unitName(config),
       );
       const ownsUnit = existsSync(unit);
-      if (ownsUnit) assertServiceOwnership(config);
+      if (ownsUnit) unit = assertServiceOwnership(config);
       const instance = readInstance(config.dataRoot);
       if (instance && instance.profile_file !== profileFile) throw Error('数据库属于另一配置');
       if (activeDatabaseProcesses(config.dataRoot).some((p) => p.pid !== instance?.pid))
@@ -500,7 +500,7 @@ async function main() {
       purge?.();
       if (ownsUnit) {
         systemctl(['disable', unitName(config)]);
-        unlinkSync(unit);
+        if (existsSync(unit)) unlinkSync(unit);
         systemctl(['daemon-reload']);
       }
       if (config.installRoot) {

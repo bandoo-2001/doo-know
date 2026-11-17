@@ -7,6 +7,7 @@ import {
   Textarea as ATextarea,
 } from 'ant-design-vue';
 import ToDooSelect from './ToDooSelect.vue';
+import ToDooIcon from './ToDooIcon.vue';
 import ToDooDisclosure from './ToDooDisclosure.vue';
 import ToDooFormLayout from './ToDooFormLayout.vue';
 import ToDooMarkdownPreview from './ToDooMarkdownPreview.vue';
@@ -193,7 +194,7 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || busy.value });
       aria-label="收起成果笔记表单并保留输入"
       @click="emit('close')"
       :disabled="busy"
-      >×</AButton
+      ><ToDooIcon name="close" :size="16" /></AButton
     >
 
     <p>

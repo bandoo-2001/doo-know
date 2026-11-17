@@ -2,6 +2,7 @@
 import { Button as AButton, InputNumber as AInputNumber } from 'ant-design-vue';
 import ToDooSelect from './ToDooSelect.vue';
 import ToDooDateField from './ToDooDateField.vue';
+import ToDooIcon from './ToDooIcon.vue';
 import type { ToDooTask } from '../../../../shared/to-doo-contracts';
 type Rule = ToDooTask['reminders'][number];
 const props = withDefaults(defineProps<{ modelValue: Rule[]; dateBased?: boolean }>(), {
@@ -49,7 +50,8 @@ function add() {
           </ToDooSelect></label
         ><AButton
           type="text"
-          class="todo-icon-button"
+          html-type="button"
+          class="todo-icon-button todo-reminder-remove"
           aria-label="移除这一条提醒"
           @click="
             emit(
@@ -58,7 +60,7 @@ function add() {
             )
           "
         >
-          ×
+          <ToDooIcon name="close" :size="16" />
         </AButton>
       </div>
       <div class="todo-form-grid">
@@ -81,8 +83,27 @@ function add() {
         /></label>
       </div>
     </div>
-    <AButton type="link" class="todo-link" :disabled="modelValue.length >= 20" @click="add">
-      ＋ 添加提醒
+    <AButton
+      type="link"
+      html-type="button"
+      class="todo-link"
+      :disabled="modelValue.length >= 20"
+      @click="add"
+    >
+      <ToDooIcon name="plus" :size="14" />添加提醒
     </AButton>
   </fieldset>
 </template>
+<style scoped>
+.todo-reminder-editor > .todo-between {
+  align-items: flex-end;
+}
+.todo-reminder-remove {
+  flex: 0 0 auto;
+  width: var(--todo-control-height);
+  min-width: var(--todo-control-height);
+  height: var(--todo-control-height);
+  min-height: var(--todo-control-height);
+  margin-block-end: 0;
+}
+</style>

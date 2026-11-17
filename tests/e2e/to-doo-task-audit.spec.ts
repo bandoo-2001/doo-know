@@ -48,7 +48,7 @@ test('board scope remains visible and column creation saves initial status and c
   await expectToDooSelection(detail, '初始状态', '进行中');
   await expect(detail.getByLabel('计划时间', { exact: true })).toHaveValue('');
   await selectToDooOption(detail, '重复', '每天');
-  await detail.getByRole('button', { name: '＋ 添加提醒', exact: true }).click();
+  await detail.getByRole('button', { name: '添加提醒', exact: true }).click();
   await selectToDooOption(detail, '提醒依据', '计划时间');
   await detail.getByRole('button', { name: '创建任务', exact: true }).click();
   await expect(detail.getByRole('button', { name: '创建任务', exact: true })).not.toBeVisible();
@@ -147,8 +147,8 @@ test('mobile task tools and dates stay readable with board jumps and four visibl
     .click();
   const dates = app(page).locator('.todo-task-dates').first();
   await expect(dates).toBeVisible();
-  await expect(dates).toContainText('计划');
-  await expect(dates).toContainText('截止');
+  await expect(dates).toHaveAttribute('aria-label', /计划/);
+  await expect(dates).toHaveAttribute('aria-label', /截止/);
   await page.screenshot({
     path: info.outputPath('mobile-board.png'),
     fullPage: true,

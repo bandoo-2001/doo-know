@@ -11,6 +11,7 @@ import * as actionGuards from '../apps/web/to-doo-action-guard';
 import * as draftValidation from '../apps/web/to-doo-draft-validation';
 import * as groups from '../apps/web/to-doo-task-groups';
 import * as menus from '../apps/web/to-doo-menu';
+import * as listTree from '../apps/web/to-doo-list-tree';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
 import {
   TO_DOO_COLLECTIONS,
@@ -54,6 +55,7 @@ function component(name: string): Vue.Component {
       if (id === '../../to-doo-presentation') return presentation;
       if (id === '../../to-doo-task-groups') return groups;
       if (id === '../../to-doo-menu') return menus;
+      if (id === '../../to-doo-list-tree') return listTree;
       if (id === 'ant-design-vue') return toDooAntStubs;
       if (id.endsWith('/to-doo-controls')) return controls;
       if (id.endsWith('/to-doo-action-guard')) return actionGuards;
@@ -1237,10 +1239,38 @@ test('optional metadata switches preserve task status, plan and overdue deadline
   expect(row.byClass('todo-task-date')).toHaveLength(2);
   expect(row.text(row.byClass('todo-task-dates')[0])).toContain('计划');
   expect(row.text(row.byClass('todo-task-dates')[0])).toContain('截止');
+  expect(row.byClass('todo-task-dates')[0].props['aria-label']).toContain('计划');
+  expect(row.byClass('todo-task-dates')[0].props['aria-label']).toContain('截止');
   expect(row.byClass('todo-danger')).toHaveLength(1);
   expect(JSON.stringify(item)).toBe(before);
 });
 
+
+test.each([
+  ['same day', '2026-10-30', '10:00', '2026-10-30', '17:30', '今天10:00–17:30'],
+  ['different days', '2026-10-30', '10:00', '2026-10-31', '17:30', '计划今天10:00截止明天17:30'],
+  ['untimed start', '2026-10-30', null, '2026-10-31', '17:30', '计划今天截止明天17:30'],
+  ['same point', '2026-10-30', '10:00', '2026-10-30', '10:00', '计划/截止今天10:00'],
+  ['deadline only', null, null, '2026-10-30', '17:30', '截止今天17:30'],
+  ['plan only', '2026-10-30', '10:00', null, null, '计划今天10:00'],
+])('task date presentation uses a compact range for %s without mutating dates', (_case, planDate, planTime, dueDate, dueTime, expected) => {
+  vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-30T08:00:00Z'));
+  const base = model().items()[0];
+  const stamp = { revision: 'r1', createdAt: '2026-10-29T08:00:00Z', updatedAt: '2026-10-29T08:00:00Z' };
+  const item = { ...base, status: 'todo' as const,
+    task: toDooEntitySchemas.task.parse({ ...base.task, recurrence: null }),
+    occurrence: { ...base.occurrence!, status: 'todo' as const, due: dueDate ? { date: dueDate, time: dueTime, timeZone: 'UTC' } : null },
+    blocks: planDate ? [toDooEntitySchemas.timeBlock.parse({ ...stamp, id: 'range-block', occurrenceId: base.occurrence!.id,
+      start: { date: planDate, time: planTime, timeZone: 'UTC' }, durationMinutes: 30 })] : [],
+  };
+  const original = JSON.stringify(item);
+  const row = mount('ToDooTaskRow', { item, today: '2026-10-30', timeZone: 'UTC' });
+  const dateGroup = row.byClass('todo-task-dates')[0];
+  expect(row.text(dateGroup).replace(/\s/g, '')).toBe(expected);
+  expect(dateGroup.props['aria-label']).toContain(planDate ? '计划' : '截止');
+  if (dueDate) expect(dateGroup.props['aria-label']).toContain('截止');
+  expect(JSON.stringify(item)).toBe(original);
+});
 
 test('display field choices survive remount and only hide the selected optional field', async () => {
   const saved = new Map<string, string>();

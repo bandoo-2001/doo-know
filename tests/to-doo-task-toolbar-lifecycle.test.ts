@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import * as listTree from '../apps/web/to-doo-list-tree';
 import { compileScript, parse } from '@vue/compiler-sfc';
 import ts from 'typescript';
 import * as Vue from 'vue';
@@ -49,6 +50,7 @@ function fixture(section: 'tasks' | 'board' = 'tasks') {
       if (id.endsWith('/to-doo-presentation')) return presentation;
       if (id.endsWith('/to-doo-task-groups')) return groups;
       if (id.endsWith('/to-doo-controls')) return controls;
+      if (id.endsWith('/to-doo-list-tree')) return listTree;
       if (id.endsWith('/to-doo-action-guard')) return actionGuards;
       if (id.endsWith('/to-doo-display-preferences')) return displayPreferences;
       if (id === 'ant-design-vue') return { ...toDooAntStubs, Popover };

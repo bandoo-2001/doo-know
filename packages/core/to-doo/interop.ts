@@ -75,6 +75,7 @@ export function exportPortableJson(
     includeSettings?: boolean;
   } = {},
 ): string {
+  const exportedListIds = new Set(snapshot.lists.map((list) => list.id));
   const entities: PortableEntity[] =
     extra.includeSettings === false
       ? []
@@ -82,8 +83,18 @@ export function exportPortableJson(
   for (const [kind, collection] of Object.entries(TO_DOO_COLLECTIONS))
     for (const entity of (snapshot as unknown as Record<string, Record<string, unknown>[]>)[
       collection
-    ] ?? [])
-      entities.push({ kind: kind as ToDooEntityKind, entity, sha256: hash(entity) });
+    ] ?? []) {
+      // A selected child remains portable without pulling its omitted parent into the package.
+      const portableEntity =
+        kind === 'list' && entity.parentId && !exportedListIds.has(String(entity.parentId))
+          ? { ...entity, parentId: null }
+          : entity;
+      entities.push({
+        kind: kind as ToDooEntityKind,
+        entity: portableEntity,
+        sha256: hash(portableEntity),
+      });
+    }
   const base = {
     format: 'dooknow.to-doo' as const,
     version: 1 as const,
@@ -925,6 +936,43 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
     );
     return preview;
   }
+  function importCheckpointFor(
+    preview: StoredPreview,
+    entries: ImportEntry[],
+    first = true,
+    last = true,
+  ): ToDooCheckpoint | undefined {
+    const portable = preview.package;
+    if (!portable || (!portable.checkpoint && !portable.assets.length)) return;
+    const original = portable.checkpoint ?? {
+      format: 1 as const,
+      appId: 'to-doo' as const,
+      // A portable subset carries content, not authority to replace this dataset's identity.
+      datasetId: all().datasetId,
+      createdAt: portable.createdAt,
+      transactions: [],
+      receipts: [],
+      assets: portable.assets.map((asset) => ({ hash: asset.sha256, data: asset.content })),
+    };
+    const { digest: _digest, ...source } = original as ToDooCheckpoint;
+    const payload = {
+      ...source,
+      entities: entries.map((item) => ({
+        kind: item.kind,
+        entity: toDooEntitySchemas[item.kind].parse({
+          revision: 'import_' + hash([preview.id, item.kind, item.entity.id]).slice(0, 40),
+          createdAt: preview.createdAt,
+          updatedAt: preview.createdAt,
+          ...item.entity,
+        }),
+      })),
+      transactions: last ? original.transactions : [],
+      receipts: last ? original.receipts : [],
+      // Restore immutable bytes with the first batch so imported image references can render.
+      assets: first ? original.assets : [],
+    };
+    return { ...payload, digest: hash(checkpointCanonical(payload)) } as ToDooCheckpoint;
+  }
   function applyImport(input: { previewId: string; requestId: string }) {
     checkImportGuard(input.previewId);
     const row = db
@@ -966,16 +1014,8 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
       });
       return importStatus(preview.id);
     }
-    if (preview.package?.checkpoint) {
-      const { digest, ...payload } = preview.package.checkpoint;
-      const selected = {
-        ...payload,
-        entities: preview.items.map((item) => ({ kind: item.kind, entity: item.entity })),
-      };
-      const checkpoint = {
-        ...selected,
-        digest: hash(checkpointCanonical(selected)),
-      } as ToDooCheckpoint;
+    const checkpoint = importCheckpointFor(preview, preview.items);
+    if (checkpoint) {
       const result = service.importCheckpoint(checkpoint, input.requestId, {
         expectedRevisions: Object.fromEntries(
           preview.items
@@ -1100,26 +1140,15 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
               'import_batch_' +
               hash([job.request_id, preview.fingerprint, job.offset]).slice(0, 40);
             let result;
-            if (preview.package?.checkpoint) {
-              const { digest, ...original } = preview.package.checkpoint;
-              const payload = {
-                ...original,
-                entities: batch.map((item) => ({ kind: item.kind, entity: item.entity })),
-                transactions: last ? original.transactions : [],
-                receipts: last ? original.receipts : [],
-                assets: last ? original.assets : [],
-              };
-              result = service.importCheckpoint(
-                { ...payload, digest: hash(checkpointCanonical(payload)) } as ToDooCheckpoint,
-                requestId,
-                {
-                  expectedRevisions: Object.fromEntries(
-                    batch
-                      .filter((item) => item.expectedRevision)
-                      .map((item) => [item.kind + ':' + item.entity.id, item.expectedRevision!]),
-                  ),
-                },
-              );
+            const checkpoint = importCheckpointFor(preview, batch, job.offset === 0, last);
+            if (checkpoint) {
+              result = service.importCheckpoint(checkpoint, requestId, {
+                expectedRevisions: Object.fromEntries(
+                  batch
+                    .filter((item) => item.expectedRevision)
+                    .map((item) => [item.kind + ':' + item.entity.id, item.expectedRevision!]),
+                ),
+              });
             } else
               result = service.command({
                 requestId,
@@ -1522,6 +1551,7 @@ function copyPortableEntities(entries: PortableEntity[], jobId: string): Portabl
       : value;
   const kindByField: Record<string, ToDooEntityKind> = {
     listId: 'list',
+    parentId: 'list',
     sectionId: 'section',
     taskId: 'task',
     parentTaskId: 'task',
@@ -1622,11 +1652,13 @@ function orderImportEntries(entries: ImportEntry[]): ImportEntry[] {
     if (visiting.has(key)) throw new ToDooInteropError('Import contains a relationship cycle');
     visiting.add(key);
     const parent =
-      entry.kind === 'task'
-        ? entry.entity.parentTaskId
-        : entry.kind === 'occurrence'
-          ? entry.entity.parentOccurrenceId
-          : null;
+      entry.kind === 'list'
+        ? entry.entity.parentId
+        : entry.kind === 'task'
+          ? entry.entity.parentTaskId
+          : entry.kind === 'occurrence'
+            ? entry.entity.parentOccurrenceId
+            : null;
     if (parent) {
       const item = mapped.get(entry.kind + ':' + parent);
       if (item) visit(item);

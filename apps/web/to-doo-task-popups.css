@@ -1,0 +1,411 @@
+/* Task popovers live beside the document body; keep their form layout complete. */
+.todo-property-modal .ant-modal-content {
+  border: 1px solid var(--todo-line);
+  border-radius: 16px;
+  background: var(--todo-paper);
+  box-shadow: 0 20px 64px rgb(21 32 58 / 16%);
+}
+.todo-property-modal .ant-modal-content .ant-modal-header {
+  margin-bottom: 12px;
+  padding-right: 28px;
+  background: transparent;
+}
+.todo-property-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: var(--todo-ink);
+  font-size: 16px;
+  font-weight: 600;
+}
+.todo-property-heading-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border-radius: 12px;
+  color: var(--todo-accent);
+  background: var(--todo-tint);
+}
+.todo-property-intro {
+  margin: 0 0 20px;
+  color: var(--todo-muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+.todo-property-modal fieldset.todo-detail-options {
+  margin: 0;
+  padding: 0 2px 2px;
+  border: 0;
+  gap: 18px;
+}
+.todo-property-modal .todo-detail-options > .todo-ant-collapse {
+  border: 0;
+  background: transparent;
+}
+.todo-property-modal .todo-form,
+.todo-property-modal .todo-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.todo-property-modal .todo-form label:not(.todo-checkbox):not(.ant-checkbox-wrapper) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 7px;
+  color: var(--todo-ink);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.todo-property-modal .todo-form label > :is(.ant-select, .ant-picker, .ant-input-number) {
+  width: 100%;
+  min-width: 0;
+}
+.todo-property-modal :is(.todo-form-grid, .todo-document-meta) {
+  gap: 16px;
+}
+.todo-property-modal .todo-checkbox {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--todo-soft);
+}
+.todo-property-modal .todo-repeat-advanced {
+  margin-top: 2px;
+  padding: 0 12px;
+  border: 1px solid var(--todo-line);
+  border-radius: 10px;
+  background: var(--todo-soft);
+}
+.todo-property-modal .todo-repeat-advanced .ant-collapse-content {
+  background: transparent;
+}
+.todo-property-modal .todo-repeat-advanced-fields {
+  padding-bottom: 14px;
+}
+.todo-property-modal .todo-fieldset {
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.todo-property-modal .todo-fieldset > legend {
+  display: none;
+}
+.todo-property-modal .todo-reminder-editor {
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--todo-line);
+  border-radius: 10px;
+  background: var(--todo-soft);
+}
+.todo-property-modal .todo-reminder-editor > .todo-between {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.todo-property-modal .todo-reminder-editor > .todo-between > label {
+  flex: 1;
+}
+.todo-property-modal .todo-reminder-editor small {
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+.todo-property-modal .todo-notes > .todo-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.todo-property-modal .todo-notes > .todo-between h3 {
+  margin: 0;
+  color: var(--todo-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+.todo-property-modal .todo-notes > p {
+  margin: 0;
+  padding: 28px 16px;
+  border: 1px dashed var(--todo-line);
+  border-radius: 10px;
+  text-align: center;
+  background: var(--todo-soft);
+}
+.todo-property-modal .todo-property-empty {
+  margin: 0;
+  padding: 24px 16px;
+  border: 1px dashed var(--todo-line);
+  border-radius: 10px;
+  color: var(--todo-muted);
+  text-align: center;
+  background: var(--todo-soft);
+  font-size: 13px;
+}
+.todo-property-modal .todo-note-picker {
+  max-height: 360px;
+  padding: 12px;
+  border: 1px solid var(--todo-line);
+  border-radius: 10px;
+  background: var(--todo-soft);
+}
+.todo-property-modal .todo-note-picker .ant-btn {
+  width: 100%;
+  min-height: 40px;
+  height: auto;
+  align-items: flex-start;
+  text-align: start;
+  white-space: normal;
+}
+.todo-property-modal .todo-note-picker .ant-btn small {
+  display: block;
+  color: var(--todo-muted);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.todo-property-modal .todo-property-footer {
+  gap: 10px;
+  margin-top: 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--todo-line);
+}
+.todo-property-modal .todo-property-footer > span {
+  flex: 1 0 100%;
+  margin-bottom: 2px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.todo-property-modal .todo-property-footer .ant-btn {
+  min-width: 94px;
+}
+.todo-task-properties-menu .ant-dropdown-menu {
+  width: 220px;
+  max-height: min(560px, calc(100dvh - 40px));
+  padding: 6px;
+  overflow-y: auto;
+  border: 1px solid var(--todo-line);
+  border-radius: 12px;
+}
+.todo-task-properties-menu .ant-dropdown-menu-item {
+  min-height: 36px;
+  padding: 8px 10px;
+  border-radius: 7px;
+}
+.todo-task-properties-menu .ant-dropdown-menu-title-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.todo-task-properties-menu .ant-dropdown-menu-title-content > svg {
+  color: var(--todo-muted);
+}
+
+/* One continuous surface joins the create action to its draft menu. */
+.to-doo-workspace .todo-actions .todo-task-create-actions {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 0;
+  isolation: isolate;
+}
+.to-doo-workspace .todo-task-create-actions > .ant-btn {
+  height: var(--todo-control-height);
+  min-height: var(--todo-control-height);
+  margin: 0;
+  padding-block: 0;
+}
+.to-doo-workspace .todo-task-create-actions.todo-has-drafts > .todo-task-create-primary {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+.to-doo-workspace .todo-task-create-actions > .todo-task-drafts-trigger {
+  width: 34px;
+  min-width: 34px;
+  margin-inline-start: -1px;
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+.to-doo-workspace .todo-task-list-create > .todo-task-drafts-trigger {
+  border-inline-start-color: var(--todo-line);
+}
+.to-doo-workspace .todo-task-create-actions > .ant-btn:is(:hover, :focus-visible) {
+  z-index: 1;
+}
+/* Ant's physical radius must agree with the logical inside corners. */
+.to-doo-workspace .todo-page-heading .todo-task-create-actions.todo-has-drafts > .ant-btn.todo-task-create-primary {
+  border-radius: var(--todo-control-radius) 0 0 var(--todo-control-radius);
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+.to-doo-workspace .todo-page-heading .todo-task-create-actions.todo-has-drafts > .ant-btn.todo-task-drafts-trigger {
+  border-radius: 0 var(--todo-control-radius) var(--todo-control-radius) 0;
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
+/* Outline arrows share the same SVG geometry and their controls' actual center. */
+.to-doo-workspace .todo-task-list-panel .todo-task-group-heading {
+  padding-block: 8px;
+}
+.to-doo-workspace .todo-task-list-panel .todo-group-toggle.ant-btn {
+  min-height: var(--todo-icon-button-size);
+  padding-block: 0;
+}
+.to-doo-workspace .todo-task-list-panel .todo-group-toggle h2 {
+  margin: 0;
+}
+.to-doo-workspace .todo-task-list-panel .todo-outline-chevron {
+  display: block;
+  flex: none;
+  transition: transform var(--todo-motion-fast) ease;
+}
+.to-doo-workspace .todo-task-list-panel [aria-expanded='true'] > .todo-outline-chevron {
+  transform: rotate(90deg);
+}
+.to-doo-workspace .todo-task-list-panel .todo-collapse.ant-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: var(--todo-collapse-center, 50%);
+  transform: translateY(-50%);
+  width: 16px;
+  min-width: 16px;
+  height: var(--todo-icon-button-size);
+  min-height: var(--todo-icon-button-size);
+  padding: 0;
+  line-height: 1;
+  border-radius: 5px;
+}
+
+.todo-task-display-popup .ant-popover-inner {
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--todo-line);
+  border-radius: 14px;
+  background: var(--todo-paper);
+  box-shadow: 0 12px 36px rgb(21 32 58 / 14%);
+}
+.todo-task-display-popup .todo-task-display-form {
+  width: min(352px, calc(100vw - 32px));
+  max-height: min(760px, calc(100dvh - 96px));
+  gap: 0;
+}
+.todo-task-display-heading {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 18px 16px;
+  border-bottom: 1px solid var(--todo-line);
+}
+.todo-task-display-heading > svg {
+  color: var(--todo-accent);
+}
+.todo-task-display-heading strong,
+.todo-task-display-heading span {
+  display: block;
+}
+.todo-task-display-heading strong {
+  color: var(--todo-ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+.todo-task-display-heading span {
+  margin-top: 3px;
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+.todo-task-display-popup .todo-task-display-options {
+  gap: 16px;
+  padding: 18px;
+}
+.todo-task-display-popup .todo-task-display-options > label:not(.ant-checkbox-wrapper) {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+.todo-task-display-popup .todo-display-completed {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--todo-soft);
+  font-size: 13px;
+}
+.todo-task-display-popup .todo-task-display-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 14px 0 0;
+  border: 0;
+  border-top: 1px solid var(--todo-line);
+}
+.todo-task-display-popup .todo-task-display-fields legend {
+  padding: 0 8px 0 0;
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+.todo-task-display-popup .todo-task-display-fields .ant-checkbox-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  font-size: 13px;
+}
+.todo-task-display-section-label {
+  margin: 4px 0 8px;
+  color: var(--todo-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.todo-task-display-popup .todo-task-management-options {
+  padding-top: 14px;
+}
+.todo-task-display-popup .todo-task-management-options .ant-menu {
+  margin-inline: -8px;
+  border-inline-end: 0;
+  background: transparent;
+}
+.todo-task-display-popup .todo-task-management-options :is(.ant-menu-item, .ant-menu-submenu-title) {
+  min-height: 36px;
+  height: auto;
+  margin: 2px 0;
+  padding-inline: 10px;
+  border-radius: 7px;
+  line-height: 36px;
+  font-size: 13px;
+}
+.todo-task-display-popup .todo-task-display-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 18px;
+  border-top: 1px solid var(--todo-line);
+  background: var(--todo-paper);
+}
+@media (max-width: 600px) {
+  .todo-property-modal .ant-modal-content {
+    border-radius: 12px;
+  }
+  .todo-property-modal .todo-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .todo-property-modal .todo-property-footer .ant-btn {
+    flex: 1;
+    min-width: 0;
+  }
+  .todo-task-display-popup .todo-task-display-form {
+    max-height: calc(100dvh - 80px);
+  }
+}

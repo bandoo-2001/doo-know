@@ -7,6 +7,8 @@ import * as workbench from '../apps/web/to-doo-workbench';
 import * as controls from '../apps/web/to-doo-controls';
 import * as groups from '../apps/web/to-doo-task-groups';
 import * as actionGuards from '../apps/web/to-doo-action-guard';
+import * as listTree from '../apps/web/to-doo-list-tree';
+import * as toDooContracts from '../shared/to-doo-contracts';
 import lunar from 'lunar-javascript';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
 
@@ -23,6 +25,15 @@ const SlotBoundary = Vue.defineComponent({
     () =>
       Vue.h('div', attrs, [slots.default?.(), slots.actions?.()]),
 });
+function listAppearanceComponent() {
+  const { descriptor } = parse(readFileSync(new URL('../apps/web/components/to-doo/ToDooListAppearance.vue', import.meta.url), 'utf8'));
+  const script = compileScript(descriptor, { id: 'list-appearance', inlineTemplate: true });
+  const compiled = ts.transpileModule(script.content, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
+  const output = { exports: {} as any };
+  new Function('require', 'module', 'exports', compiled)((id: string) => id === 'vue' ? Vue : { default: SlotBoundary }, output, output.exports);
+  return output.exports.default;
+}
+const ListAppearance = listAppearanceComponent();
 
 function editor(
   listId: string | null,
@@ -30,6 +41,7 @@ function editor(
     kind: string;
     seed?: Record<string, any>;
     entity?: Record<string, any>;
+    lists?: { id: string; name: string; parentId?: string | null; archivedAt?: string | null }[];
     render?: boolean;
     confirm?: (message: string, options?: { title?: string; danger?: boolean }) => Promise<boolean>;
     occurrence?: { id: string; taskId: string; revision: string; deletedAt?: string | null };
@@ -55,7 +67,11 @@ function editor(
         ? { ...controls, useToDooConfirm: () => options.confirm } : controls;
       if (id === '../../to-doo-task-groups') return groups;
       if (id === '../../to-doo-action-guard') return actionGuards;
+      if (id === '../../to-doo-list-tree') return listTree;
+      if (id === '../../../../shared/to-doo-contracts') return toDooContracts;
+      if (id.endsWith('.css')) return {};
       if (id === 'ant-design-vue') return options?.render ? toDooAntStubs : {};
+      if (id.endsWith('ToDooListAppearance.vue')) return { default: ListAppearance };
       if (id.endsWith('.vue'))
         return options?.render ? { default: toDooBoundaryStub(id) || SlotBoundary } : {};
       throw Error(`Unexpected entity dependency: ${id}`);
@@ -121,13 +137,15 @@ function editor(
         datasetId: 'test',
         settings: { timeZone: 'UTC' },
         occurrences: (options?.occurrence ? [{ ...options.occurrence }] : []) as { id: string; taskId: string; revision: string; deletedAt?: string | null }[],
-        lists: [{ id: 'list-1', name: 'Goal' }],
+        lists: options?.lists || [{ id: 'list-1', name: 'Goal' }],
       },
       selectedTaskId: 'task-a',
       selectedOccurrenceId: 'occ-a',
       error: '',
     }),
     saveEntity,
+    taskLists() { return this.state.snapshot.lists; },
+    ensureListCatalog: vi.fn(async () => {}),
     prepareTaskAction: vi.fn(async () => [] as workbench.ToDooActionDraft[] | null),
     taskDefinitions: vi.fn(() => []),
     validateTaskDraft: vi.fn(() => true),
@@ -193,6 +211,18 @@ describe('section editor required list', () => {
     } finally {
       form.unmount();
     }
+  });
+});
+
+describe('list hierarchy editor', () => {
+  it('saves the selected parent, emoji and color with the existing revision', async () => {
+    const value = editor(null, { kind: 'list', entity: { id: 'child', name: 'Reading', kind: 'list', revision: 'before', parentId: null, icon: null }, lists: [{ id: 'root', name: 'Growth' }] });
+    try {
+      Object.assign(value.form, { parentId: 'root', icon: '📚', color: '#4f8c7a' });
+      await value.save();
+      expect(value.model.saveEntity).toHaveBeenCalledWith('list', expect.objectContaining({ parentId: 'root', icon: '📚', color: '#4f8c7a' }), 'before');
+      expect(value.closed).toHaveBeenCalledOnce();
+    } finally { value.unmount(); }
   });
 });
 
@@ -434,7 +464,7 @@ it.each([
   try {
     const input = value.all().find((node) => node.tag === 'input' && node.props.type === 'color');
     expect(input).toBeDefined();
-    expect(input?.props['aria-label']).toBe('颜色');
+    expect(input?.props['aria-label']).toBe(kind === 'list' ? '自定义清单颜色' : '颜色');
     expect(input?.props.value).toBe(initialColor);
     input!.props.onInput({ target: { value: '#81c784' } });
     await Vue.nextTick();

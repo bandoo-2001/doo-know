@@ -34,6 +34,7 @@ function component(): Vue.Component {
     (id: string) => {
       if (id === 'vue') return Vue;
       if (id === 'ant-design-vue') return toDooAntStubs;
+      if (id.endsWith('ToDooIcon.vue')) return { default: Vue.defineComponent({ render: () => Vue.h('svg') }) };
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };
       throw Error('Unexpected reminder editor dependency: ' + id);

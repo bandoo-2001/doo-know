@@ -17,6 +17,7 @@ import * as push from '../apps/web/to-doo-push';
 import * as calendarLayout from '../apps/web/to-doo-calendar-layout';
 import * as clock from '../apps/web/to-doo-time';
 import * as taskGroups from '../apps/web/to-doo-task-groups';
+import * as listTree from '../apps/web/to-doo-list-tree';
 import * as anniversaries from '../shared/to-doo-anniversaries';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
 import { TO_DOO_COLLECTIONS, toDooEntitySchemas } from '../shared/to-doo-contracts';
@@ -33,10 +34,14 @@ const cleanups: (() => void)[] = [];
 let settingsTimeZone: string | undefined;
 let invalidTaskInput = false;
 let taskValidationCalls = 0;
+let linkedRhythmBoundary = false;
+let linkedFocusRead: ((id: string) => Promise<ReturnType<typeof snapshot>>) | undefined;
 beforeEach(() => {
   settingsTimeZone = undefined;
   invalidTaskInput = false;
   taskValidationCalls = 0;
+  linkedRhythmBoundary = false;
+  linkedFocusRead = undefined;
   vi.stubGlobal('document', {
     querySelector: () => null,
     querySelectorAll: () => [],
@@ -137,6 +142,7 @@ function component(path: string): Vue.Component {
       if (id.endsWith('/to-doo-calendar-layout')) return calendarLayout;
       if (id.endsWith('/to-doo-time')) return clock;
       if (id.endsWith('/to-doo-task-groups')) return taskGroups;
+      if (id.endsWith('/to-doo-list-tree')) return listTree;
       if (id.endsWith('/to-doo-anniversaries')) return anniversaries;
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };
@@ -147,6 +153,8 @@ function component(path: string): Vue.Component {
       if (id === '../api')
         return {
           api: async (url: string) => {
+            if (url.startsWith('/api/to-doo/state?kind=focusSession&ids=') && linkedFocusRead)
+              return linkedFocusRead(new URL(url, 'http://fixture').searchParams.get('ids') || '');
             if (url.startsWith('/api/to-doo/state?')) return snapshot();
             if (url === '/api/to-doo/push') return { devices: [], enabled: false };
             if (
@@ -160,7 +168,7 @@ function component(path: string): Vue.Component {
           },
         };
       if (
-        /ToDoo(Navigation|Settings|Icon|PageHeader|PageToolbar|FormLayout|Calendar)\.vue$/.test(id)
+        /ToDoo(Navigation|Settings|Icon|ListIcon|PageHeader|PageToolbar|FormLayout|Calendar)\.vue$/.test(id)
       )
         return {
           __esModule: true,
@@ -184,6 +192,17 @@ function component(path: string): Vue.Component {
                 'data-creating': props.creating,
               });
             },
+          }),
+        };
+      if (id.endsWith('ToDooRhythm.vue') && linkedRhythmBoundary)
+        return {
+          __esModule: true,
+          default: Vue.defineComponent({
+            inheritAttrs: false,
+            setup: (_, { attrs }) => () => Vue.h('button', {
+              'aria-label': '查看习惯来源专注',
+              onClick: () => (attrs.onFocusSession as (id: string) => void)('linked-focus'),
+            }, '查看习惯来源专注'),
           }),
         };
       if (id.endsWith('.vue'))
@@ -734,6 +753,52 @@ function splitNavigation(section: ToDooAppSection = 'tasks', extra: Record<strin
 }
 
 describe('desktop module rail and task directory', () => {
+  it('list folders collapse independently from navigation and selecting a child reveals its ancestors', async () => {
+    const select = vi.fn();
+    const base = snapshot().lists[0];
+    const extra = Vue.reactive({
+      layout: 'split', quickView: 'all', listId: 'work',
+      lists: [
+        { ...base, parentId: null, icon: 'folder' },
+        { ...base, id: 'child', name: '产品设计', parentId: 'work', icon: '🎨' },
+        { ...base, id: 'nested', name: '交互细节', parentId: 'child', icon: 'dot' },
+      ],
+      items: pinnableNavigationItems, listLoading: false, listError: false, hasMoreLists: false,
+      onList: select,
+    });
+    const view = mount('tasks', false, component('to-doo/ToDooNavigation'), extra);
+    await settled();
+    const directory = view.byClass('todo-task-directory')[0];
+    namedNavigationButton(view, directory, '折叠清单 工作清单').props.onClick();
+    await settled();
+    expect(view.byClass('todo-nav-list-row').map(row => row.props['data-list-id'])).toEqual(['work']);
+    expect(select).not.toHaveBeenCalled();
+    expect(namedNavigationButton(view, directory, '工作清单').props['aria-current']).toBe('page');
+    extra.listId = 'nested';
+    await settled();
+    expect(view.byClass('todo-nav-list-row').map(row => row.props['data-list-id'])).toEqual(['work', 'child', 'nested']);
+    expect(namedNavigationButton(view, directory, '交互细节').props['aria-current']).toBe('page');
+    expect(namedNavigationButton(view, directory, '折叠清单 工作清单').props['aria-expanded']).toBe(true);
+    namedNavigationButton(view, directory, '产品设计').props.onClick();
+    expect(select).toHaveBeenCalledExactlyOnceWith('child');
+  });
+
+  it('list icons retain their chosen color and render arbitrary imported icon text without HTML', async () => {
+    const extra = Vue.reactive({ list: { color: '#cd7755', icon: 'dot' }, size: 24 });
+    const view = mount('tasks', false, component('to-doo/ToDooListIcon'), extra);
+    await settled();
+    expect(view.byClass('todo-list-icon-dot')).toHaveLength(1);
+    expect(view.byClass('todo-list-icon')[0].props.style).toMatchObject({ color: '#cd7755', width: '24px' });
+    extra.list.icon = '📚';
+    await settled();
+    expect(view.byClass('todo-list-icon-dot')).toHaveLength(0);
+    expect(view.text(view.byClass('todo-list-icon')[0])).toBe('📚');
+    extra.list.icon = '<img src=x onerror=alert(1)>';
+    await settled();
+    expect(view.all().some(node => node.tag === 'img')).toBe(false);
+    expect(view.text(view.byClass('todo-list-icon')[0])).toContain('<img src=x');
+  });
+
   it.each(['tasks', 'board', 'matrix', 'timeline'] as const)(
     '%s has one selected task module and a separate list/range directory', async section => {
       const quick = vi.fn(), list = vi.fn();
@@ -880,4 +945,51 @@ describe('desktop module rail and task directory', () => {
     view.button('放弃更改并离开').props.onClick(); await settled();
     expect(view.events.at(-1)).toEqual(['focus', {}]);
   });
+});
+
+function linkedFocusSnapshot(id: string) {
+  const value = snapshot();
+  return {
+    ...value,
+    focusSessions: [toDooEntitySchemas.focusSession.parse({
+      id, revision: 'linked-r1', createdAt: value.now, updatedAt: value.now,
+      mode: 'stopwatch', status: 'finished', segments: [], note: '来自习惯的真实来源',
+    })],
+  } as ReturnType<typeof snapshot>;
+}
+
+it('habit source navigation validates the real focus record before opening its history', async () => {
+  linkedRhythmBoundary = true;
+  const read = vi.fn(async (id: string) => linkedFocusSnapshot(id));
+  linkedFocusRead = read;
+  const view = mount('habits', true);
+  await vi.waitFor(() => expect(view.button('查看习惯来源专注')).toBeDefined());
+  view.button('查看习惯来源专注').props.onClick();
+  await settled();
+  expect(read).toHaveBeenCalledWith('linked-focus');
+  expect(view.events).toContainEqual(['focus', { appPage: 'history' }]);
+});
+
+it('a missing source focus record leaves the habit view in place', async () => {
+  linkedRhythmBoundary = true;
+  linkedFocusRead = async () => ({ ...snapshot(), focusSessions: [] });
+  const view = mount('habits', true);
+  await vi.waitFor(() => expect(view.button('查看习惯来源专注')).toBeDefined());
+  view.button('查看习惯来源专注').props.onClick();
+  await settled();
+  expect(view.events).toEqual([]);
+  expect(view.text(view.root)).toContain('这条来源专注记录暂不可用');
+});
+
+it('a delayed habit source lookup cannot navigate after the user leaves the habit page', async () => {
+  linkedRhythmBoundary = true;
+  let resolve!: (value: ReturnType<typeof snapshot>) => void;
+  linkedFocusRead = () => new Promise(done => { resolve = done; });
+  const view = mount('habits', true);
+  await vi.waitFor(() => expect(view.button('查看习惯来源专注')).toBeDefined());
+  view.button('查看习惯来源专注').props.onClick();
+  view.props.section = 'tasks';
+  resolve(linkedFocusSnapshot('linked-focus'));
+  await settled();
+  expect(view.events).toEqual([]);
 });

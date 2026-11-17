@@ -41,7 +41,7 @@ import { organizationPending } from '../../../packages/core/organization/schema.
 import { createToDooAgentPort } from '../to-doo/agent-port.js';
 import { createKnowledgeToolPort } from './knowledge-tools.js';
 import { createBlogToolPort } from '../blog/mcp-tools.js';
-import { createToDooToolPort } from '../to-doo/mcp-tools.js';
+import { canUseMcpAnniversaryImage, createToDooToolPort } from '../to-doo/mcp-tools.js';
 import { createMcpTransferStore } from './mcp-transfers.js';
 import type { McpDomainContext } from './mcp-domain-context.js';
 import type { McpManagedDomainPort } from '../../../shared/mcp-domain-tools.js';
@@ -202,6 +202,8 @@ export function pluginServices(
     return createToDooAgentPort(runtime.toDoo, {
       authorize: write => taskAuthorized(write, options),
       access: () => taskAccess(options),
+      canUseAnniversaryImage: (p, hash, anniversaryId) =>
+        canUseMcpAnniversaryImage(fullContext, p, hash, anniversaryId, options),
       canReadNote: async (_p, noteId) => {
         try { await k.info(authorized('knowledge:read', options), noteId); return true; } catch { return false; }
       },
