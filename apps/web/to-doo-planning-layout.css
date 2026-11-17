@@ -167,6 +167,7 @@
 .to-doo-workspace.todo-page-calendar .todo-week { height: 100%; }
 .to-doo-workspace.todo-page-calendar .todo-week-viewport { height: 100%; max-height: none; }
 .todo-page-calendar .todo-mobile-agenda { flex: 1; min-height: 0; overflow: auto; }
+.todo-page-calendar .todo-mobile-agenda > :is(.todo-agenda-toolbar, .todo-agenda-day) { flex: 0 0 auto; }
 .todo-page-calendar .todo-calendar-habits { flex: 0 0 auto; max-height: calc(var(--todo-control-height) * 2); overflow: auto; margin-top: var(--todo-space-8); padding: var(--todo-space-8) var(--todo-space-12); }
 .to-doo-workspace.todo-page-timeline .todo-timeline-scroll { flex: 1; min-height: 0; overflow: auto; }
 .todo-page-timeline .todo-timeline-track .todo-deadline {

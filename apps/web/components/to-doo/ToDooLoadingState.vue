@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Skeleton as ASkeleton } from 'ant-design-vue';
+import { Button as AButton, Skeleton as ASkeleton } from 'ant-design-vue';
 import type { ToDooAppSection } from '../../navigation';
 import ToDooIcon from './ToDooIcon.vue';
 
 defineOptions({ inheritAttrs: false });
+const emit = defineEmits<{ back: [] }>();
 const props = withDefaults(defineProps<{ section?: ToDooAppSection; embedded?: boolean }>(), {
   section: 'tasks',
   embedded: false,
@@ -33,6 +34,9 @@ const panels = computed(() => (layout.value === 'matrix' ? 4 : layout.value === 
     <div v-if="!embedded" class="todo-loading-brand">
       <span><ToDooIcon name="check" :size="18" /></span>
       <strong>To Doo</strong>
+      <AButton type="text" class="todo-loading-back" aria-label="返回 DooKnow" @click="emit('back')">
+        <ToDooIcon name="back" :size="14" />返回笔记
+      </AButton>
     </div>
     <div class="todo-loading-caption"><span aria-hidden="true"></span>正在载入…</div>
     <div class="todo-loading-layout" :class="`todo-loading-${layout}`" aria-hidden="true">
@@ -83,6 +87,15 @@ const panels = computed(() => (layout.value === 'matrix' ? 4 : layout.value === 
   border-radius: 8px;
   color: white;
   background: var(--todo-accent, var(--blue, #4566c6));
+}
+.todo-loading-back.ant-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-inline-start: auto;
+  height: 32px;
+  color: var(--loading-ink);
+  font-size: 12px;
 }
 .todo-loading-caption {
   display: flex;
