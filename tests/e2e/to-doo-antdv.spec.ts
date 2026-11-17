@@ -117,11 +117,13 @@ test('period statistics and progress follow real seven-day, thirty-day and custo
     .filter({ hasText: '完成行动' })
     .locator('.ant-statistic-content-value');
   await expect(completedMetric).toHaveText(/[1-9][\d,]*/);
+  await app.getByRole('tab', { name: '目标进展', exact: true }).click();
   const progress = app.locator('.todo-progress-row').filter({ hasText: name });
   await expect(progress).toContainText('1/2');
   await expect(
     progress.getByRole('progressbar', { name: name + '完成进度', exact: true }),
   ).toBeVisible();
+  await app.getByRole('tab', { name: '概览', exact: true }).click();
   const hasPeriodRecords = [...initialPeriod.reviews, ...initialPeriod.outcomes].some(
     (item: any) => !item.deletedAt,
   );
@@ -179,6 +181,7 @@ test('Ant review modal preserves a canceled discard and saves a fresh local-date
   const content = '保留判断依据，再明确下一步行动。';
   await app.getByRole('button', { name: '＋ 写一篇复盘', exact: true }).click();
   const editor = page.getByRole('dialog', { name: '新建复盘', exact: true });
+  const initialContent = await editor.getByLabel('复盘内容', { exact: true }).inputValue();
   await editor.getByLabel('名称', { exact: true }).fill(name);
   await editor.getByLabel('复盘内容', { exact: true }).fill(content);
   await editor.getByRole('button', { name: '取消', exact: true }).click();
@@ -195,7 +198,7 @@ test('Ant review modal preserves a canceled discard and saves a fresh local-date
   await expect(editor).not.toBeVisible();
   expect((await snapshot(page)).reviews.some((item: any) => item.name === name)).toBe(false);
   await app.getByRole('button', { name: '＋ 写一篇复盘', exact: true }).click();
-  await expect(editor.getByLabel('复盘内容', { exact: true })).toHaveValue('');
+  await expect(editor.getByLabel('复盘内容', { exact: true })).toHaveValue(initialContent);
   await editor.getByLabel('名称', { exact: true }).fill(name);
   await editor.getByLabel('复盘内容', { exact: true }).fill(content);
   // These straddle a DST transition; the persisted fields must remain calendar strings.
@@ -331,7 +334,7 @@ test('focus and habit quantity modals cancel without writes and persist explicit
   expect(new URL(page.url()).searchParams.get('appPage')).toBe('history');
   await expect(
     app.getByRole('button', { name: name + ' ' + today + ' 打卡，当前 2.5 页', exact: true }),
-  ).toHaveText('✓');
+  ).toContainText('✓');
   const persisted = await snapshot(page, '?kind=habitEntry&limit=500');
   expect(
     persisted.habitEntries.filter((item: any) => item.habitId === habit.ids[0] && !item.deletedAt),

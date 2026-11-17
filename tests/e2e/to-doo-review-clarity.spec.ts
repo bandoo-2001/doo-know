@@ -2,6 +2,10 @@ import { readFile } from 'node:fs/promises';
 import { toDooEntitySchemas } from '../../shared/to-doo-contracts';
 import { test, expect } from '../support/browser-test';
 
+test.afterEach(async ({ page }) => {
+  await page.unrouteAll({ behavior: 'wait' });
+});
+
 test.beforeEach(async ({ context, page }, info) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   if (info.project.name === 'desktop') await page.setViewportSize({ width: 1920, height: 1080 });

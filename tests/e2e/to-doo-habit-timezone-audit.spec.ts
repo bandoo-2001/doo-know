@@ -70,7 +70,7 @@ test('a detail calendar records an exact date across workspace midnight without 
     const calendar = detail.locator('.todo-habit-detail-calendar-disclosure');
     await calendar.locator(':scope > summary').click();
     const choose = (date: string) =>
-      detail.getByRole('button', { name: new RegExp('^' + date + ' · ') });
+      calendar.getByRole('button', { name: new RegExp('^' + date + ' · ') });
     await choose(workspaceToday).click();
     await expect(choose(workspaceToday)).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('.todo-habit-cards')).toHaveAttribute('aria-busy', 'false');

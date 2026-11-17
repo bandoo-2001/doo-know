@@ -421,7 +421,8 @@ function occurrenceFilter(q: ToDooQuery, from: string, to: string, timeZone: str
   const f = q.filter ?? {},
     clauses: string[] = [],
     params: unknown[] = [];
-  if (!f.includeDeleted && !q.all) clauses.push("json_extract(e.data,'$.deletedAt') IS NULL");
+  if (!f.includeDeleted && !q.all && f.taskScope !== 'trash')
+    clauses.push("json_extract(e.data,'$.deletedAt') IS NULL");
   if (f.statuses) {
     clauses.push(
       f.statuses.length
@@ -430,7 +431,7 @@ function occurrenceFilter(q: ToDooQuery, from: string, to: string, timeZone: str
     );
     params.push(...f.statuses);
   }
-  if (!q.all && !q.ids && !q.taskIds) {
+  if (!q.all && !q.ids && !q.taskIds && (!f.taskScope || f.from || f.to || q.from || q.to)) {
     clauses.push(
       "(json_extract(e.data,'$.scheduledDate') IS NULL OR json_extract(e.data,'$.scheduledDate') BETWEEN ? AND ? OR json_extract(e.data,'$.status') IN ('todo','doing','blocked'))",
     );
@@ -563,14 +564,29 @@ function where(
       params.push('%' + f.query.toLowerCase().replace(/[\\%_]/g, '\\$&') + '%');
     }
   }
-  if (!f.includeDeleted && !q.all) clauses.push("json_extract(e.data,'$.deletedAt') IS NULL");
+  // Lifecycle scopes select matching tasks before COUNT/LIMIT. Related executions
+  // inherit their task's scope; the list/tag catalog keeps its normal visibility.
+  if (f.taskScope && (kind === 'task' || kind === 'occurrence' || kind === 'timeBlock')) {
+    const taskId = kind === 'task'
+      ? 'e.id'
+      : kind === 'occurrence'
+        ? "json_extract(e.data,'$.taskId')"
+        : "(SELECT json_extract(scope_o.data,'$.taskId') FROM todo_entities scope_o WHERE scope_o.kind='occurrence' AND scope_o.id=json_extract(e.data,'$.occurrenceId'))";
+    const lifecycle = f.taskScope === 'trash'
+      ? "json_extract(scope_t.data,'$.deletedAt') IS NOT NULL"
+      : "json_extract(scope_t.data,'$.deletedAt') IS NULL AND json_extract(scope_t.data,'$.archivedAt') IS NOT NULL";
+    clauses.push(`${taskId} IN (SELECT scope_t.id FROM todo_entities scope_t WHERE scope_t.kind='task' AND ${lifecycle})`);
+  }
+  const deletedTaskScope = f.taskScope === 'trash' && (kind === 'task' || kind === 'occurrence');
+  if (!f.includeDeleted && !q.all && !deletedTaskScope)
+    clauses.push("json_extract(e.data,'$.deletedAt') IS NULL");
   if (kind === 'reminderEvent' && q.raisedOnly) {
     clauses.push(
       "(json_extract(e.data,'$.firstRaisedAt') IS NOT NULL OR to_doo_timestamp_ms(json_extract(e.data,'$.scheduledAt'))<=?)",
     );
     params.push(Date.now());
   }
-  if (!f.includeArchived && !f.includeDeleted && !q.all)
+  if (!f.includeArchived && !f.includeDeleted && !q.all && !(kind === 'task' && f.taskScope))
     clauses.push("json_extract(e.data,'$.archivedAt') IS NULL");
   if (kind === 'reminderEvent' && q.reminderStates)
     inside("json_extract(e.data,'$.userState')", q.reminderStates);
@@ -616,7 +632,8 @@ function where(
     clauses.push(instance.sql);
     params.push(...instance.params);
   }
-  if (!q.all && !q.ids && !q.taskIds && (kind === 'timeBlock' || kind === 'calendarEvent')) {
+  if (!q.all && !q.ids && !q.taskIds && (kind === 'timeBlock' || kind === 'calendarEvent') &&
+      (kind !== 'timeBlock' || !f.taskScope || q.from || q.to || f.from || f.to)) {
     clauses.push('to_doo_interval_overlap(e.data,?,?,?,?)=1');
     params.push(
       from,

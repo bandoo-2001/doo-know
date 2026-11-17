@@ -60,6 +60,8 @@ test('month cards show names in time order while tooltips, details, week and age
     snapshot.settings = { ...snapshot.settings, timeZone: 'UTC' };
     snapshot.timeBlocks = blocks;
     snapshot.calendarEvents = [external];
+    snapshot.tasks = [];
+    snapshot.occurrences = [];
     await route.fulfill({ response, json: snapshot });
   });
   if (info.project.name === 'desktop') await page.setViewportSize({ width: 1920, height: 1080 });

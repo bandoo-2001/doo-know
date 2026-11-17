@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import type { ToDooCommandResult, ToDooSnapshot } from '../../shared/to-doo-contracts';
 import { test, expect } from '../support/browser-test';
+import { revealHabitTestCard } from '../support/to-doo-habit-fixture';
 
 test.beforeEach(async ({ context, page }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -108,24 +109,27 @@ test('the empty habit page creates a habit and moves a real check-in into comple
   });
   await page.goto('/?view=apps&app=to-doo&appSection=habits');
   const cards = page.locator('.todo-habit-cards');
-  await cards.locator('.ant-empty').getByRole('button', { name: '新建习惯', exact: true }).click();
+  await expect(cards.locator('.ant-empty')).toContainText('还没有习惯');
+  await page.locator('.todo-page-heading').getByRole('button', { name: /新建习惯/ }).click();
   const editor = page.getByRole('dialog', { name: '新建习惯', exact: true });
   const name = '每天散步 ' + crypto.randomUUID().slice(0, 8);
   await editor.getByLabel('名称', { exact: true }).fill(name);
   empty = false;
   await editor.getByRole('button', { name: '保存', exact: true }).click();
   await expect(editor).not.toBeVisible();
-  const pending = cards.getByRole('region', { name: '待打卡', exact: true });
-  const completed = cards.getByRole('region', { name: '已完成', exact: true });
+  const pending = cards.locator('[data-group="pending"]');
+  const completed = cards.locator('[data-group="done"]');
   const nameOfCard = '习惯 ' + name;
   await expect(pending.getByRole('article', { name: nameOfCard, exact: true })).toBeVisible();
   await pending.getByRole('button', { name: '打卡 ' + name, exact: true }).click();
   await expect(pending.getByRole('article', { name: nameOfCard, exact: true })).toHaveCount(0);
+  await revealHabitTestCard(page, name);
   const card = completed.getByRole('article', { name: nameOfCard, exact: true });
-  await expect(card).toContainText('今天已打卡');
+  await expect(card.getByRole('button', { name: '打卡 ' + name, exact: true })).toContainText('已打卡');
   await expect(card.getByRole('button', { name: '打卡 ' + name, exact: true })).toBeDisabled();
   await page.reload();
-  await expect(card).toContainText('今天已打卡');
+  await revealHabitTestCard(page, name);
+  await expect(card.getByRole('button', { name: '打卡 ' + name, exact: true })).toContainText('已打卡');
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);
@@ -156,17 +160,19 @@ test('a partial quantity stays actionable until its target is reached', async ({
   await page.goto('/?view=apps&app=to-doo&appSection=habits');
   const pending = page
     .locator('.todo-habit-cards')
-    .getByRole('region', { name: '待打卡', exact: true });
+    .locator('[data-group="pending"]');
   const card = pending.getByRole('article', { name: '习惯 ' + name, exact: true });
   await card.getByRole('spinbutton', { name: '记录数量 ' + name, exact: true }).fill('1');
   await card.getByRole('button', { name: '记录数量 ' + name, exact: true }).click();
-  await expect(card).toContainText('今天 1 / 2 页');
+  await expect(card.locator('.todo-habit-card-progress')).toContainText(/1\s*\/\s*2/);
+  await expect(card.getByRole('button', { name: '记录数量 ' + name, exact: true })).toBeEnabled();
   await card.getByRole('button', { name: '记录数量 ' + name, exact: true }).click();
   const completed = page
     .locator('.todo-habit-cards')
-    .getByRole('region', { name: '已完成', exact: true });
+    .locator('[data-group="done"]');
+  await revealHabitTestCard(page, name);
   await expect(completed.getByRole('article', { name: '习惯 ' + name, exact: true })).toContainText(
-    '今天 2 / 2 页',
+    /2\s*\/\s*2/,
   );
   await expect(pending.getByRole('article', { name: '习惯 ' + name, exact: true })).toHaveCount(0);
 });

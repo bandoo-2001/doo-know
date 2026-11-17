@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
-import { expandToDooGroup } from '../support/to-doo-ant-controls';
+import { openToDooDetailProperty } from '../support/to-doo-detail-controls';
 
 test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -25,8 +25,8 @@ test('outcome preview renders Markdown safely and keeps the editable draft after
   );
   const detail = page.getByRole('complementary', { name: '任务详情', exact: true });
   await expect(detail.getByLabel('任务标题', { exact: true })).toBeVisible();
-  await expandToDooGroup(detail, '完成标准与成果');
-  await detail.getByRole('button', { name: '创建成果笔记并关联', exact: true }).click();
+  const property = await openToDooDetailProperty(page, 'results');
+  await property.getByRole('button', { name: '创建成果笔记并关联', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '创建成果笔记', exact: true });
   const body =
     '# 实际成果\n\n**已交付**\n\n<script>window.outcomePreviewUnsafe=true</script>\n\n<img src=x onerror="window.outcomePreviewUnsafe=true">\n\n[危险链接](javascript:alert(1))';
@@ -45,6 +45,6 @@ test('outcome preview renders Markdown safely and keeps the editable draft after
   await expect(dialog.getByLabel('成果正文（Markdown）', { exact: true })).toHaveValue(body);
   await dialog.getByRole('button', { name: '收起并保留输入', exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  await detail.getByRole('button', { name: '创建成果笔记并关联', exact: true }).click();
+  await property.getByRole('button', { name: '创建成果笔记并关联', exact: true }).click();
   await expect(dialog.getByLabel('成果正文（Markdown）', { exact: true })).toHaveValue(body);
 });

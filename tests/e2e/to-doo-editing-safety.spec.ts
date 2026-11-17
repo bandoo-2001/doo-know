@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
 import { fillToDooDate, selectToDooOption } from '../support/to-doo-ant-controls';
 import { openToDooDirectory } from '../support/to-doo-navigation';
+import { openToDooDetailProperty } from '../support/to-doo-detail-controls';
 import type { ToDooCommandResult, ToDooSnapshot } from '../../shared/to-doo-contracts';
 
 test.setTimeout(90000);
@@ -47,8 +48,8 @@ async function editPlan(page: Page, date: string) {
   await expect(modal).not.toBeVisible();
 }
 async function changeList(page: Page, currentName: string, nextName: string) {
-  await detail(page).getByRole('button', { name: currentName + ' ⌄', exact: true }).click();
-  const modal = page.getByRole('dialog', { name: '所属清单', exact: true });
+  await expect(detail(page).locator('.todo-detail-context')).toContainText(currentName);
+  const modal = await openToDooDetailProperty(page, 'list');
   await selectToDooOption(modal, '所属目标或清单', nextName);
   await modal.getByRole('button', { name: '完成设置', exact: true }).click();
   await expect(modal).not.toBeVisible();

@@ -40,7 +40,7 @@ test('a new user can capture today, organise a task and find it after completing
   await directory.getByRole('button', { name: '新建清单', exact: true }).first().click();
   const listEditor = page.getByRole('dialog', { name: /新建.*清单/ });
   await expect(listEditor).toBeVisible();
-  await listEditor.getByLabel('名称', { exact: true }).fill(listName);
+  await listEditor.getByLabel('清单名称', { exact: true }).fill(listName);
   await listEditor.getByRole('button', { name: '保存', exact: true }).click();
   await expect(listEditor).not.toBeVisible();
 
@@ -80,11 +80,13 @@ test('calendar task creation uses the selected day and its secondary action rese
   const detail = app.getByRole('complementary', { name: '任务详情', exact: true });
   await expect(detail.getByLabel('计划日期', { exact: true })).toHaveValue(date);
   await detail.getByLabel('任务标题', { exact: true }).fill(title);
+  const created = page.waitForResponse(response => response.url().endsWith('/api/to-doo/commands') && response.request().postDataJSON()?.action === 'create_task');
   await detail.getByRole('button', { name: '创建任务', exact: true }).click();
+  const taskId = (await (await created).json()).ids[0];
   await expect(detail.getByText('已保存', { exact: true })).toBeVisible();
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   const snapshot = await (
-    await page.request.get('/api/to-doo/state?view=calendar&from=' + date + '&to=' + date)
+    await page.request.get('/api/to-doo/state?taskIds=' + taskId + '&from=' + date + '&to=' + date)
   ).json();
   const task = snapshot.tasks.find((item: any) => item.title === title);
   const occurrence = snapshot.occurrences.find((item: any) => item.taskId === task.id);
@@ -125,15 +127,18 @@ test('one navigation reaches the main tools and Today always returns to its task
     await expect(page.locator('.todo-main')).toHaveAttribute('aria-busy', 'false');
     const directory = await openToDooDirectory(page);
     await expect(directory).toHaveCount(1);
-    const more = directory.locator('details.todo-navigation-more');
-    if (!(await directory.getByRole('button', { name: '已完成', exact: true }).isVisible()))
-      await more.locator('summary').click();
-    for (const name of ['今天', '收集箱', '近七天', '所有任务', '已完成'])
-      await expect(directory.getByRole('button', { name, exact: true })).toBeVisible();
+    if ((await directory.getAttribute('aria-label')) === 'To Doo 导航') {
+      for (const name of ['今天', '收集箱', '近七天', '所有任务', '已完成'])
+        await expect(directory.getByRole('button', { name, exact: true })).toBeVisible();
+    } else await expect(directory.getByRole('navigation', { name: 'To Doo 主菜单', exact: true })).toBeVisible();
     await closeToDooDirectory(page);
     await selectToDooQuickView(page, '今天');
     await expect.poll(() => new URL(page.url()).searchParams.get('appSection')).toBe('tasks');
     await expect(page.locator('.todo-page h1')).toHaveText('今天');
+    const taskDirectory = await openToDooDirectory(page);
+    for (const name of ['今天', '收集箱', '近七天', '所有任务', '已完成'])
+      await expect(taskDirectory.getByRole('button', { name, exact: true })).toBeVisible();
+    await closeToDooDirectory(page);
   }
   for (const [name, filter] of [
     ['逾期', 'overdue'],

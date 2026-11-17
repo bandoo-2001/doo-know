@@ -22,6 +22,12 @@ test('overview aligns mixed task depths while identifying parents and retaining 
     grandchild: '今天的孙任务 ' + suffix,
     root: '今天的普通任务 ' + suffix,
   };
+  const savedList = await page.request.post('/api/to-doo/commands', {
+    headers: { origin: String(info.project.use.baseURL), 'x-csrf-token': csrf.token },
+    data: { requestId: crypto.randomUUID(), action: 'save_entity', payload: { kind: 'list', entity: { name: '概览层级 ' + suffix } } },
+  });
+  expect(savedList.ok()).toBe(true);
+  const listId = (await savedList.json()).ids[0];
   const create = async (title: string, date: string, parentTaskId?: string) => {
     const response = await page.request.post('/api/to-doo/commands', {
       headers: { origin: String(info.project.use.baseURL), 'x-csrf-token': csrf.token },
@@ -30,6 +36,7 @@ test('overview aligns mixed task depths while identifying parents and retaining 
         action: 'create_task',
         payload: {
           title,
+          listId,
           ...(parentTaskId ? { parentTaskId } : {}),
           due: { date, time: null, timeZone: before.settings.timeZone },
         },
@@ -42,6 +49,12 @@ test('overview aligns mixed task depths while identifying parents and retaining 
   const child = await create(names.child, today, parent);
   const grandchild = await create(names.grandchild, today, child);
   const root = await create(names.root, today);
+  await page.route('**/api/to-doo/state?**', async route => {
+    const url = new URL(route.request().url());
+    if (url.searchParams.get('view') === 'overview')
+      url.searchParams.set('taskIds', [parent, child, grandchild, root].join(','));
+    await route.continue({ url: url.href });
+  });
   let writes = 0;
   await page.route('**/api/to-doo/commands', async (route) => {
     writes++;
@@ -104,7 +117,7 @@ test('overview aligns mixed task depths while identifying parents and retaining 
       .getByRole('textbox', { name: '任务标题', exact: true }),
   ).toHaveValue(names.child);
   await page.getByRole('button', { name: '关闭任务详情', exact: true }).click();
-  await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all');
+  await page.goto('/?view=apps&app=to-doo&appSection=tasks&list=' + listId);
   await expect(row(names.child)).toBeVisible();
   const depth = (title: string) =>
     row(title).evaluate((element) => getComputedStyle(element).getPropertyValue('--depth').trim());

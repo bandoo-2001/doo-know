@@ -176,7 +176,7 @@ test('review history links preserve the selected range when the user returns', a
   await expect(page.getByRole('radio', { name: '历史', exact: true })).toBeChecked();
   const weekday = new Date(to + 'T12:00:00Z').getUTCDay();
   const weekStart = shift(to, -((weekday - snapshot.settings.weekStartsOn + 7) % 7));
-  await expect(page.locator('.todo-calendar-toolbar h2')).toContainText(weekStart);
+  await expect(page.getByLabel('习惯历史区间', { exact: true })).toContainText(weekStart);
   await goToToDooSection(page, 'stats');
   await expect(page.locator('.todo-completion-chart')).toHaveAttribute(
     'aria-label',

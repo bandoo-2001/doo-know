@@ -342,6 +342,7 @@ const baseFilterSchema = z
     hasEvidence: z.boolean().optional(),
     includeDeleted: z.boolean().optional(),
     includeArchived: z.boolean().optional(),
+    taskScope: z.enum(['trash', 'archived']).optional(),
     leafOnly: z.boolean().optional(),
   })
   .strict();

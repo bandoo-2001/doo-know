@@ -50,6 +50,7 @@ describe('daily task navigation', () => {
         {
           includeDeleted: true,
           includeArchived: true,
+          taskScope: 'trash',
           dueBefore: '2026-10-01',
           unscheduled: true,
           query: '方案',
@@ -76,6 +77,14 @@ describe('daily task navigation', () => {
     expect(toDooQuickFilter(source, 'all', '2026-10-29')).toEqual({ listIds: ['work'] });
     expect(source.from).toBe('2026-10-29');
     expect(toDooQuickFilter({}, 'upcoming', '2026-10-29').to).toBe('2026-11-04');
+  });
+  test('trash and archive use explicit server scopes that clear when leaving the view', () => {
+    const trash = toDooQuickFilter({}, 'trash', '2026-11-17');
+    expect(trash).toEqual({ includeDeleted: true, taskScope: 'trash' });
+    const archived = toDooQuickFilter(trash, 'archived', '2026-11-17');
+    expect(archived).toEqual({ includeArchived: true, taskScope: 'archived' });
+    expect(toDooQuickFilter(archived, 'all', '2026-11-17')).toEqual({});
+    expect(toDooAdditionalFilters(trash, 'trash', '2026-11-17')).toEqual({});
   });
 });
 

@@ -58,6 +58,7 @@ test('saved direct conditions stay inspectable in board, matrix and timeline, th
       },
     });
     await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all');
+    await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
     await page.getByRole('button', { name, exact: true }).click();
     await expect.poll(() => new URL(page.url()).searchParams.get('appSection')).toBe(mode);
     const scope =
@@ -160,6 +161,7 @@ test('task first row and board first card remain compact while tools and groupin
   expect((await card.boundingBox())!.y).toBeLessThan(450);
   await page.screenshot({ path: info.outputPath('phone-board-final.png'), animations: 'disabled' });
   await openToDooTaskTools(page);
+  await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
   await expect(page.getByRole('combobox', { name: '看板分组', exact: true })).toBeVisible();
   await expect(page.getByRole('navigation', { name: '看板列概览', exact: true })).toBeVisible();
 });

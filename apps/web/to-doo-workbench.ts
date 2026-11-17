@@ -368,13 +368,17 @@ export function deriveToDooItems(
   sort = 'manual',
 ): ToDooItem[] {
   const tasks = data.tasks.filter(
-    (t) => (!t.deletedAt || filter.includeDeleted) && (!t.archivedAt || filter.includeArchived),
+    (t) => filter.taskScope === 'trash'
+      ? !!t.deletedAt
+      : filter.taskScope === 'archived'
+        ? !t.deletedAt && !!t.archivedAt
+        : (!t.deletedAt || filter.includeDeleted) && (!t.archivedAt || filter.includeArchived),
   );
   const taskMap = new Map(tasks.map((t) => [t.id, t]));
   const rows = tasks
     .flatMap((task) => {
       const occurrences = data.occurrences.filter(
-        (o) => o.taskId === task.id && (!o.deletedAt || filter.includeDeleted),
+        (o) => o.taskId === task.id && (!o.deletedAt || filter.includeDeleted || filter.taskScope === 'trash'),
       );
       return (occurrences.length ? occurrences : [null]).map((occurrence) => {
         const blocks = data.timeBlocks

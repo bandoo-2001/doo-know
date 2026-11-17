@@ -101,7 +101,7 @@ test('explicit save preserves failed title and description edits and retries the
   await save.click();
   const failed = await rejected;
   expect(failed.status()).toBe(503);
-  await expect(app.getByRole('alert')).toContainText('侧栏保存暂时不可用');
+  await expect(app.getByRole('alert').filter({ hasText: '侧栏保存暂时不可用' })).toBeVisible();
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(nextTitle);
   await expect(detail.getByLabel('任务说明', { exact: true })).toHaveValue(description);
   await expect(detail).toContainText('未保存的更改');
@@ -218,7 +218,8 @@ test('completion saves pending description after confirmation and later edits ke
   expect(
     completionReceipt.snapshot.occurrences.find((item) => item.id === occurrenceId)?.status,
   ).toBe('done');
-  expect(completionReceipt.snapshot.tasks.find((task) => task.id === taskId)?.description).toBe(
+  const persisted = await (await page.request.get('/api/to-doo/state?taskIds=' + taskId)).json();
+  expect(persisted.tasks.find((task: { id: string }) => task.id === taskId)?.description).toBe(
     description,
   );
   await expect(detail.getByRole('button', { name: '重新打开', exact: true })).toBeVisible();

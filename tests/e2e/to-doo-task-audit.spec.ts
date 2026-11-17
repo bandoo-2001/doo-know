@@ -88,12 +88,12 @@ test('matrix menu identifies the current classification and restores automatic u
     .filter({ has: page.getByRole('button', { name: title, exact: true }) });
   await expect(item.locator('.todo-matrix-classification')).toHaveCount(0);
   await item.getByRole('button', { name: '任务操作 ' + title, exact: true }).click();
-  await page.getByRole('menuitem', { name: '归类象限', exact: true }).click();
+  await page.getByText('归类象限', { exact: true }).filter({ visible: true }).click();
   await expect(page.getByRole('menuitem', { name: '重要不紧急 ✓', exact: true })).toBeVisible();
   await page.getByRole('menuitem', { name: '紧急不重要', exact: true }).click();
   await expect(app(page).locator('.todo-quadrant-delegate')).toContainText(title);
   await item.getByRole('button', { name: '任务操作 ' + title, exact: true }).click();
-  await page.getByRole('menuitem', { name: '归类象限', exact: true }).click();
+  await page.getByText('归类象限', { exact: true }).filter({ visible: true }).click();
   await page.getByRole('menuitem', { name: '恢复自动紧急判断 ' + title, exact: true }).click();
   await expect(app(page).locator('.todo-quadrant-later')).toContainText(title);
   const data = await (

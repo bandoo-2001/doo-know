@@ -117,7 +117,7 @@ test('anniversary details expand on demand while its original lunar date remains
       description,
     },
   });
-  await page.goto('/?view=apps&app=to-doo&appSection=anniversaries');
+  await page.goto('/?view=apps&app=to-doo&appSection=anniversaries&appPage=all');
   const card = page
     .locator('.todo-anniversary')
     .filter({ has: page.getByRole('heading', { name, exact: true }) });

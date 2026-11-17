@@ -4,6 +4,7 @@ import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
 import { selectToDooContext } from '../support/to-doo-navigation';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
+import { revealHabitTestCard } from '../support/to-doo-habit-fixture';
 
 const evidence = resolve('docs/design/to-doo/two-level-implementation-2026-11-04/regression-screenshots/life');
 test.beforeEach(async ({ page, context }, info) => {
@@ -81,8 +82,8 @@ test('quantity history retains 45/20 and correction removes only one of three sa
     })),
   });
   await page.goto('/?view=apps&app=to-doo&appSection=habits');
-  const card = page.getByRole('article', { name: '习惯 ' + name, exact: true });
-  await expect(card).toContainText('今天 45 / 20 页');
+  const card = await revealHabitTestCard(page, name);
+  await expect(card.locator('.todo-habit-card-progress')).toContainText(/45\s*\/\s*20/);
   await expect(
     page.getByRole('article', { name: '习惯 每天散步', exact: true }).getByRole('spinbutton'),
   ).toHaveCount(0);
@@ -147,7 +148,7 @@ test('anniversaries show today and original past date, with bounded desktop card
       entity: { id: id + '-' + crypto.randomUUID(), name, date, countMode, repeatYearly: false },
     });
   }
-  await page.goto('/?view=apps&app=to-doo&appSection=anniversaries');
+  await page.goto('/?view=apps&app=to-doo&appSection=anniversaries&appPage=all');
   for (const name of ['就是今天的纪念', '包含今天的纪念']) {
     const card = page
       .locator('.todo-anniversary')
@@ -169,7 +170,7 @@ test('anniversaries show today and original past date, with bounded desktop card
 test('lunar year month day validates actual leap months, saves the original payload and protects unsaved close', async ({
   page,
 }) => {
-  await page.goto('/?view=apps&app=to-doo&appSection=anniversaries');
+  await page.goto('/?view=apps&app=to-doo&appSection=anniversaries&appPage=all');
   await page
     .getByRole('button', { name: /新建纪念日/ })
     .first()

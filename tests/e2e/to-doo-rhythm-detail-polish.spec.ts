@@ -89,6 +89,7 @@ test('reminder remove buttons and history arrows use centered icons without subm
     if (request.method() === 'POST' && request.url().endsWith('/api/to-doo/commands')) writes++;
   });
   await card.getByRole('button', { name, exact: true }).click();
+  await page.getByRole('region', { name: '习惯详情 ' + name, exact: true }).getByRole('button', { name: '编辑习惯', exact: true }).click();
   const editor = page.getByRole('dialog', { name: '编辑习惯', exact: true });
   await editor.getByRole('button', { name: '添加提醒', exact: true }).click();
   const row = editor.locator('.todo-habit-reminder-time').first();

@@ -3,6 +3,10 @@ import type { Page } from '@playwright/test';
 import type { ToDooCommandResult, ToDooSnapshot } from '../../shared/to-doo-contracts';
 import { test, expect } from '../support/browser-test';
 
+test.afterEach(async ({ page }) => {
+  await page.unrouteAll({ behavior: 'wait' });
+});
+
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const response = await page.request.post('/api/to-doo/commands', {
@@ -48,7 +52,8 @@ test('goal cards show their own completed action progress and open the matching 
     title: '已完成的行动 ' + suffix,
     listId,
   });
-  const occurrence = completed.snapshot.occurrences.find(
+  const completedState = await (await page.request.get('/api/to-doo/state?taskIds=' + completed.ids[0])).json() as ToDooSnapshot;
+  const occurrence = completedState.occurrences.find(
     (item) => item.taskId === completed.ids[0],
   )!;
   await command(page, 'set_occurrence_status', {

@@ -271,9 +271,10 @@ test('phone timeline keeps day width and sticky task titles while scrolling', as
   await expect(timed).toHaveText('09:00\n45分');
   await expect(timed).not.toContainText('2032-05-03');
   await timed.click();
-  const editor = page.getByRole('dialog', { name: '编辑时间安排', exact: true });
-  await expect(editor.getByLabel('时长（分钟）', { exact: true })).toHaveValue('45');
-  await editor.getByRole('button', { name: '取消', exact: true }).click();
+  const editor = page.getByRole('dialog', { name: '时间安排', exact: true });
+  await expect(editor.getByRole('spinbutton', { name: '时长（分钟）', exact: true })).toHaveValue('45');
+  await editor.getByRole('button', { name: '取消本次设置', exact: true }).click();
+  await page.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   const title = page
     .locator('.todo-timeline-row > .todo-task-body')
     .filter({ hasText: '跨窗口全天安排与跨时区截止' });

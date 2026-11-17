@@ -113,7 +113,8 @@ test('confirming a notification keeps its task pending and handling or ignoring 
   await page.goto('/?view=apps&app=to-doo&appSection=notifications');
   const app = workspace(page);
   const row = app.locator('[data-reminder-id="' + created.id + '"]');
-  await expect(app).toContainText('不会自动完成');
+  await expect(row).toBeVisible();
+  expect((await snapshot(page, { kind: 'occurrence', taskIds: created.sourceId })).occurrences.find((value: any) => value.taskId === created.sourceId).status).toBe('todo');
   await row.getByRole('button', { name: '确认提醒', exact: true }).click();
   await expect(row).toContainText('已确认');
   expect(
@@ -215,7 +216,8 @@ test('archiving preserves the displayed historical completion and zero days have
   await app.getByRole('button', { name: '显示选项', exact: true }).click();
   await page.getByRole('button', { name: '刷新内容', exact: true }).click();
   await expect(metric).toHaveText(before);
-  await expect(app).toContainText('归档');
+  const archived = await snapshot(page, { kind: 'task', ids: created.ids[0], filter: JSON.stringify({ includeArchived: true }) });
+  expect(archived.tasks.find((value: any) => value.id === created.ids[0]).archivedAt).toBe(state.now);
   const zeros = app
     .locator('.todo-completion-chart > div')
     .filter({ has: page.locator('span', { hasText: /^0$/ }) });
