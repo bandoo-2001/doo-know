@@ -123,6 +123,7 @@ test('an existing task keeps unsaved edits while creating and selecting a new li
     listId: null,
   });
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
+  await detail.locator('.todo-detail-save .ant-btn-loading-icon').waitFor({ state: 'detached' });
   await expect(detail.getByText('已保存', { exact: true })).toBeVisible();
   await page.reload();
   await expect(taskDetail(page).getByLabel('任务标题', { exact: true })).toHaveValue(edited);

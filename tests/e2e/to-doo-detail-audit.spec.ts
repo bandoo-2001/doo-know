@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
+import { revealToDooTask } from '../support/to-doo-navigation';
 import { expandToDooGroup, fillToDooDate, selectToDooOption } from '../support/to-doo-ant-controls';
 import { completeToDooDetailProperty, openToDooDetailProperty } from '../support/to-doo-detail-controls';
 
@@ -226,6 +227,7 @@ test('narrow task detail contains keyboard focus and Escape keeps its draft', as
   const result = await command(page, 'create_task', { title });
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all');
   const open = page.getByRole('button', { name: title, exact: true });
+  await revealToDooTask(page, title);
   await open.click();
   const dialog = page.getByRole('dialog', { name: '任务编辑', exact: true });
   await expect(dialog).toBeVisible();

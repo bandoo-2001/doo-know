@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
 import { fillToDooDate, selectToDooOption } from '../support/to-doo-ant-controls';
-import { openToDooDirectory } from '../support/to-doo-navigation';
+import { openToDooDirectory, revealToDooTask } from '../support/to-doo-navigation';
 import { openToDooDetailProperty } from '../support/to-doo-detail-controls';
 import type { ToDooCommandResult, ToDooSnapshot } from '../../shared/to-doo-contracts';
 
@@ -37,6 +37,7 @@ async function save(page: Page) {
   const button = detail(page).getByRole('button', { name: '保存任务', exact: true });
   await expect(button).toBeEnabled();
   await button.click();
+  await detail(page).locator('.todo-detail-save .ant-btn-loading-icon').waitFor({ state: 'detached' });
   await expect(button).toBeDisabled();
   await expect(detail(page).getByText('已保存', { exact: true })).toBeVisible();
 }
@@ -151,6 +152,7 @@ test('invalid input blocks list changes and browser Back without changing the qu
   const second = await command(page, 'create_task', { title: secondTitle, due: { date: '2030-05-17' } });
   await open(page, first.ids[0]);
   await detail(page).getByRole('button', { name: '关闭任务详情', exact: true }).click();
+  await revealToDooTask(page, secondTitle);
   await page.getByRole('button', { name: secondTitle, exact: true }).click();
   await expect(detail(page).getByLabel('任务标题', { exact: true })).toHaveValue(secondTitle);
   const beforeURL = page.url(), writes = recordWrites(page);
@@ -221,6 +223,7 @@ test('plan comparison preserves independent edits and explicitly resolves same-f
     await command(page, 'save_entity', { kind: 'timeBlock', expectedRevision: plan.revision,
       entity: sameField ? { ...plan, start: { ...plan.start, date: '2030-05-19' } } : { ...plan, durationMinutes: 60 } });
     await detail(page).getByRole('button', { name: '保存任务', exact: true }).click();
+    await detail(page).locator('.todo-detail-save .ant-btn-loading-icon').waitFor({ state: 'detached' });
     const comparison = detail(page).getByRole('alert', { name: '比较任务更新', exact: true });
     await expect(comparison).toBeVisible();
     await comparison.getByRole('button', { name: '载入最新并比较', exact: true }).click();
@@ -252,6 +255,7 @@ test('a hidden child draft blocks a parent move and the detail later moves the s
   const child = (await command(page, 'create_task', { title: childTitle, listId: first, parentTaskId: parent })).ids[0];
   await open(page, child); await detail(page).getByLabel('任务标题', { exact: true }).fill(editedChild);
   await detail(page).getByRole('button', { name: '关闭任务详情', exact: true }).click();
+  await revealToDooTask(page, parentTitle);
   await page.getByRole('button', { name: parentTitle, exact: true }).click();
   const writes = recordWrites(page);
   await changeList(page, firstName, secondName);

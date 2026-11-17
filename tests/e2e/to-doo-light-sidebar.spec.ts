@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import type { ToDooCommandResult, ToDooSnapshot } from '../../shared/to-doo-contracts';
 import { test, expect } from '../support/browser-test';
+import { revealToDooTask } from '../support/to-doo-navigation';
 import { fillToDooDate } from '../support/to-doo-ant-controls';
 import { openToDooDetailProperty, completeToDooDetailProperty } from '../support/to-doo-detail-controls';
 
@@ -235,6 +236,7 @@ test('completion saves pending description after confirmation and later edits ke
   await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
   await page.getByRole('checkbox', { name: '显示已完成任务', exact: true }).check();
   await page.keyboard.press('Escape');
+  await revealToDooTask(page, title);
   await app.getByRole('button', { name: title, exact: true }).click();
   await expect(detail.getByLabel('任务说明', { exact: true })).toHaveValue(description);
   const completedDescription = description + '\n补充完成后的记录。';

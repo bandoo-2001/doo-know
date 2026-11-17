@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import type { Locator, Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
-import { goToToDooSection, selectToDooList, selectToDooQuickView } from '../support/to-doo-navigation';
+import { goToToDooSection, selectToDooList, selectToDooQuickView, revealToDooTask } from '../support/to-doo-navigation';
 import { toDooEntitySchemas, type ToDooCommandResult, type ToDooSnapshot } from '../../shared/to-doo-contracts';
 
 test.setTimeout(120000);
@@ -256,6 +256,7 @@ test('module keyboard actions and Escape retain a local task draft without impli
   await ready(page);
   await expect(directory(page)).toHaveCount(0);
   await goToToDooSection(page, 'tasks');
+  await revealToDooTask(page, title);
   const row = app(page).locator('.todo-task-row').filter({ has: page.getByRole('button', { name: title, exact: true }) });
   await row.getByRole('button', { name: title, exact: true }).click();
   await expect(detail(page).getByLabel('任务标题', { exact: true })).toHaveValue(edited);

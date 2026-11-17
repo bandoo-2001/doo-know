@@ -182,7 +182,8 @@ export async function selectToDooList(page: Page, name: string) {
 /** Follow real collection pagination before asserting a newly seeded task in a shared fixture. */
 export async function revealToDooTask(page: Page, title: string) {
   const task = page.getByRole('button', { name: title, exact: true });
-  await expect(page.locator('.todo-main')).toHaveAttribute('aria-busy', 'false');
+  await page.locator('.todo-main[aria-busy="false"]').waitFor({ state: 'visible' });
+  await page.locator('.todo-load-more button:disabled').first().waitFor({ state: 'hidden' });
   for (let pageNumber = 0; pageNumber < 50 && !(await task.isVisible()); pageNumber++) {
     let advanced = false;
     for (const [kind, label] of [
@@ -202,15 +203,7 @@ export async function revealToDooTask(page: Page, title: string) {
       });
       await more.click();
       expect((await response).ok()).toBe(true);
-      await expect
-        .poll(() =>
-          more.evaluateAll(
-            (elements) =>
-              !elements.length ||
-              elements.every((element) => !(element as HTMLButtonElement).disabled),
-          ),
-        )
-        .toBe(true);
+      await page.locator('.todo-load-more button:disabled').first().waitFor({ state: 'hidden' });
       advanced = true;
       if (await task.isVisible()) break;
     }
