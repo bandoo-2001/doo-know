@@ -1485,6 +1485,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
   }
   async function hydrateTaskDefinitions(ticket: number) {
     const datasetId = state.snapshot?.datasetId;
+    const staged = new Map<string, ToDooTask>();
     const missing = [
       ...new Set(
         state.snapshot?.occurrences
@@ -1498,17 +1499,27 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
       const data = await request(batch.url) as ToDooSnapshot;
       if (ticket !== generation || state.snapshot?.datasetId !== datasetId) return;
       if (data.datasetId !== datasetId) throw Error('资料库已变化，请重新载入任务');
-      adoptProjectionEntities(data);
+      const requested = new Set(batch.values);
+      for (const task of data.tasks)
+        if (requested.has(task.id)) staged.set(task.id, clone(task));
     }
+    if (ticket !== generation || state.snapshot?.datasetId !== datasetId || !state.snapshot) return;
+    const current = state.snapshot;
+    const needed = new Set(current.occurrences.map(row => row.taskId));
+    const tasks = mergeMissingProjection(current.tasks, staged.values(), needed);
+    // Lookup responses own entity values only. Keep the current scope/version,
+    // cursors and statistics, including updates accepted while requests waited.
+    if (tasks) state.snapshot = { ...current, tasks };
   }
-  function adoptProjectionEntities(data: ToDooSnapshot) {
-    const pages = state.snapshot?.collectionPages;
-    adoptDetail(data);
-    if (state.snapshot) state.snapshot.collectionPages = pages;
+  function mergeMissingProjection<T extends { id: string }>(current: T[], staged: Iterable<T>, needed: Set<string>) {
+    const known = new Set(current.map(row => row.id));
+    const additions = [...staged].filter(row => !known.has(row.id) && needed.has(row.id));
+    return additions.length ? [...current, ...additions] : undefined;
   }
   async function hydrateExecutionReferences(ticket: number) {
     if (state.query.view && !['tasks', 'board', 'matrix', 'calendar', 'timeline', 'overview'].includes(state.query.view)) return;
     const datasetId = state.snapshot?.datasetId;
+    const staged = new Map<string, ToDooOccurrence>();
     const known = new Set(state.snapshot?.occurrences.map(row => row.id));
     const missing = [...new Set(state.snapshot?.timeBlocks
       .filter(block => !block.deletedAt && block.occurrenceId && !known.has(block.occurrenceId))
@@ -1521,8 +1532,16 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
       const data = await request(batch.url) as ToDooSnapshot;
       if (ticket !== generation || state.snapshot?.datasetId !== datasetId) return;
       if (data.datasetId !== datasetId) throw Error('资料库已变化，请重新载入日程');
-      adoptProjectionEntities(data);
+      const requested = new Set(batch.values);
+      for (const occurrence of data.occurrences)
+        if (requested.has(occurrence.id)) staged.set(occurrence.id, clone(occurrence));
     }
+    if (ticket !== generation || state.snapshot?.datasetId !== datasetId || !state.snapshot) return;
+    const current = state.snapshot;
+    const needed = new Set(current.timeBlocks.filter(block => !block.deletedAt && block.occurrenceId)
+      .map(block => block.occurrenceId!));
+    const occurrences = mergeMissingProjection(current.occurrences, staged.values(), needed);
+    if (occurrences) state.snapshot = { ...current, occurrences };
   }
   function taskDefinitions() {
     return [
@@ -1584,8 +1603,9 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
     )
       return;
     const attempted = new Set<string>();
+    const staged = new Map<string, ToDooTask>();
     for (let depth = 0; depth < 1024; depth++) {
-      const known = taskDefinitions();
+      const known = [...new Map([...staged.values(), ...taskDefinitions()].map(task => [task.id, task])).values()];
       const ids = new Set(known.map((task) => task.id));
       const missing = [
         ...new Set(
@@ -1595,7 +1615,14 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
             .filter((id): id is string => !!id && !ids.has(id) && !attempted.has(id)),
         ),
       ];
-      if (!missing.length) return;
+      if (!missing.length) {
+        if (ticket !== generation || state.snapshot?.datasetId !== datasetId) return;
+        const current = new Set(taskDefinitions().map(task => task.id));
+        const additions = [...staged.values()].filter(task => !current.has(task.id));
+        if (additions.length) state.taskAncestors = { ...state.taskAncestors,
+          ...Object.fromEntries(additions.map(task => [task.id, task])) };
+        return;
+      }
       const version = state.snapshot?.version;
       for (const { values: part, url } of toDooIdQueryBatches(missing, id => id,
         ids => '/api/to-doo/state?kind=task&ids=' + encodeURIComponent(ids.join(',')) + '&limit=100',
@@ -1606,7 +1633,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
         if (data.version !== version) throw Error('任务分组有更新，请刷新后重试');
         part.forEach((id) => attempted.add(id));
         for (const task of data.tasks as ToDooTask[])
-          if (part.includes(task.id)) state.taskAncestors[task.id] = task;
+          if (part.includes(task.id)) staged.set(task.id, clone(task));
       }
     }
     throw Error('任务层级较深，请先展开对应父任务再重试');
