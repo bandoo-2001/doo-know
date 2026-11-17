@@ -46,8 +46,7 @@ test('moving a task to another list clears its old section and saves successfull
   await completeToDooDetailProperty(page);
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   await detail
-    .getByRole('button', { name: '保存任务', exact: true })
-    .locator('.ant-btn-loading-icon')
+    .locator('.todo-detail-save .ant-btn-loading-icon')
     .waitFor({ state: 'detached' });
   await expect(
     page.getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('status'),
@@ -91,8 +90,7 @@ test('invalid typed deadline prevents saving an unrelated title change', async (
   await completeToDooDetailProperty(page);
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   await detail
-    .getByRole('button', { name: '保存任务', exact: true })
-    .locator('.ant-btn-loading-icon')
+    .locator('.todo-detail-save .ant-btn-loading-icon')
     .waitFor({ state: 'detached' });
   await expect(
     page.getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('status'),
@@ -123,8 +121,7 @@ test('input composition does not submit a task through the save shortcut', async
   expect(writes).toEqual([]);
   await input.press('Control+Enter');
   await detail
-    .getByRole('button', { name: '保存任务', exact: true })
-    .locator('.ant-btn-loading-icon')
+    .locator('.todo-detail-save .ant-btn-loading-icon')
     .waitFor({ state: 'detached' });
   await expect(
     page.getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('status'),
