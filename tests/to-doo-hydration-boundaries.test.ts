@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, it } from 'vitest';
 import { randomUUID } from 'node:crypto';
+import { watch } from 'vue';
 import { createFixture, loginFixtureOwner, type Fixture } from './support/fixture';
 import { createToDooWorkbench } from '../apps/web/to-doo-workbench';
 import type { ToDooSnapshot } from '../shared/to-doo-contracts';
@@ -43,14 +44,21 @@ it('hydrates all 128-character IDs over real validated API batches and continuat
     requests.push(url);
     return get(url);
   });
+  const publications: number[] = [];
+  const stop = watch(() => model.state.snapshot, snapshot => {
+    if (snapshot) publications.push(snapshot.tasks.length);
+  }, { flush: 'sync' });
   await model.load({ view: 'focus', limit: 200 });
   expect(model.state.error).toBe('');
   expect(model.state.snapshot!.tasks).toHaveLength(500);
+  expect(publications).toEqual([200, 500]);
   const initialTaskPage = JSON.parse(JSON.stringify(model.state.snapshot!.collectionPages!.task));
   await model.nextCollectionPage('occurrence');
   expect(model.state.error).toBe('');
   expect(model.state.snapshot!.tasks.map(row => row.id).sort()).toEqual([...ids].sort());
   expect(model.state.snapshot!.occurrences).toHaveLength(520);
+  expect(publications).toEqual([200, 500, 500, 520]);
+  stop();
   expect(model.state.snapshot!.collectionPages!.task).toEqual(initialTaskPage);
   const hydration = requests.filter(url => new URL(url, 'http://localhost:3010').searchParams.has('ids'));
   expect(hydration.length).toBeGreaterThan(2);
@@ -179,4 +187,90 @@ it('rejects a calendar lookup from another dataset without adopting its entities
   expect(model.state.snapshot!.datasetId).toBe(original);
   expect(model.state.snapshot!.occurrences.some(row => row.id === target.occurrenceId)).toBe(false);
   expect(model.state.snapshot!.tasks.some(row => row.id === target.id)).toBe(false);
+});
+
+it('does not publish an early partial definition batch when a later batch fails', async () => {
+  await seed(520);
+  let lookups = 0;
+  const model = createToDooWorkbench(url => {
+    const q = new URL(url, 'http://localhost:3010').searchParams;
+    if (q.get('kind') === 'task' && q.has('ids') && ++lookups === 2)
+      return Promise.reject(Error('definition lookup failed'));
+    return get(url);
+  });
+  await model.load({ view: 'focus', limit: 200 });
+  expect(lookups).toBe(2);
+  expect(model.state.error).toBe('definition lookup failed');
+  expect(model.state.snapshot!.tasks).toHaveLength(200);
+});
+
+it('keeps newer accepted command values, later entities and current metadata when publishing buffered definitions', async () => {
+  await seed(520);
+  const editedId = longId('task', 200);
+  let lookups = 0, started!: () => void, release!: (value: ToDooSnapshot) => void;
+  let held: ToDooSnapshot | undefined;
+  const pending = new Promise<ToDooSnapshot>(yes => { release = yes; });
+  const requested = new Promise<void>(yes => { started = yes; });
+  const model = createToDooWorkbench(async url => {
+    const q = new URL(url, 'http://localhost:3010').searchParams;
+    const data = await get(url);
+    if (q.get('kind') === 'task' && q.has('ids') && q.get('limit') === '200' && ++lookups === 2) {
+      held = data;
+      started();
+      return pending;
+    }
+    return data;
+  });
+  const loading = model.load({ view: 'focus', limit: 200 });
+  await requested;
+  expect(model.state.snapshot!.tasks.some(row => row.id === editedId)).toBe(false);
+  const before = await get('/api/to-doo/state?kind=task&ids=' + editedId);
+  const changed = await command('update_task', { id: editedId, expectedRevision: before.tasks[0].revision,
+    patch: { title: 'Newer accepted title' } });
+  expect(changed.changed.some((row: { kind: string; id: string }) => row.kind === 'task' && row.id === editedId)).toBe(true);
+  // A normal targeted write-back can arrive while a separate scope hydration
+  // is still waiting. Keep its fresh entity and the rest of that scope's refs.
+  await model.ensureTask(editedId);
+  const late = await command('create_task', { title: 'Added while hydration waited' });
+  await model.ensureTask(late.ids[0]);
+  const metadata = JSON.parse(JSON.stringify({ version: model.state.snapshot!.version,
+    page: model.state.snapshot!.page, collectionPages: model.state.snapshot!.collectionPages,
+    statistics: model.state.snapshot!.statistics, settings: model.state.snapshot!.settings,
+    detailPages: model.state.detailPages, detailCollectionPages: model.state.detailCollectionPages }));
+  let publications = 0;
+  const stop = watch(() => model.state.snapshot, () => { publications++; }, { flush: 'sync' });
+  release(held!);
+  await loading;
+  stop();
+  expect(publications).toBe(1);
+  expect(model.state.snapshot!.tasks.find(row => row.id === editedId)?.title).toBe('Newer accepted title');
+  expect(model.state.snapshot!.tasks.some(row => row.id === late.ids[0])).toBe(true);
+  expect(new Set(model.state.snapshot!.tasks.map(row => row.id)).size).toBe(model.state.snapshot!.tasks.length);
+  expect({ version: model.state.snapshot!.version, page: model.state.snapshot!.page,
+    collectionPages: model.state.snapshot!.collectionPages, statistics: model.state.snapshot!.statistics,
+    settings: model.state.snapshot!.settings, detailPages: model.state.detailPages,
+    detailCollectionPages: model.state.detailCollectionPages }).toEqual(metadata);
+});
+
+it('publishes a multi-batch block-reference stage and its definition stage once each', async () => {
+  await seed(520);
+  const ids = Array.from({ length: 200 }, (_, i) => longId('calendar-many-task', i));
+  await command('import_entities', { entities: [
+    ...ids.map(id => ({ kind: 'task', entity: { id, title: id } })),
+    ...ids.map((id, i) => ({ kind: 'occurrence', entity: { id: longId('calendar-many-occ', i), taskId: id,
+      cycleKey: 'once', scheduleRevision: 'many-references', status: 'todo' } })),
+    ...ids.map((_, i) => ({ kind: 'timeBlock', entity: { id: longId('calendar-many-block', i),
+      occurrenceId: longId('calendar-many-occ', i), start: { date: '2030-05-17', time: '10:00', timeZone: 'UTC' },
+      durationMinutes: 25 } })),
+  ] });
+  const model = createToDooWorkbench(url => get(url));
+  const publications: [number, number][] = [];
+  const stop = watch(() => model.state.snapshot, snapshot => {
+    if (snapshot) publications.push([snapshot.tasks.length, snapshot.occurrences.length]);
+  }, { flush: 'sync' });
+  await model.load({ view: 'calendar', from: '2030-05-01', to: '2030-05-31', limit: 200 });
+  stop();
+  expect(model.state.error).toBe('');
+  expect(publications).toEqual([[200, 500], [200, 700], [700, 700]]);
+  expect(model.items().filter(row => row.blocks.length)).toHaveLength(200);
 });
