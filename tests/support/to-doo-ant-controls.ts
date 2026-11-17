@@ -13,10 +13,56 @@ function selectContainer(scope: ToDooScope, name: string) {
 /** Choose a visible domain label through the real, searchable Ant Select popup. */
 export async function selectToDooOption(scope: ToDooScope, name: string, label: string) {
   const control = scope.getByRole('combobox', { name, exact: true });
+  await expect(control).toBeEnabled();
   await selectContainer(scope, name).locator('.ant-select-selector').click();
   if (await control.isEditable()) await control.fill(label);
   const page = 'page' in scope ? scope.page() : scope;
-  const option = page.locator('.ant-select-dropdown:visible').getByText(label, { exact: true });
+  const dropdown = page.locator('.ant-select-dropdown:visible');
+  const option = dropdown.getByText(label, { exact: true });
+  if (name === '待安排任务') {
+    const dialog = control.locator('xpath=ancestor::*[@role="dialog"][1]');
+    const more = dialog.getByRole('button', { name: '载入更多任务', exact: true });
+    const seenCursors = new Set<string>();
+    let nextCursor: string | null | undefined;
+    for (let pageNumber = 0; pageNumber < 50; pageNumber++) {
+      await expect
+        .poll(
+          async () =>
+            (await option.isVisible()) ||
+            (await dropdown.locator('.ant-select-item-empty').isVisible()),
+        )
+        .toBe(true);
+      if ((await option.isVisible()) || nextCursor === null) break;
+      await control.fill('');
+      await control.press('Escape');
+      await expect(dropdown).toHaveCount(0);
+      if (nextCursor) await expect(more).toBeVisible();
+      else if (!(await more.isVisible())) break;
+      await expect(more).toBeEnabled();
+      const pending = page.waitForResponse((response) => {
+        const url = new URL(response.url());
+        return (
+          response.request().method() === 'GET' &&
+          url.pathname === '/api/to-doo/state' &&
+          url.searchParams.get('view') === 'tasks' &&
+          url.searchParams.has('cursor') &&
+          JSON.parse(url.searchParams.get('filter') || '{}').unscheduled === true
+        );
+      });
+      await more.click();
+      const response = await pending;
+      expect(response.ok(), await response.text()).toBe(true);
+      const cursor = new URL(response.url()).searchParams.get('cursor')!;
+      expect(seenCursors.has(cursor), 'Task picker must advance its pagination cursor').toBe(false);
+      seenCursors.add(cursor);
+      const data = await response.json();
+      expect(data.page.nextCursor).not.toBe(cursor);
+      nextCursor = data.page.nextCursor;
+      await expect(control).toBeEnabled();
+      await selectContainer(scope, name).locator('.ant-select-selector').click();
+      if (await control.isEditable()) await control.fill(label);
+    }
+  }
   await expect(option).toBeVisible();
   await option.click();
 }
