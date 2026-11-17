@@ -45,6 +45,7 @@ import { buildToDooSnapshot, statistics } from './queries.js';
 import { readToDooFocusHistory } from './focus.js';
 import { resolveToDooReminderSource } from './reminder-source.js';
 import { getHabitGoalMode, getHabitPeriod } from '../../../shared/to-doo-habits.js';
+import { habitCheckpointInput, isHabitCheckpointContinuation, registerHabitCheckpointWriter } from './habit-checkpoint.js';
 
 export function interruptImportedToDooFocusSession<T extends Record<string, unknown>>(session: T) {
   if (session.status !== 'running') return session;
@@ -1331,7 +1332,11 @@ export function createToDooService(
         case 'checkin_habit': {
           const habit = c.get('habit', p.habitId);
           if (habit.deletedAt) toDooError('习惯已删除', 400);
-          if (p.expectedHabitRevision) c.check('habit', habit.id, p.expectedHabitRevision);
+          // store.execute holds the workspace gate and SQLite IMMEDIATE transaction
+          // through this proof and the entry commit; a rule writer cannot interleave.
+          if (p.expectedHabitRevision && habit.revision !== p.expectedHabitRevision &&
+              !isHabitCheckpointContinuation(db, habit, p.expectedHabitRevision))
+            c.check('habit', habit.id, p.expectedHabitRevision);
           const period = getHabitPeriod(habit, p.localDate);
           if (p.localDate > localDate(new Date(c.now), period.rule.timeZone))
             toDooError('不能提前记录未来日期的习惯', 400);
@@ -1580,7 +1585,7 @@ export function createToDooService(
       },
     );
   }
-  return {
+  const service: ToDooService = {
     snapshot,
     getVersion() {
       store.refresh();
@@ -1618,4 +1623,16 @@ export function createToDooService(
     importCheckpoint,
     close: () => store.close(),
   };
+  registerHabitCheckpointWriter(service, input => {
+    const normalized = habitCheckpointInput(input);
+    return mutate(input.requestId, normalized, c => {
+      const habit = c.get('habit', input.habitId);
+      c.check('habit', habit.id, input.expectedRevision);
+      const after = parseEntity('habit', { ...habit, reminderCheckpoint: input.checkpoint });
+      const ids = normalized.events.map(event => c.put('reminderEvent', event, null).id);
+      ids.push(c.put('habit', { ...habit, reminderCheckpoint: after.reminderCheckpoint }, habit.revision).id);
+      return ids;
+    });
+  });
+  return service;
 }
