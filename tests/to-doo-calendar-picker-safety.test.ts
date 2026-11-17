@@ -4,6 +4,7 @@ import ts from 'typescript';
 import * as Vue from 'vue';
 import { afterEach, expect, test, vi } from 'vitest';
 import * as actionGuards from '../apps/web/to-doo-action-guard';
+import * as pickerProjection from '../apps/web/to-doo-calendar-task-projection';
 import { TO_DOO_COLLECTIONS, toDooEntitySchemas } from '../shared/to-doo-contracts';
 
 const cleanup: (() => void)[] = [];
@@ -55,6 +56,7 @@ async function fixture() {
   new Function('require', 'module', 'exports', source)((id: string) => {
     if (id === 'vue') return Vue;
     if (id.endsWith('/to-doo-action-guard')) return actionGuards;
+    if (id.endsWith('/to-doo-calendar-task-projection')) return pickerProjection;
     if (id.endsWith('/to-doo-controls')) return { useToDooConfirm: () => confirm };
     if (id === 'ant-design-vue' || id.endsWith('.vue')) return {};
     throw Error('Unexpected picker dependency: ' + id);
@@ -85,6 +87,34 @@ test('a clean picker schedules only after checking the selected task and the ent
   expect(f.scheduled).toHaveBeenCalledWith('2026-11-04');
   expect(f.close).toHaveBeenCalledOnce();
   expect(f.confirm).not.toHaveBeenCalled();
+});
+
+test('the picker cursor belongs to eligible executions rather than the independent task page', async () => {
+  const f = await fixture();
+  const query = new URL(f.model.request.mock.calls[0][0], 'http://localhost:3010').searchParams;
+  expect(query.get('kind')).toBe('occurrence');
+  expect(query.get('view')).toBe('tasks');
+  expect(query.get('limit')).toBe('200');
+  expect(JSON.parse(query.get('filter')!)).toEqual({ statuses: ['todo', 'doing', 'blocked'], unscheduled: true });
+});
+
+test.each(['dataset', 'list-scope'] as const)('a late page cannot replace the selection, preview or cursor after changing %s', async change => {
+  const f = await fixture();
+  f.setup.cursor = 'original-cursor';
+  f.setup.prepared = f.plan;
+  const original = f.setup.snapshot;
+  let release!: (value: unknown) => void;
+  const delayed = new Promise(resolve => { release = resolve; });
+  f.model.request.mockImplementationOnce(async () => delayed);
+  const loading = f.setup.load(true);
+  if (change === 'dataset') f.state.snapshot.datasetId = 'other-dataset';
+  else f.state.filter.listIds = ['other-list'];
+  release({ ...JSON.parse(JSON.stringify(original)), page: { nextCursor: 'replacement-cursor' } });
+  await loading;
+  expect(f.setup.snapshot).toEqual(original);
+  expect(f.setup.cursor).toBe('original-cursor');
+  expect(f.setup.selected).toBe('occ');
+  expect(f.setup.prepared).toEqual(f.plan);
 });
 
 test('a hidden period draft prevents picker preview and application without an implicit save', async () => {
