@@ -1,4 +1,4 @@
-import { openToDooDirectory, closeToDooDirectory } from '../support/to-doo-navigation';
+import { openToDooDirectory, closeToDooDirectory, revealToDooTask } from '../support/to-doo-navigation';
 import { expandToDooGroup } from '../support/to-doo-ant-controls';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
@@ -279,14 +279,19 @@ test('older reminder summaries leave the phone document body available for editi
   });
   expect(created.status()).toBe(201);
   await page.goto('/?note=' + (await created.json()).id);
-  await page.getByRole('button', { name: '文档编辑', exact: true }).click();
+  await expect(page.locator('.mode-row')).toBeVisible();
+  const documentMode = page.getByRole('button', { name: '文档编辑', exact: true });
+  if (await documentMode.isVisible()) await documentMode.click();
   const summary = page.locator('.reminder-missed');
   await expect(summary).toBeVisible();
   await expect(summary).toHaveAccessibleName(/还有 \d+ 条较早提醒，查看通知中心/);
   const bounds = (await summary.boundingBox())!;
   expect(bounds.x).toBeGreaterThan(page.viewportSize()!.width / 2);
-  const editor = page.getByRole('textbox', { name: '文档正文', exact: true });
-  await editor.locator('p').last().click();
+  const document = page.getByRole('textbox', { name: '文档正文', exact: true });
+  const rich = await document.isVisible();
+  const editor = rich ? document : page.getByRole('textbox', { name: 'Markdown 正文', exact: true });
+  await expect(editor).toBeVisible();
+  await editor.locator(rich ? 'p' : '.cm-line').last().click();
   await page.keyboard.press('End');
   await page.keyboard.type('仍可输入');
   await expect(editor).toContainText('仍可输入');
@@ -490,15 +495,16 @@ test('switching from an exact reminder occurrence to another task clears the old
   );
   await closeReminder(page, reminder);
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
+  const detail = page.getByRole('complementary', { name: '任务详情' });
   if (info.project.name === 'mobile') {
     // Mobile task details cover the list; use its close control before selecting another task.
-    await app.getByRole('button', { name: '关闭任务详情', exact: true }).click();
+    await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
     expect(new URL(page.url()).searchParams.has('occurrence')).toBe(false);
   }
+  await revealToDooTask(page, title);
   await app.getByRole('button', { name: title, exact: true }).click();
   await expect.poll(() => new URL(page.url()).searchParams.get('occurrence')).toBe(target!.id);
   await page.reload();
-  const detail = app.getByRole('complementary', { name: '任务详情' });
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   expect(new URL(page.url()).searchParams.has('occurrence')).toBe(false);

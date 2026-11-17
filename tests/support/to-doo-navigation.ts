@@ -277,9 +277,17 @@ export async function selectToDooTaskView(
 ) {
   await expect(page.locator('.todo-task-toolbar')).toBeVisible();
   const picker = page.getByRole('combobox', { name: '任务展示方式', exact: true });
-  if (!(await picker.isVisible()))
-    await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  const display = page.getByRole('button', { name: '任务显示与管理', exact: true });
+  if (await display.count()) {
+    if ((await display.getAttribute('aria-expanded')) !== 'true') await display.click();
+    await expect(display).toHaveAttribute('aria-expanded', 'true');
+  }
+  await expect(picker).toBeVisible();
   await selectToDooOption(page, '任务展示方式', label);
+  const popup = page.locator('.todo-task-display-popup:visible');
+  if (await display.count() && (await display.getAttribute('aria-expanded')) === 'true')
+    await popup.getByRole('button', { name: '关闭', exact: true }).click();
+  await expect(popup).toHaveCount(0);
 }
 
 /** Expand task search when the compact phone toolbar is used. */

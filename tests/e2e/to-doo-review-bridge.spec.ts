@@ -12,6 +12,7 @@ import {
   goToToDooSection,
   selectToDooList,
   selectToDooQuickView,
+  revealToDooTask,
 } from '../support/to-doo-navigation';
 
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
@@ -250,8 +251,10 @@ test('opening an ordinary inbox task first does not discard the next review task
   });
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   await selectToDooQuickView(page, '收集箱');
+  await revealToDooTask(page, title);
   await expect(page.getByRole('button', { name: title, exact: true })).toBeVisible();
   await page.reload();
+  await revealToDooTask(page, title);
   await page.getByRole('button', { name: title, exact: true }).click();
   await expect(detail.getByLabel('任务说明', { exact: true })).toHaveValue(new RegExp(name));
 });
