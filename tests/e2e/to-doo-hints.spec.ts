@@ -78,6 +78,7 @@ test('clearing a search keeps the Today scope and removes only extra filters', a
   await search.fill('不存在的任务 ' + crypto.randomUUID());
   await page.getByRole('button', { name: '执行搜索', exact: true }).click();
   await expect(page.locator('.todo-task-row')).toHaveCount(0);
+  await search.press('Escape');
 
   const filters = page.locator('.todo-task-scope');
   await filters.locator('summary').click();

@@ -162,7 +162,7 @@ test('invalid input blocks list changes and browser Back without changing the qu
   if ((page.viewportSize()?.width || 0) < 960) {
     // The mobile detail is a modal: background navigation is intentionally inert.
     // Attempt the detail's own list change, then exercise browser Back below.
-    await detail(page).getByRole('button', { name: '收集箱 ⌄', exact: true }).click();
+    await detail(page).locator('.todo-detail-context').getByRole('button').click();
   } else {
     const directory = await openToDooDirectory(page);
     await directory.getByRole('button', { name: targetName, exact: true }).click();

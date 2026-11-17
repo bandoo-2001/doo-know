@@ -71,7 +71,12 @@ test('invalid typed deadline prevents saving an unrelated title change', async (
   await date.click();
   await date.fill('2026-99-99');
   await date.press('Tab');
-  await deadline.locator('.ant-modal-close').click();
+  // Moving focus dismisses the date panel without Escape canceling the invalid text.
+  const close = deadline.locator('.ant-modal-close');
+  if (info.project.name === 'mobile') {
+    await close.focus();
+    await close.press('Enter');
+  } else await close.click();
   await expect(deadline).not.toBeVisible();
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   await expect(deadline).toBeVisible();

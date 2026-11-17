@@ -1,7 +1,7 @@
 import { readFile, mkdir } from 'node:fs/promises';
 import type { Locator, Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
-import { goToToDooSection, openToDooTaskTools, selectToDooContext } from '../support/to-doo-navigation';
+import { goToToDooSection, openToDooTaskTools, selectToDooContext, revealToDooTask } from '../support/to-doo-navigation';
 import {
   confirmToDooAction,
   expandToDooGroup,
@@ -43,25 +43,26 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
   await app.getByRole('button', { name: '新建目标', exact: true }).click();
   const editor = page.getByRole('dialog');
   const name = '浏览器目标 ' + info.project.name + '-' + Date.now();
-  await editor.getByLabel('名称', { exact: true }).fill(name);
+  await editor.getByLabel('清单名称', { exact: true }).fill(name);
   await editor.getByRole('button', { name: '保存', exact: true }).click();
   await expect(app.locator('.todo-goals').getByRole('button', { name, exact: true })).toBeVisible();
   await app.locator('.todo-goals').getByRole('button', { name, exact: true }).click();
   await app.getByRole('button', { name: '新建任务', exact: true }).first().click();
-  await app.getByLabel('任务标题', { exact: true }).fill('验证真实任务持久保存 ' + name);
-  await selectToDooOption(app, '目标或清单', name);
+  const draft = page.getByRole('complementary', { name: '任务详情', exact: true });
+  await draft.getByLabel('任务标题', { exact: true }).fill('验证真实任务持久保存 ' + name);
+  await selectToDooOption(draft, '目标或清单', name);
   await fillToDooDate(
-    app.getByLabel('计划日期', { exact: true }),
+    draft.getByLabel('计划日期', { exact: true }),
     new Date().toISOString().slice(0, 10),
   );
-  await expandToDooGroup(app.getByRole('complementary', { name: '任务详情' }), '更多选项');
-  await app.getByLabel('完成标准', { exact: true }).fill('确认真实持久化与资料关联');
+  await expandToDooGroup(draft, '更多选项');
+  await draft.getByLabel('完成标准', { exact: true }).fill('确认真实持久化与资料关联');
   const createdTask = page.waitForResponse(response => response.request().method() === 'POST' &&
     new URL(response.url()).pathname === '/api/to-doo/commands' &&
     response.request().postDataJSON().action === 'create_task');
-  await app.getByRole('button', { name: '创建任务', exact: true }).click();
+  await draft.getByRole('button', { name: '创建任务', exact: true }).click();
   expect((await createdTask).ok()).toBe(true);
-  const detail = app.getByRole('complementary', { name: '任务详情' });
+  const detail = page.getByRole('complementary', { name: '任务详情' });
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(
     '验证真实任务持久保存 ' + name,
   );
@@ -114,7 +115,7 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&task=' + taskId);
   await page.reload();
   await expectToDooPageReady(app);
-  await expect(app.getByRole('complementary', { name: '任务详情' }).getByRole('button', { name: '重新打开', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('complementary', { name: '任务详情' }).getByRole('button', { name: '重新打开', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(app.getByLabel('任务说明', { exact: true })).toHaveValue(
     '刷新后应该仍能读到这段记录',
   );
@@ -328,7 +329,7 @@ test.describe('To Doo source and evidence', () => {
     await page.getByRole('dialog', { name: '从资料创建任务', exact: true })
       .getByRole('button', { name: '创建任务', exact: true }).click();
     const app = page.getByRole('region', { name: 'To Doo 行动工作空间' }),
-      detail = app.getByRole('complementary', { name: '任务详情' });
+      detail = page.getByRole('complementary', { name: '任务详情' });
     await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(taskTitle);
     await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
     const taskId = new URL(page.url()).searchParams.get('task');
@@ -488,7 +489,7 @@ test('bulk and cascade completion freeze execution membership and persist their 
   const cancelled = await seed('批量取消 ' + suffix);
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&task=' + parent.id);
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' }),
-    detail = app.getByRole('complementary', { name: '任务详情' });
+    detail = page.getByRole('complementary', { name: '任务详情' });
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(parent.title);
   const cascadeRequest = page.waitForRequest(
     (r) => r.method() === 'POST' && r.url().endsWith('/api/to-doo/commands'),
@@ -502,6 +503,7 @@ test('bulk and cascade completion freeze execution membership and persist their 
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
   await page.getByRole('menuitem', { name: '选择任务', exact: true }).click();
+  await revealToDooTask(page, batchParent.title);
   await app.getByRole('checkbox', { name: '选择 ' + batchParent.title, exact: true }).check();
   const batchRequest = page.waitForRequest(
     (r) => r.method() === 'POST' && r.url().endsWith('/api/to-doo/commands'),

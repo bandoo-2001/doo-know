@@ -124,12 +124,14 @@ test('period statistics and progress follow real seven-day, thirty-day and custo
     progress.getByRole('progressbar', { name: name + '完成进度', exact: true }),
   ).toBeVisible();
   await app.getByRole('tab', { name: '概览', exact: true }).click();
-  const hasPeriodRecords = [...initialPeriod.reviews, ...initialPeriod.outcomes].some(
+  const hasPeriodRecords = initialPeriod.reviews.some(
     (item: any) => !item.deletedAt,
   );
-  await expect(
-    app.locator('.ant-empty').filter({ hasText: '写下做对的事与下一次调整' }),
-  ).toHaveCount(hasPeriodRecords ? 0 : 1);
+  await app.getByRole('tab', { name: '历史复盘', exact: true }).click();
+  const emptyReviews = app.locator('#to-doo-stats-reviews .ant-empty');
+  await expect(emptyReviews).toHaveCount(hasPeriodRecords ? 0 : 1);
+  if (!hasPeriodRecords) await expect(emptyReviews).toContainText('还没有复盘记录');
+  await app.getByRole('tab', { name: '概览', exact: true }).click();
   const month = statsResponse(page, shift(today, -29), today);
   await app.getByText('近 30 天', { exact: true }).click();
   expect((await month).ok()).toBe(true);
@@ -234,7 +236,8 @@ test('Ant review modal preserves a canceled discard and saves a fresh local-date
     '2026-03-10',
   );
   await app.getByRole('button', { name: '查看区间', exact: true }).click();
-  await expect(app.getByRole('button').filter({ hasText: name })).toBeVisible();
+  await app.getByRole('tab', { name: '历史复盘', exact: true }).click();
+  await expect(app.getByRole('button', { name: '打开复盘 ' + name, exact: true })).toBeVisible();
 });
 
 test('focus and habit quantity modals cancel without writes and persist explicit numeric receipts', async ({

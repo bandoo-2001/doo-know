@@ -92,7 +92,8 @@ test('an internal phone history action moves keyboard focus into the visible pan
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
-  const button = page.getByRole('button', { name: '查看全部记录', exact: true });
+  await page.getByRole('button', { name: '专注项目更多', exact: true }).click();
+  const button = page.getByRole('menuitem', { name: '查看全部记录', exact: true });
   await expect(button).toBeVisible();
   await button.focus();
   await button.press('Enter');

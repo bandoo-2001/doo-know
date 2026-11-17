@@ -33,7 +33,8 @@ export async function fillToDooDate(control: Locator, value: string) {
   const display = value.replace('T', ' ');
   await control.click();
   await control.fill(display);
-  await control.press('Enter');
+  // Enter on an empty, open picker selects its active day rather than clearing it.
+  if (display) await control.press('Enter');
   await control.press('Tab');
   await expect(control).toHaveValue(display);
 }

@@ -179,6 +179,47 @@ export async function selectToDooList(page: Page, name: string) {
   await closeToDooDirectory(page);
 }
 
+/** Follow real collection pagination before asserting a newly seeded task in a shared fixture. */
+export async function revealToDooTask(page: Page, title: string) {
+  const task = page.getByRole('button', { name: title, exact: true });
+  await expect(page.locator('.todo-main')).toHaveAttribute('aria-busy', 'false');
+  for (let pageNumber = 0; pageNumber < 50 && !(await task.isVisible()); pageNumber++) {
+    let advanced = false;
+    for (const [kind, label] of [
+      ['task', '任务'],
+      ['occurrence', '执行实例'],
+    ] as const) {
+      const more = page.getByRole('button', { name: '继续载入' + label, exact: true });
+      if (!(await more.isVisible())) continue;
+      await expect(more).toBeEnabled();
+      const response = page.waitForResponse((response) => {
+        const url = new URL(response.url());
+        return (
+          url.pathname === '/api/to-doo/state' &&
+          url.searchParams.get('kind') === kind &&
+          url.searchParams.has('cursor')
+        );
+      });
+      await more.click();
+      expect((await response).ok()).toBe(true);
+      await expect
+        .poll(() =>
+          more.evaluateAll(
+            (elements) =>
+              !elements.length ||
+              elements.every((element) => !(element as HTMLButtonElement).disabled),
+          ),
+        )
+        .toBe(true);
+      advanced = true;
+      if (await task.isVisible()) break;
+    }
+    if (!advanced) break;
+  }
+  await expect(task).toBeVisible();
+  return task;
+}
+
 /** Return to the DooKnow location without reaching through its hidden application shell. */
 export async function returnFromToDoo(page: Page) {
   const button = page

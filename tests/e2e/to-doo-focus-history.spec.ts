@@ -177,6 +177,7 @@ test('a focus project saves records, survives refresh and archives without chang
   await app.getByRole('textbox', { name: '本次专注记录', exact: true }).fill(note);
   if (await closeSettings.isVisible()) await closeSettings.click();
   await app.getByRole('button', { name: '结束并保存', exact: true }).click();
+  await openToDooFocusHistory(page);
   const record = app.locator('.todo-focus-history-item').filter({ hasText: note });
   await expect(record).toBeVisible();
   await record.locator('summary').click();
@@ -191,7 +192,8 @@ test('a focus project saves records, survives refresh and archives without chang
     await app.locator('.todo-focus-mobile-panes').getByText('专注', { exact: true }).click();
   await app.getByRole('button', { name: '专注项目操作 ' + topicName, exact: true }).click();
   await page.getByRole('menuitem', { name: '归档项目', exact: true }).click();
-  await app.getByText('已归档', { exact: true }).click();
+  await app.getByRole('button', { name: '专注项目更多', exact: true }).click();
+  await page.getByRole('menuitem', { name: '已归档项目', exact: true }).click();
   await expect(
     app.getByRole('button', { name: '选择专注项目 ' + topicName, exact: true }),
   ).toBeVisible();

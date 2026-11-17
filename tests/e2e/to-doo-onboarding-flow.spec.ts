@@ -149,10 +149,16 @@ test('one navigation reaches the main tools and Today always returns to its task
     await expect.poll(() => new URL(page.url()).searchParams.get('taskFilter')).toBe(filter);
     await expect(page.locator('.todo-page h1')).toHaveText(name);
     const directory = await openToDooDirectory(page);
-    await expect(directory.getByRole('button', { name, exact: true })).toHaveAttribute(
+    let selected = directory.getByRole('button', { name, exact: true });
+    if (!(await selected.isVisible())) {
+      await directory.getByRole('button', { name: '更多任务范围', exact: true }).click();
+      selected = page.getByRole('group', { name: '更多任务范围', exact: true }).getByRole('button', { name, exact: true });
+    }
+    await expect(selected).toHaveAttribute(
       'aria-current',
       'page',
     );
+    await page.keyboard.press('Escape');
     await closeToDooDirectory(page);
   }
   expect(

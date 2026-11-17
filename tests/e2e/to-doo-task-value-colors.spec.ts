@@ -119,6 +119,12 @@ test('dark context menus use the same semantic colors and keep priority and stat
   const id = await createFixture(page, title);
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  const searchButton = page.getByRole('button', { name: '搜索任务', exact: true });
+  await searchButton.click();
+  const search = page.getByRole('textbox', { name: '搜索任务', exact: true });
+  await search.fill(title);
+  await page.getByRole('button', { name: '执行搜索', exact: true }).click();
+  await search.press('Escape');
   const row = page.locator('.todo-task-row').filter({ hasText: title });
   await row.hover();
   await row.getByRole('button', { name: '任务操作 ' + title, exact: true }).click();

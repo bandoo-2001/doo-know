@@ -196,6 +196,7 @@ test('group creation and view switching preserve the group, list and selected ta
   await detail.getByLabel('任务标题', { exact: true }).fill(title);
   await detail.getByRole('button', { name: '创建任务', exact: true }).click();
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
+  await expect(detail.getByText('已保存', { exact: true })).toBeVisible();
   if (info.project.name === 'mobile') {
     await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
     await expect(detail).not.toBeVisible();

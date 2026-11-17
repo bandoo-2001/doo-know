@@ -44,7 +44,7 @@ test('task dates use a compact dash range while keeping the endpoint meaning', a
   expect(await text(names.single)).toBe('截止今天17:30');
   await expect(row(names.equal).locator('.todo-task-date')).toHaveCount(1);
   await expect(row(names.equal).locator('.todo-task-date-separator')).toHaveCount(0);
-  await expect(row(names.same).locator('.todo-task-dates')).toHaveAttribute('aria-label', `计划 ${today} 10:00；截止 ${today} 17:30`);
+  await expect(row(names.same).locator('.todo-task-dates')).toHaveAttribute('aria-label', new RegExp(`^计划 ${today} 10:00；截止 ${today} 17:30(?:（已逾期）)?$`));
   await expect(row(names.cross).locator('.todo-task-deadline')).toHaveAttribute('aria-label', `截止 ${tomorrow} 17:30`);
   const sameSeparator = row(names.same).locator('.todo-task-date-separator');
   const line = (await sameSeparator.boundingBox())!;

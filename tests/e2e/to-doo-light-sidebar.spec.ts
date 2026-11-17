@@ -118,8 +118,8 @@ test('explicit save preserves failed title and description edits and retries the
   expect(response.request().postDataJSON().requestId).toBe(
     failed.request().postDataJSON().requestId,
   );
-  const receipt = (await response.json()) as ToDooCommandResult;
-  expect(receipt.snapshot.tasks.find((task) => task.id === taskId)).toMatchObject({
+  const receipt = await (await page.request.get('/api/to-doo/state?taskIds=' + taskId)).json() as ToDooSnapshot;
+  expect(receipt.tasks.find((task) => task.id === taskId)).toMatchObject({
     title: nextTitle,
     description,
   });

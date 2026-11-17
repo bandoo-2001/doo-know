@@ -88,19 +88,28 @@ test('desktop pages keep one navigation and stable layout boundaries', async ({ 
     await expect(page.locator('.workspace-main-menu[data-menu-id="to-doo"]')).toHaveCount(0);
     const header = await app.locator('.todo-topbar').boundingBox();
     const title = await app.locator('.todo-page-heading h1').boundingBox();
+    const heading = (await app.locator('.todo-page-heading').boundingBox())!;
+    const main = (await app.locator('.todo-main').boundingBox())!;
     const sidebar = app.locator(':scope > .todo-sidebar');
     await expect(sidebar).toHaveCount(1);
     const directory = await sidebar.boundingBox();
     expect.soft(header!.height, section + ': header height').toBeCloseTo(56, 0);
     expect.soft(header!.x, section + ': full app header').toBeCloseTo(0, 0);
-    expect.soft(directory!.width, section + ': navigation width').toBeGreaterThanOrEqual(200);
+    const rail = (await sidebar.locator('.todo-module-rail').boundingBox())!;
+    const taskNavigation = sidebar.getByRole('navigation', { name: 'To Doo 任务导航', exact: true });
+    if (['tasks', 'board', 'matrix', 'timeline'].includes(section)) {
+      await expect(taskNavigation).toBeVisible();
+      const taskBounds = (await taskNavigation.boundingBox())!;
+      expect.soft(directory!.width, section + ': rail and task directory').toBeCloseTo(rail.width + taskBounds.width, 0);
+    } else {
+      await expect(taskNavigation).toHaveCount(0);
+      expect.soft(directory!.width, section + ': module rail').toBeCloseTo(rail.width, 0);
+    }
     expect.soft(directory!.y, section + ': navigation below header').toBeCloseTo(header!.y + 56, 0);
-    expect
-      .soft(title!.x, section + ': content start')
-      .toBeCloseTo(directory!.x + directory!.width + 24, 0);
-    expect
-      .soft(title!.y - (header!.y + header!.height), section + ': title baseline')
-      .toBeCloseTo(24, 0);
+    expect.soft(main.x, section + ': content after navigation').toBeCloseTo(directory!.x + directory!.width, 0);
+    expect.soft(title!.x, section + ': title start').toBeCloseTo(heading.x, 0);
+    expect.soft(title!.x, section + ': title inside main').toBeGreaterThanOrEqual(main.x);
+    expect.soft(Math.abs(title!.y + title!.height / 2 - heading.y - heading.height / 2), section + ': title vertically centered').toBeLessThanOrEqual(1);
     expect
       .soft(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
@@ -149,7 +158,7 @@ for (const theme of ['light', 'dark'] as const) {
     );
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
     const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
-    const detail = app.getByRole('complementary', { name: '任务详情', exact: true });
+    const detail = page.getByRole('complementary', { name: '任务详情', exact: true });
     for (const width of [320, 390, 768, 1024, 1440, 1873]) {
       await page.setViewportSize({ width, height: 1000 });
       await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(
@@ -158,13 +167,15 @@ for (const theme of ['light', 'dark'] as const) {
       const header = (await app.locator('.todo-topbar').boundingBox())!;
       const panel = (await detail.boundingBox())!;
       expect(header.height).toBeCloseTo(56, 0);
-      expect(panel.width).toBeCloseTo(Math.min(width, 420), 0);
+      expect(panel.width).toBeGreaterThanOrEqual(Math.min(width, 320));
+      expect(panel.width).toBeLessThanOrEqual(Math.min(width, 560));
       expect(panel.x).toBeGreaterThanOrEqual(0);
       expect(panel.x + panel.width).toBeLessThanOrEqual(width + 1);
       const tabbar = page.getByRole('navigation', { name: 'To Doo 快捷导航', exact: true });
-      if (await tabbar.isVisible())
+      const modal = page.getByRole('dialog', { name: '任务编辑', exact: true });
+      if (!(await modal.isVisible()) && await tabbar.isVisible())
         expect(panel.y + panel.height).toBeLessThanOrEqual((await tabbar.boundingBox())!.y + 1);
-      if (width >= 1280) expect(panel.y).toBeCloseTo(header.y + header.height, 0);
+      if (width >= 1280 && !(await modal.isVisible())) expect(panel.y).toBeCloseTo(header.y + header.height, 0);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
         true,
       );

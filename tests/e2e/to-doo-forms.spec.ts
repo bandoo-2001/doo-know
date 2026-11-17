@@ -180,7 +180,7 @@ test('invalid Gregorian input stays visible and cannot silently save the previou
   await date.click();
   await date.fill('2026-02-30');
   await date.press('Tab');
-  await editor.getByText('新建纪念日', { exact: true }).click();
+  await expect(date).toHaveAttribute('aria-invalid', 'true');
   let writes = 0;
   page.on('request', (request) => {
     if (request.method() === 'POST' && request.url().endsWith('/api/to-doo/commands')) writes++;
@@ -409,46 +409,46 @@ for (const restoreOriginal of [false, true]) {
       const submitted = before.settings.defaultDurationMinutes === 43 ? 44 : 43;
       let release = () => {};
       try {
-      await page.goto('/?view=apps&app=to-doo&appSection=settings');
-      const field = page.getByRole('spinbutton', { name: '默认安排分钟', exact: true });
-      await field.fill(String(submitted));
-      const gate = new Promise<void>((resolve) => {
-        release = resolve;
-      });
-      await page.route('**/api/to-doo/commands', async (route) => {
-        const body = route.request().postDataJSON();
-        if (body.action === 'save_entity' && body.payload.kind === 'settings') await gate;
-        await route.continue();
-      });
-      const pending = page.waitForRequest(
-        (request) =>
-          request.url().endsWith('/api/to-doo/commands') &&
-          request.postDataJSON()?.payload.kind === 'settings',
-      );
-      await page.getByRole('button', { name: '保存偏好', exact: true }).click();
-      await pending;
-      try {
-        await field.fill(String(nextValue));
+        await page.goto('/?view=apps&app=to-doo&appSection=settings');
+        const field = page.getByRole('spinbutton', { name: '默认安排分钟', exact: true });
+        await field.fill(String(submitted));
+        const gate = new Promise<void>((resolve) => {
+          release = resolve;
+        });
+        await page.route('**/api/to-doo/commands', async (route) => {
+          const body = route.request().postDataJSON();
+          if (body.action === 'save_entity' && body.payload.kind === 'settings') await gate;
+          await route.continue();
+        });
+        const pending = page.waitForRequest(
+          (request) =>
+            request.url().endsWith('/api/to-doo/commands') &&
+            request.postDataJSON()?.payload.kind === 'settings',
+        );
+        await page.getByRole('button', { name: '保存偏好', exact: true }).click();
+        await pending;
+        try {
+          await field.fill(String(nextValue));
+        } finally {
+          release();
+        }
+        await expect(page.getByRole('status').filter({ hasText: '偏好已保存' })).toBeVisible();
+        await expect(field).toHaveValue(String(nextValue));
+        expect(
+          (await (await page.request.get('/api/to-doo/settings')).json()).defaultDurationMinutes,
+        ).toBe(submitted);
+        await page.getByRole('button', { name: '保存偏好', exact: true }).click();
+        await expect(page.getByText('有未保存的更改', { exact: true })).not.toBeVisible();
+        const saved = await (await page.request.get('/api/to-doo/settings')).json();
+        expect(saved.defaultDurationMinutes).toBe(nextValue);
       } finally {
         release();
-      }
-      await expect(page.getByRole('status').filter({ hasText: '偏好已保存' })).toBeVisible();
-      await expect(field).toHaveValue(String(nextValue));
-      expect(
-        (await (await page.request.get('/api/to-doo/settings')).json()).defaultDurationMinutes,
-      ).toBe(submitted);
-      await page.getByRole('button', { name: '保存偏好', exact: true }).click();
-      await expect(page.getByText('有未保存的更改', { exact: true })).not.toBeVisible();
-      const saved = await (await page.request.get('/api/to-doo/settings')).json();
-      expect(saved.defaultDurationMinutes).toBe(nextValue);
-      } finally {
-      release();
-      const saved = await (await page.request.get('/api/to-doo/settings')).json();
-      await command(page, 'save_entity', {
-        kind: 'settings',
-        entity: before.settings,
-        expectedRevision: saved.revision,
-      });
+        const saved = await (await page.request.get('/api/to-doo/settings')).json();
+        await command(page, 'save_entity', {
+          kind: 'settings',
+          entity: before.settings,
+          expectedRevision: saved.revision,
+        });
       }
     },
   );
