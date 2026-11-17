@@ -45,6 +45,13 @@ export async function verifyMcpToDooWorkflow(
   let firstCleanupError: unknown;
   const cleanupErrors: string[] = [];
   try {
+    // Reject before creating any fixture entity; requireIdle below closes
+    // the race with another client between this read and start_focus.
+    const focusState = await call('query_to_doos', { kind: 'focusOverview', limit: 1 });
+    const overview = focusState.items?.[0]?.entity;
+    if (!overview || !Object.hasOwn(overview, 'active'))
+      throw new Error('MCP_WORKFLOW_FOCUS_STATE_INVALID');
+    if (overview.active !== null) throw new Error('MCP_WORKFLOW_REQUIRES_IDLE_DATASET');
     const now = new Date(),
       day = now.toISOString().slice(0, 10);
     const start = new Date(now.getTime() - 25 * 60_000).toISOString();
@@ -66,7 +73,7 @@ export async function verifyMcpToDooWorkflow(
     await save('focusTopic', prefix + '-topic', { name: 'MCP 验收专注', listId: nested });
     let focus = await write('execute_to_doo_command', {
       action: 'start_focus',
-      payload: { mode: 'stopwatch', topicId: prefix + '-topic', at: start },
+      payload: { mode: 'stopwatch', topicId: prefix + '-topic', at: start, requireIdle: true },
     });
     const focusId = focus.ids[0] as string;
     assert.equal(typeof focusId, 'string');
@@ -222,8 +229,15 @@ export async function verifyMcpToDooWorkflow(
       }
   }
   if (primaryError || cleanupErrors.length) {
+    const localFailure =
+      primaryError instanceof Error &&
+      ['MCP_WORKFLOW_REQUIRES_IDLE_DATASET', 'MCP_WORKFLOW_FOCUS_STATE_INVALID'].includes(
+        primaryError.message,
+      )
+        ? primaryError.message
+        : undefined;
     const failure = new Error(
-      primaryError ? 'MCP_WORKFLOW_FAILED' : 'MCP_WORKFLOW_CLEANUP_FAILED',
+      localFailure ?? (primaryError ? 'MCP_WORKFLOW_FAILED' : 'MCP_WORKFLOW_CLEANUP_FAILED'),
       { cause: primaryError ?? firstCleanupError },
     );
     Object.assign(failure, {

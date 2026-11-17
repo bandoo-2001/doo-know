@@ -77,7 +77,12 @@ try {
       const names = new Set<string>();
       do {
         phase = mode + ':tools/list';
-        const page = await client.listTools(cursor ? { cursor } : {});
+        // v2 listTools() aggregates all pages when cursor is absent. Frame
+        // budgets apply to each wire response, not the combined client cache.
+        const page =
+          client instanceof LegacyClient
+            ? await client.listTools(cursor ? { cursor } : {})
+            : await client.request({ method: 'tools/list', params: cursor ? { cursor } : {} });
         if (Buffer.byteLength(JSON.stringify({ jsonrpc: '2.0', id: 1, result: page })) > 65536)
           throw Error('MCP_VERIFIER_FRAME_TOO_LARGE');
         for (const tool of page.tools) {

@@ -4,6 +4,7 @@ import ts from 'typescript';
 import * as Vue from 'vue';
 import { afterEach, expect, it, vi } from 'vitest';
 import * as values from '../apps/web/to-doo-task-values';
+import * as controls from '../apps/web/to-doo-controls';
 
 const cleanups: (() => void)[] = [];
 afterEach(() => {
@@ -30,6 +31,7 @@ function mount(multiple: boolean, props: Record<string, unknown> = {}) {
       if (id === 'vue') return Vue;
       if (id === 'ant-design-vue') return { Select: empty };
       if (id.endsWith('/to-doo-task-values')) return values;
+      if (id === '../../to-doo-controls') return controls;
       if (id.endsWith('.vue')) return { default: empty };
       throw Error('Unexpected value selector import: ' + id);
     },
