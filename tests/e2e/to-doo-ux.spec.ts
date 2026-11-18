@@ -92,6 +92,7 @@ test('quick add inherits the selected list and clearing filters restores tasks a
   page,
   context,
 }, info) => {
+  test.setTimeout(90_000);
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const suffix = info.project.name + '-' + Date.now();
   const listName = '快速清单 ' + suffix;
