@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
 import { expectToDooSelection, selectToDooOption } from '../support/to-doo-ant-controls';
 import { openToDooFocusHistory } from '../support/to-doo-navigation';
+import { loadToDooTaskOptionThroughUi } from '../support/to-doo-task-fixture';
 
 test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -48,6 +49,11 @@ test('focus settings retain their action and note while history secondary contro
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   const timer = app.getByRole('region', { name: '专注计时器', exact: true });
+  await loadToDooTaskOptionThroughUi(
+    page,
+    timer.getByRole('combobox', { name: '专注任务', exact: true }),
+    title,
+  );
   await app.getByRole('button', { name: '选择专注项目 ' + topicName, exact: true }).click();
   const settings = timer.getByRole('button', { name: '计时设置', exact: true });
   await expect(app.getByRole('combobox', { name: '关联行动', exact: true })).not.toBeVisible();
