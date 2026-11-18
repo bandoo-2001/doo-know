@@ -98,8 +98,9 @@ test('recent notifications and mark-all include unread records beyond the first 
   await page.getByRole('menuitem', { name: '忽略提醒', exact: true }).click();
   await app.getByRole('button', { name: '其他通知状态', exact: true }).click();
   await page.getByRole('menuitem', { name: '忽略', exact: true }).click();
-  await expect(app.locator('.todo-notification')).toHaveCount(1);
-  await expect(app.locator('.todo-notification')).toContainText(prefix + '-latest');
+  const ownedIgnored = app.locator('.todo-notification').filter({ hasText: prefix });
+  await expect(ownedIgnored).toHaveCount(1);
+  await expect(ownedIgnored).toContainText(prefix + '-latest');
   const ignored = await (
     await page.request.get('/api/to-doo/state?kind=reminderEvent&ids=' + prefix + '-latest')
   ).json();
