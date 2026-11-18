@@ -1290,27 +1290,26 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
       command.action === 'import_entities' && command.payload.entities.some(entry =>
         (taskWorksetKinds as readonly string[]).includes(entry.kind));
   }
-  /** A command's default page is not the current filtered task workset. */
-  async function adoptCommandWorkset(result: ToDooCommandResult, before: ToDooSnapshot,
+  async function commandSource(result: ToDooCommandResult, before: ToDooSnapshot,
     ticket: number, deferred: readonly DeferredReadback[] = []) {
-    if (state.snapshot?.datasetId !== before.datasetId || result.snapshot.datasetId !== before.datasetId) return;
     const source = clone(result.snapshot);
     const warning = '操作已保存，但部分记录暂时无法核对，请刷新后查看最新内容；当前输入仍保留。';
-    for (const kind of taskWorksetKinds) {
+    for (const kind of Object.keys(TO_DOO_COLLECTIONS) as (keyof typeof TO_DOO_COLLECTIONS)[]) {
       const collection = TO_DOO_COLLECTIONS[kind];
       const receipts = result.changed.filter(row => row.kind === kind &&
         !deferred.some(owner => owner.kind === kind && owner.id === row.id));
-      const missing = receipts.filter(receipt => !(source[collection] as ToDooEntity[]).some(row =>
+      const entries = (source[collection] || []) as ToDooEntity[];
+      const missing = receipts.filter(receipt => !entries.some(row =>
         row.id === receipt.id && row.revision === receipt.revision));
       // A different revision in a partial reply cannot stand in for this command's receipt.
       const missingIds = new Set(missing.map(receipt => receipt.id));
-      (source[collection] as ToDooEntity[]) = (source[collection] as ToDooEntity[]).filter(row => !missingIds.has(row.id));
+      (source[collection] as ToDooEntity[]) = entries.filter(row => !missingIds.has(row.id));
       for (const { values: part, url } of toDooIdQueryBatches(missing, row => row.id, ids =>
         '/api/to-doo/state?' + new URLSearchParams({ kind, ids: ids.join(','), limit: '100',
           filter: JSON.stringify({ includeDeleted: true, includeArchived: true }) }), { maxCount: 100 })) {
         try {
           const page = await request(url) as ToDooSnapshot;
-          if (ticket !== generation || state.snapshot?.datasetId !== before.datasetId || page.datasetId !== before.datasetId) return;
+          if (ticket !== generation || state.snapshot?.datasetId !== before.datasetId || page.datasetId !== before.datasetId) return undefined;
           for (const receipt of part) {
             const remote = (page[collection] as ToDooEntity[]).find(row => row.id === receipt.id);
             if (remote?.revision === receipt.revision) (source[collection] as ToDooEntity[]).push(clone(remote));
@@ -1327,6 +1326,15 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
         }
       }
     }
+    return source;
+  }
+  /** A command's default page is not the current filtered task workset. */
+  async function adoptCommandWorkset(result: ToDooCommandResult, before: ToDooSnapshot,
+    ticket: number, deferred: readonly DeferredReadback[] = [], command?: ToDooCommand) {
+    if (ticket !== generation || state.snapshot?.datasetId !== before.datasetId || result.snapshot.datasetId !== before.datasetId) return;
+    const source = await commandSource(result, before, ticket, deferred);
+    if (!source) return;
+    const warning = '操作已保存，但部分记录暂时无法核对，请刷新后查看最新内容；当前输入仍保留。';
     const changedIds = new Set(result.changed.filter(row => row.kind === 'task').map(row => row.id));
     const returnedIds = new Set(result.ids);
     const knownIds = new Set(before.tasks.map(task => task.id));
@@ -1375,10 +1383,22 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
         if (values.has(row.id) || changed.has(row.id) || related.has(row.id) || returnedIds.has(row.id)) values.set(row.id, clone(row));
       (next[collection] as ToDooEntity[]) = [...values.values()];
     }
-    // Counts retain this query's last read scope. A later scoped GET refreshes counts/cursors.
+    // A default receipt cannot own the current scope's pages or unrelated metadata.
     next.page = clone(before.page);
     next.collectionPages = clone(before.collectionPages || {});
-    const completed = clone(next);
+    const structural = ['listId', 'parentTaskId', 'deletedAt', 'archivedAt', 'orderKey', 'priority', 'tagIds', 'importance', 'recurrence'];
+    const coreChanged = !(command?.action === 'create_task' && state.query.sort !== 'recent') &&
+      (result.changed.some(row => ['occurrence', 'timeBlock', 'outcome', 'record'].includes(row.kind)) ||
+      result.changed.filter(row => row.kind === 'task').some(receipt => {
+        const previous = before.tasks.find(row => row.id === receipt.id), updated = source.tasks.find(row => row.id === receipt.id);
+        if (!previous) return true;
+        if (state.query.sort === 'recent' || state.query.filter?.query || state.query.filter?.group) return true;
+        if (command?.action === 'update_task') return structural.some(key => Object.hasOwn(command.payload.patch, key) &&
+          fingerprint((previous as any)[key]) !== fingerprint((command.payload.patch as any)[key]));
+        return !!updated && structural.some(key => fingerprint((previous as any)[key]) !== fingerprint((updated as any)[key]));
+      }));
+    if (!(await reconcileCommandMetadata(next, source, before, result, ticket, coreChanged, deferred))) return;
+    const completed = completeCommandSnapshot(next, source, result);
     const visible = new Set(deriveToDooItems(next, state.query.filter || state.filter).map(item => item.task.id));
     const outside = next.tasks.filter(task => knownIds.has(task.id) && changedIds.has(task.id) && !visible.has(task.id));
     const outsideIds = new Set(outside.map(task => task.id));
@@ -1387,7 +1407,204 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
     adopt(next);
     // Keep actual moved/deleted metadata available to guards without retaining those result rows.
     for (const task of outside) state.taskAncestors[task.id] = clone(task);
+    retainCommandTaskMetadata(before, source, next);
     result.snapshot = completed;
+  }
+  /** Re-read only affected metadata windows; offset cursors must come from this query. */
+  async function reconcileCommandMetadata(next: ToDooSnapshot, source: ToDooSnapshot,
+    before: ToDooSnapshot, result: ToDooCommandResult, ticket: number, refreshCore = false,
+    deferred: readonly DeferredReadback[] = [], attempt = 0) {
+    const query = clone(state.query), queryKey = fingerprint(query);
+    const current = () => ticket === generation && state.snapshot?.datasetId === before.datasetId &&
+      fingerprint(state.query) === queryKey;
+    const coreKinds = new Set<ToDooEntityKind>(['task', 'occurrence', 'timeBlock']);
+    const observations = new Map<keyof typeof TO_DOO_COLLECTIONS, string>();
+    let refreshedPrimary = false;
+    const windowKey = (kind: keyof typeof TO_DOO_COLLECTIONS) => fingerprint({
+      ids: (state.snapshot![TO_DOO_COLLECTIONS[kind]] as ToDooEntity[]).map(row => row.id),
+      page: state.snapshot!.collectionPages?.[kind],
+    });
+    const inherited = new Set<ToDooEntityKind>();
+    if (query.listIds !== undefined || query.filter?.listIds !== undefined) {
+      const moved = (kind: 'task' | 'habit') => result.changed.filter(row => row.kind === kind).some(receipt => {
+        const collection = TO_DOO_COLLECTIONS[kind];
+        const previous = before[collection].find(row => row.id === receipt.id);
+        const updated = source[collection].find(row => row.id === receipt.id);
+        return !previous || !updated || previous.listId !== updated.listId || previous.deletedAt !== updated.deletedAt;
+      });
+      if (moved('task'))
+        for (const kind of ['occurrence', 'timeBlock', 'focusSession', 'record', 'outcome', 'activity', 'reminderEvent'] as const) inherited.add(kind);
+      if (moved('habit'))
+        for (const kind of ['habitEntry', 'reminderEvent'] as const) inherited.add(kind);
+    }
+    for (const kind of Object.keys(TO_DOO_COLLECTIONS) as (keyof typeof TO_DOO_COLLECTIONS)[]) {
+      if (coreKinds.has(kind) && !refreshCore && !inherited.has(kind)) continue;
+      if (!current()) return false;
+      const collection = TO_DOO_COLLECTIONS[kind];
+      const cachedValues = new Map(((state.snapshot![collection] || []) as ToDooEntity[]).map(row => [row.id, clone(row)]));
+      if (kind === 'list' || kind === 'section' || coreKinds.has(kind))
+        for (const row of (next[collection] || []) as ToDooEntity[]) cachedValues.set(row.id, clone(row));
+      const cached = [...cachedValues.values()];
+      (next[collection] as ToDooEntity[]) = cached;
+      const changed = result.changed.filter(row => row.kind === kind);
+      const owners = new Set(changed.map(row => row.id));
+      if (!result.changed.length)
+        for (const row of (source[collection] || []) as ToDooEntity[])
+          if (result.ids.includes(row.id)) owners.add(row.id);
+      if (!owners.size && !(refreshCore && coreKinds.has(kind)) && !inherited.has(kind)) continue;
+      const meta = state.snapshot!.collectionPages?.[kind] ||
+        (state.snapshot!.page.kind === kind ? state.snapshot!.page : undefined);
+      const scoped: ToDooQuery = meta
+        ? { ...query, kind, limit: Math.min(500, meta.limit || query.limit || 200) }
+        : { kind, limit: 100, filter: { includeArchived: true } };
+      delete scoped.kinds;
+      delete scoped.cursor;
+      delete scoped.all;
+      const ownsPrimary = !!meta && kind === 'task' && !query.kind && before.page.kind === null &&
+        (!query.kinds || query.kinds.includes('task'));
+      if (ownsPrimary) {
+        delete scoped.kind;
+        if (query.kinds) scoped.kinds = query.kinds;
+      }
+      const url = (value: ToDooQuery) => '/api/to-doo/state?' + new URLSearchParams(
+        Object.entries(value).filter(([,entry]) => entry !== undefined).map(([key,entry]) => [key,
+          Array.isArray(entry) ? entry.join(',') : typeof entry === 'object' ? JSON.stringify(entry) : String(entry)]),
+      );
+      const read = async (value: ToDooQuery) => {
+        const data = await request(url(value)) as ToDooSnapshot;
+        if (!current() || data.datasetId !== before.datasetId) throw Error('资料库或查询范围已变化');
+        return data;
+      };
+      try {
+        const values = new Map<string, ToDooEntity>();
+        let page: ToDooSnapshot['page'] | undefined;
+        let primaryPage: ToDooSnapshot['page'] | undefined;
+        if (meta) {
+          const target = Math.max(1, cached.length);
+          const cursors = new Set<string>();
+          for (let reads = 0; reads < 1000; reads++) {
+            const data = await read(scoped);
+            for (const row of (data[collection] || []) as ToDooEntity[]) values.set(row.id, clone(row));
+            page = data.collectionPages?.[kind] || data.page;
+            if (ownsPrimary) primaryPage = data.page;
+            const continuation = ownsPrimary ? data.page : page;
+            const desired = Math.max(target, (state.snapshot![collection] as ToDooEntity[]).length);
+            if (!continuation.nextCursor || values.size >= desired) break;
+            if (cursors.has(continuation.nextCursor)) throw Error('记录分页未前进');
+            cursors.add(continuation.nextCursor);
+            scoped.cursor = continuation.nextCursor;
+            if (reads === 999) throw Error('记录窗口较大，请刷新后重试核对');
+          }
+        }
+        // Keep known tail/detail rows only when a fresh scoped lookup still admits them.
+        const known = new Set([...(state.snapshot![collection] as ToDooEntity[]).map(row => row.id), ...owners]);
+        const unverified = new Set(deferred.filter(owner => owner.kind === kind).map(owner => owner.id));
+        if (coreKinds.has(kind)) for (const receipt of changed)
+          if (!((source[collection] || []) as ToDooEntity[]).some(row => row.id === receipt.id && row.revision === receipt.revision))
+            unverified.add(receipt.id);
+        const missing = [...known].filter(id => !values.has(id) &&
+          (!meta || !query.ids || query.ids.includes(id)) &&
+          !unverified.has(id));
+        const lookup = { ...scoped };
+        delete lookup.cursor;
+        for (const { values: ids, url: path } of toDooIdQueryBatches(missing, id => id,
+          ids => url({ ...lookup, ids, limit: 100 }), { maxCount: 100 })) {
+          const data = await request(path) as ToDooSnapshot;
+          if (!current() || data.datasetId !== before.datasetId) return false;
+          for (const row of (data[collection] || []) as ToDooEntity[])
+            if (ids.includes(row.id)) values.set(row.id, clone(row));
+        }
+        if (!current()) return false;
+        if (coreKinds.has(kind)) {
+          const protectedIds = new Set(deferred.filter(owner => owner.kind === kind).map(owner => owner.id));
+          for (const receipt of changed)
+            if (!((source[collection] || []) as ToDooEntity[]).some(row => row.id === receipt.id && row.revision === receipt.revision))
+              protectedIds.add(receipt.id);
+          for (const id of protectedIds) {
+            const prior = cachedValues.get(id);
+            if (prior) values.set(id, prior); else values.delete(id);
+          }
+          // Confirmed execution/plan details may intentionally sit outside the
+          // visible date window. Keep those values without letting them own its cursor.
+          if (kind !== 'task') for (const receipt of changed) {
+            if (protectedIds.has(receipt.id) || values.has(receipt.id)) continue;
+            const confirmed = cachedValues.get(receipt.id);
+            if (confirmed?.revision === receipt.revision && !confirmed.deletedAt) values.set(confirmed.id, confirmed);
+          }
+        }
+        (next[collection] as ToDooEntity[]) = [...values.values()];
+        if (page) {
+          next.collectionPages = { ...next.collectionPages, [kind]: clone(page) };
+          if (before.page.kind === kind) { next.page = clone(page); refreshedPrimary = true; }
+          else if (primaryPage) { next.page = clone(primaryPage); refreshedPrimary = true; }
+        }
+        observations.set(kind, windowKey(kind));
+      } catch {
+        if (!current()) return false;
+        state.localWarning = '操作已保存，但当前记录窗口暂时无法读取，请重试核对；当前输入仍保留。';
+        (next[collection] as ToDooEntity[]) = clone(state.snapshot![collection]) as ToDooEntity[];
+      }
+    }
+    if (!current()) return false;
+    // Statistics have the same filters/range as the live workset, never the receipt's default scope.
+    const summary: ToDooQuery = { ...query, kinds: ['settings'], limit: 1 };
+    delete summary.kind;
+    delete summary.cursor;
+    delete summary.all;
+    try {
+      const params = new URLSearchParams(Object.entries(summary).filter(([,value]) => value !== undefined)
+        .map(([key,value]) => [key, Array.isArray(value) ? value.join(',') : typeof value === 'object' ? JSON.stringify(value) : String(value)]));
+      const data = await request('/api/to-doo/state?' + params) as ToDooSnapshot;
+      if (!current() || data.datasetId !== before.datasetId) return false;
+      next.statistics = clone(data.statistics);
+      next.reminderUnreadCount = data.reminderUnreadCount;
+    } catch {
+      if (!current()) return false;
+      state.localWarning = '操作已保存，但当前范围统计暂时无法核对，请刷新后查看。';
+    }
+    if (!current()) return false;
+    if ([...observations].some(([kind,key]) => windowKey(kind) !== key)) {
+      if (attempt < 2) return reconcileCommandMetadata(next, source, before, result, ticket, refreshCore, deferred, attempt + 1);
+      state.localWarning = '操作已保存，但记录窗口仍在变化，请稍后刷新核对；当前输入仍保留。';
+      return false;
+    }
+    // A same-generation collection append can finish while the scoped summary is pending.
+    // Unaffected rows and their owned cursor always come from the latest accepted cache.
+    for (const kind of Object.keys(TO_DOO_COLLECTIONS) as (keyof typeof TO_DOO_COLLECTIONS)[]) {
+      if (observations.has(kind)) continue;
+      const collection = TO_DOO_COLLECTIONS[kind];
+      const latest = (state.snapshot![collection] || []) as ToDooEntity[];
+      if (coreKinds.has(kind) && !refreshCore) {
+        // Existing task read-back owns changed core rows; merge only late, unrelated additions.
+        const known = new Set((before[collection] as ToDooEntity[]).map(row => row.id));
+        const values = new Map(((next[collection] || []) as ToDooEntity[]).map(row => [row.id,row]));
+        for (const row of latest) if (!known.has(row.id) && !values.has(row.id)) values.set(row.id, clone(row));
+        (next[collection] as ToDooEntity[]) = [...values.values()];
+      } else if (!result.changed.some(row => row.kind === kind)) (next[collection] as ToDooEntity[]) = clone(latest);
+      const latestPage = state.snapshot!.collectionPages?.[kind];
+      if (latestPage) next.collectionPages = { ...next.collectionPages, [kind]: clone(latestPage) };
+    }
+    if (!refreshedPrimary) next.page = clone(state.snapshot!.page);
+    return current();
+  }
+  function completeCommandSnapshot(next: ToDooSnapshot, source: ToDooSnapshot, result: ToDooCommandResult) {
+    const completed = clone(next);
+    for (const kind of Object.keys(TO_DOO_COLLECTIONS) as (keyof typeof TO_DOO_COLLECTIONS)[]) {
+      const collection = TO_DOO_COLLECTIONS[kind];
+      const values = new Map(((completed[collection] || []) as ToDooEntity[]).map(row => [row.id, row]));
+      for (const receipt of result.changed.filter(row => row.kind === kind)) {
+        const confirmed = ((source[collection] || []) as ToDooEntity[])
+          .find(row => row.id === receipt.id && row.revision === receipt.revision);
+        if (confirmed) values.set(confirmed.id, clone(confirmed));
+      }
+      (completed[collection] as ToDooEntity[]) = [...values.values()];
+    }
+    return completed;
+  }
+  function retainCommandTaskMetadata(before: ToDooSnapshot, source: ToDooSnapshot, next: ToDooSnapshot) {
+    const visible = new Set(next.tasks.map(task => task.id));
+    for (const task of before.tasks)
+      if (!visible.has(task.id)) state.taskAncestors[task.id] = clone(source.tasks.find(row => row.id === task.id) || task);
   }
   function captureCommandResultContext() {
     return { generation, datasetId: state.snapshot?.datasetId };
@@ -1705,7 +1922,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
       statistics = state.snapshot?.statistics;
     adopt(data, true);
     if (state.snapshot && page) state.snapshot.page = page;
-    if (id && state.snapshot) state.snapshot.collectionPages = collectionPages;
+    if (state.snapshot) state.snapshot.collectionPages = collectionPages;
     if (state.snapshot && statistics) state.snapshot.statistics = statistics;
     if (id) {
       state.detailPages[id] = data.page;
@@ -1818,6 +2035,9 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
         if (state.snapshot) state.snapshot.collectionPages = outerPages;
       }
       if (state.snapshot && outerPage) state.snapshot.page = outerPage;
+      if (!taskId && state.snapshot) state.snapshot.collectionPages = {
+        ...outerPages, [kind]: data.collectionPages?.[kind] || data.page,
+      };
       await hydrateExecutionReferences(ticket);
       if (ticket !== generation || state.snapshot?.datasetId !== datasetId) return data;
       await hydrateTaskDefinitions(ticket);
@@ -1971,6 +2191,8 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
       state.pendingMutation || ({ ...normalized, requestId: crypto.randomUUID() } as ToDooCommand);
     const commandWindow = taskSaveWindow?.snapshot ||
       (state.snapshot && usesTaskWorkset(command) ? clone(state.snapshot) : undefined);
+    const metadataWindow = commandWindow || (state.snapshot ? clone(state.snapshot) : undefined);
+    const commandQuery = fingerprint(state.query);
     const affectedDraftKeys = Object.entries(state.drafts).filter(([, value]) => {
       if (command.action === 'update_task') return value.task.id === command.payload.id;
       if (command.action === 'change_recurrence') return value.task.id === command.payload.taskId;
@@ -2059,6 +2281,28 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
         state.pendingMutation = null;
         persistRecovery();
       }
+      if (metadataWindow && result.snapshot.datasetId === metadataWindow.datasetId &&
+          state.pendingMutation?.requestId === command.requestId) {
+        // A confirmed write must never be replayed just because its scoped read-back fails.
+        state.pendingMutation = null;
+        persistRecovery();
+      }
+      if (metadataWindow && ticket === generation && state.snapshot?.datasetId === metadataWindow.datasetId &&
+          result.snapshot.datasetId === metadataWindow.datasetId &&
+          metadataWindow.settings.timeZone !== result.snapshot.settings.timeZone) {
+        // Time-zone changes alter implicit calendar windows; obtain a new proper scope.
+        const loaded = await load({ ...state.query, cursor: undefined });
+        if (loaded && state.snapshot?.datasetId === metadataWindow.datasetId &&
+            state.snapshot.settings.timeZone === result.snapshot.settings.timeZone) result.snapshot = clone(state.snapshot);
+        else if (state.snapshot?.datasetId === metadataWindow.datasetId) {
+          state.localWarning = '新时区已保存，但当前查询范围暂时无法载入，请刷新后核对；原输入仍保留。';
+          state.snapshot.page = { ...state.snapshot.page, nextCursor: null };
+          state.snapshot.collectionPages = Object.fromEntries(Object.entries(state.snapshot.collectionPages || {})
+            .map(([kind,page]) => [kind, page && { ...page, nextCursor: null }]));
+        }
+        state.notice = notice;
+        return result;
+      }
       let statusRecords = new Map<string, ToDooOccurrence>();
       if (statusBefore) {
         if (
@@ -2076,7 +2320,9 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
         statusRecords = await readCommittedStatuses(result.snapshot, ticket);
         if (state.snapshot?.datasetId !== statusBefore.datasetId) return result;
         if (ticket === generation) {
-          const next = clone(result.snapshot);
+          const source = await commandSource(result, metadataWindow!, ticket);
+          if (!source) return result;
+          const next = clone(source);
           for (const [kind, collection] of [
             ['task', 'tasks'],
             ['occurrence', 'occurrences'],
@@ -2098,15 +2344,39 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
             if (kind === 'occurrence') statusRecords.forEach((row) => values.set(row.id, row));
             (next[collection] as ToDooEntity[]) = [...values.values()];
           }
+          next.page = clone(metadataWindow!.page);
+          next.collectionPages = clone(metadataWindow!.collectionPages || {});
+          if (!(await reconcileCommandMetadata(next, source, metadataWindow!, result, ticket, true))) return result;
           adopt(next);
+          retainCommandTaskMetadata(metadataWindow!, source, next);
         }
         if (ticket === generation) mergeCommittedStatuses(statusRecords);
       } else if (commandWindow)
         await adoptCommandWorkset(result, commandWindow, ticket, [
           ...deferred,
           ...(taskSaveWindow ? [{ kind: 'task' as const, id: taskSaveWindow.submitted.id }] : []),
-        ]);
-      else adopt(result.snapshot);
+        ], command);
+      else if (metadataWindow) {
+        if (ticket !== generation || state.snapshot?.datasetId !== metadataWindow.datasetId ||
+            result.snapshot.datasetId !== metadataWindow.datasetId || fingerprint(state.query) !== commandQuery) {
+          if (result.snapshot.datasetId === metadataWindow.datasetId && state.pendingMutation?.requestId === command.requestId) {
+            state.pendingMutation = null;
+            persistRecovery();
+          }
+          return;
+        }
+        const source = await commandSource(result, metadataWindow, ticket, deferred);
+        if (!source) return;
+        const next = clone(state.snapshot!);
+        next.version = source.version;
+        next.now = source.now;
+        if (result.changed.some(row => row.kind === 'settings') || result.ids.includes(source.settings.id))
+          next.settings = clone(source.settings);
+        if (!(await reconcileCommandMetadata(next, source, metadataWindow, result, ticket))) return;
+        if (ticket !== generation || state.snapshot?.datasetId !== metadataWindow.datasetId) return;
+        adopt(next);
+        result.snapshot = completeCommandSnapshot(next, source, result);
+      } else adopt(result.snapshot);
       if (command.action === 'set_occurrence_status') {
         const affected = new Set([
           command.payload.id,
@@ -2172,6 +2442,15 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
       return result;
     } catch (e) {
       if (command.action === 'create_task' && commandWindow && state.snapshot?.datasetId !== commandWindow.datasetId) return;
+      if (metadataWindow && (ticket !== generation || state.snapshot?.datasetId !== metadataWindow.datasetId ||
+          fingerprint(state.query) !== commandQuery)) {
+        const status = (e as { status?: number }).status;
+        if (status && status >= 400 && status < 500 && state.pendingMutation?.requestId === command.requestId) {
+          state.pendingMutation = null;
+          persistRecovery();
+        }
+        return;
+      }
       state.error = e instanceof Error ? e.message : String(e);
       const status = (e as { status?: number }).status;
       if (status && status >= 400 && status < 500) {
