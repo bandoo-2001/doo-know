@@ -1,3 +1,4 @@
+import { loadToDooTaskOptionThroughUi } from '../support/to-doo-task-fixture';
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
@@ -160,6 +161,7 @@ test('a focus project saves records, survives refresh and archives without chang
   await editor.getByRole('button', { name: '保存', exact: true }).click();
   await expect(editor).not.toBeVisible();
   await app.getByRole('button', { name: '选择专注项目 ' + topicName, exact: true }).click();
+  await loadToDooTaskOptionThroughUi(page, app.getByRole('combobox', { name: '专注任务', exact: true }), title);
   if (!(await app.getByRole('combobox', { name: '关联行动', exact: true }).isVisible()))
     await app.getByRole('button', { name: '计时设置', exact: true }).click();
   await selectToDooOption(app, '关联行动', title);

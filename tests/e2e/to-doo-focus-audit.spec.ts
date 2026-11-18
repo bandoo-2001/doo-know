@@ -121,6 +121,13 @@ test('activity polling merges more than fifty new records and deletion while ret
   await expect(rows).toHaveCount(50);
   await app.getByRole('button', { name: '加载更早记录', exact: true }).click();
   await expect(rows).toHaveCount(100);
+  const historyList = app.getByRole('region', { name: '专注记录列表', exact: true });
+  const historyCount = app.locator('.todo-focus-history-footer .todo-focus-count');
+  const historyIdle = async () => {
+    await expect(historyList).toHaveAttribute('aria-busy', 'false');
+    await expect(historyCount).not.toContainText('同步未完成');
+  };
+  await historyIdle();
   await command('import_entities', {
     entities: Array.from({ length: 65 }, (_, index) => ({
       kind: 'focusSession',
@@ -136,7 +143,17 @@ test('activity polling merges more than fifty new records and deletion while ret
     entity: { ...deleted, deletedAt: new Date().toISOString() },
     expectedRevision: deleted.revision,
   });
+  // A revision change during the first scan is retried at the next idle polling tick.
+  await historyIdle();
+  const refreshed = page.waitForResponse(response => {
+    const url = new URL(response.url());
+    return response.request().method() === 'GET' && url.pathname === '/api/to-doo/focus/history' &&
+      url.searchParams.get('topicId') === id && !url.searchParams.has('cursor');
+  });
   await page.clock.fastForward(10001);
+  const response = await refreshed;
+  expect(response.ok(), await response.text()).toBe(true);
+  expect((await response.json()).page.total).toBe(194);
   await expect(rows).toHaveCount(194);
   await expect(app.locator(`[data-session-id="${id}-30"]`)).toBeVisible();
   await expect(app.locator(`[data-session-id="${id}-70"]`)).toHaveCount(0);

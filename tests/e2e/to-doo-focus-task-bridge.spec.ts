@@ -1,4 +1,4 @@
-import { readToDooTaskContext } from '../support/to-doo-task-fixture';
+import { loadToDooTaskOptionThroughUi, readToDooTaskContext } from '../support/to-doo-task-fixture';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
@@ -91,6 +91,7 @@ test('the first-screen task picker and free focus do not carry a previous task o
   await goToToDooSection(page, 'focus');
   await expectToDooSelection(timer, '专注任务', '不关联任务');
   await expect(timer).toContainText('自由专注');
+  await loadToDooTaskOptionThroughUi(page, timer.getByRole('combobox', { name: '专注任务', exact: true }), title);
   await selectToDooOption(timer, '专注任务', title);
   await page.getByRole('button', { name: '选择专注项目 ' + topic, exact: true }).click();
   await expect(timer).toContainText(topic);
@@ -135,6 +136,7 @@ test('the task picker distinguishes the same task title in different lists befor
   const occurrence = secondContext.occurrences.find(row => row.taskId === second.ids[0])!;
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
   const timer = page.getByRole('region', { name: '专注计时器', exact: true });
+  await loadToDooTaskOptionThroughUi(page, timer.getByRole('combobox', { name: '专注任务', exact: true }), title + ' · 个人阅读 ' + suffix);
   await selectToDooOption(timer, '专注任务', title + ' · 个人阅读 ' + suffix);
   const started = page.waitForRequest(
     (request) =>
