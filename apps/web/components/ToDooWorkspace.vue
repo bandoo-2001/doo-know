@@ -315,10 +315,14 @@ const automaticCondensedNavigation = computed(() => detailOpen.value && !detailO
     toDooUiScale.detailMinWidth + toDooUiScale.listMinWidth + 3 * toDooUiScale.pagePadding);
 const condensedNavigation = computed(() => hasTaskDirectory.value &&
   (directoryCollapsed.value || automaticCondensedNavigation.value));
-watch(() => [props.section, props.selection.list, props.selection.taskFilter, props.selection.appPage], () => {
-  const main = workspaceRef.value?.querySelector?.<HTMLElement>('.todo-main');
-  if (main) main.scrollTop = 0;
-}, { flush: 'post' });
+watch(
+  [() => props.section, () => props.selection.list, () => props.selection.taskFilter, () => props.selection.appPage],
+  () => {
+    const main = workspaceRef.value?.querySelector?.<HTMLElement>('.todo-main');
+    if (main) main.scrollTop = 0;
+  },
+  { flush: 'post' },
+);
 let detailOpener: HTMLElement | undefined;
 let lastSidebarControl: HTMLElement | undefined;
 function rememberSidebarFocus(event: FocusEvent) {
@@ -1277,13 +1281,13 @@ function currentDateRange(): Pick<ToDooQuery, 'from' | 'to'> {
     : {};
 }
 watch(
-  () => [
-    props.section,
-    props.selection.date,
-    props.selection.list,
-    props.selection.calendarView,
-    props.selection.taskFilter,
-  ],
+  [
+    () => props.section,
+    () => props.selection.date,
+    () => props.selection.list,
+    () => props.selection.calendarView,
+    () => props.selection.taskFilter,
+  ] as const,
   async (_current, previous, onCleanup) => {
     let live = true;
     onCleanup(() => {
@@ -1292,13 +1296,13 @@ watch(
     const initialRange = currentDateRange();
     if (props.section !== 'focus') focusContextPending.value = false;
     preloadSection(props.section);
-    if (!previous || previous[4] !== props.selection.taskFilter)
+    if (!previous.length || previous[4] !== props.selection.taskFilter)
       state.filter = toDooQuickFilter(
         state.filter,
         quickView.value,
         toDooLocalDate(new Date(), state.snapshot?.settings.timeZone),
       );
-    if (!previous || previous[2] !== props.selection.list)
+    if (!previous.length || previous[2] !== props.selection.list)
       state.filter.listIds = props.selection.list ? [props.selection.list] : [];
     await model.load({
       view: props.section,
