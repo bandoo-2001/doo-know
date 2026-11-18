@@ -9,6 +9,9 @@ import { createToDooService } from '../packages/core/to-doo/service';
 import { createToDooAgentPort } from '../apps/server/to-doo/agent-port';
 import { toDooEntitySchemas } from '../shared/to-doo-contracts';
 import { summarizeHabitPeriod } from '../shared/to-doo-habits';
+import { backfillHabitReminders } from '../packages/core/to-doo/notifications';
+import Database from 'better-sqlite3';
+import { isHabitCheckpointContinuation } from '../packages/core/to-doo/habit-checkpoint';
 let root: string;
 let db: ReturnType<typeof openDatabase>;
 let service: ReturnType<typeof createToDooService>;
@@ -49,6 +52,143 @@ function seed(timeZone = 'Asia/Shanghai') {
   });
   return toDooEntitySchemas.habit.parse(service.getEntity('habit', 'habit'));
 }
+function reminderHabit() {
+  const habit = seed('UTC');
+  command('save_entity', { kind: 'habit', expectedRevision: habit.revision,
+    entity: { ...habit, reminders: [{ id: 'morning', anchor: 'occurrence', allDayTime: '09:00' }] } });
+  return toDooEntitySchemas.habit.parse(service.getEntity('habit', habit.id));
+}
+const habitWrite = (habit: ReturnType<typeof seed>) => ({ habitId: habit.id,
+  expectedHabitRevision: habit.revision, localDate: '2026-11-17', amount: 1 });
+it('allows a new check-in after undo when only the internal reminder checkpoint advanced', () => {
+  const first = seed('UTC');
+  command('save_entity', { kind: 'habit', expectedRevision: first.revision,
+    entity: { ...first, reminders: [{ id: 'morning', anchor: 'occurrence', allDayTime: '09:00' }] } });
+  const habit = toDooEntitySchemas.habit.parse(service.getEntity('habit', first.id));
+  const payload = { habitId: habit.id, expectedHabitRevision: habit.revision, localDate: '2026-11-17', amount: 1 };
+  const recorded = command('checkin_habit', payload);
+  const entry = service.getEntity('habitEntry', recorded.ids[0])!;
+  command('delete_entity', { kind: 'habitEntry', id: entry.id, expectedRevision: entry.revision });
+  backfillHabitReminders(service, new Date('2026-11-17T15:30:00Z'));
+  const advanced = toDooEntitySchemas.habit.parse(service.getEntity('habit', habit.id));
+  expect(advanced.revision).not.toBe(habit.revision);
+  expect(advanced.reminderCheckpoint?.throughDate).toBe('2026-11-16');
+  const semantic = (value: typeof habit) => Object.fromEntries(Object.entries(value)
+    .filter(([key]) => !['revision', 'updatedAt', 'reminderCheckpoint'].includes(key)));
+  expect(semantic(advanced)).toEqual(semantic(habit));
+  expect(() => command('checkin_habit', payload)).not.toThrow();
+  expect(service.snapshot({ kind: 'habitEntry' }).habitEntries).toHaveLength(1);
+});
+it('accepts multiple internal checkpoints and retains raw receipt idempotency after a later user edit', () => {
+  const habit = reminderHabit();
+  backfillHabitReminders(service, new Date('2026-11-16T15:30:00Z'));
+  backfillHabitReminders(service, new Date('2026-11-17T15:30:00Z'));
+  const payload = habitWrite(habit);
+  const result = command('checkin_habit', payload, 'checkpoint-acknowledged');
+  const current = toDooEntitySchemas.habit.parse(service.getEntity('habit', habit.id));
+  command('save_entity', { kind: 'habit', expectedRevision: current.revision,
+    entity: { ...current, target: 30 } });
+  expect(command('checkin_habit', payload, 'checkpoint-acknowledged')).toMatchObject({ replayed: true, ids: result.ids });
+  expect(() => command('checkin_habit', payload)).toThrow(/版本/);
+  expect(service.snapshot({ kind: 'habitEntry' }).habitEntries).toHaveLength(1);
+});
+it.each([
+  { target: 30 }, { unit: '分钟' }, { frequency: 'weekly' },
+  { pausedDates: ['2026-11-17'] }, { endDate: '2026-11-16' }, { name: '用户改名' },
+])('does not accept checkpoint continuation across a user change to %j', patch => {
+  const habit = reminderHabit();
+  command('save_entity', { kind: 'habit', expectedRevision: habit.revision, entity: { ...habit, ...patch } });
+  backfillHabitReminders(service, new Date('2026-11-17T15:30:00Z'));
+  expect(() => command('checkin_habit', habitWrite(habit))).toThrow(/版本/);
+  expect(service.snapshot({ kind: 'habitEntry' }).habitEntries).toHaveLength(0);
+});
+it('rejects an ABA user edit even when the final visible fields match the old habit', () => {
+  const habit = reminderHabit();
+  command('save_entity', { kind: 'habit', expectedRevision: habit.revision, entity: { ...habit, name: '临时改名' } });
+  const changed = toDooEntitySchemas.habit.parse(service.getEntity('habit', habit.id));
+  command('save_entity', { kind: 'habit', expectedRevision: changed.revision, entity: { ...changed, name: habit.name } });
+  backfillHabitReminders(service, new Date('2026-11-17T15:30:00Z'));
+  expect(() => command('checkin_habit', habitWrite(habit))).toThrow(/版本/);
+});
+it('does not trust a client-supplied internal request prefix or accept the internal action through the public command API', () => {
+  const habit = reminderHabit();
+  command('import_entities', { entities: [{ kind: 'habit', expectedRevision: habit.revision,
+    entity: { ...habit, reminderCheckpoint: { throughDate: '2026-11-14', checkedAt: '2026-11-15T12:00:00Z',
+      ruleFingerprint: 'client-supplied', coveredFrom: '2026-11-01', uncoveredBefore: null, estimated: false } } }] }, 'habit_backfill_client-controlled');
+  backfillHabitReminders(service, new Date('2026-11-17T15:30:00Z'));
+  expect(() => command('checkin_habit', habitWrite(habit))).toThrow(/版本/);
+  expect(() => command('habit.reminder-checkpoint', {})).toThrow(/请求格式/);
+  expect(() => command('checkin_habit', { ...habitWrite(habit), expectedHabitRevision: 'never-recorded' })).toThrow(/版本/);
+});
+it('fails closed when the requested habit revision is absent from an otherwise valid checkpoint chain', () => {
+  const habit = reminderHabit();
+  backfillHabitReminders(service, new Date('2026-11-17T15:30:00Z'));
+  expect(() => command('checkin_habit', { ...habitWrite(habit), expectedHabitRevision: 'missing-history' })).toThrow(/版本/);
+});
+it('uses the same checkpoint continuation through the MCP agent boundary', async () => {
+  const habit = reminderHabit();
+  backfillHabitReminders(service, new Date('2026-11-17T15:30:00Z'));
+  const port = createToDooAgentPort(service, {
+    authorize: () => ({ id: 'owner', clientId: 'checkpoint-fixture', scopes: ['to-doo:read', 'to-doo:write'], allowedPrefixes: [] }),
+    access: () => ({ listIds: [], domains: ['habits'] }), canReadNote: () => false,
+  });
+  const result = await port.command({ requestId: randomUUID(), action: 'checkin_habit', payload: habitWrite(habit) });
+  expect(result.ids).toHaveLength(1);
+  expect(service.snapshot({ kind: 'habitEntry' }).habitEntries).toHaveLength(1);
+});
+it('keeps the checkpoint proof and check-in commit inside the same reserved SQLite write transaction', () => {
+  const habit = reminderHabit();
+  backfillHabitReminders(service, new Date('2026-11-17T15:30:00Z'));
+  const peer = openDatabase(join(root, 'data'));
+  peer.pragma('busy_timeout = 0');
+  const prepare = db.prepare.bind(db); let observed = false;
+  const spy = vi.spyOn(db, 'prepare').mockImplementation(((sql: string) => {
+    if (sql.includes('SELECT t.data FROM todo_transactions t')) {
+      observed = true;
+      expect(db.inTransaction).toBe(true);
+      expect(() => peer.exec('BEGIN IMMEDIATE')).toThrow(/locked/);
+    }
+    return prepare(sql);
+  }) as typeof db.prepare);
+  try {
+    expect(() => command('checkin_habit', habitWrite(habit))).not.toThrow();
+    expect(observed).toBe(true);
+  } finally { spy.mockRestore(); peer.close(); }
+});
+it('fails closed beyond the recent global transaction window even when matching habit history is sparse', () => {
+  const habit = reminderHabit();
+  backfillHabitReminders(service, new Date('2026-11-17T15:30:00Z'));
+  const current = toDooEntitySchemas.habit.parse(service.getEntity('habit', habit.id));
+  // This isolated in-memory cache exercises the query boundary only. Real
+  // checkpoint writes and rule guards above use the public domain service.
+  const memory = new Database(':memory:');
+  for (const table of ['todo_entities', 'todo_transactions']) {
+    const schema = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").get(table) as { sql: string };
+    memory.exec(schema.sql);
+    const rows = db.prepare('SELECT * FROM ' + table).all() as Record<string, unknown>[];
+    if (!rows.length) continue;
+    const columns = Object.keys(rows[0]);
+    const copy = memory.prepare('INSERT INTO ' + table + '(' + columns.join(',') + ') VALUES(' + columns.map(() => '?').join(',') + ')');
+    memory.transaction(() => { rows.forEach(row => copy.run(...columns.map(column => row[column]))); })();
+  }
+  const start = (memory.prepare('SELECT MAX(sequence) n FROM todo_transactions').get() as { n: number }).n;
+  const insert = memory.prepare('INSERT INTO todo_transactions VALUES(?,?,?,?,?,?)');
+  const unrelated = (index: number) => {
+    const id = 'unrelated-window-' + index;
+    insert.run(id, id, 'opaque-fingerprint', JSON.stringify({ format: 1, id, parentId: null,
+      requestId: id, fingerprint: 'opaque-fingerprint', at: '2026-11-17T15:30:00Z', members: [], ids: [] }),
+    'cache-only-query-fixture', start + index);
+  };
+  try {
+    memory.transaction(() => { for (let index = 1; index <= 4094; index++) unrelated(index); })();
+    const proof = memory.transaction(() => isHabitCheckpointContinuation(memory, current, habit.revision));
+    expect(proof.immediate()).toBe(true);
+    unrelated(4095);
+    expect(proof.immediate()).toBe(false);
+    unrelated(4096);
+    expect(proof.immediate()).toBe(false);
+  } finally { memory.close(); }
+});
 it('counts decimal quantities consistently through saved entries and shared attainment rules', () => {
   const first = seed();
   command('save_entity', {

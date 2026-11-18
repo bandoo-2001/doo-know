@@ -16,6 +16,7 @@ import {
   getHabitGoalMode,
   summarizeHabitPeriod,
 } from '../../../shared/to-doo-habits.js';
+import { writeHabitCheckpoint } from './habit-checkpoint.js';
 
 export type ReminderEvent = ToDooEntityMap['reminderEvent'];
 export type ReminderPlan = Pick<
@@ -1015,11 +1016,13 @@ export function backfillHabitReminders(
       });
       summaries++;
     }
-    service.command({
+    writeHabitCheckpoint(service, {
       requestId:
         'habit_backfill_' + digest([habit.id, requestedFrom, through, fingerprint]).slice(0, 40),
-      action: 'import_entities',
-      payload: { entities },
+      habitId: habit.id,
+      expectedRevision: habit.revision,
+      checkpoint: (entities.find(entity => entity.kind === 'habit')!.entity as typeof habit).reminderCheckpoint!,
+      events: entities.filter(entity => entity.kind === 'reminderEvent').map(entity => entity.entity),
     });
     coveredHabits++;
   }
