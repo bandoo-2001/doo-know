@@ -1,0 +1,5 @@
+/build/
+/dist/
+/node_modules/
+/sign/
+/src/common/origin.js

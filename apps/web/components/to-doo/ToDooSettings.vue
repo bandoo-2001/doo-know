@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ToDooDisclosure from './ToDooDisclosure.vue';
 import ToDooFormLayout from './ToDooFormLayout.vue';
+import ToDooWatchPairing from './ToDooWatchPairing.vue';
 import {
   Alert as AAlert,
   Button as AButton,
@@ -1394,6 +1395,7 @@ defineExpose({
         </div>
       </div>
     </section>
+    <ToDooWatchPairing v-if="activeTab === 'connections'" :request="model.request" />
     <section v-show="activeTab === 'connections'" class="todo-panel">
       <div class="todo-panel-header"><h2>MCP 与插件</h2></div>
       <div class="todo-pad todo-form"><p class="todo-muted">管理 AI 工具连接、知识访问范围和 To Doo 授权。</p><AButton @click="emit('open-plugin-settings')">打开 MCP 与插件管理</AButton></div>

@@ -1,6 +1,7 @@
 .git
 .local
 node_modules
+apps/watch-to-doo
 dist
 test-results
 playwright-report

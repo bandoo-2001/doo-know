@@ -1,0 +1,11 @@
+{
+  "name": "to-doo-watch",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "release": "node scripts/build.mjs --release",
+    "test": "node --test scripts/client.test.mjs"
+  },
+  "devDependencies": { "aiot-toolkit": "2.0.5" }
+}
